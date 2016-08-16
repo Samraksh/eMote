@@ -154,7 +154,8 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	// If COM0, don't initialize until we see something connected (i.e. usb-serial attached)
 	if (ComPortNum == 0) {
 
-		if (CPU_GPIO_GetPinState((GPIO_PIN)10) == TRUE) {
+		if(1) {
+		//if (CPU_GPIO_GetPinState((GPIO_PIN)10) == TRUE) {
 			do_com0_attached(0, FALSE, NULL);
 			return TRUE;
 		}

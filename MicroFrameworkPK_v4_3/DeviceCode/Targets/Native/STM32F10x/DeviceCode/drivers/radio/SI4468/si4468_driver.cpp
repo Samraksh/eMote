@@ -556,6 +556,13 @@ static bool is_radio_asleep(void) {
 	return (si446x_request_device_state_shadow() == SI_STATE_SLEEP);
 }
 
+static void set_radio_power_pwm(int go) {
+	if (go)
+		GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_SET);
+	else
+		GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_RESET);
+}
+
 // Quick and dirty. Clean me up later. --NPS
 static int am_i_wwf(void) {
 	uint8_t cpuserial[serial_size];
@@ -624,6 +631,16 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		config->sdn_pin			= GPIO_Pin_11;
 		config->spi_rcc			= RCC_APB1Periph_SPI2;
 		si446x_debug_print(DEBUG02, "SI446X: Using WWF2 Hardware Config\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: TEST: Enabling PWM\r\n");
+
+		// TEST CODE
+		GPIO_InitTypeDef GPIO_InitStructure;
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+		GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_9;
+		GPIO_Init(GPIOB, &GPIO_InitStructure);
+		set_radio_power_pwm(1);
+		// END TEST
 	}
 	else { // I am a .NOW
 		config->spi_base 		= SPI2;
