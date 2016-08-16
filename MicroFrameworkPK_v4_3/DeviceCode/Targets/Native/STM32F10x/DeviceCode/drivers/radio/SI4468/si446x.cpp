@@ -16,7 +16,7 @@
 //#define SI446X_AGGRESSIVE_CTS
 
 // Constants and states
-enum { CTS_TIMEOUT = 262143, CTS_VAL_GOOD=0xFF, CTS_WAIT=255 };
+enum { CTS_TIMEOUT = 262143*2, CTS_VAL_GOOD=0xFF, CTS_WAIT=255 };
 enum { VERB0=0, VERB1=1, ERR0=128, ERR1=256 };
 enum { ROMC2A=6, ROMB1B=3 };
 
@@ -38,6 +38,8 @@ static uint8_t chip_status;
 static uint8_t ph_pend;
 static uint8_t modem_pend;
 static uint8_t chip_pend;
+
+static int16_t freq_offset; // frequency offset info from AFC, if on.
 
 // Buffers
 static union si446x_cmd_reply_union Si446xCmd; // Reply Buffer
@@ -88,6 +90,13 @@ static int SI_ASSERT(int x, const char *err) {
 }
 
 // SI446x
+
+// Returns measured offset error reported by AFC.
+// Refer to AN734 section 4.7
+int si446x_get_afc_info(void) {
+	const int unit = 16000000 / 262144 / 8;
+	return freq_offset * unit;
+}
 
 uint8_t si446x_get_latched_rssi() {
 	return latched_rssi;
@@ -375,7 +384,8 @@ void si446x_get_modem_status( uint8_t MODEM_CLR_PEND )
     Si446xCmd.GET_MODEM_STATUS.ANT2_RSSI    = Pro2Cmd[5];
     Si446xCmd.GET_MODEM_STATUS.AFC_FREQ_OFFSET =  ((U16)Pro2Cmd[6] << 8) & 0xFF00;
     Si446xCmd.GET_MODEM_STATUS.AFC_FREQ_OFFSET |= (U16)Pro2Cmd[7] & 0x00FF;
-	
+
+	freq_offset = (int16_t) Si446xCmd.GET_MODEM_STATUS.AFC_FREQ_OFFSET;
 	latched_rssi = Si446xCmd.GET_MODEM_STATUS.LATCH_RSSI;
 	current_rssi = Si446xCmd.GET_MODEM_STATUS.CURR_RSSI;
 }
@@ -787,7 +797,7 @@ uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData) {
 		// Looking for at least 150ns, or likely even half that would be enough.
 		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
 		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-		__NOP();
+		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
 		radio_spi_sel_assert();
 		radio_spi_go(0x44); //read CMD buffer
 		ctsVal = radio_spi_go(0);
@@ -825,7 +835,7 @@ unsigned int radio_comm_PollCTS() {
 	}
 	if (timeout == CTS_TIMEOUT) {
 		ctsWentHigh = 0;
-		//radio_debug_print(ERR1, "ERROR: CTS Poll Timeout");
+		SI_ASSERT(0, "Fatal: CTS Timeout waiting for response\r\n");
 		return 0;
 	}
 
