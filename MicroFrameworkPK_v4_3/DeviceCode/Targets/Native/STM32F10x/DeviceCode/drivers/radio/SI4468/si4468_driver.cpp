@@ -8,8 +8,6 @@
 // Hardware stuff
 #include <stm32f10x.h>
 
-#define ASSERT_RADIO(x)  if(!(x)){ SOFT_BREAKPOINT(); }
-
 // Automatically moves the radio to RX after a transmit instead of sleeping.
 // Comment out below line to disable and use default ('0')
 #define SI446x_TX_DONE_STATE (SI_STATE_RX<<4)
@@ -779,7 +777,6 @@ DeviceStatus si446x_hal_uninitialize(UINT8 radio) {
 
 	CPU_GPIO_DisablePin(SI446X_pin_setup.nirq_mf_pin, RESISTOR_DISABLED, 0, GPIO_ALT_PRIMARY); // Only PIN matters
 	radio_si446x_spi2.SetInitialized(FALSE);
-	ASSERT((active_mac_index & 0xFF00) == 0); // ??? copied from RF231 driver
 
 	rx_callback = NULL;
 	tx_callback = NULL;
@@ -831,8 +828,6 @@ static bool si446x_leave_rx(radio_lock_id_t id) {
 	si_state_t state;
 	unsigned timeout=si446x_tx_timeout;
 
-	ASSERT(id == spi_lock);
-	ASSERT(id == radio_lock);
 	if (id != spi_lock || id != radio_lock) {
 		si446x_debug_print(ERR100, "SI446X: si446x_leave_rx() Calling with bad locks. Abort\r\n");
 		return true;
@@ -857,7 +852,6 @@ static bool si446x_leave_rx(radio_lock_id_t id) {
 	si446x_change_state(SI_STATE_SPI_ACTIVE);
 	while( si446x_request_device_state() != SI_STATE_SPI_ACTIVE && timeout-- ) ; // spin
 
-	ASSERT(timeout);
 	if (timeout == 0)
 		si446x_debug_print(ERR100, "SI446X: si446x_leave_rx() State Change Timeout. Radio state unknown!\r\n");
 
@@ -916,7 +910,6 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 
 	state = si446x_request_device_state();
 	if (state == SI_STATE_ERROR) {
-		ASSERT(0);
 		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send(): Bad State. Aborting. Reset radio?\r\n");
 		si446x_radio_unlock();
 		si446x_spi_unlock();
@@ -1014,7 +1007,6 @@ static bool rx_consistency_check(void) {
 
 		if (state != SI_STATE_RX && !isBusy) {
 			si446x_debug_print(ERR100, "SI446X: rx_consistency_check() Fail? Show Nathan.\r\n");
-			ASSERT_RADIO(0);
 			return false;
 		}
 
@@ -1022,7 +1014,6 @@ static bool rx_consistency_check(void) {
 		UINT64 now = HAL_Time_CurrentTicks();
 		if ( (now - rx_timestamp) > (si446x_rx_timeout_ms*8000) ) {
 			si446x_debug_print(ERR100, "SI446X: rx_consistency_check() Timeout? Show Nathan.\r\n");
-			ASSERT_RADIO(0);
 			return false;
 		}
 	}
@@ -1346,13 +1337,11 @@ static void si446x_pkt_bad_crc_int(void) {
 	radio_lock_id_t owner 		= (radio_lock_id_t) spi_lock;
 	radio_lock_id_t radio_owner = (radio_lock_id_t) radio_lock;
 
-	ASSERT(owner == radio_lock_interrupt);
 	if (owner != radio_lock_interrupt) {
 		si446x_debug_print(ERR99, "SI446X: si446x_pkt_bad_crc_int() Bad spi_lock!, owner: %s\r\n", print_lock(owner));
 		return;
 	}
 
-	ASSERT(radio_owner == radio_lock_rx);
 	if (radio_owner != radio_lock_rx) {
 		si446x_debug_print(ERR99, "SI446X: si446x_pkt_bad_crc_int() Bad radio_lock!, owner: %s\r\n", print_lock(radio_owner));
 		return;
@@ -1404,7 +1393,9 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 
 	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{
 		si446x_pkt_rx_int();
-		ASSERT_RADIO(rx_callback_continuation.IsLinked());
+		if (!rx_callback_continuation.IsLinked()) {
+			si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() No RX cont linked???\r\n");
+		}
 	}
 
 	if (ph_pend & PH_STATUS_MASK_PACKET_SENT) 	{ si446x_pkt_tx_int(); }

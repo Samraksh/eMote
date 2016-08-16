@@ -16,7 +16,7 @@
 //#define SI446X_AGGRESSIVE_CTS
 
 // Constants and states
-enum { CTS_TIMEOUT = 262143, CTS_VAL_GOOD=0xFF, CTS_WAIT=255 };
+enum { CTS_TIMEOUT = 262143*2, CTS_VAL_GOOD=0xFF, CTS_WAIT=255 };
 enum { VERB0=0, VERB1=1, ERR0=128, ERR1=256 };
 enum { ROMC2A=6, ROMB1B=3 };
 
@@ -797,7 +797,7 @@ uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData) {
 		// Looking for at least 150ns, or likely even half that would be enough.
 		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
 		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-		__NOP();
+		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
 		radio_spi_sel_assert();
 		radio_spi_go(0x44); //read CMD buffer
 		ctsVal = radio_spi_go(0);
@@ -835,7 +835,7 @@ unsigned int radio_comm_PollCTS() {
 	}
 	if (timeout == CTS_TIMEOUT) {
 		ctsWentHigh = 0;
-		//radio_debug_print(ERR1, "ERROR: CTS Poll Timeout");
+		SI_ASSERT(0, "Fatal: CTS Timeout waiting for response\r\n");
 		return 0;
 	}
 
