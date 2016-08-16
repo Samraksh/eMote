@@ -276,7 +276,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define MILLISECINMICSEC 1000
 
 
-#define FRAMERETRYMAXATTEMPT 100
+#define FRAMERETRYMAXATTEMPT 20
 #define SLOTRETRYMAXATTEMPT 2
 #define CCA_PERIOD_FRAME_RETRY_MICRO 0 //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 
