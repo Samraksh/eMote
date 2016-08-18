@@ -347,7 +347,7 @@ static void rx_cont_do(void *arg) {
 	memcpy( (uint8_t *)rx_msg_ptr, rx_pkt, size );
 
 	// Set Metadata
-	metadata->SetRssi( rssi );
+	metadata->SetRssi( convert_rssi(rssi) );
 	metadata->SetLqi(0);  // No meaning on this radio
 	metadata->SetReceiveTimeStamp((INT64)rx_timestamp);
 
