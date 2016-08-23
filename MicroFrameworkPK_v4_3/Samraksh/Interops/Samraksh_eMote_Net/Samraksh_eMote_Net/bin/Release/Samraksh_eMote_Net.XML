@@ -1058,6 +1058,9 @@
         <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus19Point4dBm">
             <summary>-19.4 dB</summary>
         </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus19Point7dBm">
+            <summary>-19.7 dB</summary>
+        </member>
         <member name="T:Samraksh.eMote.Net.Radio.RF231Channel">
             <summary>
             Channels supported by RF231 radio
