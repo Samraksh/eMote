@@ -135,64 +135,49 @@ namespace Samraksh.eMote.Net.Radio
 		/// <summary>+3.0 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_3dBm = 0,
-
-		/// <summary>+2.8 dB</summary>
+        /// <summary>+2.8 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_2Point8dBm = 1,
-
-		/// <summary>+2.3 dB</summary>
+        /// <summary>+2.3 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_2Point3dBm = 2,
-
-		/// <summary>+1.8 dB</summary>
+        /// <summary>+1.8 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_1Point8dBm = 3,
-
-		/// <summary>+1.3 dB</summary>
+        /// <summary>+1.3 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_1Point3dBm = 4,
-
-		/// <summary>+0.7 dB</summary>
+        /// <summary>+0.7 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_0Point7dBm = 5,
-
-		/// <summary>+0.0 dB</summary>
+        /// <summary>+0.0 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_0Point0dBm = 6,
-
-		/// <summary>-1.0 dB</summary>
+        /// <summary>-1.0 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_Minus1dBm = 7,
-
-		/// <summary>-2.0 dB</summary>
+        /// <summary>-2.0 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_Minus2dBm = 8,
-
-		/// <summary>-3.0 dB</summary>
+        /// <summary>-3.0 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_Minus3dBm = 9,
-
-		/// <summary>-4.0 dB</summary>
+        /// <summary>-4.0 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_Minus4dBm = 10,
-
-		/// <summary>-5.0 dB</summary>
+        /// <summary>-5.0 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_Minus5dBm = 11,
-
-		/// <summary>-7.0 dB</summary>
+        /// <summary>-7.0 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_Minus7dBm = 12,
-
-		/// <summary>-9.0 dB</summary>
+        /// <summary>-9.0 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_Minus9dBm = 13,
-
-		/// <summary>-12.0 dB</summary>
+        /// <summary>-12.0 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_Minus12dBm = 14,
-
-		/// <summary>-17.0 dB</summary>
+        /// <summary>-17.0 dB</summary>
 		// ReSharper disable once InconsistentNaming
 		Power_Minus17dBm = 15,
 	}
@@ -203,259 +188,261 @@ namespace Samraksh.eMote.Net.Radio
 	public enum SI4468TxPower
 	{
 		/// <summary>20 dB</summary>
-		Power_20dBm = 0,
+		Power_20dBm = 127,
 		/// <summary>19.7 dB</summary>
-		Power_19Point7dBm = 1,
+		Power_19Point7dBm = 126,
 		/// <summary>19.4 dB</summary>
-		Power_19Point4dBm = 3,
+		Power_19Point4dBm = 125,
         /// <summary>19.1 dB</summary>
-        Power_19Point1dBm = 4,
+        Power_19Point1dBm = 124,
         /// <summary>18.8 dB</summary>
-        Power_18Point8dBm = 5,
+        Power_18Point8dBm = 123,
         /// <summary>18.5 dB</summary>
-        Power_18Point5dBm = 6,
+        Power_18Point5dBm = 122,
         /// <summary>18.2 dB</summary>
-        Power_18Point2dBm = 7,
+        Power_18Point2dBm = 121,
         /// <summary>17.9 dB</summary>
-        Power_17Point9dBm = 8,
+        Power_17Point9dBm = 120,
         /// <summary>17.6 dB</summary>
-        Power_17Point6dBm = 9,
+        Power_17Point6dBm = 119,
         /// <summary>17.3 dB</summary>
-        Power_17Point3dBm = 10,
+        Power_17Point3dBm = 118,
         /// <summary>17.0 dB</summary>
-        Power_17Point0dBm = 11,
+        Power_17Point0dBm = 117,
         /// <summary>16.7 dB</summary>
-        Power_16Point7dBm = 12,
+        Power_16Point7dBm = 116,
         /// <summary>16.4 dB</summary>
-        Power_16Point4dBm = 13,
+        Power_16Point4dBm = 115,
         /// <summary>16.1 dB</summary>
-        Power_16Point1dBm = 14,
+        Power_16Point1dBm = 114,
         /// <summary>15.8 dB</summary>
-        Power_15Point8dBm = 15,
+        Power_15Point8dBm = 113,
         /// <summary>15.5 dB</summary>
-        Power_15Point5dBm = 16,
+        Power_15Point5dBm = 112,
         /// <summary>15.2 dB</summary>
-        Power_15Point2dBm = 17,
+        Power_15Point2dBm = 111,
         /// <summary>14.9 dB</summary>
-        Power_14Point9dBm = 18,
+        Power_14Point9dBm = 110,
         /// <summary>14.6 dB</summary>
-        Power_14Point6dBm = 19,
+        Power_14Point6dBm = 109,
         /// <summary>14.3 dB</summary>
-        Power_14Point3dBm = 20,
+        Power_14Point3dBm = 108,
         /// <summary>14.0 dB</summary>
-        Power_14Point0dBm = 21,
+        Power_14Point0dBm = 107,
         /// <summary>13.7 dB</summary>
-        Power_13Point7dBm = 22,
+        Power_13Point7dBm = 106,
         /// <summary>13.4 dB</summary>
-        Power_13Point4dBm = 23,
+        Power_13Point4dBm = 105,
         /// <summary>13.1 dB</summary>
-        Power_13Point1dBm = 24,
+        Power_13Point1dBm = 104,
         /// <summary>12.8 dB</summary>
-        Power_12Point8dBm = 25,
+        Power_12Point8dBm = 103,
         /// <summary>12.5 dB</summary>
-        Power_12Point5dBm = 26,
+        Power_12Point5dBm = 102,
         /// <summary>12.2 dB</summary>
-        Power_12Point2dBm = 27,
+        Power_12Point2dBm = 101,
         /// <summary>11.9 dB</summary>
-        Power_11Point9dBm = 28,
+        Power_11Point9dBm = 100,
         /// <summary>11.6 dB</summary>
-        Power_11Point6dBm = 29,
+        Power_11Point6dBm = 99,
         /// <summary>11.3 dB</summary>
-        Power_11Point3dBm = 30,
+        Power_11Point3dBm = 98,
         /// <summary>11.0 dB</summary>
-        Power_11Point0dBm = 31,
+        Power_11Point0dBm = 97,
         /// <summary>10.7 dB</summary>
-        Power_10Point7dBm = 32,
+        Power_10Point7dBm = 96,
         /// <summary>10.4 dB</summary>
-        Power_10Point4dBm = 33,
+        Power_10Point4dBm = 95,
         /// <summary>10.1 dB</summary>
-        Power_10Point1dBm = 34,
+        Power_10Point1dBm = 94,
         /// <summary>9.8 dB</summary>
-        Power_9Point8dBm = 35,
+        Power_9Point8dBm = 93,
         /// <summary>9.5 dB</summary>
-        Power_9Point5dBm = 36,
+        Power_9Point5dBm = 92,
         /// <summary>9.2 dB</summary>
-        Power_9Point2dBm = 37,
+        Power_9Point2dBm = 91,
         /// <summary>8.9 dB</summary>
-        Power_8Point9dBm = 38,
+        Power_8Point9dBm = 90,
         /// <summary>8.6 dB</summary>
-        Power_8Point6dBm = 39,
+        Power_8Point6dBm = 89,
         /// <summary>8.3 dB</summary>
-        Power_8Point3dBm = 40,
+        Power_8Point3dBm = 88,
         /// <summary>8.0 dB</summary>
-        Power_8Point0dBm = 41,
+        Power_8Point0dBm = 87,
         /// <summary>7.7 dB</summary>
-        Power_7Point7dBm = 42,
+        Power_7Point7dBm = 86,
         /// <summary>7.4 dB</summary>
-        Power_7Point4dBm = 43,
+        Power_7Point4dBm = 85,
         /// <summary>7.1 dB</summary>
-        Power_7Point1dBm = 44,
+        Power_7Point1dBm = 84,
         /// <summary>6.8 dB</summary>
-        Power_6Point8dBm = 45,
+        Power_6Point8dBm = 83,
         /// <summary>6.5 dB</summary>
-        Power_6Point5dBm = 46,
+        Power_6Point5dBm = 82,
         /// <summary>6.2 dB</summary>
-        Power_6Point2dBm = 47,
+        Power_6Point2dBm = 81,
         /// <summary>5.9 dB</summary>
-        Power_5Point9dBm = 48,
+        Power_5Point9dBm = 80,
         /// <summary>5.6 dB</summary>
-        Power_5Point6dBm = 49,
+        Power_5Point6dBm = 79,
         /// <summary>5.3 dB</summary>
-        Power_5Point3dBm = 50,
+        Power_5Point3dBm = 78,
         /// <summary>5.0 dB</summary>
-        Power_5Point0dBm = 51,
+        Power_5Point0dBm = 77,
         /// <summary>4.7 dB</summary>
-        Power_4Point7dBm = 52,
+        Power_4Point7dBm = 76,
         /// <summary>4.4 dB</summary>
-        Power_4Point4dBm = 53,
+        Power_4Point4dBm = 75,
         /// <summary>4.1 dB</summary>
-        Power_4Point1dBm = 54,
+        Power_4Point1dBm = 74,
         /// <summary>3.8 dB</summary>
-        Power_3Point8dBm = 55,
+        Power_3Point8dBm = 73,
         /// <summary>3.5 dB</summary>
-        Power_3Point5dBm = 56,
+        Power_3Point5dBm = 72,
         /// <summary>3.2 dB</summary>
-        Power_3Point2dBm = 57,
+        Power_3Point2dBm = 71,
         /// <summary>2.9 dB</summary>
-        Power_2Point9dBm = 58,
+        Power_2Point9dBm = 70,
         /// <summary>2.6 dB</summary>
-        Power_2Point6dBm = 59,
+        Power_2Point6dBm = 69,
         /// <summary>2.3 dB</summary>
-        Power_2Point3dBm = 60,
+        Power_2Point3dBm = 68,
         /// <summary>2.0 dB</summary>
-        Power_2Point0dBm = 61,
+        Power_2Point0dBm = 67,
         /// <summary>1.7 dB</summary>
-        Power_1Point7dBm = 62,
+        Power_1Point7dBm = 66,
         /// <summary>1.4 dB</summary>
-        Power_1Point4dBm = 63,
+        Power_1Point4dBm = 65,
         /// <summary>1.1 dB</summary>
         Power_1Point1dBm = 64,
         /// <summary>0.8 dB</summary>
-        Power_0Point8dBm = 65,
+        Power_0Point8dBm = 63,
         /// <summary>0.5 dB</summary>
-        Power_0Point5dBm = 66,
+        Power_0Point5dBm = 62,
         /// <summary>0.2 dB</summary>
-        Power_0Point2dBm = 67,
+        Power_0Point2dBm = 61,
         /// <summary>-0.1 dB</summary>
-        Power_Minus0Point1dBm = 68,
+        Power_Minus0Point1dBm = 60,
         /// <summary>-0.4 dB</summary>
-        Power_Minus0Point4dBm = 69,
+        Power_Minus0Point4dBm = 59,
         /// <summary>-0.7 dB</summary>
-        Power_Minus0Point7dBm = 70,
+        Power_Minus0Point7dBm = 58,
         /// <summary>-1.0 dB</summary>
-        Power_Minus1Point0dBm = 71,
+        Power_Minus1Point0dBm = 57,
         /// <summary>-1.3 dB</summary>
-        Power_Minus1Point3dBm = 72,
+        Power_Minus1Point3dBm = 56,
         /// <summary>-1.6 dB</summary>
-        Power_Minus1Point6dBm = 73,
+        Power_Minus1Point6dBm = 55,
         /// <summary>-1.9 dB</summary>
-        Power_Minus1Point9dBm = 74,
+        Power_Minus1Point9dBm = 54,
         /// <summary>-2.2 dB</summary>
-        Power_Minus2Point2dBm = 75,
+        Power_Minus2Point2dBm = 53,
         /// <summary>-2.5 dB</summary>
-        Power_Minus2Point5dBm = 76,
+        Power_Minus2Point5dBm = 52,
         /// <summary>-2.8 dB</summary>
-        Power_Minus2Point8dBm = 77,
+        Power_Minus2Point8dBm = 51,
         /// <summary>-3.1 dB</summary>
-        Power_Minus3Point1dBm = 78,
+        Power_Minus3Point1dBm = 50,
         /// <summary>-3.4 dB</summary>
-        Power_Minus3Point4dBm = 79,
+        Power_Minus3Point4dBm = 49,
         /// <summary>-3.7 dB</summary>
-        Power_Minus3Point7dBm = 80,
+        Power_Minus3Point7dBm = 48,
         /// <summary>-4.0 dB</summary>
-        Power_Minus4Point0dBm = 81,
+        Power_Minus4Point0dBm = 47,
         /// <summary>-4.3 dB</summary>
-        Power_Minus4Point3dBm = 82,
+        Power_Minus4Point3dBm = 46,
         /// <summary>-4.6 dB</summary>
-        Power_Minus4Point6dBm = 83,
+        Power_Minus4Point6dBm = 45,
         /// <summary>-4.9 dB</summary>
-        Power_Minus4Point9dBm = 84,
+        Power_Minus4Point9dBm = 44,
         /// <summary>-5.2 dB</summary>
-        Power_Minus5Point2dBm = 85,
+        Power_Minus5Point2dBm = 43,
         /// <summary>-5.5 dB</summary>
-        Power_Minus5Point5dBm = 86,
+        Power_Minus5Point5dBm = 42,
         /// <summary>-5.8 dB</summary>
-        Power_Minus5Point8dBm = 87,
+        Power_Minus5Point8dBm = 41,
         /// <summary>-6.1 dB</summary>
-        Power_Minus6Point1dBm = 88,
+        Power_Minus6Point1dBm = 40,
         /// <summary>-6.4 dB</summary>
-        Power_Minus6Point4dBm = 89,
+        Power_Minus6Point4dBm = 39,
         /// <summary>-6.7 dB</summary>
-        Power_Minus6Point7dBm = 90,
+        Power_Minus6Point7dBm = 38,
         /// <summary>-7.0 dB</summary>
-        Power_Minus7Point0dBm = 91,
+        Power_Minus7Point0dBm = 37,
         /// <summary>-7.3 dB</summary>
-        Power_Minus7Point3dBm = 92,
+        Power_Minus7Point3dBm = 36,
         /// <summary>-7.6 dB</summary>
-        Power_Minus7Point6dBm = 93,
+        Power_Minus7Point6dBm = 35,
         /// <summary>-7.9 dB</summary>
-        Power_Minus7Point9dBm = 94,
+        Power_Minus7Point9dBm = 34,
         /// <summary>-8.2 dB</summary>
-        Power_Minus8Point2dBm = 95,
+        Power_Minus8Point2dBm = 33,
         /// <summary>-8.5 dB</summary>
-        Power_Minus8Point5dBm = 96,
+        Power_Minus8Point5dBm = 32,
         /// <summary>-8.8 dB</summary>
-        Power_Minus8Point8dBm = 97,
+        Power_Minus8Point8dBm = 31,
         /// <summary>-9.1 dB</summary>
-        Power_Minus9Point1dBm = 98,
+        Power_Minus9Point1dBm = 30,
         /// <summary>-9.4 dB</summary>
-        Power_Minus9Point4dBm = 99,
+        Power_Minus9Point4dBm = 29,
         /// <summary>-9.7 dB</summary>
-        Power_Minus9Point7dBm = 100,
+        Power_Minus9Point7dBm = 28,
         /// <summary>-10.0 dB</summary>
-        Power_Minus10Point0dBm = 101,
+        Power_Minus10Point0dBm = 27,
         /// <summary>-10.3 dB</summary>
-        Power_Minus10Point3dBm = 102,
+        Power_Minus10Point3dBm = 26,
         /// <summary>-10.6 dB</summary>
-        Power_Minus10Point6dBm = 103,
+        Power_Minus10Point6dBm = 25,
         /// <summary>-10.9 dB</summary>
-        Power_Minus10Point9dBm = 104,
+        Power_Minus10Point9dBm = 24,
         /// <summary>-11.2 dB</summary>
-        Power_Minus11Point2dBm = 105,
+        Power_Minus11Point2dBm = 23,
         /// <summary>-11.5 dB</summary>
-        Power_Minus11Point5dBm = 106,
+        Power_Minus11Point5dBm = 22,
         /// <summary>-11.8 dB</summary>
-        Power_Minus11Point8dBm = 107,
+        Power_Minus11Point8dBm = 21,
         /// <summary>-12.1 dB</summary>
-        Power_Minus12Point1dBm = 108,
+        Power_Minus12Point1dBm = 20,
         /// <summary>-12.4 dB</summary>
-        Power_Minus12Point4dBm = 109,
+        Power_Minus12Point4dBm = 19,
         /// <summary>-12.7 dB</summary>
-        Power_Minus12Point7dBm = 110,
+        Power_Minus12Point7dBm = 18,
         /// <summary>-13.0 dB</summary>
-        Power_Minus13Point0dBm = 111,
+        Power_Minus13Point0dBm = 17,
         /// <summary>-13.4 dB</summary>
-        Power_Minus13Point4dBm = 112,
+        Power_Minus13Point4dBm = 16,
         /// <summary>-13.8 dB</summary>
-        Power_Minus13Point8dBm = 113,
+        Power_Minus13Point8dBm = 15,
         /// <summary>-14.2 dB</summary>
-        Power_Minus14Point2dBm = 114,
+        Power_Minus14Point2dBm = 14,
         /// <summary>-14.6 dB</summary>
-        Power_Minus14Point6dBm = 115,
+        Power_Minus14Point6dBm = 13,
         /// <summary>-15.0 dB</summary>
-        Power_Minus15Point0dBm = 116,
+        Power_Minus15Point0dBm = 12,
         /// <summary>-15.4 dB</summary>
-        Power_Minus15Point4dBm = 117,
+        Power_Minus15Point4dBm = 11,
         /// <summary>-15.8 dB</summary>
-        Power_Minus15Point8dBm = 118,
+        Power_Minus15Point8dBm = 10,
         /// <summary>-16.2 dB</summary>
-        Power_Minus16Point2dBm = 119,
+        Power_Minus16Point2dBm = 9,
         /// <summary>-16.6 dB</summary>
-        Power_Minus16Point6dBm = 120,
+        Power_Minus16Point6dBm = 8,
         /// <summary>-17.0 dB</summary>
-        Power_Minus17Point0dBm = 121,
+        Power_Minus17Point0dBm = 7,
         /// <summary>-17.4 dB</summary>
-        Power_Minus17Point4dBm = 122,
+        Power_Minus17Point4dBm = 6,
         /// <summary>-17.8 dB</summary>
-        Power_Minus17Point8dBm = 123,
+        Power_Minus17Point8dBm = 5,
         /// <summary>-18.2 dB</summary>
-        Power_Minus18Point2dBm = 124,
+        Power_Minus18Point2dBm = 4,
         /// <summary>-18.6 dB</summary>
-        Power_Minus18Point6dBm = 125,
+        Power_Minus18Point6dBm = 3,
         /// <summary>-19.0 dB</summary>
-        Power_Minus19Point0dBm = 126,
+        Power_Minus19Point0dBm = 2,
         /// <summary>-19.4 dB</summary>
-        Power_Minus19Point4dBm = 127,
+        Power_Minus19Point4dBm = 1,
+        /// <summary>-19.7 dB</summary>
+        Power_Minus19Point7dBm = 0,
 	}
 
 	/// <summary>
