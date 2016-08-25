@@ -139,7 +139,7 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 	medianQ = findMedian(bufferQ, length);
 	HeapTrackInsert(radarQ,medianQ);
 	// instead of tracking the median of IQ, we just use Q
-	HeapTrackInsert(medianRawQ,(abs(bufferQ[0]-medianQ)*2));
+	HeapTrackInsert(medianRawQ,(abs((int)(bufferQ[0])-medianQ)*2));
 
 	backgroundDisplacementNoise = HeapTrackMedian(unwrapMedianZero);
 	currentDisplacementNoise = HeapTrackMedian(unwrapMedian);
