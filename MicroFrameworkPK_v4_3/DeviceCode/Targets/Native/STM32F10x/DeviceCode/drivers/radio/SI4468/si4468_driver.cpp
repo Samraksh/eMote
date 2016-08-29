@@ -542,10 +542,9 @@ void radio_shutdown(int go) {
 		GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_RESET);
 }
 
-// DOES NOT WORK!??!
-bool radio_get_assert_irq(void) {
-	//return CPU_GPIO_GetPinState(SI446X_pin_setup.nirq_mf_pin) == FALSE;
-	return false;
+// Returns TRUE if IRQ is asserted
+bool radio_get_assert_irq() {
+	return !(GPIO_ReadInputDataBit(SI446X_pin_setup.nirq_port, SI446X_pin_setup.nirq_pin));
 }
 
 static int convert_rssi(uint8_t x) {
