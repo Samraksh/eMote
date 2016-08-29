@@ -60,6 +60,8 @@ class DataTransmissionHandler: public EventHandler {
 
 	DataTransmissionHandlerStates txhandler_state;
 	UINT64 CalculateNextTxMicro(UINT16 dest);
+	void SelectRetrySlotNumForNeighborBackOff();
+
 public:
 	void Initialize();
 	UINT64 NextEvent();
@@ -70,6 +72,7 @@ public:
 	void PostExecuteEvent();
 
 	//BOOL ScheduleDataPacket(UINT8 _skipperiods);
+
 	void DropPacket();
 	bool Send();
 	void SendRetry();

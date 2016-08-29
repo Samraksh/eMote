@@ -205,25 +205,6 @@ UINT64 DataTransmissionHandler::NextEvent(){
 #endif
 
 
-// Check all elements in the buffer
-//	UINT64 remMicroSecnextTX = MAX_UINT64;
-//	m_outgoingEntryPtr_pos = Buffer_15_4_t_SIZE;
-//	m_outgoingEntryPtr_dest = 0;
-//	UINT8 curpos = g_send_buffer.GetFirstFullBufferPosition();
-//	for(UINT8 i = 0; i < g_send_buffer.GetNumberMessagesInBuffer(); ++i){
-//		if(g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetMetaData()->GetRetryAttempts() < FRAMERETRYMAXATTEMPT){
-//			if( (m_outgoingEntryPtr_pos == Buffer_15_4_t_SIZE || m_outgoingEntryPtr_dest != g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetHeader()->dest)
-//			&& CalculateNextRXOpp(g_send_buffer.PeekElementAtPosition(curpos)) < remMicroSecnextTX
-//			){
-//				m_outgoingEntryPtr_pos = curpos;
-//				m_outgoingEntryPtr_dest = g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetHeader()->dest;
-//			}
-//		}
-//		else{
-//			g_send_buffer.DropElementAtPosition(curpos);
-//		}
-//		++curpos;
-//	}
 
 	//Check all Neighbors that have a packet in the queue
 	isDataPacketScheduled = false;
@@ -493,6 +474,16 @@ void DataTransmissionHandler::ExecuteEvent(){
 	m_currentSlotRetryAttempt = 0;
 	m_RANDOM_BACKOFF = false;
 
+	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
+	if(neigh_ptr == NULL){
+		return;
+	}
+	else if(neigh_ptr->random_back_off_slot != 0){
+		--(neigh_ptr->random_back_off_slot);
+		return;
+	}
+
+
 	txhandler_state = DTS_EXECUTE_START;
 	DeviceStatus e = DS_Fail;
 	e = g_OMAC.m_omac_RadioControl.StartRx();
@@ -520,6 +511,17 @@ void DataTransmissionHandler::ExecuteEvent(){
 			PostExecuteEvent();
 		}
 	}
+}
+
+void DataTransmissionHandler::SelectRetrySlotNumForNeighborBackOff(){
+	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
+	if(neigh_ptr == NULL){
+		return;
+	}
+
+	UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&m_backoff_seed, m_backoff_mask);
+	m_backoff_seed = randVal;
+	neigh_ptr->random_back_off_slot = randVal % RETRY_BACKOFF_WINDOW_SIZE;
 }
 
 void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus){
@@ -687,6 +689,9 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
  *
  */
 void DataTransmissionHandler::PostExecuteEvent(){
+	if(txhandler_state == DTS_WAITING_FOR_ACKS){
+		SelectRetrySlotNumForNeighborBackOff();
+	}
 	txhandler_state = DTS_POSTEXECUTION;
 	//Scheduler's PostExecution stops the radio
 	//g_OMAC.m_omac_RadioControl.Stop();
