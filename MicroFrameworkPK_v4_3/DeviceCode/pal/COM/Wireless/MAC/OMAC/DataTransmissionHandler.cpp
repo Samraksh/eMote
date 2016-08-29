@@ -229,9 +229,17 @@ UINT64 DataTransmissionHandler::NextEvent(){
 
 				if(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0 && g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > 10){
 					hal_printf("Data Packet Retry Attempt = %u  Dest = %u \n"
+
 							, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts()
 							, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
 							);
+					if(g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest == 32696 || g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest == 30906){
+						hal_printf("Data Packet2 Retry Attempt = %u  Dest = %u \n"
+
+								, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts()
+								, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
+								);
+					}
 				}
 				while(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0
 						&& g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT
@@ -288,6 +296,7 @@ void DataTransmissionHandler::DropPacket(){
 		ASSERT_SP(0);
 	}
 	else {
+		neigh_ptr->random_back_off_window_size = INITIAL_RETRY_BACKOFF_WINDOW_SIZE;
 		if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
 
 			if(CPU_Radio_GetRadioAckType() == NO_ACK || CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
@@ -473,20 +482,27 @@ void DataTransmissionHandler::ExecuteEvent(){
 	//When starting a new send, reset attempt to 0
 	m_currentSlotRetryAttempt = 0;
 	m_RANDOM_BACKOFF = false;
+	txhandler_state = DTS_EXECUTE_START;
+	DeviceStatus e = DS_Fail;
 
 	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
 	if(neigh_ptr == NULL){
-		return;
+		e = DS_Fail;
 	}
 	else if(neigh_ptr->random_back_off_slot != 0){
 		--(neigh_ptr->random_back_off_slot);
-		return;
+		e = DS_Fail;
+	}
+	else{
+		e = g_OMAC.m_omac_RadioControl.StartRx();
+		if(e == DS_Success){
+			txhandler_state = DTS_WAITING_FOR_ACKS;
+		}
+		else{
+			txhandler_state = DTS_RADIO_START_FAILED;
+		}
 	}
 
-
-	txhandler_state = DTS_EXECUTE_START;
-	DeviceStatus e = DS_Fail;
-	e = g_OMAC.m_omac_RadioControl.StartRx();
 
 	if(e == DS_Success){
 #ifdef OMAC_DEBUG_GPIO
@@ -494,7 +510,6 @@ void DataTransmissionHandler::ExecuteEvent(){
 		CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, FALSE );
 #endif
 		this->ExecuteEventHelper();
-		txhandler_state = DTS_WAITING_FOR_ACKS;
 	}
 	else{
 #ifdef OMAC_DEBUG_GPIO
@@ -503,7 +518,6 @@ void DataTransmissionHandler::ExecuteEvent(){
 		CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, FALSE );
 #endif
 		//OMAC_HAL_PRINTF("DataTransmissionHandler::ExecuteEvent Radio not in RX state\n");
-		txhandler_state = DTS_RADIO_START_FAILED;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
@@ -515,13 +529,21 @@ void DataTransmissionHandler::ExecuteEvent(){
 
 void DataTransmissionHandler::SelectRetrySlotNumForNeighborBackOff(){
 	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
-	if(neigh_ptr == NULL){
-		return;
-	}
+	if(neigh_ptr != NULL){
+		if(neigh_ptr->random_back_off_window_size >= INITIAL_RETRY_BACKOFF_WINDOW_SIZE && neigh_ptr->random_back_off_window_size < MAX_RETRY_BACKOFF_WINDOW_SIZE){
+			neigh_ptr->random_back_off_window_size = neigh_ptr->random_back_off_window_size * 2;
+		}
+		else {
+			neigh_ptr->random_back_off_window_size = INITIAL_RETRY_BACKOFF_WINDOW_SIZE;
+		}
+		if(neigh_ptr->random_back_off_window_size > MAX_RETRY_BACKOFF_WINDOW_SIZE){
+			neigh_ptr->random_back_off_window_size = MAX_RETRY_BACKOFF_WINDOW_SIZE;
+		}
 
-	UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&m_backoff_seed, m_backoff_mask);
-	m_backoff_seed = randVal;
-	neigh_ptr->random_back_off_slot = randVal % RETRY_BACKOFF_WINDOW_SIZE;
+		UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&m_backoff_seed, m_backoff_mask);
+		m_backoff_seed = randVal;
+		neigh_ptr->random_back_off_slot = randVal % neigh_ptr->random_back_off_window_size;
+	}
 }
 
 void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus){

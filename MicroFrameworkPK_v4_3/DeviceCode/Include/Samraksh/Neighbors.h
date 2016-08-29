@@ -76,6 +76,7 @@ typedef struct {
 	UINT64  LastTimeSyncSendTime;	// Last time instant a time sync is sent(piggbacked)
 
 	UINT8 random_back_off_slot;
+	UINT8 random_back_off_window_size;
 	//UINT8   numErrors;
 	//UINT8   size;
 	//BOOL    isInTransition;
@@ -299,6 +300,7 @@ DeviceStatus NeighborTable::ClearNeighborwIndex(UINT8 tableIndex){
 	Neighbor[tableIndex].LastTimeSyncSendTime = 0;
 
 	Neighbor[tableIndex].random_back_off_slot = 0;
+	Neighbor[tableIndex].random_back_off_window_size = 1;
 
 	Neighbor[tableIndex].send_buffer.Initialize();
 	Neighbor[tableIndex].tsr_send_buffer.Initialize();
