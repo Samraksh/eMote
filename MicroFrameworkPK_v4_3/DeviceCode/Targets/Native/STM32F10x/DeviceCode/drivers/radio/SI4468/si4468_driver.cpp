@@ -48,7 +48,7 @@ const char wwf2_serial_numbers[serial_max_wwf2][serial_per]     = { "05de0033303
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
-const unsigned si4468x_debug_level = ERR100; // CHANGE ME.
+const unsigned si4468x_debug_level = DEBUG03; // CHANGE ME.
 
 // Pin list used in setup.
 static SI446X_pin_setup_t SI446X_pin_setup;
@@ -1311,7 +1311,7 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 
 	si446x_radio_unlock();
 	si446x_spi_unlock();
-	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms(): CCA complete\r\n");
+	si446x_debug_print(DEBUG03, "SI446X: CCA complete, saw RSSI: %d, thresh: %d\r\n", si446x_get_current_rssi(), si446x_rssi_cca_thresh);
 	return ret;
 }
 

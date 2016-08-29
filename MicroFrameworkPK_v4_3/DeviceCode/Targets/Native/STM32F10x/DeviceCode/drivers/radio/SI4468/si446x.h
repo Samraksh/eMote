@@ -33,6 +33,7 @@ enum {
 	NONE00=0,
 	DEBUG01=1,
 	DEBUG02=2,
+	DEBUG03=3,
 	ERR99=99,		// For things that are bad unless you know what you are doing.
 	ERR100=100,
 };
