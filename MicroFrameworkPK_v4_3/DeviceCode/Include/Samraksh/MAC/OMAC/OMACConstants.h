@@ -310,6 +310,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define MAX_RETRY_BACKOFF_WINDOW_SIZE 10
 
 #define ADDITIONAL_TIMEADVANCE_FOR_RECEPTION 500
+#define TIME_RX_TIMESTAMP_OFFSET_MICRO 100
 
 //How long should receiver be awake after sending a HW ack. BK: No it is not! see the following
 // This is the maximum period to wait for the reception of a packet after receiving StartOfReception interrupt. Due to the change in RF231.cpp the interrupt is received after AMI. Hence it is the packet

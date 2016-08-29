@@ -460,7 +460,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 			//Any message might have timestamping attached to it. Check for it and process
 			if(msg->GetHeader()->flags & TIMESTAMPED_FLAG){
-				senderDelay = PacketTimeSync_15_4::SenderDelay(msg,Size);
+				senderDelay = PacketTimeSync_15_4::SenderDelay(msg,Size) + g_OMAC.m_Clock.ConvertMicroSecstoTicks(TIME_RX_TIMESTAMP_OFFSET_MICRO);
 				rx_time_stamp = g_OMAC.m_Clock.GetCurrentTimeinTicks() - (HAL_Time_CurrentTicks() - msg->GetMetaData()->GetReceiveTimeStamp());
 			}
 
