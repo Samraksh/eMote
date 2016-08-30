@@ -488,15 +488,17 @@ void DataTransmissionHandler::ExecuteEvent(){
 	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
 	if(neigh_ptr == NULL){
 		e = DS_Fail;
+		txhandler_state = DTS_DEST_NOT_AVAILABLE;
 	}
 	else if(neigh_ptr->random_back_off_slot != 0){
 		--(neigh_ptr->random_back_off_slot);
 		e = DS_Fail;
+		txhandler_state = DTS_BACKOFF;
 	}
 	else{
 		e = g_OMAC.m_omac_RadioControl.StartRx();
 		if(e == DS_Success){
-			txhandler_state = DTS_WAITING_FOR_ACKS;
+			txhandler_state = DTS_RADIO_START_SUCCESS;
 		}
 		else{
 			txhandler_state = DTS_RADIO_START_FAILED;
