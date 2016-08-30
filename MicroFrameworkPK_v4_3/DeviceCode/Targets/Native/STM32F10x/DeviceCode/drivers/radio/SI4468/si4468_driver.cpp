@@ -1165,6 +1165,7 @@ DeviceStatus si446x_hal_tx_power(UINT8 radioID, int pwr) {
 		return DS_Fail;
 	}
 
+	si446x_debug_print(DEBUG03, "SI446X: si446x_hal_tx_power() setting raw power %d\r\n", (uint8_t)pwr);
 	si446x_set_property( 0x22 , 1, 0x01, (uint8_t) pwr );
 	tx_power = pwr;
 
@@ -1242,23 +1243,23 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 	SI446x_INT_MODE_CHECK();
 
 	if (!isInit) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms() FAIL. No Init.\r\n");
+		si446x_debug_print(ERR99, "SI446X: si446x_hal_cca_ms() FAIL. No Init.\r\n");
 		return DS_Fail;
 	}
 
 	if ( owner = si446x_spi_lock(radio_lock_cca_ms) ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. SPI locked: %s\r\n", print_lock(owner));
+		si446x_debug_print(DEBUG03, "SI446X: si446x_hal_cca_ms() FAIL. SPI locked: %s\r\n", print_lock(owner));
 		return DS_Fail;
 	}
 
 	if ( owner = si446x_radio_lock(radio_lock_cca_ms) ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. Radio locked: %s\r\n", print_lock(owner));
+		si446x_debug_print(DEBUG03, "SI446X: si446x_hal_cca_ms() FAIL. Radio locked: %s\r\n", print_lock(owner));
 		si446x_spi_unlock();
 		return DS_Fail;
 	}
 
 	if ( cont_busy() ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. Continuation Pending.\r\n");
+		si446x_debug_print(DEBUG03, "SI446X: si446x_hal_cca_ms() FAIL. Continuation Pending.\r\n");
 		si446x_radio_unlock();
 		si446x_spi_unlock();
 		return DS_Fail;
@@ -1266,7 +1267,7 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 
 	si_state_t state = si446x_request_device_state();
 	if (state != SI_STATE_RX && state != SI_STATE_RX_TUNE) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() Radio not in RX. Abort CCA. State: %d\r\n", state);
+		si446x_debug_print(DEBUG03, "SI446X: si446x_hal_cca_ms() Radio not in RX. Abort CCA. State: %d\r\n", state);
 		si446x_radio_unlock();
 		si446x_spi_unlock();
 		return DS_Fail;
@@ -1284,7 +1285,7 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 	// last abort chance
 	if ( si446x_get_ph_pend() || si446x_get_modem_pend() ) {
 		si446x_set_property(0x01, 1, 0, int_enable); 	// Unmask interrupts
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() Radio Busy.\r\n");
+		si446x_debug_print(DEBUG03, "SI446X: si446x_hal_cca_ms() Radio Busy.\r\n");
 		si446x_radio_unlock();
 		si446x_spi_unlock();
 		return DS_Fail;
@@ -1312,7 +1313,8 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 
 	si446x_radio_unlock();
 	si446x_spi_unlock();
-	si446x_debug_print(DEBUG03, "SI446X: CCA complete, saw RSSI: %d, thresh: %d\r\n", si446x_get_current_rssi(), si446x_rssi_cca_thresh);
+	si446x_debug_print(DEBUG03, "SI446X: CCA complete, saw RSSI: %d dBm (raw %d) thresh: %d\r\n",
+		convert_rssi(si446x_get_current_rssi()), si446x_get_current_rssi(), si446x_rssi_cca_thresh);
 	return ret;
 }
 
