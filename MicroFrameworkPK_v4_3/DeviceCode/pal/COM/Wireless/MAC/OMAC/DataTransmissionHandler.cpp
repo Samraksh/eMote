@@ -233,53 +233,36 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		if(g_NeighborTable.Neighbor[i].neighborStatus != Dead){
 			if( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(g_NeighborTable.Neighbor[i].MACAddress)){
 			// Readjust the neighbors queues
-				if(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0 && g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > 10){
-					hal_printf("TimeSync Packet Retry Attempt = %u  Dest = %u \n"
-							, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts()
-							, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
-							);
-				}
-				while(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0
-						&& g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT // This can be handled more gracefully
-					  ){
-					ClearMsgContents(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval());
-					g_NeighborTable.Neighbor[i].tsr_send_buffer.DropOldest(1);
-				}
-
-				if(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0 && g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > 10){
-					hal_printf("Data Packet Retry Attempt = %u  Dest = %u \n"
-							, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts()
-							, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
-							);
-				}
-				while(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0
-						&& g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT
-					  ){
-					if(g_OMAC.m_txAckHandler != NULL){ //If user is interested in ACKS, send negative acknowledgements for packets that are getting dropped due to exceeding number of retries
-						Message_15_4_t* msg = g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval();
-						(*g_OMAC.m_txAckHandler)(msg, sizeof(Message_15_4_t), NetworkOperations_Collision, TRAC_STATUS_NO_ACK);
-					}
-					ClearMsgContents(g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval());
-					g_NeighborTable.Neighbor[i].send_buffer.DropOldest(1);
-				}
+			while(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0
+					&& g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT // This can be handled more gracefully
+				  ){
+				ClearMsgContents(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval());
+				g_NeighborTable.Neighbor[i].tsr_send_buffer.DropOldest(1);
+			}
+			while(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0
+					&& g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT
+				  ){
+				ClearMsgContents(g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval());
+				g_NeighborTable.Neighbor[i].send_buffer.DropOldest(1);
+			}
 
 
-				if(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0 ) {
-					cur_remMicroSecnextTX = CalculateNextRXOpp(g_NeighborTable.Neighbor[i].MACAddress);
-					if(cur_remMicroSecnextTX < remMicroSecnextTX){
-						remMicroSecnextTX = cur_remMicroSecnextTX;
-						m_outgoingEntryPtr_dest = g_NeighborTable.Neighbor[i].MACAddress;
-						isDataPacketScheduled = true;
-					}
+			if(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+				cur_remMicroSecnextTX = CalculateNextRXOpp(g_NeighborTable.Neighbor[i].MACAddress);
+				if(cur_remMicroSecnextTX < remMicroSecnextTX){
+					remMicroSecnextTX = cur_remMicroSecnextTX;
+					m_outgoingEntryPtr_dest = g_NeighborTable.Neighbor[i].MACAddress;
+					isDataPacketScheduled = true;
 				}
-				else if(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
-					cur_remMicroSecnextTX = CalculateNextRXOpp(g_NeighborTable.Neighbor[i].MACAddress);
-					if(cur_remMicroSecnextTX < remMicroSecnextTX){
-						remMicroSecnextTX = cur_remMicroSecnextTX;
-						m_outgoingEntryPtr_dest = g_NeighborTable.Neighbor[i].MACAddress;
-						isDataPacketScheduled = true;
-					}
+			}
+			else if(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
+				cur_remMicroSecnextTX = CalculateNextRXOpp(g_NeighborTable.Neighbor[i].MACAddress);
+				if(cur_remMicroSecnextTX < remMicroSecnextTX){
+					remMicroSecnextTX = cur_remMicroSecnextTX;
+					m_outgoingEntryPtr_dest = g_NeighborTable.Neighbor[i].MACAddress;
+					isDataPacketScheduled = true;
 				}
+			}
 			}
 		}
 	}
@@ -298,7 +281,6 @@ UINT64 DataTransmissionHandler::NextEvent(){
 
 void DataTransmissionHandler::DropPacket(){
 	//Packet will have to be dropped if retried max attempts
-	//However this function is only used for successfull packet drops
 #ifdef OMAC_DEBUG_PRINTF
 	OMAC_HAL_PRINTF("dropping packet\n");
 #endif
@@ -308,11 +290,6 @@ void DataTransmissionHandler::DropPacket(){
 	}
 	else {
 		if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
-
-			if(CPU_Radio_GetRadioAckType() == NO_ACK || CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
-				Message_15_4_t* msg = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
-				(*g_OMAC.m_txAckHandler)(msg, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
-			}
 			ClearMsgContents(neigh_ptr->send_buffer.GetOldestwithoutRemoval());
 			neigh_ptr->send_buffer.DropOldest(1);
 
@@ -718,7 +695,7 @@ bool DataTransmissionHandler::Send(){
 	}
 
 	m_outgoingEntryPtr = NULL;
-	if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+	if(neigh_ptr->NumTimeSyncMessagesSent >= NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS  && neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
 		m_outgoingEntryPtr = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
 	}
 	else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
