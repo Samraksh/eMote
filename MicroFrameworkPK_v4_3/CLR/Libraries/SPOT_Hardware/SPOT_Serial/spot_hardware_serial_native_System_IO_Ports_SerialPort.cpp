@@ -39,7 +39,7 @@ HRESULT Library_spot_hardware_serial_native_System_IO_Ports_SerialPort::Internal
     
     ::USART_Uninitialize( portId );
 
-#ifdef PLATFORM_ARM_EmoteDotNow
+#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN)
     if(FALSE == ::USART_InitializeManaged( portId, speed, parity, dataBits, stopBits, flowValue ))
     {
         TINYCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER);

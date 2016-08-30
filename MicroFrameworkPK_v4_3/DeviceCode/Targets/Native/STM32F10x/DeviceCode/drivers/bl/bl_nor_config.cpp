@@ -3,7 +3,7 @@
  *
  *  Author : Nived.Sivadas@samraksh.com
  *
- *  Description : Holds the configuration for the external nor flash for both the PLATFORM_ARM_EmoteDotNow and the stm dev board
+ *  Description : Holds the configuration for the external nor flash for both the PLATFORM_ARM_EmoteDotNow, PLATFORM_ARM_WLN and the stm dev board
  */
 
 #include <tinyhal.h>
@@ -11,7 +11,7 @@
 
 const BlockRange STM32F10x_BlockRange_ExternalFlash_NOR[] =
 {
-#ifdef PLATFORM_ARM_EmoteDotNow
+#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN)
     { BlockRange::BLOCKTYPE_FILESYSTEM          ,0,125 }
 #else
     { BlockRange::BLOCKTYPE_FILESYSTEM          ,0,127 }
@@ -23,7 +23,7 @@ const BlockRegionInfo  STM32F10x_BlockRegionInfo_ExternalFlash_NOR[1] =
 {
 
     0x64020000,		// ByteAddress     Address;            // Start address
-#ifdef PLATFORM_ARM_EmoteDotNow
+#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN)
     126,
     0x20000,
 #else
@@ -49,8 +49,8 @@ BlockDeviceInfo STM32F10x_BlockDeviceInfo_ExternalFlash_NOR =
     14800,										// UINT32 Duration_Max_SectorErase_uSec;
     0x2,										// BytesPerSector;
 
-    // The PLATFORM_ARM_EmoteDotNow has a 16MB Flash and the dev board has a 128 Mb Flash
-#ifdef PLATFORM_ARM_EmoteDotNow
+    // The PLATFORM_ARM_EmoteDotNow, PLATFORM_ARM_WLN has a 16MB Flash and the dev board has a 128 Mb Flash
+#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN)
     0xFC0000,
 #else
     0x1000000,									// UINT32 Size;
