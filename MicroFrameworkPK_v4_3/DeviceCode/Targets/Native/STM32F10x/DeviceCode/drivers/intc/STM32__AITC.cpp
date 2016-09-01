@@ -294,8 +294,11 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	bool NOCP      = (_UFSR & (1<<3)) > 0;
 	bool INVPC     = (_UFSR & (1<<2)) > 0;
 	bool INVSTATE  = (_UFSR & (1<<1)) > 0;
-	bool UNDEFINSTR= (_UFSR & (1<<0)) > 0;
-
+	bool UNDEFINSTR= (_UFSR & (1<<0)) > 0; // 1. Use of instructions not supported in Cortex-M3.
+	                                       // 2. Bad/corrupted memory contents.
+	                                       // 3. Loading of ARM object code during link stage. Checks compile steps.
+	                                       // 4. Instruction align problem. for example, if GNU tool chain is used, omitting of
+	                                       //    .align after .ascii might cause next instruction to be unaligned
 	bool DEBUGEVF  = (_HFSR &(1<<31)) > 0;
 	bool FORCED    = (_HFSR &(1<<30)) > 0; // 1. Trying to run SVC/BKPT within SVC/monitor or another handler with same or higher priority.
 	                                       // 2. A hard fault occurred if the corresponding handler is disabled or cannot be started because
