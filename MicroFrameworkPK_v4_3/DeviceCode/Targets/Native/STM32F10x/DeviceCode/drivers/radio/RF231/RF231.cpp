@@ -683,9 +683,9 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	//Start writing data to the SPI bus
 	SelnClear();
 
-	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
+	//CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
 	timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
-	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
+	//CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
 	CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
 
 	// Write the size of packet that is sent out
@@ -712,8 +712,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	CPU_SPI_ReadByte(config);
 
-	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
-	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
+	//CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
+	//CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
 	//Indicate end of writing to SPI bus
 	SelnSet();
 #endif
@@ -1053,7 +1053,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 
 void* RF231Radio::Send(void* msg, UINT16 size)
 {
-	CPU_GPIO_SetPinState( RF231_TX, TRUE );
+	//CPU_GPIO_SetPinState( RF231_TX, TRUE );
 	UINT32 eventOffset;
 	UINT32 timestamp;
 
@@ -1214,7 +1214,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	//temp = tx_msg_ptr;
 	tx_msg_ptr = (Message_15_4_t*) msg;
 
-	CPU_GPIO_SetPinState( RF231_TX, FALSE );
+	//CPU_GPIO_SetPinState( RF231_TX, FALSE );
 
 #ifdef DEBUG_RF231
 	hal_printf("(Send)Finished send\n");
@@ -1334,7 +1334,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 	interrupt_mode_check();
 
-	CPU_GPIO_EnableOutputPin(RF231_HW_ACK_RESP_TIME, TRUE);
+	/*CPU_GPIO_EnableOutputPin(RF231_HW_ACK_RESP_TIME, TRUE);
 	CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_START_OF_RX_MODE, TRUE);
 	CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
@@ -1363,12 +1363,12 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
 
 	CPU_GPIO_EnableOutputPin(RF231_TX, FALSE);
-	CPU_GPIO_EnableOutputPin(RF231_FRAME_BUFF_ACTIVE, FALSE);
+	CPU_GPIO_EnableOutputPin(RF231_FRAME_BUFF_ACTIVE, FALSE);*/
 
-	CPU_GPIO_EnableOutputPin((GPIO_PIN)30, TRUE);
+	/*CPU_GPIO_EnableOutputPin((GPIO_PIN)30, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN)31, TRUE);
 	CPU_GPIO_SetPinState( (GPIO_PIN)30, FALSE );
-	CPU_GPIO_SetPinState( (GPIO_PIN)31, FALSE );
+	CPU_GPIO_SetPinState( (GPIO_PIN)31, FALSE );*/
 
 	//active_mac_index = Radio<Message_15_4_t>::GetMacIdIndex();
 	// Set MAC datastructures
@@ -1426,25 +1426,11 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		SetAddress(tempNum);
 		SetInitialized(TRUE);
 
-		if(rx_msg_ptr != NULL)
-		{
-			private_free(rx_msg_ptr);
-		}
-		rx_msg_ptr = (Message_15_4_t *) private_malloc(sizeof(Message_15_4_t));
-		if(rx_msg_ptr == NULL)
-		{
-			return DS_Fail;
-		}
+		// Initially point to the driver buffer
+		tx_msg_ptr = (Message_15_4_t *) tx_msg;
 
-		if(tx_msg_ptr != NULL)
-		{
-			private_free(tx_msg_ptr);
-		}
-		tx_msg_ptr = (Message_15_4_t *) private_malloc(sizeof(Message_15_4_t));
-		if(tx_msg_ptr == NULL)
-		{
-			return DS_Fail;
-		}
+		// Initially point to driver buffer
+		rx_msg_ptr = (Message_15_4_t *) rx_msg;
 
 		GLOBAL_LOCK(irq);
 		//for(UINT8 i = 0; i < 30; i++)
@@ -1601,17 +1587,6 @@ DeviceStatus RF231Radio::UnInitialize()
 
     if(IsInitialized())
     {
-		if(rx_msg_ptr != NULL )
-		{
-			private_free(rx_msg_ptr);
-			rx_msg_ptr = NULL;
-		}
-
-		if(tx_msg_ptr != NULL )
-		{
-			private_free(tx_msg_ptr);
-			tx_msg_ptr = NULL;
-		}
         RstnClear();
         SetInitialized(FALSE);
         /*ASSERT_RADIO((active_mac_index & 0xFF00) == 0);*/
@@ -2187,7 +2162,7 @@ void RF231Radio::HandleInterrupt()
 	if(irq_cause & TRX_IRQ_PLL_UNLOCK) {  }
 
 	//if( (irq_cause & TRX_IRQ_RX_START) && (irq_cause & TRX_IRQ_AMI) ){
-	if( irq_cause == (TRX_IRQ_RX_START | TRX_IRQ_AMI) ){
+	/*if( irq_cause == (TRX_IRQ_RX_START | TRX_IRQ_AMI) ){
 		CPU_GPIO_SetPinState( RF231_AMI, TRUE );
 		CPU_GPIO_SetPinState( RF231_AMI, FALSE );
 		CPU_GPIO_SetPinState( RF231_AMI, TRUE );
@@ -2195,11 +2170,11 @@ void RF231Radio::HandleInterrupt()
 		//This is an invalid case
 		//irq_cause = TRX_NO_IRQ;
 		//return;
-	}
+	}*/
 
 	if(irq_cause & TRX_IRQ_RX_START)
 	{
-		CPU_GPIO_SetPinState( RF231_RX_START, TRUE );
+		//CPU_GPIO_SetPinState( RF231_RX_START, TRUE );
 		add_rx_start_time();
 		if(RF231_extended_mode){
 			state = STATE_BUSY_RX_AACK; // Seems like we should change state, so I made one up...
@@ -2253,13 +2228,13 @@ void RF231Radio::HandleInterrupt()
 
 		 ////(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 		//(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
-		CPU_GPIO_SetPinState( RF231_RX_START, FALSE );
+		//CPU_GPIO_SetPinState( RF231_RX_START, FALSE );
 	}
 
 
 	if(irq_cause & TRX_IRQ_AMI)
 	{
-		CPU_GPIO_SetPinState( RF231_AMI, TRUE );
+		//CPU_GPIO_SetPinState( RF231_AMI, TRUE );
 		//hal_printf("Inside TRX_IRQ_AMI\n");
 #ifdef DEBUG_RF231
 		hal_printf("Inside TRX_IRQ_AMI\n");
@@ -2345,7 +2320,7 @@ void RF231Radio::HandleInterrupt()
 
 		//HAL_Time_Sleep_MicroSeconds(64); // wait 64us to prevent spurious TRX_UR interrupts. // TODO... HELP --NPS
 
-		CPU_GPIO_SetPinState( RF231_AMI, FALSE );
+		//CPU_GPIO_SetPinState( RF231_AMI, FALSE );
 		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 	}
 
@@ -2360,8 +2335,8 @@ void RF231Radio::HandleInterrupt()
 
 			add_send_done();
 
-			CPU_GPIO_SetPinState( RF231_TRX_TX_END, TRUE );
-			CPU_GPIO_SetPinState( RF231_TRX_TX_END, FALSE );
+			//CPU_GPIO_SetPinState( RF231_TRX_TX_END, TRUE );
+			//CPU_GPIO_SetPinState( RF231_TRX_TX_END, FALSE );
 
 			state = STATE_PLL_ON;
 
@@ -2386,13 +2361,13 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RECEIVE)
 		{
-			CPU_GPIO_SetPinState( RF231_RX, TRUE );
+			//CPU_GPIO_SetPinState( RF231_RX, TRUE );
 #			ifdef DEBUG_RF231
 			hal_printf("RF231: TRX_IRQ_TRX_END : Receive Done\n");
 #			endif
 
-			CPU_GPIO_SetPinState( RF231_TRX_RX_END, TRUE );
-			CPU_GPIO_SetPinState( RF231_TRX_RX_END, FALSE );
+			//CPU_GPIO_SetPinState( RF231_TRX_RX_END, TRUE );
+			//CPU_GPIO_SetPinState( RF231_TRX_RX_END, FALSE );
 
 			// Go to PLL_ON at least until the frame buffer is empty
 
@@ -2435,7 +2410,7 @@ void RF231Radio::HandleInterrupt()
 				Careful_State_Change(RX_ON);
 				state = STATE_RX_ON;
 			}
-			CPU_GPIO_SetPinState( RF231_RX, FALSE );
+			//CPU_GPIO_SetPinState( RF231_RX, FALSE );
 		}
 		else if(cmd == CMD_TX_ARET)
 		{
@@ -2464,15 +2439,15 @@ void RF231Radio::HandleInterrupt()
 				hal_printf("(CMD_TX_ARET)header->fcf: %d;header->dsn: %d;header->dest: %d;header->destpan: %d;header->src: %d;header->srcpan: %d;header->length: %d;header->mac_id: %d;header->type: %d;header->flags: %d\n\n", header->fcf,header->dsn,header->dest,header->destpan,header->src,header->srcpan,header->length,header->mac_id,header->type,header->flags);
 			}*/
 #endif
-			CPU_GPIO_SetPinState( RF231_TRX_TX_END, TRUE );
-			CPU_GPIO_SetPinState( RF231_TRX_TX_END, FALSE );
+			//CPU_GPIO_SetPinState( RF231_TRX_TX_END, TRUE );
+			//CPU_GPIO_SetPinState( RF231_TRX_TX_END, FALSE );
 			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & TRAC_STATUS_MASK;
 			//if(trx_state == 0x00){	//Success
 				//hal_printf("(CMD_TX_ARET)trx_state: %d\n", trx_state);
-				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
-				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
-				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
-				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
+				//CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
+				//CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
+				//CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
+				//CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
 				/*if(DS_Success == DownloadMessage()){
 					(rx_msg_ptr->GetHeader())->length = rx_length;
 					IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
@@ -2514,8 +2489,8 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RX_AACK)
 		{
-			CPU_GPIO_SetPinState( RF231_TRX_RX_END, TRUE );
-			CPU_GPIO_SetPinState( RF231_TRX_RX_END, FALSE );
+			//CPU_GPIO_SetPinState( RF231_TRX_RX_END, TRUE );
+			//CPU_GPIO_SetPinState( RF231_TRX_RX_END, FALSE );
 #ifdef DEBUG_RF231
 			hal_printf("Inside TRX_IRQ_TRX_END(CMD_RX_AACK)\n");
 #endif
@@ -2557,8 +2532,8 @@ void RF231Radio::HandleInterrupt()
 						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );*/
 
 #ifdef DEBUG_RF231
-						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
-						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
+						//CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
+						//CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 						IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
 						sequenceNumberReceiver = header->dsn;
 						hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_RX_AACK) header->dsn: %d; sequenceNumberReceiver: %d\n", header->dsn, sequenceNumberReceiver);
@@ -2603,8 +2578,8 @@ void RF231Radio::HandleInterrupt()
 							/*HAL_Time_Sleep_MicroSeconds(OMAC_HW_ACK_DELAY_MICRO);
 							SlptrSet();
 							SlptrClear();*/
-							CPU_GPIO_SetPinState( (GPIO_PIN)RF231_GENERATE_HW_ACK, TRUE );
-							CPU_GPIO_SetPinState( (GPIO_PIN)RF231_GENERATE_HW_ACK, FALSE );
+							//CPU_GPIO_SetPinState( (GPIO_PIN)RF231_GENERATE_HW_ACK, TRUE );
+							//CPU_GPIO_SetPinState( (GPIO_PIN)RF231_GENERATE_HW_ACK, FALSE );
 						/*}
 						else{
 							HAL_Time_Sleep_MicroSeconds(125);
