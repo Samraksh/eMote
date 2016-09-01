@@ -709,7 +709,13 @@ void Samraksh_Emote_Update::Receive_IEEE_802_15_4(void* buffer, UINT16 payloadTy
 		memset(g_Samraksh_Emote_Update.s_destMissingPkts, 0xFF, sizeof(UINT32)*MFUpdate::MAX_MISSING_WORDFIELD_SIZE );
 	}
 	g_Samraksh_Emote_Update.s_destAddr = msg->GetHeader()->src;
-	Receive(msg->GetPayload(), msg->GetPayloadSize());
+	size_t sz_payload = (size_t)msg->GetPayloadSize();
+	ASSERT_SP(sz_payload < 256);
+	UINT8* aligned_payload = (UINT8*) private_malloc(sz_payload);
+	UINT8* unaligned_payload = msg->GetPayload();
+	memcpy(aligned_payload, unaligned_payload, sz_payload);
+	Receive(aligned_payload, sz_payload);
+	private_free(aligned_payload);
 }
 
 
