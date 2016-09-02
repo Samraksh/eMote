@@ -544,7 +544,8 @@ void radio_shutdown(int go) {
 
 // Returns TRUE if IRQ is asserted
 bool radio_get_assert_irq() {
-	return !(GPIO_ReadInputDataBit(SI446X_pin_setup.nirq_port, SI446X_pin_setup.nirq_pin));
+	//return !(GPIO_ReadInputDataBit(SI446X_pin_setup.nirq_port, SI446X_pin_setup.nirq_pin));
+	return false;
 }
 
 static int convert_rssi(uint8_t x) {
