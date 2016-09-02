@@ -609,7 +609,7 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		config->sdn_port		= GPIOB;
 		config->sdn_pin			= GPIO_Pin_11;
 		config->spi_rcc			= RCC_APB1Periph_SPI2;
-		si446x_debug_print(DEBUG02, "SI446X: Using WWF Hardware Config\r\n");
+		si446x_debug_print(DEBUG03, "SI446X: Using WWF Hardware Config\r\n");
 	}
 	else if (isWWF == 2) { // 2nd iteration fully integrated board
 		config->spi_base 		= SPI2;
@@ -629,7 +629,7 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		config->sdn_port		= GPIOB;
 		config->sdn_pin			= GPIO_Pin_11;
 		config->spi_rcc			= RCC_APB1Periph_SPI2;
-		si446x_debug_print(DEBUG02, "SI446X: Using WWF2 Hardware Config\r\n");
+		si446x_debug_print(DEBUG03, "SI446X: Using WWF2 Hardware Config\r\n");
 		si446x_debug_print(DEBUG02, "SI446X: TEST: Enabling PWM\r\n");
 
 		// TEST CODE
@@ -659,7 +659,7 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		config->sdn_port		= GPIOA;
 		config->sdn_pin			= GPIO_Pin_2;
 		config->spi_rcc			= RCC_APB1Periph_SPI2;
-		si446x_debug_print(DEBUG02, "SI446X: Using .NOW Hardware Config\r\n");
+		si446x_debug_print(DEBUG03, "SI446X: Using .NOW Hardware Config\r\n");
 	}
 }
 
