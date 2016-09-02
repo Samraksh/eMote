@@ -573,7 +573,7 @@ static int am_i_wwf(void) {
 		hal_snprintf(&my_serial[j], 3, "%.2x", cpuserial[i]);
 	}
 
-	si446x_debug_print(DEBUG02, "SI446X: Found Serial Number 0x%s\r\n", my_serial);
+	si446x_debug_print(DEBUG03, "SI446X: Found Serial Number 0x%s\r\n", my_serial);
 
 	// check against all other serials.
 	// This is a brutal ugly O(n) search.
