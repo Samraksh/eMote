@@ -42,8 +42,8 @@ enum { SI_DUMMY=0, };
 // For now, memorize all WWF serial numbers
 // Yes these are strings and yes I'm a terrible person.
 // These are hex CPU serial numbers
-enum { serial_max_dotnow = 2, serial_max_wwf2=4, serial_per = 25 };
-const char dotnow_serial_numbers[serial_max_dotnow][serial_per] = { "392dd9054355353848400843", "3400d805414d303635341043" };
+enum { serial_max_dotnow = 3, serial_max_wwf2=4, serial_per = 25 };
+const char dotnow_serial_numbers[serial_max_dotnow][serial_per] = { "392dd9054355353848400843", "3400d805414d303635341043", "3400d905414d303640461443" };
 const char wwf2_serial_numbers[serial_max_wwf2][serial_per]     = { "05de00333035424643163542", "05d900333035424643162544", "3300d9054642353041381643", "3300df054642353040531643" };
 // end serial number list.
 
