@@ -144,7 +144,7 @@ public:
 	DeviceStatus UpdateNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t, const NeighborTableCommonParameters_Two_t *neighborTableCommonParameters_Two_t);
 	//DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16  lastSeed, UINT16  dataInterval, UINT16  radioStartDelay, UINT16  counterOffset, UINT8* index);
 	DeviceStatus UpdateNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t);
-	UINT8  UpdateNeighborTable(UINT64 livelinessDelayInTicks, UINT64 currentTime);
+	UINT8  UpdateNeighborTable(UINT32 NeighborLivenessDelay, UINT64 currentTime);
 	UINT8  UpdateNeighborTable(UINT32 NeighborLivenessDelay);
 	DeviceStatus RecordTimeSyncRequestSent(UINT16 address, UINT64 _LastTimeSyncTime);
 	DeviceStatus RecordTimeSyncSent(UINT16 address, UINT64 _LastTimeSyncTime);
@@ -177,12 +177,11 @@ UINT16 NeighborTable::GetMaxNeighbors(void){
 	return MAX_NEIGHBORS;
 }
 
-UINT8 NeighborTable::UpdateNeighborTable(UINT64 livelinessDelayInTicks, UINT64 currentTime)
+UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay, UINT64 currentTime)
 {
 	UINT8 deadNeighbors = 0;
 
-	//UINT64 livelinessDelayInTicks = CPU_MillisecondsToTicks(NeighborLivenessDelay * 1000);
-	//UINT64 livelinessDelayInTicks = g_OMAC.m_Clock.ConvertMicroSecstoTicks(NeighborLivenessDelay * 1000 * 1000);
+	UINT64 livelinessDelayInTicks = CPU_MillisecondsToTicks(NeighborLivenessDelay * 1000);
 
 
 	//if (Neighbor[0].Status == Alive)
