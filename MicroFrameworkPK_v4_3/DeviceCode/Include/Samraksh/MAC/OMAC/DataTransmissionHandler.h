@@ -18,8 +18,12 @@ enum DataTransmissionHandlerStates{
 	DTS_EXECUTE_START,
 	DTS_RADIO_START_SUCCESS,
 	DTS_RADIO_START_FAILED,
+	DTS_BACKOFF,
+	DTS_DEST_NOT_AVAILABLE,
 	DTS_SEND_INITIATION_SUCCESS,
 	DTS_SEND_INITIATION_FAIL,
+	DTS_CCA_CLEAR,
+	DTS_CCA_BUSY,
 	DTS_SEND_FINISHED,
 	DTS_WAITING_FOR_ACKS,
 	DTS_RECEIVEDDATAACK,
@@ -60,6 +64,8 @@ class DataTransmissionHandler: public EventHandler {
 
 	DataTransmissionHandlerStates txhandler_state;
 	UINT64 CalculateNextTxMicro(UINT16 dest);
+	void SelectRetrySlotNumForNeighborBackOff();
+
 public:
 	void Initialize();
 	UINT64 NextEvent();
@@ -70,6 +76,7 @@ public:
 	void PostExecuteEvent();
 
 	//BOOL ScheduleDataPacket(UINT8 _skipperiods);
+
 	void DropPacket();
 	bool Send();
 	void SendRetry();

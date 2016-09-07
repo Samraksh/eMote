@@ -56,7 +56,7 @@ class PacketTimeSync_15_4{
             // Also the demodulation delay is irrelevant. There can a small adjustment accounting for the initiation of the sender side delay, preamble and interrupt latecny on the receiver side
             // This value is estimated to be TXRXOFFSET = 50 micro seconds
             UINT32 * senderEventTime = (UINT32 *)((UINT32)rcv_msg + _payloadsize + TIMESTAMP_OFFSET);
-            INT64 rcv_ts = msg->GetMetaData()->GetReceiveTimeStamp();
+            //INT64 rcv_ts = msg->GetMetaData()->GetReceiveTimeStamp();
             UINT32 sender_delay = *senderEventTime;
             return sender_delay;
             //return sender_delay + (CPU_TicksPerSecond()/1000000)*TXRXOFFSET ;

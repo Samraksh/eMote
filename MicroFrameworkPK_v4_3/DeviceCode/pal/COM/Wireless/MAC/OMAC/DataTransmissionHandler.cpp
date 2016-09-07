@@ -205,25 +205,6 @@ UINT64 DataTransmissionHandler::NextEvent(){
 #endif
 
 
-// Check all elements in the buffer
-//	UINT64 remMicroSecnextTX = MAX_UINT64;
-//	m_outgoingEntryPtr_pos = Buffer_15_4_t_SIZE;
-//	m_outgoingEntryPtr_dest = 0;
-//	UINT8 curpos = g_send_buffer.GetFirstFullBufferPosition();
-//	for(UINT8 i = 0; i < g_send_buffer.GetNumberMessagesInBuffer(); ++i){
-//		if(g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetMetaData()->GetRetryAttempts() < FRAMERETRYMAXATTEMPT){
-//			if( (m_outgoingEntryPtr_pos == Buffer_15_4_t_SIZE || m_outgoingEntryPtr_dest != g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetHeader()->dest)
-//			&& CalculateNextRXOpp(g_send_buffer.PeekElementAtPosition(curpos)) < remMicroSecnextTX
-//			){
-//				m_outgoingEntryPtr_pos = curpos;
-//				m_outgoingEntryPtr_dest = g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetHeader()->dest;
-//			}
-//		}
-//		else{
-//			g_send_buffer.DropElementAtPosition(curpos);
-//		}
-//		++curpos;
-//	}
 
 	//Check all Neighbors that have a packet in the queue
 	isDataPacketScheduled = false;
@@ -232,37 +213,41 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	for(UINT8 i = 0; i < MAX_NEIGHBORS ; ++i){
 		if(g_NeighborTable.Neighbor[i].neighborStatus != Dead){
 			if( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(g_NeighborTable.Neighbor[i].MACAddress)){
-			// Readjust the neighbors queues
-			while(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0
-					&& g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT // This can be handled more gracefully
-				  ){
-				ClearMsgContents(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval());
-				g_NeighborTable.Neighbor[i].tsr_send_buffer.DropOldest(1);
-			}
-			while(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0
-					&& g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT
-				  ){
-				ClearMsgContents(g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval());
-				g_NeighborTable.Neighbor[i].send_buffer.DropOldest(1);
-			}
+				// Readjust the neighbors queues and drop packets that have failed FRAMERETRYMAXATTEMPT
+				while(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0
+						&& g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT // This can be handled more gracefully
+				){
+					ClearMsgContents(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval());
+					g_NeighborTable.Neighbor[i].tsr_send_buffer.DropOldest(1);
+				}
+				while(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0
+						&& g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT
+				){
+					if(g_OMAC.m_txAckHandler != NULL){ //If user is interested in ACKS, send negative acknowledgements for packets that are getting dropped due to exceeding number of retries
+						Message_15_4_t* msg = g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval();
+						(*g_OMAC.m_txAckHandler)(msg, sizeof(Message_15_4_t), NetworkOperations_Collision, TRAC_STATUS_NO_ACK);
+					}
+					ClearMsgContents(g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval());
+					g_NeighborTable.Neighbor[i].send_buffer.DropOldest(1);
+				}
 
 
-			if(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0 ) {
-				cur_remMicroSecnextTX = CalculateNextRXOpp(g_NeighborTable.Neighbor[i].MACAddress);
-				if(cur_remMicroSecnextTX < remMicroSecnextTX){
-					remMicroSecnextTX = cur_remMicroSecnextTX;
-					m_outgoingEntryPtr_dest = g_NeighborTable.Neighbor[i].MACAddress;
-					isDataPacketScheduled = true;
+				if(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+					cur_remMicroSecnextTX = CalculateNextRXOpp(g_NeighborTable.Neighbor[i].MACAddress);
+					if(cur_remMicroSecnextTX < remMicroSecnextTX){
+						remMicroSecnextTX = cur_remMicroSecnextTX;
+						m_outgoingEntryPtr_dest = g_NeighborTable.Neighbor[i].MACAddress;
+						isDataPacketScheduled = true;
+					}
 				}
-			}
-			else if(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
-				cur_remMicroSecnextTX = CalculateNextRXOpp(g_NeighborTable.Neighbor[i].MACAddress);
-				if(cur_remMicroSecnextTX < remMicroSecnextTX){
-					remMicroSecnextTX = cur_remMicroSecnextTX;
-					m_outgoingEntryPtr_dest = g_NeighborTable.Neighbor[i].MACAddress;
-					isDataPacketScheduled = true;
+				else if(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
+					cur_remMicroSecnextTX = CalculateNextRXOpp(g_NeighborTable.Neighbor[i].MACAddress);
+					if(cur_remMicroSecnextTX < remMicroSecnextTX){
+						remMicroSecnextTX = cur_remMicroSecnextTX;
+						m_outgoingEntryPtr_dest = g_NeighborTable.Neighbor[i].MACAddress;
+						isDataPacketScheduled = true;
+					}
 				}
-			}
 			}
 		}
 	}
@@ -281,6 +266,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 
 void DataTransmissionHandler::DropPacket(){
 	//Packet will have to be dropped if retried max attempts
+	//However this function is only used for successfull packet drops
 #ifdef OMAC_DEBUG_PRINTF
 	OMAC_HAL_PRINTF("dropping packet\n");
 #endif
@@ -289,7 +275,13 @@ void DataTransmissionHandler::DropPacket(){
 		ASSERT_SP(0);
 	}
 	else {
+		neigh_ptr->random_back_off_window_size = INITIAL_RETRY_BACKOFF_WINDOW_SIZE;
 		if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
+
+			if(CPU_Radio_GetRadioAckType() == NO_ACK || CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
+				Message_15_4_t* msg = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
+				(*g_OMAC.m_txAckHandler)(msg, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
+			}
 			ClearMsgContents(neigh_ptr->send_buffer.GetOldestwithoutRemoval());
 			neigh_ptr->send_buffer.DropOldest(1);
 
@@ -324,8 +316,8 @@ void DataTransmissionHandler::SendRetry(){ // BK: This function is called to ret
 
 	if(FAST_RECOVERY && txhandler_state == DTS_WAITING_FOR_ACKS && m_currentSlotRetryAttempt < SLOTRETRYMAXATTEMPT){
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
-	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
+		CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
+		CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 #endif
 		//Enable m_RANDOM_BACKOFF for retries
 		m_RANDOM_BACKOFF = true;
@@ -406,6 +398,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 #endif
 	//Transmit
 	if(canISend){
+		txhandler_state = DTS_CCA_CLEAR;
 		//resendSuccessful = false;
 
 #ifdef OMAC_DEBUG_GPIO
@@ -414,17 +407,19 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 #endif
 		bool rv = Send();
 		if(rv) {
+			txhandler_state = DTS_SEND_INITIATION_SUCCESS;
 			if(CPU_Radio_GetRadioAckType() == NO_ACK){
 				DropPacket();
 			}
 		}
 		else{
+			txhandler_state = DTS_SEND_INITIATION_FAIL;
 #ifdef OMAC_DEBUG_GPIO
-		//OMAC_HAL_PRINTF("DataTransmissionHandler::ExecuteEventHelper Toggling\n");
-		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+			//OMAC_HAL_PRINTF("DataTransmissionHandler::ExecuteEventHelper Toggling\n");
+			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 #endif
 		}
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
@@ -435,7 +430,30 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 			PostExecuteEvent();
 		}
 	}
-	else{ //I cannot send stop execution
+	else{ //I cannot send
+		txhandler_state = DTS_CCA_BUSY;
+		//Increment number of retries for the current packet
+		Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
+		if(neigh_ptr != NULL){
+			m_outgoingEntryPtr = NULL;
+			if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+				m_outgoingEntryPtr = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
+			}
+			else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
+				m_outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
+			}
+			else{
+				//Commenting out, as sometimes there may not be anything to be sent,
+				//	in which case Send returns a false.
+				//ASSERT_SP(0);
+			}
+			if(m_outgoingEntryPtr != NULL && isDataPacketScheduled){
+				IEEE802_15_4_Metadata* metadata = m_outgoingEntryPtr->GetMetaData();
+				metadata->SetRetryAttempts(metadata->GetRetryAttempts()+1);
+			}
+		}
+
+		//Stop execution
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
@@ -444,9 +462,8 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		}
 	}
 #ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 #endif
-
 }
 
 /*
@@ -469,10 +486,29 @@ void DataTransmissionHandler::ExecuteEvent(){
 	//When starting a new send, reset attempt to 0
 	m_currentSlotRetryAttempt = 0;
 	m_RANDOM_BACKOFF = false;
-
 	txhandler_state = DTS_EXECUTE_START;
 	DeviceStatus e = DS_Fail;
-	e = g_OMAC.m_omac_RadioControl.StartRx();
+
+	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
+	if(neigh_ptr == NULL){
+		e = DS_Fail;
+		txhandler_state = DTS_DEST_NOT_AVAILABLE;
+	}
+	else if(neigh_ptr->random_back_off_slot != 0){
+		--(neigh_ptr->random_back_off_slot);
+		e = DS_Fail;
+		txhandler_state = DTS_BACKOFF;
+	}
+	else{
+		e = g_OMAC.m_omac_RadioControl.StartRx();
+		if(e == DS_Success){
+			txhandler_state = DTS_RADIO_START_SUCCESS;
+		}
+		else{
+			txhandler_state = DTS_RADIO_START_FAILED;
+		}
+	}
+
 
 	if(e == DS_Success){
 #ifdef OMAC_DEBUG_GPIO
@@ -480,7 +516,6 @@ void DataTransmissionHandler::ExecuteEvent(){
 		CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, FALSE );
 #endif
 		this->ExecuteEventHelper();
-		txhandler_state = DTS_WAITING_FOR_ACKS;
 	}
 	else{
 #ifdef OMAC_DEBUG_GPIO
@@ -489,13 +524,31 @@ void DataTransmissionHandler::ExecuteEvent(){
 		CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, FALSE );
 #endif
 		//OMAC_HAL_PRINTF("DataTransmissionHandler::ExecuteEvent Radio not in RX state\n");
-		txhandler_state = DTS_RADIO_START_FAILED;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
+	}
+}
+
+void DataTransmissionHandler::SelectRetrySlotNumForNeighborBackOff(){
+	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
+	if(neigh_ptr != NULL){
+		if(neigh_ptr->random_back_off_window_size >= INITIAL_RETRY_BACKOFF_WINDOW_SIZE && neigh_ptr->random_back_off_window_size < MAX_RETRY_BACKOFF_WINDOW_SIZE){
+			neigh_ptr->random_back_off_window_size = neigh_ptr->random_back_off_window_size * 2;
+		}
+		else {
+			neigh_ptr->random_back_off_window_size = INITIAL_RETRY_BACKOFF_WINDOW_SIZE;
+		}
+		if(neigh_ptr->random_back_off_window_size > MAX_RETRY_BACKOFF_WINDOW_SIZE){
+			neigh_ptr->random_back_off_window_size = MAX_RETRY_BACKOFF_WINDOW_SIZE;
+		}
+
+		UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&m_backoff_seed, m_backoff_mask);
+		m_backoff_seed = randVal;
+		neigh_ptr->random_back_off_slot = randVal % neigh_ptr->random_back_off_window_size;
 	}
 }
 
@@ -537,8 +590,8 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 #ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, FALSE);
-		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
+			CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, FALSE);
+			//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
 #endif
 			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 				PostExecuteEvent();
@@ -632,9 +685,9 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 	txhandler_state = DTS_RECEIVEDDATAACK;
 #ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, TRUE);
-		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
-		CPU_GPIO_SetPinState( DATATX_RECV_SW_ACK, TRUE );
+	CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, TRUE);
+	//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
+	CPU_GPIO_SetPinState( DATATX_RECV_SW_ACK, TRUE );
 #endif
 	VirtualTimerReturnMessage rm;
 
@@ -653,9 +706,9 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 		}
 	}
 #ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, FALSE);
-		//CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
-		CPU_GPIO_SetPinState( DATATX_RECV_SW_ACK, FALSE );
+	CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, FALSE);
+	//CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_RECV_SW_ACK, FALSE );
 #endif
 }
 
@@ -664,6 +717,9 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
  *
  */
 void DataTransmissionHandler::PostExecuteEvent(){
+	if(txhandler_state == DTS_WAITING_FOR_ACKS){
+		SelectRetrySlotNumForNeighborBackOff();
+	}
 	txhandler_state = DTS_POSTEXECUTION;
 	//Scheduler's PostExecution stops the radio
 	//g_OMAC.m_omac_RadioControl.Stop();
@@ -695,7 +751,7 @@ bool DataTransmissionHandler::Send(){
 	}
 
 	m_outgoingEntryPtr = NULL;
-	if(neigh_ptr->NumTimeSyncMessagesSent >= NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS  && neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+	if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
 		m_outgoingEntryPtr = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
 	}
 	else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
@@ -714,9 +770,9 @@ bool DataTransmissionHandler::Send(){
 		IEEE802_15_4_Metadata* metadata = m_outgoingEntryPtr->GetMetaData();
 		metadata->SetRetryAttempts(metadata->GetRetryAttempts()+1);
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
-	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
+		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 #endif
 
 		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
@@ -750,7 +806,7 @@ BOOL DataTransmissionHandler::ScheduleDataPacket(UINT8 _skipperiods, UINT16 dest
 
 
 }
-*/
+ */
 
 
 BOOL DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skipperiods){

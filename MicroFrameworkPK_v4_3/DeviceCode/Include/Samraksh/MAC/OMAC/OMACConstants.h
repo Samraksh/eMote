@@ -268,17 +268,15 @@ typedef OFProv<UINT64> OMACTicks;
 */
 
 
-#define MAXUPDATESEEDITERS 20
+#define MAXUPDATESEEDITERS 2000
 //GUARDTIME_MICRO should be calculated in conjuction with SLOT_PERIOD_MILLI
 // GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
 //PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
+#define GUARDTIME_MICRO 1500
 #define MILLISECINMICSEC 1000
-#define TICKSINMICSEC 8
-
-#define GUARDTIME_MICRO 500			//compensate for time-sync errors; accounts for the clock drift
 
 
-#define FRAMERETRYMAXATTEMPT 100
+#define FRAMERETRYMAXATTEMPT 20
 #define SLOTRETRYMAXATTEMPT 2
 #define CCA_PERIOD_FRAME_RETRY_MICRO 0 //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 
@@ -305,17 +303,14 @@ typedef OFProv<UINT64> OMACTicks;
 //GUARDTIME_MICRO - optimistic time error (if there is a re-transmission, tx takes GUARDTIME_MICRO to do CCA
 
 #define EXECUTE_WITH_CCA  1
-#define  FAST_RECOVERY 1
+#define  FAST_RECOVERY 0
 #define  FAST_RECOVERY2 0
 
-
-//#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR\
-													+DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX+DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX+DELAY_IN_RECEIVING_ACK\
-														+RETRY_RANDOM_BACKOFF_DELAY_MICRO+RETRY_FUDGE_FACTOR\
-															+RETRANS_DELAY_DUE_TO_MISSING_ACK
-//#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER     GUARDTIME_MICRO+GUARDTIME_MICRO+DELAY_FROM_RF231_TX_TO_RF231_RX //This is the duration used in FastRecovery 2.0
+#define INITIAL_RETRY_BACKOFF_WINDOW_SIZE 3
+#define MAX_RETRY_BACKOFF_WINDOW_SIZE 10
 
 #define ADDITIONAL_TIMEADVANCE_FOR_RECEPTION 500
+#define TIME_RX_TIMESTAMP_OFFSET_MICRO 100
 
 //How long should receiver be awake after sending a HW ack. BK: No it is not! see the following
 // This is the maximum period to wait for the reception of a packet after receiving StartOfReception interrupt. Due to the change in RF231.cpp the interrupt is received after AMI. Hence it is the packet
@@ -328,8 +323,9 @@ typedef OFProv<UINT64> OMACTicks;
 #define SEED_UPDATE_INTERVAL_IN_SLOTS 100 //The FRAME SIZE in slots
 
 //#define CCA_REACTION_TIME_MICRO 165 //BK: We need to double check this. This is the reaction time of the CCA module from the beginning of channel activity.
-#define CCA_PERIOD_MICRO GUARDTIME_MICRO //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
+//#define CCA_PERIOD_MICRO GUARDTIME_MICRO //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 #define CCA_PERIOD_ERROR 410 //BK: It is observed that CCA is being done more than set by the protocol. This is the observed error on it. It is used in scheduling the tx side this much early
+#define CCA_PERIOD_MICRO 260
 
 //Below 2 values are based on empirical observations made on a debug build
 #define FAST_RECOVERY_WAIT_PERIOD_MICRO 5*MILLISECINMICSEC
@@ -342,8 +338,10 @@ typedef OFProv<UINT64> OMACTicks;
 //60000000 - 7.5 secs
 //80000000 - 10 secs
 //100000000 - 12.5 secs
-#define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
-#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  48000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
+//#define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
+#define FORCE_REQUESTTIMESYNC_INMICS 10000000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
+//#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  48000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
+#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST_INMICS  600000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
 
 #define PROCESSING_DELAY_BEFORE_TX_MICRO (581) //DELAY_FROM_OMAC_TX_TO_RF231_TX //581
 #define RADIO_TURN_ON_DELAY_MICRO 693
@@ -352,7 +350,7 @@ typedef OFProv<UINT64> OMACTicks;
 
 #define HFCLOCKID 1
 #define LFCLOCKID 4 // This is the RTC clock
-#define OMACClockSpecifier HFCLOCKID
+#define OMACClockSpecifier LFCLOCKID
 #define OMACClockFreq 32
 //#define OMACClocktoSystemClockFreqRatio 250
 #define OMACClocktoSystemClockFreqRatio 244.140625
@@ -360,7 +358,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_TICKS 4000
 #define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO 500
 
-#define FAILSAFETIME_MICRO 1000000
+#define FAILSAFETIME_MICRO 100000000
 
 #define WAKEUPPERIODINTICKS 8000000
 
