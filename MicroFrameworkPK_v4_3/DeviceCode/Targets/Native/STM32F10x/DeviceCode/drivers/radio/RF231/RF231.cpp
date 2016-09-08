@@ -1426,11 +1426,25 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		SetAddress(tempNum);
 		SetInitialized(TRUE);
 
-		// Initially point to the driver buffer
-		tx_msg_ptr = (Message_15_4_t *) tx_msg;
+		if(rx_msg_ptr != NULL)
+		{
+			private_free(rx_msg_ptr);
+		}
+		rx_msg_ptr = (Message_15_4_t *) private_malloc(sizeof(Message_15_4_t));
+		if(rx_msg_ptr == NULL)
+		{
+			return DS_Fail;
+		}
 
-		// Initially point to driver buffer
-		rx_msg_ptr = (Message_15_4_t *) rx_msg;
+		if(tx_msg_ptr != NULL)
+		{
+			private_free(tx_msg_ptr);
+		}
+		tx_msg_ptr = (Message_15_4_t *) private_malloc(sizeof(Message_15_4_t));
+		if(tx_msg_ptr == NULL)
+		{
+			return DS_Fail;
+		}
 
 		GLOBAL_LOCK(irq);
 		//for(UINT8 i = 0; i < 30; i++)

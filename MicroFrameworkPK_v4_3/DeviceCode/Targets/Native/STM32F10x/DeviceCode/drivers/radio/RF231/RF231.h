@@ -468,12 +468,6 @@ class RF231Radio : public Radio<Message_15_4_t>
 	// Pointer to the incoming message
 	Message_15_4_t* rx_msg_ptr;
 
-	// Recieve Message Buffer
-	UINT8 rx_msg[sizeof(Message_15_4_t)];
-
-	// Send message buffer
-	UINT8 tx_msg[sizeof(Message_15_4_t)];
-
 	volatile BOOL sleep_pending;
 
 	volatile UINT8 tx_length;
