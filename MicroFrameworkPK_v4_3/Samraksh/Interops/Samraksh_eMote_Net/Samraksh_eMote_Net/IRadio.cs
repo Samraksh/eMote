@@ -520,12 +520,44 @@ namespace Samraksh.eMote.Net.Radio
 	/// </summary>
 	public enum SI4468Channel
 	{
-		/// <summary>Channel 1</summary>
+        /// <summary>Channel 0</summary>
+        Channel_00 = 0,
+        /// <summary>Channel 1</summary>
+        Channel_01 = 1,
+        /// <summary>Channel 2</summary>
+        Channel_02 = 2,
+        /// <summary>Channel 3</summary>
+        Channel_03 = 3,
+        /// <summary>Channel 4</summary>
+        Channel_04 = 4,
+        /// <summary>Channel 5</summary>
+        Channel_05 = 5,
+        /// <summary>Channel 6</summary>
+        Channel_06 = 6,
+        /// <summary>Channel 7</summary>
+        Channel_07 = 7,
+        /// <summary>Channel 8</summary>
+        Channel_08 = 8,
+        /// <summary>Channel 9</summary>
+        Channel_09 = 9,
+        /// <summary>Channel 10</summary>
+        Channel_10 = 10,
+        /// <summary>Channel 11</summary>
+        Channel_11 = 11,
+        /// <summary>Channel 12</summary>
+        Channel_12 = 12,
+        /// <summary>Channel 13</summary>
+        Channel_13 = 13,
+        /// <summary>Channel 14</summary>
+        Channel_14 = 14,
+        /// <summary>Channel 15</summary>
+        Channel_15 = 15,
+		/// <summary>Channel 16</summary>
 		// ReSharper disable once InconsistentNaming
-		Channel_01 = 16,
-		/// <summary>Channel 2</summary>
+		Channel_16 = 16,
+		/// <summary>Channel 17</summary>
 		// ReSharper disable once InconsistentNaming
-		Channel_02 = 17
+		Channel_17 = 17
 	}
 
 	/// <summary>
