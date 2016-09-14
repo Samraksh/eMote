@@ -1119,11 +1119,59 @@
             Channels supported by SI4468 radio
             </summary>
         </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_00">
+            <summary>Channel 0</summary>
+        </member>
         <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_01">
             <summary>Channel 1</summary>
         </member>
         <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_02">
             <summary>Channel 2</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_03">
+            <summary>Channel 3</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_04">
+            <summary>Channel 4</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_05">
+            <summary>Channel 5</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_06">
+            <summary>Channel 6</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_07">
+            <summary>Channel 7</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_08">
+            <summary>Channel 8</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_09">
+            <summary>Channel 9</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_10">
+            <summary>Channel 10</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_11">
+            <summary>Channel 11</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_12">
+            <summary>Channel 12</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_13">
+            <summary>Channel 13</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_14">
+            <summary>Channel 14</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_15">
+            <summary>Channel 15</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_16">
+            <summary>Channel 16</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468Channel.Channel_17">
+            <summary>Channel 17</summary>
         </member>
         <member name="T:Samraksh.eMote.Net.Radio.IRadioConfiguration">
             <summary>
