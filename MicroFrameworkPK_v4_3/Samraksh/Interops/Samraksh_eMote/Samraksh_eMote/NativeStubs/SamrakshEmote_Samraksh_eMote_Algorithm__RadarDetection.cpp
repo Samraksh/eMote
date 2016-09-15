@@ -76,6 +76,12 @@ INT8 Algorithm_RadarDetection::GetWindowOverThreshold( CLR_RT_HeapBlock* pMngObj
     return retVal;
 }
 
+INT8 Algorithm_RadarDetection::CurrentDetectionFinished( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
 INT32 Algorithm_RadarDetection::GetNetDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 

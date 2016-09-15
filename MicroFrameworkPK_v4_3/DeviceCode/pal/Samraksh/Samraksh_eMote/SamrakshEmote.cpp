@@ -33,6 +33,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetIQRejectionLevel___I4,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetLastUnwrap___I4__SamraksheMoteRADARNOISEREQUEST,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetWindowOverThreshold___BOOLEAN,
+    Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::CurrentDetectionFinished___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetNetDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetAbsoluteDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetDisplacementRange___I4__SamraksheMoteSAMPLEWINDOWPORTION,
@@ -141,7 +142,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote =
 {
     "Samraksh_eMote", 
-    0x5B7605D4,
+    0xFAEF3F35,
     method_lookup
 };
 
