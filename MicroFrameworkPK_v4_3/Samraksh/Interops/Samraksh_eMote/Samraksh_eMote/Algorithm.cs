@@ -61,7 +61,7 @@ namespace Samraksh.eMote
             /// </summary>
             public RadarDetection() {
                 Initialize();
-                SetDetectionParameters(RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_TARGET, 1.5, 1, 2, 3, 0, 1);
+                SetDetectionParameters(RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_RAW_RADAR, 1.6, 0.9, 2, 3, 0, 1);
             }
             
             //////////////////////////public properties and methods/////////////////////
@@ -145,6 +145,13 @@ namespace Samraksh.eMote
             /// <returns>Returns true if last window's displacement was over the threshold and false if not.</returns>
             [MethodImplAttribute(MethodImplOptions.InternalCall)]
             extern public bool GetWindowOverThreshold();
+
+            /// <summary>
+            /// Request whether the current detection has finished
+            /// </summary>
+            /// <returns>Returns true if the current detection is finished and false if not.</returns>
+            [MethodImplAttribute(MethodImplOptions.InternalCall)]
+            extern public bool CurrentDetectionFinished();
 
             /// <summary>
             /// Request the window's net displacement

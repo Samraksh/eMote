@@ -130,6 +130,12 @@
             </summary>
             <returns>Returns true if last window's displacement was over the threshold and false if not.</returns>
         </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.CurrentDetectionFinished">
+            <summary>
+            Request whether the current detection has finished
+            </summary>
+            <returns>Returns true if the current detection is finished and false if not.</returns>
+        </member>
         <member name="M:Samraksh.eMote.Algorithm.RadarDetection.GetNetDisplacement(Samraksh.eMote.SAMPLE_WINDOW_PORTION)">
             <summary>
             Request the window's net displacement

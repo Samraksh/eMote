@@ -221,6 +221,22 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetWindo
     TINYCLR_NOCLEANUP();
 }
 
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::CurrentDetectionFinished___BOOLEAN( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT8 retVal = Algorithm_RadarDetection::CurrentDetectionFinished( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
 HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetNetDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;

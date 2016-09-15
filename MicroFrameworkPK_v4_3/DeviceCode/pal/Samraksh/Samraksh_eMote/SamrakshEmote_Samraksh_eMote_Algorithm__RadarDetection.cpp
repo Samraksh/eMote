@@ -47,6 +47,7 @@ static double callbacksPerSecond = 0;
 static int initialAdjustmentCnt = INITIAL_ADJUSTMENT_SAMPLE_CNT;
 static int prevIQrejectionValue = IQRejectionToUse;
 static bool windowOverThreshold = false;
+static bool detectionFinished = false;
 
 enum RADAR_NOISE_CONTROL
 {
@@ -247,6 +248,12 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 	} else {
 		detection = 0;
 	}
+	if (mOfnDetector.state == 0 && mOfnDetector.prevstate == 1)
+    {
+		detectionFinished = true;
+	} else {
+		detectionFinished = false;
+	}
 	
 	if ((debugVal == 6)||(debugVal==7))
 		hal_printf("%d %d %d %d %d\r\n",lastUnwrapZero,unwrap,lastUnwrapMax,HeapTrackMedian(unwrapMedian),IQRejectionToUse);
@@ -401,6 +408,11 @@ INT32 Algorithm_RadarDetection::GetLastUnwrap( CLR_RT_HeapBlock* pMngObj, INT32 
 INT8 Algorithm_RadarDetection::GetWindowOverThreshold( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     return windowOverThreshold;
+}
+
+INT8 Algorithm_RadarDetection::CurrentDetectionFinished( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    return detectionFinished;
 }
 
 INT32 Algorithm_RadarDetection::GetNetDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
