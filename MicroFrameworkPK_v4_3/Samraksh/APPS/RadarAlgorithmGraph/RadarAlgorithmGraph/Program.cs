@@ -170,10 +170,10 @@ namespace testchart2
             static int prevIQrejectionValue = IQRejectionToUse;
 
             static bool fixIQRjections = false;
-            static int IQRejectionToFixTo = 60;
+            static int IQRejectionToFixTo = 45;
             static BinaryWriter outPut;
             // NEW
-            static int threshold = 3;
+            static float threshold = 2.1f; // half of what we should enter into radar app
             static int detection = 0;
             static int M = 2;
             static int N = 3;
@@ -205,7 +205,10 @@ namespace testchart2
             static ushort[] radarIMedian = new ushort[dataCntMax];
 
             static int ADJUST_RADAR_MEDIAN = 1;
-            static double adjustmentParameter = 0.85;
+            static double adjustmentParameter = 0.9;
+
+            static int xTrackSampleCnt = 300; //unwrap phase median (background noise)
+            static int yTrackSampleCnt = 1200; //rawQ median
 
             static int size = 128;
             static UInt16 medianI = 2040;
@@ -793,7 +796,7 @@ namespace testchart2
                 if (ADJUST_RADAR_MEDIAN == 1)
                 {
                     System.Diagnostics.Debug.WriteLine(yHeapTrackMedian().ToString());
-                    IQRejectionToUse = (int)((double)yHeapTrackMedian() * adjustmentParameter);                    
+                    IQRejectionToUse = (int)((double)yHeapTrackMedian() * adjustmentParameter);                                        
                     
                 } else
                 {
@@ -885,15 +888,20 @@ namespace testchart2
                 {
                     //hal_printf("Detection\r\n");
                     detection = 10;
+                    System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****");
                 }
                 else
                 {
                     detection = 0;
                 }
                 if (crossUnwrappedPhase >= 2 * threshold)
+                {
                     detection = 10;
+                    System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****");
+                }
 
                 detectionSeries.Points.AddXY(plotPt, detection);
+                
                 //if (debugVal == 6)
                 //    hal_printf("%d %d %d %d %d %d %d\r\n", getUnwrapMax(), unwrap, getUnwrapZero(), HeapTrackMedian(unwrapMedianMax), HeapTrackMedian(unwrapMedian), HeapTrackMedian(unwrapMedianZero), IQRejectionToUse);
 
@@ -903,7 +911,7 @@ namespace testchart2
 
                 plotPt++;
                 xHeapTrackInsert(crossUnwrappedPhase);                     
-                System.Diagnostics.Debug.Write(crossUnwrappedPhaseZero.ToString() + " " + crossUnwrappedPhase.ToString() + " " + crossUnwrappedPhaseMax.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString() + "   ");
+                //System.Diagnostics.Debug.Write(crossUnwrappedPhaseZero.ToString() + " " + crossUnwrappedPhase.ToString() + " " + crossUnwrappedPhaseMax.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString() + "   ");
 
                 return unwrap;
             }
@@ -973,8 +981,8 @@ namespace testchart2
                 QBuffer = new UInt16[size];
                 int readPoint = 0;
 
-                xHeapTrackNew(300);
-                yHeapTrackNew(300);
+                xHeapTrackNew(xTrackSampleCnt);
+                yHeapTrackNew(yTrackSampleCnt);
                 xHeapTrackInsert(0);
                 yHeapTrackInsert(0);
 
@@ -994,7 +1002,7 @@ namespace testchart2
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\test05.bbs";
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\i40-60 walk.bbs";
                 //fileName = @"..\..\recorded.bbs";
-                fileName = @"..\..\recorded.int";
+                //fileName = @"..\..\recorded.int";
                 //fileName = @"..\..\office_noise.bbs";
                 //fileName = @"E:\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\grass near tree.bbs";
                 //fileName = @"E:\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\room1.bbs";
@@ -1013,9 +1021,10 @@ namespace testchart2
                 //fileName = @"C:\Work\data\integratedBoard\tree back lobe.bbs";
                 //fileName = @"C:\Work\data\integratedBoard\tree1.int";
                 //fileName = @"C:\Work\data\integratedBoard\tree2.bbs";  
-                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\8-4 noise tests\tree_1.int";
+                fileName = @"D:\Work\radar\data collects\wild life node 6-13\8-4 noise tests\tree_1.int";
                 //fileName = @"D:\Work\radar\data collects\wild life node 6-13\8-4 noise tests\bush_1.int";
                 //fileName = @"D:\Work\radar\data collects\wild life node 6-13\8-4 noise tests\open_grass.int";
+                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\9-14 noise test\Darree_Sep_13_collect.bbs";
                 if (fileName.Contains(".int"))
                 {
                     RAW_UNWRAP_RESULT_DATA = 1;
@@ -1125,7 +1134,7 @@ namespace testchart2
                         }
                         else
                         {
-                            System.Diagnostics.Debug.WriteLine("");
+                            //System.Diagnostics.Debug.WriteLine("");
                         }
                     }
                     //System.Diagnostics.Debug.WriteLine(unwrapRet.ToString());

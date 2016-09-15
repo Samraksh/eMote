@@ -24,6 +24,7 @@ static HeapTrack* radarQ;
 static HeapTrack* medianRawQ;
 using namespace Samraksh::eMote;
 static double threshold;
+static double doubleThreshold;
 static double noiseRejectionPassedParameter;
 static INT16 medianI = 2040, medianQ = 2040;
 static UINT16 debugVal = 0;
@@ -162,9 +163,9 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 				else
 					// we are close enough to where we want to be so the initial large adjustment period is over
 					initialAdjustmentCnt = 0;
-				ResetHeapTrack(unwrapMedian, 300);
-				ResetHeapTrack(unwrapMedianZero, 300);
-				ResetHeapTrack(unwrapMedianMax, 300);	
+				ResetHeapTrack(unwrapMedian, 50);
+				ResetHeapTrack(unwrapMedianZero, 50);
+				ResetHeapTrack(unwrapMedianMax, 50);	
 			}
 		} else {
 			// this section will make small adjustments every IQ_ADJUSTMENT_PERIOD
@@ -215,6 +216,7 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 		callbacksPerSecond = AD_GetCallbacksPerSecond();
 		if (callbacksPerSecond != 0) {
 			threshold = threshold / callbacksPerSecond;
+			doubleThreshold = threshold * 2;
 		}
 	}
 
@@ -223,7 +225,12 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
     {
 		windowOverThreshold = true;
 		mOfnDetector.Update(mOfnCounter.count, 1);
-    }
+    } else if (unwrap >= doubleThreshold ){
+		// if an unwrap is double the threshold we will count it twice here
+		windowOverThreshold = true;
+		mOfnDetector.Update(mOfnCounter.count, 1);
+		mOfnDetector.Update(mOfnCounter.count, 1);
+	}
     else
     {
 		windowOverThreshold = false;
@@ -252,11 +259,11 @@ INT8 Algorithm_RadarDetection::Initialize( CLR_RT_HeapBlock* pMngObj, HRESULT &h
     INT8 retVal = 0; 
 
 	if (initialized == false){
-		unwrapMedian = HeapTrackNew(300);
-		unwrapMedianZero = HeapTrackNew(300);
-		unwrapMedianMax = HeapTrackNew(300);
-		radarQ = HeapTrackNew(300);
-		medianRawQ = HeapTrackNew(300);
+		unwrapMedian = HeapTrackNew(50);
+		unwrapMedianZero = HeapTrackNew(50);
+		unwrapMedianMax = HeapTrackNew(50);
+		radarQ = HeapTrackNew(50);
+		medianRawQ = HeapTrackNew(1200);
 		initialized = true;
 		HeapTrackInsert(unwrapMedian,0);
 		HeapTrackInsert(unwrapMedianZero,0);
@@ -302,6 +309,7 @@ INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj
 
 	radarNoiseCtrl = param0;
 	threshold = param1;
+	callbacksPerSecond = 0; // this will cause the threshold to be recalculated based on callbacks per second. That might change after the detection parameters are set so we can't do that here.
 	noiseRejectionPassedParameter = param2;
 	if ( mOfnDetector.initialized == true ){
 		mOfnDetector.Uninit();
@@ -366,10 +374,10 @@ INT32 Algorithm_RadarDetection::GetBackgroundNoiseLevel( CLR_RT_HeapBlock* pMngO
 
 INT8 Algorithm_RadarDetection::ResetBackgroundNoiseTracking( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    ResetHeapTrack(unwrapMedian, 300);
-	ResetHeapTrack(unwrapMedianZero, 300);
-	ResetHeapTrack(unwrapMedianMax, 300);		 
-	ResetHeapTrack(radarQ, 300);
+    ResetHeapTrack(unwrapMedian, 50);
+	ResetHeapTrack(unwrapMedianZero, 50);
+	ResetHeapTrack(unwrapMedianMax, 50);		 
+	ResetHeapTrack(radarQ, 50);
     return true;
 }
 
