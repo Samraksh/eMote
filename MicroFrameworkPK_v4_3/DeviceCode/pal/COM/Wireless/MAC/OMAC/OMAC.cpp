@@ -634,7 +634,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 					static volatile INT32 pt = msg->GetHeader()->payloadType;
 
-					if(false && myID == destID && g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started) {//Process the data packet only if the destination matches
+					if(myID == destID && g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started) {//Process the data packet only if the destination matches
 
 						Message_15_4_t* next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
 						if(! (next_free_buffer))
