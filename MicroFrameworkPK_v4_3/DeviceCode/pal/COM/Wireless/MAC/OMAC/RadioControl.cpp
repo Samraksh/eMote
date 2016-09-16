@@ -110,79 +110,104 @@ DeviceStatus RadioControl_t::Preload(RadioAddress_t address, Message_15_4_t * ms
  */
 DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size){
 	//Check if we can send with timestamping, 4bytes for timestamping + 8 bytes for clock value
-	PiggybackMessages( msg, size);
-	IEEE802_15_4_Header_t *header = msg->GetHeader();
-	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 	Message_15_4_t* returnMsg;
-
-	header->length = (size);
-
-
-#ifdef OMAC_DEBUG_GPIO
-		if(header->payloadType == MFM_OMAC_TIMESYNCREQ){
-			CPU_GPIO_SetPinState( RC_TX_TIMESYNCREQ, TRUE );
-		}
-		else if(header->payloadType == MFM_DATA){
-			CPU_GPIO_SetPinState( RC_TX_DATA, TRUE );
-			//OMAC_HAL_PRINTF("RC send; Sending: %d\n", (msg->GetPayload())[8]);
-		}
-#endif
-
-	if( (header->flags & TIMESTAMPED_FLAG) ){
-		//Convert TimeStamp to high freq clock
-		UINT64 time_elapsed_since_TS = g_OMAC.m_Clock.GetCurrentTimeinTicks() - msg->GetMetaData()->GetReceiveTimeStamp();
-		UINT64 event_time = HAL_Time_CurrentTicks() - time_elapsed_since_TS;
-		//msg->GetMetaData()->SetReceiveTimeStamp((INT64)event_time);
-		if((g_OMAC.isSendDone)){//||(g_OMAC.radioName != SI4468_SPI2)){
-			//Reset flag just before sending
-			g_OMAC.isSendDone = false;
+	if(size == sizeof(softwareACKHeader)){
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
 #endif
-			returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)event_time);
-		}
-		else{
-			goto endOfSend;
-		}
-	}
-	else {
-		if((g_OMAC.isSendDone)){//||(g_OMAC.radioName != SI4468_SPI2)){
-			//Reset flag just before sending
-			g_OMAC.isSendDone = false;
-#ifdef OMAC_DEBUG_GPIO
-			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
-#endif
-			returnMsg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
-		}
-		else{
-			goto endOfSend;
-		}
-	}
-
-#ifdef OMAC_DEBUG_GPIO
-		if(header->payloadType == MFM_OMAC_TIMESYNCREQ){
-			CPU_GPIO_SetPinState( RC_TX_TIMESYNCREQ, FALSE );
-		}
-		else if(header->payloadType == MFM_DATA){
-			CPU_GPIO_SetPinState( RC_TX_DATA, FALSE );
-		}
-#endif
-
-	if(returnMsg == msg){
-		//OMAC_HAL_PRINTF("Returning success\n");
+		returnMsg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
+		if(returnMsg == msg){
+			//OMAC_HAL_PRINTF("Returning success\n");
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
 #endif
-		return DS_Success;
-	}
-endOfSend:
-	//OMAC_HAL_PRINTF("Returning DS_Fail\n");
+			return DS_Success;
+		}
+		else{
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
 #endif
-	return DS_Fail;
+			return DS_Fail;
+		}
+
+	}
+	else{
+		PiggybackMessages( msg, size);
+		IEEE802_15_4_Header_t *header = msg->GetHeader();
+		IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
+
+
+		header->length = (size);
+
+
+	#ifdef OMAC_DEBUG_GPIO
+			if(header->payloadType == MFM_OMAC_TIMESYNCREQ){
+				CPU_GPIO_SetPinState( RC_TX_TIMESYNCREQ, TRUE );
+			}
+			else if(header->payloadType == MFM_DATA){
+				CPU_GPIO_SetPinState( RC_TX_DATA, TRUE );
+				//OMAC_HAL_PRINTF("RC send; Sending: %d\n", (msg->GetPayload())[8]);
+			}
+	#endif
+
+		if( (header->flags & TIMESTAMPED_FLAG) ){
+			//Convert TimeStamp to high freq clock
+			UINT64 time_elapsed_since_TS = g_OMAC.m_Clock.GetCurrentTimeinTicks() - msg->GetMetaData()->GetReceiveTimeStamp();
+			UINT64 event_time = HAL_Time_CurrentTicks() - time_elapsed_since_TS;
+			//msg->GetMetaData()->SetReceiveTimeStamp((INT64)event_time);
+			if((g_OMAC.isSendDone)){//||(g_OMAC.radioName != SI4468_SPI2)){
+				//Reset flag just before sending
+				g_OMAC.isSendDone = false;
+	#ifdef OMAC_DEBUG_GPIO
+				CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
+	#endif
+				returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)event_time);
+			}
+			else{
+				goto endOfSend;
+			}
+		}
+		else {
+			if((g_OMAC.isSendDone)){//||(g_OMAC.radioName != SI4468_SPI2)){
+				//Reset flag just before sending
+				g_OMAC.isSendDone = false;
+	#ifdef OMAC_DEBUG_GPIO
+				CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
+	#endif
+				returnMsg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
+			}
+			else{
+				goto endOfSend;
+			}
+		}
+
+	#ifdef OMAC_DEBUG_GPIO
+			if(header->payloadType == MFM_OMAC_TIMESYNCREQ){
+				CPU_GPIO_SetPinState( RC_TX_TIMESYNCREQ, FALSE );
+			}
+			else if(header->payloadType == MFM_DATA){
+				CPU_GPIO_SetPinState( RC_TX_DATA, FALSE );
+			}
+	#endif
+
+		if(returnMsg == msg){
+			//OMAC_HAL_PRINTF("Returning success\n");
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
+#endif
+			return DS_Success;
+		}
+	endOfSend:
+		//OMAC_HAL_PRINTF("Returning DS_Fail\n");
+	#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
+		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
+		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
+	#endif
+		return DS_Fail;
+	}
 }
 
 
