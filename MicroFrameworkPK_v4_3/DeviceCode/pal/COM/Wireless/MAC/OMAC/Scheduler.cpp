@@ -242,7 +242,9 @@ bool OMACScheduler::RunEventTask(){
 
 		if(m_state != I_RADIO_STOP_RETRY) m_num_sleep_retry_attempts = 0;
 		VirtualTimerReturnMessage rm;
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, FAILSAFETIME_MICRO, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
+		if(rm == TimerSupported) rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
+
 	//g_OMAC.UpdateNeighborTable();
 	UINT64 curTicks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 
@@ -331,8 +333,12 @@ void OMACScheduler::FailsafeStop(){
 				PostExecution();
 			}
 			break;
+		case I_RADIO_STOP_RETRY:
+			PostPostExecution();
+				break;
 		default: //Case for
 			PostPostExecution();
+			break;
 	}
 }
 
@@ -354,8 +360,10 @@ void OMACScheduler::PostPostExecution(){
 #endif
 		if(m_num_sleep_retry_attempts < MAX_SLEEP_RETRY_ATTEMPTS){ //Schedule retrial
 			m_state = I_RADIO_STOP_RETRY;
-			rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, RADIO_STOP_RETRY_PERIOD_IN_MICS, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
-			rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
+
+
+			rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, RADIO_STOP_RETRY_PERIOD_IN_MICS, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
+			if(rm == TimerSupported) rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 			if(rm != TimerSupported){
 				PostExecution();
 			}
@@ -380,7 +388,10 @@ void OMACScheduler::PostPostExecution(){
 
 	}
 	else{
+
 	m_state = I_IDLE;
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, FAILSAFETIME_MICRO, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
+
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
