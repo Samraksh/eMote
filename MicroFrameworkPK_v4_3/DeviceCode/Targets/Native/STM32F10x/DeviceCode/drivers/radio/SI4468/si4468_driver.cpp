@@ -690,7 +690,7 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	CPU_GPIO_EnableOutputPin(SI4468_TX_TIMESTAMP, TRUE);
 	CPU_GPIO_SetPinState( SI4468_TX_TIMESTAMP, FALSE );
 	CPU_GPIO_EnableOutputPin(SI4468_TX_TIMESTAMP, TRUE);
-	CPU_GPIO_SetPinState( SI4468_RX, FALSE );
+	CPU_GPIO_SetPinState( SI4468_Radio_STATE, FALSE );
 
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
@@ -1052,7 +1052,7 @@ static bool rx_consistency_check(void) {
 
 // Does NOT set the radio busy unless a packet comes in.
 DeviceStatus si446x_hal_rx(UINT8 radioID) {
-	CPU_GPIO_SetPinState( SI4468_RX, TRUE );
+	CPU_GPIO_SetPinState( SI4468_Radio_STATE, TRUE );
 	radio_lock_id_t owner;
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx()\r\n");
 
@@ -1100,7 +1100,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 	si446x_spi_unlock();
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() END\r\n");
 
-	CPU_GPIO_SetPinState( SI4468_RX, FALSE );
+
 	return DS_Success;
 }
 
@@ -1153,6 +1153,7 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	si446x_spi_unlock();
 
 	CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
+	CPU_GPIO_SetPinState( SI4468_Radio_STATE, FALSE );
 	return DS_Success;
 }
 
