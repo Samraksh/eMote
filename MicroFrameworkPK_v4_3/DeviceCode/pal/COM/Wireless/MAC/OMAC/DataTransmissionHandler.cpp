@@ -797,7 +797,10 @@ bool DataTransmissionHandler::Send(){
 	}
 
 	m_outgoingEntryPtr = NULL;
-	if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+	if(neigh_ptr->NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS && neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+		m_outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
+	}
+	else if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
 		m_outgoingEntryPtr = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
 	}
 	else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
