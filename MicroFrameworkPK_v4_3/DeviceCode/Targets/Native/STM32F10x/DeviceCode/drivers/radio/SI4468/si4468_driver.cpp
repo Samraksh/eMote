@@ -685,6 +685,13 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	CPU_GPIO_EnableOutputPin(SI4468_MEASURE_RX_TIME, TRUE);
 	CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
 
+	CPU_GPIO_EnableOutputPin(SI4468_TX, TRUE);
+	CPU_GPIO_SetPinState( SI4468_TX, FALSE );
+	CPU_GPIO_EnableOutputPin(SI4468_TX_TIMESTAMP, TRUE);
+	CPU_GPIO_SetPinState( SI4468_TX_TIMESTAMP, FALSE );
+	CPU_GPIO_EnableOutputPin(SI4468_TX_TIMESTAMP, TRUE);
+	CPU_GPIO_SetPinState( SI4468_RX, FALSE );
+
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_init()\r\n");
@@ -961,6 +968,7 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 }
 
 void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
+	CPU_GPIO_SetPinState( SI4468_TX, TRUE );
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_send()\r\n");
 
 	DeviceStatus ret;
@@ -981,10 +989,13 @@ void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
 	Message_15_4_t* temp = tx_msg_ptr;
 	tx_msg_ptr = (Message_15_4_t*) msg;
 
+	CPU_GPIO_SetPinState( SI4468_TX, FALSE );
 	return msg;
 }
 
 void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime) {
+	CPU_GPIO_SetPinState( SI4468_TX_TIMESTAMP, TRUE );
+
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_send_ts()\r\n");
 
 	DeviceStatus ret;
@@ -1005,6 +1016,7 @@ void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime
 	Message_15_4_t* temp = tx_msg_ptr;
 	tx_msg_ptr = (Message_15_4_t*) msg;
 
+	CPU_GPIO_SetPinState( SI4468_TX_TIMESTAMP, FALSE );
 	return msg;
 }
 
@@ -1040,6 +1052,7 @@ static bool rx_consistency_check(void) {
 
 // Does NOT set the radio busy unless a packet comes in.
 DeviceStatus si446x_hal_rx(UINT8 radioID) {
+	CPU_GPIO_SetPinState( SI4468_RX, TRUE );
 	radio_lock_id_t owner;
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx()\r\n");
 
@@ -1086,6 +1099,8 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 	si446x_start_rx_fast_channel(si446x_channel);
 	si446x_spi_unlock();
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() END\r\n");
+
+	CPU_GPIO_SetPinState( SI4468_RX, FALSE );
 	return DS_Success;
 }
 
