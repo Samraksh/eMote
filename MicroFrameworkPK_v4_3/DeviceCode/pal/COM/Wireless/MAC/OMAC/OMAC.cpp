@@ -285,6 +285,7 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 			return DS_Fail;
 		}
 		this->macName = macName;
+		radioID = SI4468_SPI2;
 		this->radioName = radioID;
 		this->isSendDone = true;
 		SetConfig(config);
