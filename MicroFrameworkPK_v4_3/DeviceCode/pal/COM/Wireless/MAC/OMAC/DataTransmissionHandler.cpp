@@ -214,15 +214,36 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		if(g_NeighborTable.Neighbor[i].neighborStatus != Dead){
 			if( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(g_NeighborTable.Neighbor[i].MACAddress)){
 				// Readjust the neighbors queues and drop packets that have failed FRAMERETRYMAXATTEMPT
+
 				while(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0
 						&& g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT // This can be handled more gracefully
 					  ){
+#if defined(OMAC_DEBUG_PRINTF) || true
+					if(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPTWARNINGLEVEL){
+
+						hal_printf("FRAMERETRYMAXATTEMPTWARNINGLEVEL tsr_send_buffer dest = %u, payloadType = %u, GetRetryAttempts = %u "
+								, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
+								, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
+								, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts()
+								);
+					}
+#endif
 					ClearMsgContents(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval());
 					g_NeighborTable.Neighbor[i].tsr_send_buffer.DropOldest(1);
 				}
 				while(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0
 						&& g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT
 					  ){
+#if defined(OMAC_DEBUG_PRINTF) || true
+					if(g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPTWARNINGLEVEL){
+
+						hal_printf("FRAMERETRYMAXATTEMPTWARNINGLEVEL send_buffer dest = %u, payloadType = %u, GetRetryAttempts = %u "
+								, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
+								, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
+								, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts()
+								);
+					}
+#endif
 					if(g_OMAC.m_txAckHandler != NULL){ //If user is interested in ACKS, send negative acknowledgements for packets that are getting dropped due to exceeding number of retries
 						Message_15_4_t* msg = g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval();
 						(*g_OMAC.m_txAckHandler)(msg, sizeof(Message_15_4_t), NetworkOperations_Collision, TRAC_STATUS_NO_ACK);
