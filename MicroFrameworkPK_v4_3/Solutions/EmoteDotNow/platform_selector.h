@@ -438,7 +438,7 @@ J12_PIN10 = GND
 #define DATATX_SEND_ACK_HANDLER				(GPIO_PIN)120
 
 //RX related
-#define OMAC_RXPIN 							(GPIO_PIN)120 //120 //23  //120							//J11_pin3 0
+#define OMAC_RXPIN 							(GPIO_PIN)0 //120 //23  //120							//J11_pin3 0
 //#define OMAC_DATARXPIN 	(GPIO_PIN)120 //0 //26	//120 //2					//J12_pin5
 #define OMAC_TIMESYNCREQRXPIN 				(GPIO_PIN)120 //23 //30
 #define DISCO_SYNCRECEIVEPIN 				(GPIO_PIN)120 //25 //120					//J12_PIN2
