@@ -270,10 +270,7 @@ typedef OFProv<UINT64> OMACTicks;
 
 
 #define MAXUPDATESEEDITERS 2000
-//GUARDTIME_MICRO should be calculated in conjuction with SLOT_PERIOD_MILLI
-// GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
-//PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
-#define GUARDTIME_MICRO 20000
+
 #define MILLISECINMICSEC 1000
 
 #define MAX_SLEEP_RETRY_ATTEMPTS 10
@@ -358,6 +355,26 @@ typedef OFProv<UINT64> OMACTicks;
 #define OMACClockFreq 32
 //#define OMACClocktoSystemClockFreqRatio 250
 #define OMACClocktoSystemClockFreqRatio 244.140625
+
+#if (OMACClockSpecifier==LFCLOCKID)
+//#define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
+#define FORCE_REQUESTTIMESYNC_INMICS 10000000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
+//#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  48000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
+#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST_INMICS  600000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
+////GUARDTIME_MICRO should be calculated in conjuction with SLOT_PERIOD_MILLI
+//// GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
+////PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
+#define GUARDTIME_MICRO 1500
+#else
+//#define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
+#define FORCE_REQUESTTIMESYNC_INMICS 100000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
+//#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  48000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
+#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST_INMICS  6000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
+////GUARDTIME_MICRO should be calculated in conjuction with SLOT_PERIOD_MILLI
+//// GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
+////PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
+#define GUARDTIME_MICRO 20000
+#endif
 
 #define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_TICKS 4000
 #define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO 500
