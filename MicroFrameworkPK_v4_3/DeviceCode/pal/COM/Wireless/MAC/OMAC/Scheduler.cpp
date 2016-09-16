@@ -57,6 +57,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 #endif
 
 	m_state = I_IDLE;
+	m_execution_started = false;
 
 	//Initialize the HAL vitual timer layer
 
@@ -238,6 +239,7 @@ bool OMACScheduler::RunEventTask(){
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
 		CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, TRUE);
 #endif
+
 		VirtualTimerReturnMessage rm;
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 	//g_OMAC.UpdateNeighborTable();
@@ -250,6 +252,7 @@ bool OMACScheduler::RunEventTask(){
 #endif
 #endif
 
+	m_execution_started = true;
 	switch(m_state) {
 		case I_DATA_SEND_PENDING:
 #ifdef OMAC_DEBUG_GPIO
@@ -337,6 +340,7 @@ void OMACScheduler::PostPostExecution(){
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
 #endif
+		m_execution_started = false;
 	VirtualTimerReturnMessage rm = TimerNotSupported;
 	//	while (rm !=  TimerSupported){
 	//		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);

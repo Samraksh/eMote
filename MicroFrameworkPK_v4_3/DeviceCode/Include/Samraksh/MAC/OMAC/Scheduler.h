@@ -43,6 +43,7 @@ public:
 	bool SchedulerINUse;
 
 	OMACSchedulerState_t m_state;		//The state of the scheduler
+	bool m_execution_started;
 
 	DiscoveryHandler m_DiscoveryHandler;
 	DataReceptionHandler m_DataReceptionHandler;
