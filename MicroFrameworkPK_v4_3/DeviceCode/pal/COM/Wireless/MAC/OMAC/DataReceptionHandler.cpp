@@ -201,6 +201,8 @@ void DataReceptionHandler::ExecuteEvent(){
 }
 
 void DataReceptionHandler::HandleRadioInterrupt(){ // This is the beginning of a reception
+	CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, FALSE);
+	CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, TRUE);
 	VirtualTimerReturnMessage rm;
 	m_isreceiving = true;
 	//ASSERT_SP(m_receptionstate == 0);
