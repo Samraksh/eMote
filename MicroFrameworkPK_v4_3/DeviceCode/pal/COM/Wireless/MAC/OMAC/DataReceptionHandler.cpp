@@ -262,7 +262,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
 		//rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);		//This runs in continuation context. Enable this line or next.
-		//rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER_ACK);		//This runs in interrupt context
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER_ACK);		//This runs in interrupt context
 		if(rm != TimerSupported){
 			this->SendDataACK();
 		}
