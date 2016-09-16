@@ -431,7 +431,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 		UINT8 payloadType = swAckHeader->payloadType;
 		if(destID == myID){
 			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
-				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(destID);
+				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
 #endif
