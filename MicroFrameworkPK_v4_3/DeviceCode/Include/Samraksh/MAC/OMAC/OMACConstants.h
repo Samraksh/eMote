@@ -326,7 +326,7 @@ typedef OFProv<UINT64> OMACTicks;
 //#define CCA_REACTION_TIME_MICRO 165 //BK: We need to double check this. This is the reaction time of the CCA module from the beginning of channel activity.
 //#define CCA_PERIOD_MICRO GUARDTIME_MICRO //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 #define CCA_PERIOD_ERROR 410 //BK: It is observed that CCA is being done more than set by the protocol. This is the observed error on it. It is used in scheduling the tx side this much early
-#define CCA_PERIOD_MICRO 260
+#define CCA_PERIOD_MICRO 1312
 
 //Below 2 values are based on empirical observations made on a debug build
 #define FAST_RECOVERY_WAIT_PERIOD_MICRO 5*MILLISECINMICSEC
