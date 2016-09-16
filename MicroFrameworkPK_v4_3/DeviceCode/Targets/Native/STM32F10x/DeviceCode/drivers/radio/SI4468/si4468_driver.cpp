@@ -42,13 +42,13 @@ enum { SI_DUMMY=0, };
 // For now, memorize all WWF serial numbers
 // Yes these are strings and yes I'm a terrible person.
 // These are hex CPU serial numbers
-enum { serial_max_dotnow = 3, serial_max_wwf2=4, serial_per = 25 };
-const char dotnow_serial_numbers[serial_max_dotnow][serial_per] = { "392dd9054355353848400843", "3400d805414d303635341043", "3400d905414d303640461443" };
+enum { serial_max_dotnow = 4, serial_max_wwf2=4, serial_per = 25 };
+const char dotnow_serial_numbers[serial_max_dotnow][serial_per] = { "392dd9054355353848400843", "3400d805414d303635341043", "3400d905414d303640461443", "3400d605414d303629401043" };
 const char wwf2_serial_numbers[serial_max_wwf2][serial_per]     = { "05de00333035424643163542", "05d900333035424643162544", "3300d9054642353041381643", "3300df054642353040531643" };
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
-const unsigned si4468x_debug_level = DEBUG03; // CHANGE ME.
+const unsigned si4468x_debug_level = ERR100+1; // CHANGE ME.
 
 // Pin list used in setup.
 static SI446X_pin_setup_t SI446X_pin_setup;
@@ -685,6 +685,13 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	CPU_GPIO_EnableOutputPin(SI4468_MEASURE_RX_TIME, TRUE);
 	CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
 
+	CPU_GPIO_EnableOutputPin(SI4468_TX, TRUE);
+	CPU_GPIO_SetPinState( SI4468_TX, FALSE );
+	CPU_GPIO_EnableOutputPin(SI4468_TX_TIMESTAMP, TRUE);
+	CPU_GPIO_SetPinState( SI4468_TX_TIMESTAMP, FALSE );
+	CPU_GPIO_EnableOutputPin(SI4468_TX_TIMESTAMP, TRUE);
+	CPU_GPIO_SetPinState( SI4468_Radio_STATE, FALSE );
+
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_init()\r\n");
@@ -961,6 +968,7 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 }
 
 void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
+	CPU_GPIO_SetPinState( SI4468_TX, TRUE );
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_send()\r\n");
 
 	DeviceStatus ret;
@@ -981,10 +989,13 @@ void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
 	Message_15_4_t* temp = tx_msg_ptr;
 	tx_msg_ptr = (Message_15_4_t*) msg;
 
+	CPU_GPIO_SetPinState( SI4468_TX, FALSE );
 	return msg;
 }
 
 void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime) {
+	CPU_GPIO_SetPinState( SI4468_TX_TIMESTAMP, TRUE );
+
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_send_ts()\r\n");
 
 	DeviceStatus ret;
@@ -1005,6 +1016,7 @@ void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime
 	Message_15_4_t* temp = tx_msg_ptr;
 	tx_msg_ptr = (Message_15_4_t*) msg;
 
+	CPU_GPIO_SetPinState( SI4468_TX_TIMESTAMP, FALSE );
 	return msg;
 }
 
@@ -1040,6 +1052,7 @@ static bool rx_consistency_check(void) {
 
 // Does NOT set the radio busy unless a packet comes in.
 DeviceStatus si446x_hal_rx(UINT8 radioID) {
+	CPU_GPIO_SetPinState( SI4468_Radio_STATE, TRUE );
 	radio_lock_id_t owner;
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx()\r\n");
 
@@ -1086,6 +1099,8 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 	si446x_start_rx_fast_channel(si446x_channel);
 	si446x_spi_unlock();
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() END\r\n");
+
+
 	return DS_Success;
 }
 
@@ -1138,6 +1153,7 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	si446x_spi_unlock();
 
 	CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
+	CPU_GPIO_SetPinState( SI4468_Radio_STATE, FALSE );
 	return DS_Success;
 }
 

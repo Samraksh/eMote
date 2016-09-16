@@ -25,7 +25,7 @@ extern UINT8 MacName;
 #define INVALID_NEIGHBOR_INDEX 255
 #define INVALID_MACADDRESS 0
 
-#define NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS 1
+#define NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS 8
 
 //extern void  ManagedCallback(UINT16 arg1, UINT16 arg2);
 //#define DEBUG_NEIGHBORTABLE
@@ -74,6 +74,9 @@ typedef struct {
 	UINT64  LastTimeSyncRecvTime;			// Lasst time a time sync message is received
 	UINT64  LastTimeSyncRequestTime;	// Last time instant a time sync request is sent
 	UINT64  LastTimeSyncSendTime;	// Last time instant a time sync is sent(piggbacked)
+
+	UINT8 random_back_off_slot;
+	UINT8 random_back_off_window_size;
 	//UINT8   numErrors;
 	//UINT8   size;
 	//BOOL    isInTransition;
@@ -144,7 +147,7 @@ public:
 	DeviceStatus UpdateNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t, const NeighborTableCommonParameters_Two_t *neighborTableCommonParameters_Two_t);
 	//DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16  lastSeed, UINT16  dataInterval, UINT16  radioStartDelay, UINT16  counterOffset, UINT8* index);
 	DeviceStatus UpdateNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t);
-	UINT8  UpdateNeighborTable(UINT32 NeighborLivenessDelay, UINT64 currentTime);
+	UINT8  UpdateNeighborTable(UINT64 livelinessDelayInTicks, UINT64 currentTime);
 	UINT8  UpdateNeighborTable(UINT32 NeighborLivenessDelay);
 	DeviceStatus RecordTimeSyncRequestSent(UINT16 address, UINT64 _LastTimeSyncTime);
 	DeviceStatus RecordTimeSyncSent(UINT16 address, UINT64 _LastTimeSyncTime);
@@ -177,12 +180,12 @@ UINT16 NeighborTable::GetMaxNeighbors(void){
 	return MAX_NEIGHBORS;
 }
 
-UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay, UINT64 currentTime)
+UINT8 NeighborTable::UpdateNeighborTable(UINT64 livelinessDelayInTicks, UINT64 currentTime)
 {
 	UINT8 deadNeighbors = 0;
 
-	UINT64 livelinessDelayInTicks = CPU_MillisecondsToTicks(NeighborLivenessDelay * 1000);
-
+//	UINT64 livelinessDelayInTicks = CPU_MillisecondsToTicks(NeighborLivenessDelay * 1000);
+//
 
 	//if (Neighbor[0].Status == Alive)
 	//	hal_printf("neighbor 0 last time: %lld\tcurrent time: %lld\tlivelinessDelayinticks: %lld\r\n", Neighbor[0].LastHeardTime,  currentTime, livelinessDelayInTicks);
@@ -294,6 +297,9 @@ DeviceStatus NeighborTable::ClearNeighborwIndex(UINT8 tableIndex){
 	Neighbor[tableIndex].LastTimeSyncRecvTime = 0;
 	Neighbor[tableIndex].LastTimeSyncRequestTime = 0;
 	Neighbor[tableIndex].LastTimeSyncSendTime = 0;
+
+	Neighbor[tableIndex].random_back_off_slot = 0;
+	Neighbor[tableIndex].random_back_off_window_size = 1;
 
 	Neighbor[tableIndex].send_buffer.Initialize();
 	Neighbor[tableIndex].tsr_send_buffer.Initialize();

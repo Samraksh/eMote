@@ -209,10 +209,16 @@ DeviceStatus OMACType::SetOMACParametersBasedOnRadioName(UINT8 radioName){
 			DELAY_IN_RECEIVING_ACK = 3.6*MILLISECINMICSEC;
 			RETRANS_DELAY_DUE_TO_MISSING_ACK = 12.8*MILLISECINMICSEC;
 
+			if(FAST_RECOVERY)
 			LISTEN_PERIOD_FOR_RECEPTION_HANDLER = GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR\
 													+DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX+DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX+DELAY_IN_RECEIVING_ACK\
 														+RETRY_RANDOM_BACKOFF_DELAY_MICRO+RETRY_FUDGE_FACTOR\
 															+RETRANS_DELAY_DUE_TO_MISSING_ACK;
+			else if(FAST_RECOVERY2)
+				LISTEN_PERIOD_FOR_RECEPTION_HANDLER  =   GUARDTIME_MICRO + GUARDTIME_MICRO + DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX + MAX_PACKET_TX_DURATION_MICRO; //This is the duration used in FastRecovery 2.0
+			else
+				LISTEN_PERIOD_FOR_RECEPTION_HANDLER  =   GUARDTIME_MICRO + GUARDTIME_MICRO + DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX + MAX_PACKET_TX_DURATION_MICRO; //This is the duration used in FastRecovery 2.0
+
 			break;
 		}
 		default:
@@ -415,17 +421,26 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 	RadioAddress_t myID = g_OMAC.GetMyAddress();
 
 	if(Size == sizeof(softwareACKHeader)){
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
+#endif
 		swAckHeader = (softwareACKHeader*)msg;
 		RadioAddress_t sourceID = swAckHeader->src;
 		RadioAddress_t destID = swAckHeader->dest;
 		UINT8 payloadType = swAckHeader->payloadType;
 		if(destID == myID){
 			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
-				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(destID);
+				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
 				return msg;
 			}
 		}
 		return msg;
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
 	}
 
 
@@ -460,7 +475,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 			//Any message might have timestamping attached to it. Check for it and process
 			if(msg->GetHeader()->flags & TIMESTAMPED_FLAG){
-				senderDelay = PacketTimeSync_15_4::SenderDelay(msg,Size);
+				senderDelay = PacketTimeSync_15_4::SenderDelay(msg,Size) + g_OMAC.m_Clock.ConvertMicroSecstoTicks(TIME_RX_TIMESTAMP_OFFSET_MICRO);
 				rx_time_stamp = g_OMAC.m_Clock.GetCurrentTimeinTicks() - (HAL_Time_CurrentTicks() - msg->GetMetaData()->GetReceiveTimeStamp());
 			}
 
@@ -475,60 +490,65 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 					location_in_packet_payload += sizeof(DiscoveryMsg_t);
 					break;
 				}
-				case MFM_DATA:
-				{
-					//TODO: Commenting out below code for SI4468 radio. Needs to be re-visited.
-					if(g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING)){
-						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
-					}
-#ifdef OMAC_DEBUG_GPIO
-					CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
-#endif
-					data_msg = (DataMsg_t*) msg->GetPayload();
-//							if(data_msg->msg_identifier != 16843009){
-//								ASSERT_SP(0);
-//							}
-					//location_in_packet_payload += data_msg->size;
-					location_in_packet_payload += data_msg->size + DataMsgOverhead;
-
-					if(myID == destID) {//Process the data packet only if the destination matches
-						Message_15_4_t* next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
-
-						if(! (next_free_buffer))
-						{
-							g_receive_buffer.DropOldest(1);
-							next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
-						}
-
-						ASSERT_SP(next_free_buffer);
-						memcpy(next_free_buffer->GetPayload(),data_msg->payload,data_msg->size);
-						memcpy(next_free_buffer->GetHeader(),msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
-						memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
-						memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
-						next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
-						if(NEED_OMAC_CALLBACK_CONTINUATION){
-							payloadTypeArray[payloadTypeArrayIndex % payloadTypeArrayMaxValue] = msg->GetHeader()->payloadType;
-							payloadTypeArrayIndex++;
-							OMAC_callback_continuation.Enqueue();
-						}
-						else{
-							(*m_rxAckHandler)(next_free_buffer, msg->GetHeader()->payloadType);
-						}
-
-						//Another method of doing the same thing as above
-						/*Message_15_4_t tempMsg;
-						memcpy(tempMsg.GetPayload(), data_msg->payload, data_msg->size);
-						memcpy(tempMsg.GetHeader(), msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
-						memcpy(tempMsg.GetFooter, msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
-						memcpy(tempMsg.GetMetaData, msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
-						(*next_free_buffer) = &tempMsg;	//put the currently received message into the buffer (thereby its not free anymore)
-						(*m_rxAckHandler)(&tempMsg, data_msg->size);*/
-#ifdef OMAC_DEBUG_GPIO
-						CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
-#endif
-					}
-					break;
-				}
+//				case MFM_DATA:
+//				{
+//#ifdef OMAC_DEBUG_GPIO
+//					CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
+//#endif
+//					//TODO: Commenting out below code for SI4468 radio. Needs to be re-visited.
+//					if(myID == destID && g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started){
+//						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
+//					}
+//
+//					data_msg = (DataMsg_t*) msg->GetPayload();
+////							if(data_msg->msg_identifier != 16843009){
+////								ASSERT_SP(0);
+////							}
+//					//location_in_packet_payload += data_msg->size;
+//					location_in_packet_payload += data_msg->size + DataMsgOverhead;
+////
+////					if(false && myID == destID && g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started) {//Process the data packet only if the destination matches
+////						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
+////
+////						Message_15_4_t* next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
+////
+////						if(! (next_free_buffer))
+////						{
+////							g_receive_buffer.DropOldest(1);
+////							next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
+////						}
+////
+////						ASSERT_SP(next_free_buffer);
+////						memcpy(next_free_buffer->GetPayload(),data_msg->payload,data_msg->size);
+////						memcpy(next_free_buffer->GetHeader(),msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
+////						memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
+////						memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
+////						next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
+////						if(NEED_OMAC_CALLBACK_CONTINUATION){
+////							payloadTypeArray[payloadTypeArrayIndex % payloadTypeArrayMaxValue] = msg->GetHeader()->payloadType;
+////							payloadTypeArrayIndex++;
+////							OMAC_callback_continuation.Enqueue();
+////						}
+////						else{
+////							//TODO: BK: The following should be revisited. I think this should be handled as the default case.
+////							//(*m_rxAckHandler)(next_free_buffer, msg->GetHeader()->payloadType);
+////						}
+////
+////						//Another method of doing the same thing as above
+////						/*Message_15_4_t tempMsg;
+////						memcpy(tempMsg.GetPayload(), data_msg->payload, data_msg->size);
+////						memcpy(tempMsg.GetHeader(), msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
+////						memcpy(tempMsg.GetFooter, msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
+////						memcpy(tempMsg.GetMetaData, msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
+////						(*next_free_buffer) = &tempMsg;	//put the currently received message into the buffer (thereby its not free anymore)
+////						(*m_rxAckHandler)(&tempMsg, data_msg->size);*/
+////
+////					}
+//#ifdef OMAC_DEBUG_GPIO
+//						CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
+//#endif
+//					break;
+//				}
 				case MFM_OMAC_ROUTING: //Not processed
 				{
 					data_msg = (DataMsg_t*) msg->GetPayload();
@@ -591,30 +611,31 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 					}
 					break;
 				}
+				case MFM_DATA:
 				default:
 				{
 #ifdef OMAC_DEBUG_GPIO
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
-					CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
 #endif
 
-					//TODO: Commenting out below code for SI4468 radio. Needs to be re-visited.
-					if(g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING)){
+					if(myID == destID && g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started){
 						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
 					}
+
 					data_msg = (DataMsg_t*) msg->GetPayload();
+					location_in_packet_payload += data_msg->size + DataMsgOverhead;
 					//if(data_msg->msg_identifier != 16843009){
 						//ASSERT_SP(0);
 					//}
 
-					ASSERT_SP(data_msg->size <= MAX_DATA_PCKT_SIZE);
+//					ASSERT_SP(data_msg->size <= MAX_DATA_PCKT_SIZE);
 
-					//location_in_packet_payload += data_msg->size;
-					location_in_packet_payload += data_msg->size + DataMsgOverhead;
+
 
 					static volatile INT32 pt = msg->GetHeader()->payloadType;
-					
-					if(true || myID == destID) {
+
+					if(myID == destID && g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started) {//Process the data packet only if the destination matches
+
 						Message_15_4_t* next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
 						if(! (next_free_buffer))
 						{
@@ -648,11 +669,11 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 								(*multi_m_rxAckHandler)(next_free_buffer, msg->GetHeader()->payloadType);
 							}
 						}
+
+					}
 #ifdef OMAC_DEBUG_GPIO
-						CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
 						CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
 #endif
-					}
 					break;
 				}
 			};
@@ -886,7 +907,8 @@ Message_15_4_t* OMACType::FindFirstSyncedNbrMessage(){
  */
 UINT8 OMACType::UpdateNeighborTable(){
 	UINT8 index;
-	UINT8 numberOfDeadNeighbors = g_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay, m_Clock.GetCurrentTimeinTicks());
+
+	UINT8 numberOfDeadNeighbors = g_NeighborTable.UpdateNeighborTable(m_Clock.ConvertMicroSecstoTicks(MyConfig.NeighborLivenessDelay * 1000000), m_Clock.GetCurrentTimeinTicks());
 	if(numberOfDeadNeighbors > 0)
 	{
 		for(UINT8 i =0; i < MAX_NBR; ++i){

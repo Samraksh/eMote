@@ -55,6 +55,8 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 	m_state = DISCO_INITIAL;
 
+	m_num_sleep_retry_attempts = 0;
+
 	firstHighRateDiscoTimeinSlotNum = 0;
 	PermanentlyDecreaseDiscoRate();
 	TempIncreaseDiscoRate();
@@ -142,6 +144,7 @@ UINT64 DiscoveryHandler::NextEventinSlots(const UINT64 &currentSlotNum){
  *
  */
 void DiscoveryHandler::ExecuteEvent(){
+	m_num_sleep_retry_attempts = 0;
 	VirtualTimerReturnMessage rm;
 	m_state = DISCO_INITIAL;
 
@@ -188,16 +191,23 @@ void DiscoveryHandler::PostExecuteEvent(){
 	VirtualTimerReturnMessage rm;
 	DeviceStatus  ds = DS_Success;
 	m_state = WAITING_FOR_SLEEP;
-	//ds = g_OMAC.m_omac_RadioControl.Stop();
+	ds = g_OMAC.m_omac_RadioControl.Stop();
 	if (ds == DS_Success) {
 		m_state = SLEEP_SUCCESSFUL;
 		g_OMAC.m_omac_scheduler.PostExecution();
 	}
 	else {
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 1, TRUE, OMACClockSpecifier );
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
-		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
-			PostExecuteEvent();
+		OMAC_HAL_PRINTF("\n OMACScheduler::PostPostExecution() Radio stop failure! m_num_sleep_retry_attempts = %u \n", m_num_sleep_retry_attempts);
+		if(m_num_sleep_retry_attempts < MAX_SLEEP_RETRY_ATTEMPTS){
+			++m_num_sleep_retry_attempts;
+			rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, RADIO_STOP_RETRY_PERIOD_IN_MICS, TRUE, OMACClockSpecifier );
+			rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+				PostExecuteEvent();
+			}
+		}
+		else{ // Radio does not stop proceed anyway
+			g_OMAC.m_omac_scheduler.PostExecution();
 		}
 	}
 

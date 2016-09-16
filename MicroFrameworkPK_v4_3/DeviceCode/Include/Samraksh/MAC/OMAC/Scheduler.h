@@ -37,12 +37,13 @@ private:
 	UINT8 macID;
 
 	HandlerType_t m_lastHandler;
-
+	UINT8 m_num_sleep_retry_attempts;
 
 public:
 	bool SchedulerINUse;
 
 	OMACSchedulerState_t m_state;		//The state of the scheduler
+	bool m_execution_started;
 
 	DiscoveryHandler m_DiscoveryHandler;
 	DataReceptionHandler m_DataReceptionHandler;
