@@ -422,6 +422,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 	RadioAddress_t myID = g_OMAC.GetMyAddress();
 
 	if(Size == sizeof(softwareACKHeader)){
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
+#endif
 		swAckHeader = (softwareACKHeader*)msg;
 		RadioAddress_t sourceID = swAckHeader->src;
 		RadioAddress_t destID = swAckHeader->dest;
@@ -429,10 +432,16 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 		if(destID == myID){
 			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
 				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(destID);
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
 				return msg;
 			}
 		}
 		return msg;
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
 	}
 
 
