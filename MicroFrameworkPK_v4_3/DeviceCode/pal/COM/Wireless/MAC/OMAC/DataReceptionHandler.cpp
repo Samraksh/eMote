@@ -157,7 +157,11 @@ void DataReceptionHandler::ExecuteEvent(){
 	DeviceStatus e = DS_Fail;
 	e = g_OMAC.m_omac_RadioControl.StartRx();
 	if (e == DS_Success){
+
 #ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, FALSE);
+		CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, TRUE);
+
 		CPU_GPIO_SetPinState( DATARX_EXEC_EVENT, FALSE );
 		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, TRUE );
 		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, FALSE );
@@ -201,8 +205,10 @@ void DataReceptionHandler::ExecuteEvent(){
 }
 
 void DataReceptionHandler::HandleRadioInterrupt(){ // This is the beginning of a reception
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, FALSE);
 	CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, TRUE);
+#endif
 	VirtualTimerReturnMessage rm;
 	m_isreceiving = true;
 	//ASSERT_SP(m_receptionstate == 0);

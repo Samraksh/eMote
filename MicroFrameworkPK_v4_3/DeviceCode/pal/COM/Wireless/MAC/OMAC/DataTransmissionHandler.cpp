@@ -366,13 +366,23 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 	//140 usec is the time taken for CCA to return a result
 	if(EXECUTE_WITH_CCA) y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 
+	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
+	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
+
 	while(EXECUTE_WITH_CCA){
 		//If retrying, don't do CCA, but perform random backoff and transmit
 		if(m_currentSlotRetryAttempt > 0){
 			break;
 		}
 		//Check CCA only for DATA packets
+
+		CPU_GPIO_SetPinState( SCHED_RX_EXEC_PIN, TRUE );
+		CPU_GPIO_SetPinState( SCHED_RX_EXEC_PIN, FALSE );
+
 		DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+
+		CPU_GPIO_SetPinState( SCHED_RX_EXEC_PIN, TRUE );
+		CPU_GPIO_SetPinState( SCHED_RX_EXEC_PIN, FALSE );
 
 		if(DS != DS_Success){
 #ifdef OMAC_DEBUG_PRINTF
@@ -426,6 +436,8 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 #endif
+		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
+		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
 		bool rv = Send();
 		if(rv) {
 			txhandler_state = DTS_SEND_INITIATION_SUCCESS;
@@ -574,6 +586,9 @@ void DataTransmissionHandler::SelectRetrySlotNumForNeighborBackOff(){
 }
 
 void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus){
+	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
+	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
+
 	txhandler_state = DTS_SEND_FINISHED;
 	RadioAddress_t dest = m_outgoingEntryPtr_dest;
 	RadioAddress_t myID = g_OMAC.GetMyAddress();
@@ -704,6 +719,8 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 }
 
 void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
+	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
+	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
 	//2) Check if DataTransmissionHandler is active
 	//1) SOFTWARE_ACKs are used
 	//3) If the sourceID is equal to the destination of the original message
