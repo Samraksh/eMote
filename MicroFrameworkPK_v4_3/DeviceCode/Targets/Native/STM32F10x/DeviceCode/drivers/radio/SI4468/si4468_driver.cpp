@@ -1408,6 +1408,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 		if (owner != radio_lock_none && owner != radio_lock_tx)
 			si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() Odd radio_lock: %s\r\n", print_lock(owner));
 		rx_timestamp = int_ts;
+		(radio_si446x_spi2.GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(StartOfReception, NULL);
 	}
 
 	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{
