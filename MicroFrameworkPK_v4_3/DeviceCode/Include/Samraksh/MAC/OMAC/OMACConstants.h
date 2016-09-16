@@ -364,7 +364,7 @@ typedef OFProv<UINT64> OMACTicks;
 ////GUARDTIME_MICRO should be calculated in conjuction with SLOT_PERIOD_MILLI
 //// GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
 ////PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
-#define GUARDTIME_MICRO 1500
+#define GUARDTIME_MICRO 5000
 #else
 //#define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
 #define FORCE_REQUESTTIMESYNC_INMICS 100000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
