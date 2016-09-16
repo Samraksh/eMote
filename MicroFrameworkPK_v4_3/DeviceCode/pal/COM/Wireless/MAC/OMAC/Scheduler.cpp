@@ -58,7 +58,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 
 	m_state = I_IDLE;
 	m_execution_started = false;
-
+	m_num_sleep_retry_attempts = 0;
 	//Initialize the HAL vitual timer layer
 
 	bool rv = VirtTimer_Initialize();
@@ -240,6 +240,7 @@ bool OMACScheduler::RunEventTask(){
 		CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, TRUE);
 #endif
 
+		if(m_state != I_RADIO_STOP_RETRY) m_num_sleep_retry_attempts = 0;
 		VirtualTimerReturnMessage rm;
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 	//g_OMAC.UpdateNeighborTable();
@@ -346,13 +347,45 @@ void OMACScheduler::PostPostExecution(){
 	//		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 	//	}
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
+	if(rm != TimerSupported) return; //BK: Failsafe does not stop. let it fire and stop itself.
+	if(!EnsureStopRadio()){ //BK: Radio does not stop// Reschedule another stopping periof
+#ifdef OMAC_DEBUG_PRINTF
+	hal_printf("\n OMACScheduler::PostPostExecution() Radio stop failure! m_num_sleep_retry_attempts = %u \n", m_num_sleep_retry_attempts);
+#endif
+		if(m_num_sleep_retry_attempts < MAX_SLEEP_RETRY_ATTEMPTS){ //Schedule retrial
+			m_state = I_RADIO_STOP_RETRY;
+			rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, RADIO_STOP_RETRY_PERIOD_IN_MICS, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
+			rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
+			if(rm != TimerSupported){
+				PostExecution();
+			}
+		}
+		else{ // Radio does not stop after maximum number of stop trials
+			m_state = I_IDLE;
+		#ifdef OMAC_DEBUG_GPIO
+				CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
+				CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
+		#endif
 
-	EnsureStopRadio();
+			ScheduleNextEvent();
+
+		#ifdef OMAC_DEBUG_GPIO
+				CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
+				CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, FALSE);
+				CPU_GPIO_SetPinState(SCHED_TX_EXEC_PIN, FALSE);
+				CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, FALSE);
+				CPU_GPIO_SetPinState(SCHED_TSREQ_EXEC_PIN, FALSE);
+		#endif
+		}
+
+	}
+	else{
 	m_state = I_IDLE;
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
 #endif
+
 	ScheduleNextEvent();
 
 #ifdef OMAC_DEBUG_GPIO
@@ -362,6 +395,7 @@ void OMACScheduler::PostPostExecution(){
 		CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, FALSE);
 		CPU_GPIO_SetPinState(SCHED_TSREQ_EXEC_PIN, FALSE);
 #endif
+	}
 }
 
 bool OMACScheduler::EnsureStopRadio(){

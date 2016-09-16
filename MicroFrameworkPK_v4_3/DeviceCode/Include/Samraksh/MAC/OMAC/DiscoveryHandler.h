@@ -48,6 +48,9 @@ class DiscoveryHandler: public EventHandler {
 	DiscoState m_state;
 	UINT64 GetSlotNumber();
 	UINT64 GetTimeTillTheEndofSlot();
+
+	UINT8 m_num_sleep_retry_attempts;
+
  public:
 	UINT32 discoInterval;
 	UINT16 m_seed;

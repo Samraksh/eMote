@@ -37,7 +37,7 @@ private:
 	UINT8 macID;
 
 	HandlerType_t m_lastHandler;
-
+	UINT8 m_num_sleep_retry_attempts;
 
 public:
 	bool SchedulerINUse;
