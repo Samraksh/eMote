@@ -14,7 +14,7 @@ namespace Samraksh.eMote.Net.MAC
         /// <param name="ccaSenseTime">cca sense time</param>
         /// <param name="bufferSize">Size of send buffer</param>
         /// <param name="neighborLivenessDelay">Time to wait (in milliseconds) before declaring a neighbor dead</param>
-        public OMAC(IRadioConfiguration radioConfiguration, uint neighborLivenessDelay = 180, byte numberOfRetries = 0, byte bufferSize = 8, bool cca = true, byte ccaSenseTime = 120)
+        public OMAC(IRadioConfiguration radioConfiguration, uint neighborLivenessDelay = 650, byte numberOfRetries = 0, byte bufferSize = 8, bool cca = true, byte ccaSenseTime = 120)
             : base(MACType.OMAC, radioConfiguration, neighborLivenessDelay, numberOfRetries, bufferSize, cca, ccaSenseTime)
         {
         }
