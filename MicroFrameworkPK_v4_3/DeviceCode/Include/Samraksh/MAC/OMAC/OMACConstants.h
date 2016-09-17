@@ -356,7 +356,7 @@ typedef OFProv<UINT64> OMACTicks;
 //#define OMACClocktoSystemClockFreqRatio 250
 #define OMACClocktoSystemClockFreqRatio 244.140625
 
-#define INITIALIZATION_TIMESYNC_INTERVAL_INMICS 5000000
+#define INITIALIZATION_TIMESYNC_INTERVAL_INMICS 2000000
 
 #if (OMACClockSpecifier==LFCLOCKID)
 //#define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
