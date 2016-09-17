@@ -297,7 +297,14 @@ void DataTransmissionHandler::DropPacket(){
 	}
 	else {
 		neigh_ptr->random_back_off_window_size = INITIAL_RETRY_BACKOFF_WINDOW_SIZE;
-		if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
+		if(neigh_ptr->NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS && neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval() ) {
+			ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
+			neigh_ptr->tsr_send_buffer.DropOldest(1);
+			if((neigh_ptr->NumTimeSyncMessagesSent) <= NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS) {
+				++(neigh_ptr->NumTimeSyncMessagesSent);
+			}
+		}
+		else if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
 
 			if(CPU_Radio_GetRadioAckType() == NO_ACK || CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 				Message_15_4_t* msg = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
