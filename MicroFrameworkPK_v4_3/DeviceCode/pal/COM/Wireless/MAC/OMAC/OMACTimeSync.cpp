@@ -101,8 +101,8 @@ UINT16 OMACTimeSync::NextEventinSlots(){
 //	}
 //	else {
 //		UINT64 remslots = (m_messagePeriod - (y - sn->LastTimeSyncSendTime) ) / SLOT_PERIOD;
-		return 0;
-	}
+//	}
+	return 0;
 }
 
 
