@@ -449,7 +449,7 @@ namespace Samraksh.eMote.Net
 		/// <param name="neighborLivenessDelay"></param>
 		/// <exception caption="MacNotConfigured Exception" cref="MACNotConfiguredException"></exception>
 		/// <exception caption="System Exception" cref="System.SystemException"></exception>
-		public MACBase(MACType macType, IRadioConfiguration radioConfiguration, uint neighborLivenessDelay = 180, byte numberOfRetries = 0, byte bufferSize = 8, bool cca = true,
+		public MACBase(MACType macType, IRadioConfiguration radioConfiguration, uint neighborLivenessDelay = 650, byte numberOfRetries = 0, byte bufferSize = 8, bool cca = true,
 									byte ccaSenseTime = 120)
 			: base("MACCallback", 1234)
 		{
