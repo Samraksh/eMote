@@ -155,7 +155,7 @@ public:
 	UINT64 GetLastTimeSyncRecv(UINT16 address);
 	Neighbor_t* GetMostObsoleteTimeSyncNeighborPtr();
 	//Neighbor_t* GetNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& request_limit);
-	Neighbor_t* GetCritalSyncNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& request_limit,const UINT64& forcererequest_limit);
+	Neighbor_t* GetCritalSyncNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& request_limit,const UINT64& forcererequest_limit, const UINT64& fast_disco_request_interval);
 	void DegradeLinks();
 	UINT16 GetMaxNeighbors();
 
@@ -583,7 +583,7 @@ Neighbor_t* NeighborTable::GetMostObsoleteTimeSyncNeighborPtr(){
 	return rn;
 }
 
-Neighbor_t* NeighborTable::GetCritalSyncNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& request_limit, const UINT64& forcererequest_limit){
+Neighbor_t* NeighborTable::GetCritalSyncNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& request_limit, const UINT64& forcererequest_limit, const UINT64& fast_disco_request_interval ){
 	Neighbor_t* rn = NULL;
 	int tableIndex;
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
@@ -593,8 +593,10 @@ Neighbor_t* NeighborTable::GetCritalSyncNeighborWOldestSyncPtr(const UINT64& cur
 
 				if((curticks - Neighbor[tableIndex].LastTimeSyncSendTime > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRecvTime > forcererequest_limit || Neighbor[tableIndex].NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS )){
 
-					if( (Neighbor[tableIndex].LastTimeSyncRequestTime == 0  || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > forcererequest_limit )
-						){
+					if(Neighbor[tableIndex].LastTimeSyncRequestTime == 0  || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > forcererequest_limit ){
+						rn = &Neighbor[tableIndex];
+					}
+					else if(Neighbor[tableIndex].NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS && curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > fast_disco_request_interval){
 						rn = &Neighbor[tableIndex];
 					}
 				}

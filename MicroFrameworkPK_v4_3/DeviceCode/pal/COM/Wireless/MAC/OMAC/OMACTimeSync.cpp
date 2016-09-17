@@ -66,14 +66,24 @@ UINT64 OMACTimeSync::NextEvent(){
 	UINT16 nextEventsSlot = 0;
 	UINT64 nextEventsMicroSec = 0;
 	nextEventsSlot = NextEventinSlots();
-	while(sn == NULL){
-		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(g_OMAC.m_Clock.GetCurrentTimeinTicks(),m_messagePeriod,g_OMAC.m_Clock.ConvertMicroSecstoTicks(FORCE_REQUESTTIMESYNC_INMICS));
+	while(true){
+		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(
+				  g_OMAC.m_Clock.GetCurrentTimeinTicks()
+				, m_messagePeriod
+				, g_OMAC.m_Clock.ConvertMicroSecstoTicks(FORCE_REQUESTTIMESYNC_INMICS)
+				, g_OMAC.m_Clock.ConvertMicroSecstoTicks(INITIALIZATION_TIMESYNC_INTERVAL_INMICS)
+				);
 		if(sn != NULL) {
 			y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 			if(y - sn->LastTimeSyncSendTime >= m_messagePeriod){
 				Send(sn->MACAddress);
-				sn == NULL;
 			}
+			else{
+				break;
+			}
+		}
+		else{
+			break;
 		}
 	}
 	if(sn != NULL) {
@@ -177,7 +187,7 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 #ifdef OMAC_DEBUG_PRINTF
 			OMAC_HAL_PRINTF("OMACTimeSync::Send failed. Addr=%d", address);
 #endif
-			return rs;
+		//	return rs;
 		}
 #ifdef OMAC_DEBUG_PRINTF
 		OMAC_HAL_PRINTF("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
