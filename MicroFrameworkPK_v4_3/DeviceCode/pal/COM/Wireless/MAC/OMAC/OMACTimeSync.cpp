@@ -61,20 +61,24 @@ UINT64 OMACTimeSync::NextEvent(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_TIMESYNC_NEXT_EVENT, TRUE);
 #endif
-	Neighbor_t* sn;
+	Neighbor_t* sn = NULL;
+	UINT64 y;
 	UINT16 nextEventsSlot = 0;
 	UINT64 nextEventsMicroSec = 0;
 	nextEventsSlot = NextEventinSlots();
-	while(nextEventsSlot == 0){
+	while(sn == NULL){
 		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(g_OMAC.m_Clock.GetCurrentTimeinTicks(),m_messagePeriod,g_OMAC.m_Clock.ConvertMicroSecstoTicks(FORCE_REQUESTTIMESYNC_INMICS));
 		if(sn != NULL) {
-			Send(sn->MACAddress);
-			nextEventsSlot = NextEventinSlots();
+			y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+			if(y - sn->LastTimeSyncSendTime >= m_messagePeriod){
+				Send(sn->MACAddress);
+				sn == NULL;
+			}
 		}
 	}
-
-	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MILLISECINMICSEC;
-	nextEventsMicroSec = nextEventsMicroSec + g_OMAC.m_omac_scheduler.GetTimeTillTheEndofSlot();
+	if(sn != NULL) {
+		nextEventsMicroSec = g_OMAC.m_Clock.ConvertTickstoMicroSecs ( m_messagePeriod - (y - sn->LastTimeSyncSendTime) );
+	}
 	/*if(HARDWARE_ACKS){
 		nextEventsMicroSec += (1*EXTENDED_MODE_TX_DELAY_MICRO);
 	}*/
@@ -87,17 +91,17 @@ UINT64 OMACTimeSync::NextEvent(){
  *
  */
 UINT16 OMACTimeSync::NextEventinSlots(){
-	UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-	UINT64 currentSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
-	Neighbor_t* sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(y, m_messagePeriod,g_OMAC.m_Clock.ConvertMicroSecstoTicks(FORCE_REQUESTTIMESYNC_INMICS) );
-	if ( sn == NULL ) return ((UINT16) MAX_UINT32);
-
-	else if( y - sn->LastTimeSyncSendTime >= m_messagePeriod) { //Already passed the time. schedule send immediately
+//	UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+//	UINT64 currentSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
+//	Neighbor_t* sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(y, m_messagePeriod,g_OMAC.m_Clock.ConvertMicroSecstoTicks(FORCE_REQUESTTIMESYNC_INMICS) );
+//	if ( sn == NULL ) return ((UINT16) MAX_UINT32);
+//
+//	else if( y - sn->LastTimeSyncSendTime >= m_messagePeriod) { //Already passed the time. schedule send immediately
+//		return 0;
+//	}
+//	else {
+//		UINT64 remslots = (m_messagePeriod - (y - sn->LastTimeSyncSendTime) ) / SLOT_PERIOD;
 		return 0;
-	}
-	else {
-		UINT64 remslots = (m_messagePeriod - (y - sn->LastTimeSyncSendTime) ) / SLOT_PERIOD;
-		return remslots;
 	}
 }
 
