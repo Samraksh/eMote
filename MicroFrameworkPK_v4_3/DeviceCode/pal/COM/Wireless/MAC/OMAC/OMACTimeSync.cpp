@@ -75,7 +75,10 @@ UINT64 OMACTimeSync::NextEvent(){
 				);
 		if(sn != NULL) {
 			y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-			if(y - sn->LastTimeSyncSendTime >= m_messagePeriod){
+			if(sn->IsInitializationTimeSamplesNeeded()){ //If the node needs initialization
+				Send(sn->MACAddress);
+			}
+			else if(y - sn->LastTimeSyncSendTime >= m_messagePeriod){
 				Send(sn->MACAddress);
 			}
 			else{

@@ -56,6 +56,10 @@ enum NeighborStatus {
 typedef struct {
 	UINT16 MACAddress;
 	UINT8 NumTimeSyncMessagesSent;	//Count of timesync packets sent per neighbor
+	bool IsInitializationTimeSamplesNeeded(){
+		if(NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS) return true;
+		else return false;
+	}
 	//Send (formerly forward) link details between current and neighbor node
 	Link_t SendLink;
 	//Receive (formerly reverse) link details between current and neighbor node
@@ -589,14 +593,14 @@ Neighbor_t* NeighborTable::GetCritalSyncNeighborWOldestSyncPtr(const UINT64& cur
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
 		if (Neighbor[tableIndex].neighborStatus != Dead){
 			//Get neighbor which has to be sent a timesync packet asap
-			if(rn == NULL || Neighbor[tableIndex].LastTimeSyncSendTime < rn->LastTimeSyncSendTime || Neighbor[tableIndex].NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS ){ //Consider this neighbor
+			if(rn == NULL || Neighbor[tableIndex].LastTimeSyncSendTime < rn->LastTimeSyncSendTime || Neighbor[tableIndex].IsInitializationTimeSamplesNeeded() ){ //Consider this neighbor
 
-				if((curticks - Neighbor[tableIndex].LastTimeSyncSendTime > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRecvTime > forcererequest_limit || Neighbor[tableIndex].NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS )){
+				if((curticks - Neighbor[tableIndex].LastTimeSyncSendTime > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRecvTime > forcererequest_limit || Neighbor[tableIndex].IsInitializationTimeSamplesNeeded() )){
 
 					if(Neighbor[tableIndex].LastTimeSyncRequestTime == 0  || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > forcererequest_limit ){
 						rn = &Neighbor[tableIndex];
 					}
-					else if(Neighbor[tableIndex].NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS && curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > fast_disco_request_interval){
+					else if(Neighbor[tableIndex].IsInitializationTimeSamplesNeeded() && curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > fast_disco_request_interval){
 						rn = &Neighbor[tableIndex];
 					}
 				}
