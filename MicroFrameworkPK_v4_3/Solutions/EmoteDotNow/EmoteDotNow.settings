@@ -26,7 +26,7 @@
   <PropertyGroup>
     <!-- BEFORE YOU CHANGE THIS: check size of ER_RAM_RO + ER_RAM_RW + .bss in map file and accommodate accordingly. -->
     <SAM_STACK_BOTTOM     >0x20000000</SAM_STACK_BOTTOM>    <!-- Stack always must sit at the base of ram. period. -->
-    <SAM_STACK_TOP        >0x20001800</SAM_STACK_TOP>
+    <SAM_STACK_TOP        >0x20001000</SAM_STACK_TOP>
     <!-- Linker will collect and place ER_RAM_RO, ER_RAM_RW, .bss sections between stack and heap -->
     <!-- After you know the size of sections below the heap, come back here and re-define ...-->
     <!-- ... SAM_HEAP_BEGIN to hug the variable-sized sections below the HEAP. -->
