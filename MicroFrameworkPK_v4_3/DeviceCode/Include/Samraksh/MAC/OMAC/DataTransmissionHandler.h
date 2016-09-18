@@ -66,6 +66,8 @@ class DataTransmissionHandler: public EventHandler {
 	UINT64 CalculateNextTxMicro(UINT16 dest);
 	void SelectRetrySlotNumForNeighborBackOff();
 
+	Message_15_4_t* SelectPacketForDest(UINT16 m_outgoingEntryPtr_dest_);
+
 public:
 	void Initialize();
 	UINT64 NextEvent();

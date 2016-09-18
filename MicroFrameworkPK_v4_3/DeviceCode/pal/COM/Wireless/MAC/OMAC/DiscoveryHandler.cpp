@@ -523,6 +523,14 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 		g_NeighborTable.InsertNeighbor(&neighborTableCommonParameters_One_t, &neighborTableCommonParameters_two_t);
 	}
 
+#ifdef OMAC_DEBUG_PRINTF_DISCO_RX
+	hal_printf("Disco RX SourceID = %u TimeAvail = %s \n"
+			,source
+			,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(source) ? "TRUE" : "FALSE"
+			);
+#endif
+
+
 #ifdef def_Neighbor2beFollowed
 	if (source == g_OMAC.Neighbor2beFollowed){
 #ifdef OMAC_DEBUG_GPIO

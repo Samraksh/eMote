@@ -429,6 +429,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 		RadioAddress_t destID = swAckHeader->dest;
 		UINT8 payloadType = swAckHeader->payloadType;
 		if(destID == myID){
+#ifdef OMAC_DEBUG_PRINTF_ACKREC
+		hal_printf("ACK Received sourceID = %u, destID = %u   \n", sourceID, destID);
+#endif
 			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
 				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
 #ifdef OMAC_DEBUG_GPIO
@@ -478,6 +481,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				senderDelay = PacketTimeSync_15_4::SenderDelay(msg,Size) + g_OMAC.m_Clock.ConvertMicroSecstoTicks(TIME_RX_TIMESTAMP_OFFSET_MICRO);
 				rx_time_stamp = g_OMAC.m_Clock.GetCurrentTimeinTicks() - (HAL_Time_CurrentTicks() - msg->GetMetaData()->GetReceiveTimeStamp());
 			}
+
+#ifdef OMAC_DEBUG_PRINTF_PACKETREC
+		hal_printf("OMACType::ReceiveHandler = sourceID = %u, destID = %u payloadType = %u flags = %u \n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags);
+#endif
 
 			//Get the primary packet
 			switch(msg->GetHeader()->payloadType){
@@ -741,10 +748,16 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
  */
 BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
 	if(!Initialized){
+#ifdef OMAC_DEBUG_PACKET_REJECTION
+		hal_printf("OMACType::Send Pckt Reject Initialized destID = %u dataType = %u \n", address, dataType);
+#endif
 		return false;
 	}
 	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
 	if(msg_carrier == (Message_15_4_t*)(NULL)){
+#ifdef OMAC_DEBUG_PACKET_REJECTION
+		hal_printf("OMACType::Send Pckt Reject destID = %u dataType = %u \n", address, dataType);
+#endif
 		return false;
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
@@ -759,10 +772,16 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
 ////BOOL OMACType::SendTimeStamped(RadioAddress_t address, UINT8 dataType, Message_15_4_t* msg, int size, UINT32 eventTime)
 BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime){
 	if(!Initialized){
+#ifdef OMAC_DEBUG_PACKET_REJECTION
+		hal_printf("OMACType::SendTimeStamped Pckt Reject Initialized destID = %u dataType = %u \n", address, dataType);
+#endif
 		return false;
 	}
 	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
 	if(msg_carrier == (Message_15_4_t*)(NULL)){
+#ifdef OMAC_DEBUG_PACKET_REJECTION
+		hal_printf("OMACType::SendTimeStamped Pckt Reject destID = %u dataType = %u \n", address, dataType);
+#endif
 		return false;
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
