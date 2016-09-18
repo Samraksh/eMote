@@ -315,7 +315,8 @@ void DataTransmissionHandler::DropPacket(){
 		neigh_ptr->random_back_off_window_size = INITIAL_RETRY_BACKOFF_WINDOW_SIZE;
 		if(neigh_ptr->IsInitializationTimeSamplesNeeded() && neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval() ) {
 #ifdef OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
-			hal_printf("Dropping TSR Packet SUCCESS INITIAL_RETRY_BACKOFF_WINDOW_SIZE dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
+			hal_printf("Dropping TSR Packet SUCCESS NumTimeSyncMessagesSent = %u < INITIAL_RETRY_BACKOFF_WINDOW_SIZE dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
+					, neigh_ptr->NumTimeSyncMessagesSent
 					, neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
 					, neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
 					, neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->flags
@@ -485,6 +486,11 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		bool rv = Send();
 		if(rv) {
 
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
+		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
+#endif
+
 #ifdef OMAC_DEBUG_PRINTF_TXATTEMPT_SUCCESS
 			if(m_outgoingEntryPtr != NULL){
 			hal_printf("TXATTEMPT_SUCCESSL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
@@ -498,6 +504,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 			}
 #endif
 
+
 			txhandler_state = DTS_SEND_INITIATION_SUCCESS;
 			if(CPU_Radio_GetRadioAckType() == NO_ACK){
 				DropPacket();
@@ -506,6 +513,13 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		else{
 			txhandler_state = DTS_SEND_INITIATION_FAIL;
 #ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
+			CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
+			CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
+			CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
+			CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
+			CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
+
 			//OMAC_HAL_PRINTF("DataTransmissionHandler::ExecuteEventHelper Toggling\n");
 			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
@@ -802,23 +816,23 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
 		&& 	sourceaddress == m_outgoingEntryPtr_dest
 	){
 		txhandler_state = DTS_RECEIVEDDATAACK;
-	#ifdef OMAC_DEBUG_GPIO
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, TRUE);
 		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
 		CPU_GPIO_SetPinState( DATATX_RECV_SW_ACK, TRUE );
-	#endif
+#endif
 		VirtualTimerReturnMessage rm;
 
 #ifdef	OMAC_DEBUG_PRINTF_PACKET_ACK_RX_SUCCESS
 	if(m_outgoingEntryPtr){
-	hal_printf("ACK RX FAIL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
+	hal_printf("ACK_RX_SUCCESS dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
 			, m_outgoingEntryPtr->GetHeader()->dest
 			, m_outgoingEntryPtr->GetHeader()->payloadType
 			, m_outgoingEntryPtr->GetHeader()->flags
 			, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
 	}
 	else{
-		hal_printf("TXATTEMPT_SUCCESS NO m_outgoingEntryPtr \n");
+		hal_printf("ACK_RX_SUCCESS NO m_outgoingEntryPtr \n");
 	}
 #endif
 
@@ -857,7 +871,7 @@ void DataTransmissionHandler::PostExecuteEvent(){
 				, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
 		}
 		else{
-			hal_printf("TXATTEMPT_SUCCESS NO m_outgoingEntryPtr \n");
+			hal_printf("ACK RX FAIL NO m_outgoingEntryPtr \n");
 		}
 
 #endif
