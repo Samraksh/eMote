@@ -199,6 +199,37 @@ static const char* PrintStateID(si_state_t id){
 	}
 }
 
+// TEMPORARY HELPER FUNCTIONS TO DISABLE RADAR
+static void radar_mux_on(unsigned on) {
+#ifdef PLATFORM_ARM_WLN // only for WLN
+	if (on) {
+		GPIO_WriteBit(GPIOA, GPIO_Pin_1,  Bit_RESET); // ~MUX_EN
+	}
+	else {
+		GPIO_WriteBit(GPIOA, GPIO_Pin_1,  Bit_SET);
+	}
+#endif
+}
+
+static void radar_on(unsigned on) {
+#ifdef PLATFORM_ARM_WLN // only for WLN
+	if (on) {
+		GPIO_WriteBit(GPIOA, GPIO_Pin_11, Bit_SET); // TrigClockOn
+	}
+	else {
+		GPIO_WriteBit(GPIOA, GPIO_Pin_11, Bit_RESET);
+	}
+#endif
+}
+
+static void radar_all_on(unsigned on) {
+#ifdef PLATFORM_ARM_WLN // only for WLN
+	radar_mux_on(on);
+	radar_on(on);
+#endif
+}
+// END TEMPORARY HELPER FUNCTIONS TO DISABLE RADAR
+
 #ifndef SI446x_NO_DEBUG_PRINT
 static void si446x_debug_print(int priority, const char *fmt, ...) {
     va_list args;
@@ -640,6 +671,21 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_9;
 		GPIO_Init(GPIOB, &GPIO_InitStructure);
 		set_radio_power_pwm(1);
+
+		// PA11 --> Radar TrigClockOn
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
+		GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_11;
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+		radar_on(1);
+		GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+		// PA1 --> Radar ~MUX_EN
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+		GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_1;
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+		radar_mux_on(1);
+		GPIO_Init(GPIOA, &GPIO_InitStructure);
+
 		// END TEST
 	}
 	else { // I am a .NOW
@@ -945,6 +991,9 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	memcpy(&tx_buf[1], pkt, len);
 
 	si446x_write_tx_fifo(len+1, tx_buf); // add one for packet size
+
+	// EXPERIMENTAL. DISABLE RADAR DURING TX
+	radar_all_on(0);
 
 	if (doTS) { // Timestamp Case
 		GLOBAL_LOCK(irq);
@@ -1356,6 +1405,8 @@ UINT32 si446x_hal_get_rssi(UINT8 radioID) {
 // INTERRUPT CONTEXT, LOCKED
 static void si446x_pkt_tx_int() {
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_tx_int()\r\n");
+	// EXPERIMENTAL: RE-ENABLE RADAR AFTER TX
+	radar_all_on(1);
 	tx_callback_continuation.Enqueue();
 }
 
