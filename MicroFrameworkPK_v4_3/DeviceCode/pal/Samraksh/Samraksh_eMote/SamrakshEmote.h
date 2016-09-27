@@ -109,6 +109,16 @@ struct Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore
 
 };
 
+struct Library_SamrakshEmote_Samraksh_eMote_RadarInterface
+{
+    TINYCLR_NATIVE_DECLARE(TurnOn___BOOLEAN);
+    TINYCLR_NATIVE_DECLARE(TurnOff___BOOLEAN);
+    TINYCLR_NATIVE_DECLARE(Blind___BOOLEAN);
+
+    //--//
+
+};
+
 
 
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote;

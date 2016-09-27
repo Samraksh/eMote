@@ -894,5 +894,33 @@
             
             </summary>
         </member>
+        <member name="M:Samraksh.eMote.RadarInterface.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInterface.Finalize">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInterface.TurnOn">
+            <summary>
+            Turns on the Radar
+            </summary>
+            <returns>The result of turning on the radar: Success, Fail</returns>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInterface.TurnOff">
+            <summary>
+            Turns off the Radar
+            </summary>
+            <returns>The result of turning off the radar: Success, Fail</returns>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInterface.Blind">
+            <summary>
+            Blinds the Radar
+            </summary>
+            <returns>The result of blinding the radar: Success, Fail</returns>
+        </member>
     </members>
 </doc>
