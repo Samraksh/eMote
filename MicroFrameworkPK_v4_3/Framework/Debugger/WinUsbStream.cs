@@ -370,7 +370,7 @@ namespace Microsoft.SPOT.Debugger
             }
             else
             {
-                EnumeratePorts(NETMF_WinUsb_Guid_Win8, lst);
+                //EnumeratePorts(NETMF_WinUsb_Guid_Win8, lst);
             }
 
             ICollection col = lst.Values;
