@@ -439,7 +439,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 	UINT8 index;
 
 	if(Size == sizeof(softwareACKHeader)){
-		hal_printf("software ACK\r\n");
+		//hal_printf("software ACK\r\n");
 		return msg;
 	} else if(Size- sizeof(IEEE802_15_4_Header_t) >  csmaMAC::GetMaxPayload()){
 		hal_printf("CSMA Receive Error: Packet is too big. Size: %d, MaxPayload: %d, ExpectedHeaderSize: %d \r\n", Size, csmaMAC::GetMaxPayload(), sizeof(IEEE802_15_4_Header_t));
