@@ -27,6 +27,8 @@ struct Time_Driver
     UINT32 CounterValue();  //TODO: not used?
 	void StopTimer();
     void SetCompareValue( UINT64 CompareValue );
+	void StopTimerSleepClock();
+    void SetCompareValueSleepClock( UINT64 CompareValue );
     INT64 TicksToTime( UINT64 Ticks );
     INT64 CurrentTime();
     INT64 TimeNow();

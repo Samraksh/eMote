@@ -110,6 +110,35 @@ void Time_Driver::SetCompareValue( UINT64 compareTicks )
 	VirtTimer_Start( VIRT_TIMER_EVENTS );
 }
 
+void Time_Driver::StopTimerSleepClock()
+{
+	BOOL success = ( VirtTimer_Stop( VIRT_TIMER_SLEEP ) == TimerSupported );
+	ASSERT(success);
+}
+
+void Time_Driver::SetCompareValueSleepClock( UINT64 compareTicks )
+{
+	UINT32 compareTimeInMicroSecs = 0;
+
+	// for now we are capping compares to a 32-bit max value, but we need to move to 64-bit times and clean this up
+	if(compareTicks > 0xFFFFFFFF)
+	{
+		compareTicks = 0xFFFFFFFF;
+	}
+	ASSERT(compareTicks < 0xFFFFFFFF); // assert we are not losing time. this is called by Completions.
+	compareTimeInMicroSecs = CPU_TicksToMicroseconds((UINT32)compareTicks, 1);
+
+	if(VirtTimer_Change(VIRT_TIMER_SLEEP, compareTimeInMicroSecs, 0, TRUE, LOW_DRIFT_TIMER) != TimerSupported)
+	{
+		if(VirtTimer_SetTimer(VIRT_TIMER_SLEEP, compareTimeInMicroSecs, 0, TRUE, TRUE, SetCompareHandler, LOW_DRIFT_TIMER) != TimerSupported)
+		{
+			ASSERT(FALSE);
+		}
+	}
+
+	VirtTimer_Start( VIRT_TIMER_SLEEP );
+}
+
 
 INT64 Time_Driver::TicksToTime( UINT64 Ticks )
 {

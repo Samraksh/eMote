@@ -234,10 +234,11 @@ HAL_RECEPTION_TIMER 6
 //#define VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC		3
 #define NeighborClockMonitor_TIMER1 34
 #define VIRT_TIMER_OMAC_RECEIVER_ACK 	5
+#define VIRT_TIMER_SLEEP 6
 
 // The following definition will be used within the code as the decision point in deciding if the timer is to be run within interrupt context or continuation
 // Adjust this marker appropriately ( <= marker is interrupt context, > marker is continuation)
-#define VIRT_TIMER_INTERRUPT_CONTEXT_MARKER 5
+#define VIRT_TIMER_INTERRUPT_CONTEXT_MARKER 6
 
 // timers that are run within continuations (all C# user timers are run outside an interrupt context also)
 #define VIRT_TIMER_TIME 			10

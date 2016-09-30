@@ -75,6 +75,24 @@ void HAL_Time_SetCompare( UINT64 CompareTicks )
 	}
 }
 
+void HAL_Time_SetCompare_Sleep_Clock( UINT64 CompareTicks )
+{
+	// here we change a 64-bit time from the MF to a 32-bit time
+	// we need to move to 64-bit absolute time and clean this portion of code up
+	if (CompareTicks == HAL_Completion_IdleValue){
+		g_Time_Driver.StopTimerSleepClock();
+	} else {
+		UINT64 NowTicks = HAL_Time_CurrentTicks();
+		if(CompareTicks > NowTicks) {
+			g_Time_Driver.SetCompareValueSleepClock(CompareTicks - NowTicks );
+		}
+		else {
+
+			g_Time_Driver.SetCompareValueSleepClock( 300 );  // assume g_Time_Driver uses virtual timer so compare value cannot miss and therefore any small compare value suffices.
+		}
+	}
+}
+
 void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
 {
 	CPU_GetDriftParameters(a, b, c);

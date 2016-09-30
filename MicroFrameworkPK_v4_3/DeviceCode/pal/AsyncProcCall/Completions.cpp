@@ -209,7 +209,11 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
         state = 0;
     }
 #ifndef DISABLE_SLEEP
+#if defined( SAM_APP_TINYCLR )
+	if(state & c_SetCompare) HAL_Time_SetCompare_Sleep_Clock( Expire );
+#else
     if(state & c_SetCompare) HAL_Time_SetCompare( Expire );
+#endif
 
     CPU_Sleep( (SLEEP_LEVEL)sleepLevel, wakeEvents );
 #endif
