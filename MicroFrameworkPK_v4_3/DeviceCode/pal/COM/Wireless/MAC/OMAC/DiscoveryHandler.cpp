@@ -466,6 +466,7 @@ void DiscoveryHandler::BeaconNTimerHandler(){
  */
 DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* discoMsg, MsgLinkQualityMetrics_t* msgLinkQualityMetrics){  //(Message_15_4_t* msg, void* payload, UINT8 len){
 	Neighbor_t tempNeighbor;
+	Neighbor_t* neigh_ptr;
 	UINT8 nbrIdx = 0;
 	UINT64 localTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 	NeighborTableCommonParameters_One_t neighborTableCommonParameters_One_t;
@@ -491,37 +492,19 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 
 	UINT64 nextwakeupSlot = (((UINT64)discoMsg->nextwakeupSlot1) <<32) + discoMsg->nextwakeupSlot0;
 
-	if (g_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
-		if(g_NeighborTable.Neighbor[nbrIdx].neighborStatus != Alive) {
-			TempIncreaseDiscoRate();
-		}
-		neighborTableCommonParameters_One_t.MACAddress = source;
-		neighborTableCommonParameters_One_t.status = Alive;
-		neighborTableCommonParameters_One_t.lastHeardTime = localTime;
-		neighborTableCommonParameters_One_t.linkQualityMetrics.AvgRSSI = msgLinkQualityMetrics->RSSI;
-		neighborTableCommonParameters_One_t.linkQualityMetrics.LinkQuality = msgLinkQualityMetrics->LinkQuality;
-		neighborTableCommonParameters_two_t.nextSeed = discoMsg->nextSeed;
-		neighborTableCommonParameters_two_t.mask = discoMsg->mask;
-		neighborTableCommonParameters_two_t.nextwakeupSlot = nextwakeupSlot;
-		neighborTableCommonParameters_two_t.seedUpdateIntervalinSlots = discoMsg->seedUpdateIntervalinSlots;
-		g_NeighborTable.UpdateNeighbor(&neighborTableCommonParameters_One_t, &neighborTableCommonParameters_two_t);
-		//stop disco when there are 2 or more neighbors
-		/*if(nbrIdx >= 1){
-			stopBeacon = true;
-		}*/
-	} else {
-		TempIncreaseDiscoRate();
-		neighborTableCommonParameters_One_t.MACAddress = source;
-		neighborTableCommonParameters_One_t.status = Alive;
-		neighborTableCommonParameters_One_t.lastHeardTime = localTime;
-		neighborTableCommonParameters_One_t.linkQualityMetrics.AvgRSSI = msgLinkQualityMetrics->RSSI;
-		neighborTableCommonParameters_One_t.linkQualityMetrics.LinkQuality = msgLinkQualityMetrics->LinkQuality;
-		neighborTableCommonParameters_two_t.nextSeed = discoMsg->nextSeed;
-		neighborTableCommonParameters_two_t.mask = discoMsg->mask;
-		neighborTableCommonParameters_two_t.nextwakeupSlot = nextwakeupSlot;
-		neighborTableCommonParameters_two_t.seedUpdateIntervalinSlots = discoMsg->seedUpdateIntervalinSlots;
-		g_NeighborTable.InsertNeighbor(&neighborTableCommonParameters_One_t, &neighborTableCommonParameters_two_t);
-	}
+
+	neighborTableCommonParameters_One_t.MACAddress = source;
+	neighborTableCommonParameters_One_t.status = Alive;
+	neighborTableCommonParameters_One_t.lastHeardTime = localTime;
+	neighborTableCommonParameters_One_t.linkQualityMetrics.AvgRSSI = msgLinkQualityMetrics->RSSI;
+	neighborTableCommonParameters_One_t.linkQualityMetrics.LinkQuality = msgLinkQualityMetrics->LinkQuality;
+	neighborTableCommonParameters_two_t.nextSeed = discoMsg->nextSeed;
+	neighborTableCommonParameters_two_t.mask = discoMsg->mask;
+	neighborTableCommonParameters_two_t.nextwakeupSlot = nextwakeupSlot;
+	neighborTableCommonParameters_two_t.seedUpdateIntervalinSlots = discoMsg->seedUpdateIntervalinSlots;
+	g_NeighborTable.UpdateNeighbor(&neighborTableCommonParameters_One_t, &neighborTableCommonParameters_two_t);
+
+
 
 #ifdef OMAC_DEBUG_PRINTF_DISCO_RX
 	hal_printf("Disco RX SourceID = %u TimeAvail = %s \n"
