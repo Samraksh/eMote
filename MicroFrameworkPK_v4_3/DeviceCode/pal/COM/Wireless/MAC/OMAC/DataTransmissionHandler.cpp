@@ -861,6 +861,20 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
  *
  */
 void DataTransmissionHandler::PostExecuteEvent(){
+#if OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
+	if(txhandler_state != DTS_RECEIVEDDATAACK && txhandler_state != DTS_RECEIVEDDATAACK){
+		if(m_outgoingEntryPtr){
+		hal_printf("ACK RX FAIL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
+				, m_outgoingEntryPtr->GetHeader()->dest
+				, m_outgoingEntryPtr->GetHeader()->payloadType
+				, m_outgoingEntryPtr->GetHeader()->flags
+				, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
+		}
+		else{
+			hal_printf("ACK RX FAIL NO m_outgoingEntryPtr \n");
+		}
+	}
+#endif
 	if(txhandler_state == DTS_WAITING_FOR_ACKS){
 #ifdef OMAC_DEBUG_PRINTF_PACKET_ACK_RX_FAIL
 		if(m_outgoingEntryPtr){
