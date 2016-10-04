@@ -113,6 +113,16 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
  *
  */
 DeviceStatus OMACType::SetConfig(MACConfig *config){
+
+#if OMAC_DEBUG_PRINTF_SETCONFIG
+	hal_printf("MyConfig.CCA = %d, config->CCA = %d ",MyConfig.CCA, config->CCA);
+	hal_printf("MyConfig.NumberOfRetries = %u, config->NumberOfRetries = %u ",MyConfig.NumberOfRetries, config->NumberOfRetries);
+	hal_printf("MyConfig.CCASenseTime = %u, config->CCASenseTime = %u ",MyConfig.CCASenseTime, config->CCASenseTime);
+	hal_printf("MyConfig.BufferSize = %u, config->BufferSize = %u ",MyConfig.BufferSize, config->BufferSize);
+	hal_printf("MyConfig.NeighborLivenessDelay = %lu, config->NeighborLivenessDelay = %lu ",MyConfig.NeighborLivenessDelay, config->NeighborLivenessDelay);
+#endif
+
+
 	/*MyConfig.FCF = config->FCF;
 	MyConfig.DestPAN = config->DestPAN;
 	MyConfig.Network = config->Network;*/
@@ -122,6 +132,7 @@ DeviceStatus OMACType::SetConfig(MACConfig *config){
 	MyConfig.BufferSize = config->BufferSize;
 	//MyConfig.RadioType = config->RadioType;
 	MyConfig.NeighborLivenessDelay = config->NeighborLivenessDelay;
+
 	return DS_Success;
 }
 
@@ -748,14 +759,14 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
  */
 BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
 	if(!Initialized){
-#ifdef OMAC_DEBUG_PACKET_REJECTION
+#if OMAC_DEBUG_PACKET_REJECTION
 		hal_printf("OMACType::Send Pckt Reject Initialized destID = %u dataType = %u \n", address, dataType);
 #endif
 		return false;
 	}
 	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
 	if(msg_carrier == (Message_15_4_t*)(NULL)){
-#ifdef OMAC_DEBUG_PACKET_REJECTION
+#if OMAC_DEBUG_PACKET_REJECTION
 		hal_printf("OMACType::Send Pckt Reject destID = %u dataType = %u \n", address, dataType);
 #endif
 		return false;
@@ -772,14 +783,14 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
 ////BOOL OMACType::SendTimeStamped(RadioAddress_t address, UINT8 dataType, Message_15_4_t* msg, int size, UINT32 eventTime)
 BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime){
 	if(!Initialized){
-#ifdef OMAC_DEBUG_PACKET_REJECTION
+#if OMAC_DEBUG_PACKET_REJECTION
 		hal_printf("OMACType::SendTimeStamped Pckt Reject Initialized destID = %u dataType = %u \n", address, dataType);
 #endif
 		return false;
 	}
 	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
 	if(msg_carrier == (Message_15_4_t*)(NULL)){
-#ifdef OMAC_DEBUG_PACKET_REJECTION
+#if OMAC_DEBUG_PACKET_REJECTION
 		hal_printf("OMACType::SendTimeStamped Pckt Reject destID = %u dataType = %u \n", address, dataType);
 #endif
 		return false;
