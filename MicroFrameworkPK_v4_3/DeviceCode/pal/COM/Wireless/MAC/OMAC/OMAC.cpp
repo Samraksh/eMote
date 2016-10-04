@@ -440,7 +440,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 		RadioAddress_t destID = swAckHeader->dest;
 		UINT8 payloadType = swAckHeader->payloadType;
 		if(destID == myID){
-#ifdef OMAC_DEBUG_PRINTF_ACKREC
+#if OMAC_DEBUG_PRINTF_ACKREC
 		hal_printf("ACK Received sourceID = %u, destID = %u   \n", sourceID, destID);
 #endif
 			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
@@ -493,7 +493,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				rx_time_stamp = g_OMAC.m_Clock.GetCurrentTimeinTicks() - (HAL_Time_CurrentTicks() - msg->GetMetaData()->GetReceiveTimeStamp());
 			}
 
-#ifdef OMAC_DEBUG_PRINTF_PACKETREC
+#if OMAC_DEBUG_PRINTF_PACKETREC
 		hal_printf("OMACType::ReceiveHandler = sourceID = %u, destID = %u payloadType = %u flags = %u \n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags);
 #endif
 

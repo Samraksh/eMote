@@ -228,7 +228,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 								);
 					}
 #endif
-#ifdef OMAC_DEBUG_PRINTF_PACKETDROP_MAXTRIES
+#if OMAC_DEBUG_PRINTF_PACKETDROP_MAXTRIES
 					hal_printf("Dropping TSR Packet FRAMERETRYMAXATTEMPT dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
 							, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
 							, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
@@ -251,7 +251,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 								);
 					}
 #endif
-#ifdef OMAC_DEBUG_PRINTF_PACKETDROP_MAXTRIES
+#if OMAC_DEBUG_PRINTF_PACKETDROP_MAXTRIES
 					hal_printf("Dropping Data Packet FRAMERETRYMAXATTEMPT dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
 							, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
 							, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
@@ -305,7 +305,7 @@ void DataTransmissionHandler::DropPacket(){
 #ifdef OMAC_DEBUG_PRINTF
 	OMAC_HAL_PRINTF("dropping packet\n");
 #endif
-#ifdef OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
+#if OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
 #endif
 	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
 	if(neigh_ptr == NULL) {
@@ -314,7 +314,7 @@ void DataTransmissionHandler::DropPacket(){
 	else {
 		neigh_ptr->random_back_off_window_size = INITIAL_RETRY_BACKOFF_WINDOW_SIZE;
 		if(neigh_ptr->IsInitializationTimeSamplesNeeded() && neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval() ) {
-#ifdef OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
+#if OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
 			hal_printf("Dropping TSR Packet SUCCESS NumTimeSyncMessagesSent = %u < INITIAL_RETRY_BACKOFF_WINDOW_SIZE dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
 					, neigh_ptr->NumTimeSyncMessagesSent
 					, neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
@@ -328,7 +328,7 @@ void DataTransmissionHandler::DropPacket(){
 
 		}
 		else if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
-#ifdef OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
+#if OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
 			hal_printf("Dropping Data Packet SUCCESS dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
 					, neigh_ptr->send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
 					, neigh_ptr->send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
@@ -349,7 +349,7 @@ void DataTransmissionHandler::DropPacket(){
 			}
 		}
 		else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval() ){
-#ifdef OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
+#if OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
 			hal_printf("Dropping TSR Packet SUCCESS DestID dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
 					, neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
 					, neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
@@ -488,7 +488,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
 #endif
 
-#ifdef OMAC_DEBUG_PRINTF_TXATTEMPT_SUCCESS
+#if OMAC_DEBUG_PRINTF_TXATTEMPT_SUCCESS
 			if(m_outgoingEntryPtr != NULL){
 			hal_printf("TXATTEMPT_SUCCESSL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
 					, m_outgoingEntryPtr->GetHeader()->dest
@@ -533,7 +533,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		}
 	}
 	else{ //I cannot send
-#ifdef OMAC_DEBUG_PRINTF_CCA_TXFAIL
+#if OMAC_DEBUG_PRINTF_CCA_TXFAIL
 		hal_printf("CCA_TXFAIL dest= %u \n",m_outgoingEntryPtr_dest);
 #endif
 
@@ -820,7 +820,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
 #endif
 		VirtualTimerReturnMessage rm;
 
-#ifdef	OMAC_DEBUG_PRINTF_PACKET_ACK_RX_SUCCESS
+#if	OMAC_DEBUG_PRINTF_PACKET_ACK_RX_SUCCESS
 	if(m_outgoingEntryPtr){
 	hal_printf("ACK_RX_SUCCESS dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
 			, m_outgoingEntryPtr->GetHeader()->dest
@@ -873,7 +873,7 @@ void DataTransmissionHandler::PostExecuteEvent(){
 	}
 #endif
 	if(txhandler_state == DTS_WAITING_FOR_ACKS){
-#ifdef OMAC_DEBUG_PRINTF_PACKET_ACK_RX_FAIL
+#if OMAC_DEBUG_PRINTF_PACKET_ACK_RX_FAIL
 		if(m_outgoingEntryPtr){
 		hal_printf("ACK RX FAIL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
 				, m_outgoingEntryPtr->GetHeader()->dest
