@@ -221,6 +221,10 @@ void OMACScheduler::ScheduleNextEvent(){
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, nextWakeupTimeInMicSec, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
 	//ASSERT_SP(rm == TimerSupported);
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
+	while(rm != TimerSupported){
+		hal_printf("CANNOT START VIRT_TIMER_OMAC_SCHEDULER");
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
+	}
 	//ASSERT_SP(rm == TimerSupported);
 
 
