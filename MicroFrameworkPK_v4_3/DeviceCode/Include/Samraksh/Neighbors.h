@@ -71,6 +71,7 @@ typedef struct {
 	//Receive (formerly reverse) link details between current and neighbor node
 	Link_t ReceiveLink;
 	NeighborStatus neighborStatus;
+	bool IsAvailableForUpperLayers;
 	UINT16 CountOfPacketsReceived;
 	UINT64 LastHeardTime;
 	UINT8 ReceiveDutyCycle; //percentage
