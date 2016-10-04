@@ -925,9 +925,29 @@ Message_15_4_t* OMACType::FindFirstSyncedNbrMessage(){
  *
  */
 UINT8 OMACType::UpdateNeighborTable(){
-	UINT8 index;
 
-	UINT8 numberOfDeadNeighbors = g_NeighborTable.UpdateNeighborTable(m_Clock.ConvertMicroSecstoTicks(MyConfig.NeighborLivenessDelay * 1000000), m_Clock.GetCurrentTimeinTicks());
+	Neighbor_t* neighbor_ptr = NULL;
+	UINT8 numberOfDeadNeighbors = 0, numberofNeighbors = 0;
+	UINT64 currentTime =  m_Clock.GetCurrentTimeinTicks();
+	UINT64 livelinessDelayInTicks = m_Clock.ConvertMicroSecstoTicks(MyConfig.NeighborLivenessDelay * 1000000);
+	for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; ++tableIndex){
+		if(    g_NeighborTable.Neighbor[tableIndex].neighborStatus == Alive
+			&& g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(g_NeighborTable.Neighbor[tableIndex].MACAddress)
+		){
+			if( !(g_NeighborTable.Neighbor[tableIndex].IsInitializationTimeSamplesNeeded()) ){
+				++numberofNeighbors;
+			}
+			if(g_NeighborTable.Neighbor[tableIndex].LastHeardTime != 0 && currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > livelinessDelayInTicks ){
+				++numberOfDeadNeighbors;
+				g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
+				g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+			}
+		}
+	}
+
+
+//	UINT8 numberOfDeadNeighbors = g_NeighborTable.UpdateNeighborTable(m_Clock.ConvertMicroSecstoTicks(MyConfig.NeighborLivenessDelay * 1000000), m_Clock.GetCurrentTimeinTicks());
+	UINT8 index;
 	if(numberOfDeadNeighbors > 0)
 	{
 		for(UINT8 i =0; i < MAX_NBR; ++i){
@@ -940,11 +960,9 @@ UINT8 OMACType::UpdateNeighborTable(){
 				}
 			}
 		}
-
-		
 	}
 
-	if (g_NeighborTable.PreviousNumberOfNeighbors() != g_NeighborTable.NumberOfNeighbors())
+	if (g_NeighborTable.PreviousNumberOfNeighbors() != numberofNeighbors)
 	{
 		NeighborChangeFuncPtrType appHandler = g_OMAC.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
@@ -954,7 +972,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 			// Make the neighbor changed callback signaling dead neighbors
 			(*appHandler)((INT16) (g_NeighborTable.NumberOfNeighbors()));
 		}
-		g_NeighborTable.SetPreviousNumberOfNeighbors(g_NeighborTable.NumberOfNeighbors());
+		g_NeighborTable.SetPreviousNumberOfNeighbors(numberofNeighbors);
 	}
 	return numberOfDeadNeighbors;
 	//g_NeighborTable.DegradeLinks();
