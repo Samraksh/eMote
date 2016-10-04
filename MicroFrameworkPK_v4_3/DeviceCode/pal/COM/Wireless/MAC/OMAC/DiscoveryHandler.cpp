@@ -603,5 +603,8 @@ void DiscoveryHandler::PermanentlyDecreaseDiscoRate(){
 	m_period1 = CONTROL_P3[g_OMAC.GetMyAddress() % 7] ;
 	m_period2 = CONTROL_P4[g_OMAC.GetMyAddress() % 7] ;
 	g_OMAC.m_omac_RadioControl.stayOn = false;
+#if OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE
+	hal_printf("Turning OFF ALWAYSONMODE\n");
+#endif
 	highdiscorate = false;
 }
