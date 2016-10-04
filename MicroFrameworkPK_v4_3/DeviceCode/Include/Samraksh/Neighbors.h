@@ -60,6 +60,12 @@ typedef struct {
 		if(NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS) return true;
 		else return false;
 	}
+	void IncrementNumTimeSyncMessagesSent(){
+		if( IsInitializationTimeSamplesNeeded() ) {
+			++(NumTimeSyncMessagesSent);
+		}
+
+	}
 	//Send (formerly forward) link details between current and neighbor node
 	Link_t SendLink;
 	//Receive (formerly reverse) link details between current and neighbor node

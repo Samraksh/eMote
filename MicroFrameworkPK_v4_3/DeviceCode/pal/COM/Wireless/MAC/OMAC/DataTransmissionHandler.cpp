@@ -324,9 +324,8 @@ void DataTransmissionHandler::DropPacket(){
 #endif
 			ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
 			neigh_ptr->tsr_send_buffer.DropOldest(1);
-			if( neigh_ptr->IsInitializationTimeSamplesNeeded() ) {
-				++(neigh_ptr->NumTimeSyncMessagesSent);
-			}
+			neigh_ptr->IncrementNumTimeSyncMessagesSent();
+
 		}
 		else if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
 #ifdef OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
@@ -359,9 +358,7 @@ void DataTransmissionHandler::DropPacket(){
 #endif
 			ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
 			neigh_ptr->tsr_send_buffer.DropOldest(1);
-			if( neigh_ptr->IsInitializationTimeSamplesNeeded() ) {
-				++(neigh_ptr->NumTimeSyncMessagesSent);
-			}
+			neigh_ptr->IncrementNumTimeSyncMessagesSent();
 
 			//neigh_ptr->tsr_send_buffer.ClearBuffer();
 		}
