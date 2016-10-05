@@ -795,7 +795,7 @@ namespace testchart2
                 //currentRadarNoise = HeapTrackMedian(radarQ);
                 if (ADJUST_RADAR_MEDIAN == 1)
                 {
-                    System.Diagnostics.Debug.WriteLine(yHeapTrackMedian().ToString());
+                    //System.Diagnostics.Debug.WriteLine(yHeapTrackMedian().ToString());
                     IQRejectionToUse = (int)((double)yHeapTrackMedian() * adjustmentParameter);                                        
                     
                 } else
@@ -888,7 +888,7 @@ namespace testchart2
                 {
                     //hal_printf("Detection\r\n");
                     detection = 10;
-                    System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****");
+                    //System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****");
                 }
                 else
                 {
@@ -897,7 +897,7 @@ namespace testchart2
                 if (crossUnwrappedPhase >= 2 * threshold)
                 {
                     detection = 10;
-                    System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****");
+                    //System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****");
                 }
 
                 detectionSeries.Points.AddXY(plotPt, detection);
@@ -907,7 +907,7 @@ namespace testchart2
 
 
                 //xHeapTrackInsert(unwrap);
-                //System.Diagnostics.Debug.WriteLine(unwrap.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString());
+                System.Diagnostics.Debug.WriteLine(unwrap.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString());
 
                 plotPt++;
                 xHeapTrackInsert(crossUnwrappedPhase);                     
@@ -1010,7 +1010,7 @@ namespace testchart2
                 //fileName = @"..\..\dataCollect\room2.bbs";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk noise 2.int";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk back lobe.int";
-                //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk noise.int";
+                fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk noise.int";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\tree 1m walk back lobe.int";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\tree 1m.int";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\under tree 1m walk.int";
@@ -1029,7 +1029,7 @@ namespace testchart2
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\radar demo test\high noise.int";
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar alone.int";
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar with OMAC.int";
-                //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar with OMAC fan-in.int";
+                fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar with OMAC fan-in.int";
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\long radar blind radar only.int";
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar blind r28 radar with OMAC.int";
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar - no OMAC - no antenna.int";
@@ -1038,7 +1038,7 @@ namespace testchart2
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar with OMAC 2.int";
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar with OMAC.int";
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar only rx off no power cycle.int";
-                fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar only no rx tx - power cycle.int";
+                //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar only no rx tx - power cycle.int";
                 
 
                 if (fileName.Contains(".int"))
@@ -1141,7 +1141,7 @@ namespace testchart2
                                 int iqrejectionValue = int.Parse(intString);
                                 int returnChar = r.ReadChar();
                                 int dataMarker = r.ReadUInt16();
-                                System.Diagnostics.Debug.WriteLine(unwrapResultZero.ToString() + " " + unwrapResult.ToString() + " " + unwrapResultMax.ToString() + " " + unwrapMedianResult.ToString() + " " + iqrejectionValue.ToString());
+                                System.Diagnostics.Debug.Write(unwrapResultZero.ToString() + " " + unwrapResult.ToString() + " " + unwrapResultMax.ToString() + " " + unwrapMedianResult.ToString() + " " + iqrejectionValue.ToString()+"          ");
                             }
                             catch (Exception ex)
                             {
