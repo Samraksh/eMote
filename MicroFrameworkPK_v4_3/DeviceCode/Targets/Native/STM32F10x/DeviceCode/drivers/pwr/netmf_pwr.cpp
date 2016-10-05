@@ -12,6 +12,8 @@ nathan.stohs@samraksh.com
 #include "netmf_pwr_wakelock.h"
 #include "../usart/sam_usart.h"
 
+#define EMOTE_WAKELOCKS
+
 static int pwr_hsi_clock_measure;
 static int pwr_hsi_clock_measure_orig;
 static enum stm_power_modes stm_power_state = POWER_STATE_DEFAULT;
@@ -23,7 +25,8 @@ static volatile UINT64 waketime;
 
 void WakeLockInit(void) {
 	wakelock = 0;
-	waketime = 0;
+	//waketime = 480000000;
+	waketime = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * 60 * 1);
 }
 
 void WakeLock(uint32_t lock) {
@@ -37,7 +40,9 @@ void WakeUnlock(uint32_t lock) {
 }
 
 void WakeUntil(UINT64 until) {
-	INT64 now;
+	UINT64 now;
+
+	GLOBAL_LOCK(irq);
 
 	// Value of 0 will force kill the wakelock
 	if (until == 0) {
@@ -64,9 +69,6 @@ UINT64 GetWakeUntil(void) {
 	return waketime;
 }
 
-BOOL WakeLockEnabled(void) {
-	return TRUE;
-}
 #else // EMOTE_WAKELOCKS
 void WakeLock(uint32_t lock) {}
 void WakeUnlock(uint32_t lock) {}
@@ -74,12 +76,9 @@ void WakeUntil(UINT64 until) {}
 uint32_t GetWakeLock(void) {return 0;}
 UINT64 GetWakeUntil(void) {return 0;}
 void WakeLockInit(void) {}
-BOOL WakeLockEnabled(void) {return FALSE;}
 #endif // EMOTE_WAKELOCKS
 
 void PowerInit() {
-
-	WakeLockInit();
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
@@ -113,8 +112,16 @@ void PowerInit() {
 	RCC_AdjustHSICalibrationValue(PWR_HSI_DEFAULT_TRIM);
 #endif
 
+	//DBGMCU_Config(DBGMCU_STOP | DBGMCU_SLEEP, ENABLE);
+
 	High_Power();
 	RCC_LSICmd(DISABLE);
+
+#ifdef EMOTE_WAKELOCKS
+	WakeLockInit();
+	//WakeUntil( HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * 60 * 1) ); // wakelock for one minute after boot
+	//WakeUntil(480000000);
+#endif
 }
 
 static void do_hsi_measure() {
@@ -447,16 +454,26 @@ void Sleep() {
 	// Really should use WFI but need execution loop polling for now.
 	// TODO above
 
-	if (wakelock) {
-		return;
-	}
+	BOOL doWFI = FALSE;
 
 	if (waketime > 0) {
 		UINT64 now = HAL_Time_CurrentTicks();
 		if (waketime > now) {
-			return; // Wakelocked
+			doWFI = TRUE; // Wakelocked
 		}
-		waketime = 0; // Time is past, clear the time and continue to sleep
+		else {
+			waketime = 0; // Time is past, clear the time and continue to sleep
+		}
+	}
+
+	if (wakelock) { // A driver has signaled a wakelock
+		doWFI = TRUE; // Wakelocked
+	}
+
+	if (doWFI) { // If wakelocked, use snooze mode.
+		__DSB();
+		__WFI();
+		return; // Sleep completed, done here.
 	}
 #endif // EMOTE_WAKELOCKS
 
@@ -464,15 +481,18 @@ void Sleep() {
 	__DSB();
 	__WFI();
 #else
+	GLOBAL_LOCK(irq); // After sleep clocks are potentially unstable, so lock until returned.
 	switch(stm_power_state) {
-		case POWER_STATE_LOW:
-			//PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
-			__DSB();
-			__WFI();
-			break;
 		default:
-			__DSB();
-			__WFI();
+			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+			break;
+		case POWER_STATE_MID:
+			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+			Mid_Power();
+			break;
+		case POWER_STATE_HIGH:
+			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+			High_Power();
 			break;
 	}
 #endif
