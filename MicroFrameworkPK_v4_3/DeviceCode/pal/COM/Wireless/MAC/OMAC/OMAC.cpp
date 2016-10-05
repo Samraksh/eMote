@@ -983,14 +983,14 @@ UINT8 OMACType::UpdateNeighborTable(){
 
 	if (g_NeighborTable.PreviousNumberOfNeighbors() != numberofNeighbors)
 	{
-		NeighborChangeFuncPtrType appHandler = g_OMAC.GetAppHandler(CurrentActiveApp)->neighborHandler;
-
-		// Check if neighbor change has been registered and the user is interested in this information
-		if(appHandler != NULL)
-		{
-			// Make the neighbor changed callback signaling dead neighbors
-			(*appHandler)((INT16) (g_NeighborTable.NumberOfNeighbors()));
-		}
+//		NeighborChangeFuncPtrType appHandler = g_OMAC.GetAppHandler(CurrentActiveApp)->neighborHandler;
+//
+//		// Check if neighbor change has been registered and the user is interested in this information
+//		if(appHandler != NULL)
+//		{
+//			// Make the neighbor changed callback signaling dead neighbors
+//			(*appHandler)((INT16) (g_NeighborTable.NumberOfNeighbors()));
+//		}
 		g_NeighborTable.SetPreviousNumberOfNeighbors(numberofNeighbors);
 	}
 	return numberOfDeadNeighbors;

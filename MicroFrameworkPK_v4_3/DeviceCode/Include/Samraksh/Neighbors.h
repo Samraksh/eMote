@@ -63,6 +63,9 @@ typedef struct {
 	void IncrementNumTimeSyncMessagesSent(){
 		if( IsInitializationTimeSamplesNeeded() ) {
 			++(NumTimeSyncMessagesSent);
+			if(NumTimeSyncMessagesSent == NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS){
+				++(NumTimeSyncMessagesSent);
+			}
 		}
 
 	}
