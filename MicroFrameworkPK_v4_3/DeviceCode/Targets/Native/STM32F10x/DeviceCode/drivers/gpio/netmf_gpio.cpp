@@ -263,6 +263,7 @@ HAL_CALLBACK_FPN GPIO_GetCallBack(GPIO_PIN Pin)
 // Initialize the ports GPIOA .... GPIOG of the Emote
 BOOL CPU_GPIO_Initialize()
 {
+	CPU_GPIO_Uninitialize();
 	// Configure clock source for all gpio ports
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
 										RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOF | RCC_APB2Periph_GPIOG | RCC_APB2Periph_AFIO, ENABLE);
