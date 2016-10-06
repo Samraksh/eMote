@@ -224,7 +224,7 @@ BOOL VirtualTimerMapper::StopTimer(UINT8 timer_id)
 	BOOL timerFound = VirtTimerIndexMapper(timer_id, VTimerIndex);
 
 	if(!timerFound) {
-		SOFT_BREAKPOINT();
+		//SOFT_BREAKPOINT();
 		return FALSE;
 	}
 
