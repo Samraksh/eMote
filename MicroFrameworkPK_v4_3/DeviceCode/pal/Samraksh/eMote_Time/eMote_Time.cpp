@@ -21,6 +21,7 @@ UINT32 Time_Driver::prevTicks = 0;
 
 
 void TimeHandler(void *arg);
+void SetCompareHandler(void *arg);
 
 
 BOOL Time_Driver::Initialize()
@@ -36,6 +37,8 @@ BOOL Time_Driver::Initialize()
 
 	retVal = retVal && (VirtTimer_Start( VIRT_TIMER_TIME ) == TimerSupported);
 	ASSERT(retVal);
+
+	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_SLEEP, 0, VirtTimer_GetMaxTicks(VIRT_TIMER_SLEEP), FALSE, TRUE, SetCompareHandler, LOW_DRIFT_TIMER) != TimerSupported);
 
 	return retVal;
 }
@@ -57,6 +60,9 @@ BOOL Time_Driver::Uninitialize()
 	ASSERT(retVal);
 
 	retVal = retVal && (VirtTimer_Stop( VIRT_TIMER_TIME ) == TimerSupported);
+	ASSERT(retVal);
+
+	retVal = retVal && (VirtTimer_Stop( VIRT_TIMER_SLEEP ) == TimerSupported);
 	ASSERT(retVal);
 
 	return retVal;
