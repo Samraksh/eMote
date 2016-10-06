@@ -190,6 +190,9 @@ typedef uint16_t ushort;
 //If the CLR has 500ms to sleep, it calls compaction. If it has 5ms to sleep calls mark&Sweep
 //#define SAMRAKSH_GC_EXT 1
 
+// Turns on basic ISR accounting (i.e. it counts)
+//#define DEBUG_DOTNOW_ISR
+
 // Macros configuring the HALTimer system
 #define HALTIMER 5
 #define HALTIMER_MAX_RESOLUTION 1365

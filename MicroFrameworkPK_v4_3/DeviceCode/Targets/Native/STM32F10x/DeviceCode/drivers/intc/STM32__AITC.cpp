@@ -20,6 +20,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 //#define DEBUG_DOTNOW_ISR
+#ifdef DEBUG_DOTNOW_ISR
+unsigned interrupt_count[64];
+#endif
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
 #pragma arm section rwdata = "s_IsrTable_STM32"
@@ -329,6 +332,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	// "*((char *)0x00) = 5;" should create a hard-fault to test
 //    SOFT_BREAKPOINT();
 //#if !defined(NDEBUG)
+	__asm("bkpt");
  	while (1){
 	}
 //#endif
@@ -358,7 +362,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_SVCall]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_SVCall]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SVCall];
@@ -387,7 +391,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_PendSV]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_PendSV]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_PendSV];
@@ -424,7 +428,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_PVD]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_PVD]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_PVD];
@@ -450,7 +454,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_TAMPER]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_TAMPER]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TAMPER];
@@ -475,7 +479,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		irq.Release();
 
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_RTC]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_RTC]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_RTC];
@@ -499,7 +503,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_FLASH]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_FLASH]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_FLASH];
@@ -524,7 +528,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_RCC]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_RCC]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_RCC];
@@ -573,7 +577,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		irq.Release();
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_EXTI1]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_EXTI1]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI1];
@@ -597,7 +601,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_EXTI2]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_EXTI2]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI2];
@@ -620,7 +624,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_EXTI3]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_EXTI3]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI3];
@@ -643,7 +647,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_EXTI4]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_EXTI4]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI4];
@@ -667,7 +671,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		irq.Release();
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL1]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL1]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL1];
@@ -691,7 +695,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL2]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL2]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL2];
@@ -714,7 +718,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL3]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL3]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL3];
@@ -738,7 +742,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL4]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL4]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL4];
@@ -761,7 +765,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL5]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL5]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL5];
@@ -784,7 +788,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL6]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL6]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL6];
@@ -807,7 +811,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL7]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL7]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL7];
@@ -830,7 +834,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_ADC1_2]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_ADC1_2]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_ADC1_2];
@@ -853,7 +857,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_USB_HP_CAN_TX]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_USB_HP_CAN_TX]++;
 #endif
 
 		//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[18];
@@ -877,7 +881,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_USB_LP_CAN_RX0]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_USB_LP_CAN_RX0]++;
 #endif
 
 		//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[19];
@@ -902,7 +906,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_CAN_RX1]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_CAN_RX1]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_CAN_RX1];
@@ -925,7 +929,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_CAN_SCE]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_CAN_SCE]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_CAN_SCE];
@@ -950,7 +954,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		// do not release irq. *SPOT_Hardware_Port::IsrProcedure() wants IRQ off.
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_EXTI9_5]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_EXTI9_5]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI9_5];
@@ -973,7 +977,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_TIM1_BRK_TIM9]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_TIM1_BRK_TIM9]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM1_BRK_TIM9];
@@ -996,7 +1000,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_TIM1_UP_TIM10]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_TIM1_UP_TIM10]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM1_UP_TIM10];
@@ -1019,7 +1023,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_TIM1_TRG_COM_TIM11]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_TIM1_TRG_COM_TIM11]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM1_TRG_COM_TIM11];
@@ -1042,7 +1046,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_TIM1_CC]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_TIM1_CC]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM1_CC];
@@ -1090,7 +1094,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_TIM3]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_TIM3]++;
 #endif
 
 			//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[28];
@@ -1115,7 +1119,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_TIM4]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_TIM4]++;
 #endif
 
 			//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[29];
@@ -1173,7 +1177,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			irq.Release();
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_I2C1_EV]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_I2C1_EV]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_I2C1_EV];
@@ -1202,7 +1206,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			irq.Release();
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_I2C1_ER]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_I2C1_ER]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_I2C1_ER];
@@ -1229,7 +1233,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_I2C2_EV]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_I2C2_EV]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_I2C2_EV];
@@ -1254,7 +1258,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_I2C2_ER]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_I2C2_ER]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_I2C2_ER];
@@ -1279,7 +1283,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_SPI1]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_SPI1]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SPI1];
@@ -1304,7 +1308,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_SPI2]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_SPI2]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SPI2];
@@ -1329,7 +1333,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_USART1]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_USART1]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART1];
@@ -1355,7 +1359,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_USART2]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_USART2]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART2];
@@ -1380,7 +1384,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_USART3]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_USART3]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART3];
@@ -1405,7 +1409,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 			irq.Release();
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_EXTI15_10]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_EXTI15_10]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI15_10];
@@ -1430,7 +1434,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_RTCAlarm]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_RTCAlarm]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_RTCAlarm];
@@ -1455,7 +1459,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_USBWakeUp]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_USBWakeUp]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USBWakeUp];
@@ -1480,7 +1484,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_TIM8_BRK_TIM12]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_TIM8_BRK_TIM12]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM8_BRK_TIM12];
@@ -1505,7 +1509,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_USART4]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_USART4]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART4];
@@ -1530,7 +1534,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_USART5]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_USART5]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART5];
@@ -1555,7 +1559,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_TIM8_CC]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_TIM8_CC]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM8_CC];
@@ -1580,7 +1584,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_ADC3]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_ADC3]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_ADC3];
@@ -1628,7 +1632,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_FSMC]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_FSMC]++;
 #endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_FSMC];
@@ -1656,7 +1660,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_SDIO]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_SDIO]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SDIO];
@@ -1681,7 +1685,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_TIM5]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_TIM5]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM5];
@@ -1706,7 +1710,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_SPI3]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_SPI3]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SPI3];
@@ -1732,7 +1736,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_TIM6]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_TIM6]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM6];
@@ -1757,7 +1761,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_TIM7]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_TIM7]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM7];
@@ -1782,7 +1786,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_DMA2_Channel1]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_DMA2_Channel1]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA2_Channel1];
@@ -1807,7 +1811,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_DMA2_Channel2]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_DMA2_Channel2]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA2_Channel2];
@@ -1832,7 +1836,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_DMA2_Channel3]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_DMA2_Channel3]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA2_Channel3];
@@ -1857,7 +1861,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_DMA2_Channel4_5]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_DMA2_Channel4_5]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA2_Channel4_5];
@@ -1883,7 +1887,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_EXTI0]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_EXTI0]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI0];
@@ -1908,7 +1912,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_TIM2]++;
+		interrupt_count[STM32_AITC::c_IRQ_INDEX_TIM2]++;
 #endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM2];

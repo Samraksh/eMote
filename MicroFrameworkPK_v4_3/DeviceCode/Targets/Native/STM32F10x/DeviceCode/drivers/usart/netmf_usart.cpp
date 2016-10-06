@@ -378,6 +378,10 @@ BOOL CPU_USART_IsBaudrateSupported( int ComPortNum, UINT32& BaudrateHz )
   }
 }
 
+#ifdef DEBUG_DOTNOW_ISR
+extern unsigned interrupt_count[64];
+#endif
+
 #define RX_HAL_BUF_SIZE 8  // Input buffer will flush after this size or IDLE interrupt
 
 extern "C" {
@@ -392,7 +396,10 @@ void __irq USART1_IRQHandler() {
 	SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 	SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 
-	
+#ifdef DEBUG_DOTNOW_ISR
+	interrupt_count[USART1_IRQn]++;
+#endif
+
 	status = USART1->SR; // check status reg
 	
 	if (status & (USART_FLAG_FE|USART_FLAG_PE|USART_FLAG_NE)) {
