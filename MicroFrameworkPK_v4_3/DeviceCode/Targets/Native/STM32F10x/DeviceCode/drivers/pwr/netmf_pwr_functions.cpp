@@ -12,6 +12,7 @@ BOOL CPU_JTAG_Attached(){
 }
 
 void CPU_ChangePowerLevel(POWER_LEVEL level) {
+	GLOBAL_LOCK(irq);
     switch(level)
     {
         case POWER_LEVEL__HIGH_POWER:

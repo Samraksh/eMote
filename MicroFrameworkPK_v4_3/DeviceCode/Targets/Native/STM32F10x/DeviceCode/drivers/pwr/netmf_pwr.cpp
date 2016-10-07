@@ -25,7 +25,7 @@ static volatile UINT64 waketime;
 
 void WakeLockInit(void) {
 	wakelock = 0;
-	//waketime = 480000000;
+	// TEMPORARY: Force awake for 1 minute until MFDeploy/VS is more robust
 	waketime = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * 60 * 1);
 }
 
@@ -78,9 +78,48 @@ UINT64 GetWakeUntil(void) {return 0;}
 void WakeLockInit(void) {}
 #endif // EMOTE_WAKELOCKS
 
-void PowerInit() {
+#ifdef DEBUG_DOTNOW_ISR
+extern volatile unsigned interrupt_count[64];
+#endif
 
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+// Doesn't have to do anything but it does cause wakeup.
+extern "C" {
+void __irq RTCAlarm_IRQHandler(void) {
+	//SOFT_BREAKPOINT();
+#ifdef DEBUG_DOTNOW_ISR
+	interrupt_count[RTCAlarm_IRQn]++;
+#endif
+	RTC_ClearITPendingBit(RTC_IT_ALR);
+	EXTI_ClearITPendingBit(EXTI_Line17);
+}
+}
+
+static void RTC_wakeup_init(void) {
+	EXTI_InitTypeDef EXTI_InitStruct;
+	NVIC_InitTypeDef NVIC_InitStruct;
+
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO , ENABLE);
+	EXTI_DeInit();
+
+	EXTI_ClearITPendingBit(EXTI_Line17);
+	EXTI_InitStruct.EXTI_Line = EXTI_Line17;
+	EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
+	//EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Event;
+	EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
+	EXTI_InitStruct.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&EXTI_InitStruct);
+
+	// Setup RTC Alarm interrupt (for wakeup)
+	NVIC_InitStruct.NVIC_IRQChannel = RTCAlarm_IRQn;
+	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStruct);
+}
+
+void PowerInit() {
+	GLOBAL_LOCK(irq);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
 
 #if !defined(BUILD_RTM) // For non-RTM flavors (e.g. Release, Debug), do not artificially raise lowest power mode. But, in flavors Debug, Instrumented ...
 	if(JTAG_Attached() > 0) // ... when JTAG is attached, artificially raise lowest power mode to support JTAG connection.
@@ -112,15 +151,17 @@ void PowerInit() {
 	RCC_AdjustHSICalibrationValue(PWR_HSI_DEFAULT_TRIM);
 #endif
 
-	//DBGMCU_Config(DBGMCU_STOP | DBGMCU_SLEEP, ENABLE);
+	// Easiest to set these right at boot...
+	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
+	FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Disable);
 
 	High_Power();
 	RCC_LSICmd(DISABLE);
 
+	RTC_wakeup_init();
+
 #ifdef EMOTE_WAKELOCKS
 	WakeLockInit();
-	//WakeUntil( HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * 60 * 1) ); // wakelock for one minute after boot
-	//WakeUntil(480000000);
 #endif
 }
 
@@ -298,14 +339,12 @@ static void pause_peripherals(void) {
 	USART_pause();
 }
 
-void Low_Power() {
-
+// Just like Low power but doesn't re-init
+static void Sleep_Power(void) {
 	// Make sure actually changing
-	if (stm_power_state == POWER_STATE_LOW) {
+	if (stm_power_state == POWER_STATE_GOING_SLEEP) {
 		return;
 	}
-
-	GLOBAL_LOCK(irq);
 
 	pause_peripherals();
 
@@ -330,10 +369,40 @@ void Low_Power() {
 
 	// Set flash speeds
 	FLASH_SetLatency(FLASH_Latency_0);
-#if !defined(SAM_APP_TINYBOOTER) // Can't touch this in TinyBooter, breaks backwards compatibility.
-	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Disable);
-	FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Enable);
-#endif
+
+	stm_power_state = POWER_STATE_GOING_SLEEP;
+}
+
+void Low_Power() {
+
+	// Make sure actually changing
+	if (stm_power_state == POWER_STATE_LOW) {
+		return;
+	}
+
+	pause_peripherals();
+
+	// Set HSI (instead of PLL) as SYSCLK source
+	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
+
+	// Spin waiting for HSI to be used.
+	while ( RCC_GetSYSCLKSource() != 0x00 ) { ; }
+
+	// Disable (now unused) PLL
+	RCC_PLLCmd(DISABLE);
+
+	// Set Bus speeds
+	RCC_HCLKConfig(RCC_SYSCLK_Div1);  // 8 MHz
+	RCC_PCLK1Config(RCC_HCLK_Div1);   // 8 MHz
+	RCC_PCLK2Config(RCC_HCLK_Div1);   // 8 MHz
+	RCC_ADCCLKConfig(RCC_PCLK2_Div2); // 4 MHz
+
+	// Set timer prescaler for constant 8 MHz
+	// Very not tested
+	TIM_PrescalerConfig(TIM1, 0, TIM_PSCReloadMode_Immediate);
+
+	// Set flash speeds
+	FLASH_SetLatency(FLASH_Latency_0);
 
 	stm_power_state = POWER_STATE_LOW;
 
@@ -346,8 +415,6 @@ void Mid_Power() {
 	if (stm_power_state == POWER_STATE_MID) {
 		return;
 	}
-
-	GLOBAL_LOCK(irq);
 
 	pause_peripherals();
 
@@ -377,8 +444,6 @@ void Mid_Power() {
 
 	// Set flash speeds
 	FLASH_SetLatency(FLASH_Latency_0);
-	FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Disable);
-	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
 
 	// Enable PLL and spin waiting for PLL ready
 	RCC_PLLCmd(ENABLE);
@@ -399,8 +464,6 @@ void High_Power() {
 	if (stm_power_state == POWER_STATE_HIGH) {
 		return;
 	}
-
-	GLOBAL_LOCK(irq);
 
 	pause_peripherals();
 
@@ -428,10 +491,8 @@ void High_Power() {
 	// Then the associated TIM clock is x2
 	// so PCLK @ 48/2 MHz really means TIM @ 48 MHz.
 
-	// Set flash speeds
+	// Set flash speed
 	FLASH_SetLatency(FLASH_Latency_2);
-	FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Disable);
-	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
 
 	// Enable PLL and spin waiting for PLL ready
 	RCC_PLLCmd(ENABLE);
@@ -446,14 +507,16 @@ void High_Power() {
 	USART_reinit(); // Clock sensitive. Must redo.
 }
 
+static bool check_pending_isr(void) {
+	const volatile unsigned icsr = *((volatile unsigned *)0xE000ED04);
+	const unsigned ISRPENDING_MASK = 1<<22;
+	return (icsr & ISRPENDING_MASK);
+}
+
 // Exit in the same power state as we entered.
 void Sleep() {
 
 #ifdef EMOTE_WAKELOCKS
-	// First check wakelocks
-	// Really should use WFI but need execution loop polling for now.
-	// TODO above
-
 	BOOL doWFI = FALSE;
 
 	if (waketime > 0) {
@@ -481,20 +544,39 @@ void Sleep() {
 	__DSB();
 	__WFI();
 #else
+	USART_Flush(0); // Flush USART1 / COM0 before we sleep
+	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, ENABLE);
 	GLOBAL_LOCK(irq); // After sleep clocks are potentially unstable, so lock until returned.
+
+	if (check_pending_isr()) { // Must ensure something didn't slip in
+		NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
+		__SEV();
+		__WFE();
+		return;
+	}
+
 	switch(stm_power_state) {
 		default:
-			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+		case POWER_STATE_LOW:
+			Sleep_Power();
+			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
+			Low_Power();
 			break;
 		case POWER_STATE_MID:
-			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+			Sleep_Power();
+			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
 			Mid_Power();
 			break;
 		case POWER_STATE_HIGH:
-			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+			Sleep_Power();
+			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
 			High_Power();
 			break;
 	}
+	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
+	__SEV();
+	__WFE();
+	RTC_WaitForSynchro();
 #endif
 }
 
