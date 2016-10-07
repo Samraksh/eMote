@@ -133,17 +133,6 @@ void PowerInit() {
 	}
 #endif
 
-#if defined(SAM_APP_TINYBOOTER)
-	//High_Power();
-	Mid_Power();
-	//Low_Power();
-	return;
-	// Its important that we return before doing HSI calibration.
-	// For some reason if we do it here and TinyCLR it freezes.
-	// Also no reason to waste time on it.
-	// Guessing its a double-init or deinit-init issue.
-#endif
-
 #ifdef DOTNOW_HSI_CALIB
 	Low_Power();
 	CalibrateHSI();
@@ -540,10 +529,6 @@ void Sleep() {
 	}
 #endif // EMOTE_WAKELOCKS
 
-#ifdef SAM_APP_TINYBOOTER // Normally not reachable anyway.
-	__DSB();
-	__WFI();
-#else
 	USART_Flush(0); // Flush USART1 / COM0 before we sleep
 	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, ENABLE);
 	GLOBAL_LOCK(irq); // After sleep clocks are potentially unstable, so lock until returned.
@@ -577,7 +562,6 @@ void Sleep() {
 	__SEV();
 	__WFE();
 	RTC_WaitForSynchro();
-#endif
 }
 
 // Shouldn't be used, possibly for unrecoverable error in debug mode.
