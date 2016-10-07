@@ -534,11 +534,11 @@ BOOL USART_Driver::Flush( int ComPortNum ) {
 		return TRUE;
 
 	// Interrupts are off, but sending a byte will turn them on until buffer empty
+	GLOBAL_LOCK(irq);
 	if (!CPU_USART_TxBufferEmptyInterruptState(ComPortNum)) {
 		char c;
 
 		{
-			GLOBAL_LOCK(irq);
 			if (State.TxQueue.IsEmpty() == TRUE) {
 				return TRUE; // Nothing to send, we're good.
 			}
@@ -549,10 +549,16 @@ BOOL USART_Driver::Flush( int ComPortNum ) {
 			CPU_USART_TxBufferEmptyInterruptEnable( ComPortNum, TRUE );
 		}
 	}
+	irq.Release();
+
+	if (irq.GetState() == FALSE) { // Flush() was called with interrupts disabled... not doing it
+		return TRUE;
+	}
 
 	// At this point, interrupts are ON and any remaining buffer should empty itself.
 	// TXE Interrupt will be disabled when the buffer is empty, so we wait for that.
 	while( CPU_USART_TxBufferEmptyInterruptState(ComPortNum) == TRUE ) { ; }
+	while( CPU_USART_TxBufferEmptyInterruptState(ComPortNum) == TRUE ) { ; } // I DONT KNOW WHY I NEED THIS =(
 }
 #else
 
