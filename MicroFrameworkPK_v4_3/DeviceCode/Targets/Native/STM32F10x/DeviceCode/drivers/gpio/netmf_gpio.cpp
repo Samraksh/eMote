@@ -294,9 +294,9 @@ BOOL CPU_GPIO_Uninitialize()
 	//GPIOG
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOG, ENABLE);
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOG, DISABLE);
-	//AFIO
-	RCC_APB2PeriphResetCmd(RCC_APB2Periph_AFIO, ENABLE);
-	RCC_APB2PeriphResetCmd(RCC_APB2Periph_AFIO, DISABLE);
+	//AFIO // Might interfere with others... can't think of why we'd need to reset this anyway
+	//RCC_APB2PeriphResetCmd(RCC_APB2Periph_AFIO, ENABLE);
+	//RCC_APB2PeriphResetCmd(RCC_APB2Periph_AFIO, DISABLE);
 	return TRUE;
 }
 
