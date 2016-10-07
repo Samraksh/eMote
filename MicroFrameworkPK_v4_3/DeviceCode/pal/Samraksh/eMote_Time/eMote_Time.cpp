@@ -16,9 +16,6 @@
 //#define DEBUG_TIMER
 
 Time_Driver g_Time_Driver;
-UINT32 Time_Driver::maxTicks = 0;
-UINT32 Time_Driver::prevTicks = 0;
-
 
 void TimeHandler(void *arg);
 void SetCompareHandler(void *arg);
@@ -28,17 +25,16 @@ BOOL Time_Driver::Initialize()
 {
 	BOOL retVal = TRUE;
 
-	maxTicks = VirtTimer_GetMaxTicks(VIRT_TIMER_TIME);
-
 	// this timer keeps our timer constantly running so we can keep track of our system time
 	// overflows are kept track of in the timer driver itself
-	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_TIME, 0, maxTicks, FALSE, TRUE, TimeHandler, ADVTIMER_32BIT) == TimerSupported);
+	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_TIME, 0, CPU_Timer_GetMaxTicks(ADVTIMER_32BIT), FALSE, TRUE, TimeHandler, ADVTIMER_32BIT) == TimerSupported);
 	ASSERT(retVal);
 
 	retVal = retVal && (VirtTimer_Start( VIRT_TIMER_TIME ) == TimerSupported);
 	ASSERT(retVal);
 
-	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_SLEEP, 0, VirtTimer_GetMaxTicks(VIRT_TIMER_SLEEP), FALSE, TRUE, SetCompareHandler, LOW_DRIFT_TIMER) != TimerSupported);
+	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_SLEEP, 0, CPU_Timer_GetMaxTicks(LOW_DRIFT_TIMER), FALSE, TRUE, SetCompareHandler, LOW_DRIFT_TIMER) == TimerSupported);
+	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_EVENTS, 0, CPU_Timer_GetMaxTicks(ADVTIMER_32BIT), FALSE, TRUE, SetCompareHandler, ADVTIMER_32BIT) == TimerSupported);
 
 	return retVal;
 }

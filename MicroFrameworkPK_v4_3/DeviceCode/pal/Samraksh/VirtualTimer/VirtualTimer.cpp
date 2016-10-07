@@ -27,7 +27,7 @@ extern VirtualTimer gVirtualTimerObject;
 static const UINT64 cTimerMax64Value = 0x0000FFFFFFFFFFFFull; //TODO: use better name.
 static const UINT32 cTimerMax32Value = 0xFFFFFFFFul;          //TODO: use better name or use UINT32_MAX.
 
-BOOL VirtualTimerMapper::VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTimerIndex)
+inline BOOL VirtualTimerMapper::VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTimerIndex)
 {
 	BOOL timerFound = FALSE;
 
@@ -66,7 +66,7 @@ BOOL VirtualTimerMapper::Initialize(UINT16 temp_HWID)
 
 	for (UINT16 j = 0; j < m_current_timer_cnt_; j++)
 	{
-		g_VirtualTimerInfo[j].set_m_timer_id(0);
+		g_VirtualTimerInfo[j].set_m_timer_id(250);
 	}
 	
 
@@ -224,9 +224,8 @@ BOOL VirtualTimerMapper::StopTimer(UINT8 timer_id)
 	BOOL timerFound = VirtTimerIndexMapper(timer_id, VTimerIndex);
 
 	if(!timerFound) {
-		//SOFT_BREAKPOINT();
-		//return FALSE;
-		return TRUE;
+		SOFT_BREAKPOINT();
+		return FALSE;
 	}
 
 	g_VirtualTimerInfo[VTimerIndex].set_m_is_running(FALSE);
