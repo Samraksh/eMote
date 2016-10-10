@@ -350,8 +350,12 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 
 	CurrentActiveApp = routingAppID;
 
-	m_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
-	m_txAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetSendAckHandler();
+	m_rxAckHandler = NULL;
+	m_txAckHandler = NULL;
+	if(g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())){
+		m_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
+		m_txAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetSendAckHandler();
+	}
 
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
@@ -680,7 +684,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 							MACReceiveFuncPtrType multi_m_rxAckHandler = NULL;
 							if( IsValidNativeAppIdOffset(msg->GetHeader()->payloadType) )
 							{
-								multi_m_rxAckHandler = g_OMAC.GetNativeAppHandler(msg->GetHeader()->payloadType)->ReceiveHandler;
+								MACEventHandler* mac_event_handler_ptr = g_OMAC.GetNativeAppHandler(msg->GetHeader()->payloadType);
+								if(mac_event_handler_ptr){
+									multi_m_rxAckHandler = mac_event_handler_ptr->ReceiveHandler;
+								}
 							}
 
 							if(multi_m_rxAckHandler == NULL) {
