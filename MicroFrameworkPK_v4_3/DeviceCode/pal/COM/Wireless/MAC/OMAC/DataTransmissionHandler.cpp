@@ -336,8 +336,10 @@ void DataTransmissionHandler::DropPacket(){
 					, neigh_ptr->send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts());
 #endif
 			if(CPU_Radio_GetRadioAckType() == NO_ACK || CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){ //BK: Why is this no Hardware ACK
-				Message_15_4_t* msg = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
-				(*g_OMAC.m_txAckHandler)(msg, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
+				if(g_OMAC.m_txAckHandler != NULL){
+					Message_15_4_t* msg = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
+					(*g_OMAC.m_txAckHandler)(msg, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
+				}
 			}
 			ClearMsgContents(neigh_ptr->send_buffer.GetOldestwithoutRemoval());
 			neigh_ptr->send_buffer.DropOldest(1);
