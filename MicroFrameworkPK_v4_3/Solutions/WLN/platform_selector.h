@@ -112,7 +112,7 @@ typedef uint16_t ushort;
 //
 
 // Port definitions
-#define TOTAL_USART_PORT       2
+#define TOTAL_USART_PORT       1
 #define COM1                   ConvertCOM_ComHandle(0)
 #define COM2                   ConvertCOM_ComHandle(1)
 

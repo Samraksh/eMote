@@ -1,0 +1,24 @@
+<Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Directory>DeviceCode\Targets\Native\Interop\Samraksh_eMote_WLN</Directory>
+    <AssemblyName>Samraksh_eMote_WLN</AssemblyName>
+  </PropertyGroup>
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+<ItemGroup>
+<HFile Include="SamrakshEmoteWLN.h" />
+<Compile Include="SamrakshEmoteWLN.cpp" />
+<Compile Include="SamrakshEmoteWLN_Samraksh_eMote_WLN_ADCInternal_mshl.cpp" />
+<HFile Include="SamrakshEmoteWLN_Samraksh_eMote_WLN_ADCInternal.h" />
+<Compile Include="SamrakshEmoteWLN_Samraksh_eMote_WLN_ADCInternal.cpp" />
+<Compile Include="SamrakshEmoteWLN_Samraksh_eMote_WLN_NOR_mshl.cpp" />
+<HFile Include="SamrakshEmoteWLN_Samraksh_eMote_WLN_NOR.h" />
+<Compile Include="SamrakshEmoteWLN_Samraksh_eMote_WLN_NOR.cpp" />
+<Compile Include="SamrakshEmoteWLN_Samraksh_eMote_WLN_SDInternal_mshl.cpp" />
+<HFile Include="SamrakshEmoteWLN_Samraksh_eMote_WLN_SDInternal.h" />
+<Compile Include="SamrakshEmoteWLN_Samraksh_eMote_WLN_SDInternal.cpp" />
+</ItemGroup>
+<Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+</Project>

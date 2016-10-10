@@ -48,7 +48,7 @@ const char wwf2_serial_numbers[serial_max_wwf2][serial_per]     = { "05de0033303
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
-const unsigned si4468x_debug_level = ERR100+1; // CHANGE ME.
+const unsigned si4468x_debug_level = ERR100; // CHANGE ME.
 
 // Pin list used in setup.
 static SI446X_pin_setup_t SI446X_pin_setup;
@@ -565,6 +565,9 @@ static void set_radio_power_pwm(int go) {
 
 // Quick and dirty. Clean me up later. --NPS
 static int am_i_wwf(void) {
+#ifdef PLATFORM_ARM_WLN
+	return 2;
+#else
 	uint8_t cpuserial[serial_size];
 	GetCPUSerial(cpuserial, serial_size);
 	char my_serial[serial_per];
@@ -589,6 +592,7 @@ static int am_i_wwf(void) {
 	}
 
 	return 1;
+#endif
 }
 
 static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
