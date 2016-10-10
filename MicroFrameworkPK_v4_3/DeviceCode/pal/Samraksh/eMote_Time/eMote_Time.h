@@ -33,6 +33,7 @@ struct Time_Driver
     UINT64 CurrentTicks();
     void Sleep_uSec( UINT32 uSec );
     void Sleep_uSec_Loop( UINT32 uSec );
+	void AddClockTime(UINT64 timeToAdd); // timeToAdd is in 100-nanosecond (ns) increments. This is a Microsoft thing.
     ////static void ISR( void* Param );
 };
 

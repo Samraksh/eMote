@@ -86,6 +86,7 @@ public:
 	void ClearTimerOverflow();
 	BOOL ResetCompareHit();
 	UINT64 Get64Counter();
+	BOOL AddTicks(UINT64 ticksToAdd);
 
 	UINT32 GetMaxTicks();
 

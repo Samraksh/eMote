@@ -30,6 +30,36 @@ UINT32 STM32F10x_AdvancedTimer::GetCounter()
 	return currentCounterValue;
 }
 
+BOOL STM32F10x_AdvancedTimer::AddTicks(UINT64 ticksToAdd)
+{
+	UINT64 originalTime =Get64Counter();
+
+	UINT16 ticksToAdd_TIM1 = ticksToAdd & 0xffff;
+	UINT16 ticksToAdd_TIM2 = (ticksToAdd & 0xffff0000) >> 16;
+	UINT64 ticksToAdd_UPPER32 = (UINT64)((ticksToAdd & 0xffffffff00000000) >> 32);
+
+	GLOBAL_LOCK(irq);
+	UINT32 TIM1_new = TIM1->CNT + ticksToAdd_TIM1;
+	UINT32 TIM2_new = (UINT32)TIM2->CNT + (UINT32)ticksToAdd_TIM2 + (UINT32)(TIM1_new >> 16);
+	UINT64 systemTime_new = (UINT64)(g_STM32F10x_AdvancedTimer.m_systemTime >> 32) + ticksToAdd_UPPER32 + (UINT64)(TIM2_new >> 16);
+	TIM1->CNT = TIM1_new;
+	TIM2->CNT = TIM2_new;
+	g_STM32F10x_AdvancedTimer.m_systemTime = (UINT64)(systemTime_new<<32) + (UINT64)(TIM2->CNT<<16) + (UINT64)TIM1->CNT;
+
+	// it should only take a few thousand ticks to calculate everything...a rollover could happen though so we just do it again
+	while ((g_STM32F10x_AdvancedTimer.m_systemTime - (originalTime + ticksToAdd)) > 3000){
+		originalTime =Get64Counter();
+		TIM1_new = TIM1->CNT + ticksToAdd_TIM1;
+		TIM2_new = (UINT32)TIM2->CNT + (UINT32)ticksToAdd_TIM2 + (UINT32)(TIM1_new >> 16);
+		systemTime_new = (UINT64)(g_STM32F10x_AdvancedTimer.m_systemTime >> 32) + ticksToAdd_UPPER32 + (UINT64)(TIM2_new >> 16);
+		TIM1->CNT = TIM1_new;
+		TIM2->CNT = TIM2_new;
+		g_STM32F10x_AdvancedTimer.m_systemTime = (UINT64)(systemTime_new<<32) + (UINT64)(TIM2->CNT<<16) + (UINT64)TIM1->CNT;
+	}
+
+	//hal_printf("%llx %llx %llx %llx\r\n",g_STM32F10x_AdvancedTimer.m_systemTime, Get64Counter(), (originalTime ), (g_STM32F10x_AdvancedTimer.m_systemTime - (originalTime + ticksToAdd)));
+	return 0;
+}
 
 UINT32 STM32F10x_AdvancedTimer::SetCounter(UINT32 counterValue)
 {

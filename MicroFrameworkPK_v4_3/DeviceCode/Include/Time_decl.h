@@ -167,6 +167,7 @@ void CPU_Time_Sleep_MicroSeconds_InRam( UINT32 uSec );
 
 void    HAL_Time_Sleep_MicroSeconds( UINT32 uSec );
 void    HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec );
+void HAL_Time_AddClockTime(UINT64 timeToAdd);
 // --//
 
 
@@ -223,6 +224,8 @@ void CPU_Timer_ClearTimerOverflow(UINT8 Timer);
 
 UINT32 CPU_Timer_GetMaxTicks(UINT8 Timer);
 void CPU_GetDriftParameters  ( INT32* a, INT32* b, INT64* c );
+
+void CPU_AddClockTime(UINT16 Timer, UINT64 timeToAdd);
 
 extern const UINT8 TIMER_32BIT;
 extern const UINT8 DEFAULT_TIMER;
