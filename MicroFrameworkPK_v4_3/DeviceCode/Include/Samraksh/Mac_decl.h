@@ -47,6 +47,12 @@ public:
 	SendAckFuncPtrType SendAckHandler;
 	NeighborChangeFuncPtrType neighborHandler;
 
+	MACEventHandler(){
+		ReceiveHandler = NULL;
+		SendAckHandler = NULL;
+		neighborHandler = NULL;
+	}
+
 	void SetReceiveHandler(MACReceiveFuncPtrType receive_handler)
 	{
 		this->ReceiveHandler = receive_handler;
