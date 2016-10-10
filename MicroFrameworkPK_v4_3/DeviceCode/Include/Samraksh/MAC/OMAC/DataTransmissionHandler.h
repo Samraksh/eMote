@@ -14,7 +14,7 @@
 #include "OMACConstants.h"
 #include "Handlers.h"
 
-#define OMAC_DTH_DEBUG_UNEXPECTED_POST_EX 1
+#define OMAC_DTH_DEBUG_UNEXPECTED_POST_EX 0
 
 //#include "Scheduler.h"
 enum DataTransmissionHandlerStates{

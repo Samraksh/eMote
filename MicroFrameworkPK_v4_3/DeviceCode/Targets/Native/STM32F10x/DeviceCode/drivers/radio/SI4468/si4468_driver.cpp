@@ -956,6 +956,8 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		si446x_change_state(SI_STATE_TX_TUNE);
 		while( si446x_request_device_state() != SI_STATE_TX_TUNE ) ; // spin. TODO: Add timeout.
 
+		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
+		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
 		UINT32 eventOffset = (HAL_Time_CurrentTicks() & 0xFFFFFFFF) - eventTime;
 
 		si446x_write_tx_fifo(4, (uint8_t*)&eventOffset); // generate and write timestamp late as possible.
@@ -998,6 +1000,7 @@ void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
 }
 
 void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime) {
+
 	CPU_GPIO_SetPinState( SI4468_TX_TIMESTAMP, TRUE );
 
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_send_ts()\r\n");

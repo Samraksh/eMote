@@ -124,10 +124,10 @@ UINT64 DataTransmissionHandler::CalculateNextTxMicro(UINT16 dest){
 	}
 	UINT64 nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, neigh_ptr->nextwakeupSlot * SLOT_PERIOD_TICKS);
 	//UINT64 nextTXmicro = g_OMAC.m_Clock.ConvertTickstoMicroSecs(nextTXTicks) - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
-	nextTXmicro = g_OMAC.m_Clock.SubstractMicroSeconds( g_OMAC.m_Clock.ConvertTickstoMicroSecs(nextTXTicks) , (RADIO_TURN_ON_DELAY_MICRO+PROCESSING_DELAY_BEFORE_TX_MICRO));
+	nextTXmicro = g_OMAC.m_Clock.SubstractMicroSeconds( g_OMAC.m_Clock.ConvertTickstoMicroSecs(nextTXTicks) , (g_OMAC.RADIO_TURN_ON_DELAY_TX+g_OMAC.DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX));
 	if(EXECUTE_WITH_CCA){
-		if(nextTXmicro > CCA_PERIOD_MICRO) {
-			nextTXmicro -= CCA_PERIOD_MICRO;
+		if(nextTXmicro > g_OMAC.CCA_PERIOD_ACTUAL) {
+			nextTXmicro -= g_OMAC.CCA_PERIOD_ACTUAL ;
 		}
 	}
 	if(FAST_RECOVERY){
@@ -448,6 +448,8 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 			}
 		}
 	}
+	CPU_GPIO_SetPinState( SCHED_RX_EXEC_PIN, TRUE );
+	CPU_GPIO_SetPinState( SCHED_RX_EXEC_PIN, FALSE );
 
 	//Perform CCA for random backoff period (only for retries)
 	if(m_RANDOM_BACKOFF){
@@ -478,11 +480,15 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
+#endif
+
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
 		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
 #endif
 
 		bool rv = Send();
+
 		if(rv) {
 
 #ifdef OMAC_DEBUG_GPIO
