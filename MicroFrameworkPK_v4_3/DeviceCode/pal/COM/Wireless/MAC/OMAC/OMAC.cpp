@@ -650,45 +650,45 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 
 
-//					static volatile INT32 pt = msg->GetHeader()->payloadType;
-//
-//					if(myID == destID && g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started) {//Process the data packet only if the destination matches
-//
-//						Message_15_4_t* next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
-//						if(! (next_free_buffer))
-//						{
-//							g_receive_buffer.DropOldest(1);
-//							next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
-//						}
-//						ASSERT_SP(next_free_buffer);
-//
-//						memcpy(next_free_buffer->GetPayload(),data_msg->payload,data_msg->size);
-//						memcpy(next_free_buffer->GetHeader(),msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
-//						memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
-//						memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
-//						next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
-//
-//						if(NEED_OMAC_CALLBACK_CONTINUATION){
-//							payloadTypeArray[payloadTypeArrayIndex % payloadTypeArrayMaxValue] = msg->GetHeader()->payloadType;
-//							payloadTypeArrayIndex++;
-//							OMAC_callback_continuation.Enqueue();
-//						}
-//						else{
-//							MACReceiveFuncPtrType multi_m_rxAckHandler = NULL;
-//							if( IsValidNativeAppIdOffset(msg->GetHeader()->payloadType) )
-//							{
-//								multi_m_rxAckHandler = g_OMAC.GetNativeAppHandler(msg->GetHeader()->payloadType)->ReceiveHandler;
-//							}
-//
-//							if(multi_m_rxAckHandler == NULL) {
-//								multi_m_rxAckHandler = m_rxAckHandler;
-//							}
-//							if(multi_m_rxAckHandler != NULL) {
-//								(*multi_m_rxAckHandler)(next_free_buffer, msg->GetHeader()->payloadType);
-//							}
-//						}
-//
-//					}
+					static volatile INT32 pt = msg->GetHeader()->payloadType;
+
+					if(myID == destID && g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started) {//Process the data packet only if the destination matches
+
+						Message_15_4_t* next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
+						if(! (next_free_buffer))
+						{
+							g_receive_buffer.DropOldest(1);
+							next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
+						}
+						ASSERT_SP(next_free_buffer);
+
+						memcpy(next_free_buffer->GetPayload(),data_msg->payload,data_msg->size);
+						memcpy(next_free_buffer->GetHeader(),msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
+						memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
+						memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
+						next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
+
+						if(NEED_OMAC_CALLBACK_CONTINUATION){
+							payloadTypeArray[payloadTypeArrayIndex % payloadTypeArrayMaxValue] = msg->GetHeader()->payloadType;
+							payloadTypeArrayIndex++;
+							OMAC_callback_continuation.Enqueue();
+						}
+						else{
+							MACReceiveFuncPtrType multi_m_rxAckHandler = NULL;
+							if( IsValidNativeAppIdOffset(msg->GetHeader()->payloadType) )
+							{
+								multi_m_rxAckHandler = g_OMAC.GetNativeAppHandler(msg->GetHeader()->payloadType)->ReceiveHandler;
+							}
+
+							if(multi_m_rxAckHandler == NULL) {
+								multi_m_rxAckHandler = m_rxAckHandler;
+							}
+							if(multi_m_rxAckHandler != NULL) {
+								(*multi_m_rxAckHandler)(next_free_buffer, msg->GetHeader()->payloadType);
+							}
+						}
+
+					}
 #ifdef OMAC_DEBUG_GPIO
 						CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
 #endif
