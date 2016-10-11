@@ -965,7 +965,6 @@ UINT8 OMACType::UpdateNeighborTable(){
 			if(g_NeighborTable.Neighbor[tableIndex].LastHeardTime != 0 && currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > livelinessDelayInTicks ){
 				++numberOfDeadNeighbors;
 				g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
-				MyConfig.NeighborLivenessDelay = 620;
 				g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 			}
 		}
