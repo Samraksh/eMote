@@ -128,7 +128,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             _adcCopyBuffersPtr = 0;
 
             // threshold is 7 rotations a second, IQ rejection is 30, debug mode is set to no debug information, software version number is 4
-            radarDetect.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_RAW_RADAR, 1.1, 0.9, 2, 3, 0, 1);
+            radarDetect.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_RAW_RADAR, 1.6, 0.9, 2, 3, 6, 1);
             //radarDetect.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL.FIXED_NOISE_REJECTION, 7, 100, 2, 3, 6, 1);
             //radarDetect.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_MULTIPLY, 7, 1, 3, 4, 0, 1);
 
@@ -276,14 +276,14 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             //Debug.Print(unwrap.ToString() + " " + backgroundNoiseZero.ToString() + " " + backgroundNoise.ToString() + " " + backgroundNoiseMax.ToString() + " " + iqUsed.ToString());
             //Debug.Print(unwrap.ToString() + " " + EntireUnwrap.ToString() + " " + FirstHalfUnwrap.ToString() + " " + SecondHalfUnwrap.ToString() + " " + AbsEntireUnwrap.ToString() + " " + AbsFirstHalfUnwrap.ToString() + " " + AbsSecondHalfUnwrap.ToString() + " " + RangeEntireUnwrap.ToString() + " " + RangeFirstHalfUnwrap.ToString() + " " + RangeSecondHalfUnwrap.ToString());
             
-            if (detection == true)
+            /*if (detection == true)
             {
                 Debug.Print("****** detection ******\r\n");
             }
             bool detStarted = radarDetect.GetWindowOverThreshold();
             if (detStarted) Debug.Print("started");
             bool detFinished = radarDetect.CurrentDetectionFinished();
-            if (detFinished) Debug.Print("finished");
+            if (detFinished) Debug.Print("finished");*/
 
             /*byte[] sendMsg = new byte[7];
             sendMsg[0] = (byte)radarDetect.GetLastUnwrap(eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_MAX);
