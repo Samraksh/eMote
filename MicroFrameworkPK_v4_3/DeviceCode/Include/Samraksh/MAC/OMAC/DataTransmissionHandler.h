@@ -13,6 +13,9 @@
 //#include <Samraksh/HALTimer.h>
 #include "OMACConstants.h"
 #include "Handlers.h"
+
+#define OMAC_DTH_DEBUG_UNEXPECTED_POST_EX 0
+
 //#include "Scheduler.h"
 enum DataTransmissionHandlerStates{
 	DTS_EXECUTE_START,
@@ -65,6 +68,8 @@ class DataTransmissionHandler: public EventHandler {
 	DataTransmissionHandlerStates txhandler_state;
 	UINT64 CalculateNextTxMicro(UINT16 dest);
 	void SelectRetrySlotNumForNeighborBackOff();
+
+	Message_15_4_t* SelectPacketForDest(UINT16 m_outgoingEntryPtr_dest_);
 
 public:
 	void Initialize();

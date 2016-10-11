@@ -25,7 +25,7 @@ extern UINT8 MacName;
 #define INVALID_NEIGHBOR_INDEX 255
 #define INVALID_MACADDRESS 0
 
-#define NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS 8
+#define NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS 2
 
 //extern void  ManagedCallback(UINT16 arg1, UINT16 arg2);
 //#define DEBUG_NEIGHBORTABLE
@@ -49,7 +49,7 @@ typedef struct {
 enum NeighborStatus {
 	Alive = 0,
 	Dead = 1,
-	Suspect = 2,
+	//Suspect = 2,
 	NbrStatusError = 0xF
 };
 
@@ -60,11 +60,21 @@ typedef struct {
 		if(NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS) return true;
 		else return false;
 	}
+	void IncrementNumTimeSyncMessagesSent(){
+		if( IsInitializationTimeSamplesNeeded() ) {
+			++(NumTimeSyncMessagesSent);
+			if(NumTimeSyncMessagesSent == NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS){
+				++(NumTimeSyncMessagesSent);
+			}
+		}
+
+	}
 	//Send (formerly forward) link details between current and neighbor node
 	Link_t SendLink;
 	//Receive (formerly reverse) link details between current and neighbor node
 	Link_t ReceiveLink;
 	NeighborStatus neighborStatus;
+	bool IsAvailableForUpperLayers;
 	UINT16 CountOfPacketsReceived;
 	UINT64 LastHeardTime;
 	UINT8 ReceiveDutyCycle; //percentage
@@ -153,11 +163,12 @@ public:
 	DeviceStatus UpdateNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t);
 	UINT8  UpdateNeighborTable(UINT64 livelinessDelayInTicks, UINT64 currentTime);
 	UINT8  UpdateNeighborTable(UINT32 NeighborLivenessDelay);
+
 	DeviceStatus RecordTimeSyncRequestSent(UINT16 address, UINT64 _LastTimeSyncTime);
 	DeviceStatus RecordTimeSyncSent(UINT16 address, UINT64 _LastTimeSyncTime);
 	DeviceStatus RecordTimeSyncRecv(UINT16 address, UINT64 _lastTimeSyncRecv);
 	UINT64 GetLastTimeSyncRecv(UINT16 address);
-	Neighbor_t* GetMostObsoleteTimeSyncNeighborPtr();
+	Neighbor_t* GetMostObsoleteTimeSyncNeighborPtr(NeighborStatus ns = Alive);
 	//Neighbor_t* GetNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& request_limit);
 	Neighbor_t* GetCritalSyncNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& request_limit,const UINT64& forcererequest_limit, const UINT64& fast_disco_request_interval);
 	void DegradeLinks();
@@ -208,6 +219,23 @@ UINT8 NeighborTable::UpdateNeighborTable(UINT64 livelinessDelayInTicks, UINT64 c
 
 	return deadNeighbors;
 }
+
+Neighbor_t* NeighborTable::GetMostObsoleteTimeSyncNeighborPtr(NeighborStatus ns){
+	Neighbor_t* rn = NULL;
+	int tableIndex;
+	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
+		if (Neighbor[tableIndex].neighborStatus == ns){
+			if(rn == NULL) {
+				rn = &Neighbor[tableIndex];
+			}
+			else if( Neighbor[tableIndex].LastHeardTime != 0 && rn->neighborStatus <= Neighbor[tableIndex].LastHeardTime){
+				rn = &Neighbor[tableIndex];
+			}
+		}
+	}
+	return rn;
+}
+
 
 UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay)
 {
@@ -352,7 +380,14 @@ Neighbor_t* NeighborTable::GetNeighborPtr(UINT16 address){
 }
 
 UINT8 NeighborTable::NumberOfNeighbors(){
-	return NumberValidNeighbor;
+	//return NumberValidNeighbor;
+	UINT8 numneigh = 0;
+	for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
+		if (Neighbor[tableIndex].neighborStatus == Alive){
+			++numneigh;
+		}
+	}
+	return numneigh;
 }
 
 UINT8 NeighborTable::PreviousNumberOfNeighbors(){
@@ -575,17 +610,7 @@ UINT64 NeighborTable::GetLastTimeSyncRecv(UINT16 address){
 
 
 
-Neighbor_t* NeighborTable::GetMostObsoleteTimeSyncNeighborPtr(){
-	Neighbor_t* rn = NULL;
-	int tableIndex;
-	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
-		if (Neighbor[tableIndex].neighborStatus != Dead){
-			if(rn == NULL || Neighbor[tableIndex].LastTimeSyncRecvTime < rn->LastTimeSyncRecvTime  )
-				rn = &Neighbor[tableIndex];
-		}
-	}
-	return rn;
-}
+
 
 Neighbor_t* NeighborTable::GetCritalSyncNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& request_limit, const UINT64& forcererequest_limit, const UINT64& fast_disco_request_interval ){
 	Neighbor_t* rn = NULL;

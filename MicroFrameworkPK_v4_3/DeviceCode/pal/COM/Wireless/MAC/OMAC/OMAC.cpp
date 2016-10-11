@@ -89,7 +89,10 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 			break;
 		case MFM_DATA:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
-			(*g_OMAC.m_txAckHandler)(msg, Size, status, radioAckStatus);
+			if(g_OMAC.m_txAckHandler != NULL){
+				(*g_OMAC.m_txAckHandler)(msg, Size, status, radioAckStatus);
+			}
+
 			//break;
 		default:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
@@ -113,6 +116,16 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
  *
  */
 DeviceStatus OMACType::SetConfig(MACConfig *config){
+
+#if OMAC_DEBUG_PRINTF_SETCONFIG
+	hal_printf("MyConfig.CCA = %d, config->CCA = %d ",MyConfig.CCA, config->CCA);
+	hal_printf("MyConfig.NumberOfRetries = %u, config->NumberOfRetries = %u ",MyConfig.NumberOfRetries, config->NumberOfRetries);
+	hal_printf("MyConfig.CCASenseTime = %u, config->CCASenseTime = %u ",MyConfig.CCASenseTime, config->CCASenseTime);
+	hal_printf("MyConfig.BufferSize = %u, config->BufferSize = %u ",MyConfig.BufferSize, config->BufferSize);
+	hal_printf("MyConfig.NeighborLivenessDelay = %lu, config->NeighborLivenessDelay = %lu ",MyConfig.NeighborLivenessDelay, config->NeighborLivenessDelay);
+#endif
+
+
 	/*MyConfig.FCF = config->FCF;
 	MyConfig.DestPAN = config->DestPAN;
 	MyConfig.Network = config->Network;*/
@@ -122,6 +135,7 @@ DeviceStatus OMACType::SetConfig(MACConfig *config){
 	MyConfig.BufferSize = config->BufferSize;
 	//MyConfig.RadioType = config->RadioType;
 	MyConfig.NeighborLivenessDelay = config->NeighborLivenessDelay;
+
 	return DS_Success;
 }
 
@@ -336,8 +350,12 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 
 	CurrentActiveApp = routingAppID;
 
-	m_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
-	m_txAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetSendAckHandler();
+	m_rxAckHandler = NULL;
+	m_txAckHandler = NULL;
+	if(g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())){
+		m_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
+		m_txAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetSendAckHandler();
+	}
 
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
@@ -429,6 +447,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 		RadioAddress_t destID = swAckHeader->dest;
 		UINT8 payloadType = swAckHeader->payloadType;
 		if(destID == myID){
+#if OMAC_DEBUG_PRINTF_ACKREC
+		hal_printf("ACK Received sourceID = %u, destID = %u   \n", sourceID, destID);
+#endif
 			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
 				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
 #ifdef OMAC_DEBUG_GPIO
@@ -478,6 +499,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				senderDelay = PacketTimeSync_15_4::SenderDelay(msg,Size) + g_OMAC.m_Clock.ConvertMicroSecstoTicks(TIME_RX_TIMESTAMP_OFFSET_MICRO);
 				rx_time_stamp = g_OMAC.m_Clock.GetCurrentTimeinTicks() - (HAL_Time_CurrentTicks() - msg->GetMetaData()->GetReceiveTimeStamp());
 			}
+
+#if OMAC_DEBUG_PRINTF_PACKETREC
+		hal_printf("OMACType::ReceiveHandler = sourceID = %u, destID = %u payloadType = %u flags = %u \n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags);
+#endif
 
 			//Get the primary packet
 			switch(msg->GetHeader()->payloadType){
@@ -659,7 +684,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 							MACReceiveFuncPtrType multi_m_rxAckHandler = NULL;
 							if( IsValidNativeAppIdOffset(msg->GetHeader()->payloadType) )
 							{
-								multi_m_rxAckHandler = g_OMAC.GetNativeAppHandler(msg->GetHeader()->payloadType)->ReceiveHandler;
+								MACEventHandler* mac_event_handler_ptr = g_OMAC.GetNativeAppHandler(msg->GetHeader()->payloadType);
+								if(mac_event_handler_ptr){
+									multi_m_rxAckHandler = mac_event_handler_ptr->ReceiveHandler;
+								}
 							}
 
 							if(multi_m_rxAckHandler == NULL) {
@@ -741,10 +769,16 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
  */
 BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
 	if(!Initialized){
+#if OMAC_DEBUG_PACKET_REJECTION
+		hal_printf("OMACType::Send Pckt Reject Initialized destID = %u dataType = %u \n", address, dataType);
+#endif
 		return false;
 	}
 	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
 	if(msg_carrier == (Message_15_4_t*)(NULL)){
+#if OMAC_DEBUG_PACKET_REJECTION
+		hal_printf("OMACType::Send Pckt Reject destID = %u dataType = %u \n", address, dataType);
+#endif
 		return false;
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
@@ -759,10 +793,16 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
 ////BOOL OMACType::SendTimeStamped(RadioAddress_t address, UINT8 dataType, Message_15_4_t* msg, int size, UINT32 eventTime)
 BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime){
 	if(!Initialized){
+#if OMAC_DEBUG_PACKET_REJECTION
+		hal_printf("OMACType::SendTimeStamped Pckt Reject Initialized destID = %u dataType = %u \n", address, dataType);
+#endif
 		return false;
 	}
 	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
 	if(msg_carrier == (Message_15_4_t*)(NULL)){
+#if OMAC_DEBUG_PACKET_REJECTION
+		hal_printf("OMACType::SendTimeStamped Pckt Reject destID = %u dataType = %u \n", address, dataType);
+#endif
 		return false;
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
@@ -906,9 +946,36 @@ Message_15_4_t* OMACType::FindFirstSyncedNbrMessage(){
  *
  */
 UINT8 OMACType::UpdateNeighborTable(){
-	UINT8 index;
 
-	UINT8 numberOfDeadNeighbors = g_NeighborTable.UpdateNeighborTable(m_Clock.ConvertMicroSecstoTicks(MyConfig.NeighborLivenessDelay * 1000000), m_Clock.GetCurrentTimeinTicks());
+	Neighbor_t* neighbor_ptr = NULL;
+	UINT8 numberOfDeadNeighbors = 0, numberofNeighbors = 0;
+	UINT64 currentTime =  m_Clock.GetCurrentTimeinTicks();
+	UINT64 livelinessDelayInTicks = m_Clock.ConvertMicroSecstoTicks(MyConfig.NeighborLivenessDelay * 1000000);
+	for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; ++tableIndex){
+		if(    g_NeighborTable.Neighbor[tableIndex].neighborStatus == Alive
+			&& g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(g_NeighborTable.Neighbor[tableIndex].MACAddress)
+		){
+			if( !(g_NeighborTable.Neighbor[tableIndex].IsInitializationTimeSamplesNeeded()) ){
+				++numberofNeighbors;
+				g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = true;
+			}
+			else{
+				g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
+			}
+			if(g_NeighborTable.Neighbor[tableIndex].LastHeardTime != 0 && currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > livelinessDelayInTicks ){
+				++numberOfDeadNeighbors;
+				g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
+				g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+			}
+		}
+		else{
+			g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
+		}
+	}
+
+
+//	UINT8 numberOfDeadNeighbors = g_NeighborTable.UpdateNeighborTable(m_Clock.ConvertMicroSecstoTicks(MyConfig.NeighborLivenessDelay * 1000000), m_Clock.GetCurrentTimeinTicks());
+	UINT8 index;
 	if(numberOfDeadNeighbors > 0)
 	{
 		for(UINT8 i =0; i < MAX_NBR; ++i){
@@ -921,11 +988,9 @@ UINT8 OMACType::UpdateNeighborTable(){
 				}
 			}
 		}
-
-		
 	}
 
-	if (g_NeighborTable.PreviousNumberOfNeighbors() != g_NeighborTable.NumberOfNeighbors())
+	if (g_NeighborTable.PreviousNumberOfNeighbors() != numberofNeighbors)
 	{
 		NeighborChangeFuncPtrType appHandler = g_OMAC.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
@@ -935,7 +1000,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 			// Make the neighbor changed callback signaling dead neighbors
 			(*appHandler)((INT16) (g_NeighborTable.NumberOfNeighbors()));
 		}
-		g_NeighborTable.SetPreviousNumberOfNeighbors(g_NeighborTable.NumberOfNeighbors());
+		g_NeighborTable.SetPreviousNumberOfNeighbors(numberofNeighbors);
 	}
 	return numberOfDeadNeighbors;
 	//g_NeighborTable.DegradeLinks();
