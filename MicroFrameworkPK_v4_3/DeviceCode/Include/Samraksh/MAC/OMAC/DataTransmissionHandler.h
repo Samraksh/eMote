@@ -16,6 +16,11 @@
 
 #define OMAC_DTH_DEBUG_UNEXPECTED_POST_EX 0
 
+#define OMAC_DTH_DEBUG_LATEWAKEUP 1
+#if OMAC_DTH_DEBUG_LATEWAKEUP
+#define OMAC_DTH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS 1000*8
+#endif
+
 //#include "Scheduler.h"
 enum DataTransmissionHandlerStates{
 	DTS_EXECUTE_START,
@@ -60,6 +65,12 @@ class DataTransmissionHandler: public EventHandler {
 	//DataMsg_t *m_TXMsg;
 	BOOL isDataPacketScheduled;
 	UINT8 m_currentSlotRetryAttempt;
+
+	UINT64 m_scheduledFUTime_in_own_clock_micro;
+
+	UINT64 m_scheduledTXTime_in_neigh_clock_ticks;
+	UINT64 m_scheduledTXTime_in_own_clock_ticks;
+
 
 	BOOL m_RANDOM_BACKOFF;
 	UINT16 m_backoff_seed;
