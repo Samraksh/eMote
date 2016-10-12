@@ -36,6 +36,7 @@
     <Compile Include="DataReference.cs" />
     <Compile Include="DataStore.cs" />
     <Compile Include="NonVolatileMemory.cs" />
+    <Compile Include="Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RadarInterface.cs" />
     <!--Compile Include="GarbageCollector.cs" /-->

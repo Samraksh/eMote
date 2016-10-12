@@ -138,6 +138,8 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    Library_SamrakshEmote_Samraksh_eMote_Platform::GetPlatformTypeInternal___STATIC__SamraksheMotePLATFORMTYPE,
+    NULL,
     NULL,
     Library_SamrakshEmote_Samraksh_eMote_RadarInterface::TurnOn___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_RadarInterface::TurnOff___BOOLEAN,
@@ -147,7 +149,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote =
 {
     "Samraksh_eMote", 
-    0xCD4EF9B0,
+    0x9BF315E8,
     method_lookup
 };
 

@@ -894,6 +894,26 @@
             
             </summary>
         </member>
+        <member name="T:Samraksh.eMote.PLATFORM_TYPE">
+            <summary>
+            Types of hardware platforms  
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.PLATFORM_TYPE.UNKNOWN">
+            <summary>Unknown</summary>
+        </member>
+        <member name="F:Samraksh.eMote.PLATFORM_TYPE.DOTNOW">
+            <summary>.NOW</summary>
+        </member>
+        <member name="F:Samraksh.eMote.PLATFORM_TYPE.WLN">
+            <summary>WLN</summary>
+        </member>
+        <member name="M:Samraksh.eMote.Platform.GetPlatformTypeInternal">
+            <summary>
+            Initializes the platformType variable
+            </summary>
+            <returns>The platform type is returned.</returns>
+        </member>
         <member name="M:Samraksh.eMote.RadarInterface.#ctor">
             <summary>
             

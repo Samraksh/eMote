@@ -25,6 +25,9 @@
 <Compile Include="SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore_mshl.cpp" />
 <HFile Include="SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore.h" />
 <Compile Include="SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore.cpp" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Platform_mshl.cpp" />
+<HFile Include="SamrakshEmote_Samraksh_eMote_Platform.h" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Platform.cpp" />
 <Compile Include="SamrakshEmote_Samraksh_eMote_RadarInterface_mshl.cpp" />
 <HFile Include="SamrakshEmote_Samraksh_eMote_RadarInterface.h" />
 <Compile Include="SamrakshEmote_Samraksh_eMote_RadarInterface.cpp" />

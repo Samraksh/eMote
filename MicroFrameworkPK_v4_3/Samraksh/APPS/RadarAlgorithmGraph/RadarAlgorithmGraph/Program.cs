@@ -191,7 +191,7 @@ namespace testchart2
             static int IQRejectionToFixTo = 45;
             static BinaryWriter outPut;
             // NEW
-            static float threshold = 2f; // half of what we should enter into radar app
+            static float threshold = 3f; // half of what we should enter into radar app
             static int detection = 0;
             static int M = 2;
             static int N = 4;
@@ -222,14 +222,14 @@ namespace testchart2
             static ushort[] radarQMedian = new ushort[dataCntMax];
             static ushort[] radarIMedian = new ushort[dataCntMax];
 
-            static int ADJUST_RADAR_MEDIAN = 0;
+            static int ADJUST_RADAR_MEDIAN = 1;
             static double adjustmentParameter = 0.9;
 
             static int xTrackSampleCnt = 300; //unwrap phase median (background noise)
             static int yTrackSampleCnt = 1200; //rawQ median
 
-            static int wTrackSampleCnt = 1200;
-            static int zTrackSampleCnt = 1200; 
+            static int wTrackSampleCnt = 100;
+            static int zTrackSampleCnt = 100; 
 
             static int size = 128;
             static UInt16 medianI = 2040;
@@ -1069,7 +1069,7 @@ namespace testchart2
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar only no rx tx - power cycle.int";
                 //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-11 overnight noise\basement 5094-03 radar csma overnight.bbs";
                 //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\overnight radar csma board 2 on stand.int";
-                fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
+                fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-12 overnight noise\radar csma overnight2.int";
                 //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
                 //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
                 //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";

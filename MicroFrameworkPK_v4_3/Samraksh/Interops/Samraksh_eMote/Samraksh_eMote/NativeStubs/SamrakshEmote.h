@@ -109,6 +109,14 @@ struct Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore
 
 };
 
+struct Library_SamrakshEmote_Samraksh_eMote_Platform
+{
+    TINYCLR_NATIVE_DECLARE(GetPlatformTypeInternal___STATIC__SamraksheMotePLATFORMTYPE);
+
+    //--//
+
+};
+
 struct Library_SamrakshEmote_Samraksh_eMote_RadarInterface
 {
     TINYCLR_NATIVE_DECLARE(TurnOn___BOOLEAN);
