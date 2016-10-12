@@ -33,6 +33,24 @@ namespace testchart2
         [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern void yResetHeapTrack(int nItems);
 
+        [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int wHeapTrackNew(int nItems);
+        [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void wHeapTrackInsert(int v);
+        [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int wHeapTrackMedian();
+        [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void wResetHeapTrack(int nItems);
+
+        [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int zHeapTrackNew(int nItems);
+        [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void zHeapTrackInsert(int v);
+        [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int zHeapTrackMedian();
+        [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void zResetHeapTrack(int nItems);
+
         public class FakeChartForm1 : Form
         {
 
@@ -148,7 +166,7 @@ namespace testchart2
                     };
             #endregion
             #region variables
-            static int MAX_IQ_REJECTION = 150;
+            static int MAX_IQ_REJECTION = 600;
             static int wPhase = 0, uwPhase = 0, wPhase_prev = 0, uwPhase_prev = 0;
             static double wPhaseApprox = 0, uwPhaseApprox = 0, wPhase_prevApprox = 0, uwPhase_prevApprox = 0;
             //static int wPhaseMaxApprox = 0, uwPhaseMaxApprox = 0, wPhase_prevMaxApprox = 0, uwPhase_prevMaxApprox = 0;
@@ -164,19 +182,19 @@ namespace testchart2
             static int INITIAL_ADJUST_SAMPLE_CNT = 10;
             static int IQ_ADJUSTMENT_PERIOD = 80;
             static int adjustmentIQPeriod = IQ_ADJUSTMENT_PERIOD;
-            static int IQRejectionToUse = 100;
+            static int IQRejectionToUse = 300;
             static int initialAdjustmentCnt = 270;
             static int noiseRejectionPassedParameter = 1;
             static int prevIQrejectionValue = IQRejectionToUse;
 
             static bool fixIQRjections = false;
-            static int IQRejectionToFixTo = 0;
+            static int IQRejectionToFixTo = 45;
             static BinaryWriter outPut;
             // NEW
-            static float threshold = 3f; // half of what we should enter into radar app
+            static float threshold = 2f; // half of what we should enter into radar app
             static int detection = 0;
             static int M = 2;
-            static int N = 3;
+            static int N = 4;
 
             static int RAW_UNWRAP_RESULT_DATA = 0;
 
@@ -204,11 +222,14 @@ namespace testchart2
             static ushort[] radarQMedian = new ushort[dataCntMax];
             static ushort[] radarIMedian = new ushort[dataCntMax];
 
-            static int ADJUST_RADAR_MEDIAN = 1;
+            static int ADJUST_RADAR_MEDIAN = 0;
             static double adjustmentParameter = 0.9;
 
             static int xTrackSampleCnt = 300; //unwrap phase median (background noise)
             static int yTrackSampleCnt = 1200; //rawQ median
+
+            static int wTrackSampleCnt = 1200;
+            static int zTrackSampleCnt = 1200; 
 
             static int size = 128;
             static UInt16 medianI = 2040;
@@ -757,10 +778,13 @@ namespace testchart2
                 dataCnt++;
                 // Find median I
                 medianI = findMedian(bufferI, length);
+                wHeapTrackInsert(medianI);
+                //System.Diagnostics.Debug.WriteLine(medianI.ToString() + " " + wHeapTrackMedian().ToString() );
                 // Find median Q
                 medianQ = findMedian(bufferQ, length);
+                zHeapTrackInsert(medianQ);
                 // tracking the raw I/Q radar median. To save time I just use one data point each pass
-                medianQData = (ushort)Math.Abs((bufferQ[0] - medianQ));
+                medianQData = (ushort)Math.Abs((bufferQ[0] - zHeapTrackMedian()));
                 yHeapTrackInsert(medianQData * 2);           
                 /*if (dataCnt < dataCntMax)
                 {
@@ -850,9 +874,9 @@ namespace testchart2
                 if (fixIQRjections == true){
                     IQRejectionToUse = IQRejectionToFixTo;
                 }
-                // copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR
-                // ADJUSTME
-                unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, medianI, medianQ, IQRejectionToUse, 0, 0, 0);
+                // copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR                
+                unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, (ushort)wHeapTrackMedian(), (ushort)zHeapTrackMedian(), IQRejectionToUse, 0, 0, 0);
+                //unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, medianI, medianQ, IQRejectionToUse, 0, 0, 0);
 
                 //normalUnwrapSeries.Points.AddXY(plotPt, unwrap/6.28318);
                 //approxUnwrapSeries.Points.AddXY(plotPt, approxUnwrappedPhase / 6.28318);
@@ -985,6 +1009,10 @@ namespace testchart2
                 yHeapTrackNew(yTrackSampleCnt);
                 xHeapTrackInsert(0);
                 yHeapTrackInsert(0);
+                wHeapTrackNew(wTrackSampleCnt);
+                zHeapTrackNew(zTrackSampleCnt);
+                wHeapTrackInsert(0);
+                zHeapTrackInsert(0);
 
                 mOfnCounter = new Counter();
                 mOfnDetector = new MoutOfNDetector();
@@ -1002,7 +1030,7 @@ namespace testchart2
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\test05.bbs";
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\i40-60 walk.bbs";
                 //fileName = @"..\..\recorded.bbs";
-                fileName = @"..\..\recorded.int";
+                //fileName = @"..\..\recorded.int";
                 //fileName = @"..\..\office_noise.bbs";
                 //fileName = @"E:\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\grass near tree.bbs";
                 //fileName = @"E:\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\room1.bbs";
@@ -1010,7 +1038,7 @@ namespace testchart2
                 //fileName = @"..\..\dataCollect\room2.bbs";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk noise 2.int";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk back lobe.int";
-                fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk noise.int";
+                //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk noise.int";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\tree 1m walk back lobe.int";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\tree 1m.int";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\under tree 1m walk.int";
@@ -1029,7 +1057,7 @@ namespace testchart2
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\radar demo test\high noise.int";
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar alone.int";
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar with OMAC.int";
-                fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar with OMAC fan-in.int";
+                //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar with OMAC fan-in.int";
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\long radar blind radar only.int";
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar blind r28 radar with OMAC.int";
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar - no OMAC - no antenna.int";
@@ -1039,7 +1067,12 @@ namespace testchart2
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar with OMAC.int";
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar only rx off no power cycle.int";
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar only no rx tx - power cycle.int";
-                
+                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-11 overnight noise\basement 5094-03 radar csma overnight.bbs";
+                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\overnight radar csma board 2 on stand.int";
+                fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
+                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
+                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
+                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
 
                 if (fileName.Contains(".int"))
                 {
