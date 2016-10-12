@@ -157,11 +157,19 @@ void DataReceptionHandler::ExecuteEvent(){
 	//static int failureCount = 0;
 	DeviceStatus e = DS_Fail;
 	e = g_OMAC.m_omac_RadioControl.StartRx();
+
 	if (e == DS_Success){
 
 #ifdef OMAC_DEBUG_GPIO
+
+		if(DATARECEPTION_RADIOONPIN != DISABLED_PIN ){
+			CPU_GPIO_SetPinState( DATARECEPTION_RADIOONPIN, !CPU_GPIO_GetPinState(DATARECEPTION_RADIOONPIN) );
+			CPU_GPIO_SetPinState( DATARECEPTION_RADIOONPIN, !CPU_GPIO_GetPinState(DATARECEPTION_RADIOONPIN) );
+		}
+
 		CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, FALSE);
 		CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, TRUE);
+
 
 		CPU_GPIO_SetPinState( DATARX_EXEC_EVENT, FALSE );
 		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, TRUE );
