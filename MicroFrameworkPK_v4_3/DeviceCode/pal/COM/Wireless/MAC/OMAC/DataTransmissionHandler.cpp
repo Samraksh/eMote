@@ -161,6 +161,7 @@ UINT64 DataTransmissionHandler::CalculateNextRXOpp(UINT16 dest){
 			}
 		}
 		ASSERT_SP(nextTXmicro > curmicro);
+
 		UINT64 remMicroSecnextTX = nextTXmicro - curmicro;
 		//Wake up the transmitter a little early
 		//remMicroSecnextTX -= GUARDTIME_MICRO;
@@ -606,6 +607,10 @@ void DataTransmissionHandler::ExecuteEvent(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 	CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, TRUE );
+	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
+	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
+	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
+	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
 #endif
 
 	VirtualTimerReturnMessage rm;
@@ -984,6 +989,9 @@ bool DataTransmissionHandler::Send(){
 		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 #endif
+		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
+		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
+
 #if OMAC_DTH_DEBUG_LATEWAKEUP
 	UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 	bool print_OMAC_DTH_DEBUG_LATEWAKEUP_error = false;
