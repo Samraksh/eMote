@@ -961,6 +961,12 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		UINT32 eventOffset = (HAL_Time_CurrentTicks() & 0xFFFFFFFF) - eventTime;
 
 		si446x_write_tx_fifo(4, (uint8_t*)&eventOffset); // generate and write timestamp late as possible.
+
+		if(SI4468_Radio_TX_Instance != DISABLED_PIN ){
+			CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance, !CPU_GPIO_GetPinState(SI4468_Radio_TX_Instance) );
+			CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance, !CPU_GPIO_GetPinState(SI4468_Radio_TX_Instance) );
+		}
+
 		si446x_start_tx(chan, after_state, tx_buf[0]+1);
 		irq.Release();
 	} else { // Normal Case
