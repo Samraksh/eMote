@@ -695,3 +695,32 @@ int CPU_SystemClocksToMicroseconds( int Ticks ) {
 	return Ticks;
 }
 
+// timeToAdd is in 100-nanosecond (ns) increments. This is a Microsoft thing.
+void CPU_AddClockTime(UINT16 Timer, UINT64 timeToAdd)
+{
+	UINT32 timerFrequency = SYSTEM_CLOCK_HZ;
+	UINT64 ticksToAdd = 0;
+	UINT8 i;
+
+	for (i=0; i<g_CountOfHardwareTimers; i++){
+		if (Timer == g_HardwareTimerIDs[i]){
+			timerFrequency = g_HardwareTimerFrequency[i];
+		}
+	}
+	
+	if(Timer == ADVTIMER_32BIT)
+	{
+		if(timeToAdd == 0)
+		{
+			return;
+		}
+
+		// ticksToAdd = timeToAdd * (0.0000001 s) * 8000000 ticks/s (@ 8MHz)
+		ticksToAdd = timeToAdd * 0.0000001 * timerFrequency;
+		g_STM32F10x_AdvancedTimer.AddTicks(ticksToAdd);
+	}
+	else
+	{
+		ASSERT(0);
+	}
+}

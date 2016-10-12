@@ -90,3 +90,7 @@ void HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
 	g_Time_Driver.Sleep_uSec(uSec);
 }
 
+void HAL_Time_AddClockTime(UINT64 timeToAdd){
+	g_Time_Driver.AddClockTime(timeToAdd);
+}
+

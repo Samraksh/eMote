@@ -21,6 +21,7 @@ static HeapTrack* unwrapMedian;
 static HeapTrack* unwrapMedianZero;
 static HeapTrack* unwrapMedianMax;
 static HeapTrack* radarQ;
+static HeapTrack* radarI;
 static HeapTrack* medianRawQ;
 using namespace Samraksh::eMote;
 static double threshold;
@@ -137,6 +138,7 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 	
 	// Find median I
 	medianI = findMedian(bufferI, length);
+	HeapTrackInsert(radarI,medianI);
 	// Find median Q
 	medianQ = findMedian(bufferQ, length);
 	HeapTrackInsert(radarQ,medianQ);
@@ -206,7 +208,7 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 	}
 
 	// copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR
-	unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, medianI, medianQ, IQRejectionToUse, debugVal, IDNumber, codeVersion);
+	unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, (INT16)HeapTrackMedian(radarI), (INT16)HeapTrackMedian(radarQ), IQRejectionToUse, debugVal, IDNumber, codeVersion);
 
 	lastUnwrap = unwrap;
 	lastUnwrapZero = getUnwrapZero();
@@ -269,13 +271,15 @@ INT8 Algorithm_RadarDetection::Initialize( CLR_RT_HeapBlock* pMngObj, HRESULT &h
 		unwrapMedian = HeapTrackNew(50);
 		unwrapMedianZero = HeapTrackNew(50);
 		unwrapMedianMax = HeapTrackNew(50);
-		radarQ = HeapTrackNew(50);
+		radarQ = HeapTrackNew(100);
+		radarI = HeapTrackNew(100);
 		medianRawQ = HeapTrackNew(1200);
 		initialized = true;
 		HeapTrackInsert(unwrapMedian,0);
 		HeapTrackInsert(unwrapMedianZero,0);
 		HeapTrackInsert(unwrapMedianMax,0);
 		HeapTrackInsert(radarQ,0);
+		HeapTrackInsert(radarI,0);
 		HeapTrackInsert(medianRawQ,0);
 		initialAdjustmentCnt = INITIAL_ADJUSTMENT_SAMPLE_CNT;
 	}
@@ -384,7 +388,8 @@ INT8 Algorithm_RadarDetection::ResetBackgroundNoiseTracking( CLR_RT_HeapBlock* p
     ResetHeapTrack(unwrapMedian, 50);
 	ResetHeapTrack(unwrapMedianZero, 50);
 	ResetHeapTrack(unwrapMedianMax, 50);		 
-	ResetHeapTrack(radarQ, 50);
+	ResetHeapTrack(radarQ, 100);
+	ResetHeapTrack(radarI, 100);
     return true;
 }
 
