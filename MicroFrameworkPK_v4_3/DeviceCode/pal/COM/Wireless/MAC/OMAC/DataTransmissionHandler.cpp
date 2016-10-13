@@ -413,8 +413,14 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 	//140 usec is the time taken for CCA to return a result
 	if(EXECUTE_WITH_CCA) y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 
-	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
-	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
+
+#if OMAC_DTH_DEBUG_CCA
+	if(DATATX_CCA_PIN_TOGGLER != DISABLED_PIN){
+		CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
+	}
+#endif
+
 
 	while(EXECUTE_WITH_CCA){
 		//If retrying, don't do CCA, but perform random backoff and transmit
@@ -486,19 +492,16 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 #endif
 
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
-		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
+#if OMAC_DTH_DEBUG_CCA
+	if(DATATX_CCA_PIN_TOGGLER != DISABLED_PIN){
+		CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
+	}
 #endif
 
 		bool rv = Send();
 
 		if(rv) {
-
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
-		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
-#endif
 
 #if OMAC_DEBUG_PRINTF_TXATTEMPT_SUCCESS
 			if(m_outgoingEntryPtr != NULL){
@@ -522,13 +525,6 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		else{
 			txhandler_state = DTS_SEND_INITIATION_FAIL;
 #ifdef OMAC_DEBUG_GPIO
-			CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
-			CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
-			CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
-			CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
-			CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
-			CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
-
 			//OMAC_HAL_PRINTF("DataTransmissionHandler::ExecuteEventHelper Toggling\n");
 			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
@@ -607,10 +603,6 @@ void DataTransmissionHandler::ExecuteEvent(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 	CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, TRUE );
-	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
-	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
-	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
-	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
 #endif
 
 	VirtualTimerReturnMessage rm;
@@ -684,9 +676,14 @@ void DataTransmissionHandler::SelectRetrySlotNumForNeighborBackOff(){
 }
 
 void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus){
-	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
-	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
 
+
+#if OMAC_DTH_DEBUG_SendACKHandler
+	if(DATATX_SendACKHandler_PIN_TOGGLER != DISABLED_PIN){
+		CPU_GPIO_SetPinState( DATATX_SendACKHandler_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_SendACKHandler_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DATATX_SendACKHandler_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_SendACKHandler_PIN_TOGGLER) );
+	}
+#endif
 	txhandler_state = DTS_SEND_FINISHED;
 	RadioAddress_t dest = m_outgoingEntryPtr_dest;
 	RadioAddress_t myID = g_OMAC.GetMyAddress();
@@ -817,8 +814,12 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 }
 
 void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
-	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
-	CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
+#if OMAC_DTH_DEBUG_ReceiveDATAACK
+	if(DATATX_ReceiveDATAACK != DISABLED_PIN){
+		CPU_GPIO_SetPinState( DATATX_ReceiveDATAACK, !CPU_GPIO_GetPinState(DATATX_ReceiveDATAACK) );
+		CPU_GPIO_SetPinState( DATATX_ReceiveDATAACK, !CPU_GPIO_GetPinState(DATATX_ReceiveDATAACK) );
+	}
+#endif
 	//2) Check if DataTransmissionHandler is active
 	//1) SOFTWARE_ACKs are used
 	//3) If the sourceID is equal to the destination of the original message
@@ -989,8 +990,6 @@ bool DataTransmissionHandler::Send(){
 		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 #endif
-		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, FALSE );
-		CPU_GPIO_SetPinState( SCHED_TX_EXEC_PIN, TRUE );
 
 #if OMAC_DTH_DEBUG_LATEWAKEUP
 	UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();

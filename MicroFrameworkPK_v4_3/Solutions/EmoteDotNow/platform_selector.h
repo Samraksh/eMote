@@ -230,9 +230,9 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1
 #define VIRT_TIMER_OMAC_SCHEDULER	2
-#define LocalClockMonitor_TIMER1 3
+#define LocalClockMonitor_TIMER1 33
 //#define VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC		3
-#define NeighborClockMonitor_TIMER1 4
+#define NeighborClockMonitor_TIMER1 34
 #define VIRT_TIMER_OMAC_RECEIVER_ACK 	5
 
 // The following definition will be used within the code as the decision point in deciding if the timer is to be run within interrupt context or continuation
@@ -445,7 +445,10 @@ J12_PIN10 = GND
 #define DATATX_RECV_HW_ACK					(GPIO_PIN)120 //(<--4)
 #define FAST_RECOVERY_SEND					(GPIO_PIN)120 //(<--0)
 #define DATATX_SEND_ACK_HANDLER				(GPIO_PIN)120
-#define OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER				SCHED_RX_EXEC_PIN
+#define OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER			SCHED_RX_EXEC_PIN
+#define DATATX_SendACKHandler_PIN_TOGGLER				SCHED_TX_EXEC_PIN
+#define DATATX_ReceiveDATAACK_PIN_TOGGLER				SCHED_TX_EXEC_PIN
+#define DATATX_CCA_PIN_TOGGLER				SCHED_TX_EXEC_PIN
 
 //RX related
 #define OMAC_RXPIN 							(GPIO_PIN)0 //120 //23  //120							//J11_pin3 0
