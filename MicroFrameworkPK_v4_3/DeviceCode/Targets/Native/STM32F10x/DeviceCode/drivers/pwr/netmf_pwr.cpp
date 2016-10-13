@@ -540,21 +540,30 @@ void Sleep() {
 		return;
 	}
 
+	uint32_t now; // 32-bits can store about 90 days worth of ticks
+	uint32_t aft; // post sleep RTC time;
+
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
 			Sleep_Power();
+			now = RTC_GetCounter();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
+			aft = RTC_GetCounter();
 			Low_Power();
 			break;
 		case POWER_STATE_MID:
 			Sleep_Power();
+			now = RTC_GetCounter();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
+			aft = RTC_GetCounter();
 			Mid_Power();
 			break;
 		case POWER_STATE_HIGH:
 			Sleep_Power();
+			now = RTC_GetCounter();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
+			aft = RTC_GetCounter();
 			High_Power();
 			break;
 	}
@@ -562,6 +571,16 @@ void Sleep() {
 	__SEV();
 	__WFE();
 	RTC_WaitForSynchro();
+
+	// Main system timer does not run during sleep
+	// So we have to fix up clock afterwards.
+	// Approx 30.5 microseconds per RTC tick.
+	// Multiple by 10 because we need 100ns ticks for system timer.
+	// Not going to bother with floating point here...
+	uint32_t ticks = aft-now;
+	ticks = ticks * 305;
+
+	HAL_Time_AddClockTime(ticks);
 }
 
 // Shouldn't be used, possibly for unrecoverable error in debug mode.
