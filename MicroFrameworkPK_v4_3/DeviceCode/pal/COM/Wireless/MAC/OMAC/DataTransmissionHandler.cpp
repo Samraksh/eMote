@@ -1014,8 +1014,15 @@ bool DataTransmissionHandler::Send(){
 
 #if OMAC_DTH_DEBUG_LATEWAKEUP
 		if(print_OMAC_DTH_DEBUG_LATEWAKEUP_error) {
-			hal_printf("\r\n OMAC_DTH_DEBUG_LATEWAKEUP ERROR! scheduledTXTime_ticks = %llu , Cur Ticks = %llu scheduledTXTime_ticks_neigh = %llu \r\n",m_scheduledTXTime_in_own_clock_ticks, y, m_scheduledTXTime_in_neigh_clock_ticks);
-		}
+			if(y + OMAC_DTH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS < m_scheduledTXTime_in_own_clock_ticks ){
+				hal_printf("\r\n OMAC_DTH_DEBUG_LATEWAKEUP ERROR! scheduledTXTime_ticks = %llu , Cur Ticks = %llu scheduledTXTime_ticks_neigh = %llu Error in MicroSec= %llu \r\n"
+						,m_scheduledTXTime_in_own_clock_ticks, y, m_scheduledTXTime_in_neigh_clock_ticks, m_scheduledTXTime_in_own_clock_ticks - y);
+			}
+			else{
+				hal_printf("\r\n OMAC_DTH_DEBUG_LATEWAKEUP ERROR! scheduledTXTime_ticks = %llu , Cur Ticks = %llu scheduledTXTime_ticks_neigh = %llu Error in MicroSec= %llu\r\n"
+						,m_scheduledTXTime_in_own_clock_ticks, y, m_scheduledTXTime_in_neigh_clock_ticks, y - m_scheduledTXTime_in_own_clock_ticks );
+			}
+ 		}
 #endif
 
 		//m_outgoingEntryPtr = NULL;

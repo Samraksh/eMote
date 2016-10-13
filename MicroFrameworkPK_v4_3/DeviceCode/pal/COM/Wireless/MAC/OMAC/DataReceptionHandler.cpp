@@ -151,6 +151,21 @@ void DataReceptionHandler::ExecuteEvent(){
 		CPU_GPIO_SetPinState( DATARX_EXEC_EVENT, FALSE );
 #endif
 
+
+#if OMAC_DRXH_DEBUG_LATEWAKEUP
+	UINT64 expected_y = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks(g_OMAC.RADIO_TURN_ON_DELAY_RX+ GUARDTIME_MICRO + ADDITIONAL_TIMEADVANCE_FOR_RECEPTION);
+	if(m_scheduledRXTime_in_own_clock_ticks < expected_y  ){
+		if(expected_y  > m_scheduledRXTime_in_own_clock_ticks + OMAC_DRXH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS){
+			hal_printf("\r\n OMAC_DRXH_DEBUG_LATEWAKEUP Before RxON LATE ERROR! scheduledRXTime_ticks = %llu , Cur Ticks = %llu, Error = %llu \r\n",m_scheduledRXTime_in_own_clock_ticks, expected_y, expected_y - m_scheduledRXTime_in_own_clock_ticks);
+		}
+	}
+	else {
+		if( expected_y + OMAC_DRXH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS < m_scheduledRXTime_in_own_clock_ticks ){
+			hal_printf("\r\n OMAC_DRXH_DEBUG_LATEWAKEUP Before RxON EARLY ERROR! scheduledRXTime_ticks = %llu , Cur Ticks = %llu Error = %llu \r\n",m_scheduledRXTime_in_own_clock_ticks, expected_y, m_scheduledRXTime_in_own_clock_ticks - expected_y );
+		}
+	}
+#endif
+
 	VirtualTimerReturnMessage rm;
 	m_isreceiving = false;
 	m_receptionstate = 0;
@@ -180,15 +195,15 @@ void DataReceptionHandler::ExecuteEvent(){
 #endif
 
 #if OMAC_DRXH_DEBUG_LATEWAKEUP
-	UINT64 expected_y = g_OMAC.m_Clock.GetCurrentTimeinTicks() - g_OMAC.m_Clock.ConvertMicroSecstoTicks( GUARDTIME_MICRO + ADDITIONAL_TIMEADVANCE_FOR_RECEPTION);
+	expected_y = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( GUARDTIME_MICRO + ADDITIONAL_TIMEADVANCE_FOR_RECEPTION);
 	if(m_scheduledRXTime_in_own_clock_ticks < expected_y  ){
 		if(expected_y  > m_scheduledRXTime_in_own_clock_ticks + OMAC_DRXH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS){
-			hal_printf("\r\n OMAC_DRXH_DEBUG_LATEWAKEUP LATE ERROR! scheduledRXTime_ticks = %llu , Cur Ticks = %llu \r\n",m_scheduledRXTime_in_own_clock_ticks, expected_y);
+			hal_printf("\r\n OMAC_DRXH_DEBUG_LATEWAKEUP After RxON LATE ERROR! scheduledRXTime_ticks = %llu , Cur Ticks = %llu, Error = %llu \r\n",m_scheduledRXTime_in_own_clock_ticks, expected_y, expected_y - m_scheduledRXTime_in_own_clock_ticks );
 		}
 	}
 	else {
 		if( expected_y + OMAC_DRXH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS < m_scheduledRXTime_in_own_clock_ticks ){
-			hal_printf("\r\n OMAC_DRXH_DEBUG_LATEWAKEUP EARLY ERROR! scheduledRXTime_ticks = %llu , Cur Ticks = %llu \r\n",m_scheduledRXTime_in_own_clock_ticks, expected_y);
+			hal_printf("\r\n OMAC_DRXH_DEBUG_LATEWAKEUP After RxON  EARLY ERROR! scheduledRXTime_ticks = %llu , Cur Ticks = %llu, Error = %llu \r\n",m_scheduledRXTime_in_own_clock_ticks, expected_y,m_scheduledRXTime_in_own_clock_ticks - expected_y);
 		}
 	}
 #endif
