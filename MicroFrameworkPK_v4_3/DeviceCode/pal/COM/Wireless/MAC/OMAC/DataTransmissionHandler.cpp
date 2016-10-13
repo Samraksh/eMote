@@ -815,9 +815,9 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 
 void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
 #if OMAC_DTH_DEBUG_ReceiveDATAACK
-	if(DATATX_ReceiveDATAACK != DISABLED_PIN){
-		CPU_GPIO_SetPinState( DATATX_ReceiveDATAACK, !CPU_GPIO_GetPinState(DATATX_ReceiveDATAACK) );
-		CPU_GPIO_SetPinState( DATATX_ReceiveDATAACK, !CPU_GPIO_GetPinState(DATATX_ReceiveDATAACK) );
+	if(DATATX_ReceiveDATAACK_PIN_TOGGLER != DISABLED_PIN){
+		CPU_GPIO_SetPinState( DATATX_ReceiveDATAACK_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_ReceiveDATAACK_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DATATX_ReceiveDATAACK_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_ReceiveDATAACK_PIN_TOGGLER) );
 	}
 #endif
 	//2) Check if DataTransmissionHandler is active
@@ -993,15 +993,15 @@ bool DataTransmissionHandler::Send(){
 
 #if OMAC_DTH_DEBUG_LATEWAKEUP
 	UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-	bool print_OMAC_DTH_DEBUG_LATEWAKEUP_error = false;
+	UINT8 print_OMAC_DTH_DEBUG_LATEWAKEUP_error = 0;
 	if(m_scheduledTXTime_in_own_clock_ticks < y  ){
 		if(y  > m_scheduledTXTime_in_own_clock_ticks + OMAC_DTH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS){
-			print_OMAC_DTH_DEBUG_LATEWAKEUP_error = true;
+			print_OMAC_DTH_DEBUG_LATEWAKEUP_error = 1;
 		}
 	}
 	else {
 		if(y + OMAC_DTH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS < m_scheduledTXTime_in_own_clock_ticks ){
-			hal_printf("\r\n OMAC_DTH_DEBUG_LATEWAKEUP ERROR! scheduledRXTime_ticks = %llu , Cur Ticks = %llu \r\n",m_scheduledTXTime_in_own_clock_ticks, y);
+			print_OMAC_DTH_DEBUG_LATEWAKEUP_error = 2;
 		}
 	}
 #endif
@@ -1013,16 +1013,18 @@ bool DataTransmissionHandler::Send(){
 #endif
 
 #if OMAC_DTH_DEBUG_LATEWAKEUP
-		if(print_OMAC_DTH_DEBUG_LATEWAKEUP_error) {
-			if(y + OMAC_DTH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS < m_scheduledTXTime_in_own_clock_ticks ){
-				hal_printf("\r\n OMAC_DTH_DEBUG_LATEWAKEUP ERROR! scheduledTXTime_ticks = %llu , Cur Ticks = %llu scheduledTXTime_ticks_neigh = %llu Error in MicroSec= %llu \r\n"
-						,m_scheduledTXTime_in_own_clock_ticks, y, m_scheduledTXTime_in_neigh_clock_ticks, m_scheduledTXTime_in_own_clock_ticks - y);
-			}
-			else{
-				hal_printf("\r\n OMAC_DTH_DEBUG_LATEWAKEUP ERROR! scheduledTXTime_ticks = %llu , Cur Ticks = %llu scheduledTXTime_ticks_neigh = %llu Error in MicroSec= %llu\r\n"
-						,m_scheduledTXTime_in_own_clock_ticks, y, m_scheduledTXTime_in_neigh_clock_ticks, y - m_scheduledTXTime_in_own_clock_ticks );
-			}
- 		}
+		if(print_OMAC_DTH_DEBUG_LATEWAKEUP_error == 2) {
+				hal_printf("\r\n DTH LATE WAKEUP ERROR! Error in MicroSec= %llu \r\n"
+						,g_OMAC.m_Clock.ConvertTickstoMicroSecs( m_scheduledTXTime_in_own_clock_ticks - y) );
+		}
+		else if(print_OMAC_DTH_DEBUG_LATEWAKEUP_error == 1){
+				//hal_printf("\r\n OMAC_DTH_DEBUG_LATEWAKEUP EARLY ERROR! scheduledTXTime_ticks = %llu , Cur Ticks = %llu scheduledTXTime_ticks_neigh = %llu Error in MicroSec= %llu\r\n"
+					//	,m_scheduledTXTime_in_own_clock_ticks, y, m_scheduledTXTime_in_neigh_clock_ticks, y - m_scheduledTXTime_in_own_clock_ticks );
+			hal_printf("\r\n DTH EARLY WAKEUP ERROR! Error in MicroSec= %llu\r\n"
+					,g_OMAC.m_Clock.ConvertTickstoMicroSecs( y - m_scheduledTXTime_in_own_clock_ticks) );
+
+		}
+
 #endif
 
 		//m_outgoingEntryPtr = NULL;
