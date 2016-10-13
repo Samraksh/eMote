@@ -79,6 +79,10 @@ void DataTransmissionHandler::Initialize(){
 	CPU_GPIO_EnableOutputPin(DATARX_NEXTEVENT, TRUE);
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 
+	CPU_GPIO_EnableOutputPin(DATATX_TIMING_ERROR_PIN_TOGGLER, TRUE);
+	CPU_GPIO_SetPinState( DATATX_TIMING_ERROR_PIN_TOGGLER, FALSE );
+
+
 	CPU_GPIO_EnableOutputPin(FAST_RECOVERY_SEND, TRUE);
 	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 	CPU_GPIO_EnableOutputPin(DATATX_SEND_ACK_HANDLER, TRUE);
@@ -221,7 +225,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 
 				while(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0
 						&& g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT // This can be handled more gracefully
-					  ){
+				){
 #if defined(OMAC_DEBUG_PRINTF)
 					if(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPTWARNINGLEVEL){
 
@@ -229,7 +233,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 								, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
 								, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
 								, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts()
-								);
+						);
 					}
 #endif
 #if OMAC_DEBUG_PRINTF_PACKETDROP_MAXTRIES
@@ -244,7 +248,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 				}
 				while(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0
 						&& g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT
-					  ){
+				){
 #if defined(OMAC_DEBUG_PRINTF)
 					if(g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPTWARNINGLEVEL){
 
@@ -252,7 +256,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 								, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
 								, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
 								, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts()
-								);
+						);
 					}
 #endif
 #if OMAC_DEBUG_PRINTF_PACKETDROP_MAXTRIES
@@ -493,10 +497,10 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 #endif
 
 #if OMAC_DTH_DEBUG_CCA
-	if(DATATX_CCA_PIN_TOGGLER != DISABLED_PIN){
-		CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
-		CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
-	}
+		if(DATATX_CCA_PIN_TOGGLER != DISABLED_PIN){
+			CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
+			CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
+		}
 #endif
 
 		bool rv = Send();
@@ -505,11 +509,11 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 
 #if OMAC_DEBUG_PRINTF_TXATTEMPT_SUCCESS
 			if(m_outgoingEntryPtr != NULL){
-			hal_printf("TXATTEMPT_SUCCESSL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
-					, m_outgoingEntryPtr->GetHeader()->dest
-					, m_outgoingEntryPtr->GetHeader()->payloadType
-					, m_outgoingEntryPtr->GetHeader()->flags
-					, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
+				hal_printf("TXATTEMPT_SUCCESSL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
+						, m_outgoingEntryPtr->GetHeader()->dest
+						, m_outgoingEntryPtr->GetHeader()->payloadType
+						, m_outgoingEntryPtr->GetHeader()->flags
+						, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
 			}
 			else{
 				hal_printf("TXATTEMPT_SUCCESS NO m_outgoingEntryPtr \n");
@@ -556,25 +560,25 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 			metadata->SetRetryAttempts(metadata->GetRetryAttempts()+1);
 		}
 
-//		Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
-//		if(neigh_ptr != NULL){
-//			m_outgoingEntryPtr = NULL;
-//			if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
-//				m_outgoingEntryPtr = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
-//			}
-//			else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
-//				m_outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
-//			}
-//			else{
-//				//Commenting out, as sometimes there may not be anything to be sent,
-//				//	in which case Send returns a false.
-//				//ASSERT_SP(0);
-//			}
-//			if(m_outgoingEntryPtr != NULL && isDataPacketScheduled){
-//				IEEE802_15_4_Metadata* metadata = m_outgoingEntryPtr->GetMetaData();
-//				metadata->SetRetryAttempts(metadata->GetRetryAttempts()+1);
-//			}
-//		}
+		//		Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
+		//		if(neigh_ptr != NULL){
+		//			m_outgoingEntryPtr = NULL;
+		//			if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+		//				m_outgoingEntryPtr = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
+		//			}
+		//			else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
+		//				m_outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
+		//			}
+		//			else{
+		//				//Commenting out, as sometimes there may not be anything to be sent,
+		//				//	in which case Send returns a false.
+		//				//ASSERT_SP(0);
+		//			}
+		//			if(m_outgoingEntryPtr != NULL && isDataPacketScheduled){
+		//				IEEE802_15_4_Metadata* metadata = m_outgoingEntryPtr->GetMetaData();
+		//				metadata->SetRetryAttempts(metadata->GetRetryAttempts()+1);
+		//			}
+		//		}
 
 		//Stop execution
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
@@ -585,7 +589,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		}
 	}
 #ifdef OMAC_DEBUG_GPIO
-CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 #endif
 }
 
@@ -825,9 +829,9 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
 	//3) If the sourceID is equal to the destination of the original message
 	//
 	if( true
-		&& 	CPU_Radio_GetRadioAckType() == SOFTWARE_ACK
-		&&	g_OMAC.m_omac_scheduler.m_state == (I_DATA_SEND_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started
-		&& 	sourceaddress == m_outgoingEntryPtr_dest
+			&& 	CPU_Radio_GetRadioAckType() == SOFTWARE_ACK
+			&&	g_OMAC.m_omac_scheduler.m_state == (I_DATA_SEND_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started
+			&& 	sourceaddress == m_outgoingEntryPtr_dest
 	){
 		txhandler_state = DTS_RECEIVEDDATAACK;
 #ifdef OMAC_DEBUG_GPIO
@@ -838,16 +842,16 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
 		VirtualTimerReturnMessage rm;
 
 #if	OMAC_DEBUG_PRINTF_PACKET_ACK_RX_SUCCESS
-	if(m_outgoingEntryPtr){
-	hal_printf("ACK_RX_SUCCESS dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
-			, m_outgoingEntryPtr->GetHeader()->dest
-			, m_outgoingEntryPtr->GetHeader()->payloadType
-			, m_outgoingEntryPtr->GetHeader()->flags
-			, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
-	}
-	else{
-		hal_printf("ACK_RX_SUCCESS NO m_outgoingEntryPtr \n");
-	}
+		if(m_outgoingEntryPtr){
+			hal_printf("ACK_RX_SUCCESS dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
+					, m_outgoingEntryPtr->GetHeader()->dest
+					, m_outgoingEntryPtr->GetHeader()->payloadType
+					, m_outgoingEntryPtr->GetHeader()->flags
+					, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
+		}
+		else{
+			hal_printf("ACK_RX_SUCCESS NO m_outgoingEntryPtr \n");
+		}
 #endif
 
 		g_NeighborTable.RecordLastHeardTime(sourceaddress,g_OMAC.m_Clock.GetCurrentTimeinTicks());
@@ -862,11 +866,11 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
 				PostExecuteEvent();
 			}
 		}
-	#ifdef OMAC_DEBUG_GPIO
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, FALSE);
 		//CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATATX_RECV_SW_ACK, FALSE );
-	#endif
+#endif
 	}
 }
 
@@ -878,11 +882,11 @@ void DataTransmissionHandler::PostExecuteEvent(){
 #if OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
 	if(txhandler_state != DTS_RECEIVEDDATAACK && txhandler_state != DTS_RECEIVEDDATAACK){
 		if(m_outgoingEntryPtr){
-		hal_printf("ACK RX FAIL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
-				, m_outgoingEntryPtr->GetHeader()->dest
-				, m_outgoingEntryPtr->GetHeader()->payloadType
-				, m_outgoingEntryPtr->GetHeader()->flags
-				, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
+			hal_printf("ACK RX FAIL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
+					, m_outgoingEntryPtr->GetHeader()->dest
+					, m_outgoingEntryPtr->GetHeader()->payloadType
+					, m_outgoingEntryPtr->GetHeader()->flags
+					, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
 		}
 		else{
 			hal_printf("ACK RX FAIL NO m_outgoingEntryPtr \n");
@@ -892,11 +896,11 @@ void DataTransmissionHandler::PostExecuteEvent(){
 	if(txhandler_state == DTS_WAITING_FOR_ACKS){
 #if OMAC_DEBUG_PRINTF_PACKET_ACK_RX_FAIL
 		if(m_outgoingEntryPtr){
-		hal_printf("ACK RX FAIL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
-				, m_outgoingEntryPtr->GetHeader()->dest
-				, m_outgoingEntryPtr->GetHeader()->payloadType
-				, m_outgoingEntryPtr->GetHeader()->flags
-				, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
+			hal_printf("ACK RX FAIL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \n"
+					, m_outgoingEntryPtr->GetHeader()->dest
+					, m_outgoingEntryPtr->GetHeader()->payloadType
+					, m_outgoingEntryPtr->GetHeader()->flags
+					, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
 		}
 		else{
 			hal_printf("ACK RX FAIL NO m_outgoingEntryPtr \n");
@@ -958,26 +962,26 @@ bool DataTransmissionHandler::Send(){
 
 	m_outgoingEntryPtr = SelectPacketForDest(m_outgoingEntryPtr_dest);
 
-//	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
-//	if(neigh_ptr == NULL){
-//		return false;
-//	}
-//
-//	m_outgoingEntryPtr = NULL;
-//	if(neigh_ptr->IsInitializationTimeSamplesNeeded() && neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ) {
-//		m_outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
-//	}
-//	else if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
-//		m_outgoingEntryPtr = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
-//	}
-//	else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
-//		m_outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
-//	}
-//	else{
-//		//Commenting out, as sometimes there may not be anything to be sent,
-//		//	in which case Send returns a false.
-//		//ASSERT_SP(0);
-//	}
+	//	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
+	//	if(neigh_ptr == NULL){
+	//		return false;
+	//	}
+	//
+	//	m_outgoingEntryPtr = NULL;
+	//	if(neigh_ptr->IsInitializationTimeSamplesNeeded() && neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+	//		m_outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
+	//	}
+	//	else if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+	//		m_outgoingEntryPtr = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
+	//	}
+	//	else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
+	//		m_outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
+	//	}
+	//	else{
+	//		//Commenting out, as sometimes there may not be anything to be sent,
+	//		//	in which case Send returns a false.
+	//		//ASSERT_SP(0);
+	//	}
 
 	//Send only when packet has been scheduled
 	if(m_outgoingEntryPtr != NULL && isDataPacketScheduled){
@@ -992,18 +996,18 @@ bool DataTransmissionHandler::Send(){
 #endif
 
 #if OMAC_DTH_DEBUG_LATEWAKEUP
-	UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-	UINT8 print_OMAC_DTH_DEBUG_LATEWAKEUP_error = 0;
-	if(m_scheduledTXTime_in_own_clock_ticks < y  ){
-		if(y  > m_scheduledTXTime_in_own_clock_ticks + OMAC_DTH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS){
-			print_OMAC_DTH_DEBUG_LATEWAKEUP_error = 1;
+		UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks() + OMAC_DTH_DELAY_FROM_SEND_TO_RADIO_DRIVER_SEND_IN_TICKS;
+		UINT8 print_OMAC_DTH_DEBUG_LATEWAKEUP_error = 0;
+		if(m_scheduledTXTime_in_own_clock_ticks < y  ){
+			if(y  > m_scheduledTXTime_in_own_clock_ticks + OMAC_DTH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS){
+				print_OMAC_DTH_DEBUG_LATEWAKEUP_error = 1;
+			}
 		}
-	}
-	else {
-		if(y + OMAC_DTH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS < m_scheduledTXTime_in_own_clock_ticks ){
-			print_OMAC_DTH_DEBUG_LATEWAKEUP_error = 2;
+		else {
+			if(y + OMAC_DTH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS < m_scheduledTXTime_in_own_clock_ticks ){
+				print_OMAC_DTH_DEBUG_LATEWAKEUP_error = 2;
+			}
 		}
-	}
 #endif
 
 		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
@@ -1012,14 +1016,25 @@ bool DataTransmissionHandler::Send(){
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 #endif
 
-#if OMAC_DTH_DEBUG_LATEWAKEUP
+
+#if OMAC_DTH_DEBUG_LATEWAKEUP_PIN_TOGGLING
 		if(print_OMAC_DTH_DEBUG_LATEWAKEUP_error == 2) {
-				hal_printf("\r\n DTH LATE WAKEUP ERROR! Error in MicroSec= %llu \r\n"
-						,g_OMAC.m_Clock.ConvertTickstoMicroSecs( m_scheduledTXTime_in_own_clock_ticks - y) );
+			if(DATATX_TIMING_ERROR_PIN_TOGGLER != DISABLED_PIN){
+				CPU_GPIO_SetPinState( DATATX_TIMING_ERROR_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_TIMING_ERROR_PIN_TOGGLER) );
+				CPU_GPIO_SetPinState( DATATX_TIMING_ERROR_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_TIMING_ERROR_PIN_TOGGLER) );
+			}
+		}
+#endif
+
+#if OMAC_DTH_DEBUG_LATEWAKEUP
+
+		if(print_OMAC_DTH_DEBUG_LATEWAKEUP_error == 2) {
+			hal_printf("\r\n DTH LATE WAKEUP ERROR! Error in MicroSec= %llu \r\n"
+					,g_OMAC.m_Clock.ConvertTickstoMicroSecs( m_scheduledTXTime_in_own_clock_ticks - y) );
 		}
 		else if(print_OMAC_DTH_DEBUG_LATEWAKEUP_error == 1){
-				//hal_printf("\r\n OMAC_DTH_DEBUG_LATEWAKEUP EARLY ERROR! scheduledTXTime_ticks = %llu , Cur Ticks = %llu scheduledTXTime_ticks_neigh = %llu Error in MicroSec= %llu\r\n"
-					//	,m_scheduledTXTime_in_own_clock_ticks, y, m_scheduledTXTime_in_neigh_clock_ticks, y - m_scheduledTXTime_in_own_clock_ticks );
+			//hal_printf("\r\n OMAC_DTH_DEBUG_LATEWAKEUP EARLY ERROR! scheduledTXTime_ticks = %llu , Cur Ticks = %llu scheduledTXTime_ticks_neigh = %llu Error in MicroSec= %llu\r\n"
+			//	,m_scheduledTXTime_in_own_clock_ticks, y, m_scheduledTXTime_in_neigh_clock_ticks, y - m_scheduledTXTime_in_own_clock_ticks );
 			hal_printf("\r\n DTH EARLY WAKEUP ERROR! Error in MicroSec= %llu\r\n"
 					,g_OMAC.m_Clock.ConvertTickstoMicroSecs( y - m_scheduledTXTime_in_own_clock_ticks) );
 
