@@ -418,12 +418,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 	if(EXECUTE_WITH_CCA) y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 
 
-#if OMAC_DTH_DEBUG_CCA
-	if(DATATX_CCA_PIN_TOGGLER != DISABLED_PIN){
-		CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
-		CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
-	}
-#endif
+
 
 
 	while(EXECUTE_WITH_CCA){
@@ -433,13 +428,21 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		}
 		//Check CCA only for DATA packets
 
-		CPU_GPIO_SetPinState( SCHED_RX_EXEC_PIN, TRUE );
-		CPU_GPIO_SetPinState( SCHED_RX_EXEC_PIN, FALSE );
-
+#if OMAC_DTH_DEBUG_CCA
+	if(DATATX_CCA_PIN_TOGGLER != DISABLED_PIN){
+		CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
+	}
+#endif
 		DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 
-		CPU_GPIO_SetPinState( SCHED_RX_EXEC_PIN, TRUE );
-		CPU_GPIO_SetPinState( SCHED_RX_EXEC_PIN, FALSE );
+#if OMAC_DTH_DEBUG_CCA
+		if(DATATX_CCA_PIN_TOGGLER != DISABLED_PIN){
+			CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
+			CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
+		}
+#endif
+
 
 		if(DS != DS_Success){
 #ifdef OMAC_DEBUG_PRINTF
@@ -462,8 +465,6 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 			}
 		}
 	}
-	CPU_GPIO_SetPinState( SCHED_RX_EXEC_PIN, TRUE );
-	CPU_GPIO_SetPinState( SCHED_RX_EXEC_PIN, FALSE );
 
 	//Perform CCA for random backoff period (only for retries)
 	if(m_RANDOM_BACKOFF){
@@ -482,6 +483,9 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 			}
 		}
 	}
+
+
+
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
@@ -496,12 +500,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 #endif
 
-#if OMAC_DTH_DEBUG_CCA
-		if(DATATX_CCA_PIN_TOGGLER != DISABLED_PIN){
-			CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
-			CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
-		}
-#endif
+
 
 		bool rv = Send();
 
