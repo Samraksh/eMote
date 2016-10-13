@@ -12,6 +12,13 @@
 #include "Scheduler.h"
 #include <TinyCLR_Runtime.h>
 
+#define OMAC_DRXH_DEBUG_LATEWAKEUP 1
+#define OMAC_DRXH_DEBUG_LATEWAKEUP_PIN_TOGGLING 1
+
+#if OMAC_DRXH_DEBUG_LATEWAKEUP
+#define OMAC_DRXH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS 200*8
+#endif
+
 #ifndef DATARECEPTIONHANDLER_H_
 #define DATARECEPTIONHANDLER_H_
 
@@ -33,6 +40,8 @@ public:
 	bool m_isreceiving;
 	UINT8 m_receptionstate;
 	UINT64 lastwakeupSlotUpdateTimeinTicks;
+
+	UINT64 m_scheduledRXTime_in_own_clock_ticks;
 
 	Message_15_4_t m_ACKmsg ;
 

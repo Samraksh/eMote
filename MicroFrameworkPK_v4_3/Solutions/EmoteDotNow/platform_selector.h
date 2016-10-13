@@ -230,9 +230,9 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1
 #define VIRT_TIMER_OMAC_SCHEDULER	2
-#define LocalClockMonitor_TIMER1 3
+#define LocalClockMonitor_TIMER1 33
 //#define VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC		3
-#define NeighborClockMonitor_TIMER1 4
+#define NeighborClockMonitor_TIMER1 34
 #define VIRT_TIMER_OMAC_RECEIVER_ACK 	5
 
 // The following definition will be used within the code as the decision point in deciding if the timer is to be run within interrupt context or continuation
@@ -348,6 +348,8 @@ J12_PIN10 = GND
 
 /*PIN SETUP FOR FAN-IN WITH HW ACKS AND FAST RECOVERY*/
 
+#define DISABLED_PIN	(GPIO_PIN)120
+
 #define DATATX_NEXT_EVENT					(GPIO_PIN)120//22
 #define DATARX_NEXT_EVENT					(GPIO_PIN)120//23
 #define DATATX_DATA_PIN						(GPIO_PIN)120//24//22
@@ -375,6 +377,8 @@ J12_PIN10 = GND
 #define SI4468_MEASURE_RX_TIME				(GPIO_PIN)120//24
 #define SI4468_HANDLE_INTERRUPT_RX			(GPIO_PIN)120//0
 #define SCHED_NEXT_EVENT					(GPIO_PIN)120//0
+
+
 
 #define OMAC_TESTING_SCHEDULER_PIN 			(GPIO_PIN)120//24
 #define OMAC_TESTING_VTIMER_PIN 			(GPIO_PIN)120
@@ -408,6 +412,9 @@ J12_PIN10 = GND
 #define SI4468_TX							(GPIO_PIN)120
 #define SI4468_TX_TIMESTAMP					(GPIO_PIN)120
 #define SI4468_Radio_STATE					(GPIO_PIN)120
+#define SI4468_Radio_TX_Instance			(GPIO_PIN)25
+
+
 
 // SCHEDULER TESTING
 //#define OMAC_TESTING_SCHEDULER_PIN 	(GPIO_PIN)24
@@ -438,13 +445,20 @@ J12_PIN10 = GND
 #define DATATX_RECV_HW_ACK					(GPIO_PIN)120 //(<--4)
 #define FAST_RECOVERY_SEND					(GPIO_PIN)120 //(<--0)
 #define DATATX_SEND_ACK_HANDLER				(GPIO_PIN)120
+#define OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER			(GPIO_PIN)120
+#define DATATX_SendACKHandler_PIN_TOGGLER				(GPIO_PIN)120
+#define DATATX_ReceiveDATAACK_PIN_TOGGLER				(GPIO_PIN)120
+#define DATATX_CCA_PIN_TOGGLER				(GPIO_PIN)120
+#define DATATX_TIMING_ERROR_PIN_TOGGLER 	(GPIO_PIN)22
 
 //RX related
-#define OMAC_RXPIN 							(GPIO_PIN)120 //120 //23  //120							//J11_pin3 0
+#define OMAC_RXPIN 							(GPIO_PIN)0 //120 //23  //120							//J11_pin3 0
 //#define OMAC_DATARXPIN 	(GPIO_PIN)120 //0 //26	//120 //2					//J12_pin5
 #define OMAC_TIMESYNCREQRXPIN 				(GPIO_PIN)120 //23 //30
 #define DISCO_SYNCRECEIVEPIN 				(GPIO_PIN)120 //25 //120					//J12_PIN2
 #define DATARECEPTION_SLOTPIN 				(GPIO_PIN)120 //30 //31 //2				//J12_PIN4
+#define DATARECEPTION_RADIOONPIN 			(GPIO_PIN)24 //30 //31 //2				//J12_PIN4
+#define DATARX_TIMING_ERROR_PIN_TOGGLER 	(GPIO_PIN)23
 
 //Timesync related
 #define TIMESYNC_GENERATE_MESSAGEPIN 		(GPIO_PIN)120 //(<--23) //25 //120 //24 //120// // 3 				//J11_pin6
@@ -452,8 +466,8 @@ J12_PIN10 = GND
 
 //Scheduler Related
 #define SCHED_START_STOP_PIN 				(GPIO_PIN)120 //4
-#define SCHED_RX_EXEC_PIN 					(GPIO_PIN)120 //25 //4
-#define SCHED_TX_EXEC_PIN 					(GPIO_PIN)120 //24 //4
+#define SCHED_RX_EXEC_PIN 					(GPIO_PIN)24 //25 //4
+#define SCHED_TX_EXEC_PIN 					(GPIO_PIN)25 //24 //4
 #define SCHED_DISCO_EXEC_PIN 				(GPIO_PIN)120 //0 //4
 #define SCHED_TSREQ_EXEC_PIN 				(GPIO_PIN)120 //23 //4
 #define DATARX_NEXTEVENT 					(GPIO_PIN)120

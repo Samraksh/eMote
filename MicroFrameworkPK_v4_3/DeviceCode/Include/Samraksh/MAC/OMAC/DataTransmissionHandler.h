@@ -14,7 +14,17 @@
 #include "OMACConstants.h"
 #include "Handlers.h"
 
+#define OMAC_DTH_DEBUG_ReceiveDATAACK 0
+#define OMAC_DTH_DEBUG_SendACKHandler 1
+#define OMAC_DTH_DEBUG_CCA 1
+
 #define OMAC_DTH_DEBUG_UNEXPECTED_POST_EX 0
+#define OMAC_DTH_DEBUG_LATEWAKEUP 1
+#define OMAC_DTH_DEBUG_LATEWAKEUP_PIN_TOGGLING 1
+#define OMAC_DTH_DELAY_FROM_SEND_TO_RADIO_DRIVER_SEND_IN_TICKS 8*1116
+#if OMAC_DTH_DEBUG_LATEWAKEUP
+#define OMAC_DTH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS 259*8
+#endif
 
 //#include "Scheduler.h"
 enum DataTransmissionHandlerStates{
@@ -60,6 +70,12 @@ class DataTransmissionHandler: public EventHandler {
 	//DataMsg_t *m_TXMsg;
 	BOOL isDataPacketScheduled;
 	UINT8 m_currentSlotRetryAttempt;
+
+	UINT64 m_scheduledFUTime_in_own_clock_micro;
+
+	UINT64 m_scheduledTXTime_in_neigh_clock_ticks;
+	UINT64 m_scheduledTXTime_in_own_clock_ticks;
+
 
 	BOOL m_RANDOM_BACKOFF;
 	UINT16 m_backoff_seed;

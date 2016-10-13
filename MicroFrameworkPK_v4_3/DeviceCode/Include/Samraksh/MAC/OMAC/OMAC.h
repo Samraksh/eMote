@@ -10,7 +10,7 @@
 #define OMAC_H_
 
 //#define TWO_NODES_TX_RX
-//#define OMAC_DEBUG_GPIO
+#define OMAC_DEBUG_GPIO
 //#define OMAC_DEBUG_PRINTF
 
 
@@ -107,8 +107,7 @@ class OMACType: public MAC<Message_15_4_t, MACConfig>{
 	//-------------------------------
 	static const UINT16 GUARDTIME_MICRO_OMAC = GUARDTIME_MICRO;
 	static const UINT16 OMAC_TIME_ERROR = 3*MILLISECINMICSEC;
-	static const UINT16 DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX = 300;
-	static const UINT16 DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX = 284;
+
 	static const UINT16 DELAY_DUE_TO_CCA_MICRO = CCA_PERIOD_MICRO;
 private:
 	static const UINT16 RETRY_FUDGE_FACTOR = 0.3*MILLISECINMICSEC;
@@ -121,6 +120,21 @@ private:
 	UINT16 DELAY_IN_RECEIVING_SW_ACK;
 	UINT16 RETRANS_DELAY_DUE_TO_MISSING_HW_ACK;
 	UINT16 RETRANS_DELAY_DUE_TO_MISSING_SW_ACK;
+	UINT16 DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX;
+    UINT16 DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX;
+    UINT16 CCA_PERIOD_DESIRED;
+    UINT16 CCA_PERIOD_ACTUAL;
+    UINT16 RADIO_TURN_ON_DELAY_TX;
+    UINT16 RADIO_TURN_ON_DELAY_RX;
+    UINT16 TIME_RX_TIMESTAMP_OFFSET_MICRO;
+
+    friend class OMACScheduler;
+    friend class DiscoveryHandler ;
+    friend class DataReceptionHandler ;
+    friend class DataTransmissionHandler ;
+    friend class OMACTimeSync ;
+
+
 	//-------------------------------
 //	static const UINT8 SlotLength = 8; //slot Length in milliseconds
 	Message_15_4_t* PrepareMessageBuffer(UINT16 address, UINT8 dataType, void* msg, int size);
