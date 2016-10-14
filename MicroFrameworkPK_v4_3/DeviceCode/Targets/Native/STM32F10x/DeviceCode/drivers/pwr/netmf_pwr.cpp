@@ -352,10 +352,6 @@ static void Sleep_Power(void) {
 	RCC_PCLK2Config(RCC_HCLK_Div1);   // 8 MHz
 	RCC_ADCCLKConfig(RCC_PCLK2_Div2); // 4 MHz
 
-	// Set timer prescaler for constant 8 MHz
-	// Very not tested
-	TIM_PrescalerConfig(TIM1, 0, TIM_PSCReloadMode_Immediate);
-
 	// Set flash speeds
 	FLASH_SetLatency(FLASH_Latency_0);
 
@@ -502,7 +498,15 @@ static bool check_pending_isr(void) {
 	return (icsr & ISRPENDING_MASK);
 }
 
+// Only to be called with interrupts disabled
+static uint32_t align_to_rtc2(void) {
+	uint32_t now = RTC_GetCounter();
+	while (RTC_GetCounter() == now) ; // align by waiting until we tick
+	return now+1;
+}
+
 // Exit in the same power state as we entered.
+// TODO: Need to clean this up...
 void Sleep() {
 
 #ifdef EMOTE_WAKELOCKS
@@ -546,33 +550,40 @@ void Sleep() {
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
+			now = align_to_rtc2();
+			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
-			now = RTC_GetCounter();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
-			aft = RTC_GetCounter();
 			Low_Power();
+			RTC_WaitForSynchro();
+			aft = align_to_rtc2();
+			TIM_Cmd(TIM1, ENABLE);
 			break;
 		case POWER_STATE_MID:
+			now = align_to_rtc2();
+			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
-			now = RTC_GetCounter();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
-			aft = RTC_GetCounter();
 			Mid_Power();
+			RTC_WaitForSynchro();
+			aft = align_to_rtc2();
+			TIM_Cmd(TIM1, ENABLE);
 			break;
 		case POWER_STATE_HIGH:
+			now = align_to_rtc2();
+			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
-			now = RTC_GetCounter();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
-			aft = RTC_GetCounter();
 			High_Power();
+			RTC_WaitForSynchro();
+			aft = align_to_rtc2();
+			TIM_Cmd(TIM1, ENABLE);
 			break;
 	}
 	// Disable SEVONPEND and create-consume a dummy event.
 	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
 	__SEV();
 	__WFE();
-
-	RTC_WaitForSynchro();
 
 	// Main system timer does not run during sleep
 	// So we have to fix up clock afterwards.
