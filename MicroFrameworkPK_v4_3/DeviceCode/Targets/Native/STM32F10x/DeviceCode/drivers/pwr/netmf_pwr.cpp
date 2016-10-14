@@ -567,9 +567,11 @@ void Sleep() {
 			High_Power();
 			break;
 	}
+	// Disable SEVONPEND and create-consume a dummy event.
 	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
 	__SEV();
 	__WFE();
+
 	RTC_WaitForSynchro();
 
 	// Main system timer does not run during sleep
@@ -579,8 +581,10 @@ void Sleep() {
 	// Not going to bother with floating point here...
 	uint32_t ticks = aft-now;
 	ticks = ticks * 305;
-
 	HAL_Time_AddClockTime(ticks);
+
+	irq.Release();
+	//hal_printf("CHRIS ADD DEBUG STATEMENT HERE\r\n");
 }
 
 // Shouldn't be used, possibly for unrecoverable error in debug mode.
