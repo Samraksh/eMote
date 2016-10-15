@@ -140,7 +140,7 @@ UINT32 STM32F10x_RTC::GetMaxTicks()
 void ISR_RTC_ALARM(void* Param){
 	// TODO: check for overflow
 	//RTC_WaitForLastTask();
-	//RTC_ClearFlag(RTC_FLAG_ALR);
+	RTC_ClearFlag(RTC_FLAG_ALR);
 	PWR_BackupAccessCmd(ENABLE);
 	RTC_WaitForLastTask();
 	RTC_ClearITPendingBit(RTC_IT_ALR);
