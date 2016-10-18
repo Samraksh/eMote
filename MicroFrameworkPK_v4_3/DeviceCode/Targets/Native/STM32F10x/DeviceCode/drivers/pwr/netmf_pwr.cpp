@@ -505,6 +505,11 @@ static uint32_t align_to_rtc2(void) {
 	return now+1;
 }
 
+void Snooze() {
+	__DSB();
+	__WFI();
+}
+
 // Exit in the same power state as we entered.
 // TODO: Need to clean this up...
 void Sleep() {
