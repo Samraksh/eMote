@@ -8,7 +8,7 @@ STM32F10x_RTC g_STM32F10x_RTC;
 void ISR_RTC_ALARM(void* Param);
 
 //const uint16_t TIME_CUSHION = (uint16_t)(0.000015 * g_HardwareTimerFrequency[0]); // 15us @ 8 MHz
-const UINT64 TIME_CUSHION = 10;
+const UINT64 TIME_CUSHION = 7;
 
 UINT32 STM32F10x_RTC::SetCounter(UINT32 counterValue)
 {
@@ -86,7 +86,7 @@ DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, U
 	if( !CPU_INTC_ActivateInterrupt(RTC_IRQn, ISR_RTC_ALARM, NULL) )
 		return DS_Fail;
 	RTC_ExitConfigMode();
-	PWR_BackupAccessCmd(DISABLE);
+	//PWR_BackupAccessCmd(DISABLE);
 
     return DS_Success;
 
@@ -120,12 +120,12 @@ DeviceStatus STM32F10x_RTC::SetCompare(UINT64 compareValue)
 	}
 
 	// RTC hardware needs to wait for synchronization at times.
-	PWR_BackupAccessCmd(ENABLE);
+	//PWR_BackupAccessCmd(ENABLE);
 	RTC_WaitForLastTask();
-	//RTC_WaitForSynchro();
-	//RTC_ClearFlag(RTC_FLAG_ALR);
+	RTC_WaitForSynchro();
+	RTC_ClearFlag(RTC_FLAG_ALR);
 	RTC_SetAlarm(compareValue);
-	PWR_BackupAccessCmd(DISABLE);
+	//PWR_BackupAccessCmd(DISABLE);
 
 	setCompareRunning = true;
 
@@ -139,12 +139,12 @@ UINT32 STM32F10x_RTC::GetMaxTicks()
 
 void ISR_RTC_ALARM(void* Param){
 	// TODO: check for overflow
-	//RTC_WaitForLastTask();
 	RTC_ClearFlag(RTC_FLAG_ALR);
-	PWR_BackupAccessCmd(ENABLE);
-	RTC_WaitForLastTask();
+	//PWR_BackupAccessCmd(ENABLE);
+	//RTC_WaitForLastTask();
+	RTC_ClearITPendingBit(RTC_FLAG_ALR);
 	RTC_ClearITPendingBit(RTC_IT_ALR);
-	PWR_BackupAccessCmd(DISABLE);
+	//PWR_BackupAccessCmd(DISABLE);
 	g_STM32F10x_RTC.setCompareRunning = false; // Reset
 	g_STM32F10x_RTC.callBackISR(&g_STM32F10x_RTC.callBackISR_Param);
 }

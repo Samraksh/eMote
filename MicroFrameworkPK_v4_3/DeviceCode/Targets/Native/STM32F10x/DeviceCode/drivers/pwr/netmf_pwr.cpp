@@ -600,7 +600,7 @@ void Sleep() {
 	HAL_Time_AddClockTime(ticks);
 
 	irq.Release();
-	//hal_printf("CHRIS ADD DEBUG STATEMENT HERE\r\n");
+	hal_printf("*");
 }
 
 // Shouldn't be used, possibly for unrecoverable error in debug mode.
