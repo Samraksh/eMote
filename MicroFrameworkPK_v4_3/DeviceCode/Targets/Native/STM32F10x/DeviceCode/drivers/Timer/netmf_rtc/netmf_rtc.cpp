@@ -8,7 +8,7 @@ STM32F10x_RTC g_STM32F10x_RTC;
 void ISR_RTC_ALARM(void* Param);
 
 //const uint16_t TIME_CUSHION = (uint16_t)(0.000015 * g_HardwareTimerFrequency[0]); // 15us @ 8 MHz
-const UINT64 TIME_CUSHION = 10;
+const UINT64 TIME_CUSHION = 7;
 
 UINT32 STM32F10x_RTC::SetCounter(UINT32 counterValue)
 {
