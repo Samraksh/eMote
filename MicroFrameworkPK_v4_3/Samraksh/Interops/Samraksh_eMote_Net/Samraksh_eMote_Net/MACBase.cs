@@ -47,6 +47,13 @@ namespace Samraksh.eMote.Net
 			remove { MACBase.OnNeighborChange -= value; }
 		}
 
+        /// <summary>Raised when we get an ACK for a transmitted packet</summary>
+        public event MACBase.IMACTransmitACKEventHandler OnSendStatus
+        {
+            add { MACBase.OnSendStatus += value; }
+            remove { MACBase.OnSendStatus -= value; }
+        }
+
 		/// <summary>
 		/// Register callback functions for CSHARP payload types. 
 		/// This is used to register multiple callbacks for different payload types
@@ -352,6 +359,7 @@ namespace Samraksh.eMote.Net
         /// </param>
         /// <param name="time"></param>
         public delegate void IMACNeighborChangeEventHandler(IMAC macInstance, DateTime time);
+        //public delegate void IMACNeighborChangeEventHandler(IMAC macInstance, DateTime time, uint currentNeighborNumber);
 
 		/// <summary>Raised when any packet is received (promiscuous mode)</summary>
         public event IMACReceiveEventHandler OnReceiveAll;
@@ -361,6 +369,17 @@ namespace Samraksh.eMote.Net
 
 		/// <summary>Raised when neighborhood changes</summary>
         public event IMACNeighborChangeEventHandler OnNeighborChange;
+
+        /// <summary>Event handler for classes implementing IMAC's transmit ACK event</summary>
+        /// <param name="macInstance">
+        ///		When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
+        ///		When used by MACPipe class, will be MACPipe class.
+        /// </param>
+        /// <param name="time"></param>
+        public delegate void IMACTransmitACKEventHandler(IMAC macInstance, DateTime time, SendPacketStatus ACKStatus, uint transmitDestination);
+
+        /// <summary>Raised when a transmited packet is ACKed</summary>
+        public event IMACTransmitACKEventHandler OnSendStatus;
 
 		/// <summary>True iff MAC CCA (clear channel assessment) is enabled</summary>
 		public bool CCA
@@ -536,34 +555,6 @@ namespace Samraksh.eMote.Net
 			}
 		}
 
-		/*private void InitializeMacConfig(bool CCA, byte _numberOfRetries, byte CCASenseTime, byte _bufferSize, UInt32 _neighborLivenessDelay, RadioConfiguration MACRadioConfig)
-		{
-			MACConfig.CCA = CCA;
-			MACConfig.NumberOfRetries = NumberOfRetries;
-			MACConfig.CCASenseTime = CCASenseTime;
-			MACConfig.BufferSize = BufferSize;
-			//MACConfig.PayloadType = config.PayloadType;
-			//MACConfig.RadioType = config.RadioType;
-			MACConfig.NeighborLivenessDelay = NeighborLivenessDelay;
-
-			MACConfig.MACRadioConfig.RadioType = MACRadioConfig.RadioType;
-			MACConfig.MACRadioConfig.TxPower = MACRadioConfig.TxPower;
-			MACConfig.MACRadioConfig.Channel = MACRadioConfig.Channel;
-			//MACConfig.MACRadioConfig.OnReceiveCallback = config.MACRadioConfig.OnReceiveCallback;
-			//MACConfig.MACRadioConfig.OnReceiveCallBackEverythingElse = config.MACRadioConfig.OnReceiveCallBackEverythingElse;
-			//MACConfig.MACRadioConfig.OnNeighborChangeCallback = config.MACRadioConfig.OnNeighborChangeCallback;
-			//SetReceiveCallback(config.MACRadioConfig.OnReceiveCallback);
-			//SetOnReceiveCallBackEverythingElse(config.MACRadioConfig.OnReceiveCallBackEverythingElse);
-			//SetNeighborChangeCallback(config.MACRadioConfig.OnNeighborChangeCallback);
-
-			//Enable interrupt handler for receive callback function 
-			//NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
-			OnInterrupt += new NativeEventHandler(ReceiveFunction);
-
-			//eventHandler = new NativeEventHandler(Callbacks.ReceiveFunctionEverythingElse);
-			//OnInterrupt += new NativeEventHandler(ReceiveFunctionGlobal);
-		}*/
-
 		/// <summary>Native initialization of mac</summary>
 		/// <param name="cca"></param>
 		/// <param name="numberOfRetries"></param>
@@ -624,17 +615,6 @@ namespace Samraksh.eMote.Net
 			_marshalBuffer[6] = (byte)((NeighborLivenessDelay & 0xff0000) >> 16);
 			_marshalBuffer[7] = (byte)((NeighborLivenessDelay & 0xff000000) >> 24);
 
-			// Breaking the object boundary, but shallow instances of the radio can not initialize
-			/*_marshalBuffer[9] = (byte)MACConfig.MACRadioConfig.TxPower;
-			_marshalBuffer[10] = (byte)MACConfig.MACRadioConfig.Channel;
-			_marshalBuffer[11] = (byte)MACConfig.MACRadioConfig.RadioType;
-			//Change radio's properties as well
-			MACRadioObj.ReConfigure(MACConfig.MACRadioConfig);*/
-
-			/*MACRadio.SetRadioType(MACConfig.MACRadioConfig.RadioType);
-			MACRadio.SetTxPower(MACConfig.MACRadioConfig.TxPower);
-			MACRadio.SetChannel(MACConfig.MACRadioConfig.Channel);*/
-
 			return InternalReConfigure(_marshalBuffer);
 		}
 
@@ -642,9 +622,9 @@ namespace Samraksh.eMote.Net
 		/// Invoked when payload type is data.
 		/// </summary>
 		/// <param name="data1"></param>
-		/// <param name="payloadType"></param>
+		/// <param name="data2"></param>
 		/// <param name="time"></param>
-		private void ReceiveFunction(uint data1, uint payloadType, DateTime time)
+		private void ReceiveFunction(uint data1, uint data2, DateTime time)
 		{
 			/*if (MACConfig.MACRadioConfig.OnReceiveCallback == null)
 				throw new CallbackNotConfiguredException();*/
@@ -670,7 +650,7 @@ namespace Samraksh.eMote.Net
                     }
 
                     // OnReceive is raised for MFM_Data payload type
-                    if (payloadType == (uint)PayloadType.MFM_Data)
+                    if (data2 == (uint)PayloadType.MFM_Data)
                     {
                         if (OnReceive != null)
                         {
@@ -686,7 +666,7 @@ namespace Samraksh.eMote.Net
                         //int eventCounter = keyCollection.Count;
                         foreach (PayloadType payloadTypeKey in keyCollection)
                         {
-                            if (payloadType == (uint)payloadTypeKey)
+                            if (data2 == (uint)payloadTypeKey)
                             {
                                 var macPipe = (MACPipe)_macPipeHashtable[payloadTypeKey];
                                 //If a registered payload type is received, subtract count
@@ -714,7 +694,40 @@ namespace Samraksh.eMote.Net
                 {
                     if (OnNeighborChange != null)
                     {
+                        //OnNeighborChange(this, time, data2);
                         OnNeighborChange(this, time);
+                    }
+                    break;
+                }
+                case (uint)CallbackType.SendInitiated:
+                {
+                    if (OnSendStatus != null)
+                    {
+                        OnSendStatus(this, time, SendPacketStatus.SendInitiated, data2);
+                    }
+                    break;
+                }
+                case (uint)CallbackType.SendACKed:
+                {
+                    if (OnSendStatus != null)
+                    {
+                        OnSendStatus(this, time, SendPacketStatus.SendACKed, data2);
+                    }
+                    break;
+                }
+                case (uint)CallbackType.SendNACKed:
+                {
+                    if (OnSendStatus != null)
+                    {
+                        OnSendStatus(this, time, SendPacketStatus.SendNACKed, data2);
+                    }
+                    break;
+                }
+                case (uint)CallbackType.SendFailed:
+                {
+                    if (OnSendStatus != null)
+                    {
+                        OnSendStatus(this, time, SendPacketStatus.SendFailed, data2);
                     }
                     break;
                 }
@@ -1083,35 +1096,6 @@ namespace Samraksh.eMote.Net
 
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		private extern NetOpStatus Send(ushort address, byte payloadType, byte[] payload, ushort offset, ushort size, uint eventTime);
-
-		/*/// <summary>Send a time stamped _packet. Time stamping and payload type are specified in native send</summary>
-		/// <param name="Address"></param>
-		/// <param name="payload"></param>
-		/// <param name="offset"></param>
-		/// <param name="size"></param>
-		/// <returns></returns>
-		public NetOpStatus SendTimeStamped(UInt16 Address, byte[] payload, UInt16 offset, UInt16 size)
-		{
-			return SendTimeStampedWithPayloadTypeAndTS(Address, payload, offset, size);
-		}
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		private extern NetOpStatus SendTimeStampedWithPayloadTypeAndTS(UInt16 Address, byte[] payload, UInt16 offset, UInt16 size);
-
-		/// <summary>Send a time stamped _packet. Time stamping is done in native send</summary>
-		/// <param name="Address">The address of receiver</param>
-		/// <param name="PayloadType">PayloadType to be sent</param>
-		/// <param name="payload">payload to send</param>
-		/// <param name="offset">offset if any in the byte array</param>
-		/// <param name="size">size of the _packet</param>
-		/// <returns></returns>
-		public NetOpStatus SendTimeStamped(UInt16 Address, PayloadType PayloadType, byte[] payload, UInt16 offset, UInt16 size)
-		{
-			return SendTimeStamped(Address, (byte)PayloadType, payload, offset, size);
-		}
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		private extern NetOpStatus SendTimeStamped(UInt16 Address, byte PayloadType, byte[] payload, UInt16 offset, UInt16 size);*/
 
 		/// <summary>Uninitialize MAC instance</summary>
 		public override void Dispose()

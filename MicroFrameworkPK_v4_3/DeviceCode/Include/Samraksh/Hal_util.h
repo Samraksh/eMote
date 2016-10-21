@@ -19,7 +19,14 @@ NetworkOperations_Full,
 NetworkOperations_Ready,
 NetworkOperations_BadPacket,
 NetworkOperations_Collision,
+NetworkOperations_SendInitiated,
+NetworkOperations_SendACKed,
+NetworkOperations_SendNACKed,
+NetworkOperations_SendFailed
 };
+
+
+
 
 enum InteropNetOpStatus{
 /// <summary>

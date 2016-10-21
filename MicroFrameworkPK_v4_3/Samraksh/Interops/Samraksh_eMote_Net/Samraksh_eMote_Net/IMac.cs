@@ -178,6 +178,9 @@ namespace Samraksh.eMote.Net
 			/// <summary>Raised when neighborhood changes</summary>
             event MACBase.IMACNeighborChangeEventHandler OnNeighborChange;
 
+            /// <summary>Raised when we get an ACK for a transmitted packet</summary>
+            event MACBase.IMACTransmitACKEventHandler OnSendStatus;
+
 			/// <summary>True iff MAC CCA (clear channel assessment) is enabled</summary>
 			bool CCA { get; set; }
 

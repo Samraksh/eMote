@@ -30,10 +30,14 @@ enum CallBackTypes
 {
 	ReceivedCallback,
 	NeighborChangedCallback,
+	SendInitiated,
+	SendACKed,
+	SendNACKed,
+	SendFailed
 };
 
 void ManagedCallback(UINT16 arg1, UINT16 arg2);
-void ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus);
+void ManagedSendAckCallbackFn(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus);
 
 void NeighborChangedCallbackFn(INT16 numberOfNeighbors);
 void ReceiveDoneCallbackFn(void* msg, UINT16 numberOfPackets);
@@ -109,7 +113,7 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 
 	Event_Handler.SetReceiveHandler(&ReceiveDoneCallbackFn);
 	Event_Handler.SetNeighborChangeHandler(&NeighborChangedCallbackFn);
-	Event_Handler.SetSendAckHandler(&ManagedSendAckCallback);
+	Event_Handler.SetSendAckHandler(&ManagedSendAckCallbackFn);
 
 	MyAppID=3; //pick a number less than MAX_APPS currently 4.
 
@@ -226,7 +230,19 @@ void NeighborChangedCallbackFn(INT16 countOfNeighbors)
 	ManagedCallback(NeighborChangedCallback,(UINT16) countOfNeighbors);
 }
 
-void ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus){
+void ManagedSendAckCallbackFn(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus){
+	Message_15_4_t* tx_msg = (Message_15_4_t*)msg;
+	
+	// NetOpStatus needs to be revisted...here we translate from NetOpStatus to the opcodes used in the callback (CallbackTyep in Samraksh_eMote_Net)
+	if (status == NetworkOperations_SendInitiated){
+		ManagedCallback(SendInitiated, tx_msg->GetHeader()->dest);
+	} else if (status == NetworkOperations_SendACKed){
+		ManagedCallback(SendACKed, tx_msg->GetHeader()->dest);
+	} else if (status == NetworkOperations_SendNACKed){
+		ManagedCallback(SendNACKed, tx_msg->GetHeader()->dest);
+	} else {
+		ManagedCallback(SendFailed, tx_msg->GetHeader()->dest);
+	}
 }
 
 void ManagedCallback(UINT16 arg1, UINT16 arg2)

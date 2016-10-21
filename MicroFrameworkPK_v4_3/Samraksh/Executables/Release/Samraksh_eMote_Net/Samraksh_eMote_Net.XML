@@ -95,6 +95,18 @@
         <member name="F:Samraksh.eMote.Net.CallbackType.NeighborChanged">
             <summary>Neighborhood has changed</summary>
         </member>
+        <member name="F:Samraksh.eMote.Net.CallbackType.SendInitiated">
+            <summary>Send packet process started</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.CallbackType.SendACKed">
+            <summary>Send packet ACKed</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.CallbackType.SendNACKed">
+            <summary>Send packet NACKed</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.CallbackType.SendFailed">
+            <summary>Send packet failed</summary>
+        </member>
         <member name="T:Samraksh.eMote.Net.MAC.CSMA">
             <summary>CSMA class</summary>
         </member>
@@ -173,6 +185,9 @@
         <member name="E:Samraksh.eMote.Net.MAC.IMAC.OnNeighborChange">
             <summary>Raised when neighborhood changes</summary>
         </member>
+        <member name="E:Samraksh.eMote.Net.MAC.IMAC.OnSendStatus">
+            <summary>Raised when we get an ACK for a transmitted packet</summary>
+        </member>
         <member name="P:Samraksh.eMote.Net.MAC.IMAC.CCA">
             <summary>True iff MAC CCA (clear channel assessment) is enabled</summary>
         </member>
@@ -230,7 +245,7 @@
             Invoked when payload type is data.
             </summary>
             <param name="data1"></param>
-            <param name="payloadType"></param>
+            <param name="data2"></param>
             <param name="time"></param>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.RegisterOnReceiveGlobal(Samraksh.eMote.Net.MACPipe)">
@@ -374,6 +389,9 @@
         <member name="E:Samraksh.eMote.Net.MACBase.OnNeighborChange">
             <summary>Raised when neighborhood changes</summary>
         </member>
+        <member name="E:Samraksh.eMote.Net.MACBase.OnSendStatus">
+            <summary>Raised when a transmited packet is ACKed</summary>
+        </member>
         <member name="P:Samraksh.eMote.Net.MACBase.CCA">
             <summary>True iff MAC CCA (clear channel assessment) is enabled</summary>
         </member>
@@ -400,6 +418,14 @@
         </member>
         <member name="T:Samraksh.eMote.Net.MACBase.IMACNeighborChangeEventHandler">
             <summary>Event handler for classes implementing IMAC's neighbor change event</summary>
+            <param name="macInstance">
+            	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
+            	When used by MACPipe class, will be MACPipe class.
+            </param>
+            <param name="time"></param>
+        </member>
+        <member name="T:Samraksh.eMote.Net.MACBase.IMACTransmitACKEventHandler">
+            <summary>Event handler for classes implementing IMAC's transmit ACK event</summary>
             <param name="macInstance">
             	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
             	When used by MACPipe class, will be MACPipe class.
@@ -1413,6 +1439,9 @@
         </member>
         <member name="E:Samraksh.eMote.Net.MACPipe.OnNeighborChange">
             <summary>Raised when neighborhood changes</summary>
+        </member>
+        <member name="E:Samraksh.eMote.Net.MACPipe.OnSendStatus">
+            <summary>Raised when we get an ACK for a transmitted packet</summary>
         </member>
         <member name="P:Samraksh.eMote.Net.MACPipe.BufferSize">
             <summary>Size of send buffer</summary>

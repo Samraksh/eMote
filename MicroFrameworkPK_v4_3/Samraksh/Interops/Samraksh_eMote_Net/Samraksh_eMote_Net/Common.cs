@@ -87,7 +87,24 @@ namespace Samraksh.eMote.Net
         Received,
         /// <summary>Neighborhood has changed</summary>
         NeighborChanged,
+        /// <summary>Send packet process started</summary>
+        SendInitiated,
+        /// <summary>Send packet ACKed</summary>
+        SendACKed,
+        /// <summary>Send packet NACKed</summary>
+        SendNACKed,
+        /// <summary>Send packet failed</summary>
+        SendFailed
     }
+
+    
+    public enum SendPacketStatus
+    {
+        SendInitiated,
+        SendACKed,
+        SendNACKed,
+        SendFailed
+    };
 
     /*/// <summary>
     /// 

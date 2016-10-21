@@ -333,7 +333,6 @@ void csmaMAC::UpdateNeighborTable(){
 	if(numberOfDeadNeighbors > 0)
 	{
 		DEBUG_PRINTF_CSMA("number of dead neighbors: %d\r\n",numberOfDeadNeighbors);
-		////NeighborChangeFuncPtrType appHandler = g_csmaMacObject.AppHandlers[CurrentActiveApp]->neighborHandler;
 		NeighborChangeFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
 		// Check if neighbor change has been registered and the user is interested in this information
@@ -478,7 +477,6 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 				neighborTableCommonParameters_two_t.seedUpdateIntervalinSlots = 0;
 				if(g_NeighborTable.InsertNeighbor(&neighborTableCommonParameters_One_t, &neighborTableCommonParameters_two_t) == DS_Success)
 				{
-					////NeighborChangeFuncPtrType appHandler = g_csmaMacObject.AppHandlers[CurrentActiveApp]->neighborHandler;
 					NeighborChangeFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
 					// Check if  a neighbor change has been registered

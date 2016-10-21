@@ -25,13 +25,14 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
     static const int FIELD__OnReceiveAll = 8;
     static const int FIELD__OnReceive = 9;
     static const int FIELD__OnNeighborChange = 10;
-    static const int FIELD___cca = 11;
-    static const int FIELD___numberOfRetries = 12;
-    static const int FIELD___ccaSenseTime = 13;
-    static const int FIELD___bufferSize = 14;
-    static const int FIELD___neighborLivenessDelay = 15;
-    static const int FIELD__<MACType>k__BackingField = 16;
-    static const int FIELD__<MACRadioObj>k__BackingField = 17;
+    static const int FIELD__OnSendStatus = 11;
+    static const int FIELD___cca = 12;
+    static const int FIELD___numberOfRetries = 13;
+    static const int FIELD___ccaSenseTime = 14;
+    static const int FIELD___bufferSize = 15;
+    static const int FIELD___neighborLivenessDelay = 16;
+    static const int FIELD__<MACType>k__BackingField = 17;
+    static const int FIELD__<MACRadioObj>k__BackingField = 18;
 
     TINYCLR_NATIVE_DECLARE(RemovePacket___SamraksheMoteNetDeviceStatus);
     TINYCLR_NATIVE_DECLARE(PendingReceivePacketCount___U1);
