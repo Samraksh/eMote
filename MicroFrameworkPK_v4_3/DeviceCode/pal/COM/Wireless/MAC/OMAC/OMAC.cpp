@@ -88,12 +88,6 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 			}
 			break;
 		case MFM_DATA:
-			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
-			if(g_OMAC.m_txAckHandler != NULL){
-				(*g_OMAC.m_txAckHandler)(msg, Size, status, radioAckStatus);
-			}
-
-			//break;
 		default:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
 			if(g_OMAC.m_omac_scheduler.m_state == I_DATA_SEND_PENDING){

@@ -271,7 +271,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 #endif
 					if(g_OMAC.m_txAckHandler != NULL){ //If user is interested in ACKS, send negative acknowledgements for packets that are getting dropped due to exceeding number of retries
 						Message_15_4_t* msg = g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval();
-						(*g_OMAC.m_txAckHandler)(msg, sizeof(Message_15_4_t), NetworkOperations_Collision, TRAC_STATUS_NO_ACK);
+						(*g_OMAC.m_txAckHandler)(msg, sizeof(Message_15_4_t), NetworkOperations_SendFailed, TRAC_STATUS_NO_ACK);
 					}
 					ClearMsgContents(g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval());
 					g_NeighborTable.Neighbor[i].send_buffer.DropOldest(1);
@@ -346,12 +346,11 @@ void DataTransmissionHandler::DropPacket(){
 					, neigh_ptr->send_buffer.GetOldestwithoutRemoval()->GetHeader()->flags
 					, neigh_ptr->send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts());
 #endif
-			if(CPU_Radio_GetRadioAckType() == NO_ACK || CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){ //BK: Why is this no Hardware ACK
-				if(g_OMAC.m_txAckHandler != NULL){
-					Message_15_4_t* msg = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
-					(*g_OMAC.m_txAckHandler)(msg, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
-				}
+			if(g_OMAC.m_txAckHandler != NULL){
+				Message_15_4_t* msg = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
+				(*g_OMAC.m_txAckHandler)(msg, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
 			}
+
 			ClearMsgContents(neigh_ptr->send_buffer.GetOldestwithoutRemoval());
 			neigh_ptr->send_buffer.DropOldest(1);
 
@@ -706,6 +705,11 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 #endif
+
+			if(g_OMAC.m_txAckHandler != NULL){
+				(*g_OMAC.m_txAckHandler)(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_SendACKed, radioAckStatus);
+			}
+
 			//Drop data packets only if send was successful
 			DropPacket();
 			//set flag to false after packet has been sent and ack received
@@ -749,6 +753,11 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			}*/
 
 			if(radioAckStatus == TRAC_STATUS_NO_ACK){
+
+				if(g_OMAC.m_txAckHandler != NULL){
+					(*g_OMAC.m_txAckHandler)(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_SendNACKed, radioAckStatus);
+				}
+
 				if(FAST_RECOVERY2){
 					g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.UnsuccessfulTransmission(m_outgoingEntryPtr_dest);
 				}
@@ -769,6 +778,11 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 #endif
 			}
+
+			if(g_OMAC.m_txAckHandler != NULL){
+				(*g_OMAC.m_txAckHandler)(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_Busy, radioAckStatus);
+			}
+
 			txhandler_state = DTS_WAITING_FOR_ACKS;
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
@@ -809,6 +823,9 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
+		if(g_OMAC.m_txAckHandler != NULL){
+			(*g_OMAC.m_txAckHandler)(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_SendInitiated, radioAckStatus);
+		}
 	}
 	else {
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier ); //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
@@ -836,6 +853,12 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
 			&& 	sourceaddress == m_outgoingEntryPtr_dest
 	){
 		txhandler_state = DTS_RECEIVEDDATAACK;
+
+		if(g_OMAC.m_txAckHandler != NULL && m_outgoingEntryPtr != NULL){
+			(*g_OMAC.m_txAckHandler)(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_SendACKed, TRAC_STATUS_SUCCESS);
+		}
+
+
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, TRUE);
 		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
