@@ -240,7 +240,7 @@ void ManagedSendAckCallbackFn(void *msg, UINT16 size, NetOpStatus status, UINT8 
 		ManagedCallback(SendACKed, tx_msg->GetHeader()->dest);
 	} else if (status == NetworkOperations_SendNACKed){
 		ManagedCallback(SendNACKed, tx_msg->GetHeader()->dest);
-	} else {
+	} else if (status == NetworkOperations_SendFailed){
 		ManagedCallback(SendFailed, tx_msg->GetHeader()->dest);
 	}
 }
