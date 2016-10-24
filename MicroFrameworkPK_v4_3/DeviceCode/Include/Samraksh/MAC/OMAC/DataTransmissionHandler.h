@@ -15,6 +15,7 @@
 #include "Handlers.h"
 
 #define OMAC_DTH_DEBUG_ReceiveDATAACK 0
+#define OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT 0
 #define OMAC_DTH_DEBUG_SendACKHandler 0
 #define OMAC_DTH_DEBUG_CCA 0
 

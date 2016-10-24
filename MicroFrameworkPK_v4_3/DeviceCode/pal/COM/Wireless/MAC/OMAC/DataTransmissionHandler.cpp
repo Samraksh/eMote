@@ -272,6 +272,9 @@ UINT64 DataTransmissionHandler::NextEvent(){
 					if(g_OMAC.m_txAckHandler != NULL){ //If user is interested in ACKS, send negative acknowledgements for packets that are getting dropped due to exceeding number of retries
 						Message_15_4_t* msg = g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval();
 						(*g_OMAC.m_txAckHandler)(msg, sizeof(Message_15_4_t), NetworkOperations_SendFailed, TRAC_STATUS_NO_ACK);
+#ifdef OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
+				hal_printf("NextEvent:NetworkOperations_SendFailed dest = %u \r\n", msg->GetHeader()->dest);
+#endif
 					}
 					ClearMsgContents(g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval());
 					g_NeighborTable.Neighbor[i].send_buffer.DropOldest(1);
@@ -349,6 +352,9 @@ void DataTransmissionHandler::DropPacket(){
 			if(g_OMAC.m_txAckHandler != NULL){
 				Message_15_4_t* msg = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
 				(*g_OMAC.m_txAckHandler)(msg, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
+#ifdef OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
+				hal_printf("DropPacket:NetworkOperations_Success dest = %u \r\n", m_outgoingEntryPtr->GetHeader()->dest);
+#endif
 			}
 
 			ClearMsgContents(neigh_ptr->send_buffer.GetOldestwithoutRemoval());
@@ -707,7 +713,13 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 #endif
 
 			if(g_OMAC.m_txAckHandler != NULL){
+				if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
 				(*g_OMAC.m_txAckHandler)(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_SendACKed, radioAckStatus);
+#ifdef OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
+				hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_SendACKed dest = %u \r\n", rcv_msg->GetHeader()->dest);
+#endif
+
+				}
 			}
 
 			//Drop data packets only if send was successful
@@ -755,7 +767,12 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			if(radioAckStatus == TRAC_STATUS_NO_ACK){
 
 				if(g_OMAC.m_txAckHandler != NULL){
+					if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
 					(*g_OMAC.m_txAckHandler)(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_SendNACKed, radioAckStatus);
+#ifdef OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
+				hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_SendNACKed dest = %u \r\n", rcv_msg->GetHeader()->dest);
+#endif
+					}
 				}
 
 				if(FAST_RECOVERY2){
@@ -780,7 +797,12 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			}
 
 			if(g_OMAC.m_txAckHandler != NULL){
+				if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
 				(*g_OMAC.m_txAckHandler)(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_Busy, radioAckStatus);
+#ifdef OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
+				hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_Busy dest = %u \r\n", rcv_msg->GetHeader()->dest);
+#endif
+				}
 			}
 
 			txhandler_state = DTS_WAITING_FOR_ACKS;
@@ -824,7 +846,12 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			PostExecuteEvent();
 		}
 		if(g_OMAC.m_txAckHandler != NULL){
+			if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
 			(*g_OMAC.m_txAckHandler)(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_SendInitiated, radioAckStatus);
+#ifdef OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
+				hal_printf("DataTransmissionHandler:SOFTWARE_ACKSendACK:NetworkOperations_SendInitiated dest = %u \r\n", rcv_msg->GetHeader()->dest);
+#endif
+			}
 		}
 	}
 	else {
@@ -855,7 +882,12 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
 		txhandler_state = DTS_RECEIVEDDATAACK;
 
 		if(g_OMAC.m_txAckHandler != NULL && m_outgoingEntryPtr != NULL){
-			(*g_OMAC.m_txAckHandler)(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_SendACKed, TRAC_STATUS_SUCCESS);
+			if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
+				(*g_OMAC.m_txAckHandler)(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_SendACKed, TRAC_STATUS_SUCCESS);
+#ifdef OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
+				hal_printf("ReceiveDATAACK:NetworkOperations_SendACKed dest = %u \r\n", m_outgoingEntryPtr->GetHeader()->dest);
+#endif
+			}
 		}
 
 
