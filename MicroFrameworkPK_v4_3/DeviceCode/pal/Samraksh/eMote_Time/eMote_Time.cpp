@@ -99,7 +99,7 @@ void Time_Driver::SetCompareValue( UINT64 compareTicks )
 		compareTicks = 0xFFFFFFFF;
 	}
 	ASSERT(compareTicks < 0xFFFFFFFF); // assert we are not losing time. this is called by Completions.
-	compareTimeInMicroSecs = CPU_TicksToMicroseconds((UINT32)compareTicks, 1);
+	compareTimeInMicroSecs = CPU_TicksToMicroseconds((UINT32)compareTicks, ADVTIMER_32BIT);
 
 	if(VirtTimer_Change(VIRT_TIMER_EVENTS, compareTimeInMicroSecs, 0, TRUE, ADVTIMER_32BIT) != TimerSupported)
 	{
@@ -128,7 +128,7 @@ void Time_Driver::SetCompareValueSleepClock( UINT64 compareTicks )
 		compareTicks = 0xFFFFFFFF;
 	}
 	ASSERT(compareTicks < 0xFFFFFFFF); // assert we are not losing time. this is called by Completions.
-	compareTimeInMicroSecs = CPU_TicksToMicroseconds((UINT32)compareTicks, 1);
+	compareTimeInMicroSecs = CPU_TicksToMicroseconds((UINT32)compareTicks, LOW_DRIFT_TIMER);
 
 	if(VirtTimer_Change(VIRT_TIMER_SLEEP, compareTimeInMicroSecs, 0, TRUE, LOW_DRIFT_TIMER) != TimerSupported)
 	{

@@ -126,6 +126,7 @@ DeviceStatus STM32F10x_RTC::SetCompare(UINT64 compareValue)
 	RTC_ClearFlag(RTC_FLAG_ALR);
 	RTC_SetAlarm(compareValue);
 	//PWR_BackupAccessCmd(DISABLE);
+	RTC_WaitForLastTask();
 
 	setCompareRunning = true;
 
