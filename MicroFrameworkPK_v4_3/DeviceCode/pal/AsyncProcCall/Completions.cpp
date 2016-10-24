@@ -214,14 +214,14 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 		// sleep times > 1 ms will sleep with RTC clock
 		if(state & c_SetCompare) HAL_Time_SetCompare_Sleep_Clock( Expire );
 		//if(state & c_SetCompare) HAL_Time_SetCompare( Expire );
-		CPU_GPIO_SetPinState(25,true);
-		CPU_GPIO_SetPinState(25,false);
+		//CPU_GPIO_SetPinState(25,true);
+		//CPU_GPIO_SetPinState(25,false);
 		CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
 	} else {
 		// sleep times < 1 ms will snooze with HF clock
 		if(state & c_SetCompare) HAL_Time_SetCompare( Expire );
-		CPU_GPIO_SetPinState(29,true);
-		CPU_GPIO_SetPinState(29,false);
+		//CPU_GPIO_SetPinState(29,true);
+		//CPU_GPIO_SetPinState(29,false);
 		CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
 	}
 	
