@@ -142,7 +142,6 @@ void ISR_RTC_ALARM(void* Param){
 	RTC_ClearFlag(RTC_FLAG_ALR);
 	//PWR_BackupAccessCmd(ENABLE);
 	//RTC_WaitForLastTask();
-	RTC_ClearITPendingBit(RTC_FLAG_ALR);
 	RTC_ClearITPendingBit(RTC_IT_ALR);
 	//PWR_BackupAccessCmd(DISABLE);
 	g_STM32F10x_RTC.setCompareRunning = false; // Reset
