@@ -86,6 +86,8 @@ class DataTransmissionHandler: public EventHandler {
 	UINT64 CalculateNextTxMicro(UINT16 dest);
 	void SelectRetrySlotNumForNeighborBackOff();
 
+	void SendACKToUpperLayers(Message_15_4_t* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus);
+
 	Message_15_4_t* SelectPacketForDest(UINT16 m_outgoingEntryPtr_dest_);
 
 public:
