@@ -139,6 +139,7 @@ private:
 //	static const UINT8 SlotLength = 8; //slot Length in milliseconds
 	Message_15_4_t* PrepareMessageBuffer(UINT16 address, UINT8 dataType, void* msg, int size);
 
+	void SendRXPacketToUpperLayers(Message_15_4_t *msg, UINT8 payloadType);
   public:
 
 #ifdef def_Neighbor2beFollowed
