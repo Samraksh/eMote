@@ -136,7 +136,7 @@ typedef uint16_t ushort;
 #define RF231_LR_SPI_BUS 2
 
 #define PLATFORM_DEPENDENT_TX_USART_BUFFER_SIZE    256  // there is one TX for each usart port
-#define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    256  // there is one RX for each usart port
+#define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    128  // there is one RX for each usart port
 #define PLATFORM_DEPENDENT_USB_QUEUE_PACKET_COUNT  2    // there is one queue for each pipe of each endpoint and the size of a single packet is sizeof(USB_PACKET64) == 68 bytes
 
 #define DEBUG_TEXT_PORT    COM1
@@ -213,7 +213,7 @@ const UINT8 LOW_DRIFT_TIMER = RTC_32BIT;
 
 const UINT8 g_CountOfHardwareTimers = 2;
 const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {DEFAULT_TIMER, LOW_DRIFT_TIMER};
-const UINT8 g_VirtualTimerPerHardwareTimer = 16;
+const UINT8 g_VirtualTimerPerHardwareTimer = 12;
 const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000, 32768};
 
 

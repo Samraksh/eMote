@@ -12,7 +12,7 @@
 #include <tinyhal.h>
 
 #define MAX_SAMPLES 8
-#define MAX_NBR 6
+#define MAX_NBR 5
 #define INVALID_TIMESTAMP 0x7FFFFFFFFFFFFFFF
 #define INVALID_NBR_ID 0xFFFF
 #define MAXRangeUINT64 0xFFFFFFFFFFFFFFFF

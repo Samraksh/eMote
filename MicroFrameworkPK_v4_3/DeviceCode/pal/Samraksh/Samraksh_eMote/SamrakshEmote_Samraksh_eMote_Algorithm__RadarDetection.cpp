@@ -269,11 +269,11 @@ INT8 Algorithm_RadarDetection::Initialize( CLR_RT_HeapBlock* pMngObj, HRESULT &h
 
 	if (initialized == false){
 		unwrapMedian = HeapTrackNew(50);
-		unwrapMedianZero = HeapTrackNew(50);
-		unwrapMedianMax = HeapTrackNew(50);
+		unwrapMedianZero = HeapTrackNew(10);
+		unwrapMedianMax = HeapTrackNew(10);
 		radarQ = HeapTrackNew(100);
 		radarI = HeapTrackNew(100);
-		medianRawQ = HeapTrackNew(1200);
+		medianRawQ = HeapTrackNew(800);
 		initialized = true;
 		HeapTrackInsert(unwrapMedian,0);
 		HeapTrackInsert(unwrapMedianZero,0);
@@ -386,8 +386,8 @@ INT32 Algorithm_RadarDetection::GetBackgroundNoiseLevel( CLR_RT_HeapBlock* pMngO
 INT8 Algorithm_RadarDetection::ResetBackgroundNoiseTracking( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     ResetHeapTrack(unwrapMedian, 50);
-	ResetHeapTrack(unwrapMedianZero, 50);
-	ResetHeapTrack(unwrapMedianMax, 50);		 
+	ResetHeapTrack(unwrapMedianZero, 10);
+	ResetHeapTrack(unwrapMedianMax, 10);		 
 	ResetHeapTrack(radarQ, 100);
 	ResetHeapTrack(radarI, 100);
     return true;
