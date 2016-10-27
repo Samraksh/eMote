@@ -16,10 +16,11 @@ public:
 	UINT64 m_systemTime;
 	static BOOL initialized;
 	UINT32 currentCounterValue;
+	volatile UINT32 savedCompare;
 	UINT16 tar_lower;
 
 	// Stores the current active compare value in the system
-	bool setCompareRunning;
+	volatile bool setCompareRunning;
 
 	HAL_CALLBACK_FPN callBackISR;
 	UINT32 callBackISR_Param;
@@ -41,5 +42,7 @@ public:
 };
 
 BOOL STM32F10x_RTC::initialized = FALSE;
+
+extern STM32F10x_RTC g_STM32F10x_RTC;
 
 #endif

@@ -11,6 +11,7 @@ nathan.stohs@samraksh.com
 #include "netmf_pwr.h"
 #include "netmf_pwr_wakelock.h"
 #include "../usart/sam_usart.h"
+#include "../Timer/netmf_rtc/netmf_rtc.h"
 
 #define EMOTE_WAKELOCKS
 
@@ -551,6 +552,24 @@ void Sleep() {
 
 	uint32_t now; // 32-bits can store about 90 days worth of ticks
 	uint32_t aft; // post sleep RTC time;
+	uint32_t wakeup_time; // when the RTC is supposed to wake us up.
+
+	// Abort if our wakeup time is not at least 3 ticks in the future.
+	// This is going to be a little screwy on roll-over but OK for now
+	now = RTC_GetCounter();
+	wakeup_time = g_STM32F10x_RTC.GetCompare();
+	if(0 == wakeup_time || wakeup_time < now+3) {
+		// Abort!
+		NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
+		__SEV();
+		__WFE();
+		return;
+	}
+
+	// DEBUGGING ONLY. Alert if sleep time is longer than 1 minute
+	if (wakeup_time - now >= 1966080) {
+		SOFT_BREAKPOINT();
+	}
 
 	switch(stm_power_state) {
 		default:
