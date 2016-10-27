@@ -205,14 +205,22 @@ UINT64 DataTransmissionHandler::CalculateNextRXOpp(UINT16 dest){
 }
 
 void DataTransmissionHandler::SendACKToUpperLayers(Message_15_4_t* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus){
+	SendAckFuncPtrType m_txAckHandler = NULL;
+	MACEventHandler* mac_event_handler_ptr = NULL;
+
 	if (msg != NULL && msg->GetHeader()){
-		if(msg->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ && IsValidNativeAppIdOffset(msg->GetHeader()->payloadType) ){
-			MACEventHandler* mac_event_handler_ptr = g_OMAC.GetNativeAppHandler(msg->GetHeader()->payloadType);
-			if(mac_event_handler_ptr != NULL){
-				SendAckFuncPtrType m_txAckHandler = mac_event_handler_ptr->GetSendAckHandler();
-				if(m_txAckHandler != NULL){
-					(m_txAckHandler)(msg, Size, status, radioAckStatus);
+		if(msg->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
+			if(IsValidNativeAppIdOffset(msg->GetHeader()->payloadType) ){
+				mac_event_handler_ptr = g_OMAC.GetNativeAppHandler(msg->GetHeader()->payloadType);
+				if(mac_event_handler_ptr != NULL) {
+					m_txAckHandler = mac_event_handler_ptr->GetSendAckHandler();
 				}
+			}
+			if(m_txAckHandler == NULL){
+				m_txAckHandler = g_OMAC.m_txAckHandler;
+			}
+			if(m_txAckHandler != NULL){
+				(m_txAckHandler)(msg, Size, status, radioAckStatus);
 			}
 		}
 	}
