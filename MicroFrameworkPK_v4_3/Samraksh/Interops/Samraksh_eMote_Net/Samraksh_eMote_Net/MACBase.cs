@@ -48,11 +48,7 @@ namespace Samraksh.eMote.Net
 		}
 
         /// <summary>Raised when we get an ACK for a transmitted packet</summary>
-        public event MACBase.IMACTransmitACKEventHandler OnSendStatus
-        {
-            add { MACBase.OnSendStatus += value; }
-            remove { MACBase.OnSendStatus -= value; }
-        }
+        public event MACBase.IMACTransmitACKEventHandler OnSendStatus;
 
 		/// <summary>
 		/// Register callback functions for CSHARP payload types. 
@@ -88,6 +84,14 @@ namespace Samraksh.eMote.Net
                 MACBase.RemovePacket();
             }*/
 		}
+
+        internal void MACPipeCallbackforSendStatus(PayloadType payloadTypeTemp, DateTime time, SendPacketStatus ACKStatus, ushort Dest)
+        {
+            if (OnSendStatus != null)
+            {
+                OnSendStatus(this, time, ACKStatus, Dest);
+            }
+        }
 
 		///// <summary>
 		///// 
@@ -618,6 +622,36 @@ namespace Samraksh.eMote.Net
 			return InternalReConfigure(_marshalBuffer);
 		}
 
+        private SendPacketStatus ConvertCallbackTypeToSendPacketStatus(uint data1)
+        {
+            switch (data1)
+            {
+                case (uint)CallbackType.SendInitiated:
+                {
+                    return SendPacketStatus.SendInitiated;
+                }
+                case (uint)CallbackType.SendACKed:
+                {
+                    return SendPacketStatus.SendACKed;
+                }
+                case (uint)CallbackType.SendNACKed:
+                {
+                    return SendPacketStatus.SendNACKed;
+                }
+                case (uint)CallbackType.SendFailed:
+                {
+                    return SendPacketStatus.SendFailed;
+                }
+                default:
+                {
+                    throw new MACNotConfiguredException("(internal error) Unrecognized CallBackType " + data1);
+                  
+                }
+            }
+
+        }
+
+
 		/// <summary>
 		/// Invoked when payload type is data.
 		/// </summary>
@@ -631,10 +665,11 @@ namespace Samraksh.eMote.Net
 
 			/*if (MACConfig.MACRadioConfig.OnNeighborChangeCallback == null)
 				throw new CallbackNotConfiguredException();*/
+            UInt16 y = (UInt16)(data1);
 
-            switch (data1)
+            switch (y)
 			{
-                case (uint)CallbackType.Received:
+                case (UInt16)CallbackType.Received:
                 {
                     //Download the packet and then decide if it needs to be 
                     //  passed onto the corresponding callback function.
@@ -690,7 +725,7 @@ namespace Samraksh.eMote.Net
                     }
                     break;
                 }
-                case (uint)CallbackType.NeighborChanged:
+                case (UInt16)CallbackType.NeighborChanged:
                 {
                     if (OnNeighborChange != null)
                     {
@@ -699,36 +734,52 @@ namespace Samraksh.eMote.Net
                     }
                     break;
                 }
-                case (uint)CallbackType.SendInitiated:
+                case (UInt16)CallbackType.SendInitiated:
+                case (UInt16)CallbackType.SendACKed:
+                case (UInt16)CallbackType.SendNACKed:
+                case (UInt16)CallbackType.SendFailed:
                 {
-                    if (OnSendStatus != null)
+                    // OnReceive is raised for MFM_Data payload type
+                    if (data2 == (uint)PayloadType.MFM_Data)
                     {
-                        OnSendStatus(this, time, SendPacketStatus.SendInitiated, data2);
+                        if (OnSendStatus != null)
+                        {
+                            OnSendStatus(this, time, ConvertCallbackTypeToSendPacketStatus(data1), data2);
+                        }
                     }
-                    break;
-                }
-                case (uint)CallbackType.SendACKed:
-                {
-                    if (OnSendStatus != null)
+
+                    // Otherwise raise the OnReceive for a registered MACPipe, if any
+                    else
                     {
-                        OnSendStatus(this, time, SendPacketStatus.SendACKed, data2);
+                        var keyCollection = _macPipeHashtable.Keys;
+                        //Get a count of total registered payload types
+                        //int eventCounter = keyCollection.Count;
+                        foreach (PayloadType payloadTypeKey in keyCollection)
+                        {
+                            if (data2 == (uint)payloadTypeKey)
+                            {
+                                var macPipe = (MACPipe)_macPipeHashtable[payloadTypeKey];
+                                //If a registered payload type is received, subtract count
+                                //eventCounter--;
+                                ushort dest = (ushort)(data1 >> 16);
+                                macPipe.MACPipeCallbackforSendStatus(payloadTypeKey, time, ConvertCallbackTypeToSendPacketStatus((uint)y), dest);
+                                break;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+                        /* No need to remove a packet as we download the packet first (which removes it from the receive queue)
+                         *      and then decide if it needs to be passed onto the callback function.
+                         *      
+                         * //If a packet is received for which the payload type has not been registered, drop the packet.
+                        if (eventCounter == keyCollection.Count)
+                        {
+                            RemovePacket();
+                        }*/
                     }
-                    break;
-                }
-                case (uint)CallbackType.SendNACKed:
-                {
-                    if (OnSendStatus != null)
-                    {
-                        OnSendStatus(this, time, SendPacketStatus.SendNACKed, data2);
-                    }
-                    break;
-                }
-                case (uint)CallbackType.SendFailed:
-                {
-                    if (OnSendStatus != null)
-                    {
-                        OnSendStatus(this, time, SendPacketStatus.SendFailed, data2);
-                    }
+
                     break;
                 }
                 default:
