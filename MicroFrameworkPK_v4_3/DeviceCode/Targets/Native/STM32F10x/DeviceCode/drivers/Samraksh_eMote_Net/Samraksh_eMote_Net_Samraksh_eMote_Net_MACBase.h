@@ -38,7 +38,7 @@ namespace Samraksh
 
                 static UNSUPPORTED_TYPE& Get_OnNeighborChange( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__OnNeighborChange ); }
 
-                static UNSUPPORTED_TYPE& Get_OnTransmitACK( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__OnTransmitACK ); }
+                static UNSUPPORTED_TYPE& Get_OnSendStatus( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__OnSendStatus ); }
                 static INT8& Get__cca( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT8( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD___cca ); }
 
                 static UINT8& Get__numberOfRetries( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT8( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD___numberOfRetries ); }

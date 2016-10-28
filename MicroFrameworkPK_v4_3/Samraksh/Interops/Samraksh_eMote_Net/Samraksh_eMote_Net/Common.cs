@@ -103,7 +103,8 @@ namespace Samraksh.eMote.Net
         SendInitiated,
         SendACKed,
         SendNACKed,
-        SendFailed
+        SendFailed,
+        TestMe
     };
 
     /*/// <summary>
