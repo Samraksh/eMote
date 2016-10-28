@@ -36,7 +36,7 @@ enum CallBackTypes
 	SendFailed
 };
 
-void ManagedCallback(UINT32 arg1, UINT32 arg2);
+void ManagedCallback(UINT16 arg1, UINT16 arg2);
 void ManagedSendAckCallbackFn(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus);
 
 void NeighborChangedCallbackFn(INT16 numberOfNeighbors);
@@ -232,36 +232,26 @@ void NeighborChangedCallbackFn(INT16 countOfNeighbors)
 
 void ManagedSendAckCallbackFn(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus){
 	Message_15_4_t* tx_msg = (Message_15_4_t*)msg;
-	UINT32 arg1;
+	
 	// NetOpStatus needs to be revisted...here we translate from NetOpStatus to the opcodes used in the callback (CallbackTyep in Samraksh_eMote_Net)
 	if (status == NetworkOperations_SendInitiated){
-		arg1 = (tx_msg->GetHeader()->dest<<16) + SendInitiated;
-		ManagedCallback(arg1, tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
+		ManagedCallback(SendInitiated, tx_msg->GetHeader()->dest);
 	} else if (status == NetworkOperations_SendACKed){
-		arg1 = (tx_msg->GetHeader()->dest<<16) + SendACKed;
-		ManagedCallback(arg1, tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
+		ManagedCallback(SendACKed, tx_msg->GetHeader()->dest);
 	} else if (status == NetworkOperations_SendNACKed){
-		arg1 = (tx_msg->GetHeader()->dest<<16) + SendNACKed;
-		ManagedCallback(arg1, tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
+		ManagedCallback(SendNACKed, tx_msg->GetHeader()->dest);
 	} else if (status == NetworkOperations_SendFailed){
-		arg1 = (tx_msg->GetHeader()->dest<<16) + SendFailed;
-		ManagedCallback(arg1,  tx_msg->GetHeader()->payloadType);
+		ManagedCallback(SendFailed, tx_msg->GetHeader()->dest);
 	}
 }
 
-void ManagedCallback(UINT32 arg1, UINT32 arg2)
+void ManagedCallback(UINT16 arg1, UINT16 arg2)
 {
-//	UINT32 data1, data2;
-//	if(arg1 == SendFailed){
-//		data1 = ((UINT32)arg3)<<16 + ((UINT32)arg1);
-//		data2 = arg2;
-//	}
-//	else{
-//	data1 = arg1;
-//	data2 = arg2;
-//	}
-//	//data2 = arg2;
+	UINT32 data1, data2;
+	data1 = arg1;
+	data2 = arg2;
+	//data2 = arg2;
 
 	GLOBAL_LOCK(irq);
-	SaveNativeEventToHALQueue( Net_ne_Context, arg1, arg2 );
+	SaveNativeEventToHALQueue( Net_ne_Context, data1, data2 );
 }
