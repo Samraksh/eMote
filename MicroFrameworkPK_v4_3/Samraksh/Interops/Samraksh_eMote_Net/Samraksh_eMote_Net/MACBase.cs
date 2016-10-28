@@ -644,7 +644,8 @@ namespace Samraksh.eMote.Net
                 }
                 default:
                 {
-                    throw new MACNotConfiguredException("(internal error) Unrecognized CallBackType " + data1);
+                    throw new Exception("(internal error) Unrecognized SendPacketStatus in ConvertCallbackTypeToSendPacketStatus " + data1);
+                    //throw new MACNotConfiguredException("(internal error) Unrecognized SendPacketStatus in ConvertCallbackTypeToSendPacketStatus " + data1);
                   
                 }
             }
@@ -744,7 +745,7 @@ namespace Samraksh.eMote.Net
                     {
                         if (OnSendStatus != null)
                         {
-                            OnSendStatus(this, time, ConvertCallbackTypeToSendPacketStatus(data1), data2);
+                            OnSendStatus(this, time, ConvertCallbackTypeToSendPacketStatus((uint)y), data2);
                         }
                     }
 
@@ -784,7 +785,8 @@ namespace Samraksh.eMote.Net
                 }
                 default:
                 {
-                    throw new MACNotConfiguredException("(internal error) Unrecognized CallBackType " + data1);
+
+                    throw new MACNotConfiguredException("(internal error) Unrecognized CallBackType data1=" + data1 + "Low Bits = " + y + "High bits" + (ushort)(data1 >> 16) + "SendInitiated = " + (UInt16)CallbackType.SendInitiated + "SendFailed = " + (UInt16)CallbackType.SendFailed);
                 }
 			}
 		}

@@ -36,7 +36,7 @@ enum CallBackTypes
 	SendFailed
 };
 
-void ManagedCallback(UINT16 arg1, UINT16 arg2);
+void ManagedCallback(UINT32 arg1, UINT32 arg2);
 void ManagedSendAckCallbackFn(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus);
 
 void NeighborChangedCallbackFn(INT16 numberOfNeighbors);
@@ -235,17 +235,20 @@ void ManagedSendAckCallbackFn(void *msg, UINT16 size, NetOpStatus status, UINT8 
 	
 	// NetOpStatus needs to be revisted...here we translate from NetOpStatus to the opcodes used in the callback (CallbackTyep in Samraksh_eMote_Net)
 	if (status == NetworkOperations_SendInitiated){
-		ManagedCallback(SendInitiated, tx_msg->GetHeader()->dest);
+		ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendInitiated, tx_msg->GetHeader()->payloadType);
 	} else if (status == NetworkOperations_SendACKed){
-		ManagedCallback(SendACKed, tx_msg->GetHeader()->dest);
+		ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendACKed, tx_msg->GetHeader()->payloadType);
 	} else if (status == NetworkOperations_SendNACKed){
-		ManagedCallback(SendNACKed, tx_msg->GetHeader()->dest);
+		ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendNACKed, tx_msg->GetHeader()->payloadType);
 	} else if (status == NetworkOperations_SendFailed){
-		ManagedCallback(SendFailed, tx_msg->GetHeader()->dest);
+		ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendFailed, tx_msg->GetHeader()->payloadType);
+	}
+	else{
+		hal_printf("ManagedSendAckCallbackFn Unknown Status!");
 	}
 }
 
-void ManagedCallback(UINT16 arg1, UINT16 arg2)
+void ManagedCallback(UINT32 arg1, UINT32 arg2)
 {
 	UINT32 data1, data2;
 	data1 = arg1;
