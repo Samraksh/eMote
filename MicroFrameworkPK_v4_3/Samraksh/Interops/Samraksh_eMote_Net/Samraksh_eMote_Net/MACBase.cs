@@ -89,6 +89,7 @@ namespace Samraksh.eMote.Net
         {
             if (OnSendStatus != null)
             {
+                //throw new MACNotConfiguredException("---ACK callback--- payloadTypeTemp=" + payloadTypeTemp.ToString() + " ACKStatus=" + ACKStatus.ToString() + " Dest=" + Dest.ToString());
                 OnSendStatus(this, time, ACKStatus, Dest);
             }
         }
@@ -739,7 +740,7 @@ namespace Samraksh.eMote.Net
                 case (UInt16)CallbackType.SendACKed:
                 case (UInt16)CallbackType.SendNACKed:
                 case (UInt16)CallbackType.SendFailed:
-                {
+                {                    
                     // OnReceive is raised for MFM_Data payload type
                     if (data2 == (uint)PayloadType.MFM_Data)
                     {
@@ -759,6 +760,7 @@ namespace Samraksh.eMote.Net
                         {
                             if (data2 == (uint)payloadTypeKey)
                             {
+                                //throw new MACNotConfiguredException("---ACK callback--- data1=" + data1 + " Low Bits = " + y + " High bits" + (ushort)(data1 >> 16) + " SendInitiated = " + (UInt16)CallbackType.SendInitiated + " SendFailed = " + (UInt16)CallbackType.SendFailed);
                                 var macPipe = (MACPipe)_macPipeHashtable[payloadTypeKey];
                                 //If a registered payload type is received, subtract count
                                 //eventCounter--;

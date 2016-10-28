@@ -243,9 +243,9 @@ void ManagedSendAckCallbackFn(void *msg, UINT16 size, NetOpStatus status, UINT8 
 	} else if (status == NetworkOperations_SendFailed){
 		ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendFailed, tx_msg->GetHeader()->payloadType);
 	}
-	else{
-		hal_printf("ManagedSendAckCallbackFn Unknown Status!");
-	}
+	//else{
+	//	hal_printf("ManagedSendAckCallbackFn Unknown Status!");
+	//}
 }
 
 void ManagedCallback(UINT32 arg1, UINT32 arg2)
