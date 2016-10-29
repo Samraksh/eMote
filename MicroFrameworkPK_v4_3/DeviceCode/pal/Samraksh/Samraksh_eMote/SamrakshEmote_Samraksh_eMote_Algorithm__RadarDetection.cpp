@@ -167,8 +167,8 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 					// we are close enough to where we want to be so the initial large adjustment period is over
 					initialAdjustmentCnt = 0;
 				ResetHeapTrack(unwrapMedian, 50);
-				ResetHeapTrack(unwrapMedianZero, 50);
-				ResetHeapTrack(unwrapMedianMax, 50);	
+				ResetHeapTrack(unwrapMedianZero, 10);
+				ResetHeapTrack(unwrapMedianMax, 10);	
 			}
 		} else {
 			// this section will make small adjustments every IQ_ADJUSTMENT_PERIOD
