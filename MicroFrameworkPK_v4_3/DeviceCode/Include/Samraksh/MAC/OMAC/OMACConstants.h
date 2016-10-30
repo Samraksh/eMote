@@ -379,7 +379,7 @@ typedef OFProv<UINT64> OMACTicks;
 
 #if (OMACClockSpecifier==LFCLOCKID)
 //#define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
-#define FORCE_REQUESTTIMESYNC_INMICS 610000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
+#define FORCE_REQUESTTIMESYNC_INMICS 10000000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
 //#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  48000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
 #define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST_INMICS  600000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
 ////GUARDTIME_MICRO should be calculated in conjuction with SLOT_PERIOD_MILLI
