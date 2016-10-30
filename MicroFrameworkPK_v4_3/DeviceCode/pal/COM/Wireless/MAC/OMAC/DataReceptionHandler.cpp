@@ -161,6 +161,8 @@ void DataReceptionHandler::ExecuteEvent(){
 #endif
 
 
+
+
 #if OMAC_DRXH_DEBUG_LATEWAKEUP
 	UINT64 expected_y = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks(g_OMAC.RADIO_TURN_ON_DELAY_RX+ GUARDTIME_MICRO + ADDITIONAL_TIMEADVANCE_FOR_RECEPTION);
 	if(m_scheduledRXTime_in_own_clock_ticks < expected_y  ){
@@ -185,6 +187,10 @@ void DataReceptionHandler::ExecuteEvent(){
 	e = g_OMAC.m_omac_RadioControl.StartRx();
 
 	if (e == DS_Success){
+
+#if OMAC_WAKEUP_DEBUGGING_FOR_MF
+		hal_printf("W\n");
+#endif
 
 #ifdef OMAC_DEBUG_GPIO
 
@@ -456,6 +462,9 @@ void DataReceptionHandler::PostExecuteEvent(){
 	//Scheduler's PostExecution stops the radio
 	DeviceStatus returnVal = DS_Success;
 	returnVal = g_OMAC.m_omac_RadioControl.Stop();
+#if OMAC_WAKEUP_DEBUGGING_FOR_MF
+		hal_printf("Z\n");
+#endif
 	if(returnVal == DS_Success) {
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );

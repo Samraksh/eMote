@@ -830,12 +830,20 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
 	//1) SOFTWARE_ACKs are used
 	//3) If the sourceID is equal to the destination of the original message
 	//
+
+#if OMAC_SEND_DEBUGGING_FOR_MF
+		hal_printf("A\n");
+#endif
+
 	if( true
 			&& 	CPU_Radio_GetRadioAckType() == SOFTWARE_ACK
 			&&	g_OMAC.m_omac_scheduler.m_state == (I_DATA_SEND_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started
 			&& 	sourceaddress == m_outgoingEntryPtr_dest
 	){
 		txhandler_state = DTS_RECEIVEDDATAACK;
+
+
+
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, TRUE);
 		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
@@ -1013,6 +1021,10 @@ bool DataTransmissionHandler::Send(){
 #endif
 
 		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
+
+		#if OMAC_SEND_DEBUGGING_FOR_MF
+				hal_printf("S\n");
+		#endif
 
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );

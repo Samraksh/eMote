@@ -88,12 +88,6 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 			}
 			break;
 		case MFM_DATA:
-			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
-			if(g_OMAC.m_txAckHandler != NULL){
-				(*g_OMAC.m_txAckHandler)(msg, Size, status, radioAckStatus);
-			}
-
-			//break;
 		default:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
 			if(g_OMAC.m_omac_scheduler.m_state == I_DATA_SEND_PENDING){
@@ -277,6 +271,27 @@ void OMACType::PushPacketsToUpperLayers(void* arg){
 	ASSERT_SP(payloadTypeArrayIndex >= 0);
 	UINT8 payloadTypeUpperLayer = payloadTypeArray[payloadTypeArrayIndex];
 	(*m_rxAckHandler)(lastFullBuffer, payloadTypeUpperLayer);
+}
+
+void OMACType::SendRXPacketToUpperLayers(Message_15_4_t *msg, UINT8 payloadType){
+	MACReceiveFuncPtrType multi_m_rxAckHandler = NULL;
+	if( IsValidNativeAppIdOffset(payloadType) )
+	{
+		MACEventHandler* mac_event_handler_ptr = g_OMAC.GetNativeAppHandler(payloadType);
+		if(mac_event_handler_ptr){
+			multi_m_rxAckHandler = mac_event_handler_ptr->ReceiveHandler;
+		}
+	}
+//
+	if(multi_m_rxAckHandler == NULL) {
+		multi_m_rxAckHandler = m_rxAckHandler;
+	}
+	if(multi_m_rxAckHandler != NULL) {
+		(*multi_m_rxAckHandler)(msg, payloadType);
+#if OMAC_RECEIVE_DEBUGGING_FOR_MF
+		hal_printf("R\n");
+#endif
+	}
 }
 
 /*
@@ -695,21 +710,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 							OMAC_callback_continuation.Enqueue();
 						}
 						else{
-							MACReceiveFuncPtrType multi_m_rxAckHandler = NULL;
-							if( IsValidNativeAppIdOffset(msg->GetHeader()->payloadType) )
-							{
-								MACEventHandler* mac_event_handler_ptr = g_OMAC.GetNativeAppHandler(msg->GetHeader()->payloadType);
-								if(mac_event_handler_ptr){
-									multi_m_rxAckHandler = mac_event_handler_ptr->ReceiveHandler;
-								}
-							}
-
-							if(multi_m_rxAckHandler == NULL) {
-								multi_m_rxAckHandler = m_rxAckHandler;
-							}
-							if(multi_m_rxAckHandler != NULL) {
-								(*multi_m_rxAckHandler)(next_free_buffer, msg->GetHeader()->payloadType);
-							}
+							SendRXPacketToUpperLayers(next_free_buffer, msg->GetHeader()->payloadType);
 						}
 
 					}
