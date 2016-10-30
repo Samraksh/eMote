@@ -29,6 +29,8 @@
 #define OMAC_DTH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS 259*8
 #endif
 
+#define OMAC_SEND_DEBUGGING_FOR_MF 1
+
 //#include "Scheduler.h"
 enum DataTransmissionHandlerStates{
 	DTS_EXECUTE_START,

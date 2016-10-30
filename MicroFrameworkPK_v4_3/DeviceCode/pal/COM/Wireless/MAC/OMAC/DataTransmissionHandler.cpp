@@ -910,12 +910,20 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
 	//1) SOFTWARE_ACKs are used
 	//3) If the sourceID is equal to the destination of the original message
 	//
+
+#if OMAC_SEND_DEBUGGING_FOR_MF
+		hal_printf("A\n");
+#endif
+
 	if( true
 			&& 	CPU_Radio_GetRadioAckType() == SOFTWARE_ACK
 			&&	g_OMAC.m_omac_scheduler.m_state == (I_DATA_SEND_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started
 			&& 	sourceaddress == m_outgoingEntryPtr_dest
 	){
 		txhandler_state = DTS_RECEIVEDDATAACK;
+
+
+
 
 		if(m_outgoingEntryPtr != NULL){ //if(g_OMAC.m_txAckHandler != NULL && m_outgoingEntryPtr != NULL){
 			if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
@@ -1104,6 +1112,10 @@ bool DataTransmissionHandler::Send(){
 #endif
 
 		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
+
+		#if OMAC_SEND_DEBUGGING_FOR_MF
+				hal_printf("S\n");
+		#endif
 
 #if OMAC_DTH_DEBUG_PRINTF_PACKET_SEND
 		hal_printf("DTH:Send() dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"

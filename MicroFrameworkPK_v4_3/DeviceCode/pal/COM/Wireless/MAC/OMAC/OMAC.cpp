@@ -288,6 +288,9 @@ void OMACType::SendRXPacketToUpperLayers(Message_15_4_t *msg, UINT8 payloadType)
 	}
 	if(multi_m_rxAckHandler != NULL) {
 		(*multi_m_rxAckHandler)(msg, payloadType);
+#if OMAC_RECEIVE_DEBUGGING_FOR_MF
+		hal_printf("R\n");
+#endif
 	}
 }
 
