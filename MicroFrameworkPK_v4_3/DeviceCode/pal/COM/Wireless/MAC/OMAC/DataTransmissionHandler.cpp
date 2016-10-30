@@ -832,7 +832,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
 	//
 
 #if OMAC_SEND_DEBUGGING_FOR_MF
-		hal_printf("A\n");
+		hal_printf("A\r\n");
 #endif
 
 	if( true
@@ -1023,7 +1023,7 @@ bool DataTransmissionHandler::Send(){
 		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
 
 		#if OMAC_SEND_DEBUGGING_FOR_MF
-				hal_printf("S\n");
+				hal_printf("S\r\n");
 		#endif
 
 #ifdef OMAC_DEBUG_GPIO

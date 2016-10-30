@@ -189,7 +189,7 @@ void DataReceptionHandler::ExecuteEvent(){
 	if (e == DS_Success){
 
 #if OMAC_WAKEUP_DEBUGGING_FOR_MF
-		hal_printf("W\n");
+		hal_printf("W\r\n");
 #endif
 
 #ifdef OMAC_DEBUG_GPIO
@@ -463,7 +463,7 @@ void DataReceptionHandler::PostExecuteEvent(){
 	DeviceStatus returnVal = DS_Success;
 	returnVal = g_OMAC.m_omac_RadioControl.Stop();
 #if OMAC_WAKEUP_DEBUGGING_FOR_MF
-		hal_printf("Z\n");
+		hal_printf("Z\r\n");
 #endif
 	if(returnVal == DS_Success) {
 #ifdef OMAC_DEBUG_GPIO

@@ -144,6 +144,7 @@ DeviceStatus OMACType::SetOMACParametersBasedOnRadioName(UINT8 radioName){
 
 	CCA_PERIOD_DESIRED = CCA_PERIOD_MICRO;
 
+	hal_printf("radioName = %d, CPU_Radio_GetRadioAckType = %u", radioName, CPU_Radio_GetRadioAckType());
 	switch(radioName){
 		case RF231RADIOLR:
 		case RF231RADIO:
@@ -289,7 +290,7 @@ void OMACType::SendRXPacketToUpperLayers(Message_15_4_t *msg, UINT8 payloadType)
 	if(multi_m_rxAckHandler != NULL) {
 		(*multi_m_rxAckHandler)(msg, payloadType);
 #if OMAC_RECEIVE_DEBUGGING_FOR_MF
-		hal_printf("R\n");
+		hal_printf("R\r\n");
 #endif
 	}
 }
