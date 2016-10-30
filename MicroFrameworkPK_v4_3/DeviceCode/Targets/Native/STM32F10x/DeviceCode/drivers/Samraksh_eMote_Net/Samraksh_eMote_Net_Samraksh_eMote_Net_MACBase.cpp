@@ -235,17 +235,17 @@ void ManagedSendAckCallbackFn(void *msg, UINT16 size, NetOpStatus status, UINT8 
 	
 	// NetOpStatus needs to be revisted...here we translate from NetOpStatus to the opcodes used in the callback (CallbackTyep in Samraksh_eMote_Net)
 	if (status == NetworkOperations_SendInitiated){
-		hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendInitiated %u %u \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
-		//ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendInitiated, tx_msg->GetHeader()->payloadType);
+		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendInitiated %u %u \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
+		ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendInitiated, tx_msg->GetHeader()->payloadType);
 	} else if (status == NetworkOperations_SendACKed){
-		hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendACKed %u %u \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
-		//ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendACKed, tx_msg->GetHeader()->payloadType);
+		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendACKed %u %u \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
+		ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendACKed, tx_msg->GetHeader()->payloadType);
 	} else if (status == NetworkOperations_SendNACKed){
-		hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendNACKed %u %u  \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
-		//ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendNACKed, tx_msg->GetHeader()->payloadType);
+		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendNACKed %u %u  \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
+		ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendNACKed, tx_msg->GetHeader()->payloadType);
 	} else if (status == NetworkOperations_SendFailed){
-		hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendFailed %u %u  \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
-		//ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendFailed, tx_msg->GetHeader()->payloadType);
+		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendFailed %u %u  \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
+		ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendFailed, tx_msg->GetHeader()->payloadType);
 	}
 	//else{
 	//	hal_printf("ManagedSendAckCallbackFn Unknown Status!");
