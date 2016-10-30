@@ -29,7 +29,7 @@ typedef uint16_t ushort;
 
 #if defined(PLATFORM_ARM_EmoteDotNow)
 #define HAL_SYSTEM_NAME                     "EmoteDotNow"
-#define SAM_VERSION_REVISION 28
+#define SAM_VERSION_REVISION 32
 #define TINYBOOTER_REVISION 2
 //#define COMPILE_CUSTOMER_RELEASE 1
 
