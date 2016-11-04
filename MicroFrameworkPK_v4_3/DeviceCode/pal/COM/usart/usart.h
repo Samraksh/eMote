@@ -22,7 +22,7 @@ struct USART_Driver
     static BOOL RemoveCharFromTxBuffer( int ComPortNum, char& c     );
     static INT8 PowerSave             ( int ComPortNum, INT8 Enable );
 
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN)
+#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
 	static BOOL AddToRxBuffer	  ( int ComPortNum, char *data, size_t size );
 #endif
 

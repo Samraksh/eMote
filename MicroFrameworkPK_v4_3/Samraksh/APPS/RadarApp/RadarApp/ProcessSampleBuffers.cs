@@ -128,6 +128,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             _adcCopyBuffersPtr = 0;
 
             // threshold is 7 rotations a second, IQ rejection is 30, debug mode is set to no debug information, software version number is 4
+            radarDetect.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_TARGET, 1.6, 1, 2, 3, 6, 1);
             radarDetect.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_RAW_RADAR, 1.6, 0.9, 2, 3, 6, 1);
             //radarDetect.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL.FIXED_NOISE_REJECTION, 7, 100, 2, 3, 6, 1);
             //radarDetect.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_MULTIPLY, 7, 1, 3, 4, 0, 1);

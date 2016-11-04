@@ -23,7 +23,9 @@ enum PLATFORM_NAME
     /// <summary>.NOW</summary>
     DOTNOW,
     /// <summary>WLN</summary>
-    WLN            
+    WLN,
+	/// <summary>SMARTFUSION2</summary>
+	SMARTFUSION2
 };
 
 
@@ -33,6 +35,8 @@ INT32 Platform::GetPlatformTypeInternal( HRESULT &hr )
 	return DOTNOW;
 #elif defined(PLATFORM_ARM_WLN)		
 	return WLN;
+#elif defined(PLATFORM_ARM_SmartFusion2)
+	return SMARTFUSION2;
 #else
     return UNKNOWN;
 #endif
