@@ -5,12 +5,12 @@
     <ProjectGuid>{d280cd35-8481-4eda-b878-6370c17e6273}</ProjectGuid>
     <Description />
     <Documentation />
-    <Directory>Solutions\EmoteDotNow\TinyCLR</Directory>
+    <Directory>Solutions\SmartFusion2\TinyCLR</Directory>
     <IsClrProject>True</IsClrProject>
     <InteropFeatures />
     <ExtraAssemblies />
-    <ProjectPath>$(SPOCLIENT)\Solutions\EmoteDotNow\TinyCLR\TinyCLR.proj</ProjectPath>
-    <MFSettingsFile>$(SPOCLIENT)\Solutions\EmoteDotNow\EmoteDotNow.settings</MFSettingsFile>
+    <ProjectPath>$(SPOCLIENT)\Solutions\SmartFusion2\TinyCLR\TinyCLR.proj</ProjectPath>
+    <MFSettingsFile>$(SPOCLIENT)\Solutions\SmartFusion2\SmartFusion2.settings</MFSettingsFile>
     <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
   </PropertyGroup>
   <PropertyGroup>
@@ -395,10 +395,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\DebuggerPort\dotnetmf.proj" />
   </ItemGroup>-->
   <!--  Add custom IUpdatePackage configuration  -->
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="MFUpdate_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\MFUpdate\dotnetmf.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
  <!--  Add custom update controller that translates COM commands to MFUpdate actions, normally implemented in debugger. -->
   <ItemGroup>
     <DriverLibs Include="update_pal.$(LIB_EXT)" />

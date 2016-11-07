@@ -47,21 +47,21 @@ typedef uint16_t ushort;
 // constants
 //
 
-#define SYSTEM_CLOCK_HZ                 48000000
+#define SYSTEM_CLOCK_HZ                 80000000
 #define SYSTEM_CYCLE_CLOCK_HZ           SYSTEM_CLOCK_HZ
 #define CLOCK_COMMON_FACTOR             1000000
-#define SLOW_CLOCKS_PER_SECOND          48000000
+#define SLOW_CLOCKS_PER_SECOND          80000000
 #define SLOW_CLOCKS_TEN_MHZ_GCD         2000000
 #define SLOW_CLOCKS_MILLISECOND_GCD     1000
 
 #define SRAM1_MEMORY_Base   0x20000000
-#define SRAM1_MEMORY_Size   0x00018000
+#define SRAM1_MEMORY_Size   0x00010000
 #if defined(TINYCLR_SOLO) || defined(SAM_APP_TINYBOOTER)
-#define FLASH_MEMORY_Base   0x08000000
-#define FLASH_MEMORY_Size   0x00100000
+#define FLASH_MEMORY_Base   0x60000000
+#define FLASH_MEMORY_Size   0x00040000
 #else
-#define FLASH_MEMORY_Base   0x08020000
-#define FLASH_MEMORY_Size   0x000D0000
+#define FLASH_MEMORY_Base   0x60010000
+#define FLASH_MEMORY_Size   0x000E0000
 #endif
 
 
