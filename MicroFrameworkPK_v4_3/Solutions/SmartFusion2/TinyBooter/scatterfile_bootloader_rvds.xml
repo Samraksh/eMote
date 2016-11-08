@@ -3,10 +3,10 @@
 
     <!-- ################################################################################ -->
 
-    <Set Name="Heap_Begin"      Value="0x08100000"/>
-    <Set Name="Heap_End"        Value="0x084FFFFC"/>
-    <Set Name="Stack_Bottom"    Value="+0"/>
-    <Set Name="Stack_Top"       Value="0x08502000"/>
+    <Set Name="Heap_Begin"      Value="0x20014000"/>
+    <Set Name="Heap_End"        Value="0x2001FFFF"/>
+    <Set Name="Stack_Bottom"    Value="0x20000000"/>
+    <Set Name="Stack_Top"       Value="0x20008000"/>
 
 
     <!-- the address and sizes for both load regions (LR_*) are chosen to start and completely fill a flash partition in the 28F320W18 flash chip -->

@@ -50,8 +50,7 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\Diagnostics.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\I2C.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\InterruptHandler.featureproj" />
-  <Import Project="$(SPOCLIENT)\Framework\Features\MFUpdate.featureproj" />
-  <!--Import Project="$(SPOCLIENT)\Framework\Features\PWM.featureproj" /-->
+
   <Import Project="$(SPOCLIENT)\Framework\Features\SD.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\SPI.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\serial_port.featureproj" Condition="'$(SERIAL_PORT_FEATUREPROJ)'==''" />
@@ -59,12 +58,9 @@
   <!--Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" Condition="'$(USB_PORT_FEATUREPROJ)'==''" /-->
   <!--Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" /-->
   <!--<Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />-->
-  <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote\Samraksh_eMote.featureproj" />
-  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow.featureproj" />
-  <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime.featureproj" />
-  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Net\Samraksh_eMote_Net.featureproj" />
-  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DSP\Samraksh_eMote_DSP.featureproj" />
-  <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_ProgramManager\Samraksh_eMote_ProgramManager.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote\Samraksh_eMote.featureproj" />-->
+  <!--<Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow.featureproj" />-->
+  <!--<Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime.featureproj" />-->
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   <ItemGroup>
     <DriverLibs Include="STM32F10x.$(LIB_EXT)" />
@@ -166,10 +162,10 @@
     <PlatformIndependentLibs Include="SPOT_Hardware_PWM.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\SPOT_PWM\dotNetMF.proj" />
   </ItemGroup-->
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="SD_BL.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\BlockStorage\SD\dotnetmf.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="usart_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USART\dotNetMF.proj" />
@@ -234,10 +230,10 @@
     <DriverLibs Include="sockets_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="Analog_DA_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\Analog_DA_HAL\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <!--
   <ItemGroup>
     <DriverLibs Include="cpu_analog_stubs.$(LIB_EXT)" />
@@ -358,58 +354,6 @@
     <DriverLibs Include="LargeBuffer_hal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\LargeBuffer\stubs\dotNetMF.proj" />
   </ItemGroup>
-  <!--<ItemGroup>
-    <DriverLibs Include="MFUpdate_PAL_stub.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\MFUpdate\stubs\dotnetmf.proj" />
-  </ItemGroup>-->
-  <ItemGroup>
-    <DriverLibs Include="MFUpdate_PAL.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\MFUpdate\dotnetmf.proj" />
-  </ItemGroup>
-  <!--                        BEGIN MFUpdate                              -->
-  <!--  Add native update pe  -->
-  <!--<ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Update\dotNetMF.proj" />
-	<PlatformIndependentLibs Include="SPOT_Update.$(LIB_EXT)" />
-  </ItemGroup>-->
-  <!--<ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\MFUpdate\dotnetMF.proj" />
-	<DriverLibs Include="MFUpdate_PAL.$(LIB_EXT)" />
-  </ItemGroup>-->
-  <!--  Add the MFUpdate Provider libraries required for MFDeploy  -->
-  <ItemGroup>
-    <!--<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\MFUpdate\dotnetMF.proj" />
-    <DriverLibs Include="MicroBooterUpdate.$(LIB_EXT)" />-->
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\MFUpdate\Storage\dotnetMF.proj" />
-    <DriverLibs Include="BlockStorageUpdate.$(LIB_EXT)" />
-	<!--<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\MFUpdate\Storage\FS\dotnetMF.proj" />
-    <DriverLibs Include="FSUpdateStorage.$(LIB_EXT)" />-->
-    <!--<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\MFUpdate\Validation\SSL\dotnetMF.proj" />
-    <DriverLibs Include="UpdateValidationSSL.$(LIB_EXT)" />-->
-	<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\MFUpdate\Validation\CRC\dotnetMF.proj" />
-    <DriverLibs Include="UpdateValidationCRC.$(LIB_EXT)" />
-  </ItemGroup>
-  <!--  Add custom implementation of the IDebuggerPortSslConfig configuration  -->
-  <!--<ItemGroup>
-    <DriverLibs Include="DebuggerPort_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\DebuggerPort\dotnetmf.proj" />
-  </ItemGroup>-->
-  <!--  Add custom IUpdatePackage configuration  -->
-  <!--<ItemGroup>
-    <DriverLibs Include="MFUpdate_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\MFUpdate\dotnetmf.proj" />
-  </ItemGroup>-->
- <!--  Add custom update controller that translates COM commands to MFUpdate actions, normally implemented in debugger. -->
-  <ItemGroup>
-    <DriverLibs Include="update_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\PAK\dotNetMF.proj" />
-  </ItemGroup>
-  <!-- Add Interop for accessing update manager -->
-  <ItemGroup>
-    <DriverLibs Include="Samraksh_eMote_ProgramManager.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Samraksh_eMote_ProgramManager\dotNetMF.proj" />
-  </ItemGroup>
-  <!--                            END  MFUpdate                         -->
   <ItemGroup>
     <DriverLibs Include="palevent_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\palevent\dotNetMF.proj" />
@@ -622,32 +566,32 @@
   
   <!--     - - - - - - - -               Samraksh's Extensions   - - - - - - - -                  -->
   <!-- 									Hardware Extension        								-->
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote.$(LIB_EXT)" />
-  </ItemGroup>
-  <ItemGroup>
+  </ItemGroup>-->
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote_DotNow.$(LIB_EXT)" />
-</ItemGroup>
+</ItemGroup>-->
 
   <!-- 									DSP Extension        								-->
- <ItemGroup>
+ <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DSP\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote_DSP.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup>-->
   <!-- 									Realtime Extension        								-->
   
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote_RealTime.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup>-->
   
   <!-- 									NVM/Data Store Extension        								-->
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\DataStore\dotNetMF.proj" />
     <DriverLibs Include="DataStore_pal.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup>-->
   
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote\dotNetMF.proj" />
@@ -663,27 +607,27 @@
     
   <!-- 									Wireless Stack Start								-->
   
-  <ItemGroup>
+  <!--<ItemGroup>
   <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Net\dotNetMF.proj" />
   <DriverLibs Include="Samraksh_eMote_NET.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup>-->
   
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\VirtualTimer\dotNetMF.proj" />
     <DriverLibs Include="VirtualTimer.$(LIB_EXT)" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\dotNetMF.proj" />
     <DriverLibs Include="mac_pal.$(LIB_EXT)" />
-  </ItemGroup>
-  <ItemGroup>
+  </ItemGroup>-->
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\CSMAMAC\dotNetMF.proj" />
     <DriverLibs Include="csma_pal.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\OMAC\dotNetMF.proj" />
     <DriverLibs Include="omac_pal.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup>-->
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\Routing\MACTest\dotNetMF.proj" />
     <DriverLibs Include="mactest_pal.$(LIB_EXT)" />
@@ -694,11 +638,11 @@
     <DriverLibs Include="simpletimesync_pal.$(LIB_EXT)" />
   </ItemGroup>
   -->
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_radio_rf231.$(LIB_EXT)" />
 	<DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup>-->
   <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />
@@ -709,10 +653,10 @@
     <DriverLibs Include="STM32F10x_driver_control.$(LIB_EXT)" />
   </ItemGroup>
 
-<ItemGroup>
+<!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Algorithms\dotNetMF.proj" />
     <DriverLibs Include="Algorithm_pal.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup>-->
   
   <!--                      	    Wireless Networking Stack ::End                      -->
   

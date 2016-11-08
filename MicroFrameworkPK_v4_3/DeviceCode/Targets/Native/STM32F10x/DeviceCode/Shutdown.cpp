@@ -17,7 +17,9 @@ bool ShutdownDrivers(void)
 	bool returnValue;
 
 	returnValue = AD_Uninitialize();
+#if defined(PLATFORM_ARM_EmoteDotNow)	
 	returnValue &= ( DS_Success == MAC_UnInitialize(/*Mac_GetID()*/) );
+#endif
 
 	return returnValue;
 }

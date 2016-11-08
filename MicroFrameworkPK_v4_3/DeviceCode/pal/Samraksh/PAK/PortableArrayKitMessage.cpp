@@ -891,6 +891,7 @@ void Samraksh_Emote_Update::Cleanup() {
  * does not turn on the radio.  radio started by command UpdateInit sent over USB transport, or may be hard-coded in Debugger.cpp's CreateInstance().
  */
 void Samraksh_Emote_Update::Initialize() {
+#if defined(PLATFORM_ARM_EmoteDotNow)
     if(g_Samraksh_Emote_Update.m_fInitialized == true) return;
     MFUpdate_Initialize(); //safe to call multiple times.
     g_Samraksh_Emote_Update.m_controller.Initialize( /*MARKER_SAMRAKSH_V1*/MARKER_PACKET_V1, &c_Update_phy, &c_Update_app, &g_Samraksh_Emote_Update);  //use SAMRAKSHV1 so we can tell whether to cast the WP_Controller's passed state as Samraksh_Emote_Update to check for WP_Packet header usage before sending over wireless.
@@ -908,6 +909,7 @@ void Samraksh_Emote_Update::Initialize() {
 
     g_Samraksh_Emote_Update.m_fInitialized = true;
     g_Samraksh_Emote_Update.m_fMACInitialized = false;
+#endif
     return;
 }
 

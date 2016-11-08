@@ -136,10 +136,9 @@ HRESULT CLR_DBG_Debugger::CreateInstance()
     {
         m_deploymentStorageDevice = NULL;
     }
-
+#if defined(SAMRAKSH_UPDATE_EXT)
     MFUpdate_Initialize();
 
-#if defined(SAMRAKSH_UPDATE_EXT)
     Samraksh_Emote_Update::CreateInstance();
 
     Samraksh_Emote_Update::SetMacHandler();  // route radio messages to Updater.
@@ -1290,7 +1289,9 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_Start (WP_Message* msg, void* owner )
     header.UpdateSize      = cmd->m_updateSize;
     header.PacketSize      = cmd->m_updatePacketSize;
 
+#if defined(SAMRAKSH_UPDATE_EXT)
     reply.m_updateHandle = MFUpdate_InitUpdate(cmd->m_provider, header);
+#endif
 
     dbg->m_messaging->ReplyToCommand( msg, true, false, pReply, replySize );
     
@@ -1315,6 +1316,7 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_AuthCommand( WP_Message* msg, void* ow
 
     pReply = &reply;
 
+#if defined(SAMRAKSH_UPDATE_EXT)
     if(MFUpdate_AuthCommand(cmd->m_updateHandle, cmd->m_authCommand, cmd->m_authArgs, cmd->m_authArgsSize, NULL, respLen))
     {
         if(respLen > 0)
@@ -1339,6 +1341,7 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_AuthCommand( WP_Message* msg, void* ow
             }
         }
     }
+#endif
 
     dbg->m_messaging->ReplyToCommand( msg, true, false, pReply, replySize );
 
@@ -1368,6 +1371,7 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_Authenticate( WP_Message* msg, void* o
 
     reply.m_success = 0;
 
+#if defined(SAMRAKSH_UPDATE_EXT)
     MFUpdate_AuthCommand(cmd->m_updateHandle, MFUPDATE_VALIDATION_COMMAND__GET_AUTH_TYPE, NULL, 0, (UINT8*)&authType, respLen);
 
     if(authType == MFUPDATE_AUTHENTICATION_TYPE__SSL)
@@ -1389,6 +1393,7 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_Authenticate( WP_Message* msg, void* o
             reply.m_success = MFUpdate_Create(cmd->m_updateHandle);
         }
     }
+#endif
 
     dbg->m_messaging->ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
 
@@ -1416,6 +1421,7 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_GetMissingPkts( WP_Message* msg, void*
 
     pReply = &reply;
 
+#if defined(SAMRAKSH_UPDATE_EXT)
     if(MFUpdate_GetMissingPackets(cmd->m_updateHandle, &s_missingPkts[0], &int32Cnt))
     {
         pReply = (CLR_DBG_Commands::Debugging_MFUpdate_GetMissingPkts::Reply*)private_malloc(sizeBytes);
@@ -1434,6 +1440,7 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_GetMissingPkts( WP_Message* msg, void*
             pReply = &reply;
         }
     }
+#endif
     
     dbg->m_messaging->ReplyToCommand( msg, true, false, pReply, replySize );
 
@@ -1456,6 +1463,7 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_AddPacket(WP_Message* msg, void* owner
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
     CLR_DBG_Commands::Debugging_MFUpdate_AddPacket*       cmd = (CLR_DBG_Commands::Debugging_MFUpdate_AddPacket*)msg->m_payload;
     CLR_DBG_Commands::Debugging_MFUpdate_AddPacket::Reply reply;
+#if defined(SAMRAKSH_UPDATE_EXT)
 
     if(cmd->m_packetIndex >> 5 < ARRAYSIZE(s_missingPkts))
     {
@@ -1479,6 +1487,7 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_AddPacket(WP_Message* msg, void* owner
     }
 
     if(reply.m_success == FALSE) return false;
+#endif
 
     dbg->m_messaging->ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
 
@@ -1496,7 +1505,7 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_Install(WP_Message* msg, void* owner )
     CLR_DBG_Commands::Debugging_MFUpdate_Install*       cmd = (CLR_DBG_Commands::Debugging_MFUpdate_Install*)msg->m_payload;
     CLR_DBG_Commands::Debugging_MFUpdate_Install::Reply reply;
 
-    reply.m_success = MFUpdate_Validate(cmd->m_updateHandle, &cmd->m_updateValidation[0], cmd->m_updateValidationSize);
+    //reply.m_success = MFUpdate_Validate(cmd->m_updateHandle, &cmd->m_updateValidation[0], cmd->m_updateValidationSize);
 
     // reply success before install
     dbg->m_messaging->ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
@@ -1505,7 +1514,7 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_Install(WP_Message* msg, void* owner )
     {
         Events_WaitForEvents(0, 200);
 
-        reply.m_success = MFUpdate_Install(cmd->m_updateHandle, &cmd->m_updateValidation[0], cmd->m_updateValidationSize);
+        //reply.m_success = MFUpdate_Install(cmd->m_updateHandle, &cmd->m_updateValidation[0], cmd->m_updateValidationSize);
     }
 
     return (reply.m_success == TRUE);
