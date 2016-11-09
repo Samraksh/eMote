@@ -389,7 +389,7 @@ void HAL_Initialize()
 
     BlockStorage_AddDevices();
 
-    BlockStorageList::InitializeDevices();
+    //BlockStorageList::InitializeDevices();
 
     FS_Initialize();
 
@@ -399,7 +399,7 @@ void HAL_Initialize()
 
     FileSystemVolumeList::InitializeVolumes();
 
-    LCD_Initialize();
+    //LCD_Initialize();
 
 //#if !defined(HAL_REDUCESIZE)
     CPU_InitializeCommunication();
@@ -407,20 +407,20 @@ void HAL_Initialize()
 
     //I2C_Initialize(); // FIXME: Is commenting this out a Samraksh policy decision? if so, need soft reboot handler for I2C re-init
 
-    Buttons_Initialize();
+    //Buttons_Initialize();
 
     // Initialize the backlight to a default off state
-    BackLight_Initialize();
+    //BackLight_Initialize();
 
-    Piezo_Initialize();
+    //Piezo_Initialize();
 
-    Battery_Initialize();
+    //Battery_Initialize();
 
-    Charger_Initialize();
+    //Charger_Initialize();
 
     PalEvent_Initialize();
-    Gesture_Initialize();
-    Ink_Initialize();
+   // Gesture_Initialize();
+    //Ink_Initialize();
     TimeService_Initialize();
 
 #if defined(ENABLE_NATIVE_PROFILER)
@@ -523,14 +523,14 @@ mipi_dsi_shutdown();
 // it decrements LR at the first instruction of IRQ_handler and then before return, it decrements LR again.
 // temporary fix is at the ARM_Vector ( IRQ), make it jump to 2nd instruction of IRQ_handler to skip teh first subs LR, LR #4;
 //
-    volatile int *ptr;
-    ptr =(int*) 0x28;
-    *ptr = *ptr +4;
+//    volatile int *ptr;
+//    ptr =(int*) 0x28;
+ //   *ptr = *ptr +4;
 #endif
 
 
 #if !defined(BUILD_RTM) && !defined(PLATFORM_ARM_OS_PORT) && defined(DEBUG)
-    {
+   /* {
         int  marker;
         int* ptr = &marker - 1; // This will point to the current top of the stack.
         int* end = &StackBottom;
@@ -545,7 +545,7 @@ mipi_dsi_shutdown();
             // SO DEBUG YOUR CODE INSTEAD OF CHANGING THIS.
             *ptr-- = 0xBAADF00D;
         }
-    }
+    }*/
 #endif
 
     // these are needed for patch access
