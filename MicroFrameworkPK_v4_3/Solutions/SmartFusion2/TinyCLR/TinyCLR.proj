@@ -445,7 +445,7 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis\dotNetMF.proj" />
   </ItemGroup>
   -->
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="STM32F10x_sdio.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\sdio\dotNetMF.proj" />
   </ItemGroup>
@@ -460,7 +460,7 @@
   <ItemGroup>
     <DriverLibs Include="STM32F10x_adc.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\adc\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="STM32F10x_intc.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\intc\dotNetMF.proj" />
@@ -519,27 +519,27 @@
     <DriverLibs Include="STM32_Flash.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32\DeviceCode\STM32_Flash\dotNetMF.proj" />
   </ItemGroup>-->
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="BlockStorageAddDevices_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\BlockStorageAddDevices_HAL\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="BlockStorageConfig_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\BlockStorageConfig_HAL\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
+  </ItemGroup>-->
+  <!--<ItemGroup>
     <DriverLibs Include="I2C_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\I2C_HAL\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <!-- NOTE: THE FOLLOWING PWM FUNCTIONS ARE JUST STUBS -->
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="PWM_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\PWM_HAL\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
+  </ItemGroup>-->
+  <!--<ItemGroup>
     <DriverLibs Include="SD_Config_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\SD_Config_HAL\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <!--<ItemGroup>
     <DriverLibs Include="SPI_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\SPI_HAL\dotNetMF.proj" />
@@ -648,10 +648,10 @@
     <DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />
   </ItemGroup-->
 
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_driver_control.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup>-->
 
 <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Algorithms\dotNetMF.proj" />

@@ -5,7 +5,7 @@
 #include "..\core\Core.h"
 #include <TinyCLR_Debugging.h>
 #include <MFUpdate_decl.h>
-#include <Samraksh/Shutdown.h>
+//#include <Samraksh/Shutdown.h>
 
 #if defined(SAMRAKSH_UPDATE_EXT)
 #include <PAK_decl.h>
@@ -859,7 +859,7 @@ bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
 	//ENABLE_INTERRUPTS();
 	
 #if !defined( WIN32 )
-	ShutdownDrivers();
+	//ShutdownDrivers();
 #endif
 
 	// performing garbage collection and compaction here can be used to force hard faults that occur during

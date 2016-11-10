@@ -172,7 +172,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_HardwareProvider::N
     scl = (CLR_UINT32)-1; // GPIO_NONE
     sda = (CLR_UINT32)-1; // GPIO_NONE
 
-    ::I2C_Internal_GetPins( scl, sda );
+    //::I2C_Internal_GetPins( scl, sda );
 
     hbscl.SetInteger( (CLR_INT32)scl ); TINYCLR_CHECK_HRESULT(hbscl.StoreToReference( stack.Arg1(), 0 ));
     hbsda.SetInteger( (CLR_INT32)sda ); TINYCLR_CHECK_HRESULT(hbsda.StoreToReference( stack.Arg2(), 0 ));
@@ -276,7 +276,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_HardwareProvider::N
     NATIVE_PROFILE_CLR_HARDWARE();
     TINYCLR_HEADER();
 
-    stack.SetResult_I4( ::PWM_PWMChannels() );
+    //stack.SetResult_I4( ::PWM_PWMChannels() );
 
     TINYCLR_NOCLEANUP_NOLABEL();
 }
@@ -286,7 +286,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_HardwareProvider::N
     NATIVE_PROFILE_CLR_HARDWARE();
     TINYCLR_HEADER();
     
-    GPIO_PIN pin = ::PWM_GetPinForChannel( (PWM_CHANNEL)stack.Arg1().NumericByRef().s4 );
+    GPIO_PIN pin = 0;
 
     stack.SetResult_I4( (CLR_INT32)pin );
     
@@ -298,7 +298,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_HardwareProvider::N
     NATIVE_PROFILE_CLR_HARDWARE();
     TINYCLR_HEADER();
 
-    stack.SetResult_I4( ::AD_ADChannels() );
+    //stack.SetResult_I4( ::AD_ADChannels() );
 
     TINYCLR_NOCLEANUP_NOLABEL();
 }
@@ -308,7 +308,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_HardwareProvider::N
     NATIVE_PROFILE_CLR_HARDWARE();
     TINYCLR_HEADER();
     
-    GPIO_PIN pin = ::AD_GetPinForChannel( (ANALOG_CHANNEL)stack.Arg1().NumericByRef().s4 );
+    GPIO_PIN pin = 0;
 
     if(pin == GPIO_PIN_NONE)
     {
@@ -328,7 +328,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_HardwareProvider::N
     CLR_INT32 precisions[32];
     CLR_UINT32 size = 32;
 
-    if(::AD_GetAvailablePrecisionsForChannel( (ANALOG_CHANNEL)stack.Arg1().NumericByRef().s4, precisions, size ) == TRUE)
+    if(true)
     {
         CLR_INT32* pPrecision = NULL;
         CLR_RT_HeapBlock& top = stack.PushValue();
@@ -353,7 +353,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_HardwareProvider::N
     NATIVE_PROFILE_CLR_HARDWARE();
     TINYCLR_HEADER();
 
-    stack.SetResult_I4( ::DA_DAChannels() );
+    //stack.SetResult_I4( ::DA_DAChannels() );
 
     TINYCLR_NOCLEANUP_NOLABEL();
 }
@@ -363,7 +363,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_HardwareProvider::N
     NATIVE_PROFILE_CLR_HARDWARE();
     TINYCLR_HEADER();
     
-    GPIO_PIN pin = ::DA_GetPinForChannel((DA_CHANNEL)stack.Arg1().NumericByRef().s4);
+    GPIO_PIN pin = 0;
     
     if(pin == GPIO_PIN_NONE)
     {
@@ -383,7 +383,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_HardwareProvider::N
     CLR_INT32 precisions[32];
     CLR_UINT32 size = 32;
 
-    if(::DA_GetAvailablePrecisionsForChannel( (DA_CHANNEL)stack.Arg1().NumericByRef().s4, precisions, size ) == TRUE) 
+    if(true)
     {
         CLR_INT32* pPrecision = NULL;
         CLR_RT_HeapBlock& top = stack.PushValue();

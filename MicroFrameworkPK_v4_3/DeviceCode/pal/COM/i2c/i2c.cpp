@@ -132,7 +132,7 @@ void I2C_HAL_XACTION::Initialize( I2C_USER_CONFIGURATION& config, I2C_HAL_XACTIO
     m_current         = 0;
     m_address         = config.Address;        
     m_status          = c_Status_Idle;
-    I2C_Internal_GetClockRate( config.ClockRate, m_clockRate, m_clockRate2 );        
+    //I2C_Internal_GetClockRate( config.ClockRate, m_clockRate, m_clockRate2 );        
 }
 
 void I2C_HAL_XACTION::Signal( UINT8 state, BOOL signal )
@@ -150,7 +150,7 @@ void I2C_HAL_XACTION::Signal( UINT8 state, BOOL signal )
     // in whihc case the Stop command would have been issued already 
     if(!(m_status & c_Status_Cancelled))
     {
-        I2C_Internal_XActionStop();
+        //I2C_Internal_XActionStop();
     }
 }
     
@@ -172,7 +172,7 @@ BOOL I2C_Driver::Initialize()
     // give always a chance to the HAL driver to initialize
     // this will resurrect the GPIO pins in case some other 
     // entity has been using them
-    if(!I2C_Internal_Initialize()) return FALSE;
+    //if(!I2C_Internal_Initialize()) return FALSE;
 
     return TRUE;
 }
@@ -188,7 +188,7 @@ BOOL I2C_Driver::Uninitialize()
     }
     else
     {
-        I2C_Internal_Uninitialize();
+        //I2C_Internal_Uninitialize();
 
         g_I2C_Driver.m_initialized = FALSE;
 
@@ -232,7 +232,7 @@ void I2C_Driver::Cancel( I2C_HAL_XACTION* xAction, bool signal )
         // only one xAction will efer be in processing for every call to Abort
         case I2C_HAL_XACTION::c_Status_Processing:
             
-            I2C_Internal_XActionStop();
+            //I2C_Internal_XActionStop();
 
             // fall through...
 
@@ -285,6 +285,6 @@ void I2C_Driver::StartNext()
 
     xAction->SetState( I2C_HAL_XACTION::c_Status_Processing );
 
-    I2C_Internal_XActionStart( xAction, false );
+    //I2C_Internal_XActionStart( xAction, false );
 }
 

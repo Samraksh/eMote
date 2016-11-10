@@ -14,7 +14,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_AnalogInput::ReadRa
 
     const ANALOG_CHANNEL channel = (ANALOG_CHANNEL)pThis[FIELD__m_channel].NumericByRef().s4;
     
-    const CLR_INT32 raw = ::AD_Read(channel);
+    const CLR_INT32 raw = 0;
 
     stack.SetResult_I4(raw);
 
@@ -26,7 +26,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_AnalogInput::Initia
     NATIVE_PROFILE_CLR_HARDWARE();
     TINYCLR_HEADER();
     
-    bool fRes = ::AD_Initialize((ANALOG_CHANNEL)stack.Arg0().NumericByRef().s4, stack.Arg1().NumericByRef().s4) != 0;
+    bool fRes =true;
     
     TINYCLR_SET_AND_LEAVE(fRes ? S_OK : CLR_E_FAIL);
 
@@ -38,7 +38,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_AnalogInput::Uninit
     NATIVE_PROFILE_CLR_HARDWARE();
     TINYCLR_HEADER();
     
-    ::AD_Uninitialize((ANALOG_CHANNEL)stack.Arg0().NumericByRef().s4);
+    //::AD_Uninitialize((ANALOG_CHANNEL)stack.Arg0().NumericByRef().s4);
     
     TINYCLR_NOCLEANUP_NOLABEL();
 }
