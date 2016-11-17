@@ -210,25 +210,30 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
     }
 #ifndef DISABLE_SLEEP
 #if defined( SAM_APP_TINYCLR )
-	if ((HAL_Time_TicksToTime(Expire - HAL_Time_CurrentTicks())) >= 10000) {
-		// sleep times > 1 ms will sleep with RTC clock
-		if(state & c_SetCompare) HAL_Time_SetCompare_Sleep_Clock( Expire );
-		//if(state & c_SetCompare) HAL_Time_SetCompare( Expire );
-		//CPU_GPIO_SetPinState(25,true);
-		//CPU_GPIO_SetPinState(25,false);
-		CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
+if ((HAL_Time_TicksToTime(Expire - HAL_Time_CurrentTicks())) >= 5) {
+		if(state & c_SetCompare){ 
+			HAL_Time_SetCompare_Sleep_Clock( Expire );
+			//if(state & c_SetCompare) HAL_Time_SetCompare( Expire );
+			//CPU_GPIO_SetPinState(25,true);
+			//CPU_GPIO_SetPinState(25,false);
+			CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
+		}
 	} else {
 		// sleep times < 1 ms will snooze with HF clock
-		if(state & c_SetCompare) HAL_Time_SetCompare( Expire );
-		//CPU_GPIO_SetPinState(29,true);
-		//CPU_GPIO_SetPinState(29,false);
-		CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
-	}
+		if(state & c_SetCompare){ 
+			HAL_Time_SetCompare( Expire  );
+			//CPU_GPIO_SetPinState(25,true);
+			//CPU_GPIO_SetPinState(25,false);
+			CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
+		}
+	}	
 	
 #else
 	// TinyBooter
-    if(state & c_SetCompare) HAL_Time_SetCompare( Expire );
-	CPU_Sleep( SLEEP_LEVEL__AWAKE, wakeEvents );
+    if(state & c_SetCompare) {
+		HAL_Time_SetCompare( Expire );
+		CPU_Sleep( SLEEP_LEVEL__AWAKE, wakeEvents );
+	}
 #endif
 #endif
 
