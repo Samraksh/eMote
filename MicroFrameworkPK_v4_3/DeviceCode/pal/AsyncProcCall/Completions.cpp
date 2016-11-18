@@ -213,19 +213,16 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 if ((HAL_Time_TicksToTime(Expire - HAL_Time_CurrentTicks())) >= 5) {
 		if(state & c_SetCompare){ 
 			HAL_Time_SetCompare_Sleep_Clock( Expire );
-			//if(state & c_SetCompare) HAL_Time_SetCompare( Expire );
 			//CPU_GPIO_SetPinState(25,true);
 			//CPU_GPIO_SetPinState(25,false);
 			CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
 		}
 	} else {
 		// sleep times < 1 ms will snooze with HF clock
-		if(state & c_SetCompare){ 
-			HAL_Time_SetCompare( Expire  );
+		if(state & c_SetCompare) HAL_Time_SetCompare( Expire  );
 			//CPU_GPIO_SetPinState(25,true);
 			//CPU_GPIO_SetPinState(25,false);
 			CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
-		}
 	}	
 	
 #else
