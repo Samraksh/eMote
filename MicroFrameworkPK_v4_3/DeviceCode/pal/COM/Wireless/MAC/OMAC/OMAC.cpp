@@ -289,7 +289,7 @@ void OMACType::SendRXPacketToUpperLayers(Message_15_4_t *msg, UINT8 payloadType)
 	if(multi_m_rxAckHandler != NULL) {
 		(*multi_m_rxAckHandler)(msg, payloadType);
 #if OMAC_RECEIVE_DEBUGGING_FOR_MF
-		hal_printf("R\n");
+		hal_printf("R\r\n");
 #endif
 	}
 }
@@ -324,7 +324,7 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 	//Initialize yourself first (you being the MAC)
 	if(this->Initialized){
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("OMACType Error: Already Initialized!! My address: %d \r\n", g_OMAC.GetMyAddress());
+		OMAC_HAL_PRINTF("OMACType Error: Already Initialized!! My address: %d\r\n", g_OMAC.GetMyAddress());
 #endif
 	}
 	else {
@@ -372,7 +372,7 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 		SetOMACParametersBasedOnRadioName(this->radioName);
 
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("Initializing OMACType: My address: %d \r\n", g_OMAC.GetMyAddress());
+		OMAC_HAL_PRINTF("Initializing OMACType: My address: %d\r\n", g_OMAC.GetMyAddress());
 #endif
 		SetMyAddress(CPU_Radio_GetAddress(radioName));
 		SetMyID(CPU_Radio_GetAddress(radioName));
@@ -482,7 +482,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 		UINT8 payloadType = swAckHeader->payloadType;
 		if(destID == myID){
 #if OMAC_DEBUG_PRINTF_ACKREC
-		hal_printf("ACK Received sourceID = %u, destID = %u    \r\n", sourceID, destID);
+		hal_printf("ACK Received sourceID = %u, destID = %u   \r\n", sourceID, destID);
 #endif
 			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
 				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
@@ -502,9 +502,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 	UINT16 maxPayload = OMACType::GetMaxPayload();
 	//if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata) > maxPayload) ){
 	if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t) > maxPayload) ){
-		//OMAC_HAL_PRINTF("CSMA Receive Error: Packet is too big: %d  \r\n", Size+sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
+		//OMAC_HAL_PRINTF("CSMA Receive Error: Packet is too big: %d \r\n", Size+sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("CSMA Receive Error: Packet is too big: %d  \r\n", Size+sizeof(IEEE802_15_4_Header_t));
+		OMAC_HAL_PRINTF("CSMA Receive Error: Packet is too big: %d \r\n", Size+sizeof(IEEE802_15_4_Header_t));
 #endif
 		return msg;
 	}
@@ -542,7 +542,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 			}
 
 #if OMAC_DEBUG_PRINTF_PACKETREC
-		hal_printf("OMACType::ReceiveHandler = sourceID = %u, destID = %u payloadType = %u flags = %u  \r\n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags);
+		hal_printf("OMACType::ReceiveHandler = sourceID = %u, destID = %u payloadType = %u flags = %u \r\n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags);
 #endif
 
 
@@ -625,14 +625,14 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 //					}
 					location_in_packet_payload += data_msg->size + DataMsgOverhead;
 #ifdef OMAC_DEBUG_PRINTF
-					OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_ROUTING \r\n");
+					OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_ROUTING\r\n");
 #endif
 					break;
 				}
 				case MFM_OMAC_NEIGHBORHOOD://Not processed
 				{
 #ifdef OMAC_DEBUG_PRINTF
-					OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_NEIGHBORHOOD \r\n");
+					OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_NEIGHBORHOOD\r\n");
 #endif
 					break;
 				}

@@ -120,8 +120,8 @@ UINT64 DataReceptionHandler::NextEvent(){
 
 #ifdef def_Neighbor2beFollowed
 #ifdef OMAC_DEBUG_PRINTF
-	//OMAC_HAL_PRINTF("DataReceptionHandler::NextEvent curTicks: %llu; NextEventTimeinTicks: %llu; m_nextwakeupSlot: %lu; TicksTillNextEvent: %llu; nextEventsMicroSec: %llu \r\n", curTicks, NextEventTimeinTicks, m_nextwakeupSlot, TicksTillNextEvent, nextEventsMicroSec);
-	OMAC_HAL_PRINTF(" \r\n[LT: %llu - %lu NT: %llu - %lu] DataReceptionHandler::NextEvent() nextWakeupTimeInMicSec = %llu AbsnextWakeupTimeInMicSec= %llu - %lu  \r\n", g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(curTicks), g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextEventsMicroSec, g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks)+nextEventsMicroSec, (g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks)+nextEventsMicroSec)/SLOT_PERIOD_MILLI/MILLISECINMICSEC );
+	//OMAC_HAL_PRINTF("DataReceptionHandler::NextEvent curTicks: %llu; NextEventTimeinTicks: %llu; m_nextwakeupSlot: %lu; TicksTillNextEvent: %llu; nextEventsMicroSec: %llu\r\n", curTicks, NextEventTimeinTicks, m_nextwakeupSlot, TicksTillNextEvent, nextEventsMicroSec);
+	OMAC_HAL_PRINTF("\r\n[LT: %llu - %lu NT: %llu - %lu] DataReceptionHandler::NextEvent() nextWakeupTimeInMicSec = %llu AbsnextWakeupTimeInMicSec= %llu - %lu \r\n", g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(curTicks), g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextEventsMicroSec, g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks)+nextEventsMicroSec, (g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks)+nextEventsMicroSec)/SLOT_PERIOD_MILLI/MILLISECINMICSEC );
 #endif
 #endif
 #ifdef OMAC_DEBUG_GPIO
@@ -167,14 +167,14 @@ void DataReceptionHandler::ExecuteEvent(){
 	UINT64 expected_y = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks(g_OMAC.RADIO_TURN_ON_DELAY_RX+ GUARDTIME_MICRO + ADDITIONAL_TIMEADVANCE_FOR_RECEPTION);
 	if(m_scheduledRXTime_in_own_clock_ticks < expected_y  ){
 		if(expected_y  > m_scheduledRXTime_in_own_clock_ticks + OMAC_DRXH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS){
-			//hal_printf("\r\n OMAC_DRXH_DEBUG_LATEWAKEUP Before RxON LATE ERROR! scheduledRXTime_ticks = %llu , Cur Ticks = %llu, Error = %llu \r\n",m_scheduledRXTime_in_own_clock_ticks, expected_y, g_OMAC.m_Clock.ConvertTickstoMicroSecs( expected_y - m_scheduledRXTime_in_own_clock_ticks ) );
-			hal_printf("\r\n DRXH Before RxON LATE WAKEUP ERROR! Error = %llu \r\n", g_OMAC.m_Clock.ConvertTickstoMicroSecs( expected_y - m_scheduledRXTime_in_own_clock_ticks ) );
+			//hal_printf("\r\r\n OMAC_DRXH_DEBUG_LATEWAKEUP Before RxON LATE ERROR! scheduledRXTime_ticks = %llu , Cur Ticks = %llu, Error = %llu \r\r\n",m_scheduledRXTime_in_own_clock_ticks, expected_y, g_OMAC.m_Clock.ConvertTickstoMicroSecs( expected_y - m_scheduledRXTime_in_own_clock_ticks ) );
+			hal_printf("\r\r\n DRXH Before RxON LATE WAKEUP ERROR! Error = %llu \r\r\n", g_OMAC.m_Clock.ConvertTickstoMicroSecs( expected_y - m_scheduledRXTime_in_own_clock_ticks ) );
 
 		}
 	}
 	else {
 		if( expected_y + OMAC_DRXH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS < m_scheduledRXTime_in_own_clock_ticks ){
-			hal_printf("\r\n DRXH Before RxON EARLY WAKEUP ERROR! Error = %llu \r\n", g_OMAC.m_Clock.ConvertTickstoMicroSecs( m_scheduledRXTime_in_own_clock_ticks - expected_y ) );
+			hal_printf("\r\r\n DRXH Before RxON EARLY WAKEUP ERROR! Error = %llu \r\r\n", g_OMAC.m_Clock.ConvertTickstoMicroSecs( m_scheduledRXTime_in_own_clock_ticks - expected_y ) );
 		}
 	}
 #endif
@@ -189,7 +189,7 @@ void DataReceptionHandler::ExecuteEvent(){
 	if (e == DS_Success){
 
 #if OMAC_WAKEUP_DEBUGGING_FOR_MF
-		hal_printf("W\n");
+		hal_printf("W\r\n");
 #endif
 
 #ifdef OMAC_DEBUG_GPIO
@@ -230,12 +230,12 @@ void DataReceptionHandler::ExecuteEvent(){
 		expected_y = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( GUARDTIME_MICRO + ADDITIONAL_TIMEADVANCE_FOR_RECEPTION);
 		if(m_scheduledRXTime_in_own_clock_ticks < expected_y  ){
 			if(expected_y  > m_scheduledRXTime_in_own_clock_ticks + OMAC_DRXH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS){
-				hal_printf("\r\n DRXH After RxON LATE ERROR! Error = %llu \r\n", g_OMAC.m_Clock.ConvertTickstoMicroSecs( expected_y - m_scheduledRXTime_in_own_clock_ticks) );
+				hal_printf("\r\r\n DRXH After RxON LATE ERROR! Error = %llu \r\r\n", g_OMAC.m_Clock.ConvertTickstoMicroSecs( expected_y - m_scheduledRXTime_in_own_clock_ticks) );
 			}
 		}
 		else {
 			if( expected_y + OMAC_DRXH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS < m_scheduledRXTime_in_own_clock_ticks ){
-				hal_printf("\r\n DRXH After RxON EARLY ERROR! Error = %llu \r\n", g_OMAC.m_Clock.ConvertTickstoMicroSecs( m_scheduledRXTime_in_own_clock_ticks - expected_y ));
+				hal_printf("\r\r\n DRXH After RxON EARLY ERROR! Error = %llu \r\r\n", g_OMAC.m_Clock.ConvertTickstoMicroSecs( m_scheduledRXTime_in_own_clock_ticks - expected_y ));
 			}
 		}
 #endif
@@ -251,7 +251,7 @@ void DataReceptionHandler::ExecuteEvent(){
 	}
 	else{
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("DataReceptionHandler::ExecuteEvent Could not turn on Rx \r\n");
+		OMAC_HAL_PRINTF("DataReceptionHandler::ExecuteEvent Could not turn on Rx\r\n");
 #endif
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARX_EXEC_EVENT, FALSE );
@@ -463,7 +463,7 @@ void DataReceptionHandler::PostExecuteEvent(){
 	DeviceStatus returnVal = DS_Success;
 	returnVal = g_OMAC.m_omac_RadioControl.Stop();
 #if OMAC_WAKEUP_DEBUGGING_FOR_MF
-		hal_printf("Z\n");
+		hal_printf("Z\r\n");
 #endif
 	if(returnVal == DS_Success) {
 #ifdef OMAC_DEBUG_GPIO
