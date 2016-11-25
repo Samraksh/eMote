@@ -16,25 +16,9 @@
 
 using namespace Samraksh::eMote;
 
-enum PLATFORM_NAME
-{
-    /// <summary>Unknown</summary>
-    UNKNOWN,
-    /// <summary>.NOW</summary>
-    DOTNOW,
-    /// <summary>WLN</summary>
-    WLN            
-};
-
-
 INT32 Platform::GetPlatformTypeInternal( HRESULT &hr )
 {
-#if defined(PLATFORM_ARM_EmoteDotNow)
-	return DOTNOW;
-#elif defined(PLATFORM_ARM_WLN)		
-	return WLN;
-#else
-    return UNKNOWN;
-#endif
+    INT32 retVal = 0; 
+    return retVal;
 }
 

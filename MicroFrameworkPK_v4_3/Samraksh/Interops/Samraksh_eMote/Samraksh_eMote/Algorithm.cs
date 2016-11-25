@@ -187,6 +187,15 @@ namespace Samraksh.eMote
                 
             }
 
+
+            /// <summary>
+            /// Initialization for the decision function
+            /// </summary>
+            /// <returns>A pointer to the nomralized vectors is returned.</returns>
+            /// 
+            [MethodImplAttribute(MethodImplOptions.InternalCall)]
+            extern public void Initialize(UInt16 p_nSV, UInt16 p_nFeature, float p_rho, float p_gamma, float[] p_weight, float[] p_feature_min, float[] p_scalingFactors);
+
             //////////////////////////public properties and methods/////////////////////
 
             /// <summary>

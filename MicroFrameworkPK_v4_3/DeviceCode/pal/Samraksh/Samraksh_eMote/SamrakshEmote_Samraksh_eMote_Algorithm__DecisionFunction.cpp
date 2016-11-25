@@ -13,22 +13,20 @@
 
 #include "SamrakshEmote.h"
 #include "SamrakshEmote_Samraksh_eMote_Algorithm__DecisionFunction.h"
-#include "Samraksh\DecisionFunction.h"
-#include <stm32f10x.h>
 
 using namespace Samraksh::eMote;
 
-DecisionFunction decisionFunc;
+void Algorithm_DecisionFunction::Initialize( CLR_RT_HeapBlock* pMngObj, UINT16 param0, UINT16 param1, float param2, float param3, CLR_RT_TypedArray_float param4, CLR_RT_TypedArray_float param5, CLR_RT_TypedArray_float param6, HRESULT &hr )
+{
+}
 
 void Algorithm_DecisionFunction::NormalizeFeatureVector( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_float param0, CLR_RT_TypedArray_INT32 param1, HRESULT &hr )
 {
-    decisionFunc.Normalize(param0.GetBuffer(), (UINT32*)param1.GetBuffer());
-    return;
 }
 
 float Algorithm_DecisionFunction::Decide( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 param0, HRESULT &hr )
 {
-    float retVal = decisionFunc.Decide((UINT32*)param0.GetBuffer());
+    float retVal = 0; 
     return retVal;
 }
 
