@@ -6,6 +6,30 @@
 
 extern Data_Store g_dataStoreObject;
 
+void DecisionFunction::Initialize(UINT16 p_nSV, UINT16 p_nFeature, float p_rho, float p_gamma, float* p_weight, float* p_feature_min, float* p_scalingFactors)
+{
+	nSV = p_nSV;
+    nFeature = p_nFeature;
+    rho = p_rho;
+    gamma = p_gamma;
+    
+    // Initialize weights, feature minima and scaling factors
+    if(!weight) weight = (float*)(malloc(nSV*sizeof(float)));
+    if(!feature_min) feature_min = (float*)malloc(nFeature*sizeof(float));
+    if(!scalingFactors) scalingFactors = (float*)malloc(nFeature*sizeof(float));
+    
+    for(UINT16 i=0; i < nSV; i++)
+    {
+        weight[i] = p_weight[i];
+    }
+    
+    for(UINT8 i=0; i < nFeature; i++)
+    {
+        feature_min[i] = p_feature_min[i];
+        scalingFactors[i] = p_scalingFactors[i];
+    }
+}
+
 INT32 DecisionFunction::Double_to_Fixed(double d) {
 
     double temp = d * _fx_one;
