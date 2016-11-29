@@ -8,29 +8,29 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
 <ItemGroup>
-<HFile Include="spot_native.h" />
-<Compile Include="spot_native.cpp" />
-<Compile Include="spot_native_Samraksh_eMote_Algorithm__AcousticDetection_mshl.cpp" />
-<HFile Include="spot_native_Samraksh_eMote_Algorithm__AcousticDetection.h" />
-<Compile Include="spot_native_Samraksh_eMote_Algorithm__AcousticDetection.cpp" />
-<Compile Include="spot_native_Samraksh_eMote_Algorithm__DecisionFunction_mshl.cpp" />
-<HFile Include="spot_native_Samraksh_eMote_Algorithm__DecisionFunction.h" />
-<Compile Include="spot_native_Samraksh_eMote_Algorithm__DecisionFunction.cpp" />
-<Compile Include="spot_native_Samraksh_eMote_Algorithm__RadarDetection_mshl.cpp" />
-<HFile Include="spot_native_Samraksh_eMote_Algorithm__RadarDetection.h" />
-<Compile Include="spot_native_Samraksh_eMote_Algorithm__RadarDetection.cpp" />
-<Compile Include="spot_native_Samraksh_eMote_NonVolatileMemory_DataReference_mshl.cpp" />
-<HFile Include="spot_native_Samraksh_eMote_NonVolatileMemory_DataReference.h" />
-<Compile Include="spot_native_Samraksh_eMote_NonVolatileMemory_DataReference.cpp" />
-<Compile Include="spot_native_Samraksh_eMote_NonVolatileMemory_DataStore_mshl.cpp" />
-<HFile Include="spot_native_Samraksh_eMote_NonVolatileMemory_DataStore.h" />
-<Compile Include="spot_native_Samraksh_eMote_NonVolatileMemory_DataStore.cpp" />
-<Compile Include="spot_native_Samraksh_eMote_Platform_mshl.cpp" />
-<HFile Include="spot_native_Samraksh_eMote_Platform.h" />
-<Compile Include="spot_native_Samraksh_eMote_Platform.cpp" />
-<Compile Include="spot_native_Samraksh_eMote_RadarInterface_mshl.cpp" />
-<HFile Include="spot_native_Samraksh_eMote_RadarInterface.h" />
-<Compile Include="spot_native_Samraksh_eMote_RadarInterface.cpp" />
+<HFile Include="SamrakshEmote.h" />
+<Compile Include="SamrakshEmote.cpp" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection_mshl.cpp" />
+<HFile Include="SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection.h" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection.cpp" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__DecisionFunction_mshl.cpp" />
+<HFile Include="SamrakshEmote_Samraksh_eMote_Algorithm__DecisionFunction.h" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__DecisionFunction.cpp" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection_mshl.cpp" />
+<HFile Include="SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection.h" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection.cpp" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference_mshl.cpp" />
+<HFile Include="SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference.h" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference.cpp" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore_mshl.cpp" />
+<HFile Include="SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore.h" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore.cpp" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Platform_mshl.cpp" />
+<HFile Include="SamrakshEmote_Samraksh_eMote_Platform.h" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Platform.cpp" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_RadarInterface_mshl.cpp" />
+<HFile Include="SamrakshEmote_Samraksh_eMote_RadarInterface.h" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_RadarInterface.cpp" />
 </ItemGroup>
 <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>
