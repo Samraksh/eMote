@@ -5,6 +5,13 @@
 #define _fx_one (1 << _precision) // 0x100000
 
 extern Data_Store g_dataStoreObject;
+float DecisionFunction::rho = (float)1.8982;
+float DecisionFunction::gamma = (float)5;
+float* DecisionFunction::weight = NULL;
+UINT16 DecisionFunction::nSV = 0;
+UINT16 DecisionFunction::nFeature = 0;
+float* DecisionFunction::feature_min = NULL;
+float* DecisionFunction::scalingFactors = NULL;
 
 void DecisionFunction::Initialize(UINT16 p_nSV, UINT16 p_nFeature, float p_rho, float p_gamma, float* p_weight, float* p_feature_min, float* p_scalingFactors)
 {
@@ -14,9 +21,9 @@ void DecisionFunction::Initialize(UINT16 p_nSV, UINT16 p_nFeature, float p_rho, 
     gamma = p_gamma;
     
     // Initialize weights, feature minima and scaling factors
-    if(!weight) weight = (float*)(malloc(nSV*sizeof(float)));
-    if(!feature_min) feature_min = (float*)malloc(nFeature*sizeof(float));
-    if(!scalingFactors) scalingFactors = (float*)malloc(nFeature*sizeof(float));
+    if(!weight) weight = (float*)(private_malloc(nSV*sizeof(float)));
+    if(!feature_min) feature_min = (float*)private_malloc(nFeature*sizeof(float));
+    if(!scalingFactors) scalingFactors = (float*)private_malloc(nFeature*sizeof(float));
     
     for(UINT16 i=0; i < nSV; i++)
     {
