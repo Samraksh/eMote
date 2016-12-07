@@ -107,6 +107,11 @@ void DataTransmissionHandler::Initialize(){
 	CPU_GPIO_SetPinState( DATATX_RECV_SW_ACK, FALSE );
 
 	CPU_GPIO_EnableOutputPin(OMAC_RX_DATAACK_PIN, FALSE);
+
+	CPU_GPIO_EnableOutputPin(DTH_STATE_PIN_TOGGLER, TRUE);
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, FALSE );
+
+
 #endif
 
 	isDataPacketScheduled = false;
@@ -446,6 +451,11 @@ void DataTransmissionHandler::SendRetry(){ // BK: This function is called to ret
 }
 
 void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts sending routine for a packet
+#ifdef OMAC_DEBUG_GPIO //Mark 3 ExecuteEventHelper Start
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+#endif
+
 	bool canISend = true;
 	UINT64 y;
 	DeviceStatus DS = DS_Success;
@@ -510,6 +520,11 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		}
 	}
 
+#ifdef OMAC_DEBUG_GPIO //Mark 4 After CCA
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+#endif
+
 	//Perform CCA for random backoff period (only for retries)
 	if(m_RANDOM_BACKOFF){
 		UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&m_backoff_seed, m_backoff_mask);
@@ -528,6 +543,10 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		}
 	}
 
+#ifdef OMAC_DEBUG_GPIO //Mark 5 After Random Backoff
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+#endif
 
 
 #ifdef OMAC_DEBUG_GPIO
@@ -652,6 +671,12 @@ void DataTransmissionHandler::ExecuteEvent(){
 	CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, TRUE );
 #endif
 
+#ifdef OMAC_DEBUG_GPIO //Mark 1 Start
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+#endif
+
+
 	VirtualTimerReturnMessage rm;
 	//When starting a new send, reset attempt to 0
 	m_currentSlotRetryAttempt = 0;
@@ -679,6 +704,10 @@ void DataTransmissionHandler::ExecuteEvent(){
 		}
 	}
 
+#ifdef OMAC_DEBUG_GPIO //Mark 2 After Radio Start
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+#endif
 
 	if(e == DS_Success){
 #ifdef OMAC_DEBUG_GPIO
@@ -725,7 +754,7 @@ void DataTransmissionHandler::SelectRetrySlotNumForNeighborBackOff(){
 void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus){
 
 
-#if OMAC_DTH_DEBUG_SendACKHandler
+#if OMAC_DTH_DEBUG_SendACKHandler //Mark 7
 	if(DATATX_SendACKHandler_PIN_TOGGLER != DISABLED_PIN){
 		CPU_GPIO_SetPinState( DATATX_SendACKHandler_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_SendACKHandler_PIN_TOGGLER) );
 		CPU_GPIO_SetPinState( DATATX_SendACKHandler_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_SendACKHandler_PIN_TOGGLER) );
@@ -899,7 +928,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 	}
 }
 
-void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){
+void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 #if OMAC_DTH_DEBUG_ReceiveDATAACK
 	if(DATATX_ReceiveDATAACK_PIN_TOGGLER != DISABLED_PIN){
 		CPU_GPIO_SetPinState( DATATX_ReceiveDATAACK_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_ReceiveDATAACK_PIN_TOGGLER) );
@@ -1109,6 +1138,11 @@ bool DataTransmissionHandler::Send(){
 				print_OMAC_DTH_DEBUG_LATEWAKEUP_error = 2;
 			}
 		}
+#endif
+
+#ifdef OMAC_DEBUG_GPIO //Mark 6 Before  Initiating Send from DTH
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
 #endif
 
 		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
