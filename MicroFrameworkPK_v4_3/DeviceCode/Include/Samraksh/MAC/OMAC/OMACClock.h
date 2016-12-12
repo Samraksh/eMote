@@ -8,8 +8,9 @@
 
 class OMACClock{
 	//UINT64 m_inter_clock_offset;
-	UINT64 m_first_clock_reading;
+
 public:
+	UINT64 m_first_clock_reading;
 	OMACClock(){
 //		m_inter_clock_offset = 0;
 		m_first_clock_reading = GetCurrentTimeinTicks();

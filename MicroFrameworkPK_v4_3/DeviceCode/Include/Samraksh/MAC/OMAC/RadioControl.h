@@ -17,6 +17,14 @@ class RadioControl_t{
 private:
 	bool PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size);
 	bool PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size);
+
+
+	UINT64 GCTIT;
+	UINT64 GCTIT2;
+	UINT64 GCTIT3;
+	UINT64 GCTIT4;
+
+
 public:
 	DeviceStatus Initialize();
 	DeviceStatus Uninitialize();
