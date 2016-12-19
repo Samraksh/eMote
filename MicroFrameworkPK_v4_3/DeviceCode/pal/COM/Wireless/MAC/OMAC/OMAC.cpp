@@ -1019,6 +1019,15 @@ UINT8 OMACType::UpdateNeighborTable(){
 
 	if (g_NeighborTable.PreviousNumberOfNeighbors() != numberofNeighbors)
 	{
+
+#if OMAC_DEBUG_PRINTF_NEIGHCHANGE
+		hal_printf("New NeighborTable nn=%u Pnn=%u \r\n", numberofNeighbors, g_NeighborTable.PreviousNumberOfNeighbors() );
+		for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; ++tableIndex){
+			if(    g_NeighborTable.Neighbor[tableIndex].MACAddress != 0 && g_NeighborTable.Neighbor[tableIndex].MACAddress != 65535 ){
+				hal_printf("MAC=%u, S=%u, A=%u \r\n ", g_NeighborTable.Neighbor[tableIndex].MACAddress, g_NeighborTable.Neighbor[tableIndex].neighborStatus, g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers  );
+			}
+		}
+#endif
 		NeighborChangeFuncPtrType appHandler = g_OMAC.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
 		// Check if neighbor change has been registered and the user is interested in this information

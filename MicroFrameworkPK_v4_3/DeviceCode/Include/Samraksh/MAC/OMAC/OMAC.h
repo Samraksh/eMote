@@ -15,6 +15,8 @@
 
 
 // BK: VARIOUS DEBUG STatement enabling PIN for debuggin network issues
+
+#define OMAC_DEBUG_PRINTF_NEIGHCHANGE 1
 #define OMAC_DEBUG_PRINTF_SETCONFIG 0
 #define OMAC_DEBUG_PRINTF_PACKETREC 0
 #define OMAC_DEBUG_PRINTF_ACKREC 0
