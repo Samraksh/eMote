@@ -515,6 +515,13 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 		CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
 #endif
 
+		if( sourceID == 0 || sourceID == MAX_UINT16
+		||	destID == 0 || destID == MAX_UINT16
+		||  msg->GetHeader()->length > MAX_PCKT_SIZE
+		){ //Check for incompliant packets
+			return msg;
+		}
+
 		//g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_isreceiving = false;
 
 		//if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
@@ -529,6 +536,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 #if OMAC_DEBUG_PRINTF_PACKETREC
 		hal_printf("OMACType::ReceiveHandler = sourceID = %u, destID = %u payloadType = %u flags = %u \n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags);
 #endif
+
+
 
 			//Get the primary packet
 			switch(msg->GetHeader()->payloadType){
@@ -675,11 +684,17 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 					data_msg = (DataMsg_t*) msg->GetPayload();
 					location_in_packet_payload += data_msg->size + DataMsgOverhead;
+
+
+					if( data_msg->size > msg->GetHeader()->length){ //Check for incompliant packets
+						return msg;
+					}
+
 					//if(data_msg->msg_identifier != 16843009){
 						//ASSERT_SP(0);
 					//}
 
-//					ASSERT_SP(data_msg->size <= MAX_DATA_PCKT_SIZE);
+					ASSERT_SP(data_msg->size <= MAX_DATA_PCKT_SIZE);
 
 
 
@@ -1014,6 +1029,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 		}
 		g_NeighborTable.SetPreviousNumberOfNeighbors(numberofNeighbors);
 	}
+
 	return numberOfDeadNeighbors;
 	//g_NeighborTable.DegradeLinks();
 }
