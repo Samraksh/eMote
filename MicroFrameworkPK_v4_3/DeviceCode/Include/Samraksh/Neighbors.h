@@ -25,7 +25,7 @@ extern UINT8 MacName;
 #define INVALID_NEIGHBOR_INDEX 255
 #define INVALID_MACADDRESS 0
 #define INVALID_MACADDRESS2 65535
-#define ISMAC_INVALID(x) ( (x==INVALID_MACADDRESS2 || x==INVALID_MACADDRESS) ? false : true)
+#define ISMAC_VALID(x) ( (x==INVALID_MACADDRESS2 || x==INVALID_MACADDRESS) ? false : true)
 
 
 #define NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS 2
@@ -185,7 +185,7 @@ DeviceStatus NeighborTable::RecordLastHeardTime(UINT16 MACAddress, UINT64 currTi
 	UINT8 index;
 	DeviceStatus retValue = FindOrInsertNeighbor(MACAddress, &index);
 
-	if ( (retValue==DS_Success) && !ISMAC_INVALID(MACAddress)){
+	if ( (retValue==DS_Success) && ISMAC_VALID(MACAddress)){
 		Neighbor[index].LastHeardTime = currTime;
 		return DS_Success;
 	}
@@ -357,7 +357,7 @@ DeviceStatus NeighborTable::GetFreeIdx(UINT8* index){
 	int tableIndex;
 
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
-		if( ISMAC_INVALID(Neighbor[tableIndex].MACAddress) ){
+		if( !ISMAC_VALID(Neighbor[tableIndex].MACAddress) ){
 			*index = tableIndex;
 			rv = DS_Success;
 			break;
@@ -366,7 +366,7 @@ DeviceStatus NeighborTable::GetFreeIdx(UINT8* index){
 			*index = tableIndex;
 		}
 	}
-	if(!ISMAC_INVALID(Neighbor[*index].MACAddress)){
+	if(ISMAC_VALID(Neighbor[*index].MACAddress)){
 		ClearNeighborwIndex(*index);
 	}
 	return rv;
@@ -403,7 +403,7 @@ void NeighborTable::SetPreviousNumberOfNeighbors(UINT8 previousNeighborCnt){
 
 DeviceStatus NeighborTable::FindOrInsertNeighbor(const UINT16 address, UINT8* index){
 	DeviceStatus retValue = DS_Fail;
-	if(!ISMAC_INVALID(address)){
+	if(ISMAC_VALID(address)){
 		retValue = FindIndexEvenDead(address, index);
 		if(retValue == DS_Fail) {
 			retValue = GetFreeIdx(index);
@@ -425,7 +425,7 @@ DeviceStatus NeighborTable::InsertNeighbor(const NeighborTableCommonParameters_O
 	UINT8 index;
     DeviceStatus retValue = FindOrInsertNeighbor(address, &index);
 
-	if (retValue == DS_Success && !ISMAC_INVALID(address)){
+	if (retValue == DS_Success && ISMAC_VALID(address)){
 		NumberValidNeighbor++;
 		Neighbor[index].ReceiveLink.AvgRSSI =  0;
 		Neighbor[index].ReceiveLink.LinkQuality =  0;
@@ -441,7 +441,7 @@ DeviceStatus NeighborTable::InsertNeighbor(const NeighborTableCommonParameters_O
 DeviceStatus NeighborTable::UpdateLink(UINT16 address, Link_t *forwardLink, Link_t *reverseLink, UINT8* index){
     DeviceStatus retValue = FindIndex(address, index);
 
-	if ((retValue!=DS_Success) && !ISMAC_INVALID(address)){
+	if ((retValue!=DS_Success) && ISMAC_VALID(address)){
 			if(forwardLink != NULL){
 				Neighbor[*index].SendLink.AveDelay = forwardLink->AveDelay;
 				Neighbor[*index].SendLink.AvgRSSI = forwardLink->AvgRSSI;
@@ -459,7 +459,7 @@ DeviceStatus NeighborTable::UpdateLink(UINT16 address, Link_t *forwardLink, Link
 DeviceStatus NeighborTable::UpdateFrameLength(UINT16 address, NeighborStatus status, UINT16 frameLength, UINT8* index){
     DeviceStatus retValue = FindIndex(address, index);
 
-	if ((retValue!=DS_Success) && !ISMAC_INVALID(address)){
+	if ((retValue!=DS_Success) && ISMAC_VALID(address)){
 			Neighbor[*index].FrameLength = frameLength;
 	}
 	return retValue;
@@ -468,7 +468,7 @@ DeviceStatus NeighborTable::UpdateFrameLength(UINT16 address, NeighborStatus sta
 DeviceStatus NeighborTable::UpdateDutyCycle(UINT16 address, UINT8 dutyCycle, UINT8* index){
     DeviceStatus retValue = FindIndex(address, index);
 
-	if ((retValue!=DS_Success) && !ISMAC_INVALID(address)){
+	if ((retValue!=DS_Success) && ISMAC_VALID(address)){
 			Neighbor[*index].ReceiveDutyCycle = dutyCycle;
 	}
 	return retValue;
@@ -496,7 +496,7 @@ DeviceStatus NeighborTable::UpdateNeighbor(const NeighborTableCommonParameters_O
 
 	UINT8 index;
 	DeviceStatus retValue = FindOrInsertNeighbor(address, &index);
-	if (retValue == DS_Success && !ISMAC_INVALID(address)){
+	if (retValue == DS_Success && ISMAC_VALID(address)){
 		Neighbor[index].MACAddress = address;
 		Neighbor[index].neighborStatus = status;
 		Neighbor[index].LastHeardTime = LastHeardTime;
@@ -528,7 +528,7 @@ DeviceStatus NeighborTable::UpdateNeighbor(const NeighborTableCommonParameters_O
 
 	UINT8 index;
 	DeviceStatus retValue = FindOrInsertNeighbor(address, &index);
-	if (retValue == DS_Success && !ISMAC_INVALID(address)){
+	if (retValue == DS_Success && ISMAC_VALID(address)){
 		Neighbor[index].ReceiveLink.AvgRSSI =  (UINT8)((float)Neighbor[index].ReceiveLink.AvgRSSI*0.8 + (float)rssi*0.2);
 		Neighbor[index].ReceiveLink.LinkQuality =  (UINT8)((float)Neighbor[index].ReceiveLink.LinkQuality*0.8 + (float)lqi*0.2);
 		Neighbor[index].CountOfPacketsReceived++;
@@ -549,7 +549,7 @@ DeviceStatus NeighborTable::RecordTimeSyncRequestSent(UINT16 address, UINT64 _La
 	 UINT8 index;
 		DeviceStatus retValue = FindOrInsertNeighbor(address, &index);
 
-	if ( (retValue==DS_Success) && !ISMAC_INVALID(address)){
+	if ( (retValue==DS_Success) && ISMAC_VALID(address)){
 		Neighbor[index].LastTimeSyncRequestTime = _LastTimeSyncTime;
 		return DS_Success;
 	}
@@ -563,7 +563,7 @@ DeviceStatus NeighborTable::RecordTimeSyncSent(UINT16 address, UINT64 _LastTimeS
 		DeviceStatus retValue = FindOrInsertNeighbor(address, &index);
 
 
-	if ( (retValue==DS_Success) && !ISMAC_INVALID(address)){
+	if ( (retValue==DS_Success) && ISMAC_VALID(address)){
 		Neighbor[index].LastTimeSyncSendTime = _LastTimeSyncTime;
 		return DS_Success;
 	}
@@ -576,7 +576,7 @@ DeviceStatus NeighborTable::RecordTimeSyncSent(UINT16 address, UINT64 _LastTimeS
 	 UINT8 index;
 	 DeviceStatus retValue = FindIndex(address, &index);
 
-	if ( (retValue==DS_Success) && !ISMAC_INVALID(address)){
+	if ( (retValue==DS_Success) && ISMAC_VALID(address)){
 		return(Neighbor[index].LastTimeSyncRequestTime);
 	}
 	else {
@@ -590,7 +590,7 @@ DeviceStatus NeighborTable::RecordTimeSyncRecv(UINT16 address, UINT64 _LastTimeS
 	DeviceStatus retValue = FindOrInsertNeighbor(address, &index);
 
 
-	if ( (retValue==DS_Success) && !ISMAC_INVALID(address)){
+	if ( (retValue==DS_Success) && ISMAC_VALID(address)){
 		Neighbor[index].LastTimeSyncRecvTime = _LastTimeSyncTime;
 		return DS_Success;
 	}
@@ -603,7 +603,7 @@ UINT64 NeighborTable::GetLastTimeSyncRecv(UINT16 address){
 	 UINT8 index;
 	 DeviceStatus retValue = FindIndex(address, &index);
 
-	if ( (retValue==DS_Success) && !ISMAC_INVALID(address)){
+	if ( (retValue==DS_Success) && ISMAC_VALID(address)){
 		return(Neighbor[index].LastTimeSyncRecvTime);
 	}
 	else {

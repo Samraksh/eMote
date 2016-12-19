@@ -516,7 +516,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 #endif
 
 		if( sourceID == 0 || sourceID == MAX_UINT16
-		||	destID == 0 || destID == MAX_UINT16
+		||	destID == 0
 		||  msg->GetHeader()->length > MAX_PCKT_SIZE
 		){ //Check for incompliant packets
 			return msg;
