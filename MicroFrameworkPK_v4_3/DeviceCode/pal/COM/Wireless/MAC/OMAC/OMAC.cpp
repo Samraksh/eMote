@@ -995,6 +995,14 @@ UINT8 OMACType::UpdateNeighborTable(){
 				g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 			}
 		}
+		else if(  g_NeighborTable.Neighbor[tableIndex].neighborStatus == Alive ){
+			if(g_NeighborTable.Neighbor[tableIndex].LastHeardTime != 0 && currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > 10*livelinessDelayInTicks ){
+				++numberOfDeadNeighbors;
+				g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
+				g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
+				g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+			}
+		}
 		else{
 			g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
 		}
