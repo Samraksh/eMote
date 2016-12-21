@@ -973,6 +973,9 @@ Message_15_4_t* OMACType::FindFirstSyncedNbrMessage(){
  *
  */
 UINT8 OMACType::UpdateNeighborTable(){
+#if OMAC_DEBUG_PRINTF_NEIGHCHANGE
+	bool is_print_neigh_table = false;
+#endif
 
 	Neighbor_t* neighbor_ptr = NULL;
 	UINT8 numberOfDeadNeighbors = 0, numberofNeighbors = 0;
@@ -1013,6 +1016,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 	UINT8 index;
 	if(numberOfDeadNeighbors > 0)
 	{
+		is_print_neigh_table = true;
 		for(UINT8 i =0; i < MAX_NBR; ++i){
 			if(INVALID_NBR_ID != g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID){
 				if( g_NeighborTable.FindIndex( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID, &index) != DS_Success){ //If it does not exist in the neighbortable, delete from the time entires from globalTime Table
@@ -1029,12 +1033,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 	{
 
 #if OMAC_DEBUG_PRINTF_NEIGHCHANGE
-		hal_printf("New NeighborTable nn=%u Pnn=%u \r\n", numberofNeighbors, g_NeighborTable.PreviousNumberOfNeighbors() );
-		for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; ++tableIndex){
-			if(    g_NeighborTable.Neighbor[tableIndex].MACAddress != 0 && g_NeighborTable.Neighbor[tableIndex].MACAddress != 65535 ){
-				hal_printf("MAC=%u, S=%u, A=%u \r\n ", g_NeighborTable.Neighbor[tableIndex].MACAddress, g_NeighborTable.Neighbor[tableIndex].neighborStatus, g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers  );
-			}
-		}
+		is_print_neigh_table = true;
 #endif
 		NeighborChangeFuncPtrType appHandler = g_OMAC.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
@@ -1046,6 +1045,17 @@ UINT8 OMACType::UpdateNeighborTable(){
 		}
 		g_NeighborTable.SetPreviousNumberOfNeighbors(numberofNeighbors);
 	}
+
+#if OMAC_DEBUG_PRINTF_NEIGHCHANGE
+		if(is_print_neigh_table){
+			hal_printf("New NeighborTable nn=%u Pnn=%u \r\n", numberofNeighbors, g_NeighborTable.PreviousNumberOfNeighbors() );
+			for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; ++tableIndex){
+				if(    g_NeighborTable.Neighbor[tableIndex].MACAddress != 0 && g_NeighborTable.Neighbor[tableIndex].MACAddress != 65535 ){
+					hal_printf("MAC=%u, S=%u, A=%u, NTS=%u \r\n ", g_NeighborTable.Neighbor[tableIndex].MACAddress, g_NeighborTable.Neighbor[tableIndex].neighborStatus, g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[tableIndex].MACAddress) );
+				}
+			}
+		}
+#endif
 
 	return numberOfDeadNeighbors;
 	//g_NeighborTable.DegradeLinks();
