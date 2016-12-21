@@ -362,12 +362,14 @@ DeviceStatus NeighborTable::GetFreeIdx(UINT8* index){
 			rv = DS_Success;
 			break;
 		}
-		else if (Neighbor[tableIndex].neighborStatus == Dead){
+		else if (Neighbor[tableIndex].neighborStatus != Alive){
 			*index = tableIndex;
+			rv = DS_Success;
 		}
 	}
 	if(ISMAC_VALID(Neighbor[*index].MACAddress)){
 		ClearNeighborwIndex(*index);
+		rv = DS_Success;
 	}
 	return rv;
 }

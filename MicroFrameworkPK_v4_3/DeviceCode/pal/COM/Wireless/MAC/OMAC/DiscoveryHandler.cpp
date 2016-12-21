@@ -513,7 +513,7 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 
 
 #ifdef OMAC_DEBUG_PRINTF_DISCO_RX
-	hal_printf("Disco RX SourceID = %u TimeAvail = %s \n"
+	hal_printf("Disco RX SourceID = %u TimeAvail = %s \r\n"
 			,source
 			,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(source) ? "TRUE" : "FALSE"
 			);

@@ -981,53 +981,57 @@ UINT8 OMACType::UpdateNeighborTable(){
 	UINT8 numberOfDeadNeighbors = 0, numberofNeighbors = 0;
 	UINT64 currentTime =  m_Clock.GetCurrentTimeinTicks();
 	UINT64 livelinessDelayInTicks = m_Clock.ConvertMicroSecstoTicks(MyConfig.NeighborLivenessDelay * 1000000);
+
+
+	//Determine is available for upper layers
+	//Det
+
 	for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; ++tableIndex){
-		if(    g_NeighborTable.Neighbor[tableIndex].neighborStatus == Alive
-			&& g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(g_NeighborTable.Neighbor[tableIndex].MACAddress)
-		){
-			if( !(g_NeighborTable.Neighbor[tableIndex].IsInitializationTimeSamplesNeeded()) ){
-				++numberofNeighbors;
-				g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = true;
-			}
-			else{
-				g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
-			}
-			if(g_NeighborTable.Neighbor[tableIndex].LastHeardTime != 0 && currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > livelinessDelayInTicks ){
-				++numberOfDeadNeighbors;
-				g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
-				g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-			}
-		}
-		else if(  g_NeighborTable.Neighbor[tableIndex].neighborStatus == Alive ){
-			if(g_NeighborTable.Neighbor[tableIndex].LastHeardTime != 0 && currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > 10*livelinessDelayInTicks ){
-				++numberOfDeadNeighbors;
-				g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
-				g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
-				g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-			}
-		}
-		else{
-			g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
-		}
-	}
+		if( ISMAC_VALID(   g_NeighborTable.Neighbor[tableIndex].MACAddress) ){
+			if(g_NeighborTable.Neighbor[tableIndex].neighborStatus == Alive) {
+				if(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(g_NeighborTable.Neighbor[tableIndex].MACAddress)){
+					if( !(g_NeighborTable.Neighbor[tableIndex].IsInitializationTimeSamplesNeeded()) ){
+						++numberofNeighbors;
+						g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = true;
+					}
+					else{
+						g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
+					}
+					if(g_NeighborTable.Neighbor[tableIndex].LastHeardTime != 0 && currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > livelinessDelayInTicks ){
+						++numberOfDeadNeighbors;
+						g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
+						g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
+//						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); //  BK: New logic enables deleting by the time sync table. We don't need to delete here.
+					}
+				}
+				else{ //If IsNeighborTime NOT Available
+					if(g_NeighborTable.Neighbor[tableIndex].LastHeardTime == 0){ //Should not happen since in order to exist in the table we should heard about it
 
-
-//	UINT8 numberOfDeadNeighbors = g_NeighborTable.UpdateNeighborTable(m_Clock.ConvertMicroSecstoTicks(MyConfig.NeighborLivenessDelay * 1000000), m_Clock.GetCurrentTimeinTicks());
-	UINT8 index;
-	if(numberOfDeadNeighbors > 0)
-	{
+					}
+					else if(currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > 10*livelinessDelayInTicks ){ //we have waited long enough to get time and we should delete it
+#if OMAC_DEBUG_PRINTF_NEIGHCHANGE
 		is_print_neigh_table = true;
-		for(UINT8 i =0; i < MAX_NBR; ++i){
-			if(INVALID_NBR_ID != g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID){
-				if( g_NeighborTable.FindIndex( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID, &index) != DS_Success){ //If it does not exist in the neighbortable, delete from the time entires from globalTime Table
-				 	 g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
-				}
-				else if(g_NeighborTable.Neighbor[index].neighborStatus != Alive){ //If it exists in the neighbortable but marked as not alive, delete from the time entires from globalTime Table
-					g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
+#endif
+						++numberOfDeadNeighbors;
+						g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
+						g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
+//						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); // BK: New logic enables deleting by the time sync table. We don't need to delete here.
+					}
+//					else{ //We are still waiting for time samples to accumulate to give reliable time estimate keep it in the table
+//
+//					}
 				}
 			}
+			else{ //Neighbor is DEAD don't do anything
+
+			}
 		}
+//		else{ //Not valid MAC don't do anything
+//
+//		}
 	}
+
+
 
 	if (g_NeighborTable.PreviousNumberOfNeighbors() != numberofNeighbors)
 	{
@@ -1036,15 +1040,6 @@ UINT8 OMACType::UpdateNeighborTable(){
 		is_print_neigh_table = true;
 #endif
 		NeighborChangeFuncPtrType appHandler = g_OMAC.GetAppHandler(CurrentActiveApp)->neighborHandler;
-
-		// Check if neighbor change has been registered and the user is interested in this information
-		if(appHandler != NULL)
-		{
-			// Make the neighbor changed callback signaling dead neighbors
-			(*appHandler)((INT16) (g_NeighborTable.NumberOfNeighbors()));
-		}
-		g_NeighborTable.SetPreviousNumberOfNeighbors(numberofNeighbors);
-	}
 
 #if OMAC_DEBUG_PRINTF_NEIGHCHANGE
 		if(is_print_neigh_table){
@@ -1057,9 +1052,31 @@ UINT8 OMACType::UpdateNeighborTable(){
 		}
 #endif
 
+		// Check if neighbor change has been registered and the user is interested in this information
+		if(appHandler != NULL)
+		{
+			// Make the neighbor changed callback signaling dead neighbors
+			(*appHandler)((INT16) (numberofNeighbors));
+		}
+		g_NeighborTable.SetPreviousNumberOfNeighbors(numberofNeighbors);
+	}
+#if OMAC_DEBUG_PRINTF_NEIGHCHANGE
+	else{
+		if(is_print_neigh_table){
+			hal_printf("New NeighborTable nn=%u Pnn=%u \r\n", numberofNeighbors, g_NeighborTable.PreviousNumberOfNeighbors() );
+			for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; ++tableIndex){
+				if(    g_NeighborTable.Neighbor[tableIndex].MACAddress != 0 && g_NeighborTable.Neighbor[tableIndex].MACAddress != 65535 ){
+					hal_printf("MAC=%u, S=%u, A=%u, NTS=%u \r\n ", g_NeighborTable.Neighbor[tableIndex].MACAddress, g_NeighborTable.Neighbor[tableIndex].neighborStatus, g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[tableIndex].MACAddress) );
+				}
+			}
+		}
+	}
+#endif
+
 	return numberOfDeadNeighbors;
 	//g_NeighborTable.DegradeLinks();
 }
+
 
 /*BOOL OMACType::SetAddress(UINT16 address){
 	MyAddress = address;

@@ -237,6 +237,7 @@ void OMACTimeSync::CreateMessage(TimeSyncMsg* timeSyncMsg, UINT64 curticks, bool
  */
 DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg, UINT64 SenderDelay, UINT64 ReceiveTS){
 	bool TimerReturn;
+	DeviceStatus ds = DS_Fail;
 	//RadioAddress_t msg_src = msg->GetHeader()->src;
 	UINT64 y,neighborscurtime;
 
@@ -262,13 +263,52 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 //		return DS_Fail;
 //	}
 
-	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
-	DeviceStatus ds = g_NeighborTable.RecordTimeSyncRecv(msg_src,ReceiveTS);
-	if(ds != DS_Success){
-#ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("OMACTimeSync::Receive RecordTimeSyncRecv failure; address: %d; line: %d\n", msg_src, __LINE__);
-#endif
+	bool is_space_available_in_table = false;
+	if(m_globalTime.regressgt2.FindNeighbor(msg_src) != c_bad_nbrIndex){
+		is_space_available_in_table = true;
 	}
+	else if(!m_globalTime.regressgt2.IsTableFull()) {
+		m_globalTime.regressgt2.InsertNbrID(msg_src);
+		is_space_available_in_table = true;
+	}
+	else {
+		UINT8 index = 0;
+		for(UINT8 i =0; i < MAX_NBR; ++i){
+			if(INVALID_NBR_ID != g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID){
+				if( g_NeighborTable.FindIndexEvenDead( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID, &index) != DS_Success){ //If it does not exist in the neighbortable, delete from the time entires from globalTime Table
+				 	 g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
+						if(!m_globalTime.regressgt2.IsTableFull()) {
+							is_space_available_in_table = true;
+							break;
+						}
+				}
+			}
+		}
+		for(UINT8 i =0; i < MAX_NBR; ++i){
+			if(INVALID_NBR_ID != g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID){
+				if( g_NeighborTable.FindIndexEvenDead( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID, &index) == DS_Success){
+					if(g_NeighborTable.Neighbor[index].neighborStatus != Alive){ //If it exists in the neighbortable but marked as not alive, delete from the time entires from globalTime Table
+						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
+						if(!m_globalTime.regressgt2.IsTableFull()) {
+							is_space_available_in_table = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if(is_space_available_in_table){
+		m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
+		ds = g_NeighborTable.RecordTimeSyncRecv(msg_src,ReceiveTS);
+	}
+
+#ifdef OMAC_DEBUG_PRINTF
+	if(ds != DS_Success){
+		OMAC_HAL_PRINTF("OMACTimeSync::Receive RecordTimeSyncRecv failure; address: %d; line: %d\n", msg_src, __LINE__);
+	}
+#endif
 
 #ifdef def_Neighbor2beFollowed
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){
