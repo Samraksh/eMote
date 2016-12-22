@@ -1105,6 +1105,14 @@ bool DataTransmissionHandler::Send(){
 
 		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
 
+#if OMAC_DTH_DEBUG_PRINTF_PACKET_SEND
+		hal_printf("DTH:Send() dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
+				, m_outgoingEntryPtr->GetHeader()->dest
+				, m_outgoingEntryPtr->GetHeader()->payloadType
+				, m_outgoingEntryPtr->GetHeader()->flags
+				, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
+#endif
+
 
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );

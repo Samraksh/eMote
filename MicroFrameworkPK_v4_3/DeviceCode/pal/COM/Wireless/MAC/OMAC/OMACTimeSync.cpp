@@ -206,6 +206,15 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 		OMAC_HAL_PRINTF("OMACTimeSync::Send RecordTimeSyncRequestSent failure; address: %d; line: %d\n", address, __LINE__);
 #endif
 	}
+#ifdef OMAC_TSYNC_DEBUG_PRINTF_PACKET_ENQUE
+	if(ds == DS_Success){
+		hal_printf("RTSRS SUCCESS d: %d\r\n", address);
+	}
+	else{
+		hal_printf("RTSRS FAIL d: %d\r\n", address);
+	}
+
+#endif
 
 	return rs;
 }
