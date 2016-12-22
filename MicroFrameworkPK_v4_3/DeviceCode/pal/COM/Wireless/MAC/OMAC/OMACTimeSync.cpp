@@ -302,6 +302,10 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	if(is_space_available_in_table){
 		m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
 		ds = g_NeighborTable.RecordTimeSyncRecv(msg_src,ReceiveTS);
+#if OMAC_DEBUG_PRINTF_TS_RX
+		hal_printf("TS Receive from = %u \r\n", msg_src);
+		g_OMAC.PrintNeighborTable();
+#endif
 	}
 
 #ifdef OMAC_DEBUG_PRINTF
