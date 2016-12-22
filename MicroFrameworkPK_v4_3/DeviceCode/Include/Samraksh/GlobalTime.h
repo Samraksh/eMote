@@ -300,7 +300,7 @@ public:
 	}
 	void CleanNbrwithIndex(NeighborIndex_t nbrIndex){
 		if(nbrIndex >= 0 && nbrIndex < MAX_NBR){
-			samples[nbrIndex].nbrID=0xFFFF;
+			samples[nbrIndex].nbrID = INVALID_NBR_ID;
 			--nbrCount;
 			samples[nbrIndex].lastTimeIndex = MAX_SAMPLES;
 			samples[nbrIndex].numSamples = 0;
