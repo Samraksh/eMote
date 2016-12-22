@@ -1074,7 +1074,7 @@ void OMACType::PrintNeighborTable(){
 //	hal_printf("--NeighborTable-- \r\n", numberofNeighbors, g_NeighborTable.PreviousNumberOfNeighbors() );
 	for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; ++tableIndex){
 		if(    g_NeighborTable.Neighbor[tableIndex].MACAddress != 0 && g_NeighborTable.Neighbor[tableIndex].MACAddress != 65535 ){
-			hal_printf("MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u \r\n ", g_NeighborTable.Neighbor[tableIndex].MACAddress, g_NeighborTable.Neighbor[tableIndex].neighborStatus, g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers, g_NeighborTable.Neighbor[tableIndex].NumTimeSyncMessagesSent, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[tableIndex].MACAddress) );
+			hal_printf("MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u LHT = %llu \r\n ", g_NeighborTable.Neighbor[tableIndex].MACAddress, g_NeighborTable.Neighbor[tableIndex].neighborStatus, g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers, g_NeighborTable.Neighbor[tableIndex].NumTimeSyncMessagesSent, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[tableIndex].MACAddress),  g_NeighborTable.Neighbor[tableIndex].LastHeardTime );
 		}
 	}
 	is_print_neigh_table = false;

@@ -243,27 +243,29 @@ UINT16 NeighborTable::GetMaxNeighbors(void){
 
 UINT8 NeighborTable::UpdateNeighborTable(UINT64 livelinessDelayInTicks, UINT64 currentTime)
 {
-	UINT8 deadNeighbors = 0;
-
-//	UINT64 livelinessDelayInTicks = CPU_MillisecondsToTicks(NeighborLivenessDelay * 1000);
+//	UINT8 deadNeighbors = 0;
 //
+////	UINT64 livelinessDelayInTicks = CPU_MillisecondsToTicks(NeighborLivenessDelay * 1000);
+////
+//
+//	//if (Neighbor[0].Status == Alive)
+//	//	hal_printf("neighbor 0 last time: %lld\tcurrent time: %lld\tlivelinessDelayinticks: %lld\r\n", Neighbor[0].LastHeardTime,  currentTime, livelinessDelayInTicks);
+//
+//	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+//	{
+//		if((Neighbor[i].neighborStatus == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinessDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
+//		{
+//
+//			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing inactive neighbor %hu \n", Neighbor[i].MACAddress);
+//			Neighbor[i].neighborStatus = Dead;
+//			++deadNeighbors;
+//			--NumberValidNeighbor;
+//		}
+//	}
+//
+//	return deadNeighbors;
 
-	//if (Neighbor[0].Status == Alive)
-	//	hal_printf("neighbor 0 last time: %lld\tcurrent time: %lld\tlivelinessDelayinticks: %lld\r\n", Neighbor[0].LastHeardTime,  currentTime, livelinessDelayInTicks);
-
-	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
-	{
-		if((Neighbor[i].neighborStatus == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinessDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
-		{
-
-			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing inactive neighbor %hu \n", Neighbor[i].MACAddress);
-			Neighbor[i].neighborStatus = Dead;
-			++deadNeighbors;
-			--NumberValidNeighbor;
-		}
-	}
-
-	return deadNeighbors;
+	return 0;
 }
 
 Neighbor_t* NeighborTable::GetMostObsoleteTimeSyncNeighborPtr(NeighborStatus ns){
@@ -314,30 +316,32 @@ DeviceStatus NeighborTable::FindIndex(const UINT16 MACAddress, UINT8* index){
 
 UINT8 NeighborTable::BringOutYourDead(UINT32 delay){
 
-//	GLOBAL_LOCK(irq);
+////	GLOBAL_LOCK(irq);
+//
+//	UINT8 deadNeighbors = 0;
+//
+//	UINT64 livelinessDelayInTicks = CPU_MillisecondsToTicks(delay * 1000);
+//
+//	UINT64 currentTime = HAL_Time_CurrentTicks();
+//
+//
+//	//if (Neighbor[0].Status == Alive)
+//	//	hal_printf("neighbor 0 last time: %lld\tcurrent time: %lld\tlivelinessDelayinticks: %lld\r\n", Neighbor[0].LastHeardTime,  currentTime, livelinessDelayInTicks);
+//
+//	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+//	{
+//		if((Neighbor[i].neighborStatus == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinessDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
+//		{
+//			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing Neighbor %hu due to inactivity\n", Neighbor[i].MACAddress);
+//			Neighbor[i].neighborStatus = Dead;
+//			deadNeighbors++;
+//			NumberValidNeighbor--;
+//		}
+//	}
+//
+//	return deadNeighbors;
 
-	UINT8 deadNeighbors = 0;
-
-	UINT64 livelinessDelayInTicks = CPU_MillisecondsToTicks(delay * 1000);
-
-	UINT64 currentTime = HAL_Time_CurrentTicks();
-
-
-	//if (Neighbor[0].Status == Alive)
-	//	hal_printf("neighbor 0 last time: %lld\tcurrent time: %lld\tlivelinessDelayinticks: %lld\r\n", Neighbor[0].LastHeardTime,  currentTime, livelinessDelayInTicks);
-
-	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
-	{
-		if((Neighbor[i].neighborStatus == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinessDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
-		{
-			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing Neighbor %hu due to inactivity\n", Neighbor[i].MACAddress);
-			Neighbor[i].neighborStatus = Dead;
-			deadNeighbors++;
-			NumberValidNeighbor--;
-		}
-	}
-
-	return deadNeighbors;
+	return 0;
 }
 
 DeviceStatus NeighborTable::ClearNeighbor(UINT16 nodeId){
