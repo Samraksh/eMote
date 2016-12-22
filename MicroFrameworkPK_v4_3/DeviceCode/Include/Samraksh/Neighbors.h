@@ -367,6 +367,7 @@ void NeighborTable::ClearTable(){
 DeviceStatus NeighborTable::GetFreeIdx(UINT8* index){
 	DeviceStatus rv = DS_Fail;
 	int tableIndex;
+	*index = INVALID_NEIGHBOR_INDEX;
 
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
 		if( !ISMAC_VALID(Neighbor[tableIndex].MACAddress) ){
@@ -379,9 +380,11 @@ DeviceStatus NeighborTable::GetFreeIdx(UINT8* index){
 			rv = DS_Success;
 		}
 	}
-	if(ISMAC_VALID(Neighbor[*index].MACAddress)){
-		ClearNeighborwIndex(*index);
-		rv = DS_Success;
+	if(rv == DS_Success){
+		if(ISMAC_VALID(Neighbor[*index].MACAddress)){
+			ClearNeighborwIndex(*index);
+			rv = DS_Success;
+		}
 	}
 	return rv;
 }
@@ -421,9 +424,11 @@ DeviceStatus NeighborTable::FindOrInsertNeighbor(const UINT16 address, UINT8* in
 		retValue = FindIndexEvenDead(address, index);
 		if(retValue == DS_Fail) {
 			retValue = GetFreeIdx(index);
-			Neighbor[*index].MACAddress = address;
-			Neighbor[*index].NumTimeSyncMessagesSent = 0;
-			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Inserting Neighbor %hu.\n", address);
+			if(retValue == DS_Success) {
+				Neighbor[*index].MACAddress = address;
+				Neighbor[*index].NumTimeSyncMessagesSent = 0;
+				DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Inserting Neighbor %hu.\n", address);
+			}
 		}
 		else{
 			if(Neighbor[*index].neighborStatus != Alive){
