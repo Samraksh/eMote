@@ -390,6 +390,8 @@ void DataTransmissionHandler::DropPacket(){
 			){ //This is flushing the time sync message queue if the previous message was successful
 				ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
 				neigh_ptr->tsr_send_buffer.DropOldest(1);
+				neigh_ptr->IncrementNumTimeSyncMessagesSent();
+
 #if OMAC_DEBUG_PRINTF_TSREQ_TX
 		g_OMAC.is_print_neigh_table = true;
 #endif
