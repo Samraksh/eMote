@@ -205,7 +205,7 @@ void OMACScheduler::ScheduleNextEvent(){
 #ifdef OMAC_DEBUG_PRINTF
 	UINT64 curTicks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 #ifdef OMAC_DEBUG_PRINTF
-	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::ScheduleNextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu - %lu m_state.GetState() = %d \n"
+	hal_printf(" \r\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::ScheduleNextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu - %lu m_state.GetState() = %d  \r\n"
 			, g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks), GetSlotNumberfromTicks(curTicks), m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextWakeupTimeInMicSec, g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks)+nextWakeupTimeInMicSec, GetSlotNumberfromMicroSec(g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks)+nextWakeupTimeInMicSec), m_state );
 #endif
 #endif
@@ -254,7 +254,7 @@ bool OMACScheduler::RunEventTask(){
 
 #ifdef def_Neighbor2beFollowed
 #ifdef OMAC_DEBUG_PRINTF
-	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::RunEventTask() \n"
+	hal_printf(" \r\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::RunEventTask()  \r\n"
 			, g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks), GetSlotNumber(), g_OMAC.m_Clock.ConvertTickstoMicroSecs(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)) );
 #endif
 #endif
@@ -360,7 +360,7 @@ void OMACScheduler::PostPostExecution(){
 	if(rm != TimerSupported) return; //BK: Failsafe does not stop. let it fire and stop itself.
 	if(!EnsureStopRadio()){ //BK: Radio does not stop// Reschedule another stopping periof
 #ifdef OMAC_DEBUG_PRINTF
-	hal_printf("\n OMACScheduler::PostPostExecution() Radio stop failure! m_num_sleep_retry_attempts = %u \n", m_num_sleep_retry_attempts);
+	hal_printf(" \r\n OMACScheduler::PostPostExecution() Radio stop failure! m_num_sleep_retry_attempts = %u  \r\n", m_num_sleep_retry_attempts);
 #endif
 		if(m_num_sleep_retry_attempts < MAX_SLEEP_RETRY_ATTEMPTS){ //Schedule retrial
 			m_state = I_RADIO_STOP_RETRY;

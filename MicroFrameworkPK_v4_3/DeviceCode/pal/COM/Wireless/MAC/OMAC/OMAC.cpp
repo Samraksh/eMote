@@ -321,7 +321,7 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 	//Initialize yourself first (you being the MAC)
 	if(this->Initialized){
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("OMACType Error: Already Initialized!! My address: %d\n", g_OMAC.GetMyAddress());
+		OMAC_HAL_PRINTF("OMACType Error: Already Initialized!! My address: %d \r\n", g_OMAC.GetMyAddress());
 #endif
 	}
 	else {
@@ -369,7 +369,7 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 		SetOMACParametersBasedOnRadioName(this->radioName);
 
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("Initializing OMACType: My address: %d\n", g_OMAC.GetMyAddress());
+		OMAC_HAL_PRINTF("Initializing OMACType: My address: %d \r\n", g_OMAC.GetMyAddress());
 #endif
 		SetMyAddress(CPU_Radio_GetAddress(radioName));
 		SetMyID(CPU_Radio_GetAddress(radioName));
@@ -479,7 +479,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 		UINT8 payloadType = swAckHeader->payloadType;
 		if(destID == myID){
 #if OMAC_DEBUG_PRINTF_ACKREC
-		hal_printf("ACK Received sourceID = %u, destID = %u   \n", sourceID, destID);
+		hal_printf("ACK Received sourceID = %u, destID = %u    \r\n", sourceID, destID);
 #endif
 			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
 				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
@@ -499,9 +499,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 	UINT16 maxPayload = OMACType::GetMaxPayload();
 	//if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata) > maxPayload) ){
 	if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t) > maxPayload) ){
-		//OMAC_HAL_PRINTF("CSMA Receive Error: Packet is too big: %d \n", Size+sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
+		//OMAC_HAL_PRINTF("CSMA Receive Error: Packet is too big: %d  \r\n", Size+sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("CSMA Receive Error: Packet is too big: %d \n", Size+sizeof(IEEE802_15_4_Header_t));
+		OMAC_HAL_PRINTF("CSMA Receive Error: Packet is too big: %d  \r\n", Size+sizeof(IEEE802_15_4_Header_t));
 #endif
 		return msg;
 	}
@@ -539,7 +539,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 			}
 
 #if OMAC_DEBUG_PRINTF_PACKETREC
-		hal_printf("OMACType::ReceiveHandler = sourceID = %u, destID = %u payloadType = %u flags = %u \n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags);
+		hal_printf("OMACType::ReceiveHandler = sourceID = %u, destID = %u payloadType = %u flags = %u  \r\n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags);
 #endif
 
 
@@ -622,14 +622,14 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 //					}
 					location_in_packet_payload += data_msg->size + DataMsgOverhead;
 #ifdef OMAC_DEBUG_PRINTF
-					OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_ROUTING\n");
+					OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_ROUTING \r\n");
 #endif
 					break;
 				}
 				case MFM_OMAC_NEIGHBORHOOD://Not processed
 				{
 #ifdef OMAC_DEBUG_PRINTF
-					OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_NEIGHBORHOOD\n");
+					OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_NEIGHBORHOOD \r\n");
 #endif
 					break;
 				}
@@ -644,7 +644,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 #endif
 					//ASSERT_SP(msg->GetHeader()->flags & TIMESTAMPED_FLAG);
 #ifdef OMAC_DEBUG_PRINTF
-						OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_TIMESYNC\n");
+						OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_TIMESYNC \r\n");
 #endif
 					data_msg = (DataMsg_t*) msg->GetPayload();
 					location_in_packet_payload += data_msg->size + DataMsgOverhead;
@@ -663,8 +663,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				case MFM_OMAC_DATA_BEACON_TYPE://Not processed
 				{
 #ifdef OMAC_DEBUG_PRINTF
-					OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_OMAC_DATA_BEACON_TYPE\n");
-					OMAC_HAL_PRINTF("Got a data beacon packet\n");
+					OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_OMAC_DATA_BEACON_TYPE \r\n");
+					OMAC_HAL_PRINTF("Got a data beacon packet \r\n");
 #endif
 					break;
 				}
@@ -766,7 +766,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 			ds = g_NeighborTable.RecordLastHeardTime(sourceID,g_OMAC.m_Clock.GetCurrentTimeinTicks());
 			if(ds != DS_Success){
 #ifdef OMAC_DEBUG_PRINTF
-				OMAC_HAL_PRINTF("OMACType::ReceiveHandler RecordLastHeardTime failure; address: %d; line: %d\n", sourceID, __LINE__);
+				OMAC_HAL_PRINTF("OMACType::ReceiveHandler RecordLastHeardTime failure; address: %d; line: %d \r\n", sourceID, __LINE__);
 #endif
 			}
 
@@ -802,14 +802,14 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
 	if(!Initialized){
 #if OMAC_DEBUG_PACKET_REJECTION
-		hal_printf("OMACType::Send Pckt Reject Initialized destID = %u dataType = %u \n", address, dataType);
+		hal_printf("OMACType::Send Pckt Reject Initialized destID = %u dataType = %u  \r\n", address, dataType);
 #endif
 		return false;
 	}
 	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
 	if(msg_carrier == (Message_15_4_t*)(NULL)){
 #if OMAC_DEBUG_PACKET_REJECTION
-		hal_printf("OMACType::Send Pckt Reject destID = %u dataType = %u \n", address, dataType);
+		hal_printf("OMACType::Send Pckt Reject destID = %u dataType = %u  \r\n", address, dataType);
 #endif
 		return false;
 	}
@@ -826,14 +826,14 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
 BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime){
 	if(!Initialized){
 #if OMAC_DEBUG_PACKET_REJECTION
-		hal_printf("OMACType::SendTimeStamped Pckt Reject Initialized destID = %u dataType = %u \n", address, dataType);
+		hal_printf("OMACType::SendTimeStamped Pckt Reject Initialized destID = %u dataType = %u  \r\n", address, dataType);
 #endif
 		return false;
 	}
 	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
 	if(msg_carrier == (Message_15_4_t*)(NULL)){
 #if OMAC_DEBUG_PACKET_REJECTION
-		hal_printf("OMACType::SendTimeStamped Pckt Reject destID = %u dataType = %u \n", address, dataType);
+		hal_printf("OMACType::SendTimeStamped Pckt Reject destID = %u dataType = %u  \r\n", address, dataType);
 #endif
 		return false;
 	}
@@ -859,11 +859,11 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 
 	Neighbor_t* neighborEntry = g_NeighborTable.GetNeighborPtr(address);
 	if(neighborEntry == NULL) {
-		DEBUG_OMAC_PMB_PRINTF("OMACType Send Error: Destination does not exist in neighbor table %d \n", address);
+		DEBUG_OMAC_PMB_PRINTF("OMACType Send Error: Destination does not exist in neighbor table %d  \r\n", address);
 		return (Message_15_4_t*)(NULL);
 	}
 	else if(neighborEntry->neighborStatus == Dead) {
-		DEBUG_OMAC_PMB_PRINTF("OMACType Send Error: Destination exists in neighbor table but its status is dead: %d \n", address);
+		DEBUG_OMAC_PMB_PRINTF("OMACType Send Error: Destination exists in neighbor table but its status is dead: %d  \r\n", address);
 		return (Message_15_4_t*)(NULL);
 	}
 
@@ -877,22 +877,22 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 		msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
 
 		if(msg_carrier == (Message_15_4_t*)(NULL)){
-			DEBUG_OMAC_PMB_PRINTF("ERROR: OMACType::PrepareMessageBuffer no free tsr_send_buffer available. Addr: %d.\n", neighborEntry->MACAddress);
+			DEBUG_OMAC_PMB_PRINTF("ERROR: OMACType::PrepareMessageBuffer no free tsr_send_buffer available. Addr: %d. \r\n", neighborEntry->MACAddress);
 			return (Message_15_4_t*)(NULL);
 		}
 		else if(neighborEntry->tsr_send_buffer.IsBufferFull()){
-			DEBUG_OMAC_PMB_PRINTF("WARN: OMACType::PrepareMessageBuffer neighborEntry->tsr_send_buffer is now full. Addr: %d.\n", neighborEntry->MACAddress);
+			DEBUG_OMAC_PMB_PRINTF("WARN: OMACType::PrepareMessageBuffer neighborEntry->tsr_send_buffer is now full. Addr: %d. \r\n", neighborEntry->MACAddress);
 		}
 	}
 	else{
 		msg_carrier = neighborEntry->send_buffer.GetNextFreeBuffer();
 
 		if(msg_carrier == (Message_15_4_t*)(NULL)){
-			DEBUG_OMAC_PMB_PRINTF("ERROR: OMACType::PrepareMessageBuffer no free send_buffer available. Addr: %d.\n", neighborEntry->MACAddress);
+			DEBUG_OMAC_PMB_PRINTF("ERROR: OMACType::PrepareMessageBuffer no free send_buffer available. Addr: %d. \r\n", neighborEntry->MACAddress);
 			return (Message_15_4_t*)(NULL);
 		}
 		else if(neighborEntry->send_buffer.IsBufferFull()){
-			DEBUG_OMAC_PMB_PRINTF("WARN: OMACType::PrepareMessageBuffer neighborEntry->send_buffer is now full. Addr: %d.\n", neighborEntry->MACAddress);
+			DEBUG_OMAC_PMB_PRINTF("WARN: OMACType::PrepareMessageBuffer neighborEntry->send_buffer is now full. Addr: %d. \r\n", neighborEntry->MACAddress);
 		}
 	}
 

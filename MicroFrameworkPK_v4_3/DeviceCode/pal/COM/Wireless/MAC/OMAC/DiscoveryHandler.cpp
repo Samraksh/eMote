@@ -62,7 +62,7 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	TempIncreaseDiscoRate();
 	g_OMAC.m_omac_RadioControl.stayOn = true;
 #if OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE
-	hal_printf("Turning ON ALWAYSONMODE\n");
+	hal_printf("Turning ON ALWAYSONMODE \r\n");
 #endif
 
 #ifdef OMAC_DEBUG_PRINTF
@@ -102,7 +102,7 @@ UINT64 DiscoveryHandler::NextEvent(){
 		TempIncreaseDiscoRate();
 		g_OMAC.m_omac_RadioControl.stayOn = true;
 #if OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE
-	hal_printf("Turning ON ALWAYSONMODE\n");
+	hal_printf("Turning ON ALWAYSONMODE \r\n");
 #endif
 	}
 
@@ -203,7 +203,7 @@ void DiscoveryHandler::PostExecuteEvent(){
 		g_OMAC.m_omac_scheduler.PostExecution();
 	}
 	else {
-		OMAC_HAL_PRINTF("\n OMACScheduler::PostPostExecution() Radio stop failure! m_num_sleep_retry_attempts = %u \n", m_num_sleep_retry_attempts);
+		OMAC_HAL_PRINTF(" \r\n OMACScheduler::PostPostExecution() Radio stop failure! m_num_sleep_retry_attempts = %u  \r\n", m_num_sleep_retry_attempts);
 		if(m_num_sleep_retry_attempts < MAX_SLEEP_RETRY_ATTEMPTS){
 			++m_num_sleep_retry_attempts;
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, RADIO_STOP_RETRY_PERIOD_IN_MICS, TRUE, OMACClockSpecifier );
@@ -259,7 +259,7 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 		DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 		if(DS != DS_Success){
 #ifdef OMAC_DEBUG_PRINTF
-			OMAC_HAL_PRINTF("DiscoveryHandler::Beacon() transmission detected!\n");
+			OMAC_HAL_PRINTF("DiscoveryHandler::Beacon() transmission detected! \r\n");
 #endif
 			//i = GUARDTIME_MICRO/140;
 			canISend = false;
@@ -320,20 +320,20 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 			break;
 		default:
 #ifdef OMAC_DEBUG_PRINTF
-			OMAC_HAL_PRINTF("DiscoveryHandler::Received Unexpected SendACK\n");
+			OMAC_HAL_PRINTF("DiscoveryHandler::Received Unexpected SendACK \r\n");
 #endif
 			break;
 	}
 	/* Don't use this for now
 	if(status == NO_Busy){
-		OMAC_HAL_PRINTF("NO_Busy - What do we do? Just ignore?\n");
+		OMAC_HAL_PRINTF("NO_Busy - What do we do? Just ignore? \r\n");
 		//m_busy = TRUE;
 	}
 	else if(status == NO_Success){
 		//m_busy = FALSE;
 	}
 	else{
-		OMAC_HAL_PRINTF("Need to investigate. Status: %d\n", status);
+		OMAC_HAL_PRINTF("Need to investigate. Status: %d \r\n", status);
 		ASSERT_SP(0);
 	}
 
@@ -380,7 +380,7 @@ void DiscoveryHandler::Beacon1(){
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
-		//OMAC_HAL_PRINTF("Beacon1 failed. ds = %d;\n", ds);
+		//OMAC_HAL_PRINTF("Beacon1 failed. ds = %d; \r\n", ds);
 	}
 	//If Beacon 1 fails, just continue operation. There is one more beacon
 }
@@ -440,7 +440,7 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 		break;
 	case BEACON1_SEND_START:
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("DiscoveryHandler::Beacon1 transmission send ACK is missing\n");
+		OMAC_HAL_PRINTF("DiscoveryHandler::Beacon1 transmission send ACK is missing \r\n");
 #endif
 	case BEACON1_SKIPPED:
 	case BEACON1_SEND_DONE:
@@ -448,7 +448,7 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 		break;
 	case BEACON2_SEND_START:
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("DiscoveryHandler::Beacon2 transmission send ACK is missing\n");
+		OMAC_HAL_PRINTF("DiscoveryHandler::Beacon2 transmission send ACK is missing \r\n");
 #endif
 	case BEACON2_SKIPPED:
 	case BEACON2_SEND_DONE:
@@ -457,7 +457,7 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 	case DISCO_INITIAL:
 	case SLEEP_SUCCESSFUL:
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("DiscoveryHandler::Unexpected firing of VIRT_TIMER_OMAC_DISCOVERY m_state = %d \n", m_state);
+		OMAC_HAL_PRINTF("DiscoveryHandler::Unexpected firing of VIRT_TIMER_OMAC_DISCOVERY m_state = %d  \r\n", m_state);
 #endif
 		break;
 	case DISCO_LISTEN_FAIL:
@@ -612,7 +612,7 @@ void DiscoveryHandler::PermanentlyDecreaseDiscoRate(){
 	m_period2 = CONTROL_P4[g_OMAC.GetMyAddress() % 7] ;
 	g_OMAC.m_omac_RadioControl.stayOn = false;
 #if OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE
-	hal_printf("Turning OFF ALWAYSONMODE\n");
+	hal_printf("Turning OFF ALWAYSONMODE \r\n");
 #endif
 	highdiscorate = false;
 }

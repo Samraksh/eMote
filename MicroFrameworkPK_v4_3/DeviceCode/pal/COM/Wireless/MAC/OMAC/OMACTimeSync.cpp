@@ -193,7 +193,7 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 		//	return rs;
 		}
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
+		OMAC_HAL_PRINTF("TS Send: %d, LTime: %lld  \r\n",m_seqNo, y);
 #endif
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( TIMESYNC_GENERATE_MESSAGEPIN, FALSE );
@@ -203,7 +203,7 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 	DeviceStatus ds = g_NeighborTable.RecordTimeSyncRequestSent(address, y);
 	if(ds != DS_Success){
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("OMACTimeSync::Send RecordTimeSyncRequestSent failure; address: %d; line: %d\n", address, __LINE__);
+		OMAC_HAL_PRINTF("OMACTimeSync::Send RecordTimeSyncRequestSent failure; address: %d; line: %d \r\n", address, __LINE__);
 #endif
 	}
 #ifdef OMAC_TSYNC_DEBUG_PRINTF_PACKET_ENQUE
@@ -224,7 +224,7 @@ DeviceStatus OMACTimeSync::ReceiveTSReq(RadioAddress_t msg_src, TimeSyncRequestM
 	//Determine if timesync is requested, schedule sending a message back to the source
 	if(rcv_msg->request_TimeSync){
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("OMACTimeSync::ReceiveTSReq. Sending to %d\n", msg_src);
+		OMAC_HAL_PRINTF("OMACTimeSync::ReceiveTSReq. Sending to %d \r\n", msg_src);
 #endif
 		this->Send(msg_src);
 	}
@@ -320,7 +320,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 
 #ifdef OMAC_DEBUG_PRINTF
 	if(ds != DS_Success){
-		OMAC_HAL_PRINTF("OMACTimeSync::Receive RecordTimeSyncRecv failure; address: %d; line: %d\n", msg_src, __LINE__);
+		OMAC_HAL_PRINTF("OMACTimeSync::Receive RecordTimeSyncRecv failure; address: %d; line: %d \r\n", msg_src, __LINE__);
 	}
 #endif
 
@@ -388,13 +388,13 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 			nbrToIdx(nodeID, &nbrIdx);
 			if (nbrIdx != INVALID_INDEX) {
 				TableItem *ptr = &(m_beaconTable[nbrIdx]);
-			//	printf("ofset=%ld lclAvg=%lu lcl=%lu, sk=%ld\n",
+			//	printf("ofset=%ld lclAvg=%lu lcl=%lu, sk=%ld \r\n",
 			//	    ptr->offsetAvg, ptr->localAvg, *time, (int32_t)(ptr->skew * 1000));
 				*time += ptr->offsetAvg
 					+ (int32_t)(ptr->skew * (int32_t)(*time - ptr->localAvg));
 			} else {
 				result = FAIL;
-				printf("Error in local2Global. should not happen\n");
+				printf("Error in local2Global. should not happen \r\n");
 			}
 		}
 
@@ -404,7 +404,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	async command error_t GlobalTime.global2Local(uint32_t *time, am_addr_t nodeID)
 	{
 		if (nodeID == TOS_NODE_ID) {
-			printf("global2Local myself\n");
+			printf("global2Local myself \r\n");
 			return is_synced(nodeID);
 		} else if (call TimeSyncInfo.isSynced(nodeID)) {
 			uint8_t nbrIdx;
@@ -417,11 +417,11 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 				return SUCCESS;
 			}
 			else {
-				printf("Error in global2Local. should not happen\n");
+				printf("Error in global2Local. should not happen \r\n");
 				return FAIL;
 			}
 		} else {
-			printf("global2Local failed\n");
+			printf("global2Local failed \r\n");
 			return FAIL;
 		}
 	}

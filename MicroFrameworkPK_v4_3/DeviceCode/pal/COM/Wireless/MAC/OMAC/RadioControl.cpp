@@ -117,7 +117,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 #endif
 		returnMsg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
 		if(returnMsg == msg){
-			//OMAC_HAL_PRINTF("Returning success\n");
+			//OMAC_HAL_PRINTF("Returning success \r\n");
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
 #endif
@@ -148,7 +148,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 			}
 			else if(header->payloadType == MFM_DATA){
 				CPU_GPIO_SetPinState( RC_TX_DATA, TRUE );
-				//OMAC_HAL_PRINTF("RC send; Sending: %d\n", (msg->GetPayload())[8]);
+				//OMAC_HAL_PRINTF("RC send; Sending: %d \r\n", (msg->GetPayload())[8]);
 			}
 	#endif
 
@@ -200,14 +200,14 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 	#endif
 
 		if(returnMsg == msg){
-			//OMAC_HAL_PRINTF("Returning success\n");
+			//OMAC_HAL_PRINTF("Returning success \r\n");
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
 #endif
 			return DS_Success;
 		}
 	endOfSend:
-		//OMAC_HAL_PRINTF("Returning DS_Fail\n");
+		//OMAC_HAL_PRINTF("Returning DS_Fail \r\n");
 	#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
@@ -281,7 +281,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		DeviceStatus ds = g_NeighborTable.RecordTimeSyncSent(dest,y);
 			if(ds != DS_Success && dest != RADIO_BROADCAST_ADDRESS){
 #ifdef OMAC_DEBUG_PRINTF
-				OMAC_HAL_PRINTF("RadioControl_t::PiggybackTimeSyncMessage RecordTimeSyncSent failure; address: %d; line: %d\n", dest, __LINE__);
+				OMAC_HAL_PRINTF("RadioControl_t::PiggybackTimeSyncMessage RecordTimeSyncSent failure; address: %d; line: %d \r\n", dest, __LINE__);
 #endif
 			}
 		}
@@ -337,7 +337,7 @@ DeviceStatus RadioControl_t::Stop(){
 		}
 		else {
 			//ASSERT_SP(0);
-			//OMAC_HAL_PRINTF("RadioControl_t::Stop Radio did not go to sleep\n");
+			//OMAC_HAL_PRINTF("RadioControl_t::Stop Radio did not go to sleep \r\n");
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );
 			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, TRUE );
