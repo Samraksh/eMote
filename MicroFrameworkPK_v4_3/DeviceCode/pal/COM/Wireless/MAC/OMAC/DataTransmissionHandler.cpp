@@ -362,6 +362,10 @@ void DataTransmissionHandler::DropPacket(){
 			neigh_ptr->tsr_send_buffer.DropOldest(1);
 			neigh_ptr->IncrementNumTimeSyncMessagesSent();
 
+#if OMAC_DEBUG_PRINTF_TSREQ_TX
+		g_OMAC.is_print_neigh_table = true;
+#endif
+
 		}
 		else if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
 #if OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
@@ -386,6 +390,10 @@ void DataTransmissionHandler::DropPacket(){
 			){ //This is flushing the time sync message queue if the previous message was successful
 				ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
 				neigh_ptr->tsr_send_buffer.DropOldest(1);
+#if OMAC_DEBUG_PRINTF_TSREQ_TX
+		g_OMAC.is_print_neigh_table = true;
+#endif
+
 			}
 		}
 		else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval() ){
@@ -399,6 +407,10 @@ void DataTransmissionHandler::DropPacket(){
 			ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
 			neigh_ptr->tsr_send_buffer.DropOldest(1);
 			neigh_ptr->IncrementNumTimeSyncMessagesSent();
+
+#if OMAC_DEBUG_PRINTF_TSREQ_TX
+		g_OMAC.is_print_neigh_table = true;
+#endif
 
 			//neigh_ptr->tsr_send_buffer.ClearBuffer();
 		}
@@ -1090,6 +1102,7 @@ bool DataTransmissionHandler::Send(){
 #endif
 
 		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
+
 
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );

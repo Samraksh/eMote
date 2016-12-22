@@ -517,7 +517,8 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 			,source
 			,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(source) ? "TRUE" : "FALSE"
 			);
-	g_OMAC.PrintNeighborTable();
+//	g_OMAC.PrintNeighborTable();
+	g_OMAC.is_print_neigh_table = true;
 #endif
 
 

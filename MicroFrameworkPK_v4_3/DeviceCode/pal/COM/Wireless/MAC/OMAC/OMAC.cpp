@@ -312,6 +312,11 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 	CPU_GPIO_SetPinState( OMAC_CONTINUATION, FALSE );
 #endif
 
+#if OMAC_DEBUG_PRINTF_NEIGHCHANGE || OMAC_DEBUG_PRINTF_DISCO_RX || OMAC_DEBUG_PRINTF_TS_RX
+	is_print_neigh_table = false;
+#endif
+
+
 	DeviceStatus status;
 	//Initialize yourself first (you being the MAC)
 	if(this->Initialized){
@@ -973,10 +978,6 @@ Message_15_4_t* OMACType::FindFirstSyncedNbrMessage(){
  *
  */
 UINT8 OMACType::UpdateNeighborTable(){
-#if OMAC_DEBUG_PRINTF_NEIGHCHANGE
-	bool is_print_neigh_table = false;
-#endif
-
 	Neighbor_t* neighbor_ptr = NULL;
 	UINT8 numberOfDeadNeighbors = 0, numberofNeighbors = 0;
 	UINT64 currentTime =  m_Clock.GetCurrentTimeinTicks();
@@ -1056,7 +1057,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 		}
 		g_NeighborTable.SetPreviousNumberOfNeighbors(numberofNeighbors);
 	}
-#if OMAC_DEBUG_PRINTF_NEIGHCHANGE
+#if OMAC_DEBUG_PRINTF_NEIGHCHANGE || OMAC_DEBUG_PRINTF_DISCO_RX || OMAC_DEBUG_PRINTF_TS_RX ||OMAC_DEBUG_PRINTF_TSREQ_TX
 	else{
 		if(is_print_neigh_table){
 			hal_printf("New NeighborTable nn=%u Pnn=%u \r\n", numberofNeighbors, g_NeighborTable.PreviousNumberOfNeighbors() );
@@ -1073,9 +1074,10 @@ void OMACType::PrintNeighborTable(){
 //	hal_printf("--NeighborTable-- \r\n", numberofNeighbors, g_NeighborTable.PreviousNumberOfNeighbors() );
 	for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; ++tableIndex){
 		if(    g_NeighborTable.Neighbor[tableIndex].MACAddress != 0 && g_NeighborTable.Neighbor[tableIndex].MACAddress != 65535 ){
-			hal_printf("MAC=%u, S=%u, A=%u, NTS=%u \r\n ", g_NeighborTable.Neighbor[tableIndex].MACAddress, g_NeighborTable.Neighbor[tableIndex].neighborStatus, g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[tableIndex].MACAddress) );
+			hal_printf("MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u \r\n ", g_NeighborTable.Neighbor[tableIndex].MACAddress, g_NeighborTable.Neighbor[tableIndex].neighborStatus, g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers, g_NeighborTable.Neighbor[tableIndex].NumTimeSyncMessagesSent, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[tableIndex].MACAddress) );
 		}
 	}
+	is_print_neigh_table = false;
 //	hal_printf("--End NeighborTable--\r\n", numberofNeighbors, g_NeighborTable.PreviousNumberOfNeighbors() );
 }
 
