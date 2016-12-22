@@ -106,6 +106,49 @@ typedef struct {
 
 	Buffer_15_4<Data_Send_Buffer_15_4_t_SIZE> send_buffer;
 	Buffer_15_4<TimeSync_Send_Buffer_15_4_t_SIZE> tsr_send_buffer;
+
+	void Clear(){
+		MACAddress = INVALID_MACADDRESS;
+		NumTimeSyncMessagesSent = 0;
+		SendLink.AvgRSSI = 0;
+		SendLink.LinkQuality = 0;
+		SendLink.AveDelay = 0;
+		ReceiveLink.AvgRSSI = 0;
+		ReceiveLink.LinkQuality = 0;
+		ReceiveLink.AveDelay = 0;
+
+		neighborStatus = Dead;
+		IsAvailableForUpperLayers = false;
+		CountOfPacketsReceived = 0;
+		LastHeardTime = 0;
+		ReceiveDutyCycle = 0;
+		FrameLength = 0;
+
+		nextSeed = 0;
+		mask = 0;
+		nextwakeupSlot = 0;
+		seedUpdateIntervalinSlots = 0;
+
+		LastTimeSyncRecvTime = 0;			// Lasst time a time sync message is received
+		LastTimeSyncRequestTime = 0;	// Last time instant a time sync request is sent
+		LastTimeSyncSendTime = 0;	// Last time instant a time sync is sent(piggbacked)
+
+		UINT8 random_back_off_slot = 0;
+		UINT8 random_back_off_window_size = 1;
+		//UINT8   numErrors;
+		//UINT8   size;
+		//BOOL    isInTransition;
+		//UINT32  localAvg;
+		//INT32   offsetAvg;
+		//float   skew;
+//		//TODO: BK: DELETE THESE NOT USED BUT KEPT FOR THE TIME BEIGN
+//		UINT16  radioStartDelay;
+//		UINT16  counterOffset;
+
+		send_buffer.Initialize();
+		tsr_send_buffer.Initialize();
+
+	}
 }Neighbor_t;
 
 class NeighborTableCommonParameters_One_t{
@@ -307,38 +350,7 @@ DeviceStatus NeighborTable::ClearNeighbor(UINT16 nodeId){
 }
 
 DeviceStatus NeighborTable::ClearNeighborwIndex(UINT8 tableIndex){
-	Neighbor[tableIndex].neighborStatus = Dead;
-	Neighbor[tableIndex].MACAddress = INVALID_MACADDRESS;
-	Neighbor[tableIndex].NumTimeSyncMessagesSent = 0;
-	Neighbor[tableIndex].SendLink.AvgRSSI = 0;
-	Neighbor[tableIndex].SendLink.LinkQuality = 0;
-	Neighbor[tableIndex].SendLink.AveDelay = 0;
-	Neighbor[tableIndex].ReceiveLink.AvgRSSI = 0;
-	Neighbor[tableIndex].ReceiveLink.LinkQuality = 0;
-	Neighbor[tableIndex].ReceiveLink.AveDelay = 0;
-
-	Neighbor[tableIndex].CountOfPacketsReceived = 0;
-	Neighbor[tableIndex].LastHeardTime = 0;
-	Neighbor[tableIndex].ReceiveDutyCycle = 0; //percentage
-	Neighbor[tableIndex].FrameLength = 0;
-
-
-	Neighbor[tableIndex].nextSeed = 0;
-	Neighbor[tableIndex].mask = 0;
-	Neighbor[tableIndex].nextwakeupSlot = 0;
-	Neighbor[tableIndex].seedUpdateIntervalinSlots = 0;
-
-
-	Neighbor[tableIndex].LastTimeSyncRecvTime = 0;
-	Neighbor[tableIndex].LastTimeSyncRequestTime = 0;
-	Neighbor[tableIndex].LastTimeSyncSendTime = 0;
-
-	Neighbor[tableIndex].random_back_off_slot = 0;
-	Neighbor[tableIndex].random_back_off_window_size = 1;
-
-	Neighbor[tableIndex].send_buffer.Initialize();
-	Neighbor[tableIndex].tsr_send_buffer.Initialize();
-
+	Neighbor[tableIndex].Clear();
 
 	NumberValidNeighbor--;
 	return DS_Success;
