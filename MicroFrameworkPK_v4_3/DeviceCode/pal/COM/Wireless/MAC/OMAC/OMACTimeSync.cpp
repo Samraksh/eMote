@@ -289,6 +289,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 				 	 g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
 						if(!m_globalTime.regressgt2.IsTableFull()) {
 							is_space_available_in_table = true;
+							m_globalTime.regressgt2.InsertNbrID(msg_src);
 							break;
 						}
 				}
@@ -304,6 +305,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
 						if(!m_globalTime.regressgt2.IsTableFull()) {
 							is_space_available_in_table = true;
+							m_globalTime.regressgt2.InsertNbrID(msg_src);
 							break;
 						}
 					}

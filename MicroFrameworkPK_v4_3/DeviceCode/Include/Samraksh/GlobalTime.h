@@ -269,7 +269,11 @@ public:
 		UINT8 previndex;
 		//Add new neighbor if not found
 		if (nbrIndex == c_bad_nbrIndex){
-			return;
+			nbrIndex = InsertNbrID(nbr);
+			//No space in regression table
+			if (nbrIndex == c_bad_nbrIndex) {
+				return;
+			}
 		}
 		samples[nbrIndex].nbrID = nbr;
 		previndex = samples[nbrIndex].lastTimeIndex;
