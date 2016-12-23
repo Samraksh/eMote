@@ -192,6 +192,14 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 #endif
 		//	return rs;
 		}
+#if OMAC_TSYNC_DEBUG_PRINTF_PACKET_ENQUE
+	if(rs){
+		hal_printf("TSREQ ENQUE SUCCESS d: %d\r\n", address);
+	}
+	else{
+		hal_printf("TSREQ ENQUE FAIL d: %d\r\n", address);
+	}
+#endif
 #ifdef OMAC_DEBUG_PRINTF
 		OMAC_HAL_PRINTF("TS Send: %d, LTime: %lld  \r\n",m_seqNo, y);
 #endif
@@ -206,7 +214,7 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 		OMAC_HAL_PRINTF("OMACTimeSync::Send RecordTimeSyncRequestSent failure; address: %d; line: %d \r\n", address, __LINE__);
 #endif
 	}
-#ifdef OMAC_TSYNC_DEBUG_PRINTF_PACKET_ENQUE
+#if OMAC_TSYNC_DEBUG_PRINTF_PACKET_ENQUE
 	if(ds == DS_Success){
 		hal_printf("RTSRS SUCCESS d: %d\r\n", address);
 	}
