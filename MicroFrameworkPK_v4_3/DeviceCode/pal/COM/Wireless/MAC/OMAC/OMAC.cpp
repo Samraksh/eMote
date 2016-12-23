@@ -1083,7 +1083,9 @@ void OMACType::PrintNeighborTable(){
 					, g_NeighborTable.Neighbor[tableIndex].LastHeardTime );
 		}
 	}
+#if OMAC_DEBUG_PRINTF_NEIGHCHANGE || OMAC_DEBUG_PRINTF_DISCO_RX || OMAC_DEBUG_PRINTF_TS_RX ||OMAC_DEBUG_PRINTF_TSREQ_TX
 	is_print_neigh_table = false;
+#endif
 //	hal_printf("--End NeighborTable--\r\n", numberofNeighbors, g_NeighborTable.PreviousNumberOfNeighbors() );
 }
 
