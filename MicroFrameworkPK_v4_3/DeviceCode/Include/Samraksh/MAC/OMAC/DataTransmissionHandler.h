@@ -14,7 +14,7 @@
 #include "OMACConstants.h"
 #include "Handlers.h"
 
-#define OMAC_DTH_DEBUG_PRINTF_PACKET_SEND 1
+#define OMAC_DTH_DEBUG_PRINTF_PACKET_SEND 0
 
 #define OMAC_DTH_DEBUG_ReceiveDATAACK 0
 #define OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT 0
