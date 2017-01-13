@@ -439,7 +439,11 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 		i++;
 	}
 	softwareAckHeader.dest = m_lastRXNodeId;
-	g_OMAC.m_omac_RadioControl.Send(m_lastRXNodeId, (Message_15_4_t*)&softwareAckHeader, sizeof(softwareACKHeader));
+	DeviceStatus rs = g_OMAC.m_omac_RadioControl.Send(m_lastRXNodeId, (Message_15_4_t*)&softwareAckHeader, sizeof(softwareACKHeader));
+
+#if OMAC_DEBUG_DRH_SEND_ACK
+	hal_printf("DRH:SDA dest=%u src=%u rs = %u ", m_lastRXNodeId, g_OMAC.GetMyAddress(), rs);
+#endif
 
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, FALSE);
