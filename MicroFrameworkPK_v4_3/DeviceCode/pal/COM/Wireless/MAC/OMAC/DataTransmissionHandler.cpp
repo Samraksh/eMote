@@ -1153,11 +1153,11 @@ bool DataTransmissionHandler::Send(){
 		#endif
 
 #if OMAC_DTH_DEBUG_PRINTF_PACKET_SEND
-		hal_printf("DTH:Send() dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
+		hal_printf("DTH:Send() dest= %u payloadType= %u, flags = %u, Retry Attempts = %u, rs = %u \r\n"
 				, m_outgoingEntryPtr->GetHeader()->dest
 				, m_outgoingEntryPtr->GetHeader()->payloadType
 				, m_outgoingEntryPtr->GetHeader()->flags
-				, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
+				, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts(), rs);
 #endif
 
 
