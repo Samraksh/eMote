@@ -480,10 +480,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 		RadioAddress_t sourceID = swAckHeader->src;
 		RadioAddress_t destID = swAckHeader->dest;
 		UINT8 payloadType = swAckHeader->payloadType;
-		if(destID == myID){
 #if OMAC_DEBUG_PRINTF_ACKREC
 		hal_printf("ACK Received sourceID = %u, destID = %u   \r\n", sourceID, destID);
 #endif
+		if(destID == myID){
 			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
 				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
 #ifdef OMAC_DEBUG_GPIO

@@ -940,6 +940,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 	//3) If the sourceID is equal to the destination of the original message
 	//
 
+	hal_printf("A\r\n");
 #if OMAC_SEND_DEBUGGING_FOR_MF
 		hal_printf("A\r\n");
 #endif
