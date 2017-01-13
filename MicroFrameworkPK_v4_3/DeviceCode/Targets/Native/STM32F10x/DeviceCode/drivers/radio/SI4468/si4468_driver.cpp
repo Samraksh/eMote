@@ -225,7 +225,7 @@ static HAL_CONTINUATION rx_callback_continuation;
 static HAL_CONTINUATION int_defer_continuation;
 
 static unsigned isInit = 0;
-static int si446x_channel = 0;
+static int si446x_channel = 2;
 static unsigned tx_power = 0;
 static volatile UINT64 rx_timestamp;
 
