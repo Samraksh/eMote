@@ -974,7 +974,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 		VirtualTimerReturnMessage rm;
 
 #if	OMAC_DEBUG_PRINTF_PACKET_ACK_RX_SUCCESS
-		if(m_outgoingEntryPtr){
+		if(m_outgoingEntryPtr && m_outgoingEntryPtr_dest != 0){
 			hal_printf("ACK_RX_SUCCESS dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
 					, m_outgoingEntryPtr->GetHeader()->dest
 					, m_outgoingEntryPtr->GetHeader()->payloadType
@@ -1013,7 +1013,11 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 void DataTransmissionHandler::PostExecuteEvent(){
 #if OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
 	if(txhandler_state != DTS_RECEIVEDDATAACK && txhandler_state != DTS_RECEIVEDDATAACK){
-		if(m_outgoingEntryPtr){
+#ifdef OMAC_DEBUG_GPIO //Mark 6 Before  Initiating Send from DTH
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+#endif
+		if(m_outgoingEntryPtr && m_outgoingEntryPtr_dest != 0){
 			hal_printf("ACK RX FAIL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
 					, m_outgoingEntryPtr->GetHeader()->dest
 					, m_outgoingEntryPtr->GetHeader()->payloadType
@@ -1027,7 +1031,11 @@ void DataTransmissionHandler::PostExecuteEvent(){
 #endif
 	if(txhandler_state == DTS_WAITING_FOR_ACKS){
 #if OMAC_DEBUG_PRINTF_PACKET_ACK_RX_FAIL
-		if(m_outgoingEntryPtr){
+#ifdef OMAC_DEBUG_GPIO //Mark 6 Before  Initiating Send from DTH
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+#endif
+		if(m_outgoingEntryPtr && m_outgoingEntryPtr_dest != 0){
 			hal_printf("ACK RX FAIL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
 					, m_outgoingEntryPtr->GetHeader()->dest
 					, m_outgoingEntryPtr->GetHeader()->payloadType
