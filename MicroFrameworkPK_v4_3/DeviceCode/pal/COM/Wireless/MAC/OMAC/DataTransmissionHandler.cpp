@@ -247,6 +247,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	//Check all Neighbors that have a packet in the queue
 	isDataPacketScheduled = false;
 	m_outgoingEntryPtr_dest = 0;
+	m_outgoingEntryPtr = NULL;
 	UINT64 cur_remMicroSecnextTX, remMicroSecnextTX = MAX_UINT64;
 	for(UINT8 i = 0; i < MAX_NEIGHBORS ; ++i){
 		if(g_NeighborTable.Neighbor[i].neighborStatus != Dead){
