@@ -296,9 +296,9 @@ void DataReceptionHandler::HandleRadioInterrupt(){ // This is the beginning of a
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );*/
 	}
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, PACKET_PERIOD_FOR_RECEPTION_HANDLER, TRUE, OMACClockSpecifier );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, g_OMAC.MAX_PACKET_RX_DURATION_MICRO, TRUE, OMACClockSpecifier );
 	m_lastScheduledOriginTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-	m_lastScheduledTargetTime = m_lastScheduledOriginTime + 8 * PACKET_PERIOD_FOR_RECEPTION_HANDLER;
+	m_lastScheduledTargetTime = m_lastScheduledOriginTime + 8 * g_OMAC.MAX_PACKET_RX_DURATION_MICRO;
 	if(rm != TimerSupported){
 		/*CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
