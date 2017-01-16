@@ -1018,14 +1018,16 @@ void DataTransmissionHandler::PostExecuteEvent(){
 	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
 #endif
 		if(m_outgoingEntryPtr && m_outgoingEntryPtr_dest != 0){
-			hal_printf("ACK RX FAIL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
+			hal_printf("DTH:UEPE dest= %u payloadType= %u, flags = %u, Retry Attempts = %u, txhandler_state= %u \r\n"
 					, m_outgoingEntryPtr->GetHeader()->dest
 					, m_outgoingEntryPtr->GetHeader()->payloadType
 					, m_outgoingEntryPtr->GetHeader()->flags
-					, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
+					, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts()
+					,txhandler_state
+					);
 		}
 		else{
-			hal_printf("ACK RX FAIL NO m_outgoingEntryPtr \r\n");
+			hal_printf("DTH:UEPE NO m_outgoingEntryPtr, txhandler_state= %u \r\n", txhandler_state);
 		}
 	}
 #endif
