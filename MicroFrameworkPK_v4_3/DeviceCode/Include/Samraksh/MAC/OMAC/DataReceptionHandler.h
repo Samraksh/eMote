@@ -21,8 +21,21 @@
 
 #define OMAC_WAKEUP_DEBUGGING_FOR_MF 0
 
+#define OMAC_DRH_DEBUG_UNEXPECTED_POST_EXECUTE 1
+
 #ifndef DATARECEPTIONHANDLER_H_
 #define DATARECEPTIONHANDLER_H_
+
+enum DRH_States{
+	DRS_EXECUTE_START = 0,
+	DRS_RX_START,
+	DRS_RX_END,
+	DRS_TX_START,
+	DRS_TX_END,
+	DRS_TX_POST_EXECUTE,
+	DRS_RADIO_START_FAIl,
+	DRS_TX_FAIL,
+};
 
 /*
  *
@@ -40,7 +53,7 @@ public:
 	UINT64 m_lastScheduledTargetTime;
 	UINT16 m_lastRXNodeId;
 	bool m_isreceiving;
-	UINT8 m_receptionstate;
+	DRH_States m_receptionstate;
 	UINT64 lastwakeupSlotUpdateTimeinTicks;
 
 	UINT64 m_scheduledRXTime_in_own_clock_ticks;
