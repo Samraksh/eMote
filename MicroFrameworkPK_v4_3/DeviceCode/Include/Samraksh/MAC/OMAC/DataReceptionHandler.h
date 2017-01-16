@@ -44,6 +44,9 @@ class DataReceptionHandler: public EventHandler {
 	UINT8 RadioID;
 	UINT8 MacID;
 public:
+	UINT64 m_scheduledTimer_in_ticks;
+	UINT64 m_curTime_in_ticks;
+
 	UINT16	m_nextSeed, m_mask; // m_nextSeed stores the next seed to be used in calculating the next wakeup slot and the m_mask is used as a mask in the pseduo random function
 	UINT64 m_nextwakeupSlot;//This variable stores the wakeup time in absolute slot number
 	UINT32 m_seedUpdateIntervalinSlots;//Frame Length. One reception slot is selected among this many number of slots
