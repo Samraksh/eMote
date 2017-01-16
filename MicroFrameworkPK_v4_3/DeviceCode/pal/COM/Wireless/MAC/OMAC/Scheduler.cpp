@@ -314,6 +314,9 @@ void OMACScheduler::PostExecution(){
 
 void OMACScheduler::FailsafeStop(){
 	VirtualTimerReturnMessage rm;
+#if OMAC_DEBUG_PRINTF_FAILSAFE_STOP
+	hal_printf("FAILSAFE_STOP m_state = %u \r\n", m_state);
+#endif
 	bool rv = false;
 	switch(m_state) {
 		case I_DATA_SEND_PENDING:

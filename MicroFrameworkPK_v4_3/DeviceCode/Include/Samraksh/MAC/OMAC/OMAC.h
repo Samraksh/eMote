@@ -37,6 +37,8 @@
 #define OMAC_DEBUG_PRINTF_TS_RX 0
 #define OMAC_DEBUG_PRINTF_TSREQ_TX 0
 
+#define OMAC_DEBUG_PRINTF_FAILSAFE_STOP 0
+
 #if defined(TWO_NODES_TX_RX)
 
 #define def_Neighbor2beFollowed
