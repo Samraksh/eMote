@@ -20,16 +20,16 @@ void PublicDataRxCallback(void * param){
 //	m_TimeDiff_in_micros = g_OMAC.m_Clock.ConvertTickstoMicroSecs(m_curTime_in_ticks - m_scheduledTimer_in_ticks);
 	if(g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_scheduledTimer_in_ticks > g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_curTime_in_ticks){ //Check for early firing from the timer
 //		hal_printf("DTH::EARLY FIRING PEE!! m_scheduledTimer_in_ticks = %llu, m_curTime_in_ticks = %llu",m_scheduledTimer_in_ticks,m_curTime_in_ticks  );
-		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 		 if(rm != TimerSupported) {
 		 SOFT_BREAKPOINT();
 		 }
 		UINT64 rem_time_micros = g_OMAC.m_Clock.ConvertTickstoMicroSecs( g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_scheduledTimer_in_ticks - g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_curTime_in_ticks);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, rem_time_micros, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, rem_time_micros, TRUE, OMACClockSpecifier );
 		 if(rm != TimerSupported) {
 		 SOFT_BREAKPOINT();
 		 }
-		 rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+		 rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 		 if(rm != TimerSupported) {
 			 SOFT_BREAKPOINT();
 		 }
