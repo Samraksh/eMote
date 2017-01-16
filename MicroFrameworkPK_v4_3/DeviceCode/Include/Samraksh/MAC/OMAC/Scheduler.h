@@ -31,6 +31,10 @@
  *
  */
 class OMACScheduler{
+	public:
+	UINT64 m_scheduledTimer_in_ticks;
+	UINT64 m_curTime_in_ticks;
+
 private:
 
 	UINT8 radioID;
