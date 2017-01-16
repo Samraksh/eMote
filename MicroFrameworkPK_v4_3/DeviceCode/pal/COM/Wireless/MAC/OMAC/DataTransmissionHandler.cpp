@@ -26,11 +26,32 @@ extern OMACType g_OMAC;
 
 
 void PublicDataTxCallback(void * param){
-	if(	FAST_RECOVERY) {
-		g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendRetry();
+	VirtualTimerReturnMessage rm;
+	g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.m_curTime_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+//	m_TimeDiff_in_micros = g_OMAC.m_Clock.ConvertTickstoMicroSecs(m_curTime_in_ticks - m_scheduledTimer_in_ticks);
+	if(g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.m_scheduledTimer_in_ticks > g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.m_curTime_in_ticks){ //Check for early firing from the timer
+//		hal_printf("DTH::EARLY FIRING PEE!! m_scheduledTimer_in_ticks = %llu, m_curTime_in_ticks = %llu",m_scheduledTimer_in_ticks,m_curTime_in_ticks  );
+		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+		 if(rm != TimerSupported) {
+		 SOFT_BREAKPOINT();
+		 }
+		UINT64 rem_time_micros = g_OMAC.m_Clock.ConvertTickstoMicroSecs( g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.m_scheduledTimer_in_ticks - g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.m_curTime_in_ticks);
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, rem_time_micros, TRUE, OMACClockSpecifier );
+		 if(rm != TimerSupported) {
+		 SOFT_BREAKPOINT();
+		 }
+		 rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+		 if(rm != TimerSupported) {
+			 SOFT_BREAKPOINT();
+		 }
 	}
 	else{
-		g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
+		if(	FAST_RECOVERY) {
+			g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendRetry();
+		}
+		else{
+			g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
+		}
 	}
 }
 
