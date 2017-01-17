@@ -33,16 +33,16 @@ void PublicDataTxCallback(void * param){
 //		hal_printf("DTH::EARLY FIRING PEE!! m_scheduledTimer_in_ticks = %llu, m_curTime_in_ticks = %llu",m_scheduledTimer_in_ticks,m_curTime_in_ticks  );
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 		 if(rm != TimerSupported) {
-		 SOFT_BREAKPOINT();
+		 //SOFT_BREAKPOINT();
 		 }
 		UINT64 rem_time_micros = g_OMAC.m_Clock.ConvertTickstoMicroSecs( g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.m_scheduledTimer_in_ticks - g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.m_curTime_in_ticks);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, rem_time_micros, TRUE, OMACClockSpecifier );
 		 if(rm != TimerSupported) {
-		 SOFT_BREAKPOINT();
+		 //SOFT_BREAKPOINT();
 		 }
 		 rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		 if(rm != TimerSupported) {
-			 SOFT_BREAKPOINT();
+			 //SOFT_BREAKPOINT();
 		 }
 	}
 	else{
@@ -623,7 +623,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		}
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, g_OMAC.MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
@@ -631,13 +631,13 @@ m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Cl
 m_scheduledTimer_in_ticks2 = m_scheduledTimer_in_ticks;
 
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, FAST_RECOVERY_WAIT_PERIOD_MICRO, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER); 
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 
@@ -684,19 +684,19 @@ m_scheduledTimer_in_ticks2 = m_scheduledTimer_in_ticks;
 		//Stop execution
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
  
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER); 
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -778,14 +778,14 @@ void DataTransmissionHandler::ExecuteEvent(){
 		//OMAC_HAL_PRINTF("DataTransmissionHandler::ExecuteEvent Radio not in RX state\r\n");
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
  
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
@@ -869,19 +869,19 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			txhandler_state = DTS_RECEIVEDDATAACK;
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
  
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER); 
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 #ifdef OMAC_DEBUG_GPIO
@@ -950,14 +950,14 @@ m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Cl
 			txhandler_state = DTS_WAITING_FOR_ACKS;
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
  
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
@@ -992,19 +992,19 @@ m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Cl
 	else if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, g_OMAC.ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier );
 m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( g_OMAC.ACK_RX_MAX_DURATION_MICRO);
  
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
  //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER); 
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 		if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
@@ -1025,12 +1025,12 @@ m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Cl
 m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
  
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
  //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER); 
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -1064,7 +1064,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 	}
 #endif
 
-		hal_printf("A\r\n");
+
 	#if OMAC_SEND_DEBUGGING_FOR_MF
 			hal_printf("A\r\n");
 	#endif
@@ -1111,7 +1111,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 		if(rm == TimerSupported){
@@ -1119,12 +1119,12 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
  
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
  //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER); 
  if(rm != TimerSupported) { 
- SOFT_BREAKPOINT(); 
+ //SOFT_BREAKPOINT();
  } 
 
 			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
