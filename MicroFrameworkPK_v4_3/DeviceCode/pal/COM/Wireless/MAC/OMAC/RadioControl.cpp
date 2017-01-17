@@ -154,16 +154,8 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 
 		if( (header->flags & TIMESTAMPED_FLAG) ){
 			//Convert TimeStamp to high freq clock
-			UINT64 TS = msg->GetMetaData()->GetReceiveTimeStamp();
-
-			GCTIT2 = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
-			GCTIT3 = GCTIT2 * OMACClocktoSystemClockFreqRatio;
-			GCTIT4 = GCTIT3 - g_OMAC.m_Clock.m_first_clock_reading;
-			GCTIT = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-
-			UINT64 time_elapsed_since_TS = GCTIT - TS;
-			UINT64 y = HAL_Time_CurrentTicks();
-			UINT64 event_time = y - time_elapsed_since_TS;
+			UINT64 time_elapsed_since_TS = g_OMAC.m_Clock.GetCurrentTimeinTicks() - msg->GetMetaData()->GetReceiveTimeStamp();
+			UINT64 event_time = HAL_Time_CurrentTicks() - time_elapsed_since_TS;
 			//msg->GetMetaData()->SetReceiveTimeStamp((INT64)event_time);
 			if((g_OMAC.isSendDone)){//||(g_OMAC.radioName != SI4468_SPI2)){
 				//Reset flag just before sending
