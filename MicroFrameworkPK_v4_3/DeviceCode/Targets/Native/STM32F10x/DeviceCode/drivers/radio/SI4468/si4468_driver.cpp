@@ -43,7 +43,7 @@ enum { SI_DUMMY=0, };
 // Yes these are strings and yes I'm a terrible person.
 // These are hex CPU serial numbers
 enum { serial_max_dotnow = 4, serial_max_wwf2=4, serial_per = 25 };
-const char dotnow_serial_numbers[serial_max_dotnow][serial_per] = { "392dd9054355353848400843", "3400d805414d303635341043", "3400d905414d303640461443", "3400d605414d303629401043" };
+const char dotnow_serial_numbers[serial_max_dotnow][serial_per] = { "392dd9054355353848400843", "3400d805414d303631321043", "3400d905414d303640461443", "3400d605414d303629401043" };
 const char wwf2_serial_numbers[serial_max_wwf2][serial_per]     = { "05de00333035424643163542", "05d900333035424643162544", "3300d9054642353041381643", "3300df054642353040531643" };
 // end serial number list.
 
@@ -577,20 +577,23 @@ static int am_i_wwf(void) {
 		hal_snprintf(&my_serial[j], 3, "%.2x", cpuserial[i]);
 	}
 
-	si446x_debug_print(DEBUG03, "SI446X: Found Serial Number 0x%s\r\n", my_serial);
 
 	// check against all other serials.
 	// This is a brutal ugly O(n) search.
 	for(int i=0; i<serial_max_dotnow; i++) {
-		if ( strcmp( dotnow_serial_numbers[i], my_serial ) == 0 )
+		if ( strcmp( dotnow_serial_numbers[i], my_serial ) == 0 ){
+			si446x_debug_print(ERR100, "SI446X: Found Serial Number am_i_wwf()=0 0x%s\r\n", my_serial);
 			return 0;
+		}
 	}
 
 	for(int i=0; i<serial_max_wwf2; i++) {
-		if ( strcmp( wwf2_serial_numbers[i], my_serial ) == 0 )
+		if ( strcmp( wwf2_serial_numbers[i], my_serial ) == 0 ){
+			si446x_debug_print(ERR100, "SI446X: Found Serial Number am_i_wwf()=2 0x%s\r\n", my_serial);
 			return 2;
+		}
 	}
-
+	si446x_debug_print(ERR100, "SI446X: Found Serial Number am_i_wwf()=1 0x%s\r\n", my_serial);
 	return 1;
 #endif
 }
