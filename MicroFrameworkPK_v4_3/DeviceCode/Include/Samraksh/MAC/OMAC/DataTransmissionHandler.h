@@ -29,6 +29,8 @@
 #define OMAC_DTH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS 259*8
 #endif
 
+#define OMAC_SEND_DEBUGGING_FOR_MF 0
+
 //#include "Scheduler.h"
 enum DataTransmissionHandlerStates{
 	DTS_EXECUTE_START,
@@ -78,8 +80,13 @@ class DataTransmissionHandler: public EventHandler {
 
 	UINT64 m_scheduledTXTime_in_neigh_clock_ticks;
 	UINT64 m_scheduledTXTime_in_own_clock_ticks;
+public:
+	UINT64 m_scheduledTimer_in_ticks;
+	UINT64 m_scheduledTimer_in_ticks2;
+	UINT64 m_curTime_in_ticks;
+	UINT64 m_TimeDiff_in_micros;
 
-
+private:
 	BOOL m_RANDOM_BACKOFF;
 	UINT16 m_backoff_seed;
 	UINT16 m_backoff_mask;

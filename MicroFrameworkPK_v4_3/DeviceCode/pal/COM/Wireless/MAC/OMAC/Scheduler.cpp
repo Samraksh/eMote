@@ -24,7 +24,24 @@ void PublicSchedulerTaskHandler1(void * param){
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER);
-	////ASSERT_SP(rm == TimerSupported);
+
+	g_OMAC.m_omac_scheduler.m_curTime_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+	if(g_OMAC.m_omac_scheduler.m_scheduledTimer_in_ticks > g_OMAC.m_omac_scheduler.m_curTime_in_ticks){ //Check for early firing from the timer
+		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER);
+		 if(rm != TimerSupported) {
+		 SOFT_BREAKPOINT();
+		 }
+		UINT64 rem_time_micros = g_OMAC.m_Clock.ConvertTickstoMicroSecs( g_OMAC.m_omac_scheduler.m_scheduledTimer_in_ticks - g_OMAC.m_omac_scheduler.m_curTime_in_ticks);
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, rem_time_micros, TRUE, OMACClockSpecifier );
+		 if(rm != TimerSupported) {
+		 SOFT_BREAKPOINT();
+		 }
+		 rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
+		 if(rm != TimerSupported) {
+			 SOFT_BREAKPOINT();
+		 }
+	}
+
 
 	if((g_OMAC.m_omac_scheduler.SchedulerINUse)){
 		g_OMAC.m_omac_scheduler.SchedulerINUse = false;
@@ -220,6 +237,7 @@ void OMACScheduler::ScheduleNextEvent(){
 	SchedulerINUse = true;
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, nextWakeupTimeInMicSec, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
 	//ASSERT_SP(rm == TimerSupported);
+	m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( nextWakeupTimeInMicSec);
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
 	while(rm != TimerSupported){
 		hal_printf("CANNOT START VIRT_TIMER_OMAC_SCHEDULER");
@@ -314,6 +332,9 @@ void OMACScheduler::PostExecution(){
 
 void OMACScheduler::FailsafeStop(){
 	VirtualTimerReturnMessage rm;
+#if OMAC_DEBUG_PRINTF_FAILSAFE_STOP
+	hal_printf("FAILSAFE_STOP m_state = %u \r\n", m_state);
+#endif
 	bool rv = false;
 	switch(m_state) {
 		case I_DATA_SEND_PENDING:

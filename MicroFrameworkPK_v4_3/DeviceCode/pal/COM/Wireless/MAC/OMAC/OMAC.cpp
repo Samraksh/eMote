@@ -43,10 +43,10 @@ BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(DATA_RX_INTERRUPT_PIN, TRUE);
 #endif
-	if(g_OMAC.m_omac_scheduler.m_state == I_DATA_RCV_PENDING && Interrupt==StartOfReception){
+	if( g_OMAC.m_omac_scheduler.m_execution_started && g_OMAC.m_omac_scheduler.m_state == I_DATA_RCV_PENDING && Interrupt==StartOfReception){
 		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleRadioInterrupt();
 	}
-	else if(g_OMAC.m_omac_scheduler.m_state == I_DISCO_PENDING && Interrupt==StartOfReception){
+	else if( g_OMAC.m_omac_scheduler.m_execution_started && g_OMAC.m_omac_scheduler.m_state == I_DISCO_PENDING && Interrupt==StartOfReception){
 		g_OMAC.m_omac_scheduler.m_DiscoveryHandler.HandleRadioInterrupt();
 	}
 #ifdef OMAC_DEBUG_GPIO
@@ -67,35 +67,42 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 	//Set flag when send is complete
 	g_OMAC.isSendDone = true;
 
-	//Demutiplex packets received based on type
-	switch(rcv_msg->GetHeader()->payloadType){
-		case MFM_OMAC_DISCOVERY:
-			g_OMAC.m_omac_scheduler.m_DiscoveryHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize(),status);
-			break;
-		case MFM_OMAC_ROUTING:
-			break;
-		case MFM_OMAC_NEIGHBORHOOD:
-			break;
-		case MFM_TIMESYNC:
-			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
-			CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
-			break;
-		case MFM_OMAC_DATA_ACK:
-			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
-				if(g_OMAC.m_omac_scheduler.m_state == I_DATA_RCV_PENDING ){
-					g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
+	if(Size == sizeof(softwareACKHeader)){ //For not this type is not expected.
+		if(g_OMAC.m_omac_scheduler.m_execution_started && g_OMAC.m_omac_scheduler.m_state == I_DATA_RCV_PENDING){
+			g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
+		}
+	}
+	else{
+		//Demutiplex packets received based on type
+		switch(rcv_msg->GetHeader()->payloadType){
+			case MFM_OMAC_DISCOVERY:
+				g_OMAC.m_omac_scheduler.m_DiscoveryHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize(),status);
+				break;
+			case MFM_OMAC_ROUTING:
+				break;
+			case MFM_OMAC_NEIGHBORHOOD:
+				break;
+			case MFM_TIMESYNC:
+				CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
+				CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
+				break;
+			case MFM_OMAC_DATA_ACK:
+				if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
+					if(g_OMAC.m_omac_scheduler.m_execution_started && g_OMAC.m_omac_scheduler.m_state == I_DATA_RCV_PENDING ){
+						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
+					}
 				}
-			}
-			break;
-		case MFM_DATA:
-		default:
-			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
-			if(g_OMAC.m_omac_scheduler.m_state == I_DATA_SEND_PENDING){
-				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendACKHandler(rcv_msg, radioAckStatus);
-			}
-			CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
-			break;
-	};
+				break;
+			case MFM_DATA:
+			default:
+				CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
+				if(g_OMAC.m_omac_scheduler.m_execution_started && g_OMAC.m_omac_scheduler.m_state == I_DATA_SEND_PENDING && radioAckStatus == NetworkOperations_Success){
+					g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendACKHandler(rcv_msg, radioAckStatus);
+				}
+				CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
+				break;
+		}
+	}
 
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(DATA_TX_ACK_PIN, FALSE);
@@ -154,6 +161,7 @@ DeviceStatus OMACType::SetOMACParametersBasedOnRadioName(UINT8 radioName){
 			TX_TIME_PER_BIT_IN_MICROSEC = 3.9;	/*** (1/256kbps) ***/
 			RETRY_RANDOM_BACKOFF_DELAY_MICRO = (RANDOM_BACKOFF_COUNT_MAX*DELAY_DUE_TO_CCA_MICRO);
 			MAX_PACKET_TX_DURATION_MICRO = (IEEE802_15_4_FRAME_LENGTH*BITS_PER_BYTE*TX_TIME_PER_BIT_IN_MICROSEC) + TX_BUFFER;	//5*MILLISECINMICSEC;
+			MAX_PACKET_RX_DURATION_MICRO = MAX_PACKET_TX_DURATION_MICRO + RX_BUFFER;
 			ACK_RX_MAX_DURATION_MICRO = (sizeof(softwareACKHeader)*BITS_PER_BYTE*TX_TIME_PER_BIT_IN_MICROSEC) + RX_BUFFER;	//20*MILLISECINMICSEC;
 			DISCO_PACKET_TX_TIME_MICRO = (sizeof(DiscoveryMsg_t)*BITS_PER_BYTE*TX_TIME_PER_BIT_IN_MICROSEC) + DISCO_BUFFER;	//1*MILLISECINMICSEC;
 			DISCO_BEACON_TX_MAX_DURATION_MICRO = 1.2*MILLISECINMICSEC;
@@ -204,6 +212,7 @@ DeviceStatus OMACType::SetOMACParametersBasedOnRadioName(UINT8 radioName){
 			TX_TIME_PER_BIT_IN_MICROSEC = 25;	/*** (1/40kbps) ***/
 			RETRY_RANDOM_BACKOFF_DELAY_MICRO = (RANDOM_BACKOFF_COUNT_MAX*DELAY_DUE_TO_CCA_MICRO);
 			MAX_PACKET_TX_DURATION_MICRO = (IEEE802_15_4_FRAME_LENGTH*BITS_PER_BYTE*TX_TIME_PER_BIT_IN_MICROSEC) + TX_BUFFER;	//27.6*MILLISECINMICSEC;
+			MAX_PACKET_RX_DURATION_MICRO = MAX_PACKET_TX_DURATION_MICRO;
 			ACK_RX_MAX_DURATION_MICRO = (sizeof(softwareACKHeader)*BITS_PER_BYTE*TX_TIME_PER_BIT_IN_MICROSEC) + RX_BUFFER;	//8*MILLISECINMICSEC;
 			DISCO_PACKET_TX_TIME_MICRO = (sizeof(DiscoveryMsg_t)*BITS_PER_BYTE*TX_TIME_PER_BIT_IN_MICROSEC) + DISCO_BUFFER;	//10*MILLISECINMICSEC;
 			DISCO_BEACON_TX_MAX_DURATION_MICRO = 10*MILLISECINMICSEC;
@@ -288,6 +297,9 @@ void OMACType::SendRXPacketToUpperLayers(Message_15_4_t *msg, UINT8 payloadType)
 	}
 	if(multi_m_rxAckHandler != NULL) {
 		(*multi_m_rxAckHandler)(msg, payloadType);
+#if OMAC_RECEIVE_DEBUGGING_FOR_MF
+		hal_printf("R\r\n");
+#endif
 	}
 }
 
@@ -321,7 +333,7 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 	//Initialize yourself first (you being the MAC)
 	if(this->Initialized){
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("OMACType Error: Already Initialized!! My address: %d \r\n", g_OMAC.GetMyAddress());
+		OMAC_HAL_PRINTF("OMACType Error: Already Initialized!! My address: %d\r\n", g_OMAC.GetMyAddress());
 #endif
 	}
 	else {
@@ -369,7 +381,7 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 		SetOMACParametersBasedOnRadioName(this->radioName);
 
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("Initializing OMACType: My address: %d \r\n", g_OMAC.GetMyAddress());
+		OMAC_HAL_PRINTF("Initializing OMACType: My address: %d\r\n", g_OMAC.GetMyAddress());
 #endif
 		SetMyAddress(CPU_Radio_GetAddress(radioName));
 		SetMyID(CPU_Radio_GetAddress(radioName));
@@ -477,10 +489,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 		RadioAddress_t sourceID = swAckHeader->src;
 		RadioAddress_t destID = swAckHeader->dest;
 		UINT8 payloadType = swAckHeader->payloadType;
-		if(destID == myID){
 #if OMAC_DEBUG_PRINTF_ACKREC
-		hal_printf("ACK Received sourceID = %u, destID = %u    \r\n", sourceID, destID);
+		hal_printf("ACK Received sourceID = %u, destID = %u   \r\n", sourceID, destID);
 #endif
+		if(destID == myID){
 			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
 				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
 #ifdef OMAC_DEBUG_GPIO
@@ -499,9 +511,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 	UINT16 maxPayload = OMACType::GetMaxPayload();
 	//if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata) > maxPayload) ){
 	if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t) > maxPayload) ){
-		//OMAC_HAL_PRINTF("CSMA Receive Error: Packet is too big: %d  \r\n", Size+sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
+		//OMAC_HAL_PRINTF("CSMA Receive Error: Packet is too big: %d \r\n", Size+sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("CSMA Receive Error: Packet is too big: %d  \r\n", Size+sizeof(IEEE802_15_4_Header_t));
+		OMAC_HAL_PRINTF("CSMA Receive Error: Packet is too big: %d \r\n", Size+sizeof(IEEE802_15_4_Header_t));
 #endif
 		return msg;
 	}
@@ -539,7 +551,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 			}
 
 #if OMAC_DEBUG_PRINTF_PACKETREC
-		hal_printf("OMACType::ReceiveHandler = sourceID = %u, destID = %u payloadType = %u flags = %u  \r\n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags);
+		hal_printf("OMACType::ReceiveHandler = sourceID = %u, destID = %u payloadType = %u flags = %u \r\n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags);
 #endif
 
 
@@ -622,21 +634,21 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 //					}
 					location_in_packet_payload += data_msg->size + DataMsgOverhead;
 #ifdef OMAC_DEBUG_PRINTF
-					OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_ROUTING \r\n");
+					OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_ROUTING\r\n");
 #endif
 					break;
 				}
 				case MFM_OMAC_NEIGHBORHOOD://Not processed
 				{
 #ifdef OMAC_DEBUG_PRINTF
-					OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_NEIGHBORHOOD \r\n");
+					OMAC_HAL_PRINTF("OMACType::ReceiveHandler MFM_NEIGHBORHOOD\r\n");
 #endif
 					break;
 				}
 				case MFM_OMAC_TIMESYNCREQ:
 				{
 					//TODO: Commenting out below code for SI4468 radio. Needs to be re-visited.
-					if(g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING)){
+					if(g_OMAC.m_omac_scheduler.m_execution_started && g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING)){
 						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
 					}
 #ifdef OMAC_DEBUG_GPIO

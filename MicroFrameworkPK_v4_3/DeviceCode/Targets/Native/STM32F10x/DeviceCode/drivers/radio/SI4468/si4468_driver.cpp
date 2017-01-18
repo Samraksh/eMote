@@ -355,14 +355,14 @@ static void rx_cont_do(void *arg) {
 	int currentPayloadType = header->payloadType;
 
 	//Send ack from radio itself.
-	if(__SI4468_SOFTWARE_ACK__){
-		if(currentPayloadType == MFM_OMAC_TIMESYNCREQ || currentPayloadType == MFM_DATA || currentPayloadType <= TYPE31){
-			if(currentPayloadType == MFM_DATA){
-				si446x_debug_print(DEBUG01, "rx_cont_do; sendSoftwareAck to %d; currentPayloadType: %d\n", header->src, currentPayloadType);
-			}
-			sendSoftwareAck(header->src);
-		}
-	}
+//	if(__SI4468_SOFTWARE_ACK__){
+//		if(currentPayloadType == MFM_OMAC_TIMESYNCREQ || currentPayloadType == MFM_DATA || currentPayloadType <= TYPE31){
+//			if(currentPayloadType == MFM_DATA){
+//				si446x_debug_print(DEBUG01, "rx_cont_do; sendSoftwareAck to %d; currentPayloadType: %d\n", header->src, currentPayloadType);
+//			}
+//			sendSoftwareAck(header->src);
+//		}
+//	}
 
 	// I guess this swaps rx_msg_ptr as well???
 	//(rx_msg_ptr->GetHeader())->SetLength(size);

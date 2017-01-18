@@ -161,7 +161,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 				//Reset flag just before sending
 				g_OMAC.isSendDone = false;
 	#ifdef OMAC_DEBUG_GPIO
-				CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
+				CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE ); //Mark 1
 
 				if(OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER != DISABLED_PIN  && g_OMAC.m_omac_scheduler.m_state == I_DATA_SEND_PENDING && g_OMAC.m_omac_scheduler.m_execution_started ){
 					CPU_GPIO_SetPinState( OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER, !CPU_GPIO_GetPinState(OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER) );
@@ -171,6 +171,16 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 
 	#endif
 				returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)event_time);
+
+#ifdef OMAC_DEBUG_GPIO
+			if(OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER != DISABLED_PIN  && g_OMAC.m_omac_scheduler.m_state == I_DATA_SEND_PENDING && g_OMAC.m_omac_scheduler.m_execution_started ){
+				CPU_GPIO_SetPinState( OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER, !CPU_GPIO_GetPinState(OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER) );
+				CPU_GPIO_SetPinState( OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER, !CPU_GPIO_GetPinState(OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER) );
+			}
+
+
+#endif
+
 			}
 			else{
 				goto endOfSend;

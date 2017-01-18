@@ -19,8 +19,23 @@
 #define OMAC_DRXH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS 200*8
 #endif
 
+#define OMAC_WAKEUP_DEBUGGING_FOR_MF 0
+
+#define OMAC_DRH_DEBUG_UNEXPECTED_POST_EXECUTE 0
+
 #ifndef DATARECEPTIONHANDLER_H_
 #define DATARECEPTIONHANDLER_H_
+
+enum DRH_States{
+	DRS_EXECUTE_START = 0,
+	DRS_RX_START,
+	DRS_RX_END,
+	DRS_TX_START,
+	DRS_TX_END,
+	DRS_TX_POST_EXECUTE,
+	DRS_RADIO_START_FAIl,
+	DRS_TX_FAIL,
+};
 
 /*
  *
@@ -29,6 +44,9 @@ class DataReceptionHandler: public EventHandler {
 	UINT8 RadioID;
 	UINT8 MacID;
 public:
+	UINT64 m_scheduledTimer_in_ticks;
+	UINT64 m_curTime_in_ticks;
+
 	UINT16	m_nextSeed, m_mask; // m_nextSeed stores the next seed to be used in calculating the next wakeup slot and the m_mask is used as a mask in the pseduo random function
 	UINT64 m_nextwakeupSlot;//This variable stores the wakeup time in absolute slot number
 	UINT32 m_seedUpdateIntervalinSlots;//Frame Length. One reception slot is selected among this many number of slots
@@ -38,7 +56,7 @@ public:
 	UINT64 m_lastScheduledTargetTime;
 	UINT16 m_lastRXNodeId;
 	bool m_isreceiving;
-	UINT8 m_receptionstate;
+	DRH_States m_receptionstate;
 	UINT64 lastwakeupSlotUpdateTimeinTicks;
 
 	UINT64 m_scheduledRXTime_in_own_clock_ticks;
