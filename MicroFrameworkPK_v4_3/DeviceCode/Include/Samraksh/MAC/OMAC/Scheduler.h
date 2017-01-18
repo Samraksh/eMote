@@ -23,6 +23,10 @@
 
 //extern HALTimerManager gHalTimerManagerObject;
 
+
+#define OMAC_SCHEDULER_TIMER_TARGET_TIME_CORRECTION 1
+#define OMAC_SCEHDULER_EASY_DEBUG 0
+
 #define MAXSCHEDULERUPDATE 5000000
 #define DISCO_SLOT_GUARD 10
 
@@ -31,9 +35,11 @@
  *
  */
 class OMACScheduler{
+#if OMAC_SCHEDULER_TIMER_TARGET_TIME_CORRECTION
 	public:
 	UINT64 m_scheduledTimer_in_ticks;
 	UINT64 m_curTime_in_ticks;
+#endif
 
 private:
 
@@ -44,7 +50,6 @@ private:
 	UINT8 m_num_sleep_retry_attempts;
 
 public:
-	bool SchedulerINUse;
 
 	OMACSchedulerState_t m_state;		//The state of the scheduler
 	bool m_execution_started;
@@ -55,9 +60,10 @@ public:
 	OMACTimeSync m_TimeSyncHandler;
 	SeedGenerator m_seedGenerator;
 
+#if OMAC_SCEHDULER_EASY_DEBUG
 	UINT64 nextWakeupTimeInMicSec;
-
-	UINT64 m_InitializationTimeinTicks; //The time val
+#endif
+	//UINT64 m_InitializationTimeinTicks; //The time val
 
 
 	//BK The methods from this point on is in use for sure. The rest can be deleted.

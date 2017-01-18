@@ -12,6 +12,8 @@
 #include "Scheduler.h"
 #include <TinyCLR_Runtime.h>
 
+#define OMAC_DRH_TIMER_TARGET_TIME_CORRECTION 1
+
 #define OMAC_DRXH_DEBUG_LATEWAKEUP 0
 #define OMAC_DRXH_DEBUG_LATEWAKEUP_PIN_TOGGLING 0
 
@@ -43,25 +45,33 @@ enum DRH_States{
 class DataReceptionHandler: public EventHandler {
 	UINT8 RadioID;
 	UINT8 MacID;
+#if	OMAC_DRH_TIMER_TARGET_TIME_CORRECTION
 public:
 	UINT64 m_scheduledTimer_in_ticks;
 	UINT64 m_curTime_in_ticks;
-
+#endif
+public:
 	UINT16	m_nextSeed, m_mask; // m_nextSeed stores the next seed to be used in calculating the next wakeup slot and the m_mask is used as a mask in the pseduo random function
 	UINT64 m_nextwakeupSlot;//This variable stores the wakeup time in absolute slot number
 	UINT32 m_seedUpdateIntervalinSlots;//Frame Length. One reception slot is selected among this many number of slots
 
+#if OMAC_DRXH_DEBUG_LATEWAKEUP
 	UINT64 m_lastScheduledOriginTime;
-	UINT64 m_currtime;
 	UINT64 m_lastScheduledTargetTime;
-	UINT16 m_lastRXNodeId;
-	bool m_isreceiving;
-	DRH_States m_receptionstate;
-	UINT64 lastwakeupSlotUpdateTimeinTicks;
-
+//	UINT64 m_currtime;
 	UINT64 m_scheduledRXTime_in_own_clock_ticks;
+	UINT64 lastwakeupSlotUpdateTimeinTicks;
+#endif
 
-	Message_15_4_t m_ACKmsg ;
+
+	UINT16 m_lastRXNodeId;
+//	bool m_isreceiving;
+	DRH_States m_receptionstate;
+
+
+
+
+	//Message_15_4_t m_ACKmsg ;
 
 	void Initialize(UINT8 radioID, UINT8 macID);
 	UINT64 NextEvent();
