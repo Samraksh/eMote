@@ -21,7 +21,7 @@ void PublicSchedulerTaskHandlerFailsafe(void * param){
 }
 
 void PublicSchedulerTaskHandler1(void * param){
-
+#if OMAC_SCHEDULER_TIMER_TARGET_TIME_CORRECTION
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER);
 
@@ -41,12 +41,14 @@ void PublicSchedulerTaskHandler1(void * param){
 			 SOFT_BREAKPOINT();
 		 }
 	}
+	else{
+#endif
 
 
-	if((g_OMAC.m_omac_scheduler.SchedulerINUse)){
-		g_OMAC.m_omac_scheduler.SchedulerINUse = false;
-		g_OMAC.m_omac_scheduler.RunEventTask();
+	g_OMAC.m_omac_scheduler.RunEventTask();
+#if OMAC_SCHEDULER_TIMER_TARGET_TIME_CORRECTION
 	}
+#endif
 }
 
 void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
@@ -92,7 +94,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	m_DataTransmissionHandler.Initialize();
 	m_TimeSyncHandler.Initialize(radioID, macID);
 
-	m_InitializationTimeinTicks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+	//m_InitializationTimeinTicks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 
 	ScheduleNextEvent();
 }
@@ -105,7 +107,6 @@ void OMACScheduler::UnInitialize(){
 
 	// FIXME: alert other nodes?
 	VirtualTimerReturnMessage rm;
-	SchedulerINUse = false;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER);
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 }
@@ -148,8 +149,11 @@ void OMACScheduler::ScheduleNextEvent(){
 
 	UINT64 rxEventOffset = 0, txEventOffset = 0, beaconEventOffset = 0, timeSyncEventOffset=0, rxEventOffsetAdjust, txEventOffsetAdjust;
 	UINT64 curticks_rx, curticks_tx, curticks_beacon, curticks_timesync, curticks;
+#if OMAC_SCEHDULER_EASY_DEBUG
 	nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
-
+#else
+	UINT64 nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
+#endif
 
 	timeSyncEventOffset = m_TimeSyncHandler.NextEvent();
 	curticks_timesync =  g_OMAC.m_Clock.GetCurrentTimeinTicks();
@@ -234,10 +238,11 @@ void OMACScheduler::ScheduleNextEvent(){
 		m_state = I_IDLE ;
 	}
 
-	SchedulerINUse = true;
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, nextWakeupTimeInMicSec, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
 	//ASSERT_SP(rm == TimerSupported);
+#if OMAC_SCHEDULER_TIMER_TARGET_TIME_CORRECTION
 	m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( nextWakeupTimeInMicSec);
+#endif
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
 	while(rm != TimerSupported){
 		hal_printf("CANNOT START VIRT_TIMER_OMAC_SCHEDULER");

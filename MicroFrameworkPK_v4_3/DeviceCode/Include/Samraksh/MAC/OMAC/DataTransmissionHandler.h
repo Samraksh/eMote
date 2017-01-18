@@ -14,6 +14,8 @@
 #include "OMACConstants.h"
 #include "Handlers.h"
 
+#define OMAC_DTH_TIMER_TARGET_TIME_CORRECTION 1
+
 #define OMAC_DTH_DEBUG_PRINTF_PACKET_SEND 0
 
 #define OMAC_DTH_DEBUG_ReceiveDATAACK 0
@@ -76,16 +78,19 @@ class DataTransmissionHandler: public EventHandler {
 	BOOL isDataPacketScheduled;
 	UINT8 m_currentSlotRetryAttempt;
 
+#if OMAC_DTH_DEBUG_LATEWAKEUP
 	UINT64 m_scheduledFUTime_in_own_clock_micro;
 
 	UINT64 m_scheduledTXTime_in_neigh_clock_ticks;
 	UINT64 m_scheduledTXTime_in_own_clock_ticks;
+#endif
+#if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION
 public:
 	UINT64 m_scheduledTimer_in_ticks;
 	UINT64 m_scheduledTimer_in_ticks2;
 	UINT64 m_curTime_in_ticks;
 	UINT64 m_TimeDiff_in_micros;
-
+#endif
 private:
 	BOOL m_RANDOM_BACKOFF;
 	UINT16 m_backoff_seed;

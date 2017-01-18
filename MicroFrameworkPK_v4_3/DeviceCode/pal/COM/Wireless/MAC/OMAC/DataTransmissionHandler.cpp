@@ -26,6 +26,7 @@ extern OMACType g_OMAC;
 
 
 void PublicDataTxCallback(void * param){
+#if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION
 	VirtualTimerReturnMessage rm;
 	g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.m_curTime_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 //	m_TimeDiff_in_micros = g_OMAC.m_Clock.ConvertTickstoMicroSecs(m_curTime_in_ticks - m_scheduledTimer_in_ticks);
@@ -46,13 +47,16 @@ void PublicDataTxCallback(void * param){
 		 }
 	}
 	else{
+#endif
 		if(	FAST_RECOVERY) {
 			g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendRetry();
 		}
 		else{
 			g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
 		}
+#if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION
 	}
+#endif
 }
 
 /*void PublicDataTxPostExecCallback(void * param){
@@ -156,11 +160,12 @@ UINT64 DataTransmissionHandler::CalculateNextTxMicro(UINT16 dest){
 	if(neigh_ptr == NULL) {
 		return nextTXmicro;
 	}
+#if OMAC_DTH_DEBUG_LATEWAKEUP
 	m_scheduledTXTime_in_neigh_clock_ticks = neigh_ptr->nextwakeupSlot * SLOT_PERIOD_TICKS;
 	m_scheduledTXTime_in_own_clock_ticks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, m_scheduledTXTime_in_neigh_clock_ticks);
 	//UINT64 nextTXmicro = g_OMAC.m_Clock.ConvertTickstoMicroSecs(nextTXTicks) - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
-
-	nextTXmicro = g_OMAC.m_Clock.SubstractMicroSeconds( g_OMAC.m_Clock.ConvertTickstoMicroSecs(m_scheduledTXTime_in_own_clock_ticks) , (g_OMAC.RADIO_TURN_ON_DELAY_TX+g_OMAC.DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX));
+#endif
+	nextTXmicro = g_OMAC.m_Clock.SubstractMicroSeconds( g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, neigh_ptr->nextwakeupSlot * SLOT_PERIOD_TICKS)) , (g_OMAC.RADIO_TURN_ON_DELAY_TX+g_OMAC.DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX));
 	if(EXECUTE_WITH_CCA){
 		if(nextTXmicro > g_OMAC.CCA_PERIOD_ACTUAL) {
 			nextTXmicro -= g_OMAC.CCA_PERIOD_ACTUAL ;
@@ -173,7 +178,9 @@ UINT64 DataTransmissionHandler::CalculateNextTxMicro(UINT16 dest){
 	}
 	if(FAST_RECOVERY2){
 	}
+#if OMAC_DTH_DEBUG_LATEWAKEUP
 	m_scheduledFUTime_in_own_clock_micro = nextTXmicro;
+#endif
 	return nextTXmicro;
 }
 
