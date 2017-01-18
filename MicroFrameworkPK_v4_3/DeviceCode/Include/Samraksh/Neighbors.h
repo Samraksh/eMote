@@ -21,7 +21,7 @@
 #define TimeSync_Send_Buffer_15_4_t_SIZE 	1
 
 extern UINT8 MacName;
-#define MAX_NEIGHBORS 5
+#define MAX_NEIGHBORS 12
 #define INVALID_NEIGHBOR_INDEX 255
 #define INVALID_MACADDRESS 0
 #define INVALID_MACADDRESS2 65535
