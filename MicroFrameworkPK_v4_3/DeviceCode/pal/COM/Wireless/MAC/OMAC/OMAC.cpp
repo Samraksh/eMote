@@ -501,6 +501,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				return msg;
 			}
 		}
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
 		return msg;
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
@@ -513,11 +516,17 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 	if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t) > maxPayload) ){
 		//OMAC_HAL_PRINTF("CSMA Receive Error: Packet is too big: %d \r\n", Size+sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("CSMA Receive Error: Packet is too big: %d \r\n", Size+sizeof(IEEE802_15_4_Header_t));
+		OMAC_HAL_PRINTF("OMAC Receive Error: Packet is too big: %d \r\n", Size+sizeof(IEEE802_15_4_Header_t));
+#endif
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
 #endif
 		return msg;
 	}
 	if(Size < sizeof(IEEE802_15_4_Header_t)){
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
 		return msg;
 	}
 
@@ -536,6 +545,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 		||	destID == 0
 		||  msg->GetHeader()->length > MAX_PCKT_SIZE
 		){ //Check for incompliant packets
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
 			return msg;
 		}
 
@@ -704,6 +716,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 
 					if( data_msg->size > msg->GetHeader()->length){ //Check for incompliant packets
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
 						return msg;
 					}
 
