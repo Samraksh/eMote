@@ -702,6 +702,9 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	CPU_GPIO_EnableOutputPin(SI4468_Radio_TX_Instance, TRUE);
 	CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance, FALSE );
 
+	CPU_GPIO_EnableOutputPin(SI4468_Radio_TX_Instance_NOTS, TRUE);
+	CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance_NOTS, FALSE );
+
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_init()\r\n");
@@ -973,6 +976,10 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		si446x_start_tx(chan, after_state, tx_buf[0]+1);
 		irq.Release();
 	} else { // Normal Case
+		if(SI4468_Radio_TX_Instance_NOTS != DISABLED_PIN ){
+			CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance_NOTS, !CPU_GPIO_GetPinState(SI4468_Radio_TX_Instance_NOTS) );
+			CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance_NOTS, !CPU_GPIO_GetPinState(SI4468_Radio_TX_Instance_NOTS) );
+		}
 		si446x_start_tx(chan, after_state, tx_buf[0]+1);
 	}
 
