@@ -84,7 +84,7 @@ class DataTransmissionHandler: public EventHandler {
 	UINT64 m_scheduledTXTime_in_neigh_clock_ticks;
 	UINT64 m_scheduledTXTime_in_own_clock_ticks;
 #endif
-#if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION
+#if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION||OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
 public:
 	UINT64 m_scheduledTimer_in_ticks;
 	UINT64 m_scheduledTimer_in_ticks2;
