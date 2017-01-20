@@ -573,6 +573,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				case MFM_OMAC_DISCOVERY:
 				{
 					disco_msg = (DiscoveryMsg_t*) (msg->GetPayload());
+					if(Size < location_in_packet_payload + sizeof(DiscoveryMsg_t)) {//Check for incompliant packets
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
+						return msg;
+					}
 					msgLinkQualityMetrics.RSSI = msg->GetMetaData()->GetRssi();
 					msgLinkQualityMetrics.LinkQuality = msg->GetMetaData()->GetLqi();
 					g_OMAC.m_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, disco_msg, &msgLinkQualityMetrics);
@@ -659,6 +665,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				}
 				case MFM_OMAC_TIMESYNCREQ:
 				{
+					if(Size < location_in_packet_payload + DataMsgOverhead + sizeof(TimeSyncRequestMsg) ) {
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
+						return msg;
+					}
 					//TODO: Commenting out below code for SI4468 radio. Needs to be re-visited.
 					if(g_OMAC.m_omac_scheduler.m_execution_started && g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING)){
 						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
@@ -706,6 +718,15 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 #ifdef OMAC_DEBUG_GPIO
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
 #endif
+
+
+					if(Size < location_in_packet_payload + DataMsgOverhead ) {//Check for incompliant packets
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
+						return msg;
+					}
+
 
 					if(myID == destID && g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started){
 						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
