@@ -269,8 +269,8 @@ bool OMACScheduler::RunEventTask(){
 
 		if(m_state != I_RADIO_STOP_RETRY) m_num_sleep_retry_attempts = 0;
 		VirtualTimerReturnMessage rm;
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, FAILSAFETIME_MICRO, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
-		if(rm == TimerSupported) rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
+//		rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, FAILSAFETIME_MICRO, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
+//		if(rm == TimerSupported) rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 
 	//g_OMAC.UpdateNeighborTable();
 	UINT64 curTicks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
@@ -379,19 +379,23 @@ void OMACScheduler::PostPostExecution(){
 #endif
 		m_execution_started = false;
 	VirtualTimerReturnMessage rm = TimerNotSupported;
-	//	while (rm !=  TimerSupported){
-	//		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
-	//	}
-	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
-	if(rm != TimerSupported) return; //BK: Failsafe does not stop. let it fire and stop itself.
+//	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
+//		while (rm !=  TimerSupported){
+//			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
+//		}
+//	if(rm != TimerSupported) {
+//		SOFT_BREAKPOINT();
+//		return; //BK: Failsafe does not stop. let it fire and stop itself.
+//	}
 	if(!EnsureStopRadio()){ //BK: Radio does not stop// Reschedule another stopping periof
+		++m_num_sleep_retry_attempts;
 #ifdef OMAC_DEBUG_PRINTF
 	hal_printf(" \r\n OMACScheduler::PostPostExecution() Radio stop failure! m_num_sleep_retry_attempts = %u  \r\n", m_num_sleep_retry_attempts);
 #endif
 		if(m_num_sleep_retry_attempts < MAX_SLEEP_RETRY_ATTEMPTS){ //Schedule retrial
 			m_state = I_RADIO_STOP_RETRY;
 
-
+			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, RADIO_STOP_RETRY_PERIOD_IN_MICS, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
 			if(rm == TimerSupported) rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 			if(rm != TimerSupported){
