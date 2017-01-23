@@ -1182,7 +1182,7 @@ void DataTransmissionHandler::PostExecuteEvent(){
 		}
 	}
 #endif
-	if(txhandler_state == DTS_WAITING_FOR_ACKS){
+	if(txhandler_state == DTS_WAITING_FOR_ACKS && m_outgoingEntryPtr && m_outgoingEntryPtr_dest != 0){
 #if OMAC_DEBUG_PRINTF_PACKET_ACK_RX_FAIL
 #ifdef OMAC_DEBUG_GPIO //Mark 6 Before  Initiating Send from DTH
 	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
@@ -1202,7 +1202,7 @@ void DataTransmissionHandler::PostExecuteEvent(){
 #endif
 		SelectRetrySlotNumForNeighborBackOff();
 		if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
-				SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_SendNACKed, radioAckStatus);
+				SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_SendNACKed, 0);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
 				hal_printf("DataTransmissionHandler:SOFTWARE_ACKSendACK:NetworkOperations_SendNACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
 #endif
