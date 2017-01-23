@@ -1201,6 +1201,12 @@ void DataTransmissionHandler::PostExecuteEvent(){
 
 #endif
 		SelectRetrySlotNumForNeighborBackOff();
+		if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
+				SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_SendNACKed, radioAckStatus);
+#if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
+				hal_printf("DataTransmissionHandler:SOFTWARE_ACKSendACK:NetworkOperations_SendNACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
+#endif
+		}
 	}
 	txhandler_state = DTS_POSTEXECUTION;
 	//Scheduler's PostExecution stops the radio
