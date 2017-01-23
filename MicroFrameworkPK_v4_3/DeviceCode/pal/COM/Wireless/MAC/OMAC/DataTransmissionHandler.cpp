@@ -383,7 +383,7 @@ void DataTransmissionHandler::DropPacket(){
 		ASSERT_SP(0);
 	}
 	else {
-		neigh_ptr->random_back_off_window_size = INITIAL_RETRY_BACKOFF_WINDOW_SIZE;
+		neigh_ptr->random_back_off_window_size = 0;
 		if(neigh_ptr->IsInitializationTimeSamplesNeeded() && neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval() ) {
 #if OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
 			hal_printf("Dropping TSR Packet SUCCESS NumTimeSyncMessagesSent = %u < INITIAL_RETRY_BACKOFF_WINDOW_SIZE dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
@@ -805,7 +805,7 @@ m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Cl
 void DataTransmissionHandler::SelectRetrySlotNumForNeighborBackOff(){
 	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
 	if(neigh_ptr != NULL){
-		if(neigh_ptr->random_back_off_window_size >= INITIAL_RETRY_BACKOFF_WINDOW_SIZE && neigh_ptr->random_back_off_window_size < MAX_RETRY_BACKOFF_WINDOW_SIZE){
+		if(neigh_ptr->random_back_off_window_size >= INITIAL_RETRY_BACKOFF_WINDOW_SIZE && neigh_ptr->random_back_off_window_size <= MAX_RETRY_BACKOFF_WINDOW_SIZE){
 			neigh_ptr->random_back_off_window_size = neigh_ptr->random_back_off_window_size * 2;
 		}
 		else {
