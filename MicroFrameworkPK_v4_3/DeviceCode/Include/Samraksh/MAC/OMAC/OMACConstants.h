@@ -62,7 +62,9 @@ enum OMACSchedulerState_t{
   I_TIMESYNC_PENDING,
   I_DISCO_PENDING,
   I_DWELL_SEND, //BK: What is this?
-  I_RADIO_STOP_RETRY
+  I_RADIO_STOP_RETRY,
+  I_FAILSAFE_STOP,
+  I_POST_EXECUTE
 } ;
 
 /*
