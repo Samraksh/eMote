@@ -467,6 +467,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 		return msg;
 	}
 	DeviceStatus ds;
+	EntendedMACInfoMsgSummary* macinfosum_msg = NULL;
 	DiscoveryMsg_t* disco_msg = NULL;
 	TimeSyncMsg* tsmg = NULL;
 	DataMsg_t* data_msg = NULL;
@@ -807,6 +808,33 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				location_in_packet_payload += sizeof(DiscoveryMsg_t);
 			}
 
+#if OMAC_DEBUG_PRINTF_EXTENDEDMACINfo
+			if(msg->GetHeader()->flags &  MFM_EXTENDED_MAC_INFO_FLAG) {
+				macinfosum_msg = (EntendedMACInfoMsgSummary*) (msg->GetPayload() + location_in_packet_payload);
+
+				hal_printf("EntendedMACInfoMsgSummary NTE=%u, NAFUL=%u, NEntInMsg=%u"
+						, macinfosum_msg->NumTotalEntries, macinfosum_msg->NNeigh_AFUL, macinfosum_msg->NumEntriesInMsg);
+
+				UINT8 numNfits; macinfosum_msg->NumEntriesInMsg;
+				location_in_packet_payload += sizeof(EntendedMACInfoMsgSummary);
+
+				if(numNfits > 0 ){
+					MACNeighborInfo * macinfo_msg;
+					for(UINT8 i=0; i < numNfits ; ++i){
+						MACNeighborInfo *macinfo_msg = (MACNeighborInfo*) (msg->GetPayload() + location_in_packet_payload);
+						hal_printf("EntendedMACInfoMsgSummary\r\n MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u \r\n "
+								, macinfo_msg->MACAddress
+								, macinfo_msg->neighborStatus
+								, macinfo_msg->IsAvailableForUpperLayers
+								, macinfo_msg->NumTimeSyncMessagesSent
+								, macinfo_msg->NumTimeSyncMessagesRecv
+								);
+						location_in_packet_payload += sizeof(MACNeighborInfo);
+					}
+
+				}
+			}
+#endif
 //			if( tsmg != NULL && disco_msg == NULL){
 //				rx_start_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 //			}

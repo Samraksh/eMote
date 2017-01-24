@@ -242,6 +242,9 @@ bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 		rv = rv || PiggybackDiscoMessage(msg, size);
 		}
 	}
+	if(header->payloadType == MFM_OMAC_DISCOVERY){
+		PiggybackEntendedMACInfoMsg(msg, size);
+	}
 	return rv;
 }
 
@@ -319,7 +322,46 @@ bool RadioControl_t::PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
 	}
 }
 
+bool RadioControl_t::PiggybackEntendedMACInfoMsg(Message_15_4_t* msg, UINT16 &size){
+	const int crc_size = 2;			//used in Radio driver's RF231Radio::Send_TimeStamped
+	int additional_overhead = crc_size;
+	IEEE802_15_4_Header_t *header = msg->GetHeader();
+	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
+	if((header->flags & MFM_TIMESYNC_FLAG) || (header->payloadType == MFM_TIMESYNC)){ //Already embedded
+		return false;
+	}
+	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(EntendedMACInfoMsgSummary)+additional_overhead) ){
+
+		EntendedMACInfoMsgSummary * tmsg = (EntendedMACInfoMsgSummary *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
+		tmsg->NumTotalEntries = g_NeighborTable.NumberOfNeighborsTotal();
+		tmsg->NNeigh_AFUL = g_NeighborTable.PreviousNumberOfNeighbors();
+		tmsg->NumEntriesInMsg = 0;
+		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_EXTENDED_MAC_INFO_FLAG));
+		size += sizeof(EntendedMACInfoMsgSummary);
+
+		UINT16 remSize = IEEE802_15_4_MAX_PAYLOAD - additional_overhead - (size-sizeof(IEEE802_15_4_Header_t));
+		UINT8 numNfits = (UINT8)(remSize/sizeof(MACNeighborInfo));
+		if(numNfits > MAX_NEIGHBORS) numNfits = MAX_NEIGHBORS;
+		if(numNfits > 0 ){
+			tmsg->NumEntriesInMsg = numNfits;
+			MACNeighborInfo * macinfo_msg;
+			for(UINT8 i=0; i < numNfits ; ++i){
+				if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(MACNeighborInfo)+additional_overhead) ){
+				macinfo_msg = (MACNeighborInfo *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
+				macinfo_msg->MACAddress 						=  g_NeighborTable.Neighbor[i].MACAddress;
+				macinfo_msg->neighborStatus 					=  g_NeighborTable.Neighbor[i].neighborStatus;
+				macinfo_msg->IsAvailableForUpperLayers 			=  g_NeighborTable.Neighbor[i].IsAvailableForUpperLayers;
+				macinfo_msg->NumTimeSyncMessagesSent 			=  g_NeighborTable.Neighbor[i].NumTimeSyncMessagesSent;
+				macinfo_msg->NumTimeSyncMessagesRecv 			=  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[i].MACAddress) ;
+				size += sizeof(MACNeighborInfo);
+				}
+			}
+		}
+
+
+	}
+}
 
 
 //DeviceStatus RadioControl_t::Receive(Message_15_4_t * msg, UINT16 size){

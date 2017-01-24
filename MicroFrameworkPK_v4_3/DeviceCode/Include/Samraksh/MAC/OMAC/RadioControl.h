@@ -17,6 +17,7 @@ class RadioControl_t{
 private:
 	bool PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size);
 	bool PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size);
+	bool PiggybackEntendedMACInfoMsg(Message_15_4_t* msg, UINT16 &size);
 public:
 	DeviceStatus Initialize();
 	DeviceStatus Uninitialize();
