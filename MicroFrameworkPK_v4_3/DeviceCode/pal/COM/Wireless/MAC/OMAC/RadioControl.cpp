@@ -243,7 +243,7 @@ bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 		}
 	}
 	if(header->payloadType == MFM_OMAC_DISCOVERY){
-		PiggybackEntendedMACInfoMsg(msg, size);
+		rv = rv || PiggybackEntendedMACInfoMsg(msg, size);
 	}
 	return rv;
 }
