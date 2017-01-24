@@ -228,11 +228,11 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
     {
 		windowOverThreshold = true;
 		mOfnDetector.Update(mOfnCounter.count, 1);
-    } else if (unwrap >= doubleThreshold ){
+    /*} else if (unwrap >= doubleThreshold ){
 		// if an unwrap is double the threshold we will count it twice here
 		windowOverThreshold = true;
 		mOfnDetector.Update(mOfnCounter.count, 1);
-		mOfnDetector.Update(mOfnCounter.count, 1);
+		mOfnDetector.Update(mOfnCounter.count, 1);*/
 	}
     else
     {
