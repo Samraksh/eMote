@@ -87,7 +87,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	bool rv = VirtTimer_Initialize();
 	//ASSERT_SP(rv);
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_SCHEDULER, 0, SLOT_PERIOD_MILLI * MILLISECINMICSEC, FALSE, FALSE, PublicSchedulerTaskHandler1, OMACClockSpecifier);
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_SCHEDULER, 0, SLOT_PERIOD_MILLI * MILLISECINMICSEC, TRUE, FALSE, PublicSchedulerTaskHandler1, OMACClockSpecifier);
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, FAILSAFETIME_MICRO, TRUE, FALSE, PublicSchedulerTaskHandlerFailsafe, OMACClockSpecifier);
 
 	//ASSERT_SP(rm == TimerSupported);
