@@ -242,7 +242,7 @@ void OMACScheduler::ScheduleNextEvent(){
 		m_state = I_IDLE ;
 	}
 
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, nextWakeupTimeInMicSec, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, nextWakeupTimeInMicSec, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
 	//ASSERT_SP(rm == TimerSupported);
 #if OMAC_SCHEDULER_TIMER_TARGET_TIME_CORRECTION
 	m_curTime_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
