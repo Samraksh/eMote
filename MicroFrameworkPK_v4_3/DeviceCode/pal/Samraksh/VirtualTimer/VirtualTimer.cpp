@@ -277,13 +277,13 @@ namespace VirtTimerHelperFunctions
 #define VT_CALLBACK_CONTINUATION_MAX 8
 static HAL_CONTINUATION vtCallbackContinuationArray[VT_CALLBACK_CONTINUATION_MAX];
 
-bool queueVTCallback(TIMER_CALLBACK_FPN runningTimerCB){
+bool queueVTCallback(VirtualTimerInfo* runningTimer){
 	int i;
 	
 	for (i=0; i<VT_CALLBACK_CONTINUATION_MAX; i++){
 		if (!vtCallbackContinuationArray[i].IsLinked())
 		{
-			vtCallbackContinuationArray[i].InitializeCallback((HAL_CALLBACK_FPN) (runningTimerCB),NULL);
+			vtCallbackContinuationArray[i].InitializeCallback((HAL_CALLBACK_FPN) (runningTimer->get_m_callback()),NULL);   
 			vtCallbackContinuationArray[i].Enqueue();
 			return true;
 		}
@@ -313,24 +313,24 @@ void VirtualTimerCallback(void *arg)
 	}
 
 	UINT16 currentVirtualTimerCount = gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_cnt_;
-	VirtualTimerInfo* runningTimer = & (gVirtualTimerObject.virtualTimerMapper[currentVTMapper]).g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_];
+	VirtualTimerInfo* runningTimer = &gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_];
 
 	// calling the timer callback that just fired
-	if (gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_].get_m_is_running()){
-		if ( gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_].get_m_timer_id() <= VIRT_TIMER_INTERRUPT_CONTEXT_MARKER){
-			(gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_].get_m_callback())(NULL);
+	if (runningTimer->get_m_is_running()){
+		if ( runningTimer->get_m_timer_id() <= VIRT_TIMER_INTERRUPT_CONTEXT_MARKER){
+			(runningTimer->get_m_callback())(NULL);
 		} else {
 			//void * userData = NULL;
-			queueVTCallback(   gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_].get_m_callback()   );
+			queueVTCallback(runningTimer);
 		}
 	}
 
 	// if the timer is a one shot we don't place it back on the timer Queue
-	if (gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_].get_m_is_one_shot()){
-		gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_].set_m_is_running(FALSE);
+	if (runningTimer->get_m_is_one_shot()){
+		runningTimer->set_m_is_running(FALSE);
 	} else {
 		// calculating the next time this timer will fire
-		(gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_]).set_m_ticks_when_match_(VirtTimer_GetTicks((gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_]).get_m_timer_id()) + gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_].get_m_period());
+		runningTimer->set_m_ticks_when_match_(VirtTimer_GetTicks(runningTimer->get_m_timer_id()) + runningTimer->get_m_period());
 	}
 
 	// we look for the running timer that needs to be fired the earliest and set the timer comparator
@@ -355,8 +355,8 @@ void VirtualTimerCallback(void *arg)
 	{
 		// for now we have to check that we are setting the compare at some time in the future. This check is also made in the setcompare function itself but there it is limited (for now) to 32-bits
 		// when we are fully 64-bit compatible with our timers then we will need only the check in the setcompare function itself
-		if (gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() < VirtTimer_GetTicks(gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_].get_m_timer_id()) ){
-			CPU_Timer_SetCompare(g_HardwareTimerIDs[currentVTMapper], VirtTimer_GetTicks(gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_].get_m_timer_id()));
+		if (gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() < VirtTimer_GetTicks(runningTimer->get_m_timer_id()) ){
+			CPU_Timer_SetCompare(g_HardwareTimerIDs[currentVTMapper], VirtTimer_GetTicks(runningTimer->get_m_timer_id()));
 		} else {
 			CPU_Timer_SetCompare(g_HardwareTimerIDs[currentVTMapper], gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() );
 		}		
