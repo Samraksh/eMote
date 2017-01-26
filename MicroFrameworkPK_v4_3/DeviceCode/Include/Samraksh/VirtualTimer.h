@@ -193,9 +193,13 @@ struct VirtualTimerConfig
 
 class VirtualTimerMapper
 {
+
 public:
 	UINT16 m_current_timer_cnt_;     //<! TODO: description goes here. please.
 	UINT16 m_current_timer_running_; //<! TODO: description goes here. please.
+
+	bool is_callback_running;
+	UINT16 m_next_timer_running_; //<! TODO: description goes here. please.
 
 	UINT16 VTM_hardwareTimerId;      //<! TODO: description goes here. please.
 	VirtualTimerInfo g_VirtualTimerInfo[g_VirtualTimerPerHardwareTimer];
@@ -213,6 +217,8 @@ public:
 	BOOL UnInitialize(UINT16);
 
 	inline BOOL VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTimerIndex);
+
+	void SetAlarmForTheNextTimer();
 
 };
 
