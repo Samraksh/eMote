@@ -33,6 +33,7 @@ void PublicSchedulerTaskHandler1(void * param){
 			 SOFT_BREAKPOINT();
 		 }
 		rem_time_micros = g_OMAC.m_Clock.ConvertTickstoMicroSecs( g_OMAC.m_omac_scheduler.m_scheduledTimer_in_ticks - g_OMAC.m_omac_scheduler.m_curTime_in_ticks);
+		if(rem_time_micros < OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) rem_time_micros = OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO;
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, rem_time_micros, TRUE, OMACClockSpecifier );
 		 if(rm != TimerSupported) {
 			 SOFT_BREAKPOINT();
