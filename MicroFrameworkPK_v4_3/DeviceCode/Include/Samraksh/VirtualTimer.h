@@ -23,6 +23,44 @@
 // Defines the signature of the timer callback function
 typedef void (*TIMER_CALLBACK_FPN)( void* arg );
 
+void HAL_CONTINUATION_ExtendedExecute(void * param);
+
+struct HAL_CONTINUATION_Extended : public HAL_CONTINUATION {
+	HAL_CALLBACK_FPN m_EntryPoint;
+	void* m_Argument;
+
+	UINT8 num_attempting_to_grab;
+public:
+    bool InitializeExtendedCallback( HAL_CALLBACK_FPN _EntryPoint, void* _Argument );
+	HAL_CONTINUATION_Extended() : num_attempting_to_grab(0), m_EntryPoint(NULL), m_Argument(NULL) {};
+	bool SetUsed() {
+		if(num_attempting_to_grab == 0){
+			++num_attempting_to_grab;
+			if(num_attempting_to_grab == 1){
+				return true;
+			}
+			else{
+				--num_attempting_to_grab;
+			}
+		}
+		return false;
+	}
+	void SetUnUsed() {
+		m_Argument = NULL;
+		m_EntryPoint = NULL;
+		num_attempting_to_grab = 0;
+	}
+	bool IsUsed() const {
+		if(num_attempting_to_grab>0) return false;
+		else if(m_EntryPoint == NULL) return false;
+		else return true;
+	}
+};
+
+struct HAL_CONTINUATION_ExtendedArg{
+	HAL_CONTINUATION_Extended* ptr;
+
+};
 
 typedef enum _VirtualTimerReturnMessage
 {

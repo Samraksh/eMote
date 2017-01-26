@@ -267,7 +267,7 @@ void VirtualTimerMapper::SetAlarmForTheNextTimer(){
 		}
 	}
 	else{
-		hal_printf("SetAlarmForTheNextTimer from withing callback");
+		//hal_printf("SetAlarmForTheNextTimer from withing callback");
 	}
 }
 
@@ -289,16 +289,43 @@ namespace VirtTimerHelperFunctions
 }
 
 
+
+bool HAL_CONTINUATION_Extended::InitializeExtendedCallback( HAL_CALLBACK_FPN EntryPoint, void* Argument ){
+	if(!IsUsed()){
+		if(SetUsed()){
+			m_EntryPoint = EntryPoint;
+			m_Argument = Argument;
+			InitializeCallback((HAL_CALLBACK_FPN) HAL_CONTINUATION_ExtendedExecute, this);
+			return true;
+		}
+		return false;
+	}
+	else{
+		return false;
+	}
+}
+//HAL_CONTINUATION_Extended::HAL_CONTINUATION_Extended() : isused(false) {};
+//void HAL_CONTINUATION_Extended::SetUsed() { isused = true;}
+//void HAL_CONTINUATION_Extended::SetUnUsed() { isused = false;}
+//bool HAL_CONTINUATION_Extended::IsUsed() const {return isused;}
+
+void HAL_CONTINUATION_ExtendedExecute(void * param) {
+	HAL_CONTINUATION_Extended * ptr = (HAL_CONTINUATION_Extended*) param;
+	//HAL_CALLBACK_FPN fpn = ptr->m_callback;
+	ptr->m_EntryPoint(ptr->m_Argument);
+	ptr->SetUnUsed();
+};
+
 #define VT_CALLBACK_CONTINUATION_MAX 8
-static HAL_CONTINUATION vtCallbackContinuationArray[VT_CALLBACK_CONTINUATION_MAX];
+static HAL_CONTINUATION_Extended vtCallbackContinuationArray[VT_CALLBACK_CONTINUATION_MAX];
 
 bool queueVTCallback(VirtualTimerInfo* runningTimer){
 	int i;
+	bool rv;
 	
 	for (i=0; i<VT_CALLBACK_CONTINUATION_MAX; i++){
-		if (!vtCallbackContinuationArray[i].IsLinked())
+		if (!vtCallbackContinuationArray[i].IsLinked() && vtCallbackContinuationArray[i].InitializeExtendedCallback( (HAL_CALLBACK_FPN) (runningTimer->get_m_callback()), NULL))
 		{
-			vtCallbackContinuationArray[i].InitializeCallback((HAL_CALLBACK_FPN) (runningTimer->get_m_callback()),NULL);   
 			vtCallbackContinuationArray[i].Enqueue();
 			return true;
 		}
