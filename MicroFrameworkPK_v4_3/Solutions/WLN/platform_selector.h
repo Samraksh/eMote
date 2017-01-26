@@ -230,9 +230,9 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1
 #define VIRT_TIMER_OMAC_SCHEDULER	2
-#define LocalClockMonitor_TIMER1 3
+#define LocalClockMonitor_TIMER1 33
 //#define VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC		3
-#define NeighborClockMonitor_TIMER1 4
+#define NeighborClockMonitor_TIMER1 34
 #define VIRT_TIMER_OMAC_RECEIVER_ACK 	5
 
 // The following definition will be used within the code as the decision point in deciding if the timer is to be run within interrupt context or continuation
@@ -380,6 +380,8 @@ J12_PIN10 = GND
 #define OMAC_TESTING_SCHEDULER_PIN 			(GPIO_PIN)120//24
 #define OMAC_TESTING_VTIMER_PIN 			(GPIO_PIN)120
 
+#define OMAC_TESTING_SCHEDULER_PIN 			(GPIO_PIN)120//24
+#define OMAC_TESTING_VTIMER_PIN 			(GPIO_PIN)120
 
 #define VT_CALLBACK 						(GPIO_PIN)120					//J11_PIN7
 
@@ -406,7 +408,8 @@ J12_PIN10 = GND
 #define SI4468_TX							(GPIO_PIN)120
 #define SI4468_TX_TIMESTAMP					(GPIO_PIN)120
 #define SI4468_Radio_STATE					(GPIO_PIN)120
-#define SI4468_Radio_TX_Instance			(GPIO_PIN)120
+#define SI4468_Radio_TX_Instance			(GPIO_PIN)120 //(GPIO_PIN)23 //(GPIO_PIN)22 //(GPIO_PIN)120
+#define SI4468_Radio_TX_Instance_NOTS		(GPIO_PIN)120
 // SCHEDULER TESTING
 //#define OMAC_TESTING_SCHEDULER_PIN 	(GPIO_PIN)24
 
