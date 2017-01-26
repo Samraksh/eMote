@@ -62,7 +62,9 @@ enum OMACSchedulerState_t{
   I_TIMESYNC_PENDING,
   I_DISCO_PENDING,
   I_DWELL_SEND, //BK: What is this?
-  I_RADIO_STOP_RETRY
+  I_RADIO_STOP_RETRY,
+  I_FAILSAFE_STOP,
+  I_POST_EXECUTE
 } ;
 
 /*
@@ -158,6 +160,9 @@ struct PACK TimeSyncRequestMsg
   //UINT32 timesyncIdentifier;
   bool request_TimeSync;
 };
+
+
+
 
 /*
  *
@@ -328,7 +333,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define EXTRA_DELAY_IN_WAITING_FOR_ACK (1.6*MILLISECINMICSEC)	//Difference between FAST_RECOVERY_WAIT_PERIOD_MICRO (or) MAX_PACKET_TX_DURATION_MICRO and 3.4ms. 3.4ms is the ideal round trip time.
 #define TIME_BETWEEN_TX_RX_TS_TICKS (266*TICKS_PER_MICRO)
 
-#define RADIO_STOP_RETRY_PERIOD_IN_MICS 50
+#define RADIO_STOP_RETRY_PERIOD_IN_MICS OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO
 //Random_backoff is done before re-transmission
 //GUARDTIME_MICRO+OMAC_TIME_ERROR - Pessimistic time error
 //GUARDTIME_MICRO - optimistic time error (if there is a re-transmission, tx takes GUARDTIME_MICRO to do CCA

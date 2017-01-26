@@ -39,6 +39,7 @@ class OMACScheduler{
 	public:
 	UINT64 m_scheduledTimer_in_ticks;
 	UINT64 m_curTime_in_ticks;
+	UINT8 m_num_rescheduled;
 #endif
 
 private:
@@ -48,6 +49,11 @@ private:
 
 	HandlerType_t m_lastHandler;
 	UINT8 m_num_sleep_retry_attempts;
+
+	UINT8 m_num_FailsafeStop;
+	bool SchedulerINUse;
+
+
 
 public:
 

@@ -140,6 +140,15 @@ VirtualTimerReturnMessage VirtTimer_Stop(UINT8 timer_id)
 	return retVal;
 }
 
+BOOL VirtTimer_IsRunning(UINT8 timer_id)
+{
+	VirtualTimerReturnMessage retVal = TimerSupported;
+	UINT8 mapperId = 0;
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperId);
+
+	return gVirtualTimerObject.virtualTimerMapper[mapperId].IsRunning(timer_id);
+}
+
 
 VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, UINT8 hardwareTimerId)
 {

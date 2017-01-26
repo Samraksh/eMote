@@ -349,7 +349,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 	/*if(m_disco_state == DISCO_STATE_BEACON_N){
 		VirtualTimerReturnMessage rm;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 0, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 0, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 	}*/
 }
@@ -414,7 +414,7 @@ void DiscoveryHandler::BeaconN(){
 	CPU_GPIO_SetPinState( DISCO_BEACON_N, FALSE );
 #endif
 	//VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
-	//VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 0, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
+	//VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 0, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
 	//VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 	//this->PostExecuteEvent();
 

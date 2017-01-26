@@ -234,14 +234,19 @@ bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
 	if(!(header->flags & MFM_TIMESYNC_FLAG) && (header->payloadType != MFM_TIMESYNC)) {
-		rv = rv || PiggybackTimeSyncMessage(msg, size);
+		rv = PiggybackTimeSyncMessage(msg, size) || rv ;
 	}
 	if( header->payloadType == MFM_OMAC_TIMESYNCREQ && !(header->flags & MFM_DISCOVERY_FLAG) && (header->payloadType != MFM_OMAC_DISCOVERY)) {
 		Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(header->dest);
 		if(header->dest != 0 && header->dest != RADIO_BROADCAST_ADDRESS && neigh_ptr!= NULL && neigh_ptr->IsInitializationTimeSamplesNeeded() ){
-		rv = rv || PiggybackDiscoMessage(msg, size);
+		rv =  PiggybackDiscoMessage(msg, size) || rv;
 		}
 	}
+#if OMAC_DEBUG_SEND_EXTENDEDMACINfo
+	if(header->payloadType == MFM_OMAC_DISCOVERY){
+		rv = PiggybackEntendedMACInfoMsg(msg, size) || rv ;
+	}
+#endif
 	return rv;
 }
 
@@ -297,7 +302,9 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		}
 		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_TIMESYNC_FLAG));
 		size += sizeof(TimeSyncMsg);
+		return true;
 	}
+	return false;
 }
 
 bool RadioControl_t::PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
@@ -311,15 +318,57 @@ bool RadioControl_t::PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
 		return false;
 	}
 
-	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+additional_overhead) ){
+	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(DiscoveryMsg_t)+additional_overhead) ){
 		DiscoveryMsg_t * tmsg = (DiscoveryMsg_t *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
 		g_OMAC.m_omac_scheduler.m_DiscoveryHandler.CreateMessage(tmsg);
 		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_DISCOVERY_FLAG));
 		size += sizeof(DiscoveryMsg_t);
+		return true;
 	}
+	return false;
 }
 
+bool RadioControl_t::PiggybackEntendedMACInfoMsg(Message_15_4_t* msg, UINT16 &size){
+	const int crc_size = 2;			//used in Radio driver's RF231Radio::Send_TimeStamped
+	int additional_overhead = crc_size;
+	IEEE802_15_4_Header_t *header = msg->GetHeader();
+	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
+	if((header->flags & MFM_EXTENDED_MAC_INFO_FLAG)){ //Already embedded
+		return false;
+	}
+	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(EntendedMACInfoMsgSummary)+additional_overhead) ){
+
+		EntendedMACInfoMsgSummary * tmsg = (EntendedMACInfoMsgSummary *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
+		tmsg->NumTotalEntries = g_NeighborTable.NumberOfNeighborsTotal();
+		tmsg->NNeigh_AFUL = g_NeighborTable.PreviousNumberOfNeighbors();
+		tmsg->NumEntriesInMsg = 0;
+		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_EXTENDED_MAC_INFO_FLAG));
+		size += sizeof(EntendedMACInfoMsgSummary);
+
+		UINT16 remSize = IEEE802_15_4_MAX_PAYLOAD - additional_overhead - (size-sizeof(IEEE802_15_4_Header_t));
+		UINT8 numNfits = (UINT8)(remSize/sizeof(MACNeighborInfo));
+		if(numNfits > tmsg->NumTotalEntries) numNfits = tmsg->NumTotalEntries;
+		if(numNfits > 0 ){
+			MACNeighborInfo * macinfo_msg;
+			for(UINT8 i=0; i < numNfits ; ++i){
+				if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(MACNeighborInfo)+additional_overhead) ){
+					macinfo_msg = (MACNeighborInfo *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
+					macinfo_msg->MACAddress 						=  g_NeighborTable.Neighbor[i].MACAddress;
+					macinfo_msg->neighborStatus 					=  g_NeighborTable.Neighbor[i].neighborStatus;
+					macinfo_msg->IsAvailableForUpperLayers 			=  g_NeighborTable.Neighbor[i].IsAvailableForUpperLayers;
+					macinfo_msg->NumTimeSyncMessagesSent 			=  g_NeighborTable.Neighbor[i].NumTimeSyncMessagesSent;
+					macinfo_msg->NumTimeSyncMessagesRecv 			=  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[i].MACAddress) ;
+					size += sizeof(MACNeighborInfo);
+					++tmsg->NumEntriesInMsg;
+				}
+			}
+		}
+
+		return true;
+	}
+	return false;
+}
 
 
 //DeviceStatus RadioControl_t::Receive(Message_15_4_t * msg, UINT16 size){

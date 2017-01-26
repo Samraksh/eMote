@@ -197,6 +197,7 @@ public:
 	UINT8 BringOutYourDead(UINT32 delay);
 	Neighbor_t* GetNeighborPtr(UINT16 address);
 	UINT8 NumberOfNeighbors();
+	UINT8 NumberOfNeighborsTotal();
 	UINT8 PreviousNumberOfNeighbors();
 	void SetPreviousNumberOfNeighbors(UINT8 previousNeighborCnt);
 	DeviceStatus InsertNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t, const NeighborTableCommonParameters_Two_t *neighborTableCommonParameters_Two_t);
@@ -408,6 +409,17 @@ UINT8 NeighborTable::NumberOfNeighbors(){
 	UINT8 numneigh = 0;
 	for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
 		if (Neighbor[tableIndex].neighborStatus == Alive){
+			++numneigh;
+		}
+	}
+	return numneigh;
+}
+
+UINT8 NeighborTable::NumberOfNeighborsTotal(){
+	//return NumberValidNeighbor;
+	UINT8 numneigh = 0;
+	for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
+		if (ISMAC_VALID(Neighbor[tableIndex].MACAddress)){
 			++numneigh;
 		}
 	}
@@ -671,6 +683,23 @@ void NeighborTable::DegradeLinks(){
 		}*/
 	}
 }
+
+
+struct PACK MACNeighborInfo	//6bytes
+{
+	UINT16 MACAddress;
+	NeighborStatus neighborStatus;
+	bool IsAvailableForUpperLayers;
+	UINT8 NumTimeSyncMessagesSent;
+	UINT8 NumTimeSyncMessagesRecv;
+};
+
+struct PACK EntendedMACInfoMsgSummary //3 bytes
+{
+	UINT8 NumTotalEntries;
+	UINT8 NNeigh_AFUL;
+	UINT8 NumEntriesInMsg;
+};
 
 
 #endif /* NEIGHBORS_H_ */

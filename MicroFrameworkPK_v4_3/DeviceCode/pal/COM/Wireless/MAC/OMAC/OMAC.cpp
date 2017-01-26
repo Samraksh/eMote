@@ -467,6 +467,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 		return msg;
 	}
 	DeviceStatus ds;
+	EntendedMACInfoMsgSummary* macinfosum_msg = NULL;
 	DiscoveryMsg_t* disco_msg = NULL;
 	TimeSyncMsg* tsmg = NULL;
 	DataMsg_t* data_msg = NULL;
@@ -573,6 +574,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				case MFM_OMAC_DISCOVERY:
 				{
 					disco_msg = (DiscoveryMsg_t*) (msg->GetPayload());
+					if(Size < location_in_packet_payload + sizeof(DiscoveryMsg_t)) {//Check for incompliant packets
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
+						return msg;
+					}
 					msgLinkQualityMetrics.RSSI = msg->GetMetaData()->GetRssi();
 					msgLinkQualityMetrics.LinkQuality = msg->GetMetaData()->GetLqi();
 					g_OMAC.m_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, disco_msg, &msgLinkQualityMetrics);
@@ -659,6 +666,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				}
 				case MFM_OMAC_TIMESYNCREQ:
 				{
+					if(Size < location_in_packet_payload + DataMsgOverhead + sizeof(TimeSyncRequestMsg) ) {
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
+						return msg;
+					}
 					//TODO: Commenting out below code for SI4468 radio. Needs to be re-visited.
 					if(g_OMAC.m_omac_scheduler.m_execution_started && g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING)){
 						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
@@ -706,6 +719,15 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 #ifdef OMAC_DEBUG_GPIO
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
 #endif
+
+
+					if(Size < location_in_packet_payload + DataMsgOverhead ) {//Check for incompliant packets
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
+						return msg;
+					}
+
 
 					if(myID == destID && g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started){
 						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
@@ -786,6 +808,34 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				location_in_packet_payload += sizeof(DiscoveryMsg_t);
 			}
 
+#if OMAC_DEBUG_PRINTF_EXTENDEDMACINfo
+			if(msg->GetHeader()->flags &  MFM_EXTENDED_MAC_INFO_FLAG) {
+				macinfosum_msg = (EntendedMACInfoMsgSummary*) (msg->GetPayload() + location_in_packet_payload);
+				UINT8 numNfits = macinfosum_msg->NumEntriesInMsg;
+
+				hal_printf("EntendedMACInfoMsgSummary NTE=%u, NAFUL=%u, NEntInMsg=%u \r\n"
+						, macinfosum_msg->NumTotalEntries, macinfosum_msg->NNeigh_AFUL, numNfits);
+
+
+				location_in_packet_payload += sizeof(EntendedMACInfoMsgSummary);
+
+				if(numNfits > 0 ){
+					MACNeighborInfo * macinfo_msg;
+					for(UINT8 i=0; i < numNfits ; ++i){
+						MACNeighborInfo *macinfo_msg = (MACNeighborInfo*) (msg->GetPayload() + location_in_packet_payload);
+						hal_printf("EMI MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u \r\n "
+								, macinfo_msg->MACAddress
+								, macinfo_msg->neighborStatus
+								, macinfo_msg->IsAvailableForUpperLayers
+								, macinfo_msg->NumTimeSyncMessagesSent
+								, macinfo_msg->NumTimeSyncMessagesRecv
+								);
+						location_in_packet_payload += sizeof(MACNeighborInfo);
+					}
+
+				}
+			}
+#endif
 //			if( tsmg != NULL && disco_msg == NULL){
 //				rx_start_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 //			}
@@ -1101,13 +1151,16 @@ void OMACType::PrintNeighborTable(){
 //	hal_printf("--NeighborTable-- \r\n", numberofNeighbors, g_NeighborTable.PreviousNumberOfNeighbors() );
 	for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; ++tableIndex){
 		if(    g_NeighborTable.Neighbor[tableIndex].MACAddress != 0 && g_NeighborTable.Neighbor[tableIndex].MACAddress != 65535 ){
-			hal_printf("MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u LHT = %llu \r\n "
+
+			hal_printf("MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u, LHT = %llu, CT = %llu \r\n "
 					, g_NeighborTable.Neighbor[tableIndex].MACAddress
 					, g_NeighborTable.Neighbor[tableIndex].neighborStatus
 					, g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers
 					, g_NeighborTable.Neighbor[tableIndex].NumTimeSyncMessagesSent
 					, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[tableIndex].MACAddress)
-					, g_NeighborTable.Neighbor[tableIndex].LastHeardTime );
+					, g_NeighborTable.Neighbor[tableIndex].LastHeardTime
+					, g_OMAC.m_Clock.GetCurrentTimeinTicks()
+					);
 		}
 	}
 #if OMAC_DEBUG_PRINTF_NEIGHCHANGE || OMAC_DEBUG_PRINTF_DISCO_RX || OMAC_DEBUG_PRINTF_TS_RX ||OMAC_DEBUG_PRINTF_TSREQ_TX
