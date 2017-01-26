@@ -564,7 +564,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 			}
 
 #if OMAC_DEBUG_PRINTF_PACKETREC
-		hal_printf("OMACType::ReceiveHandler = sourceID = %u, destID = %u payloadType = %u flags = %u \r\n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags);
+		hal_printf("OMAC RX sourceID = %u, destID = %u payloadType = %u flags = %u \r\n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags);
 #endif
 
 
@@ -813,7 +813,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				macinfosum_msg = (EntendedMACInfoMsgSummary*) (msg->GetPayload() + location_in_packet_payload);
 				UINT8 numNfits = macinfosum_msg->NumEntriesInMsg;
 
-				hal_printf("EntendedMACInfoMsgSummary NTE=%u, NAFUL=%u, NEntInMsg=%u \r\n"
+				hal_printf("   EntendedMACInfoMsgSummary NTE=%u, NAFUL=%u, NEntInMsg=%u \r\n"
 						, macinfosum_msg->NumTotalEntries, macinfosum_msg->NNeigh_AFUL, numNfits);
 
 
@@ -823,7 +823,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 					MACNeighborInfo * macinfo_msg;
 					for(UINT8 i=0; i < numNfits ; ++i){
 						MACNeighborInfo *macinfo_msg = (MACNeighborInfo*) (msg->GetPayload() + location_in_packet_payload);
-						hal_printf("EMI MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u \r\n "
+						hal_printf("   EMI MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u \r\n"
 								, macinfo_msg->MACAddress
 								, macinfo_msg->neighborStatus
 								, macinfo_msg->IsAvailableForUpperLayers
@@ -1152,7 +1152,7 @@ void OMACType::PrintNeighborTable(){
 	for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; ++tableIndex){
 		if(    g_NeighborTable.Neighbor[tableIndex].MACAddress != 0 && g_NeighborTable.Neighbor[tableIndex].MACAddress != 65535 ){
 
-			hal_printf("MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u, LHT = %llu, CT = %llu \r\n "
+			hal_printf("  MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u, LHT = %llu, CT = %llu \r\n "
 					, g_NeighborTable.Neighbor[tableIndex].MACAddress
 					, g_NeighborTable.Neighbor[tableIndex].neighborStatus
 					, g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers
