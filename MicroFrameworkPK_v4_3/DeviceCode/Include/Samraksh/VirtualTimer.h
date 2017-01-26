@@ -250,6 +250,8 @@ public:
 
 	BOOL StopTimer(UINT8 timer_id);
 
+	BOOL IsRunning(UINT8 timer_id);
+
 	BOOL ChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot);
 
 	BOOL UnInitialize(UINT16);
@@ -284,6 +286,7 @@ public:
 	VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback, UINT8 hardwareTimerId=1);
 	VirtualTimerReturnMessage VirtTimer_Start(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_Stop(UINT8 timer_id);
+	BOOL VirtTimer_IsRunning(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, UINT8 hardwareTimerId=1);
 
 	UINT32 VirtTimer_SetCounter(UINT8 timer_id, UINT32 Count);

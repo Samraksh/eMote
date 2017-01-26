@@ -229,6 +229,22 @@ BOOL VirtualTimerMapper::StopTimer(UINT8 timer_id)
 	return TRUE;
 }
 
+BOOL VirtualTimerMapper::IsRunning(UINT8 timer_id)
+{
+	//Timer 0 is reserved for keeping time and timer 1 for events
+
+	UINT8 VTimerIndex = 0;
+	BOOL timerFound = VirtTimerIndexMapper(timer_id, VTimerIndex);
+
+	if(!timerFound) {
+		SOFT_BREAKPOINT();
+		return FALSE;
+	}
+
+	return g_VirtualTimerInfo[VTimerIndex].get_m_is_running();
+
+}
+
 
 void VirtualTimerMapper::SetAlarmForTheNextTimer(){
 	UINT16 i;
