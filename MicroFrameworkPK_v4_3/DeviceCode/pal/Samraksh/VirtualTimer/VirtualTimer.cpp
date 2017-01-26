@@ -324,10 +324,11 @@ bool queueVTCallback(VirtualTimerInfo* runningTimer){
 	bool rv;
 	
 	for (i=0; i<VT_CALLBACK_CONTINUATION_MAX; i++){
-		if (!vtCallbackContinuationArray[i].IsLinked() && vtCallbackContinuationArray[i].InitializeExtendedCallback( (HAL_CALLBACK_FPN) (runningTimer->get_m_callback()), NULL))
-		{
-			vtCallbackContinuationArray[i].Enqueue();
-			return true;
+		if (!vtCallbackContinuationArray[i].IsLinked()) {
+			if(vtCallbackContinuationArray[i].InitializeExtendedCallback( (HAL_CALLBACK_FPN) (runningTimer->get_m_callback()), NULL)){
+				vtCallbackContinuationArray[i].Enqueue();
+				return true;
+			}
 		}
 	}
 

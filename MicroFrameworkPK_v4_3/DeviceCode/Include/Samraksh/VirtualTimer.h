@@ -34,6 +34,7 @@ public:
     bool InitializeExtendedCallback( HAL_CALLBACK_FPN _EntryPoint, void* _Argument );
 	HAL_CONTINUATION_Extended() : num_attempting_to_grab(0), m_EntryPoint(NULL), m_Argument(NULL) {};
 	bool SetUsed() {
+		GLOBAL_LOCK(irq);
 		if(num_attempting_to_grab == 0){
 			++num_attempting_to_grab;
 			if(num_attempting_to_grab == 1){
@@ -237,7 +238,6 @@ public:
 	UINT16 m_current_timer_running_; //<! TODO: description goes here. please.
 
 	bool is_callback_running;
-	UINT16 m_next_timer_running_; //<! TODO: description goes here. please.
 
 	UINT16 VTM_hardwareTimerId;      //<! TODO: description goes here. please.
 	VirtualTimerInfo g_VirtualTimerInfo[g_VirtualTimerPerHardwareTimer];
