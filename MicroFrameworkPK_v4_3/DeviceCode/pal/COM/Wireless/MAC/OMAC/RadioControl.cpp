@@ -234,17 +234,19 @@ bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
 	if(!(header->flags & MFM_TIMESYNC_FLAG) && (header->payloadType != MFM_TIMESYNC)) {
-		rv = rv || PiggybackTimeSyncMessage(msg, size);
+		rv = PiggybackTimeSyncMessage(msg, size) || rv ;
 	}
 	if( header->payloadType == MFM_OMAC_TIMESYNCREQ && !(header->flags & MFM_DISCOVERY_FLAG) && (header->payloadType != MFM_OMAC_DISCOVERY)) {
 		Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(header->dest);
 		if(header->dest != 0 && header->dest != RADIO_BROADCAST_ADDRESS && neigh_ptr!= NULL && neigh_ptr->IsInitializationTimeSamplesNeeded() ){
-		rv = rv || PiggybackDiscoMessage(msg, size);
+		rv =  PiggybackDiscoMessage(msg, size) || rv;
 		}
 	}
+#if OMAC_DEBUG_SEND_EXTENDEDMACINfo
 	if(header->payloadType == MFM_OMAC_DISCOVERY){
-		rv = rv || PiggybackEntendedMACInfoMsg(msg, size);
+		rv = PiggybackEntendedMACInfoMsg(msg, size) || rv ;
 	}
+#endif
 	return rv;
 }
 
@@ -332,7 +334,7 @@ bool RadioControl_t::PiggybackEntendedMACInfoMsg(Message_15_4_t* msg, UINT16 &si
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
-	if((header->flags & MFM_TIMESYNC_FLAG) || (header->payloadType == MFM_TIMESYNC)){ //Already embedded
+	if((header->flags & MFM_EXTENDED_MAC_INFO_FLAG)){ //Already embedded
 		return false;
 	}
 	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(EntendedMACInfoMsgSummary)+additional_overhead) ){
@@ -346,19 +348,19 @@ bool RadioControl_t::PiggybackEntendedMACInfoMsg(Message_15_4_t* msg, UINT16 &si
 
 		UINT16 remSize = IEEE802_15_4_MAX_PAYLOAD - additional_overhead - (size-sizeof(IEEE802_15_4_Header_t));
 		UINT8 numNfits = (UINT8)(remSize/sizeof(MACNeighborInfo));
-		if(numNfits > MAX_NEIGHBORS) numNfits = MAX_NEIGHBORS;
+		if(numNfits > tmsg->NumTotalEntries) numNfits = tmsg->NumTotalEntries;
 		if(numNfits > 0 ){
-			tmsg->NumEntriesInMsg = numNfits;
 			MACNeighborInfo * macinfo_msg;
 			for(UINT8 i=0; i < numNfits ; ++i){
 				if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(MACNeighborInfo)+additional_overhead) ){
-				macinfo_msg = (MACNeighborInfo *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
-				macinfo_msg->MACAddress 						=  g_NeighborTable.Neighbor[i].MACAddress;
-				macinfo_msg->neighborStatus 					=  g_NeighborTable.Neighbor[i].neighborStatus;
-				macinfo_msg->IsAvailableForUpperLayers 			=  g_NeighborTable.Neighbor[i].IsAvailableForUpperLayers;
-				macinfo_msg->NumTimeSyncMessagesSent 			=  g_NeighborTable.Neighbor[i].NumTimeSyncMessagesSent;
-				macinfo_msg->NumTimeSyncMessagesRecv 			=  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[i].MACAddress) ;
-				size += sizeof(MACNeighborInfo);
+					macinfo_msg = (MACNeighborInfo *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
+					macinfo_msg->MACAddress 						=  g_NeighborTable.Neighbor[i].MACAddress;
+					macinfo_msg->neighborStatus 					=  g_NeighborTable.Neighbor[i].neighborStatus;
+					macinfo_msg->IsAvailableForUpperLayers 			=  g_NeighborTable.Neighbor[i].IsAvailableForUpperLayers;
+					macinfo_msg->NumTimeSyncMessagesSent 			=  g_NeighborTable.Neighbor[i].NumTimeSyncMessagesSent;
+					macinfo_msg->NumTimeSyncMessagesRecv 			=  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[i].MACAddress) ;
+					size += sizeof(MACNeighborInfo);
+					++tmsg->NumEntriesInMsg;
 				}
 			}
 		}

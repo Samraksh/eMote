@@ -14,6 +14,7 @@
 //#define OMAC_DEBUG_PRINTF
 
 #define OMAC_DEBUG_PRINTF_EXTENDEDMACINfo 1
+#define OMAC_DEBUG_SEND_EXTENDEDMACINfo 1
 
 // BK: VARIOUS DEBUG STatement enabling PIN for debuggin network issues
 

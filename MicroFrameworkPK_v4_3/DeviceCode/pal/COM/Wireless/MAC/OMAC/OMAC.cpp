@@ -811,18 +811,19 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 #if OMAC_DEBUG_PRINTF_EXTENDEDMACINfo
 			if(msg->GetHeader()->flags &  MFM_EXTENDED_MAC_INFO_FLAG) {
 				macinfosum_msg = (EntendedMACInfoMsgSummary*) (msg->GetPayload() + location_in_packet_payload);
+				UINT8 numNfits = macinfosum_msg->NumEntriesInMsg;
 
-				hal_printf("EntendedMACInfoMsgSummary NTE=%u, NAFUL=%u, NEntInMsg=%u"
-						, macinfosum_msg->NumTotalEntries, macinfosum_msg->NNeigh_AFUL, macinfosum_msg->NumEntriesInMsg);
+				hal_printf("EntendedMACInfoMsgSummary NTE=%u, NAFUL=%u, NEntInMsg=%u \r\n"
+						, macinfosum_msg->NumTotalEntries, macinfosum_msg->NNeigh_AFUL, numNfits);
 
-				UINT8 numNfits; macinfosum_msg->NumEntriesInMsg;
+
 				location_in_packet_payload += sizeof(EntendedMACInfoMsgSummary);
 
 				if(numNfits > 0 ){
 					MACNeighborInfo * macinfo_msg;
 					for(UINT8 i=0; i < numNfits ; ++i){
 						MACNeighborInfo *macinfo_msg = (MACNeighborInfo*) (msg->GetPayload() + location_in_packet_payload);
-						hal_printf("EntendedMACInfoMsgSummary\r\n MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u \r\n "
+						hal_printf("EMI MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u \r\n "
 								, macinfo_msg->MACAddress
 								, macinfo_msg->neighborStatus
 								, macinfo_msg->IsAvailableForUpperLayers
