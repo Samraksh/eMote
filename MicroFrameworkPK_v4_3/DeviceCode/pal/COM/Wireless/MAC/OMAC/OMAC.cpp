@@ -353,9 +353,9 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 
 		AppCount = 0; //number of upperlayers connected to you
 		//MaxPayload is already defined in Message.h
-		OMACType::SetMaxPayload( (UINT16)( IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t) ) );
+//		OMACType::SetMaxPayload( (UINT16)( IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t) ) );
 		//OMACType::SetMaxPayload( (UINT16)( IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Metadata) ) );
-		//OMACType::SetMaxPayload((UINT16)IEEE802_15_4_MAX_PAYLOAD);
+		OMACType::SetMaxPayload((UINT16)IEEE802_15_4_MAX_PAYLOAD);
 
 		Radio_Event_Handler.RadioInterruptMask = (StartOfTransmission|EndOfTransmission|StartOfReception);
 		Radio_Event_Handler.SetRadioInterruptHandler(OMACRadioInterruptHandler);
