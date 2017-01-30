@@ -319,6 +319,26 @@ static void rx_cont_do(void *arg) {
 
 		return;
 	}*/
+	if (size > si446x_packet_size){
+		si446x_debug_print(ERR99, "SI446X: incorrect size in rx_cont_do\r\n");
+
+		si446x_get_modem_status( 0xFF ); // Refresh RSSI
+
+		rssi = si446x_get_latched_rssi();
+		freq_error = si446x_get_afc_info();
+
+
+		si446x_fifo_info(0x3); // Defensively reset FIFO
+		si446x_change_state(SI_STATE_SLEEP); // All done, sleep.
+
+		si446x_radio_unlock();
+		si446x_spi_unlock();
+
+		si446x_debug_print(ERR99,"SI446X: incorrect size in rx_cont_do:  Pkt RSSI: %d dBm Freq_Error: %d Hz\r\n", convert_rssi(rssi), freq_error);
+
+		CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
+		return;
+	}
 
 	si446x_read_rx_fifo(size, rx_pkt);
 
@@ -1458,7 +1478,9 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	}
 
 	if (ph_pend & PH_STATUS_MASK_PACKET_SENT) 	{ si446x_pkt_tx_int(); }
-	if (ph_pend & PH_STATUS_MASK_CRC_ERROR) 	{ si446x_pkt_bad_crc_int(); }
+	if (ph_pend & PH_STATUS_MASK_CRC_ERROR) 	{
+		si446x_pkt_bad_crc_int();
+	}
 
 	// If we finished a packet, go to sleep
 	/*if ( (ph_pend & PH_STATUS_MASK_PACKET_RX) || (ph_pend & PH_STATUS_MASK_CRC_ERROR) ) {
