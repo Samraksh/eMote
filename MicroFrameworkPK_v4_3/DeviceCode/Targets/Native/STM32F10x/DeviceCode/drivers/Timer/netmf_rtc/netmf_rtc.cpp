@@ -58,7 +58,7 @@ UINT64 STM32F10x_RTC::Get64Counter()
 
 		m_systemTime &= (0xFFFFFFFF00000000ull);
 		m_systemTime |= currentValue;
-		return currentValue;
+		return m_systemTime;
 	}
 	else 
 		return m_systemTime;

@@ -104,7 +104,7 @@ UINT64 STM32F10x_AdvancedTimer::Get64Counter()
 		 m_systemTime &= (0xFFFFFFFF00000000ull);
 		 m_systemTime |= currentValue;
 		 //hal_printf("\r\n3rd: %llu\r\n",m_systemTime);
-		return currentValue;
+		return m_systemTime;
 	}
 	else 
 		return m_systemTime;
