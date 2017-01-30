@@ -37,7 +37,31 @@ UINT64 STM32F10x_RTC::Get64Counter()
 	m_systemTime &= (0xFFFFFFFF00000000ull);
 	m_systemTime |= currentValue;
 
-	return m_systemTime;
+	UINT64 firstReading = m_systemTime;
+
+	currentValue = RTC_GetCounter();
+
+	if(RTC_GetFlagStatus(RTC_FLAG_OW))
+	{
+		RTC_ClearFlag(RTC_FLAG_OW);
+
+		// An overflow just happened, updating variable that holds system time
+		g_STM32F10x_RTC.m_systemTime += (0x1ull <<32);
+	}
+
+	m_systemTime &= (0xFFFFFFFF00000000ull);
+	m_systemTime |= currentValue;
+
+	if ((m_systemTime > (firstReading + 3))|| (m_systemTime < firstReading)){
+		//hal_printf("\r\nrtc first: %llu cur: %llu\r\n",firstReading,m_systemTime);
+		currentValue = RTC_GetCounter();
+
+		m_systemTime &= (0xFFFFFFFF00000000ull);
+		m_systemTime |= currentValue;
+		return currentValue;
+	}
+	else 
+		return m_systemTime;
 }
 
 // Initialize the advanced timer system. This involves initializing timer1 as a master timer and tim2 as a slave
