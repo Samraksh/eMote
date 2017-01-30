@@ -593,8 +593,14 @@
         <member name="F:Samraksh.eMote.Net.MAC.Neighbor.NeighborStatus">
             <summary>Status of neighbor</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.CountOfPacketsReceived">
-            <summary>Packet receive count</summary>
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.IsAvailableForUpperLayers">
+            <summary>IsAvailableForUpperLayers</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.NumTimeSyncMessagesSent">
+            <summary>NumTimeSyncMessagesSent</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.NumOfTimeSamplesRecorded">
+            <summary>NumTimeSyncMessagesRecv</summary>
         </member>
         <member name="F:Samraksh.eMote.Net.MAC.Neighbor.LastHeardTime">
             <summary>Last time heard from neighbor</summary>

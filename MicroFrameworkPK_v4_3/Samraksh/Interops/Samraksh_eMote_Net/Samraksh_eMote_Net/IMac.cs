@@ -70,8 +70,15 @@ namespace Samraksh.eMote.Net
 			public Link ReceiveLink;
 			/// <summary>Status of neighbor</summary>
 			public NeighborStatus NeighborStatus;
-			/// <summary>Packet receive count</summary>
-			public ushort CountOfPacketsReceived;
+            /// <summary>IsAvailableForUpperLayers</summary>
+            public bool IsAvailableForUpperLayers;
+            /// <summary>NumTimeSyncMessagesSent</summary>
+            public ushort NumTimeSyncMessagesSent;
+            /// <summary>NumTimeSyncMessagesRecv</summary>
+            public ushort NumOfTimeSamplesRecorded;
+	//		/// <summary>Packet receive count</summary>
+	//		public ushort CountOfPacketsReceived;
+
 			/// <summary>Last time heard from neighbor</summary>
 			public ulong LastHeardTime;
 			/// <summary>Receive duty cycle of neighbor</summary>
@@ -86,7 +93,9 @@ namespace Samraksh.eMote.Net
                 SendLink = new Link();
                 ReceiveLink = new Link();
                 NeighborStatus = NeighborStatus.Dead;
-                CountOfPacketsReceived = 0;
+                IsAvailableForUpperLayers = false;
+                NumTimeSyncMessagesSent = 0;
+                NumOfTimeSamplesRecorded = 0;
                 LastHeardTime = 0;
                 ReceiveDutyCycle = 0;
                 FrameLength = 0;

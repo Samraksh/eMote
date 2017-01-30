@@ -293,9 +293,12 @@ DeviceStatus MAC_GetNeighborStatus(UINT16 macAddress, UINT8 *buffer)
 			buffer[5] = (g_NeighborTable.Neighbor[i].ReceiveLink.AvgRSSI);
 			buffer[6] = (g_NeighborTable.Neighbor[i].ReceiveLink.LinkQuality);
 			buffer[7] = (g_NeighborTable.Neighbor[i].ReceiveLink.AveDelay);
-			buffer[8] = (g_NeighborTable.Neighbor[i].neighborStatus);
-			buffer[9] = (g_NeighborTable.Neighbor[i].CountOfPacketsReceived & 0xff);
-			buffer[10] = (g_NeighborTable.Neighbor[i].CountOfPacketsReceived & 0xff00) >> 8;
+			buffer[8] = (g_NeighborTable.Neighbor[i].neighborStatus) || ( ((g_NeighborTable.Neighbor[i].IsAvailableForUpperLayers) & 0x01) << 1)  ;
+			buffer[9] = (g_NeighborTable.Neighbor[i].NumTimeSyncMessagesSent);
+			buffer[10] =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[i].MACAddress);
+
+//			buffer[9] = (g_NeighborTable.Neighbor[i].CountOfPacketsReceived & 0xff);
+//			buffer[10] = (g_NeighborTable.Neighbor[i].CountOfPacketsReceived & 0xff00) >> 8;
 			buffer[11] = (g_NeighborTable.Neighbor[i].LastHeardTime) & 0xff;
 			buffer[12] = (g_NeighborTable.Neighbor[i].LastHeardTime & 0xff00) >> 8;
 			buffer[13] = (g_NeighborTable.Neighbor[i].LastHeardTime & 0xff0000) >> 16;

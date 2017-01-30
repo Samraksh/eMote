@@ -69,10 +69,12 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MAC_Neighbor
     static const int FIELD__SendLink = 2;
     static const int FIELD__ReceiveLink = 3;
     static const int FIELD__NeighborStatus = 4;
-    static const int FIELD__CountOfPacketsReceived = 5;
-    static const int FIELD__LastHeardTime = 6;
-    static const int FIELD__ReceiveDutyCycle = 7;
-    static const int FIELD__FrameLength = 8;
+    static const int FIELD__IsAvailableForUpperLayers = 5;
+    static const int FIELD__NumTimeSyncMessagesSent = 6;
+    static const int FIELD__NumOfTimeSamplesRecorded = 7;
+    static const int FIELD__LastHeardTime = 8;
+    static const int FIELD__ReceiveDutyCycle = 9;
+    static const int FIELD__FrameLength = 10;
 
 
     //--//
