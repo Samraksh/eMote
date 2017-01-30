@@ -98,7 +98,7 @@ UINT64 STM32F10x_AdvancedTimer::Get64Counter()
 	m_systemTime &= (0xFFFFFFFF00000000ull);
 	m_systemTime |= currentValue;
 
-	if ((m_systemTime > (firstReading + 150))|| (m_systemTime < firstReading)){
+	if ((m_systemTime > (firstReading + 350))|| (m_systemTime < firstReading)){
 		//hal_printf("\r\nadv first: %llu cur: %llu\r\n",firstReading,m_systemTime);
 		 currentValue = GetCounter();
 		 m_systemTime &= (0xFFFFFFFF00000000ull);
