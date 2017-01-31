@@ -44,6 +44,8 @@ DeviceStatus RadioControl_t::Initialize(){
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );
 
 #endif
+	stayOn = false;
+	next_piggybacked_extendedneighborinfo_index = 0;
 	return DS_Success;
 }
 
@@ -351,14 +353,15 @@ bool RadioControl_t::PiggybackEntendedMACInfoMsg(Message_15_4_t* msg, UINT16 &si
 		if(numNfits > tmsg->NumTotalEntries) numNfits = tmsg->NumTotalEntries;
 		if(numNfits > 0 ){
 			MACNeighborInfo * macinfo_msg;
-			for(UINT8 i=0; i < numNfits ; ++i){
+			for(UINT8 i=0; i < numNfits ; ++i, ++next_piggybacked_extendedneighborinfo_index){
+				if(next_piggybacked_extendedneighborinfo_index > tmsg->NumTotalEntries)  next_piggybacked_extendedneighborinfo_index = 0;
 				if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(MACNeighborInfo)+additional_overhead) ){
 					macinfo_msg = (MACNeighborInfo *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
-					macinfo_msg->MACAddress 						=  g_NeighborTable.Neighbor[i].MACAddress;
-					macinfo_msg->neighborStatus 					=  g_NeighborTable.Neighbor[i].neighborStatus;
-					macinfo_msg->IsAvailableForUpperLayers 			=  g_NeighborTable.Neighbor[i].IsAvailableForUpperLayers;
-					macinfo_msg->NumTimeSyncMessagesSent 			=  g_NeighborTable.Neighbor[i].NumTimeSyncMessagesSent;
-					macinfo_msg->NumTimeSyncMessagesRecv 			=  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[i].MACAddress) ;
+					macinfo_msg->MACAddress 						=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].MACAddress;
+					macinfo_msg->neighborStatus 					=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].neighborStatus;
+					macinfo_msg->IsAvailableForUpperLayers 			=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].IsAvailableForUpperLayers;
+					macinfo_msg->NumTimeSyncMessagesSent 			=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].NumTimeSyncMessagesSent;
+					macinfo_msg->NumTimeSyncMessagesRecv 			=  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].MACAddress) ;
 					size += sizeof(MACNeighborInfo);
 					++tmsg->NumEntriesInMsg;
 				}
