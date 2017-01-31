@@ -132,10 +132,22 @@ void RTC_ExitConfigMode(void)
   */
 uint32_t RTC_GetCounter(void)
 {
-//TODO: fix bug where CNTH can wrap around between reads....this is worked around in RTC timer driver but should be done here.
-  uint16_t tmp = 0;
+	
+ /* uint16_t tmp = 0;
   tmp = RTC->CNTL;
-  return (((uint32_t)RTC->CNTH << 16 ) | tmp) ;
+  return (((uint32_t)RTC->CNTH << 16 ) | tmp) ;*/
+
+
+	uint16_t tim1a = RTC->CNTL;
+	uint16_t tim2a = RTC->CNTH;
+	uint16_t tim1b = RTC->CNTL;
+
+	if(tim1b < tim1a)
+	{
+		tim2a = RTC->CNTH;
+	}
+
+	return (((uint32_t)tim2a << 16) | tim1b);
 }
 
 /**
