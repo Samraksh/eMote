@@ -70,6 +70,8 @@ UINT32 STM32F10x_AdvancedTimer::SetCounter(UINT32 counterValue)
 
 UINT64 STM32F10x_AdvancedTimer::Get64Counter()
 {
+	// keeping an interrupt from happening right now causing timer problems where the value can be wrong at times.
+	GLOBAL_LOCK(irq);
 	UINT32 currentValue = GetCounter();
 
 	if(TIM_GetITStatus(TIM2, TIM_IT_Update))
@@ -78,12 +80,15 @@ UINT64 STM32F10x_AdvancedTimer::Get64Counter()
 
 		// An overflow just happened, updating variable that holds system time
 		g_STM32F10x_AdvancedTimer.m_systemTime += (0x1ull <<32);
+		// if the timer wrapped and caused an overflow which calls for an increment to systemTime then we need to pull
+		// the current counter value again because the counter could be WAY off right now
+		currentValue = GetCounter();
 	}
 
 	m_systemTime &= (0xFFFFFFFF00000000ull);
 	m_systemTime |= currentValue;
 
-	UINT64 firstReading = m_systemTime;
+	/*UINT64 firstReading = m_systemTime;
 
 	currentValue = GetCounter();
 
@@ -99,18 +104,15 @@ UINT64 STM32F10x_AdvancedTimer::Get64Counter()
 	m_systemTime |= currentValue;
 
 	if ((m_systemTime > (firstReading + 350))|| (m_systemTime < firstReading)){
-		//hal_printf("\r\nadv first: %llu cur: %llu\r\n",firstReading,m_systemTime);
+		hal_printf("\r\nadv first: %llu cur: %llu sys: %llu curV: %lu\r\n", firstReading, m_systemTime, m_systemTime &= (0xFFFFFFFF00000000ull), currentValue);
 		 currentValue = GetCounter();
 		 m_systemTime &= (0xFFFFFFFF00000000ull);
 		 m_systemTime |= currentValue;
 		 //hal_printf("\r\n3rd: %llu\r\n",m_systemTime);
 		return m_systemTime;
 	}
-	else 
-		return m_systemTime;
-
-
-
+	//else 
+	//	return m_systemTime;*/
 	return m_systemTime;
 }
 
