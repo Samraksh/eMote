@@ -31,7 +31,7 @@ public:
 
 	bool PiggybackMessages(Message_15_4_t* msg, UINT16 &size);
 	bool stayOn;
-	RadioControl_t() : last_piggybacked_extendedneighborinfo_index(0) ,stayOn(false) {};
+	RadioControl_t() : next_piggybacked_extendedneighborinfo_index(0) ,stayOn(false) {};
 
 };
 
