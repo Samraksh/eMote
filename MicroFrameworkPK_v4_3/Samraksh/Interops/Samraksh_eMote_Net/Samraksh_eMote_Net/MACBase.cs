@@ -995,6 +995,44 @@ namespace Samraksh.eMote.Net
 			return DeviceStatus.Success;
 		}
 
+        /// <summary>
+        ///		Get the list of neighbors from the MAC
+        /// </summary>
+        /// <param name="neighborListArray">
+        ///		Array is filled with the addresses of active neighbors, padded with zeroes at the end.
+        /// </param>
+        /// <returns>
+        ///		Result status
+        /// </returns>
+        public DeviceStatus MACNeighborList(ushort[] neighborListArray)
+        {
+            if (neighborListArray.Length == 0)
+            {
+                throw new Exception("Array size is 0");
+            }
+
+            if (neighborListArray.Length > NeighborListSize)
+            {
+                throw new Exception("Array size cannot be greater than " + NeighborListSize);
+            }
+
+            var status = NeighborList();
+
+            Array.Copy(_neighborListTemp, neighborListArray, _neighborListTemp.Length);
+
+            return status;
+        }
+        private DeviceStatus MACNeighborList()
+        {
+            if (GetMACNeighborListInternal(_neighborListTemp) != DeviceStatus.Success)
+            {
+                //throw new Exception("Could not get list of neighbors");
+                return DeviceStatus.Fail;
+            }
+
+            return DeviceStatus.Success;
+        }
+
 		/// <summary>Get the details for a Neighbor</summary>
 		/// <param name="macAddress">Address of the Neighbor</param>
 		/// <returns>Neighbor</returns>
@@ -1009,9 +1047,9 @@ namespace Samraksh.eMote.Net
                 _neighbor.ReceiveLink.AverageRSSI = _byteNeighbor[5];  //ReverseLink
                 _neighbor.ReceiveLink.LinkQuality = _byteNeighbor[6];
                 _neighbor.ReceiveLink.AverageDelay = _byteNeighbor[7];
-                byte bitmask = 1;
-                _neighbor.NeighborStatus = (NeighborStatus)(_byteNeighbor[8] & bitmask);//Status of neighbor
-                _neighbor.IsAvailableForUpperLayers = ((_byteNeighbor[8] & (bitmask << 1)) >> 1) != 0;//Status of neighbor
+                
+                _neighbor.NeighborStatus = (NeighborStatus)(_byteNeighbor[8] & 0x0F);//Status of neighbor
+                _neighbor.IsAvailableForUpperLayers = ((_byteNeighbor[8] & (0x0F << 4)) >> 4) != 0;//Status of neighbor
                 _neighbor.NumTimeSyncMessagesSent = _byteNeighbor[9];
                 _neighbor.NumOfTimeSamplesRecorded = _byteNeighbor[10];
                 //_neighbor.CountOfPacketsReceived = (ushort)(((_byteNeighbor[10] << 8) & 0xFF00) + _byteNeighbor[9]);
@@ -1080,6 +1118,12 @@ namespace Samraksh.eMote.Net
 		/// <returns></returns>
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		private extern DeviceStatus GetNeighborListInternal(ushort[] neighborlist);
+
+        /// <summary></summary>
+        /// <param name="macneighborlist"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus GetMACNeighborListInternal(ushort[] neighborlist);
 
 		/*/// <summary>Get the type of this MAC instance</summary>
 		/// <returns></returns>

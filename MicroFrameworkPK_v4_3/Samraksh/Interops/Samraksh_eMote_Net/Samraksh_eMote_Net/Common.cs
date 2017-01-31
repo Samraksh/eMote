@@ -97,13 +97,20 @@ namespace Samraksh.eMote.Net
         SendFailed
     }
 
-    
+    /// <summary>
+    /// SendPa
+    /// </summary>
     public enum SendPacketStatus
     {
+        /// <summary>The operation of sending the packet is initiate. The packet still waits in the queue.</summary>
         SendInitiated,
+        /// <summary>The operation of sending the packet is unsuccessful. The packet is dropped from the queue with successful status.</summary>
         SendACKed,
+        /// <summary>The operation of sending the packet is unsuccessful. The packet still waits in the queue.</summary>
         SendNACKed,
+        /// <summary>Send Permenantly Failed. The packet is dropped from the queue with unsuccessful status.</summary>
         SendFailed,
+        /// <summary>Test Condition</summary>
         TestMe
     };
 

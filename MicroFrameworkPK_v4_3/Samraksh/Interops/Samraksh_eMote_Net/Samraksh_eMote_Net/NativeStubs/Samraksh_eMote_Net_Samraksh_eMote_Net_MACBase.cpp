@@ -76,6 +76,12 @@ INT32 MACBase::GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedA
     return retVal;
 }
 
+INT32 MACBase::GetMACNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
 INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, UINT32 param4, HRESULT &hr )
 {
     INT32 retVal = 0; 

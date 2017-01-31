@@ -107,6 +107,26 @@
         <member name="F:Samraksh.eMote.Net.CallbackType.SendFailed">
             <summary>Send packet failed</summary>
         </member>
+        <member name="T:Samraksh.eMote.Net.SendPacketStatus">
+            <summary>
+            SendPa
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.SendPacketStatus.SendInitiated">
+            <summary>The operation of sending the packet is initiate. The packet still waits in the queue.</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.SendPacketStatus.SendACKed">
+            <summary>The operation of sending the packet is unsuccessful. The packet is dropped from the queue with successful status.</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.SendPacketStatus.SendNACKed">
+            <summary>The operation of sending the packet is unsuccessful. The packet still waits in the queue.</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.SendPacketStatus.SendFailed">
+            <summary>Send Permenantly Failed. The packet is dropped from the queue with unsuccessful status.</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.SendPacketStatus.TestMe">
+            <summary>Test Condition</summary>
+        </member>
         <member name="T:Samraksh.eMote.Net.MAC.CSMA">
             <summary>CSMA class</summary>
         </member>
@@ -287,6 +307,17 @@
             	Result status
             </returns>
         </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.MACNeighborList(System.UInt16[])">
+            <summary>
+            	Get the list of neighbors from the MAC
+            </summary>
+            <param name="neighborListArray">
+            	Array is filled with the addresses of active neighbors, padded with zeroes at the end.
+            </param>
+            <returns>
+            	Result status
+            </returns>
+        </member>
         <member name="M:Samraksh.eMote.Net.MACBase.NeighborStatus(System.UInt16)">
             <summary>Get the details for a Neighbor</summary>
             <param name="macAddress">Address of the Neighbor</param>
@@ -333,6 +364,11 @@
         <member name="M:Samraksh.eMote.Net.MACBase.GetNeighborListInternal(System.UInt16[])">
             <summary></summary>
             <param name="neighborlist"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.GetMACNeighborListInternal(System.UInt16[])">
+            <summary></summary>
+            <param name="macneighborlist"></param>
             <returns></returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">

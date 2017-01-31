@@ -278,6 +278,33 @@ DeviceStatus MAC_GetNeighborList(UINT16 *buffer)
 
 	return DS_Success;
 }
+DeviceStatus MAC_GetMACNeighborList(UINT16 *buffer)
+{
+	UINT8 neighborCount = 0;
+
+	DEBUG_PRINTF_MAC("[NATIVE] : Calling GetNeighbor List\n");
+
+	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+	{
+		// initializing buffer
+		buffer[i] = 0;
+	}
+	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+	{
+		if(ISMAC_VALID(g_NeighborTable.Neighbor[i].MACAddress) )
+		{
+			buffer[neighborCount++] = g_NeighborTable.Neighbor[i].MACAddress;
+		}
+	}
+
+	if(neighborCount == 0)
+	{
+		DEBUG_PRINTF_MAC("[NATIVE] : Neighbor Count is 0\n");
+		buffer[0] = 0;
+	}
+
+	return DS_Success;
+}
 
 DeviceStatus MAC_GetNeighborStatus(UINT16 macAddress, UINT8 *buffer)
 {
@@ -293,7 +320,7 @@ DeviceStatus MAC_GetNeighborStatus(UINT16 macAddress, UINT8 *buffer)
 			buffer[5] = (g_NeighborTable.Neighbor[i].ReceiveLink.AvgRSSI);
 			buffer[6] = (g_NeighborTable.Neighbor[i].ReceiveLink.LinkQuality);
 			buffer[7] = (g_NeighborTable.Neighbor[i].ReceiveLink.AveDelay);
-			buffer[8] = (g_NeighborTable.Neighbor[i].neighborStatus) || ( ((g_NeighborTable.Neighbor[i].IsAvailableForUpperLayers) & 0x01) << 1)  ;
+			buffer[8] = (g_NeighborTable.Neighbor[i].neighborStatus & 0x0F) || ( ((g_NeighborTable.Neighbor[i].IsAvailableForUpperLayers) & 0x0F) << 4)  ;
 			buffer[9] = (g_NeighborTable.Neighbor[i].NumTimeSyncMessagesSent);
 			buffer[10] =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[i].MACAddress);
 

@@ -164,6 +164,12 @@ INT32 MACBase::GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedA
     return MAC_GetNeighborList(neighborlist.GetBuffer());
 }
 
+INT32 MACBase::GetMACNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 neighborlist, HRESULT &hr )
+{
+    return MAC_GetMACNeighborList(neighborlist.GetBuffer());
+}
+
+
 INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 address, UINT8 payloadType, CLR_RT_TypedArray_UINT8 payloadTemp, UINT16 offset, UINT16 size, HRESULT &hr )
 {
 	InteropNetOpStatus retVal;

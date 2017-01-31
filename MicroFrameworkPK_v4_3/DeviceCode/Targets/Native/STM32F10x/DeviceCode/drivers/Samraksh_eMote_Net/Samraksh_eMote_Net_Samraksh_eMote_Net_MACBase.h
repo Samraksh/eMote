@@ -64,6 +64,8 @@ namespace Samraksh
                 static INT32 GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
                 static INT32 GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr );
                 static INT32 GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, HRESULT &hr );
+                static INT32 GetMACNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 neighborlist, HRESULT &hr );
+
                 static INT32 Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, UINT32 param4, HRESULT &hr );
                 static INT32 Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, UINT8 param1, CLR_RT_TypedArray_UINT8 param2, UINT16 param3, UINT16 param4, HRESULT &hr );
                 static INT32 Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, UINT8 param1, CLR_RT_TypedArray_UINT8 param2, UINT16 param3, UINT16 param4, UINT32 param5, HRESULT &hr );
