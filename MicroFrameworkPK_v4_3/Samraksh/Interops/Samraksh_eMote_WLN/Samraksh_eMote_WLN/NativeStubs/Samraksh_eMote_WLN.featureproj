@@ -2,7 +2,7 @@
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_eMote_WLN</FeatureName>
-    <Guid>{3e175661-8656-468d-aaa7-03e4520ef1ca}</Guid>
+    <Guid>{801b1eb5-5fc3-4e00-a11f-c8a663d1df94}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_EMOTE_WLN_FEATUREPROJ>True</SAMRAKSH_EMOTE_WLN_FEATUREPROJ>

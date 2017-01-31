@@ -368,7 +368,7 @@
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.GetMACNeighborListInternal(System.UInt16[])">
             <summary></summary>
-            <param name="macneighborlist"></param>
+            <param name="neighborlist"></param>
             <returns></returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
@@ -465,6 +465,12 @@
             <param name="macInstance">
             	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
             	When used by MACPipe class, will be MACPipe class.
+            	</param>
+            <param name="ACKStatus">
+                Status
+                </param>
+            <param name="transmitDestination">
+            	The destination ID
             </param>
             <param name="time"></param>
         </member>

@@ -379,6 +379,12 @@ namespace Samraksh.eMote.Net
         /// <param name="macInstance">
         ///		When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
         ///		When used by MACPipe class, will be MACPipe class.
+        ///		</param>
+        /// <param name="ACKStatus">
+        ///     Status
+        ///     </param>
+        /// <param name="transmitDestination">
+        ///		The destination ID
         /// </param>
         /// <param name="time"></param>
         public delegate void IMACTransmitACKEventHandler(IMAC macInstance, DateTime time, SendPacketStatus ACKStatus, uint transmitDestination);
@@ -1120,7 +1126,7 @@ namespace Samraksh.eMote.Net
 		private extern DeviceStatus GetNeighborListInternal(ushort[] neighborlist);
 
         /// <summary></summary>
-        /// <param name="macneighborlist"></param>
+        /// <param name="neighborlist"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         private extern DeviceStatus GetMACNeighborListInternal(ushort[] neighborlist);
