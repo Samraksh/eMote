@@ -996,7 +996,7 @@ namespace Samraksh.eMote.Net
 		}
 
         /// <summary>
-        ///		Get the list of neighbors from the MAC
+        ///		Get the the internal list of neighbors from the MAC including unreachable destinations
         /// </summary>
         /// <param name="neighborListArray">
         ///		Array is filled with the addresses of active neighbors, padded with zeroes at the end.
