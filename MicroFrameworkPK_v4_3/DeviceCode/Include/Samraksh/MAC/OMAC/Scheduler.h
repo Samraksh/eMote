@@ -42,6 +42,7 @@ class OMACScheduler{
 	UINT8 m_num_rescheduled;
 #endif
 
+
 private:
 
 	UINT8 radioID;
@@ -56,6 +57,10 @@ private:
 
 
 public:
+
+	UINT64 m_scheduledFailSafeTimer_in_ticks;
+	UINT8 m_num_FailsafeTimerFiring;
+
 
 	OMACSchedulerState_t m_state;		//The state of the scheduler
 	bool m_execution_started;
