@@ -200,6 +200,10 @@ BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
 
 	// Initializing timer
 	g_VirtualTimerInfo[VTimerIndex].set_m_ticks_when_match_(VirtTimer_GetTicks(timer_id)  + g_VirtualTimerInfo[VTimerIndex].get_m_period() + g_VirtualTimerInfo[VTimerIndex].get_m_start_delay());
+
+	// if we have a timer set but marked as not running and then we change it and start it, the old set compare could fire, see that it is running from the following statement and then execute the callback.
+	// So we lock that out here.
+	GLOBAL_LOCK(irq);
 	g_VirtualTimerInfo[VTimerIndex].set_m_is_running(TRUE);
 	
 	SetAlarmForTheNextTimer();
@@ -379,23 +383,26 @@ void VirtualTimerCallback(void *arg)
 	}
 	VirtualTimerInfo* runningTimer = &gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_];
 
-	// calling the timer callback that just fired
-	if (runningTimer->get_m_is_running()){
+	// calling the timer callback that just fired IF it is running and should have matched by now. 
+	// It is possible that while we are queueing up a timer to fire another timer fires and then m_current_timer_running_ gets changed, that exits, the timer interrupt gets processed and we process the wrong timer
+	// So we double check here.
+	if (runningTimer->get_m_is_running() && (runningTimer->get_m_ticks_when_match_() < VirtTimer_GetTicks(currentHardwareTimerId))){
 		if ( runningTimer->get_m_timer_id() <= VIRT_TIMER_INTERRUPT_CONTEXT_MARKER){
 			(runningTimer->get_m_callback())(NULL);
 		} else {
 			//void * userData = NULL;
 			queueVTCallback(runningTimer);
 		}
+		// if the timer is a one shot we don't place it back on the timer Queue
+		if (runningTimer->get_m_is_one_shot()){
+			runningTimer->set_m_is_running(FALSE);
+		} else {
+			// calculating the next time this timer will fire
+			runningTimer->set_m_ticks_when_match_(VirtTimer_GetTicks(runningTimer->get_m_timer_id()) + runningTimer->get_m_period());
+		}
 	}
 
-	// if the timer is a one shot we don't place it back on the timer Queue
-	if (runningTimer->get_m_is_one_shot()){
-		runningTimer->set_m_is_running(FALSE);
-	} else {
-		// calculating the next time this timer will fire
-		runningTimer->set_m_ticks_when_match_(VirtTimer_GetTicks(runningTimer->get_m_timer_id()) + runningTimer->get_m_period());
-	}
+	
 
 	gVirtualTimerObject.virtualTimerMapper[currentVTMapper].is_callback_running = false;
 	gVirtualTimerObject.virtualTimerMapper[currentVTMapper].SetAlarmForTheNextTimer();
