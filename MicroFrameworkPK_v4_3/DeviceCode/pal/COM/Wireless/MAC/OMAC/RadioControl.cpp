@@ -354,7 +354,7 @@ bool RadioControl_t::PiggybackEntendedMACInfoMsg(Message_15_4_t* msg, UINT16 &si
 		if(numNfits > 0 ){
 			MACNeighborInfo * macinfo_msg;
 			for(UINT8 i=0; i < numNfits ; ++i, ++next_piggybacked_extendedneighborinfo_index){
-				if(next_piggybacked_extendedneighborinfo_index > tmsg->NumTotalEntries)  next_piggybacked_extendedneighborinfo_index = 0;
+				if(next_piggybacked_extendedneighborinfo_index >= tmsg->NumTotalEntries)  next_piggybacked_extendedneighborinfo_index = 0;
 				if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(MACNeighborInfo)+additional_overhead) ){
 					macinfo_msg = (MACNeighborInfo *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
 					macinfo_msg->MACAddress 						=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].MACAddress;
