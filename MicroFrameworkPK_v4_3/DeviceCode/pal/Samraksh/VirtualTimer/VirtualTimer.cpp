@@ -386,7 +386,7 @@ void VirtualTimerCallback(void *arg)
 	// calling the timer callback that just fired IF it is running and should have matched by now. 
 	// It is possible that while we are queueing up a timer to fire another timer fires and then m_current_timer_running_ gets changed, that exits, the timer interrupt gets processed and we process the wrong timer
 	// So we double check here.
-	if (runningTimer->get_m_is_running() && (runningTimer->get_m_ticks_when_match_() < VirtTimer_GetTicks(currentHardwareTimerId))){
+	if (runningTimer->get_m_is_running() && (runningTimer->get_m_ticks_when_match_() < CPU_Timer_CurrentTicks(currentHardwareTimerId))){
 		if ( runningTimer->get_m_timer_id() <= VIRT_TIMER_INTERRUPT_CONTEXT_MARKER){
 			(runningTimer->get_m_callback())(NULL);
 		} else {
