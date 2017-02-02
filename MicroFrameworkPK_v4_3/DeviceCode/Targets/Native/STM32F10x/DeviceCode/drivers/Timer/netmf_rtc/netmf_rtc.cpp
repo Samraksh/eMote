@@ -33,6 +33,8 @@ UINT64 STM32F10x_RTC::Get64Counter()
 
 		// An overflow just happened, updating variable that holds system time
 		g_STM32F10x_RTC.m_systemTime += (0x1ull <<32);
+		RTC_WaitForLastTask();
+		RTC_WaitForSynchro();
 		currentValue = RTC_GetCounter();
 	}
 
@@ -103,6 +105,10 @@ DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, U
 	}
 	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 	RCC_RTCCLKCmd(ENABLE);
+	RTC_WaitForLastTask();
+	RTC_WaitForSynchro();
+	RTC_WaitForLastTask();
+	RTC_SetCounter(0xFFF00000);
 	RTC_WaitForLastTask();
 	RTC_WaitForSynchro();
 	RTC_WaitForLastTask();
