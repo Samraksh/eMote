@@ -2677,7 +2677,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 	UINT8 rx_crc_valid = phy_rssi_reg_value & 0x80;
 	//UINT8 rssi = phy_rssi_reg_value & RF230_RSSI_MASK;
 
-	UINT16 rssi = GetAverageOrMaxRSSI_countN(8);
+//	UINT16 rssi = GetAverageOrMaxRSSI_countN(8);
 
 	UINT8 phy_status;
 	UINT8 len;
@@ -2697,7 +2697,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 	// DEBUG NATHAN
 
 	temp_rx_msg_ptr = (UINT8 *) rx_msg_ptr;
-	memset(temp_rx_msg_ptr, 0,  IEEE802_15_4_FRAME_LENGTH);
+	memset(temp_rx_msg_ptr, 0,  IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Metadata_t));
 
 	//RF231_240NS_DELAY();
 	SelnClear();
@@ -2730,7 +2730,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 	SelnSet();
 
 	IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
-	metadata->SetRssi(rssi);
+//	metadata->SetRssi(rssi);
 	metadata->SetLqi(lqi);
 	metadata->SetReceiveTimeStamp(receive_timestamp);
 
@@ -2744,7 +2744,7 @@ DeviceStatus RF231Radio::DownloadMessage(UINT16 tmp_length)
 	UINT8 rx_crc_valid = phy_rssi_reg_value & 0x80;
 	//UINT8 rssi = phy_rssi_reg_value & RF230_RSSI_MASK;
 
-	UINT16 rssi = GetAverageOrMaxRSSI_countN(8);
+//	UINT16 rssi = GetAverageOrMaxRSSI_countN(8);
 
 	UINT8 phy_status;
 	UINT8 len;
