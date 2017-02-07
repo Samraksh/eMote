@@ -2730,7 +2730,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 	SelnSet();
 
 	IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
-//	metadata->SetRssi(rssi);
+	metadata->SetRssi(ReadRegister(RF230_PHY_ED_LEVEL));  //BK: In extended mode ED detection is recommended over manual RSSI measurements. It is also recommended to use automatic ED detection rather than manual measurements.
 	metadata->SetLqi(lqi);
 	metadata->SetReceiveTimeStamp(receive_timestamp);
 
