@@ -849,7 +849,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 			if(msg->GetHeader()->payloadType != MFM_OMAC_DATA_ACK && msg->GetHeader()->payloadType != MFM_OMAC_DISCOVERY){
 			if(msg->GetHeader()->flags & TIMESTAMPED_FLAG){
-					double SenderDelayTemp = (((double) g_OMAC.m_Clock.ConvertTickstoMicroSecs(senderDelay) / 100000) ); // Recorded delay has units of second
+//					double SenderDelayTemp = (((double) g_OMAC.m_Clock.ConvertTickstoMicroSecs(senderDelay) / 100000) ); // Recorded delay has units of second
+					UINT64 SenderDelayTemp = senderDelay>>19; // Lets use units of 65536 microsecs (instead of 100000 microsecs above) for the delay measurement. This reduces the taxation on the CPU
 					if(SenderDelayTemp > 0x000000FF){
 							g_NeighborTable.RecordSenderDelayIncoming( sourceID, (UINT8)(0xFF));
 					}
