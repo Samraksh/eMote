@@ -44,8 +44,23 @@ extern UINT8 MacName;
 #endif
 
 typedef struct {
+	/* AvgRSSI
+	 * Exponentially smoothed (with lambda of 0.2) average of   SINR code as reported by the radio.
+	 * 		For RF231 has conversion (-91 + AvgRSSI) provides the true value.
+	 * 		For SI radio the conversion is already done at the driver and is cast into uint.
+	 *	  	  Hence the conversion to get signed value is -1*( (0xFF - AvgRSSI)+1 ).
+	*/
 	UINT8 AvgRSSI;
+	/*LinkQuality:
+	 * As reported by the radio.
+	 * For RF231, represent a measure of the BER for the corresponding SINR.
+	 * For SI radio, not available. Hence a value of 0 is reported.
+	 * Exponentially smoothed with lambda of 0.2.
+	 */
 	UINT8 LinkQuality;
+	/* AveDelay
+	 * : Has units of 65.535 (=10^3/(2^19/2^8)) ms. Exponentially smoothed
+	 */
 	UINT8 AveDelay;
 }Link_t;
 

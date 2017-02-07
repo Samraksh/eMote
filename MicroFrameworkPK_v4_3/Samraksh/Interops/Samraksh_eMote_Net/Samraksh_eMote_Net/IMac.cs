@@ -25,14 +25,33 @@ namespace Samraksh.eMote.Net
 		/// </summary>
 		public class Link
 		{
-			/// <summary>Average Received Signal Strength Indication, RSSI </summary>
+
+   			/// <summary> Average Received Signal Strength Indication, RSSI.   </summary>
+            /// <remarks> 
+            /// Exponentially smoothed (with lambda of 0.2) average of   SINR code as reported by the radio.
+            ///	        For RF231 has conversion (-91 + AvgRSSI) provides the true value.
+            /// 		For SI radio the conversion is already done at the driver and is cast into uint.
+            ///	  	  Hence the conversion to get signed value is -1*( (0xFF - AvgRSSI)+1 ).
+            /// </remarks>
 			public byte AverageRSSI;
-			/// <summary>Link quality</summary>
+
+
+			/// <summary>Link quality</summary>             
+            /// <remarks> 
+             /// As reported by the radio.
+             /// For RF231, represent a measure of the BER for the corresponding SINR.
+             /// For SI radio, not available. Hence a value of 0 is reported.
+             /// Exponentially smoothed with lambda of 0.2.
+            /// </remarks>
 			public byte LinkQuality;
+
 			/// <summary>Average delay</summary>
+            /// <remarks> 
+            /// Has units of 65.535 (=10^3/(2^19/2^8)) ms. Exponentially smoothed
+            /// </remarks>
 			public byte AverageDelay;
 
-            /// <summary></summary>
+            /// <summary> Charecteristics of a link. </summary>
             public Link()
             {
                 AverageRSSI = 0;
@@ -62,9 +81,13 @@ namespace Samraksh.eMote.Net
 			/// <summary>MAC address of neighbor</summary>
 			public ushort MACAddress;
             /// <summary>Send (formerly forward) link details between current and neighbor node. Provides link details 
-            /// of transmissions to a certain neighbor. Since a sender will not have the link details when sending a packet, the receiver 
-            /// has to send back the details (such as RSSI, LQI) to the sender (by piggybacking on a data packet for instance). </summary>
-			public Link SendLink;
+            /// of transmissions to a certain neighbor.  
+            /// </summary>
+            #region commented code Removed by Bora.This is not implemented for the current MAC algorithms. 
+            /// Since a sender will not have the link details when sending a packet, the receiver
+            /// has to send back the details (such as RSSI, LQI) to the sender (by piggybacking on a data packet for instance).
+            #endregion
+            public Link SendLink;
             /// <summary>Receive (formerly reverse) link details between current and neighbor node. Provides link details 
             /// of receptions from a certain neighbor. A received packet's metadata carries details such as RSSI and LQI.</summary>
 			public Link ReceiveLink;
@@ -86,7 +109,7 @@ namespace Samraksh.eMote.Net
 			/// <summary>Frame length of neighbor</summary>
 			public ushort FrameLength;
 
-            /// <summary></summary>
+            /// <summary> Constructs a dummy neighbor object </summary>
             public Neighbor()
             {
                 MACAddress = 0;
