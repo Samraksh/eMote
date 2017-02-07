@@ -564,7 +564,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 			}
 
 #if OMAC_DEBUG_PRINTF_PACKETREC
-		hal_printf("OMAC RX sourceID = %u, destID = %u payloadType = %u flags = %u \r\n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags);
+		hal_printf("OMAC RX sourceID = %u, destID = %u payloadType = %u flags = %u RSSI = %u LQI = %u \r\n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags, msg->GetMetaData()->GetRssi(), msg->GetMetaData()->GetLqi());
 #endif
 
 
@@ -847,6 +847,19 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 #endif
 			}
 
+			if(msg->GetHeader()->payloadType != MFM_OMAC_DATA_ACK && msg->GetHeader()->payloadType != MFM_OMAC_DISCOVERY){
+			if(msg->GetHeader()->flags & TIMESTAMPED_FLAG){
+					double SenderDelayTemp = (((double) g_OMAC.m_Clock.ConvertTickstoMicroSecs(senderDelay) / 1000000) ); // Recorded delay has units of second
+					if(SenderDelayTemp > 0x000000FF){
+							g_NeighborTable.RecordSenderDelayIncoming( sourceID, (UINT8)(0xFF));
+					}
+					else{
+						g_NeighborTable.RecordSenderDelayIncoming( sourceID, (UINT8)(SenderDelayTemp));
+					}
+			}
+			}
+
+
 		//}
 
 #ifdef OMAC_DEBUG_GPIO
@@ -877,6 +890,10 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
  */
 BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
+	if(size + timestamp_size < OMACType::GetMaxPayload() ){
+		return SendTimeStamped(address, dataType,  msg, size, g_OMAC.m_Clock.GetCurrentTimeinTicks());
+	}
+	else{
 	if(!Initialized){
 #if OMAC_DEBUG_PACKET_REJECTION
 		hal_printf("OMACType::Send Pckt Reject Initialized destID = %u dataType = %u  \r\n", address, dataType);
@@ -894,6 +911,7 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
 	IEEE802_15_4_Metadata* metadata = msg_carrier->GetMetaData();
 	header->flags = (0);
 	return true;
+	}
 }
 
 /*

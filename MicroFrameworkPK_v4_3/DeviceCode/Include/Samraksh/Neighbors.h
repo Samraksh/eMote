@@ -222,8 +222,29 @@ public:
 	UINT16 GetMaxNeighbors();
 
 	DeviceStatus RecordLastHeardTime(UINT16 MACAddress, UINT64 currTime);
+	DeviceStatus RecordSenderDelayIncoming(UINT16 MACAddress, const UINT8& delay);
 
 };
+
+DeviceStatus NeighborTable::RecordSenderDelayIncoming(UINT16 MACAddress, const UINT8& delay){
+	UINT8 index;
+	DeviceStatus retValue = FindOrInsertNeighbor(MACAddress, &index);
+
+	if ( (retValue==DS_Success) && ISMAC_VALID(MACAddress)){
+		if(Neighbor[index].ReceiveLink.AveDelay == 0) {
+			Neighbor[index].ReceiveLink.AveDelay = (UINT8)delay;
+		}
+		else{
+			Neighbor[index].ReceiveLink.AveDelay = (UINT8)((float)Neighbor[index].ReceiveLink.AveDelay*0.8 + (float)delay*0.2);
+		}
+
+		return DS_Success;
+	}
+	else {
+		return DS_Fail;
+	}
+}
+
 
 DeviceStatus NeighborTable::RecordLastHeardTime(UINT16 MACAddress, UINT64 currTime){
 	UINT8 index;
