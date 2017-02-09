@@ -306,6 +306,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 					ClearMsgContents(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval());
 					g_NeighborTable.Neighbor[i].tsr_send_buffer.DropOldest(1);
 					g_NeighborTable.Neighbor[i].SendLink.RecordPacketSuccess(false);
+					g_OMAC.is_print_neigh_table = true;
 				}
 				while(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0
 						&& g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT
@@ -337,6 +338,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 					ClearMsgContents(g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval());
 					g_NeighborTable.Neighbor[i].send_buffer.DropOldest(1);
 					g_NeighborTable.Neighbor[i].SendLink.RecordPacketSuccess(false);
+					g_OMAC.is_print_neigh_table = true;
 				}
 
 
@@ -398,6 +400,7 @@ void DataTransmissionHandler::DropPacket(){
 			ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
 			neigh_ptr->tsr_send_buffer.DropOldest(1);
 			neigh_ptr->SendLink.RecordPacketSuccess(true);
+			g_OMAC.is_print_neigh_table = true;
 			neigh_ptr->IncrementNumTimeSyncMessagesSent();
 
 #if OMAC_DEBUG_PRINTF_TSREQ_TX
@@ -424,12 +427,14 @@ void DataTransmissionHandler::DropPacket(){
 			ClearMsgContents(neigh_ptr->send_buffer.GetOldestwithoutRemoval());
 			neigh_ptr->send_buffer.DropOldest(1);
 			neigh_ptr->SendLink.RecordPacketSuccess(true);
+			g_OMAC.is_print_neigh_table = true;
 
 			if((neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0)	&& (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)
 			){ //This is flushing the time sync message queue if the previous message was successful
 				ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
 				neigh_ptr->tsr_send_buffer.DropOldest(1);
 				neigh_ptr->SendLink.RecordPacketSuccess(true);
+				g_OMAC.is_print_neigh_table = true;
 				neigh_ptr->IncrementNumTimeSyncMessagesSent();
 
 #if OMAC_DEBUG_PRINTF_TSREQ_TX
@@ -449,6 +454,7 @@ void DataTransmissionHandler::DropPacket(){
 			ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
 			neigh_ptr->tsr_send_buffer.DropOldest(1);
 			neigh_ptr->SendLink.RecordPacketSuccess(true);
+			g_OMAC.is_print_neigh_table = true;
 			neigh_ptr->IncrementNumTimeSyncMessagesSent();
 
 #if OMAC_DEBUG_PRINTF_TSREQ_TX
