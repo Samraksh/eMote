@@ -43,7 +43,7 @@ extern UINT8 MacName;
 #define DEBUG_PRINTF_NB(...) (void)0
 #endif
 
-typedef struct Link_t {
+struct PACK Link_t {
 	/* AvgRSSI
 	 * Exponentially smoothed (with lambda of 0.2) average of   SINR code as reported by the radio.
 	 * 		For RF231 has conversion (-91 + AvgRSSI) provides the true value.
@@ -757,9 +757,14 @@ struct PACK MACNeighborInfo	//6bytes
 	bool IsAvailableForUpperLayers;
 	UINT8 NumTimeSyncMessagesSent;
 	UINT8 NumTimeSyncMessagesRecv;
+};
+
+struct PACK MACNeighborLinkInfo	//8bytes
+{
 	Link_t SendLink;
 	Link_t ReceiveLink;
 };
+
 
 struct PACK EntendedMACInfoMsgSummary //3 bytes
 {

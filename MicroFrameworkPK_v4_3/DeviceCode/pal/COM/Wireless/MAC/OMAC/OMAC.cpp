@@ -10,6 +10,15 @@
  *
  *  Copyright The Samraksh Company
  */
+#define UINT_TO_BINARY(byte)  \
+  (byte & 0x80 ? '1' : '0'), \
+  (byte & 0x40 ? '1' : '0'), \
+  (byte & 0x20 ? '1' : '0'), \
+  (byte & 0x10 ? '1' : '0'), \
+  (byte & 0x08 ? '1' : '0'), \
+  (byte & 0x04 ? '1' : '0'), \
+  (byte & 0x02 ? '1' : '0'), \
+  (byte & 0x01 ? '1' : '0')
 
 #include <Samraksh/MAC/OMAC/OMAC.h>
 #include <Samraksh/Radio_decl.h>
@@ -561,6 +570,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 			if(msg->GetHeader()->flags & TIMESTAMPED_FLAG){
 				senderDelay = PacketTimeSync_15_4::SenderDelay(msg,Size) + g_OMAC.m_Clock.ConvertMicroSecstoTicks(g_OMAC.TIME_RX_TIMESTAMP_OFFSET_MICRO);
 				rx_time_stamp = g_OMAC.m_Clock.GetCurrentTimeinTicks() - (HAL_Time_CurrentTicks() - msg->GetMetaData()->GetReceiveTimeStamp());
+				Size = Size + TIMESTAMP_OFFSET;
 			}
 
 #if OMAC_DEBUG_PRINTF_PACKETREC
@@ -819,11 +829,32 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 				location_in_packet_payload += sizeof(EntendedMACInfoMsgSummary);
 
-				if(numNfits > 0 ){
+
+				if(numNfits > 0 && location_in_packet_payload + (numNfits) * sizeof(MACNeighborInfo) + numNfits * sizeof(MACNeighborLinkInfo) <= Size ){
 					MACNeighborInfo * macinfo_msg;
+					MACNeighborLinkInfo* macinfo_msg2;
 					for(UINT8 i=0; i < numNfits ; ++i){
-						MACNeighborInfo *macinfo_msg = (MACNeighborInfo*) (msg->GetPayload() + location_in_packet_payload);
-						hal_printf("   EMI MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u \r\n"
+						macinfo_msg = (MACNeighborInfo*) (msg->GetPayload() + location_in_packet_payload);
+						macinfo_msg2 = (MACNeighborLinkInfo*) (msg->GetPayload() + location_in_packet_payload + (numNfits-i) * sizeof(MACNeighborInfo) + i * sizeof(MACNeighborLinkInfo));
+						hal_printf("   EMI MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u, SLR=%c%c%c%c%c%c%c%c, RLRSSI = %u\r\n"
+								, macinfo_msg->MACAddress
+								, macinfo_msg->neighborStatus
+								, macinfo_msg->IsAvailableForUpperLayers
+								, macinfo_msg->NumTimeSyncMessagesSent
+								, macinfo_msg->NumTimeSyncMessagesRecv
+								, UINT_TO_BINARY(macinfo_msg2->SendLink.Link_reliability_bitmap)
+								, macinfo_msg2->ReceiveLink.AvgRSSI
+								);
+						location_in_packet_payload += sizeof(MACNeighborInfo);
+					}
+				}
+				else if(numNfits > 0 && location_in_packet_payload + (numNfits) * sizeof(MACNeighborInfo) <= Size ){
+					MACNeighborInfo * macinfo_msg;
+					MACNeighborLinkInfo* macinfo_msg2;
+					for(UINT8 i=0; i < numNfits ; ++i){
+						macinfo_msg = (MACNeighborInfo*) (msg->GetPayload() + location_in_packet_payload);
+						macinfo_msg2 = (MACNeighborLinkInfo*) (msg->GetPayload() + location_in_packet_payload + (numNfits-i) * sizeof(MACNeighborInfo) + i * sizeof(MACNeighborLinkInfo));
+						hal_printf("   EMI MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u\r\n"
 								, macinfo_msg->MACAddress
 								, macinfo_msg->neighborStatus
 								, macinfo_msg->IsAvailableForUpperLayers
@@ -832,8 +863,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 								);
 						location_in_packet_payload += sizeof(MACNeighborInfo);
 					}
-
 				}
+
+
 			}
 #endif
 //			if( tsmg != NULL && disco_msg == NULL){
@@ -1174,12 +1206,14 @@ void OMACType::PrintNeighborTable(){
 	for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; ++tableIndex){
 		if(    g_NeighborTable.Neighbor[tableIndex].MACAddress != 0 && g_NeighborTable.Neighbor[tableIndex].MACAddress != 65535 ){
 
-			hal_printf("  MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u, LHT = %llu, CT = %llu \r\n "
+			hal_printf("  MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u, SLR=%c%c%c%c%c%c%c%c, RLRSSI = %u, LHT = %llu, CT = %llu \r\n "
 					, g_NeighborTable.Neighbor[tableIndex].MACAddress
 					, g_NeighborTable.Neighbor[tableIndex].neighborStatus
 					, g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers
 					, g_NeighborTable.Neighbor[tableIndex].NumTimeSyncMessagesSent
 					, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[tableIndex].MACAddress)
+					, UINT_TO_BINARY(g_NeighborTable.Neighbor[tableIndex].SendLink.Link_reliability_bitmap)
+					, g_NeighborTable.Neighbor[tableIndex].ReceiveLink.AvgRSSI
 					, g_NeighborTable.Neighbor[tableIndex].LastHeardTime
 					, g_OMAC.m_Clock.GetCurrentTimeinTicks()
 					);
