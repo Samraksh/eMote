@@ -362,6 +362,8 @@ bool RadioControl_t::PiggybackEntendedMACInfoMsg(Message_15_4_t* msg, UINT16 &si
 					macinfo_msg->IsAvailableForUpperLayers 			=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].IsAvailableForUpperLayers;
 					macinfo_msg->NumTimeSyncMessagesSent 			=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].NumTimeSyncMessagesSent;
 					macinfo_msg->NumTimeSyncMessagesRecv 			=  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].MACAddress) ;
+					macinfo_msg->SendLink 			=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].SendLink;
+					macinfo_msg->ReceiveLink 			=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].ReceiveLink;
 					size += sizeof(MACNeighborInfo);
 					++tmsg->NumEntriesInMsg;
 				}

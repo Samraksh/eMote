@@ -757,6 +757,8 @@ struct PACK MACNeighborInfo	//6bytes
 	bool IsAvailableForUpperLayers;
 	UINT8 NumTimeSyncMessagesSent;
 	UINT8 NumTimeSyncMessagesRecv;
+	Link_t SendLink;
+	Link_t ReceiveLink;
 };
 
 struct PACK EntendedMACInfoMsgSummary //3 bytes
