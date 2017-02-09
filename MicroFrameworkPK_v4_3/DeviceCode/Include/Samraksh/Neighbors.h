@@ -43,7 +43,7 @@ extern UINT8 MacName;
 #define DEBUG_PRINTF_NB(...) (void)0
 #endif
 
-typedef struct {
+typedef struct Link_t {
 	/* AvgRSSI
 	 * Exponentially smoothed (with lambda of 0.2) average of   SINR code as reported by the radio.
 	 * 		For RF231 has conversion (-91 + AvgRSSI) provides the true value.
@@ -62,7 +62,27 @@ typedef struct {
 	 * : Has units of 65.535 (=10^3/(2^19/2^8)) ms. Exponentially smoothed
 	 */
 	UINT8 AveDelay;
-}Link_t;
+
+	UINT8 Link_reliability_bitmap;
+
+public:
+	Link_t() : AvgRSSI(0), LinkQuality(0), AveDelay(0), Link_reliability_bitmap(0xFF)  {}
+	void Initialize(){
+		AvgRSSI = 0;
+		LinkQuality = 0;
+		AveDelay = 0;
+		Link_reliability_bitmap = 0xFF;
+	}
+	void RecordPacketSuccess(bool s){
+		Link_reliability_bitmap>>1;
+		if(s){
+			Link_reliability_bitmap = Link_reliability_bitmap | 0x80;
+		}
+		else{
+			Link_reliability_bitmap = Link_reliability_bitmap & 0x7F;
+		}
+	}
+};
 
 enum NeighborStatus {
 	Alive = 0,
@@ -125,12 +145,14 @@ typedef struct {
 	void Clear(){
 		MACAddress = INVALID_MACADDRESS;
 		NumTimeSyncMessagesSent = 0;
-		SendLink.AvgRSSI = 0;
-		SendLink.LinkQuality = 0;
-		SendLink.AveDelay = 0;
-		ReceiveLink.AvgRSSI = 0;
-		ReceiveLink.LinkQuality = 0;
-		ReceiveLink.AveDelay = 0;
+//		SendLink.AvgRSSI = 0;
+//		SendLink.LinkQuality = 0;
+//		SendLink.AveDelay = 0;
+//		ReceiveLink.AvgRSSI = 0;
+//		ReceiveLink.LinkQuality = 0;
+//		ReceiveLink.AveDelay = 0;
+		SendLink.Initialize();
+		ReceiveLink.Initialize();
 
 		neighborStatus = Dead;
 		IsAvailableForUpperLayers = false;
@@ -239,7 +261,9 @@ public:
 	DeviceStatus RecordLastHeardTime(UINT16 MACAddress, UINT64 currTime);
 	DeviceStatus RecordSenderDelayIncoming(UINT16 MACAddress, const UINT8& delay);
 
+
 };
+
 
 DeviceStatus NeighborTable::RecordSenderDelayIncoming(UINT16 MACAddress, const UINT8& delay){
 	UINT8 index;
