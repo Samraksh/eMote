@@ -571,8 +571,13 @@ DeviceStatus NeighborTable::UpdateNeighbor(const NeighborTableCommonParameters_O
 		Neighbor[index].MACAddress = address;
 		Neighbor[index].neighborStatus = status;
 		Neighbor[index].LastHeardTime = LastHeardTime;
-		Neighbor[index].ReceiveLink.AvgRSSI =  (UINT8)((float)Neighbor[index].ReceiveLink.AvgRSSI*0.8 + (float)rssi*0.2);
-		Neighbor[index].ReceiveLink.LinkQuality =  (UINT8)((float)Neighbor[index].ReceiveLink.LinkQuality*0.8 + (float)lqi*0.2);
+		if (Neighbor[index].ReceiveLink.AvgRSSI == 0) {
+			Neighbor[index].ReceiveLink.AvgRSSI = (UINT8)(rssi);
+			Neighbor[index].ReceiveLink.LinkQuality = (UINT8)lqi;
+		} else {
+			Neighbor[index].ReceiveLink.AvgRSSI =  (UINT8)((float)Neighbor[index].ReceiveLink.AvgRSSI*0.8 + (float)rssi*0.2);
+			Neighbor[index].ReceiveLink.LinkQuality =  (UINT8)((float)Neighbor[index].ReceiveLink.LinkQuality*0.8 + (float)lqi*0.2);
+		}
 
 		Neighbor[index].nextSeed = nextSeed;
 		Neighbor[index].mask = mask;
