@@ -1102,16 +1102,16 @@ UINT8 OMACType::UpdateNeighborTable(){
 					}
 				}
 				else{ //If IsNeighborTime NOT Available
+					g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
 					if(g_NeighborTable.Neighbor[tableIndex].LastHeardTime == 0){ //Should not happen since in order to exist in the table we should heard about it
-
+						hal_printf("OMAC: Update Neighbor WARNIING Code: 001");
 					}
-					else if(currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > 10*livelinessDelayInTicks ){ //we have waited long enough to get time and we should delete it
+					else if(currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > 10*livelinessDelayInTicks ){ //we have waited long enough to get time and we should delete it to clear space for other neighbors
 #if OMAC_DEBUG_PRINTF_NEIGHCHANGE
 		is_print_neigh_table = true;
 #endif
 						++numberOfDeadNeighbors;
 						g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
-						g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
 //						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); // BK: New logic enables deleting by the time sync table. We don't need to delete here.
 					}
 //					else{ //We are still waiting for time samples to accumulate to give reliable time estimate keep it in the table
@@ -1120,8 +1120,11 @@ UINT8 OMACType::UpdateNeighborTable(){
 				}
 			}
 			else{ //Neighbor is DEAD don't do anything
-
+				g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false; // BK: This should not be exercised but adding for completeness. A neighbor that is marked as Dead should also clear the flag for to be exposed to upper layers. However interrupt check both flags and even if we don't declare this as false it should still not be exposed.
 			}
+		}
+		else{
+			g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false; //BK: CLear the is available for upper layers just in case.
 		}
 //		else{ //Not valid MAC don't do anything
 //
