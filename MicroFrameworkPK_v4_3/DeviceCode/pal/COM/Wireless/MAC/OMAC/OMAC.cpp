@@ -1132,7 +1132,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 						g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
 //						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); //  BK: New logic enables deleting by the time sync table. We don't need to delete here.
 					}
-					else if(g_NeighborTable.Neighbor[tableIndex].SendLink.IsReliable()){
+					else if(!g_NeighborTable.Neighbor[tableIndex].SendLink.IsReliable()){
 						++numberOfDeadNeighbors;
 						g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
 						g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
