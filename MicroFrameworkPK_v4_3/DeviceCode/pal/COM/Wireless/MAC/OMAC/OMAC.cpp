@@ -1102,6 +1102,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 					}
 				}
 				else{ //If IsNeighborTime NOT Available
+					g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
 					if(g_NeighborTable.Neighbor[tableIndex].LastHeardTime == 0){ //Should not happen since in order to exist in the table we should heard about it
 
 					}
@@ -1111,7 +1112,6 @@ UINT8 OMACType::UpdateNeighborTable(){
 #endif
 						++numberOfDeadNeighbors;
 						g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
-						g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
 //						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); // BK: New logic enables deleting by the time sync table. We don't need to delete here.
 					}
 //					else{ //We are still waiting for time samples to accumulate to give reliable time estimate keep it in the table
