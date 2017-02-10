@@ -82,6 +82,10 @@ public:
 			Link_reliability_bitmap = Link_reliability_bitmap & 0x7F;
 		}
 	}
+	bool IsReliable(){
+		if(Link_reliability_bitmap <= 0x0F ) return false;
+		else return true;
+	}
 };
 
 enum NeighborStatus {
