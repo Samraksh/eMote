@@ -108,10 +108,6 @@ DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, U
 	RTC_WaitForLastTask();
 	RTC_WaitForSynchro();
 	RTC_WaitForLastTask();
-	RTC_SetCounter(0xFFF00000);
-	RTC_WaitForLastTask();
-	RTC_WaitForSynchro();
-	RTC_WaitForLastTask();
 	RCC_LSICmd(DISABLE);
 
 	RTC_EnterConfigMode();
