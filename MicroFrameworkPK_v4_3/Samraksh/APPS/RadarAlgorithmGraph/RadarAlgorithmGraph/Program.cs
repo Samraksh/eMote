@@ -188,13 +188,13 @@ namespace testchart2
             static int prevIQrejectionValue = IQRejectionToUse;
 
             static bool fixIQRjections = false;
-            static int IQRejectionToFixTo = 45;
+            static int IQRejectionToFixTo = 00;
             static BinaryWriter outPut;
             // NEW
             static float threshold = 3f; // half of what we should enter into radar app
             static int detection = 0;
             static int M = 2;
-            static int N = 4;
+            static int N = 3;
 
             static int RAW_UNWRAP_RESULT_DATA = 0;
 
@@ -223,7 +223,7 @@ namespace testchart2
             static ushort[] radarIMedian = new ushort[dataCntMax];
 
             static int ADJUST_RADAR_MEDIAN = 1;
-            static double adjustmentParameter = 0.9;
+            static double adjustmentParameter = 1.1;
 
             static int xTrackSampleCnt = 300; //unwrap phase median (background noise)
             static int yTrackSampleCnt = 1200; //rawQ median
@@ -1030,7 +1030,7 @@ namespace testchart2
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\test05.bbs";
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\i40-60 walk.bbs";
                 //fileName = @"..\..\recorded.bbs";
-                //fileName = @"..\..\recorded.int";
+                fileName = @"..\..\recorded.int";
                 //fileName = @"..\..\office_noise.bbs";
                 //fileName = @"E:\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\grass near tree.bbs";
                 //fileName = @"E:\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\room1.bbs";
@@ -1069,10 +1069,21 @@ namespace testchart2
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar only no rx tx - power cycle.int";
                 //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-11 overnight noise\basement 5094-03 radar csma overnight.bbs";
                 //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\overnight radar csma board 2 on stand.int";
-                fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-12 overnight noise\radar csma overnight2.int";
-                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
-                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
-                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
+                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-12 overnight noise\radar csma overnight2.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-13\30670 on brown board.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-13\cleaned 30670 hour on stand.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\32203\32203 raw data collect.bbs";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-14\bipole on stand.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-14\bipole brown board on stand.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 in woods stand in branches.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 in woods board on stand within branches.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 bush brown board new position.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 bush brown board normal position.int";
 
                 if (fileName.Contains(".int"))
                 {
@@ -1208,7 +1219,7 @@ namespace testchart2
                 //this.chart1.ChartAreas[0].AxisX.Minimum = 4000;
                 //this.chart1.ChartAreas[0].AxisX.Maximum = 5000;
                 //this.chart1.ChartAreas[0].AxisY.Minimum = 0;
-                this.chart1.ChartAreas[0].AxisY.Maximum = 12;
+                //this.chart1.ChartAreas[0].AxisY.Maximum = 12;
 
                 chart1.Invalidate();
             }

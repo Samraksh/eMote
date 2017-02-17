@@ -15,7 +15,7 @@ namespace RadarDataLogging
             UInt16 data = 0;
             
             SerialPort inCOM = new SerialPort();
-            inCOM.PortName = "COM7";
+            inCOM.PortName = "COM26";
             inCOM.BaudRate = 115200;
             try
             {
