@@ -29,7 +29,7 @@ typedef uint16_t ushort;
 
 #if defined(PLATFORM_ARM_WLN)
 #define HAL_SYSTEM_NAME                     "WLN"
-#define SAM_VERSION_REVISION 58
+#define SAM_VERSION_REVISION 60
 #define TINYBOOTER_REVISION 3
 //#define COMPILE_CUSTOMER_RELEASE 1
 
