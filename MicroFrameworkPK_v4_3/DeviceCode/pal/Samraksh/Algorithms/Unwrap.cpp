@@ -26,6 +26,9 @@ static int maxDisplacementFirstHalf = 0;
 static int maxDisplacementSecondHalf = 0;
 static int maxDisplacementEntire = 0;
 
+static INT16 absOffsetQ =0;
+static INT16 absOffsetI =0;
+
 enum PI
 {
     HALF = 6434,
@@ -114,6 +117,10 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 	static UINT8 uartPort = 0;
 	INT16 iBufferI[length];
 	INT16 iBufferQ[length];
+	INT16 maxOffsetQ = 2048;
+	INT16 maxOffsetI = 2048;
+	INT16 minOffsetQ = 2048;
+	INT16 minOffsetI = 2048;
 	int midPoint = (int)length>>1;
 	int sampleDisplacement = 0;
 
@@ -159,7 +166,15 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 			checksumPrimary += bufferQ[i];
 		}
 		iBufferI[i] = (INT16)bufferI[i] - medianI;
+		if (iBufferI[i] > maxOffsetI)
+			maxOffsetI = iBufferI[i];
+		if (iBufferI[i] < minOffsetI)
+			minOffsetI = iBufferI[i];
 		iBufferQ[i] = (INT16)bufferQ[i] - medianQ; 
+		if (iBufferQ[i] > maxOffsetQ)
+			maxOffsetQ = iBufferQ[i];
+		if (iBufferQ[i] < minOffsetQ)
+			minOffsetQ = iBufferQ[i];
 		
 		// sampleDisplacement contains the current samples displacement
 		sampleDisplacement = unwrapCrossProduct(iBufferI[i], iBufferQ[i], noiseRejection);
@@ -229,6 +244,16 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 		//memcpy(prevBufferI, bufferI, 500);
 		//memcpy(prevBufferQ, bufferQ, 500);
 	}
+
+	if ((maxOffsetI - 2048) > (2048 - minOffsetI))
+		absOffsetI = abs(maxOffsetI);
+	else
+		absOffsetI = abs(minOffsetI);
+
+	if ((maxOffsetQ - 2048) > (2048 - minOffsetQ))
+		absOffsetQ = abs(maxOffsetQ);
+	else
+		absOffsetQ = abs(minOffsetQ);
 
 	return (abs(unwrappedPhaseCrossProduct));
 }
@@ -335,4 +360,12 @@ int getRange(INT32 portion){
 		// SAMPLE_WINDOW_SECOND_HALF
 		return (maxDisplacementSecondHalf - minDisplacementSecondHalf);
 	}
+}
+
+INT16 getAbsOffsetQ(){
+	return absOffsetQ;
+}
+
+INT16 getAbsOffsetI(){
+	return absOffsetI;
 }
