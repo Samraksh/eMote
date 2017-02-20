@@ -188,13 +188,13 @@ namespace testchart2
             static int prevIQrejectionValue = IQRejectionToUse;
 
             static bool fixIQRjections = false;
-            static int IQRejectionToFixTo = 45;
+            static int IQRejectionToFixTo = 00;
             static BinaryWriter outPut;
             // NEW
-            static float threshold = 3f; // half of what we should enter into radar app
+            static float threshold = 4f; // double of what we should enter into radar app
             static int detection = 0;
             static int M = 2;
-            static int N = 4;
+            static int N = 3;
 
             static int RAW_UNWRAP_RESULT_DATA = 0;
 
@@ -223,19 +223,22 @@ namespace testchart2
             static ushort[] radarIMedian = new ushort[dataCntMax];
 
             static int ADJUST_RADAR_MEDIAN = 1;
-            static double adjustmentParameter = 0.9;
+            static double adjustmentParameter = 1.2;
 
             static int xTrackSampleCnt = 300; //unwrap phase median (background noise)
             static int yTrackSampleCnt = 1200; //rawQ median
 
             static int wTrackSampleCnt = 100;
-            static int zTrackSampleCnt = 100; 
+            static int zTrackSampleCnt = 100;
 
             static int size = 128;
             static UInt16 medianI = 2040;
             static UInt16 medianQ = 2040;
             //static UInt16 qsmedianI = 2040;
             //static UInt16 qsmedianQ = 2040;
+            static int DetectLength = 0;
+            static Int16 maxMinValueI = 0;
+            static Int16 maxMinValueQ = 0;
 
             //static bool detection = false;
             static UInt16[] prevBufferI = new UInt16[size];
@@ -463,6 +466,23 @@ namespace testchart2
                     }
                 }
             }
+            static Int16 findMaxOffset(Int16[] buffer, Int32 length)
+            {
+                Int16 max = 2048;
+                Int16 min = 2048;
+
+                for (int i = 0; i < length; i++)
+                {
+                    if (buffer[i] > max)
+                        max = buffer[i];
+                    if (buffer[i] < min)
+                        min = buffer[i];
+                }
+                    if ((max - 2048) > (2048 - min))
+                        return (Int16)((max));
+                    else
+                        return (Int16)((min));
+            }
             #endregion
             #region m of n
             class Counter
@@ -591,6 +611,10 @@ namespace testchart2
                 crossUnwrappedPhaseZero = (Math.Abs(crossUnwrappedPhaseZero));
                 crossUnwrappedPhaseMax = (Math.Abs(crossUnwrappedPhaseMax));
                 //return (int)((maxPhase - minPhase) / (2 * Math.PI));
+
+                maxMinValueI = findMaxOffset(iBufferI, length);
+                maxMinValueQ = findMaxOffset(iBufferQ, length);
+
                 return (int)((maxPhase - minPhase));
             }
             #endregion
@@ -766,9 +790,8 @@ namespace testchart2
             #region main
             static int processPhase(UInt16[] bufferI, UInt16[] bufferQ, Int32 length, System.Windows.Forms.DataVisualization.Charting.Series normalUnwrapSeries, System.Windows.Forms.DataVisualization.Charting.Series approxUnwrapSeries, System.Windows.Forms.DataVisualization.Charting.Series crossSeries, System.Windows.Forms.DataVisualization.Charting.Series detectionSeries)
             {
-                
                 //bool detection = false;
-                ushort medianQData=0;
+                ushort medianQData = 0;
                 int unwrap;
                 //Int32 backgroundDisplacementNoise = 0;
                 Int32 currentDisplacementNoise = 0;
@@ -785,7 +808,7 @@ namespace testchart2
                 zHeapTrackInsert(medianQ);
                 // tracking the raw I/Q radar median. To save time I just use one data point each pass
                 medianQData = (ushort)Math.Abs((bufferQ[0] - zHeapTrackMedian()));
-                yHeapTrackInsert(medianQData * 2);           
+                yHeapTrackInsert(medianQData * 2);
                 /*if (dataCnt < dataCntMax)
                 {
                     double v1 = (bufferI[100] - medianI) * (bufferI[100] - medianI);
@@ -820,9 +843,10 @@ namespace testchart2
                 if (ADJUST_RADAR_MEDIAN == 1)
                 {
                     //System.Diagnostics.Debug.WriteLine(yHeapTrackMedian().ToString());
-                    IQRejectionToUse = (int)((double)yHeapTrackMedian() * adjustmentParameter);                                        
-                    
-                } else
+                    IQRejectionToUse = (int)((double)yHeapTrackMedian() * adjustmentParameter);
+
+                }
+                else
                 {
                     if (initialAdjustmentCnt > 0)
                     {
@@ -864,18 +888,20 @@ namespace testchart2
                             prevIQrejectionValue = IQRejectionToUse;
                         }
                     }
-                } 
+                }
                 // capping the noise rejection to a max or min
                 if (IQRejectionToUse < 0)
                     IQRejectionToUse = 0;
                 else if (IQRejectionToUse > MAX_IQ_REJECTION)
                     IQRejectionToUse = MAX_IQ_REJECTION;
-                
-                if (fixIQRjections == true){
+
+                if (fixIQRjections == true)
+                {
                     IQRejectionToUse = IQRejectionToFixTo;
                 }
                 // copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR                
                 unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, (ushort)wHeapTrackMedian(), (ushort)zHeapTrackMedian(), IQRejectionToUse, 0, 0, 0);
+                System.Diagnostics.Debug.WriteLine("! " + crossUnwrappedPhase.ToString() + " !");
                 //unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, medianI, medianQ, IQRejectionToUse, 0, 0, 0);
 
                 //normalUnwrapSeries.Points.AddXY(plotPt, unwrap/6.28318);
@@ -884,7 +910,7 @@ namespace testchart2
                 approxUnwrapSeries.Points.AddXY(plotPt, approxUnwrappedPhase);
                 crossSeries.Points.AddXY(plotPt, crossUnwrappedPhase);
 
-                
+
                 /*
 
                 // if the AD callbacks per second is not yet set we will attempt to read the correct value now and then adjust the threshold appropriately
@@ -900,32 +926,45 @@ namespace testchart2
                 mOfnCounter.count += 1;
                 if (crossUnwrappedPhase > threshold)
                 {
-                    mOfnDetector.Update(mOfnCounter.count, 1);
+                    if ((Math.Abs(maxMinValueI) < 400) && (Math.Abs(maxMinValueQ) < 400))
+                    {
+                        System.Diagnostics.Debug.WriteLine("FAILURE *****" + plotPt.ToString() + "*****" + medianI.ToString() + " " + medianQ.ToString());
+                    }
+                    else
+                    {
+                        mOfnDetector.Update(mOfnCounter.count, 1);
+                        System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****" + medianI.ToString() + " " + medianQ.ToString());
+                    }
                 }
                 else
                 {
                     mOfnDetector.Update(mOfnCounter.count, 0);
                     // we are only adding the current unwrap value to the background noise tracking if we did not detect anything
-                    
+
                 }
                 if (mOfnDetector.state == 1 && mOfnDetector.prevstate == 0)
                 {
-                    //hal_printf("Detection\r\n");
-                    detection = 10;
-                    //System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****");
+                    DetectLength = 1;                    
+                    detection = 10;                    
+                }
+                else if (mOfnDetector.state == 1 && mOfnDetector.prevstate == 1)
+                {
+                    DetectLength++;
+                    System.Diagnostics.Debug.WriteLine("~~~~" + DetectLength.ToString());
                 }
                 else
                 {
                     detection = 0;
+                    //System.Diagnostics.Debug.WriteLine("####" + DetectLength.ToString());
                 }
-                if (crossUnwrappedPhase >= 2 * threshold)
+                /*if (crossUnwrappedPhase >= 2 * threshold)
                 {
                     detection = 10;
                     //System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****");
-                }
+                }*/
 
                 detectionSeries.Points.AddXY(plotPt, detection);
-                
+
                 //if (debugVal == 6)
                 //    hal_printf("%d %d %d %d %d %d %d\r\n", getUnwrapMax(), unwrap, getUnwrapZero(), HeapTrackMedian(unwrapMedianMax), HeapTrackMedian(unwrapMedian), HeapTrackMedian(unwrapMedianZero), IQRejectionToUse);
 
@@ -934,7 +973,7 @@ namespace testchart2
                 System.Diagnostics.Debug.WriteLine(unwrap.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString());
 
                 plotPt++;
-                xHeapTrackInsert(crossUnwrappedPhase);                     
+                xHeapTrackInsert(crossUnwrappedPhase);
                 //System.Diagnostics.Debug.Write(crossUnwrappedPhaseZero.ToString() + " " + crossUnwrappedPhase.ToString() + " " + crossUnwrappedPhaseMax.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString() + "   ");
 
                 return unwrap;
@@ -1030,7 +1069,7 @@ namespace testchart2
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\test05.bbs";
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\i40-60 walk.bbs";
                 //fileName = @"..\..\recorded.bbs";
-                //fileName = @"..\..\recorded.int";
+                fileName = @"..\..\recorded.int";
                 //fileName = @"..\..\office_noise.bbs";
                 //fileName = @"E:\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\grass near tree.bbs";
                 //fileName = @"E:\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\room1.bbs";
@@ -1069,10 +1108,23 @@ namespace testchart2
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar only no rx tx - power cycle.int";
                 //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-11 overnight noise\basement 5094-03 radar csma overnight.bbs";
                 //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\overnight radar csma board 2 on stand.int";
-                fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-12 overnight noise\radar csma overnight2.int";
-                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
-                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
-                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
+                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-12 overnight noise\radar csma overnight2.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-13\30670 on brown board.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-13\cleaned 30670 hour on stand.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\32203\32203 raw data collect.bbs";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-14\bipole on stand.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-14\bipole brown board on stand.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 in woods stand in branches.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 in woods board on stand within branches.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 bush brown board new position.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 bush brown board normal position.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 walk pattern.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise problem.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise 2.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise NO antenna.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24738 walk pattern.int";
+                fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24783 background noise.int";
 
                 if (fileName.Contains(".int"))
                 {
@@ -1082,7 +1134,7 @@ namespace testchart2
                 {
                     RAW_UNWRAP_RESULT_DATA = 0;
                 }
-                string outFileName = fileName.Substring(0,fileName.Length-4) + ".bbs";
+                string outFileName = fileName.Substring(0, fileName.Length - 4) + ".bbs";
                 if (RAW_UNWRAP_RESULT_DATA == 1)
                 {
                     FileStream stream = new FileStream(outFileName, FileMode.Create);
@@ -1174,7 +1226,7 @@ namespace testchart2
                                 int iqrejectionValue = int.Parse(intString);
                                 int returnChar = r.ReadChar();
                                 int dataMarker = r.ReadUInt16();
-                                System.Diagnostics.Debug.Write(unwrapResultZero.ToString() + " " + unwrapResult.ToString() + " " + unwrapResultMax.ToString() + " " + unwrapMedianResult.ToString() + " " + iqrejectionValue.ToString()+"          ");
+                                System.Diagnostics.Debug.Write(unwrapResultZero.ToString() + " " + unwrapResult.ToString() + " " + unwrapResultMax.ToString() + " " + unwrapMedianResult.ToString() + " " + iqrejectionValue.ToString() + "          ");
                             }
                             catch (Exception ex)
                             {
@@ -1208,7 +1260,7 @@ namespace testchart2
                 //this.chart1.ChartAreas[0].AxisX.Minimum = 4000;
                 //this.chart1.ChartAreas[0].AxisX.Maximum = 5000;
                 //this.chart1.ChartAreas[0].AxisY.Minimum = 0;
-                this.chart1.ChartAreas[0].AxisY.Maximum = 12;
+                //this.chart1.ChartAreas[0].AxisY.Maximum = 12;
 
                 chart1.Invalidate();
             }
