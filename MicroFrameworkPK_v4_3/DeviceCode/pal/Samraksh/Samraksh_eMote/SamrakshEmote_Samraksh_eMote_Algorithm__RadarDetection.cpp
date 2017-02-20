@@ -226,13 +226,16 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 	mOfnCounter.count += 1;
 	if (unwrap > threshold)
     {
-		windowOverThreshold = true;
-		mOfnDetector.Update(mOfnCounter.count, 1);
-    /*} else if (unwrap >= doubleThreshold ){
-		// if an unwrap is double the threshold we will count it twice here
-		windowOverThreshold = true;
-		mOfnDetector.Update(mOfnCounter.count, 1);
-		mOfnDetector.Update(mOfnCounter.count, 1);*/
+		// another way to screen out noise is to ignore any detects that happened when the actual ADC levels of both I and Q for the radar (minus median) is less than 400
+		INT16 offsetQ = getAbsOffsetQ();
+		INT16 offsetI = getAbsOffsetI();
+		if ( (offsetQ < 400) && (offsetI < 400) ){
+			windowOverThreshold = false;
+			mOfnDetector.Update(mOfnCounter.count, 0);
+		} else {
+			windowOverThreshold = true;
+			mOfnDetector.Update(mOfnCounter.count, 1);
+		}
 	}
     else
     {

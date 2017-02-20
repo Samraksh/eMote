@@ -12,5 +12,7 @@ int getUnwrapZero();
 int getDisplacement(INT32 portion);
 int getAbsoluteDisplacement(INT32 portion);
 int getRange(INT32 portion);
+INT16 getAbsOffsetQ();
+INT16 getAbsOffsetI();
 
 #endif

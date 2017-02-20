@@ -479,9 +479,9 @@ namespace testchart2
                         min = buffer[i];
                 }
                     if ((max - 2048) > (2048 - min))
-                        return (Int16)((max));
+                        return (Int16)(Math.Abs(max));
                     else
-                        return (Int16)((min));
+                        return (Int16)(Math.Abs(min));
             }
             #endregion
             #region m of n
@@ -926,8 +926,9 @@ namespace testchart2
                 mOfnCounter.count += 1;
                 if (crossUnwrappedPhase > threshold)
                 {
-                    if ((Math.Abs(maxMinValueI) < 400) && (Math.Abs(maxMinValueQ) < 400))
+                    if ((maxMinValueI < 400) && (maxMinValueQ < 400))
                     {
+                        mOfnDetector.Update(mOfnCounter.count, 0);
                         System.Diagnostics.Debug.WriteLine("FAILURE *****" + plotPt.ToString() + "*****" + medianI.ToString() + " " + medianQ.ToString());
                     }
                     else
@@ -1123,8 +1124,8 @@ namespace testchart2
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise problem.int";
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise 2.int";
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise NO antenna.int";
-                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24738 walk pattern.int";
-                fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24783 background noise.int";
+                fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24738 walk pattern.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24783 background noise.int";
 
                 if (fileName.Contains(".int"))
                 {
