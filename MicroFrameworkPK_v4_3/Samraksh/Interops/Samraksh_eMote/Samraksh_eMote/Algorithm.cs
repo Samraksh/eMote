@@ -61,7 +61,7 @@ namespace Samraksh.eMote
             /// </summary>
             public RadarDetection() {
                 Initialize();
-                SetDetectionParameters(RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_RAW_RADAR, 1.6, 0.9, 2, 3, 0, 1);
+                SetDetectionParameters(RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_RAW_RADAR, 2.1, 1.1, 2, 3, 0, 300);
             }
             
             //////////////////////////public properties and methods/////////////////////
@@ -109,7 +109,7 @@ namespace Samraksh.eMote
             /// </summary>
             /// <returns>Returns true if detection made, false if there was no detection.</returns>
             [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern public bool SetDetectionParameters(RADAR_NOISE_CONTROL radarNoiseCtrl, double thresholdSet, double noiseRejection, ushort M, ushort N, UInt16 debugVal, UInt16 version);
+            extern public bool SetDetectionParameters(RADAR_NOISE_CONTROL radarNoiseCtrl, double thresholdSet, double noiseRejection, ushort M, ushort N, UInt16 debugVal, UInt16 targetSizeFilter);
 
             /// <summary>
             /// Request the background noise level
