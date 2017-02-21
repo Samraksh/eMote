@@ -49,6 +49,7 @@ static int initialAdjustmentCnt = INITIAL_ADJUSTMENT_SAMPLE_CNT;
 static int prevIQrejectionValue = IQRejectionToUse;
 static bool windowOverThreshold = false;
 static bool detectionFinished = false;
+static UINT16 targetSizeFilter = 300;
 
 enum RADAR_NOISE_CONTROL
 {
@@ -229,7 +230,7 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 		// another way to screen out noise is to ignore any detects that happened when the actual ADC levels of both I and Q for the radar (minus median) is less than 400
 		INT16 offsetQ = getAbsOffsetQ();
 		INT16 offsetI = getAbsOffsetI();
-		if ( (offsetQ < 400) && (offsetI < 400) ){
+		if ( (offsetQ < targetSizeFilter) && (offsetI < targetSizeFilter) ){
 			windowOverThreshold = false;
 			mOfnDetector.Update(mOfnCounter.count, 0);
 		} else {
@@ -338,7 +339,8 @@ INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj
 	mOfnCounter.count = 0;
 
 	debugVal = param5;
-	codeVersion =  param6;
+	codeVersion =  1;
+	targetSizeFilter =  param6;
 
 	initialAdjustmentCnt = INITIAL_ADJUSTMENT_SAMPLE_CNT;
 	IQRejectionToUse = 100;
