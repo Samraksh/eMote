@@ -1,4 +1,5 @@
-﻿using System;
+﻿#region hide
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ using System.Runtime.InteropServices;
 namespace testchart2
 {
     static class Program
-    {
+    {        
         [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern int Test(int a);
         [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -57,7 +58,7 @@ namespace testchart2
 
             private System.ComponentModel.IContainer components = null;
             System.Windows.Forms.DataVisualization.Charting.Chart chart1;
-
+        #endregion
             #region arcTan table
             static int[] arcTan = new int[]{
                      0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
@@ -164,8 +165,7 @@ namespace testchart2
                      3188, 3189, 3189, 3190, 3190, 3191, 3191, 3192, 3192, 3193, 3193, 3194, 3194, 3195, 3195, 3196, 3196, 3197, 3197, 3198, 3198, 3199, 3199, 3200, 3200, 3201, 3201, 3202, 3202, 3203, 3203, 3204, 3204, 3205, 3205, 3206, 3206, 3207, 3207, 3208,
                      3208, 3209, 3209, 3210, 3210, 3211, 3211, 3212, 3212, 3213, 3213, 3214, 3214, 3215, 3215, 3216, 3216
                     };
-            #endregion
-            #region variables
+            #endregion            
             static int MAX_IQ_REJECTION = 600;
             static int wPhase = 0, uwPhase = 0, wPhase_prev = 0, uwPhase_prev = 0;
             static double wPhaseApprox = 0, uwPhaseApprox = 0, wPhase_prevApprox = 0, uwPhase_prevApprox = 0;
@@ -178,7 +178,7 @@ namespace testchart2
             static int plotPt = 0;
             //unsafe static HeapTrack* unwrapMedianZero;
             //unsafe static HeapTrack* unwrapMedianMax;
-
+            
             static int INITIAL_ADJUST_SAMPLE_CNT = 10;
             static int IQ_ADJUSTMENT_PERIOD = 80;
             static int adjustmentIQPeriod = IQ_ADJUSTMENT_PERIOD;
@@ -190,12 +190,17 @@ namespace testchart2
             static bool fixIQRjections = false;
             static int IQRejectionToFixTo = 00;
             static BinaryWriter outPut;
-            // NEW
+
             static float threshold = 4f; // double of what we should enter into radar app
             static int detection = 0;
             static int M = 2;
             static int N = 3;
+            static int targetFilter = 300;
+            static int ADJUST_RADAR_MEDIAN = 1;
+            static double adjustmentParameter = 1.1;
+            static int time = 13;
 
+            static int contDetectCnt = -1;
             static int RAW_UNWRAP_RESULT_DATA = 0;
 
             enum PI
@@ -222,8 +227,7 @@ namespace testchart2
             static ushort[] radarQMedian = new ushort[dataCntMax];
             static ushort[] radarIMedian = new ushort[dataCntMax];
 
-            static int ADJUST_RADAR_MEDIAN = 1;
-            static double adjustmentParameter = 1.2;
+            
 
             static int xTrackSampleCnt = 300; //unwrap phase median (background noise)
             static int yTrackSampleCnt = 1200; //rawQ median
@@ -243,7 +247,7 @@ namespace testchart2
             //static bool detection = false;
             static UInt16[] prevBufferI = new UInt16[size];
             static UInt16[] prevBufferQ = new UInt16[size];
-            #endregion
+            
             #region read in samples from file
             static bool readInSamples(BinaryReader r, UInt16[] I, UInt16[] Q, int size)
             {
@@ -788,7 +792,7 @@ namespace testchart2
             }
             #endregion
             #region main
-            static int processPhase(UInt16[] bufferI, UInt16[] bufferQ, Int32 length, System.Windows.Forms.DataVisualization.Charting.Series normalUnwrapSeries, System.Windows.Forms.DataVisualization.Charting.Series approxUnwrapSeries, System.Windows.Forms.DataVisualization.Charting.Series crossSeries, System.Windows.Forms.DataVisualization.Charting.Series detectionSeries)
+            static int processPhase(UInt16[] bufferI, UInt16[] bufferQ, Int32 length, System.Windows.Forms.DataVisualization.Charting.Series normalUnwrapSeries, System.Windows.Forms.DataVisualization.Charting.Series approxUnwrapSeries, System.Windows.Forms.DataVisualization.Charting.Series crossSeries, System.Windows.Forms.DataVisualization.Charting.Series detectionSeries, System.Windows.Forms.DataVisualization.Charting.Series humanDetectionSeries)
             {
                 //bool detection = false;
                 ushort medianQData = 0;
@@ -926,7 +930,7 @@ namespace testchart2
                 mOfnCounter.count += 1;
                 if (crossUnwrappedPhase > threshold)
                 {
-                    if ((maxMinValueI < 400) && (maxMinValueQ < 400))
+                    if ((maxMinValueI < targetFilter) && (maxMinValueQ < targetFilter))
                     {
                         mOfnDetector.Update(mOfnCounter.count, 0);
                         System.Diagnostics.Debug.WriteLine("FAILURE *****" + plotPt.ToString() + "*****" + medianI.ToString() + " " + medianQ.ToString());
@@ -946,16 +950,19 @@ namespace testchart2
                 if (mOfnDetector.state == 1 && mOfnDetector.prevstate == 0)
                 {
                     DetectLength = 1;                    
-                    detection = 10;                    
+                    detection = 10;
+                    contDetectCnt += 2;
                 }
                 else if (mOfnDetector.state == 1 && mOfnDetector.prevstate == 1)
                 {
                     DetectLength++;
                     System.Diagnostics.Debug.WriteLine("~~~~" + DetectLength.ToString());
+                    contDetectCnt += 2;
                 }
                 else
                 {
                     detection = 0;
+                    contDetectCnt = -1;
                     //System.Diagnostics.Debug.WriteLine("####" + DetectLength.ToString());
                 }
                 /*if (crossUnwrappedPhase >= 2 * threshold)
@@ -963,6 +970,10 @@ namespace testchart2
                     detection = 10;
                     //System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****");
                 }*/
+                if (contDetectCnt > time)
+                    humanDetectionSeries.Points.AddXY(plotPt, 10);
+                else
+                    humanDetectionSeries.Points.AddXY(plotPt, 0);
 
                 detectionSeries.Points.AddXY(plotPt, detection);
 
@@ -989,6 +1000,7 @@ namespace testchart2
 
             private void Form1_Load(object sender, EventArgs e)
             {
+                this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
                 chart1.Series.Clear();
                 var normalUnwrapSeries = new System.Windows.Forms.DataVisualization.Charting.Series
                 {
@@ -1020,6 +1032,15 @@ namespace testchart2
                 var detectionSeries = new System.Windows.Forms.DataVisualization.Charting.Series
                 {
                     Name = "Detections",
+                    Color = System.Drawing.Color.Green,
+                    IsVisibleInLegend = false,
+                    IsXValueIndexed = true,
+                    //ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Range
+                    ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+                };
+                var humanDetectionSeries = new System.Windows.Forms.DataVisualization.Charting.Series
+                {
+                    Name = "HumanDetections",
                     Color = System.Drawing.Color.Red,
                     IsVisibleInLegend = false,
                     IsXValueIndexed = true,
@@ -1058,9 +1079,7 @@ namespace testchart2
                 mOfnDetector = new MoutOfNDetector();
                 mOfnCounter.count = 0;
                 mOfnDetector.Init(M, N);
-
-                // ADJUSTME
-                // Create the new, empty data file.
+                
                 string fileName;
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\generated.data";
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\south.bbs";
@@ -1112,20 +1131,26 @@ namespace testchart2
                 //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-12 overnight noise\radar csma overnight2.int";
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-13\30670 on brown board.int";
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-13\cleaned 30670 hour on stand.int";
-                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\32203\32203 raw data collect.bbs";
-                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-14\bipole on stand.int";
-                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-14\bipole brown board on stand.int";
-                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 in woods stand in branches.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\32203\32203 raw data collect.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-14\bipole on stand.int";                
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-14\bipole brown board on stand.int"; 
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 in woods board on stand within branches.int";
-                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 bush brown board new position.int";
-                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 bush brown board normal position.int";
-                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests";
-                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 walk pattern.int";
-                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise problem.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 bush brown board new position.int";                
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 bush brown board normal position.int";  
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 on tree trunk on block of wood upside down.int";                
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 upside down on stand in log.int";   
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24783 walk pattern antenna away from walk pattern.int";
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise 2.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 inside tree trunk on stand.int"; 
+
+                fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise problem.int";                
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise NO antenna.int";
-                fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24738 walk pattern.int";
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24783 background noise.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 walk pattern.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24738 walk pattern.int";                
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\26315 walk pattern.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 in woods stand in branches.int";                 
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 bush wind problem.int";
 
                 if (fileName.Contains(".int"))
                 {
@@ -1175,7 +1200,7 @@ namespace testchart2
                     //if ((graphOnlyCnt > 800) && (graphOnlyCnt < 810))
                     //if ((graphOnlyCnt < 500))
                     {
-                        unwrapRet = processPhase(IBuffer, QBuffer, size, normalUnwrapSeries, approxUnwrapSeries, crossSeries, detectionSeries);
+                        unwrapRet = processPhase(IBuffer, QBuffer, size, normalUnwrapSeries, approxUnwrapSeries, crossSeries, detectionSeries, humanDetectionSeries);
                         /*for (int j = 0; j<size; j++){
                             rawSeries.Points.AddXY(plotPt, IBuffer[j]);
                             
@@ -1257,6 +1282,7 @@ namespace testchart2
                 //this.chart1.Series.Add(approxUnwrapSeries);
                 this.chart1.Series.Add(crossSeries);
                 this.chart1.Series.Add(detectionSeries);
+                this.chart1.Series.Add(humanDetectionSeries);
                 //this.chart1.Series.Add(rawSeries);
                 //this.chart1.ChartAreas[0].AxisX.Minimum = 4000;
                 //this.chart1.ChartAreas[0].AxisX.Maximum = 5000;
