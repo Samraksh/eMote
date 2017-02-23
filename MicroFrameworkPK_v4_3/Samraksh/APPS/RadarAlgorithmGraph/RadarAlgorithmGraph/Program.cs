@@ -195,7 +195,7 @@ namespace testchart2
             static int detection = 0;
             static int M = 2;
             static int N = 3;
-            static int targetFilter = 300;
+            static int targetFilter = 400;
             static int ADJUST_RADAR_MEDIAN = 1;
             static double adjustmentParameter = 1.1;
             static int time = 13;
@@ -488,6 +488,60 @@ namespace testchart2
                         return (Int16)(Math.Abs(min));
             }
             #endregion
+            static int partitions(int low, int high, Int16[] buffer)
+            {
+                int p = low, r = high, x = buffer[r], i = p - 1;
+                Int16 tempVal;
+                for (int j = p; j <= r - 1; j++)
+                {
+                    if (buffer[j] <= x)
+                    {
+                        i++;
+                        tempVal = buffer[i];
+                        buffer[i] = buffer[j];
+                        buffer[j] = tempVal;
+                    }
+                }
+                tempVal = buffer[i + 1];
+                buffer[i + 1] = buffer[r];
+                buffer[r] = tempVal;
+
+                return i + 1;
+            }
+
+            static Int16 findMedian(Int16[] buffer, Int32 length)
+            {
+                int left = 0;
+                int right = length - 1;
+                int kth = (int)(length >> 1); // divide by 2
+
+                Int16[] iBuffer = new Int16[length];
+                int i;
+                for (i = 0; i < length; i++)
+                {
+                    iBuffer[i] = (Int16)buffer[i];
+                }
+
+                while (true)
+                {
+                    int pivotIndex = partitions(left, right, iBuffer);
+
+                    int len = pivotIndex - left + 1;
+
+                    if (kth == len)
+                    {
+                        //buffer[0] = buffer[pivotIndex]; // for debugging median
+                        return iBuffer[pivotIndex];
+                    }
+                    else if (kth < len)
+                        right = pivotIndex - 1;
+                    else
+                    {
+                        kth = kth - len;
+                        left = pivotIndex + 1;
+                    }
+                }
+            }
             #region m of n
             class Counter
             {
@@ -619,6 +673,15 @@ namespace testchart2
                 maxMinValueI = findMaxOffset(iBufferI, length);
                 maxMinValueQ = findMaxOffset(iBufferQ, length);
 
+                for (i = 0; i < length; i++)
+                {
+                    iBufferI[i] = Math.Abs(iBufferI[i]);
+                    iBufferQ[i] = Math.Abs(iBufferQ[i]);
+                }
+                Int16 medI = findMedian(iBufferI, length);
+                Int16 medQ = findMedian(iBufferQ, length);
+                System.Diagnostics.Debug.WriteLine("| " + medI.ToString() + " " + medQ.ToString() + " |");
+                
                 return (int)((maxPhase - minPhase));
             }
             #endregion
@@ -905,7 +968,7 @@ namespace testchart2
                 }
                 // copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR                
                 unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, (ushort)wHeapTrackMedian(), (ushort)zHeapTrackMedian(), IQRejectionToUse, 0, 0, 0);
-                System.Diagnostics.Debug.WriteLine("! " + crossUnwrappedPhase.ToString() + " !");
+                System.Diagnostics.Debug.WriteLine("! " + crossUnwrappedPhase.ToString() +  " !");
                 //unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, medianI, medianQ, IQRejectionToUse, 0, 0, 0);
 
                 //normalUnwrapSeries.Points.AddXY(plotPt, unwrap/6.28318);
@@ -933,12 +996,12 @@ namespace testchart2
                     if ((maxMinValueI < targetFilter) && (maxMinValueQ < targetFilter))
                     {
                         mOfnDetector.Update(mOfnCounter.count, 0);
-                        System.Diagnostics.Debug.WriteLine("FAILURE *****" + plotPt.ToString() + "*****" + medianI.ToString() + " " + medianQ.ToString());
+                        System.Diagnostics.Debug.WriteLine("SUPPRESSED *****" + plotPt.ToString() + "*****" + medianI.ToString() + " " + medianQ.ToString() + " " + maxMinValueI.ToString() + " " + maxMinValueQ.ToString());
                     }
                     else
                     {
                         mOfnDetector.Update(mOfnCounter.count, 1);
-                        System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****" + medianI.ToString() + " " + medianQ.ToString());
+                        System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****" + medianI.ToString() + " " + medianQ.ToString() + " " + maxMinValueI.ToString() + " " + maxMinValueQ.ToString());
                     }
                 }
                 else
@@ -1143,8 +1206,8 @@ namespace testchart2
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise 2.int";
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 inside tree trunk on stand.int"; 
 
-                fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise problem.int";                
-                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise NO antenna.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise problem.int";                
+                fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise NO antenna.int";
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24783 background noise.int";
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 walk pattern.int";
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24738 walk pattern.int";                
