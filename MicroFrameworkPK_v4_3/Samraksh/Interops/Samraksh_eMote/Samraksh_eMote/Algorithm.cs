@@ -61,7 +61,7 @@ namespace Samraksh.eMote
             /// </summary>
             public RadarDetection() {
                 Initialize();
-                SetDetectionParameters(RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_RAW_RADAR, 2.1, 1.1, 2, 3, 0, 300);
+                SetDetectionParameters(RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_RAW_RADAR, 2.1, 1.1, 2, 3, 0, 300, 250);
             }
             
             //////////////////////////public properties and methods/////////////////////
@@ -109,7 +109,7 @@ namespace Samraksh.eMote
             /// </summary>
             /// <returns>Returns true if detection made, false if there was no detection.</returns>
             [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern public bool SetDetectionParameters(RADAR_NOISE_CONTROL radarNoiseCtrl, double thresholdSet, double noiseRejection, ushort M, ushort N, UInt16 debugVal, UInt16 targetSizeFilter);
+            extern public bool SetDetectionParameters(RADAR_NOISE_CONTROL radarNoiseCtrl, double thresholdSet, double noiseRejection, ushort M, ushort N, UInt16 debugVal, UInt16 targetSizeFilter, UInt16 classifierTargetFilter);
 
             /// <summary>
             /// Request the background noise level
@@ -172,6 +172,13 @@ namespace Samraksh.eMote
             /// <returns>Returns the window's displacement range.</returns>
             [MethodImplAttribute(MethodImplOptions.InternalCall)]
             extern public int GetDisplacementRange(SAMPLE_WINDOW_PORTION portion);
+
+            /// <summary>
+            /// Request the window's count of samples over classifierTargetFilter parameter.
+            /// </summary>
+            /// <returns>Returns the window's count of samples over target.</returns>
+            [MethodImplAttribute(MethodImplOptions.InternalCall)]
+            extern public int GetCountOverTarget();
         }
 
         /// <summary>

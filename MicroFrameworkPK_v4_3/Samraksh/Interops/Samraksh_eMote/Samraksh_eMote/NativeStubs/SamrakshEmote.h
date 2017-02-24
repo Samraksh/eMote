@@ -36,7 +36,7 @@ struct Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection
     TINYCLR_NATIVE_DECLARE(Uninitialize___BOOLEAN);
     TINYCLR_NATIVE_DECLARE(DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__SZARRAY_U2__I4);
     TINYCLR_NATIVE_DECLARE(DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__I4);
-    TINYCLR_NATIVE_DECLARE(SetDetectionParameters___BOOLEAN__SamraksheMoteRADARNOISECONTROL__R8__R8__U2__U2__U2__U2);
+    TINYCLR_NATIVE_DECLARE(SetDetectionParameters___BOOLEAN__SamraksheMoteRADARNOISECONTROL__R8__R8__U2__U2__U2__U2__U2);
     TINYCLR_NATIVE_DECLARE(GetBackgroundNoiseLevel___I4__SamraksheMoteRADARNOISEREQUEST);
     TINYCLR_NATIVE_DECLARE(ResetBackgroundNoiseTracking___BOOLEAN);
     TINYCLR_NATIVE_DECLARE(GetIQRejectionLevel___I4);
@@ -46,6 +46,7 @@ struct Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection
     TINYCLR_NATIVE_DECLARE(GetNetDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION);
     TINYCLR_NATIVE_DECLARE(GetAbsoluteDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION);
     TINYCLR_NATIVE_DECLARE(GetDisplacementRange___I4__SamraksheMoteSAMPLEWINDOWPORTION);
+    TINYCLR_NATIVE_DECLARE(GetCountOverTarget___I4);
 
     //--//
 

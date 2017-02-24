@@ -26,7 +26,7 @@ namespace Samraksh
             static INT8 Uninitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
             static INT8 DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, CLR_RT_TypedArray_UINT16 param2, INT32 param3, HRESULT &hr );
             static INT8 DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, INT32 param2, HRESULT &hr );
-            static INT8 SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, INT32 param0, double param1, double param2, UINT16 param3, UINT16 param4, UINT16 param5, UINT16 param6, HRESULT &hr );
+            static INT8 SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, INT32 param0, double param1, double param2, UINT16 param3, UINT16 param4, UINT16 param5, UINT16 param6, UINT16 param7, HRESULT &hr );
             static INT32 GetBackgroundNoiseLevel( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
             static INT8 ResetBackgroundNoiseTracking( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
             static INT32 GetIQRejectionLevel( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
@@ -36,6 +36,7 @@ namespace Samraksh
             static INT32 GetNetDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
             static INT32 GetAbsoluteDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
             static INT32 GetDisplacementRange( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
+            static INT32 GetCountOverTarget( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
         };
     }
 }

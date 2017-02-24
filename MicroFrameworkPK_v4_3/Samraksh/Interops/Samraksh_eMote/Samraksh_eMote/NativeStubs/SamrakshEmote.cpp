@@ -28,7 +28,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::Uninitialize___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__SZARRAY_U2__I4,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__I4,
-    Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::SetDetectionParameters___BOOLEAN__SamraksheMoteRADARNOISECONTROL__R8__R8__U2__U2__U2__U2,
+    Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::SetDetectionParameters___BOOLEAN__SamraksheMoteRADARNOISECONTROL__R8__R8__U2__U2__U2__U2__U2,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetBackgroundNoiseLevel___I4__SamraksheMoteRADARNOISEREQUEST,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::ResetBackgroundNoiseTracking___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetIQRejectionLevel___I4,
@@ -38,6 +38,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetNetDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetAbsoluteDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetDisplacementRange___I4__SamraksheMoteSAMPLEWINDOWPORTION,
+    Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetCountOverTarget___I4,
     NULL,
     NULL,
     NULL,
@@ -150,7 +151,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote =
 {
     "Samraksh_eMote", 
-    0x4A5F7AA0,
+    0x829E2430,
     method_lookup
 };
 
