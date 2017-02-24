@@ -50,6 +50,7 @@ static int prevIQrejectionValue = IQRejectionToUse;
 static bool windowOverThreshold = false;
 static bool detectionFinished = false;
 static UINT16 targetSizeFilter = 300;
+static UINT16 classifierTargetFilter = 250;
 
 enum RADAR_NOISE_CONTROL
 {
@@ -209,7 +210,7 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 	}
 
 	// copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR
-	unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, (INT16)HeapTrackMedian(radarI), (INT16)HeapTrackMedian(radarQ), IQRejectionToUse, debugVal, IDNumber, codeVersion);
+	unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, (INT16)HeapTrackMedian(radarI), (INT16)HeapTrackMedian(radarQ), IQRejectionToUse, debugVal, IDNumber, codeVersion, classifierTargetFilter);
 
 	lastUnwrap = unwrap;
 	lastUnwrapZero = getUnwrapZero();
@@ -318,7 +319,7 @@ INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, 
     return detection;
 }
 
-INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, INT32 param0, double param1, double param2, UINT16 param3, UINT16 param4, UINT16 param5, UINT16 param6, HRESULT &hr )
+INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, INT32 param0, double param1, double param2, UINT16 param3, UINT16 param4, UINT16 param5, UINT16 param6, UINT16 param7, HRESULT &hr )
 {
     INT8 retVal = 0; 
 
@@ -341,6 +342,7 @@ INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj
 	debugVal = param5;
 	codeVersion =  1;
 	targetSizeFilter =  param6;
+	classifierTargetFilter = param7;
 
 	initialAdjustmentCnt = INITIAL_ADJUSTMENT_SAMPLE_CNT;
 	IQRejectionToUse = 100;
@@ -440,3 +442,8 @@ INT32 Algorithm_RadarDetection::GetDisplacementRange( CLR_RT_HeapBlock* pMngObj,
 	return getRange(param0);
 }
 
+
+INT32 Algorithm_RadarDetection::GetCountOverTarget( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    return getCountOverTarget(); 
+}

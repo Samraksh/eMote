@@ -94,7 +94,7 @@
             </summary>
             <returns>Returns true if a detection was found, false if no detection was found.</returns>
         </member>
-        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL,System.Double,System.Double,System.UInt16,System.UInt16,System.UInt16,System.UInt16)">
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL,System.Double,System.Double,System.UInt16,System.UInt16,System.UInt16,System.UInt16,System.UInt16)">
             <summary>
             Sets detection parameters.
             </summary>
@@ -153,6 +153,12 @@
             Request the window's displacement range.
             </summary>
             <returns>Returns the window's displacement range.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.GetCountOverTarget">
+            <summary>
+            Request the window's count of samples over classifierTargetFilter parameter.
+            </summary>
+            <returns>Returns the window's count of samples over target.</returns>
         </member>
         <member name="T:Samraksh.eMote.Algorithm.DecisionFunction">
             <summary>

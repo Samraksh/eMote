@@ -40,7 +40,7 @@ INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, 
     return retVal;
 }
 
-INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, INT32 param0, double param1, double param2, UINT16 param3, UINT16 param4, UINT16 param5, UINT16 param6, HRESULT &hr )
+INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, INT32 param0, double param1, double param2, UINT16 param3, UINT16 param4, UINT16 param5, UINT16 param6, UINT16 param7, HRESULT &hr )
 {
     INT8 retVal = 0; 
     return retVal;
@@ -95,6 +95,12 @@ INT32 Algorithm_RadarDetection::GetAbsoluteDisplacement( CLR_RT_HeapBlock* pMngO
 }
 
 INT32 Algorithm_RadarDetection::GetDisplacementRange( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 Algorithm_RadarDetection::GetCountOverTarget( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;

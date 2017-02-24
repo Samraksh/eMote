@@ -29,6 +29,8 @@ static int maxDisplacementEntire = 0;
 static INT16 absOffsetQ =0;
 static INT16 absOffsetI =0;
 
+static INT16 countOverTarget = 0;
+
 enum PI
 {
     HALF = 6434,
@@ -99,7 +101,7 @@ INT16 findMedian(UINT16* buffer, INT32 length)
 	}
 }
 
-int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT32 noiseRejection, UINT16 debugVal, UINT16 IDNumber, UINT16 versionNumber)
+int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT32 noiseRejection, UINT16 debugVal, UINT16 IDNumber, UINT16 versionNumber, UINT16 classifierTarget)
 {
 	int i;
 	int unwrappedPhase;
@@ -123,6 +125,8 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 	INT16 minOffsetI = 2048;
 	int midPoint = (int)length>>1;
 	int sampleDisplacement = 0;
+
+	countOverTarget = 0;
 
 	unwrappedPhaseCrossProduct = 0;
 	unwrappedPhaseCrossProductMax = 0;
@@ -175,6 +179,10 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 			maxOffsetQ = iBufferQ[i];
 		if (iBufferQ[i] < minOffsetQ)
 			minOffsetQ = iBufferQ[i];
+
+		if (abs( iBufferI[i] + iBufferQ[i]) > classifierTarget){
+			countOverTarget++;
+		}
 		
 		// sampleDisplacement contains the current samples displacement
 		sampleDisplacement = unwrapCrossProduct(iBufferI[i], iBufferQ[i], noiseRejection);
@@ -368,4 +376,8 @@ INT16 getAbsOffsetQ(){
 
 INT16 getAbsOffsetI(){
 	return absOffsetI;
+}
+
+INT16 getCountOverTarget(){
+	return countOverTarget;
 }
