@@ -30,10 +30,14 @@ enum CallBackTypes
 {
 	ReceivedCallback,
 	NeighborChangedCallback,
+	SendInitiated,
+	SendACKed,
+	SendNACKed,
+	SendFailed
 };
 
-void ManagedCallback(UINT16 arg1, UINT16 arg2);
-void ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus);
+void ManagedCallback(UINT32 arg1, UINT32 arg2);
+void ManagedSendAckCallbackFn(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus);
 
 void NeighborChangedCallbackFn(INT16 numberOfNeighbors);
 void ReceiveDoneCallbackFn(void* msg, UINT16 numberOfPackets);
@@ -109,7 +113,7 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 
 	Event_Handler.SetReceiveHandler(&ReceiveDoneCallbackFn);
 	Event_Handler.SetNeighborChangeHandler(&NeighborChangedCallbackFn);
-	Event_Handler.SetSendAckHandler(&ManagedSendAckCallback);
+	Event_Handler.SetSendAckHandler(&ManagedSendAckCallbackFn);
 
 	MyAppID=3; //pick a number less than MAX_APPS currently 4.
 
@@ -159,6 +163,12 @@ INT32 MACBase::GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedA
 {
     return MAC_GetNeighborList(neighborlist.GetBuffer());
 }
+
+INT32 MACBase::GetMACNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 neighborlist, HRESULT &hr )
+{
+    return MAC_GetMACNeighborList(neighborlist.GetBuffer());
+}
+
 
 INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 address, UINT8 payloadType, CLR_RT_TypedArray_UINT8 payloadTemp, UINT16 offset, UINT16 size, HRESULT &hr )
 {
@@ -226,10 +236,29 @@ void NeighborChangedCallbackFn(INT16 countOfNeighbors)
 	ManagedCallback(NeighborChangedCallback,(UINT16) countOfNeighbors);
 }
 
-void ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus){
+void ManagedSendAckCallbackFn(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus){
+	Message_15_4_t* tx_msg = (Message_15_4_t*)msg;
+	
+	// NetOpStatus needs to be revisted...here we translate from NetOpStatus to the opcodes used in the callback (CallbackTyep in Samraksh_eMote_Net)
+	if (status == NetworkOperations_SendInitiated){
+		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendInitiated %u %u \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
+		ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendInitiated, tx_msg->GetHeader()->payloadType);
+	} else if (status == NetworkOperations_SendACKed){
+		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendACKed %u %u \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
+		ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendACKed, tx_msg->GetHeader()->payloadType);
+	} else if (status == NetworkOperations_SendNACKed){
+		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendNACKed %u %u  \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
+		ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendNACKed, tx_msg->GetHeader()->payloadType);
+	} else if (status == NetworkOperations_SendFailed){
+		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendFailed %u %u  \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
+		ManagedCallback((UINT32)(tx_msg->GetHeader()->dest << 16) + SendFailed, tx_msg->GetHeader()->payloadType);
+	}
+	//else{
+	//	hal_printf("ManagedSendAckCallbackFn Unknown Status!");
+	//}
 }
 
-void ManagedCallback(UINT16 arg1, UINT16 arg2)
+void ManagedCallback(UINT32 arg1, UINT32 arg2)
 {
 	UINT32 data1, data2;
 	data1 = arg1;

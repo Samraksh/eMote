@@ -13,11 +13,16 @@
 //#define OMAC_DEBUG_GPIO
 //#define OMAC_DEBUG_PRINTF
 
+#define OMAC_DEBUG_PRINTF_EXTENDEDMACINfo 0
+#define OMAC_DEBUG_SEND_EXTENDEDMACINfo 1
 
 // BK: VARIOUS DEBUG STatement enabling PIN for debuggin network issues
+
+
 #define OMAC_DEBUG_PRINTF_SETCONFIG 0
 #define OMAC_DEBUG_PRINTF_PACKETREC 0
 #define OMAC_DEBUG_PRINTF_ACKREC 0
+#define OMAC_DEBUG_DRH_SEND_ACK 0
 #define OMAC_DEBUG_PACKET_REJECTION 0
 #define OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS 0
 #define OMAC_DEBUG_PRINTF_PACKETDROP_MAXTRIES 0
@@ -27,10 +32,14 @@
 #define OMAC_DEBUG_PRINTF_PACKET_ACK_RX_SUCCESS 0
 #define OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE 0
 
-//#define OMAC_RECEIVE_DEBUGGING_FOR_MF 1
+#define OMAC_DEBUG_PRINTF_NEIGHCHANGE 0
+#define OMAC_DEBUG_PRINTF_DISCO_RX 0
+#define OMAC_RECEIVE_DEBUGGING_FOR_MF 0
 
-//#define OMAC_DEBUG_PRINTF_DISCO_RX
+#define OMAC_DEBUG_PRINTF_TS_RX 0
+#define OMAC_DEBUG_PRINTF_TSREQ_TX 0
 
+#define OMAC_DEBUG_PRINTF_FAILSAFE_STOP 0
 
 #if defined(TWO_NODES_TX_RX)
 
@@ -140,9 +149,15 @@ private:
 	//-------------------------------
 //	static const UINT8 SlotLength = 8; //slot Length in milliseconds
 	Message_15_4_t* PrepareMessageBuffer(UINT16 address, UINT8 dataType, void* msg, int size);
-	void SendRXPacketToUpperLayers(Message_15_4_t *msg, UINT8 payloadType);
 
+	void SendRXPacketToUpperLayers(Message_15_4_t *msg, UINT8 payloadType);
+	void PrintNeighborTable();
   public:
+
+#if OMAC_DEBUG_PRINTF_NEIGHCHANGE || OMAC_DEBUG_PRINTF_DISCO_RX || OMAC_DEBUG_PRINTF_TS_RX ||OMAC_DEBUG_PRINTF_TSREQ_TX
+	bool is_print_neigh_table;
+#endif
+
 
 #ifdef def_Neighbor2beFollowed
 	UINT16 Neighbor2beFollowed;
@@ -166,6 +181,7 @@ private:
 	UINT16 ACK_RX_MAX_DURATION_MICRO;
 	UINT16 ACK_TX_MAX_DURATION_MICRO;
 	UINT16 MAX_PACKET_TX_DURATION_MICRO;
+	UINT16 MAX_PACKET_RX_DURATION_MICRO;
 	UINT16 DISCO_PACKET_TX_TIME_MICRO;
 	UINT16 DISCO_SLOT_PERIOD_MICRO;
 	UINT16 DISCO_BEACON_TX_MAX_DURATION_MICRO;

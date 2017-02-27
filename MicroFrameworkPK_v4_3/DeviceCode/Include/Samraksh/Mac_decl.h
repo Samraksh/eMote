@@ -107,6 +107,7 @@ DeviceStatus MAC_Config(void *macConfig);
 
 // Get the neighbor list
 DeviceStatus MAC_GetNeighborList(UINT16 *buffer);
+DeviceStatus MAC_GetMACNeighborList(UINT16 *buffer);
 DeviceStatus MAC_GetNeighborStatus(UINT16 macAddress, UINT8 *buffer);
 
 //Channel/freq functions

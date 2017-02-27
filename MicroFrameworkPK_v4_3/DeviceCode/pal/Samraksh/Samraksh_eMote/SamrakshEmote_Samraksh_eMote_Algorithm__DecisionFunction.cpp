@@ -20,6 +20,11 @@ using namespace Samraksh::eMote;
 
 DecisionFunction decisionFunc;
 
+void Algorithm_DecisionFunction::Initialize( CLR_RT_HeapBlock* pMngObj, UINT16 param0, UINT16 param1, float param2, float param3, CLR_RT_TypedArray_float param4, CLR_RT_TypedArray_float param5, CLR_RT_TypedArray_float param6, HRESULT &hr )
+{
+	decisionFunc.Initialize(param0, param1, param2, param3, param4.GetBuffer(), param5.GetBuffer(), param6.GetBuffer());
+}
+
 void Algorithm_DecisionFunction::NormalizeFeatureVector( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_float param0, CLR_RT_TypedArray_INT32 param1, HRESULT &hr )
 {
     decisionFunc.Normalize(param0.GetBuffer(), (UINT32*)param1.GetBuffer());

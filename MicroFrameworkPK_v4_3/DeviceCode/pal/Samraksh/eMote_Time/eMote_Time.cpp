@@ -163,7 +163,7 @@ void Time_Driver::Sleep_uSec_Loop( UINT32 uSec )
 // timeToAdd is in 100-nanosecond (ns) increments. This is a Microsoft thing.
 void Time_Driver::AddClockTime(UINT64 timeToAdd)
 {
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN)
 	CPU_AddClockTime(ADVTIMER_32BIT, timeToAdd);
 #endif
 }

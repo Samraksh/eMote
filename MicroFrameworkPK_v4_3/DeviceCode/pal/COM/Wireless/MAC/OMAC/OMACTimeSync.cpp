@@ -192,8 +192,16 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 #endif
 		//	return rs;
 		}
+#if OMAC_TSYNC_DEBUG_PRINTF_PACKET_ENQUE
+	if(rs){
+		hal_printf("TSREQ ENQUE SUCCESS d: %d\r\n", address);
+	}
+	else{
+		hal_printf("TSREQ ENQUE FAIL d: %d\r\n", address);
+	}
+#endif
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
+		OMAC_HAL_PRINTF("TS Send: %d, LTime: %lld  \r\n",m_seqNo, y);
 #endif
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( TIMESYNC_GENERATE_MESSAGEPIN, FALSE );
@@ -203,9 +211,18 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 	DeviceStatus ds = g_NeighborTable.RecordTimeSyncRequestSent(address, y);
 	if(ds != DS_Success){
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("OMACTimeSync::Send RecordTimeSyncRequestSent failure; address: %d; line: %d\n", address, __LINE__);
+		OMAC_HAL_PRINTF("OMACTimeSync::Send RecordTimeSyncRequestSent failure; address: %d; line: %d \r\n", address, __LINE__);
 #endif
 	}
+#if OMAC_TSYNC_DEBUG_PRINTF_PACKET_ENQUE
+	if(ds == DS_Success){
+		hal_printf("RTSRS SUCCESS d: %d\r\n", address);
+	}
+	else{
+		hal_printf("RTSRS FAIL d: %d\r\n", address);
+	}
+
+#endif
 
 	return rs;
 }
@@ -215,7 +232,7 @@ DeviceStatus OMACTimeSync::ReceiveTSReq(RadioAddress_t msg_src, TimeSyncRequestM
 	//Determine if timesync is requested, schedule sending a message back to the source
 	if(rcv_msg->request_TimeSync){
 #ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("OMACTimeSync::ReceiveTSReq. Sending to %d\n", msg_src);
+		OMAC_HAL_PRINTF("OMACTimeSync::ReceiveTSReq. Sending to %d \r\n", msg_src);
 #endif
 		this->Send(msg_src);
 	}
@@ -237,6 +254,7 @@ void OMACTimeSync::CreateMessage(TimeSyncMsg* timeSyncMsg, UINT64 curticks, bool
  */
 DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg, UINT64 SenderDelay, UINT64 ReceiveTS){
 	bool TimerReturn;
+	DeviceStatus ds = DS_Fail;
 	//RadioAddress_t msg_src = msg->GetHeader()->src;
 	UINT64 y,neighborscurtime;
 
@@ -262,13 +280,71 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 //		return DS_Fail;
 //	}
 
-	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
-	DeviceStatus ds = g_NeighborTable.RecordTimeSyncRecv(msg_src,ReceiveTS);
-	if(ds != DS_Success){
-#ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("OMACTimeSync::Receive RecordTimeSyncRecv failure; address: %d; line: %d\n", msg_src, __LINE__);
+	bool is_space_available_in_table = false;
+	if(m_globalTime.regressgt2.FindNeighbor(msg_src) != c_bad_nbrIndex){
+		is_space_available_in_table = true;
+	}
+	else if(!m_globalTime.regressgt2.IsTableFull()) {
+		m_globalTime.regressgt2.InsertNbrID(msg_src);
+		is_space_available_in_table = true;
+	}
+	else {
+		UINT8 index = 0;
+		//For each time table entry, if the neighbor does not exist in the neighbortable, kick it from both the time table
+		for(UINT8 i =0; i < MAX_NBR; ++i){
+			if(INVALID_NBR_ID != g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID){
+				if( g_NeighborTable.FindIndexEvenDead( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID, &index) != DS_Success){ //If it does not exist in the neighbortable, delete from the time entires from globalTime Table
+				 	 g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
+						if(!m_globalTime.regressgt2.IsTableFull()) {
+							is_space_available_in_table = true;
+							m_globalTime.regressgt2.InsertNbrID(msg_src);
+							break;
+						}
+				}
+			}
+		}
+
+		//For each time table entry, if the neighbor is not active in neighbor table, kick it from both the neighbor table and the time table
+		for(UINT8 i =0; i < MAX_NBR; ++i){
+			if(INVALID_NBR_ID != g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID){
+				if( g_NeighborTable.FindIndexEvenDead( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID, &index) == DS_Success){
+					if(g_NeighborTable.Neighbor[index].neighborStatus != Alive){ //If it exists in the neighbortable but marked as not alive, delete from the time entires from globalTime Table
+						g_NeighborTable.Neighbor[index].Clear();
+						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
+						if(!m_globalTime.regressgt2.IsTableFull()) {
+							is_space_available_in_table = true;
+							m_globalTime.regressgt2.InsertNbrID(msg_src);
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if(is_space_available_in_table){
+		m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
+		ds = g_NeighborTable.RecordTimeSyncRecv(msg_src,ReceiveTS);
+#if OMAC_DEBUG_PRINTF_TS_RX
+		hal_printf("TS Receive from = %u \r\n", msg_src);
+//		g_OMAC.PrintNeighborTable();
+		g_OMAC.is_print_neigh_table = true;
 #endif
 	}
+	else{
+#if OMAC_DEBUG_PRINTF_TS_RX
+		hal_printf("No space to record time sample  msg_src = %u \r\n", msg_src);
+		g_OMAC.PrintNeighborTable();
+		g_OMAC.is_print_neigh_table = true;
+
+#endif
+	}
+
+#ifdef OMAC_DEBUG_PRINTF
+	if(ds != DS_Success){
+		OMAC_HAL_PRINTF("OMACTimeSync::Receive RecordTimeSyncRecv failure; address: %d; line: %d \r\n", msg_src, __LINE__);
+	}
+#endif
 
 #ifdef def_Neighbor2beFollowed
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){
@@ -334,13 +410,13 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 			nbrToIdx(nodeID, &nbrIdx);
 			if (nbrIdx != INVALID_INDEX) {
 				TableItem *ptr = &(m_beaconTable[nbrIdx]);
-			//	printf("ofset=%ld lclAvg=%lu lcl=%lu, sk=%ld\n",
+			//	printf("ofset=%ld lclAvg=%lu lcl=%lu, sk=%ld \r\n",
 			//	    ptr->offsetAvg, ptr->localAvg, *time, (int32_t)(ptr->skew * 1000));
 				*time += ptr->offsetAvg
 					+ (int32_t)(ptr->skew * (int32_t)(*time - ptr->localAvg));
 			} else {
 				result = FAIL;
-				printf("Error in local2Global. should not happen\n");
+				printf("Error in local2Global. should not happen \r\n");
 			}
 		}
 
@@ -350,7 +426,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	async command error_t GlobalTime.global2Local(uint32_t *time, am_addr_t nodeID)
 	{
 		if (nodeID == TOS_NODE_ID) {
-			printf("global2Local myself\n");
+			printf("global2Local myself \r\n");
 			return is_synced(nodeID);
 		} else if (call TimeSyncInfo.isSynced(nodeID)) {
 			uint8_t nbrIdx;
@@ -363,11 +439,11 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 				return SUCCESS;
 			}
 			else {
-				printf("Error in global2Local. should not happen\n");
+				printf("Error in global2Local. should not happen \r\n");
 				return FAIL;
 			}
 		} else {
-			printf("global2Local failed\n");
+			printf("global2Local failed \r\n");
 			return FAIL;
 		}
 	}

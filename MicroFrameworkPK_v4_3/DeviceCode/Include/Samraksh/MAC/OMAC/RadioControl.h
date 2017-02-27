@@ -17,6 +17,8 @@ class RadioControl_t{
 private:
 	bool PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size);
 	bool PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size);
+	bool PiggybackEntendedMACInfoMsg(Message_15_4_t* msg, UINT16 &size);
+	UINT8 next_piggybacked_extendedneighborinfo_index;
 public:
 	DeviceStatus Initialize();
 	DeviceStatus Uninitialize();
@@ -29,7 +31,7 @@ public:
 
 	bool PiggybackMessages(Message_15_4_t* msg, UINT16 &size);
 	bool stayOn;
-
+	RadioControl_t() : next_piggybacked_extendedneighborinfo_index(0) ,stayOn(false) {};
 
 };
 

@@ -47,6 +47,7 @@
 #define MID_UINT64  (0x7FFFFFFFFFFFFFFF)
 
 #define MAX_DATA_PCKT_SIZE 100
+#define MAX_PCKT_SIZE 128
 
 
 
@@ -61,7 +62,9 @@ enum OMACSchedulerState_t{
   I_TIMESYNC_PENDING,
   I_DISCO_PENDING,
   I_DWELL_SEND, //BK: What is this?
-  I_RADIO_STOP_RETRY
+  I_RADIO_STOP_RETRY,
+  I_FAILSAFE_STOP,
+  I_POST_EXECUTE
 } ;
 
 /*
@@ -157,6 +160,9 @@ struct PACK TimeSyncRequestMsg
   //UINT32 timesyncIdentifier;
   bool request_TimeSync;
 };
+
+
+
 
 /*
  *
@@ -300,11 +306,11 @@ typedef OFProv<UINT64> OMACTicks;
 
 //#define PROCESSING_DELAY_BEFORE_TX_MICRO (581) //DELAY_FROM_OMAC_TX_TO_RF231_TX //581
 #define DELAY_FROM_DTH_TX_TO_RADIO_DRIVER_TX_RF231 581
-#define DELAY_FROM_DTH_TX_TO_RADIO_DRIVER_TX_SI 1138
+#define DELAY_FROM_DTH_TX_TO_RADIO_DRIVER_TX_SI 1440
 #define RADIO_TURN_ON_DELAY_RX_MICRO_RF231 693
 #define RADIO_TURN_ON_DELAY_TX_MICRO_RF231 693
-#define RADIO_TURN_ON_DELAY_RX_MICRO_SI 143
-#define RADIO_TURN_ON_DELAY_TX_MICRO_SI 163
+#define RADIO_TURN_ON_DELAY_RX_MICRO_SI 163
+#define RADIO_TURN_ON_DELAY_TX_MICRO_SI 143
 
 #define RADIO_TURN_OFF_DELAY_MICRO_RF231 184 //453 //BK: This is not used but it is measured 184 micro secs (may not be very accurate)
 #define TIMER_MODIFICATION_AND_START_DELAY_MICRO 269 // BK: This is a very rough number
@@ -327,12 +333,12 @@ typedef OFProv<UINT64> OMACTicks;
 #define EXTRA_DELAY_IN_WAITING_FOR_ACK (1.6*MILLISECINMICSEC)	//Difference between FAST_RECOVERY_WAIT_PERIOD_MICRO (or) MAX_PACKET_TX_DURATION_MICRO and 3.4ms. 3.4ms is the ideal round trip time.
 #define TIME_BETWEEN_TX_RX_TS_TICKS (266*TICKS_PER_MICRO)
 
-#define RADIO_STOP_RETRY_PERIOD_IN_MICS 50
+#define RADIO_STOP_RETRY_PERIOD_IN_MICS OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO
 //Random_backoff is done before re-transmission
 //GUARDTIME_MICRO+OMAC_TIME_ERROR - Pessimistic time error
 //GUARDTIME_MICRO - optimistic time error (if there is a re-transmission, tx takes GUARDTIME_MICRO to do CCA
 
-#define EXECUTE_WITH_CCA  1
+#define EXECUTE_WITH_CCA  0
 #define  FAST_RECOVERY 0
 #define  FAST_RECOVERY2 0
 
@@ -363,9 +369,9 @@ typedef OFProv<UINT64> OMACTicks;
 //80000000 - 10 secs
 //100000000 - 12.5 secs
 //#define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
-#define FORCE_REQUESTTIMESYNC_INMICS 10000000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
-//#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  48000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
-#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST_INMICS  600000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
+//#define FORCE_REQUESTTIMESYNC_INMICS 10000000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
+////#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  48000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
+//#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST_INMICS  600000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
 
 
 #define HFCLOCKID 1
@@ -379,7 +385,7 @@ typedef OFProv<UINT64> OMACTicks;
 
 #if (OMACClockSpecifier==LFCLOCKID)
 //#define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
-#define FORCE_REQUESTTIMESYNC_INMICS 10000000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
+#define FORCE_REQUESTTIMESYNC_INMICS 610000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
 //#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  48000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
 #define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST_INMICS  600000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
 ////GUARDTIME_MICRO should be calculated in conjuction with SLOT_PERIOD_MILLI
@@ -400,7 +406,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_TICKS 4000
 #define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO 500
 
-#define FAILSAFETIME_MICRO 100000000
+#define FAILSAFETIME_MICRO 6000000
 
 #define WAKEUPPERIODINTICKS 8000000
 

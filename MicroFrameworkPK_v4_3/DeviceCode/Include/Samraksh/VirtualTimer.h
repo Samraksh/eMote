@@ -23,6 +23,45 @@
 // Defines the signature of the timer callback function
 typedef void (*TIMER_CALLBACK_FPN)( void* arg );
 
+void HAL_CONTINUATION_ExtendedExecute(void * param);
+
+struct HAL_CONTINUATION_Extended : public HAL_CONTINUATION {
+	HAL_CALLBACK_FPN m_EntryPoint;
+	void* m_Argument;
+
+	UINT8 num_attempting_to_grab;
+public:
+    bool InitializeExtendedCallback( HAL_CALLBACK_FPN _EntryPoint, void* _Argument );
+	HAL_CONTINUATION_Extended() : num_attempting_to_grab(0), m_EntryPoint(NULL), m_Argument(NULL) {};
+	bool SetUsed() {
+		GLOBAL_LOCK(irq);
+		if(num_attempting_to_grab == 0){
+			++num_attempting_to_grab;
+			if(num_attempting_to_grab == 1){
+				return true;
+			}
+			else{
+				--num_attempting_to_grab;
+			}
+		}
+		return false;
+	}
+	void SetUnUsed() {
+		m_Argument = NULL;
+		m_EntryPoint = NULL;
+		num_attempting_to_grab = 0;
+	}
+	bool IsUsed() const {
+		if(num_attempting_to_grab>0) return false;
+		else if(m_EntryPoint == NULL) return false;
+		else return true;
+	}
+};
+
+struct HAL_CONTINUATION_ExtendedArg{
+	HAL_CONTINUATION_Extended* ptr;
+
+};
 
 typedef enum _VirtualTimerReturnMessage
 {
@@ -193,9 +232,12 @@ struct VirtualTimerConfig
 
 class VirtualTimerMapper
 {
+
 public:
 	UINT16 m_current_timer_cnt_;     //<! TODO: description goes here. please.
 	UINT16 m_current_timer_running_; //<! TODO: description goes here. please.
+
+	bool is_callback_running;
 
 	UINT16 VTM_hardwareTimerId;      //<! TODO: description goes here. please.
 	VirtualTimerInfo g_VirtualTimerInfo[g_VirtualTimerPerHardwareTimer];
@@ -208,11 +250,15 @@ public:
 
 	BOOL StopTimer(UINT8 timer_id);
 
+	BOOL IsRunning(UINT8 timer_id);
+
 	BOOL ChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot);
 
 	BOOL UnInitialize(UINT16);
 
 	inline BOOL VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTimerIndex);
+
+	void SetAlarmForTheNextTimer();
 
 };
 
@@ -240,6 +286,7 @@ public:
 	VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback, UINT8 hardwareTimerId=1);
 	VirtualTimerReturnMessage VirtTimer_Start(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_Stop(UINT8 timer_id);
+	BOOL VirtTimer_IsRunning(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, UINT8 hardwareTimerId=1);
 
 	UINT32 VirtTimer_SetCounter(UINT8 timer_id, UINT32 Count);

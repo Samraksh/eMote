@@ -2,6 +2,8 @@
  * Samraksh virtual timer driver
  * Initial Create - Mukundan Sridharan; Ananth Muralidharan
  * 07/24/2014
+ *  * Update: Bora Karaoglu
+ *  01/25/2017
  *
  */
 
@@ -53,6 +55,7 @@ BOOL VirtualTimerMapper::Initialize(UINT16 temp_HWID)
 	//CPU_GPIO_SetPinState( VTIMER_CALLBACK_LATENCY_PIN, FALSE );
 
 	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, TRUE);
+	is_callback_running = false;
 #ifdef DEBUG_VT
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, TRUE);
@@ -174,7 +177,7 @@ BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
 #ifdef DEBUG_VT
 	CPU_GPIO_SetPinState((GPIO_PIN) 25, TRUE);
 #endif
-	UINT16 i;
+
 	//Timer 0 is reserved for keeping time and timer 1 for events
 	if (timer_id < 0) {
 		ASSERT(0);
@@ -197,38 +200,13 @@ BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
 
 	// Initializing timer
 	g_VirtualTimerInfo[VTimerIndex].set_m_ticks_when_match_(VirtTimer_GetTicks(timer_id)  + g_VirtualTimerInfo[VTimerIndex].get_m_period() + g_VirtualTimerInfo[VTimerIndex].get_m_start_delay());
-	g_VirtualTimerInfo[VTimerIndex].set_m_is_running(TRUE);
 
-		// looking to see which timer will be called the earliest
-		UINT16 nextTimer = 0;
-		UINT64 smallestTicks = cTimerMax64Value;
-		bool timerInQueue = false;
-		for(i = 0; i < m_current_timer_cnt_; i++)
-		{
-			if(g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
-			{
-				if(g_VirtualTimerInfo[i].get_m_ticks_when_match_() <= smallestTicks)
-				{
-					smallestTicks = g_VirtualTimerInfo[i].get_m_ticks_when_match_();
-					nextTimer = i;
-					timerInQueue = true;
-				}
-			}
-		}
+	// if we have a timer set but marked as not running and then we change it and start it, the old set compare could fire, see that it is running from the following statement and then execute the callback.
+	// So we lock that out here.
+	GLOBAL_LOCK(irq);
+	g_VirtualTimerInfo[VTimerIndex].set_m_is_running(TRUE);
 	
-		// if there is a timer in the timerqueue still we will set the advanced timer to interrupt at the correct time
-		if(timerInQueue)
-		{
-			// for now we have to check that we are setting the compare at some time in the future. This check is also made in the setcompare function itself but there it is limited (for now) to 32-bits
-			// when we are fully 64-bit compatible with our timers then we will need only the check in the setcompare function itself
-			if (g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() < VirtTimer_GetTicks(timer_id) ) {
-				CPU_Timer_SetCompare(VTM_hardwareTimerId, VirtTimer_GetTicks(timer_id));
-			}
-			else {
-				CPU_Timer_SetCompare(VTM_hardwareTimerId, g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() );
-			}
-			m_current_timer_running_ = nextTimer;
-		}
+	SetAlarmForTheNextTimer();
 #ifdef DEBUG_VT
 	CPU_GPIO_SetPinState((GPIO_PIN) 25, FALSE);
 #endif
@@ -255,6 +233,63 @@ BOOL VirtualTimerMapper::StopTimer(UINT8 timer_id)
 	return TRUE;
 }
 
+BOOL VirtualTimerMapper::IsRunning(UINT8 timer_id)
+{
+	//Timer 0 is reserved for keeping time and timer 1 for events
+
+	UINT8 VTimerIndex = 0;
+	BOOL timerFound = VirtTimerIndexMapper(timer_id, VTimerIndex);
+
+	if(!timerFound) {
+		SOFT_BREAKPOINT();
+		return FALSE;
+	}
+
+	return g_VirtualTimerInfo[VTimerIndex].get_m_is_running();
+
+}
+
+
+void VirtualTimerMapper::SetAlarmForTheNextTimer(){
+	UINT16 i;
+	// looking to see which timer will be called the earliest
+	if(!is_callback_running){
+		UINT16 nextTimer = 0;
+		UINT64 smallestTicks = cTimerMax64Value;
+		bool timerInQueue = false;
+		for(i = 0; i < m_current_timer_cnt_; i++) {
+			if(g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
+			{
+				if(g_VirtualTimerInfo[i].get_m_ticks_when_match_() <= smallestTicks)
+				{
+					smallestTicks = g_VirtualTimerInfo[i].get_m_ticks_when_match_();
+					nextTimer = i;
+					timerInQueue = true;
+				}
+			}
+		}
+
+		// if there is a timer in the timerqueue still we will set the advanced timer to interrupt at the correct time
+		if(timerInQueue) {
+	//		// for now we have to check that we are setting the compare at some time in the future. This check is also made in the setcompare function itself but there it is limited (for now) to 32-bits
+	//		// when we are fully 64-bit compatible with our timers then we will need only the check in the setcompare function itself
+	//		if (g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() < VirtTimer_GetTicks(timer_id) ) {
+	//			CPU_Timer_SetCompare(VTM_hardwareTimerId, VirtTimer_GetTicks(timer_id));
+	//		}
+	//		else {
+	//			CPU_Timer_SetCompare(VTM_hardwareTimerId, g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() );
+	//		}
+			CPU_Timer_SetCompare(VTM_hardwareTimerId, g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() );
+			m_current_timer_running_ = nextTimer;
+		}
+		else{
+			m_current_timer_running_ = g_VirtualTimerPerHardwareTimer;
+		}
+	}
+	else{
+		//hal_printf("SetAlarmForTheNextTimer from withing callback");
+	}
+}
 
 namespace VirtTimerHelperFunctions
 {
@@ -274,18 +309,46 @@ namespace VirtTimerHelperFunctions
 }
 
 
+
+bool HAL_CONTINUATION_Extended::InitializeExtendedCallback( HAL_CALLBACK_FPN EntryPoint, void* Argument ){
+	if(!IsUsed()){
+		if(SetUsed()){
+			m_EntryPoint = EntryPoint;
+			m_Argument = Argument;
+			InitializeCallback((HAL_CALLBACK_FPN) HAL_CONTINUATION_ExtendedExecute, this);
+			return true;
+		}
+		return false;
+	}
+	else{
+		return false;
+	}
+}
+//HAL_CONTINUATION_Extended::HAL_CONTINUATION_Extended() : isused(false) {};
+//void HAL_CONTINUATION_Extended::SetUsed() { isused = true;}
+//void HAL_CONTINUATION_Extended::SetUnUsed() { isused = false;}
+//bool HAL_CONTINUATION_Extended::IsUsed() const {return isused;}
+
+void HAL_CONTINUATION_ExtendedExecute(void * param) {
+	HAL_CONTINUATION_Extended * ptr = (HAL_CONTINUATION_Extended*) param;
+	//HAL_CALLBACK_FPN fpn = ptr->m_callback;
+	ptr->m_EntryPoint(ptr->m_Argument);
+	ptr->SetUnUsed();
+};
+
 #define VT_CALLBACK_CONTINUATION_MAX 8
-static HAL_CONTINUATION vtCallbackContinuationArray[VT_CALLBACK_CONTINUATION_MAX];
+static HAL_CONTINUATION_Extended vtCallbackContinuationArray[VT_CALLBACK_CONTINUATION_MAX];
 
 bool queueVTCallback(VirtualTimerInfo* runningTimer){
 	int i;
+	bool rv;
 	
 	for (i=0; i<VT_CALLBACK_CONTINUATION_MAX; i++){
-		if (!vtCallbackContinuationArray[i].IsLinked())
-		{
-			vtCallbackContinuationArray[i].InitializeCallback((HAL_CALLBACK_FPN) (runningTimer->get_m_callback()),NULL);   
-			vtCallbackContinuationArray[i].Enqueue();
-			return true;
+		if (!vtCallbackContinuationArray[i].IsLinked()) {
+			if(vtCallbackContinuationArray[i].InitializeExtendedCallback( (HAL_CALLBACK_FPN) (runningTimer->get_m_callback()), NULL)){
+				vtCallbackContinuationArray[i].Enqueue();
+				return true;
+			}
 		}
 	}
 
@@ -312,55 +375,37 @@ void VirtualTimerCallback(void *arg)
 		return;
 	}
 
+	gVirtualTimerObject.virtualTimerMapper[currentVTMapper].is_callback_running = true;
 	UINT16 currentVirtualTimerCount = gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_cnt_;
+	if(gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_ >= g_VirtualTimerPerHardwareTimer){
+		ASSERT(0);
+		return;
+	}
 	VirtualTimerInfo* runningTimer = &gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_];
 
-	// calling the timer callback that just fired
-	if (runningTimer->get_m_is_running()){
+	// calling the timer callback that just fired IF it is running and should have matched by now. 
+	// It is possible that while we are queueing up a timer to fire another timer fires and then m_current_timer_running_ gets changed, that exits, the timer interrupt gets processed and we process the wrong timer
+	// So we double check here.
+	if (runningTimer->get_m_is_running() && (runningTimer->get_m_ticks_when_match_() < CPU_Timer_CurrentTicks(currentHardwareTimerId))){
 		if ( runningTimer->get_m_timer_id() <= VIRT_TIMER_INTERRUPT_CONTEXT_MARKER){
 			(runningTimer->get_m_callback())(NULL);
 		} else {
 			//void * userData = NULL;
 			queueVTCallback(runningTimer);
 		}
-	}
-
-	// if the timer is a one shot we don't place it back on the timer Queue
-	if (runningTimer->get_m_is_one_shot()){
-		runningTimer->set_m_is_running(FALSE);
-	} else {
-		// calculating the next time this timer will fire
-		runningTimer->set_m_ticks_when_match_(VirtTimer_GetTicks(runningTimer->get_m_timer_id()) + runningTimer->get_m_period());
-	}
-
-	// we look for the running timer that needs to be fired the earliest and set the timer comparator
-	UINT16 nextTimer = 0;
-	UINT64 smallestTicks = cTimerMax64Value;
-	bool timerInQueue = false;
-	for(i = 0; i < currentVirtualTimerCount; i++)
-	{
-		if(gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
-		{
-			if(gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[i].get_m_ticks_when_match_() <= smallestTicks)
-			{
-					smallestTicks = gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[i].get_m_ticks_when_match_();
-					nextTimer = i;
-					timerInQueue = true;
-			}
+		// if the timer is a one shot we don't place it back on the timer Queue
+		if (runningTimer->get_m_is_one_shot()){
+			runningTimer->set_m_is_running(FALSE);
+		} else {
+			// calculating the next time this timer will fire
+			runningTimer->set_m_ticks_when_match_(VirtTimer_GetTicks(runningTimer->get_m_timer_id()) + runningTimer->get_m_period());
 		}
 	}
-	
-	// if there is a timer in the timerqueue still we will set the advanced timer to interrupt at the correct time
-	if(timerInQueue)
-	{
-		// for now we have to check that we are setting the compare at some time in the future. This check is also made in the setcompare function itself but there it is limited (for now) to 32-bits
-		// when we are fully 64-bit compatible with our timers then we will need only the check in the setcompare function itself
-		if (gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() < VirtTimer_GetTicks(runningTimer->get_m_timer_id()) ){
-			CPU_Timer_SetCompare(g_HardwareTimerIDs[currentVTMapper], VirtTimer_GetTicks(runningTimer->get_m_timer_id()));
-		} else {
-			CPU_Timer_SetCompare(g_HardwareTimerIDs[currentVTMapper], gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() );
-		}		
-		gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_ = nextTimer;
-	}
 
+	
+
+	gVirtualTimerObject.virtualTimerMapper[currentVTMapper].is_callback_running = false;
+	gVirtualTimerObject.virtualTimerMapper[currentVTMapper].SetAlarmForTheNextTimer();
 }
+
+

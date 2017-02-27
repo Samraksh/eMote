@@ -224,13 +224,11 @@ static void RCC_Configuration(void)
  * Calls various bootstrap routines
  **/
 void BootstrapCode() {
-#if defined(PLATFORM_ARM_SMARTFUSION2)
-#else
+
 	LowLevelInit();
 	PrepareImageRegions();
 	RCC_Configuration();
 	//Boot_DisableWDT();
-#endif
 }
 
 extern  "C"

@@ -12,7 +12,7 @@
 #include <tinyhal.h>
 
 #define MAX_SAMPLES 8
-#define MAX_NBR 5
+#define MAX_NBR 12
 #define INVALID_TIMESTAMP 0x7FFFFFFFFFFFFFFF
 #define INVALID_NBR_ID 0xFFFF
 #define MAXRangeUINT64 0xFFFFFFFFFFFFFFFF
@@ -220,8 +220,19 @@ private:
 
 	}
 
+
+
 public:
 	TSSamples samples[MAX_NBR];
+
+	bool IsTableFull(){
+		for(int i=0; i < MAX_NBR; i++){
+			if (samples[i].nbrID == INVALID_NBR_ID){
+				return false;
+			}
+		}
+		return true;
+	}
 
 	Regression(){
 		Init();
@@ -235,6 +246,18 @@ public:
 		}
 		return c_bad_nbrIndex;
 	}
+
+	NeighborIndex_t InsertNbrID(UINT16 nbr){
+		for(int i=0; i < MAX_NBR; i++){
+			if (samples[i].nbrID == INVALID_NBR_ID){
+				samples[i].nbrID = nbr;
+				++nbrCount;
+				return i;
+			}
+		}
+		return c_bad_nbrIndex;
+	}
+
 	UINT8 NumberOfRecordedElements(UINT16 nbr){
 		NeighborIndex_t nbrIndex = FindNeighbor(nbr);
 		if (nbrIndex >= MAX_NBR) return 0;
@@ -246,10 +269,9 @@ public:
 		UINT8 previndex;
 		//Add new neighbor if not found
 		if (nbrIndex == c_bad_nbrIndex){
-			nbrIndex = nbrCount;
-			nbrCount++;
+			nbrIndex = InsertNbrID(nbr);
 			//No space in regression table
-			if(nbrCount > MAX_NBR){
+			if (nbrIndex == c_bad_nbrIndex) {
 				return;
 			}
 		}
@@ -278,7 +300,8 @@ public:
 	}
 	void CleanNbrwithIndex(NeighborIndex_t nbrIndex){
 		if(nbrIndex >= 0 && nbrIndex < MAX_NBR){
-			samples[nbrIndex].nbrID=0xFFFF;
+			samples[nbrIndex].nbrID = INVALID_NBR_ID;
+			--nbrCount;
 			samples[nbrIndex].lastTimeIndex = MAX_SAMPLES;
 			samples[nbrIndex].numSamples = 0;
 			samples[nbrIndex].relativeFreq = 0;

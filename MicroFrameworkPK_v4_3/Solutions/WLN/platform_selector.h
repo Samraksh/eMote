@@ -29,7 +29,7 @@ typedef uint16_t ushort;
 
 #if defined(PLATFORM_ARM_WLN)
 #define HAL_SYSTEM_NAME                     "WLN"
-#define SAM_VERSION_REVISION 33
+#define SAM_VERSION_REVISION 57
 #define TINYBOOTER_REVISION 3
 //#define COMPILE_CUSTOMER_RELEASE 1
 
@@ -135,8 +135,8 @@ typedef uint16_t ushort;
 #define RF231_SPI_BUS 1					// MUST BE CONSISTENT WITH: netmf_spi.h
 #define RF231_LR_SPI_BUS 2
 
-#define PLATFORM_DEPENDENT_TX_USART_BUFFER_SIZE    1024  // there is one TX for each usart port
-#define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    128  // there is one RX for each usart port
+#define PLATFORM_DEPENDENT_TX_USART_BUFFER_SIZE    1400  // there is one TX for each usart port
+#define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    256  // there is one RX for each usart port
 #define PLATFORM_DEPENDENT_USB_QUEUE_PACKET_COUNT  2    // there is one queue for each pipe of each endpoint and the size of a single packet is sizeof(USB_PACKET64) == 68 bytes
 
 #define DEBUG_TEXT_PORT    COM1
@@ -230,9 +230,9 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1
 #define VIRT_TIMER_OMAC_SCHEDULER	2
-#define LocalClockMonitor_TIMER1 3
+#define LocalClockMonitor_TIMER1 33
 //#define VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC		3
-#define NeighborClockMonitor_TIMER1 4
+#define NeighborClockMonitor_TIMER1 34
 #define VIRT_TIMER_OMAC_RECEIVER_ACK 	5
 
 // The following definition will be used within the code as the decision point in deciding if the timer is to be run within interrupt context or continuation
@@ -251,6 +251,7 @@ HAL_RECEPTION_TIMER 6
 
 /********OMAC SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
 #define VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE 16
+#define VIRT_TIMER_OMAC_SCHEDULER_RADIO_STOP_RETRY 30
 #define VIRT_TIMER_OMAC_DISCOVERY	17
 #define VIRT_TIMER_OMAC_TIMESYNC 	18
 #define VIRT_TIMER_OMAC_RECEIVER 	19
@@ -380,6 +381,8 @@ J12_PIN10 = GND
 #define OMAC_TESTING_SCHEDULER_PIN 			(GPIO_PIN)120//24
 #define OMAC_TESTING_VTIMER_PIN 			(GPIO_PIN)120
 
+#define OMAC_TESTING_SCHEDULER_PIN 			(GPIO_PIN)120//24
+#define OMAC_TESTING_VTIMER_PIN 			(GPIO_PIN)120
 
 #define VT_CALLBACK 						(GPIO_PIN)120					//J11_PIN7
 
@@ -406,7 +409,8 @@ J12_PIN10 = GND
 #define SI4468_TX							(GPIO_PIN)120
 #define SI4468_TX_TIMESTAMP					(GPIO_PIN)120
 #define SI4468_Radio_STATE					(GPIO_PIN)120
-#define SI4468_Radio_TX_Instance			(GPIO_PIN)120
+#define SI4468_Radio_TX_Instance			(GPIO_PIN)120 //(GPIO_PIN)23 //(GPIO_PIN)22 //(GPIO_PIN)120
+#define SI4468_Radio_TX_Instance_NOTS		(GPIO_PIN)120
 // SCHEDULER TESTING
 //#define OMAC_TESTING_SCHEDULER_PIN 	(GPIO_PIN)24
 
@@ -441,6 +445,7 @@ J12_PIN10 = GND
 #define DATATX_ReceiveDATAACK_PIN_TOGGLER				(GPIO_PIN)120
 #define DATATX_CCA_PIN_TOGGLER				(GPIO_PIN)120
 #define DATATX_TIMING_ERROR_PIN_TOGGLER 	(GPIO_PIN)120
+#define DTH_STATE_PIN_TOGGLER				(GPIO_PIN)120 //SCHED_TX_EXEC_PIN
 
 //RX related
 #define OMAC_RXPIN 							(GPIO_PIN)120 //120 //23  //120							//J11_pin3 0
@@ -472,7 +477,7 @@ J12_PIN10 = GND
 #define VTIMER_CALLBACK_LATENCY_PIN			(GPIO_PIN)120 //(<--31)
 
 
-#define VIRTUAL_TIMER_EXCEPTION_CHECK_PIN SCHED_TSREQ_EXEC_PIN
+#define VIRTUAL_TIMER_EXCEPTION_CHECK_PIN (GPIO_PIN)120
 
 
 /*PIN SETUP FOR TEST LEVEL_0G : TimeSync Test with stability testing

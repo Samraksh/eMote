@@ -7,6 +7,8 @@
 #include <Samraksh/Hal_util.h>
 #include <Samraksh/GlobalTime.h>
 
+#define OMAC_TSYNC_DEBUG_PRINTF_PACKET_ENQUE 0
+
 #define DEBUG_TSYNC_PIN
 /*
  *

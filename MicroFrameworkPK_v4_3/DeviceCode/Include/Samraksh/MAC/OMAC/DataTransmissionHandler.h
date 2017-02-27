@@ -14,7 +14,12 @@
 #include "OMACConstants.h"
 #include "Handlers.h"
 
+#define OMAC_DTH_TIMER_TARGET_TIME_CORRECTION 1
+
+#define OMAC_DTH_DEBUG_PRINTF_PACKET_SEND 0
+
 #define OMAC_DTH_DEBUG_ReceiveDATAACK 0
+#define OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT 0
 #define OMAC_DTH_DEBUG_SendACKHandler 0
 #define OMAC_DTH_DEBUG_CCA 0
 
@@ -26,7 +31,7 @@
 #define OMAC_DTH_DEBUG_LATEWAKEUP_ALLOWANCE_IN_TICKS 259*8
 #endif
 
-//#define OMAC_SEND_DEBUGGING_FOR_MF 1
+#define OMAC_SEND_DEBUGGING_FOR_MF 0
 
 //#include "Scheduler.h"
 enum DataTransmissionHandlerStates{
@@ -73,12 +78,20 @@ class DataTransmissionHandler: public EventHandler {
 	BOOL isDataPacketScheduled;
 	UINT8 m_currentSlotRetryAttempt;
 
+#if OMAC_DTH_DEBUG_LATEWAKEUP
 	UINT64 m_scheduledFUTime_in_own_clock_micro;
 
 	UINT64 m_scheduledTXTime_in_neigh_clock_ticks;
 	UINT64 m_scheduledTXTime_in_own_clock_ticks;
-
-
+#endif
+#if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION||OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
+public:
+	UINT64 m_scheduledTimer_in_ticks;
+	UINT64 m_scheduledTimer_in_ticks2;
+	UINT64 m_curTime_in_ticks;
+	UINT64 m_TimeDiff_in_micros;
+#endif
+private:
 	BOOL m_RANDOM_BACKOFF;
 	UINT16 m_backoff_seed;
 	UINT16 m_backoff_mask;
@@ -86,6 +99,8 @@ class DataTransmissionHandler: public EventHandler {
 	DataTransmissionHandlerStates txhandler_state;
 	UINT64 CalculateNextTxMicro(UINT16 dest);
 	void SelectRetrySlotNumForNeighborBackOff();
+
+	void SendACKToUpperLayers(Message_15_4_t* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus);
 
 	Message_15_4_t* SelectPacketForDest(UINT16 m_outgoingEntryPtr_dest_);
 

@@ -17,9 +17,6 @@ extern "C"
 
 	void __section(SectionForBootstrapOperations) VectorRelocate()
 	{
-#if defined(PLATFORM_ARM_SMARTFUSION2)
-		// SF2 already has proper vector location
-#else
 #if defined(TARGETLOCATION_RAM)
 		const UINT32 VTABLE_ADDR = (UINT32) &Load$$ER_RAM$$Base;    // TODO: independent loader section for RAM VectorTable
 #elif defined(TARGETLOCATION_FLASH)
@@ -42,5 +39,5 @@ extern "C"
 
 		*(__IO uint32_t *) VectorTableOffsetRegister = newVTOR;
 	}
-#endif
+
 }

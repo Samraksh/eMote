@@ -44,6 +44,8 @@ DeviceStatus RadioControl_t::Initialize(){
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );
 
 #endif
+	stayOn = false;
+	next_piggybacked_extendedneighborinfo_index = 0;
 	return DS_Success;
 }
 
@@ -117,7 +119,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 #endif
 		returnMsg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
 		if(returnMsg == msg){
-			//OMAC_HAL_PRINTF("Returning success\n");
+			//OMAC_HAL_PRINTF("Returning success \r\n");
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
 #endif
@@ -148,7 +150,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 			}
 			else if(header->payloadType == MFM_DATA){
 				CPU_GPIO_SetPinState( RC_TX_DATA, TRUE );
-				//OMAC_HAL_PRINTF("RC send; Sending: %d\n", (msg->GetPayload())[8]);
+				//OMAC_HAL_PRINTF("RC send; Sending: %d \r\n", (msg->GetPayload())[8]);
 			}
 	#endif
 
@@ -161,7 +163,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 				//Reset flag just before sending
 				g_OMAC.isSendDone = false;
 	#ifdef OMAC_DEBUG_GPIO
-				CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
+				CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE ); //Mark 1
 
 				if(OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER != DISABLED_PIN  && g_OMAC.m_omac_scheduler.m_state == I_DATA_SEND_PENDING && g_OMAC.m_omac_scheduler.m_execution_started ){
 					CPU_GPIO_SetPinState( OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER, !CPU_GPIO_GetPinState(OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER) );
@@ -171,6 +173,16 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 
 	#endif
 				returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)event_time);
+
+#ifdef OMAC_DEBUG_GPIO
+			if(OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER != DISABLED_PIN  && g_OMAC.m_omac_scheduler.m_state == I_DATA_SEND_PENDING && g_OMAC.m_omac_scheduler.m_execution_started ){
+				CPU_GPIO_SetPinState( OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER, !CPU_GPIO_GetPinState(OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER) );
+				CPU_GPIO_SetPinState( OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER, !CPU_GPIO_GetPinState(OMAC_RADIOCONTROL_RADIO_SEND_TOGGLER) );
+			}
+
+
+#endif
+
 			}
 			else{
 				goto endOfSend;
@@ -200,14 +212,14 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 	#endif
 
 		if(returnMsg == msg){
-			//OMAC_HAL_PRINTF("Returning success\n");
+			//OMAC_HAL_PRINTF("Returning success \r\n");
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
 #endif
 			return DS_Success;
 		}
 	endOfSend:
-		//OMAC_HAL_PRINTF("Returning DS_Fail\n");
+		//OMAC_HAL_PRINTF("Returning DS_Fail \r\n");
 	#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
@@ -224,14 +236,19 @@ bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
 	if(!(header->flags & MFM_TIMESYNC_FLAG) && (header->payloadType != MFM_TIMESYNC)) {
-		rv = rv || PiggybackTimeSyncMessage(msg, size);
+		rv = PiggybackTimeSyncMessage(msg, size) || rv ;
 	}
 	if( header->payloadType == MFM_OMAC_TIMESYNCREQ && !(header->flags & MFM_DISCOVERY_FLAG) && (header->payloadType != MFM_OMAC_DISCOVERY)) {
 		Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(header->dest);
 		if(header->dest != 0 && header->dest != RADIO_BROADCAST_ADDRESS && neigh_ptr!= NULL && neigh_ptr->IsInitializationTimeSamplesNeeded() ){
-		rv = rv || PiggybackDiscoMessage(msg, size);
+		rv =  PiggybackDiscoMessage(msg, size) || rv;
 		}
 	}
+#if OMAC_DEBUG_SEND_EXTENDEDMACINfo
+	if(header->payloadType == MFM_OMAC_DISCOVERY){
+		rv = PiggybackEntendedMACInfoMsg(msg, size) || rv ;
+	}
+#endif
 	return rv;
 }
 
@@ -281,13 +298,15 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		DeviceStatus ds = g_NeighborTable.RecordTimeSyncSent(dest,y);
 			if(ds != DS_Success && dest != RADIO_BROADCAST_ADDRESS){
 #ifdef OMAC_DEBUG_PRINTF
-				OMAC_HAL_PRINTF("RadioControl_t::PiggybackTimeSyncMessage RecordTimeSyncSent failure; address: %d; line: %d\n", dest, __LINE__);
+				OMAC_HAL_PRINTF("RadioControl_t::PiggybackTimeSyncMessage RecordTimeSyncSent failure; address: %d; line: %d \r\n", dest, __LINE__);
 #endif
 			}
 		}
 		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_TIMESYNC_FLAG));
 		size += sizeof(TimeSyncMsg);
+		return true;
 	}
+	return false;
 }
 
 bool RadioControl_t::PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
@@ -301,15 +320,58 @@ bool RadioControl_t::PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
 		return false;
 	}
 
-	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+additional_overhead) ){
+	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(DiscoveryMsg_t)+additional_overhead) ){
 		DiscoveryMsg_t * tmsg = (DiscoveryMsg_t *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
 		g_OMAC.m_omac_scheduler.m_DiscoveryHandler.CreateMessage(tmsg);
 		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_DISCOVERY_FLAG));
 		size += sizeof(DiscoveryMsg_t);
+		return true;
 	}
+	return false;
 }
 
+bool RadioControl_t::PiggybackEntendedMACInfoMsg(Message_15_4_t* msg, UINT16 &size){
+	const int crc_size = 2;			//used in Radio driver's RF231Radio::Send_TimeStamped
+	int additional_overhead = crc_size;
+	IEEE802_15_4_Header_t *header = msg->GetHeader();
+	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
+	if((header->flags & MFM_EXTENDED_MAC_INFO_FLAG)){ //Already embedded
+		return false;
+	}
+	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(EntendedMACInfoMsgSummary)+additional_overhead) ){
+
+		EntendedMACInfoMsgSummary * tmsg = (EntendedMACInfoMsgSummary *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
+		tmsg->NumTotalEntries = g_NeighborTable.NumberOfNeighborsTotal();
+		tmsg->NNeigh_AFUL = g_NeighborTable.PreviousNumberOfNeighbors();
+		tmsg->NumEntriesInMsg = 0;
+		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_EXTENDED_MAC_INFO_FLAG));
+		size += sizeof(EntendedMACInfoMsgSummary);
+
+		UINT16 remSize = IEEE802_15_4_MAX_PAYLOAD - additional_overhead - (size-sizeof(IEEE802_15_4_Header_t));
+		UINT8 numNfits = (UINT8)(remSize/sizeof(MACNeighborInfo));
+		if(numNfits > tmsg->NumTotalEntries) numNfits = tmsg->NumTotalEntries;
+		if(numNfits > 0 ){
+			MACNeighborInfo * macinfo_msg;
+			for(UINT8 i=0; i < numNfits ; ++i, ++next_piggybacked_extendedneighborinfo_index){
+				if(next_piggybacked_extendedneighborinfo_index >= tmsg->NumTotalEntries)  next_piggybacked_extendedneighborinfo_index = 0;
+				if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(MACNeighborInfo)+additional_overhead) ){
+					macinfo_msg = (MACNeighborInfo *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
+					macinfo_msg->MACAddress 						=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].MACAddress;
+					macinfo_msg->neighborStatus 					=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].neighborStatus;
+					macinfo_msg->IsAvailableForUpperLayers 			=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].IsAvailableForUpperLayers;
+					macinfo_msg->NumTimeSyncMessagesSent 			=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].NumTimeSyncMessagesSent;
+					macinfo_msg->NumTimeSyncMessagesRecv 			=  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].MACAddress) ;
+					size += sizeof(MACNeighborInfo);
+					++tmsg->NumEntriesInMsg;
+				}
+			}
+		}
+
+		return true;
+	}
+	return false;
+}
 
 
 //DeviceStatus RadioControl_t::Receive(Message_15_4_t * msg, UINT16 size){
@@ -337,7 +399,7 @@ DeviceStatus RadioControl_t::Stop(){
 		}
 		else {
 			//ASSERT_SP(0);
-			//OMAC_HAL_PRINTF("RadioControl_t::Stop Radio did not go to sleep\n");
+			//OMAC_HAL_PRINTF("RadioControl_t::Stop Radio did not go to sleep \r\n");
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );
 			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, TRUE );

@@ -42,8 +42,8 @@ enum { SI_DUMMY=0, };
 // For now, memorize all WWF serial numbers
 // Yes these are strings and yes I'm a terrible person.
 // These are hex CPU serial numbers
-enum { serial_max_dotnow = 4, serial_max_wwf2=4, serial_per = 25 };
-const char dotnow_serial_numbers[serial_max_dotnow][serial_per] = { "392dd9054355353848400843", "3400d805414d303635341043", "3400d905414d303640461443", "3400d605414d303629401043" };
+enum { serial_max_dotnow = 6, serial_max_wwf2=4, serial_per = 25 };
+const char dotnow_serial_numbers[serial_max_dotnow][serial_per] = { "3400dc05414d303638391043", "3600d8053259383732441543", "392dd9054355353848400843", "3400d805414d303631321043", "3400d905414d303640461443", "3400d605414d303629401043" };
 const char wwf2_serial_numbers[serial_max_wwf2][serial_per]     = { "05de00333035424643163542", "05d900333035424643162544", "3300d9054642353041381643", "3300df054642353040531643" };
 // end serial number list.
 
@@ -319,6 +319,26 @@ static void rx_cont_do(void *arg) {
 
 		return;
 	}*/
+	if (size > si446x_packet_size){
+		si446x_debug_print(ERR99, "SI446X: incorrect size in rx_cont_do\r\n");
+
+		si446x_get_modem_status( 0xFF ); // Refresh RSSI
+
+		rssi = si446x_get_latched_rssi();
+		freq_error = si446x_get_afc_info();
+
+
+		si446x_fifo_info(0x3); // Defensively reset FIFO
+		si446x_change_state(SI_STATE_SLEEP); // All done, sleep.
+
+		si446x_radio_unlock();
+		si446x_spi_unlock();
+
+		si446x_debug_print(ERR99,"SI446X: incorrect size in rx_cont_do:  Pkt RSSI: %d dBm Freq_Error: %d Hz\r\n", convert_rssi(rssi), freq_error);
+
+		CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
+		return;
+	}
 
 	si446x_read_rx_fifo(size, rx_pkt);
 
@@ -355,14 +375,14 @@ static void rx_cont_do(void *arg) {
 	int currentPayloadType = header->payloadType;
 
 	//Send ack from radio itself.
-	if(__SI4468_SOFTWARE_ACK__){
-		if(currentPayloadType == MFM_OMAC_TIMESYNCREQ || currentPayloadType == MFM_DATA || currentPayloadType <= TYPE31){
-			if(currentPayloadType == MFM_DATA){
-				si446x_debug_print(DEBUG01, "rx_cont_do; sendSoftwareAck to %d; currentPayloadType: %d\n", header->src, currentPayloadType);
-			}
-			sendSoftwareAck(header->src);
-		}
-	}
+//	if(__SI4468_SOFTWARE_ACK__){
+//		if(currentPayloadType == MFM_OMAC_TIMESYNCREQ || currentPayloadType == MFM_DATA || currentPayloadType <= TYPE31){
+//			if(currentPayloadType == MFM_DATA){
+//				si446x_debug_print(DEBUG01, "rx_cont_do; sendSoftwareAck to %d; currentPayloadType: %d\n", header->src, currentPayloadType);
+//			}
+//			sendSoftwareAck(header->src);
+//		}
+//	}
 
 	// I guess this swaps rx_msg_ptr as well???
 	//(rx_msg_ptr->GetHeader())->SetLength(size);
@@ -577,20 +597,23 @@ static int am_i_wwf(void) {
 		hal_snprintf(&my_serial[j], 3, "%.2x", cpuserial[i]);
 	}
 
-	si446x_debug_print(DEBUG03, "SI446X: Found Serial Number 0x%s\r\n", my_serial);
 
 	// check against all other serials.
 	// This is a brutal ugly O(n) search.
 	for(int i=0; i<serial_max_dotnow; i++) {
-		if ( strcmp( dotnow_serial_numbers[i], my_serial ) == 0 )
+		if ( strcmp( dotnow_serial_numbers[i], my_serial ) == 0 ){
+			si446x_debug_print(ERR100, "SI446X: Found Serial Number am_i_wwf()=0 0x%s\r\n", my_serial);
 			return 0;
+		}
 	}
 
 	for(int i=0; i<serial_max_wwf2; i++) {
-		if ( strcmp( wwf2_serial_numbers[i], my_serial ) == 0 )
+		if ( strcmp( wwf2_serial_numbers[i], my_serial ) == 0 ){
+			si446x_debug_print(ERR100, "SI446X: Found Serial Number am_i_wwf()=2 0x%s\r\n", my_serial);
 			return 2;
+		}
 	}
-
+	si446x_debug_print(ERR100, "SI446X: Found Serial Number am_i_wwf()=1 0x%s\r\n", my_serial);
 	return 1;
 #endif
 }
@@ -698,6 +721,9 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 
 	CPU_GPIO_EnableOutputPin(SI4468_Radio_TX_Instance, TRUE);
 	CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance, FALSE );
+
+	CPU_GPIO_EnableOutputPin(SI4468_Radio_TX_Instance_NOTS, TRUE);
+	CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance_NOTS, FALSE );
 
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
@@ -970,6 +996,10 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		si446x_start_tx(chan, after_state, tx_buf[0]+1);
 		irq.Release();
 	} else { // Normal Case
+		if(SI4468_Radio_TX_Instance_NOTS != DISABLED_PIN ){
+			CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance_NOTS, !CPU_GPIO_GetPinState(SI4468_Radio_TX_Instance_NOTS) );
+			CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance_NOTS, !CPU_GPIO_GetPinState(SI4468_Radio_TX_Instance_NOTS) );
+		}
 		si446x_start_tx(chan, after_state, tx_buf[0]+1);
 	}
 
@@ -1448,7 +1478,9 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	}
 
 	if (ph_pend & PH_STATUS_MASK_PACKET_SENT) 	{ si446x_pkt_tx_int(); }
-	if (ph_pend & PH_STATUS_MASK_CRC_ERROR) 	{ si446x_pkt_bad_crc_int(); }
+	if (ph_pend & PH_STATUS_MASK_CRC_ERROR) 	{
+		si446x_pkt_bad_crc_int();
+	}
 
 	// If we finished a packet, go to sleep
 	/*if ( (ph_pend & PH_STATUS_MASK_PACKET_RX) || (ph_pend & PH_STATUS_MASK_CRC_ERROR) ) {
