@@ -87,7 +87,32 @@ namespace Samraksh.eMote.Net
         Received,
         /// <summary>Neighborhood has changed</summary>
         NeighborChanged,
+        /// <summary>Send packet process started</summary>
+        SendInitiated,
+        /// <summary>Send packet ACKed</summary>
+        SendACKed,
+        /// <summary>Send packet NACKed</summary>
+        SendNACKed,
+        /// <summary>Send packet failed</summary>
+        SendFailed
     }
+
+    /// <summary>
+    /// SendPa
+    /// </summary>
+    public enum SendPacketStatus
+    {
+        /// <summary>The operation of sending the packet is initiate. The packet still waits in the queue.</summary>
+        SendInitiated,
+        /// <summary>The operation of sending the packet is unsuccessful. The packet is dropped from the queue with successful status.</summary>
+        SendACKed,
+        /// <summary>The operation of sending the packet is unsuccessful. The packet still waits in the queue.</summary>
+        SendNACKed,
+        /// <summary>Send Permenantly Failed. The packet is dropped from the queue with unsuccessful status.</summary>
+        SendFailed,
+        /// <summary>Test Condition</summary>
+        TestMe
+    };
 
     /*/// <summary>
     /// 

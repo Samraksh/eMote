@@ -95,6 +95,38 @@
         <member name="F:Samraksh.eMote.Net.CallbackType.NeighborChanged">
             <summary>Neighborhood has changed</summary>
         </member>
+        <member name="F:Samraksh.eMote.Net.CallbackType.SendInitiated">
+            <summary>Send packet process started</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.CallbackType.SendACKed">
+            <summary>Send packet ACKed</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.CallbackType.SendNACKed">
+            <summary>Send packet NACKed</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.CallbackType.SendFailed">
+            <summary>Send packet failed</summary>
+        </member>
+        <member name="T:Samraksh.eMote.Net.SendPacketStatus">
+            <summary>
+            SendPa
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.SendPacketStatus.SendInitiated">
+            <summary>The operation of sending the packet is initiate. The packet still waits in the queue.</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.SendPacketStatus.SendACKed">
+            <summary>The operation of sending the packet is unsuccessful. The packet is dropped from the queue with successful status.</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.SendPacketStatus.SendNACKed">
+            <summary>The operation of sending the packet is unsuccessful. The packet still waits in the queue.</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.SendPacketStatus.SendFailed">
+            <summary>Send Permenantly Failed. The packet is dropped from the queue with unsuccessful status.</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.SendPacketStatus.TestMe">
+            <summary>Test Condition</summary>
+        </member>
         <member name="T:Samraksh.eMote.Net.MAC.CSMA">
             <summary>CSMA class</summary>
         </member>
@@ -173,6 +205,9 @@
         <member name="E:Samraksh.eMote.Net.MAC.IMAC.OnNeighborChange">
             <summary>Raised when neighborhood changes</summary>
         </member>
+        <member name="E:Samraksh.eMote.Net.MAC.IMAC.OnSendStatus">
+            <summary>Raised when we get an ACK for a transmitted packet</summary>
+        </member>
         <member name="P:Samraksh.eMote.Net.MAC.IMAC.CCA">
             <summary>True iff MAC CCA (clear channel assessment) is enabled</summary>
         </member>
@@ -230,7 +265,7 @@
             Invoked when payload type is data.
             </summary>
             <param name="data1"></param>
-            <param name="payloadType"></param>
+            <param name="data2"></param>
             <param name="time"></param>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.RegisterOnReceiveGlobal(Samraksh.eMote.Net.MACPipe)">
@@ -264,6 +299,17 @@
         <member name="M:Samraksh.eMote.Net.MACBase.NeighborList(System.UInt16[])">
             <summary>
             	Get the list of neighbors from the MAC
+            </summary>
+            <param name="neighborListArray">
+            	Array is filled with the addresses of active neighbors, padded with zeroes at the end.
+            </param>
+            <returns>
+            	Result status
+            </returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.MACNeighborList(System.UInt16[])">
+            <summary>
+            	Get the the internal list of neighbors from the MAC including unreachable destinations
             </summary>
             <param name="neighborListArray">
             	Array is filled with the addresses of active neighbors, padded with zeroes at the end.
@@ -316,6 +362,11 @@
             <returns></returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.GetNeighborListInternal(System.UInt16[])">
+            <summary></summary>
+            <param name="neighborlist"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.GetMACNeighborListInternal(System.UInt16[])">
             <summary></summary>
             <param name="neighborlist"></param>
             <returns></returns>
@@ -374,6 +425,9 @@
         <member name="E:Samraksh.eMote.Net.MACBase.OnNeighborChange">
             <summary>Raised when neighborhood changes</summary>
         </member>
+        <member name="E:Samraksh.eMote.Net.MACBase.OnSendStatus">
+            <summary>Raised when a transmited packet is ACKed</summary>
+        </member>
         <member name="P:Samraksh.eMote.Net.MACBase.CCA">
             <summary>True iff MAC CCA (clear channel assessment) is enabled</summary>
         </member>
@@ -403,6 +457,20 @@
             <param name="macInstance">
             	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
             	When used by MACPipe class, will be MACPipe class.
+            </param>
+            <param name="time"></param>
+        </member>
+        <member name="T:Samraksh.eMote.Net.MACBase.IMACTransmitACKEventHandler">
+            <summary>Event handler for classes implementing IMAC's transmit ACK event</summary>
+            <param name="macInstance">
+            	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
+            	When used by MACPipe class, will be MACPipe class.
+            	</param>
+            <param name="ACKStatus">
+                Status
+                </param>
+            <param name="transmitDestination">
+            	The destination ID
             </param>
             <param name="time"></param>
         </member>
@@ -567,8 +635,14 @@
         <member name="F:Samraksh.eMote.Net.MAC.Neighbor.NeighborStatus">
             <summary>Status of neighbor</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.CountOfPacketsReceived">
-            <summary>Packet receive count</summary>
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.IsAvailableForUpperLayers">
+            <summary>IsAvailableForUpperLayers</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.NumTimeSyncMessagesSent">
+            <summary>NumTimeSyncMessagesSent</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.NumOfTimeSamplesRecorded">
+            <summary>NumTimeSyncMessagesRecv</summary>
         </member>
         <member name="F:Samraksh.eMote.Net.MAC.Neighbor.LastHeardTime">
             <summary>Last time heard from neighbor</summary>
@@ -1413,6 +1487,9 @@
         </member>
         <member name="E:Samraksh.eMote.Net.MACPipe.OnNeighborChange">
             <summary>Raised when neighborhood changes</summary>
+        </member>
+        <member name="E:Samraksh.eMote.Net.MACPipe.OnSendStatus">
+            <summary>Raised when we get an ACK for a transmitted packet</summary>
         </member>
         <member name="P:Samraksh.eMote.Net.MACPipe.BufferSize">
             <summary>Size of send buffer</summary>

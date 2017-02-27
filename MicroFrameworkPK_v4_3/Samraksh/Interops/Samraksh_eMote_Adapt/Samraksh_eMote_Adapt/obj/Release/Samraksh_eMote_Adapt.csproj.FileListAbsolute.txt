@@ -33,3 +33,17 @@ D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Ad
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\obj\Release\Samraksh_eMote_Adapt.pdb
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\obj\Release\Samraksh_eMote_Adapt.csprojResolveAssemblyReference.cache
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\obj\Release\TinyCLR_DebugReferences.cache
+F:\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Release\le\Samraksh_eMote_Adapt.dll
+F:\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Release\be\Samraksh_eMote_Adapt.dll
+F:\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Release\le\Samraksh_eMote_Adapt.pdb
+F:\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Release\be\Samraksh_eMote_Adapt.pdb
+F:\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Release\Samraksh_eMote_Adapt.dll
+F:\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Release\Samraksh_eMote_Adapt.pdb
+F:\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Release\le\Samraksh_eMote_Adapt.pe
+F:\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Release\le\Samraksh_eMote_Adapt.pdbx
+F:\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Release\be\Samraksh_eMote_Adapt.pe
+F:\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Release\be\Samraksh_eMote_Adapt.pdbx
+F:\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\obj\Release\le\Samraksh_eMote_Adapt.pe
+F:\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\obj\Release\le\Samraksh_eMote_Adapt.pdbx
+F:\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\obj\Release\Samraksh_eMote_Adapt.dll
+F:\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\obj\Release\Samraksh_eMote_Adapt.pdb

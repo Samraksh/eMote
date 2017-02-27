@@ -206,6 +206,25 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetNeighborListIn
     TINYCLR_NOCLEANUP();
 }
 
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetMACNeighborListInternal___SamraksheMoteNetDeviceStatus__SZARRAY_U2( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        CLR_RT_TypedArray_UINT16 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16_ARRAY( stack, 1, param0 ) );
+
+        INT32 retVal = MACBase::GetMACNeighborListInternal( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
 HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::Send___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;

@@ -164,6 +164,13 @@
             Classifier class
             </summary>
         </member>
+        <member name="M:Samraksh.eMote.Algorithm.DecisionFunction.Initialize(System.UInt16,System.UInt16,System.Single,System.Single,System.Single[],System.Single[],System.Single[])">
+            <summary>
+            Initialization for the decision function
+            </summary>
+            <returns>A pointer to the nomralized vectors is returned.</returns>
+            
+        </member>
         <member name="M:Samraksh.eMote.Algorithm.DecisionFunction.Finalize">
             <summary>
             
