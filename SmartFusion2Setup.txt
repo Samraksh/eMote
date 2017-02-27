@@ -1,0 +1,15 @@
+Dev environment setup for SmartFusion2:
+
+- Install LiberoSoc 11.7
+- Install LiberoSoc 11.7_sp3 or whatever latest version 
+(note: microsemi sp are incremental updates to base verion. Hence base version needs to be istalled first)
+
+- Install Programmer_debug_11.7
+- Install Programmer_debug_11.7.sp2
+
+- Install Microsemi-softconsole-v4.0.0.13
+
+Checkout SmartFusion2 branch from MF
+
+
+
