@@ -28,8 +28,8 @@ MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_eMote_ProgramManager/Samraksh_e
 .metadata
 
 #ignore Eclipse files
-MicroFrameworkPK_v4_0/.cproject
-MicroFrameworkPK_v4_0/.project
+MicroFrameworkPK_v4_3/.cproject
+MicroFrameworkPK_v4_3/.project
 .cproject
 /.settings/
 
