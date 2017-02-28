@@ -27,5 +27,6 @@
   </PropertyGroup>
   <ItemGroup>
     <IncludePaths Include="devicecode\Targets\Native\SmartFusion2" />
+	<IncludePaths Include="devicecode\Targets\Native\STM32F10x" />
   </ItemGroup>
 </Project>

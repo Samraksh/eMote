@@ -420,6 +420,8 @@
         <VirtualDirectory Name="Crypto">
           <File Name="Solutions/SmartFusion2/DeviceCode/Crypto/dotNetMF.proj"/>
           <File Name="Solutions/SmartFusion2/DeviceCode/Crypto/PKCS11_Config_SF2_net.cpp"/>
+          <File Name="Solutions/SmartFusion2/DeviceCode/Crypto/aes.cpp"/>
+          <File Name="Solutions/SmartFusion2/DeviceCode/Crypto/aes.h"/>
         </VirtualDirectory>
       </VirtualDirectory>
       <VirtualDirectory Name="MicroBooter">
@@ -433,6 +435,14 @@
       <VirtualDirectory Name="TinyBooter">
         <File Name="Solutions/SmartFusion2/TinyBooter/allocator.cpp"/>
         <File Name="Solutions/SmartFusion2/TinyBooter/TinyBooterEntry.cpp"/>
+        <File Name="Solutions/SmartFusion2/TinyBooter/scatterfile_bootloader_decompressor_gcc.xml"/>
+        <File Name="Solutions/SmartFusion2/TinyBooter/scatterfile_bootloader_decompressor_mdk.xml"/>
+        <File Name="Solutions/SmartFusion2/TinyBooter/scatterfile_bootloader_decompressor_rvds.xml"/>
+        <File Name="Solutions/SmartFusion2/TinyBooter/scatterfile_bootloader_gcc.xml"/>
+        <File Name="Solutions/SmartFusion2/TinyBooter/scatterfile_bootloader_mdk.xml"/>
+        <File Name="Solutions/SmartFusion2/TinyBooter/scatterfile_bootloader_rvds.xml"/>
+        <File Name="Solutions/SmartFusion2/TinyBooter/TinyBooter.proj"/>
+        <File Name="Solutions/SmartFusion2/TinyBooter/TinyBooterDecompressor.proj"/>
       </VirtualDirectory>
       <VirtualDirectory Name="TinyCLR">
         <File Name="Solutions/SmartFusion2/TinyCLR/allocator.cpp"/>
@@ -442,9 +452,11 @@
         <File Name="Solutions/SmartFusion2/TinyCLR/scatterfile_tinyclr_mdk.xml"/>
         <File Name="Solutions/SmartFusion2/TinyCLR/scatterfile_tinyclr_rvds.xml"/>
         <File Name="Solutions/SmartFusion2/TinyCLR/TinyCLR.proj"/>
+        <File Name="Solutions/SmartFusion2/TinyCLR/scatterfile_tinyclr_gcc - emote.xml"/>
       </VirtualDirectory>
       <File Name="Solutions/SmartFusion2/platform_selector.h"/>
       <File Name="Solutions/SmartFusion2/testDefines.h"/>
+      <File Name="Solutions/SmartFusion2/SmartFusion2.settings"/>
     </VirtualDirectory>
     <VirtualDirectory Name="SH7619_EVB">
       <VirtualDirectory Name="DeviceCode">
@@ -1142,6 +1154,11 @@
       <VirtualDirectory Name="TinyCLR">
         <File Name="Solutions/iMXS_net_dbg/TinyCLR/allocator.cpp"/>
         <File Name="Solutions/iMXS_net_dbg/TinyCLR/tinyclr.cpp"/>
+        <File Name="Solutions/iMXS_net_dbg/TinyCLR/scatterfile_ram_functions.xml"/>
+        <File Name="Solutions/iMXS_net_dbg/TinyCLR/scatterfile_tinyclr_gcc.xml"/>
+        <File Name="Solutions/iMXS_net_dbg/TinyCLR/scatterfile_tinyclr_ram_functions.xml"/>
+        <File Name="Solutions/iMXS_net_dbg/TinyCLR/scatterfile_tinyclr_rvds.xml"/>
+        <File Name="Solutions/iMXS_net_dbg/TinyCLR/TinyCLR.proj"/>
       </VirtualDirectory>
       <File Name="Solutions/iMXS_net_dbg/lwip_selector.h"/>
       <File Name="Solutions/iMXS_net_dbg/platform_selector.h"/>
@@ -1385,13 +1402,29 @@
       <VirtualDirectory Name="TinyBooter">
         <File Name="Solutions/EmoteDotNow/TinyBooter/allocator.cpp"/>
         <File Name="Solutions/EmoteDotNow/TinyBooter/TinyBooterEntry.cpp"/>
+        <File Name="Solutions/EmoteDotNow/TinyBooter/scatterfile_bootloader_decompressor_gcc.xml"/>
+        <File Name="Solutions/EmoteDotNow/TinyBooter/scatterfile_bootloader_decompressor_mdk.xml"/>
+        <File Name="Solutions/EmoteDotNow/TinyBooter/scatterfile_bootloader_decompressor_rvds.xml"/>
+        <File Name="Solutions/EmoteDotNow/TinyBooter/scatterfile_bootloader_gcc.xml"/>
+        <File Name="Solutions/EmoteDotNow/TinyBooter/scatterfile_bootloader_mdk.xml"/>
+        <File Name="Solutions/EmoteDotNow/TinyBooter/scatterfile_bootloader_rvds.xml"/>
+        <File Name="Solutions/EmoteDotNow/TinyBooter/TinyBooter.proj"/>
+        <File Name="Solutions/EmoteDotNow/TinyBooter/TinyBooterDecompressor.proj"/>
       </VirtualDirectory>
       <VirtualDirectory Name="TinyCLR">
         <File Name="Solutions/EmoteDotNow/TinyCLR/allocator.cpp"/>
         <File Name="Solutions/EmoteDotNow/TinyCLR/tinyclr.cpp"/>
+        <File Name="Solutions/EmoteDotNow/TinyCLR/TinyCLR.proj"/>
+        <File Name="Solutions/EmoteDotNow/TinyCLR/scatterfile_tinyclr_gcc.xml"/>
+        <File Name="Solutions/EmoteDotNow/TinyCLR/scatterfile_tinyclr_mdk.xml"/>
+        <File Name="Solutions/EmoteDotNow/TinyCLR/scatterfile_tinyclr_rvds.xml"/>
       </VirtualDirectory>
       <File Name="Solutions/EmoteDotNow/platform_selector.h"/>
       <File Name="Solutions/EmoteDotNow/testDefines.h"/>
+      <File Name="Solutions/EmoteDotNow/dotnetmf.proj"/>
+      <File Name="Solutions/EmoteDotNow/EmoteDotNow.settings"/>
+      <File Name="Solutions/EmoteDotNow/scatterfile_gcc_missing_symbols.xml"/>
+      <File Name="Solutions/EmoteDotNow/SolutionSummary.txt"/>
     </VirtualDirectory>
     <VirtualDirectory Name="EA_LPC2478">
       <VirtualDirectory Name="DeviceCode">
@@ -2834,6 +2867,8 @@
           </VirtualDirectory>
           <File Name="DeviceCode/Targets/Native/STM32F10x/processor_selector.h"/>
           <File Name="DeviceCode/Targets/Native/STM32F10x/STM32F10x_template_selector.h"/>
+          <File Name="DeviceCode/Targets/Native/STM32F10x/dotNetMF.proj"/>
+          <File Name="DeviceCode/Targets/Native/STM32F10x/STM32F10x.settings"/>
         </VirtualDirectory>
         <VirtualDirectory Name="STM32">
           <VirtualDirectory Name="DeviceCode">
@@ -3656,6 +3691,8 @@
           </VirtualDirectory>
           <File Name="DeviceCode/Targets/Native/SmartFusion2/processor_selector.h"/>
           <File Name="DeviceCode/Targets/Native/SmartFusion2/SmartFusion2_template_selector.h"/>
+          <File Name="DeviceCode/Targets/Native/SmartFusion2/dotNetMF.proj"/>
+          <File Name="DeviceCode/Targets/Native/SmartFusion2/SmartFusion2.settings"/>
         </VirtualDirectory>
         <VirtualDirectory Name="sh7264">
           <VirtualDirectory Name="DeviceCode">
@@ -8194,4 +8231,10 @@
       </Completion>
     </Configuration>
   </Settings>
+  <VirtualDirectory Name="tools">
+    <File Name="tools/AssemblyInfo.cs.template"/>
+    <File Name="tools/AssemblyInfo.rc.template"/>
+    <File Name="tools/AssemblyInfo.vb.template"/>
+    <File Name="tools/AssemblyInfo.vcx.template"/>
+  </VirtualDirectory>
 </CodeLite_Project>

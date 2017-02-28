@@ -1,0 +1,2 @@
+
+"C:\Microsemi\SoftConsole_v4.0\arm-none-eabi-gcc\bin\arm-none-eabi-gdb.exe" --eval-command="target remote localhost:3333" D:\\Main\\Repos\\MF\\MicroFrameworkPK_v4_3\\BuildOutput\\THUMB2\\GCC5.4\\le\\FLASH\\debug\\SmartFusion2\\bin\\tinyclr.axf

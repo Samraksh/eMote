@@ -31,6 +31,7 @@ MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_eMote_ProgramManager/Samraksh_e
 MicroFrameworkPK_v4_3/.cproject
 MicroFrameworkPK_v4_3/.project
 .cproject
+.project
 /.settings/
 
 #ignore header files generated at compile-time
