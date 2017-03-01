@@ -457,6 +457,7 @@
       <File Name="Solutions/SmartFusion2/platform_selector.h"/>
       <File Name="Solutions/SmartFusion2/testDefines.h"/>
       <File Name="Solutions/SmartFusion2/SmartFusion2.settings"/>
+      <File Name="Solutions/SmartFusion2/scatterfile_gcc_missing_symbols.xml"/>
     </VirtualDirectory>
     <VirtualDirectory Name="SH7619_EVB">
       <VirtualDirectory Name="DeviceCode">

@@ -22,12 +22,21 @@
 		<!-- The M2S090 has  devices have 512 KB of flash starting at 0x60000000 -->
         <!-- THIS MUST MATCH THE BLOCK STORAGE DRIVER! -->
         <!-- Regular build: -->
-        <Set Name="Config_BaseAddress"  Value="0x600F000"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
+        <Set Name="Config_BaseAddress"  Value="0x6008F000"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
         <Set Name="Config_Size"         Value="0x00001000"/><!--        Config_Size MUST MATCH TINYBOOTER SCATTERFILE -->
-        <Set Name="Code_BaseAddress"    Value="0x08020000"/>
-        <Set Name="Deploy_BaseAddress"  Value="0x080C1000"/>
+        <Set Name="Code_BaseAddress"    Value="0x60000000"/>
+		<Set Name="Code_BaseAddress_Mirror"    Value="0x00000000"/>
+        <Set Name="Deploy_BaseAddress"  Value="0x60070000"/>
         <Set Name="Code_Size"           Value="%Deploy_BaseAddress - Code_BaseAddress%"/>
         <Set Name="Valid"               Value="true"/>
+		<Set Name="AltName"		Value="LR_FLASH"/>
+		<!-- In SmartFusion seems always start running from the address 0x00000000. At run time, the code space needs to get mapped to this space.
+		* The below symbol controls the relocation address. This is actually a parameter for a gdb relocation script.
+		*  0: remap eNVM to address 0x00000000                 Production mode or debugging from eNVM   
+		*  1: remap eSRAM to address 0x00000000                Debugging from eSRAM
+		*  2: remap external DDR memory to address 0x00000000  Debugging from DDR memory
+		*/-->
+		<!--<FileMapping Name="PROVIDE(__smartfusion2_memory_remap = 0);"/>--> <!--This for running from internal eNVM on cortex m3 -->
     </If>
 
     <!-- No Ram Build for the STM32F10x, since we can not fit it into 96K RAM -->
@@ -36,9 +45,11 @@
         <Set Name="Heap_Begin"          Value="0x08300000"/>
         <Set Name="Heap_End"            Value="0x084FEFFC"/>
         <Set Name="Code_BaseAddress" Value="0x08020000"/>
+		<Set Name="Code_BaseAddress_Mirror"    Value="0x00000000"/>
         <Set Name="Code_Size"        Value="0x002D0000"/>
         <!-- RAM with FLASH config is not needed -->
         <Set Name="Valid"            Value="true"/>
+		<Set Name="AltName"		Value="LR_RAM"/>
     </If>
 
     <!-- ################################################################################ -->
@@ -51,6 +62,7 @@
 
     <NamedGroup Name="MEMORY">
       <LoadRegion Name="LR_%TARGETLOCATION%" Base="%Code_BaseAddress%" Size="%Code_Size%"/>
+	  <LoadRegion Name="LR_%TARGETLOCATION%_Mirror" Base="%Code_BaseAddress_Mirror%" Size="%Code_Size%"/>
       <LoadRegion Name="STACK" Base="%Stack_Bottom%" Size="%Stack_Top - Stack_Bottom% + 1"/>
       <LoadRegion Name="HEAP" Base="%Heap_Begin%" Size="%Heap_End - Heap_Begin% + 1"/>
       <LoadRegion Name="CUSTOMHEAP" Base="%Custom_Heap_Begin%" Size="%Custom_Heap_End - Custom_Heap_Begin% + 1"/>
@@ -63,10 +75,29 @@
       <LoadRegion Name="RELOC_RAM" Base="%Stack_Top% + 8" Size="%Heap_Begin - Stack_Top%"/>
     </NamedGroup>
 
-    <EntryPoint Name="EntryPoint"/>
 
+	<!--<FileMapping Name="PROVIDE (__main_stack_start = RAM_START_ADDRESS + RAM_SIZE);"/>
+	<FileMapping Name="PROVIDE (__process_stack_start = __main_stack_start - MAIN_STACK_SIZE);" />
+	<FileMapping Name="PROVIDE (_estack = __main_stack_start);"/>-->
+<FileMapping Name="PROVIDE (__mirrored_nvm = 0);"/>  <!-- Indicate to startup code that NVM is not mirrored to VMA address .text copy is required. -->
+
+	<!-- Remap instruction for startup code and debugger:
+	 *  0: remap eNVM to address 0x00000000
+	 *  1: remap eSRAM to address 0x00000000
+	 *  2: remap external DDR memory to address 0x00000000
+	 -->
+	<If Name="TARGETLOCATION" In="RAM">
+<FileMapping Name="PROVIDE (__smartfusion2_memory_remap = 2);" />
+	</If>
+	<If Name="TARGETLOCATION" In="FLASH">
+		<FileMapping Name="PROVIDE (__smartfusion2_memory_remap = 0);" />
+	</If>
+	
+    <EntryPoint Name="EntryPoint"/>
+	
     <NamedGroup Name="SECTIONS">
-      <ExecRegion Name="ER_%TARGETLOCATION%" Options="&gt;LR_%TARGETLOCATION%">
+		
+		<ExecRegion Name="ER_%TARGETLOCATION%" Options="&gt;LR_%TARGETLOCATION%_Mirror AT>%AltName%">
         <FileMapping Name="*" Options="(VectorsTrampolines)" />
         <FileMapping Name="*" Options="(i.EntryPoint)" />
         <FileMapping Name="*" Options="(SectionForBootstrapOperations)" />
