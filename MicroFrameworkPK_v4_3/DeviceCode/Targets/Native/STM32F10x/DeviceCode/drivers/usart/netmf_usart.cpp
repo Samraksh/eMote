@@ -6,6 +6,7 @@
 #include <stm32f10x.h>
 #include <netmf_usart.h>
 #include "sam_usart.h"
+//#include <DeviceCode\pal\COM\usart\usart.h>
 
 //ComHandle != ComPort.  COM1 is a handle with port=0. COM1=0x101 means port 0 on USART transport.  See platform_selector.h and tinyhal.h.
 

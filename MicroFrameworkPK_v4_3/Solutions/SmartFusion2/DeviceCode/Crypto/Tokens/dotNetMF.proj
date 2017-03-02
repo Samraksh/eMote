@@ -29,13 +29,13 @@
   <PropertyGroup />
   <ItemGroup>
     <Compile Include="SF2_HW_PKCS11_Config.cpp" />
-   <!-- <Compile Include="SF2_HW_PKCS11_digest.cpp" />
+    <Compile Include="SF2_HW_PKCS11_digest.cpp" />
     <Compile Include="SF2_HW_PKCS11_encryption.cpp" />
     <Compile Include="SF2_HW_PKCS11_keys.cpp" />
     <Compile Include="SF2_HW_PKCS11_objects.cpp" />
     <Compile Include="SF2_HW_PKCS11_random.cpp" />
     <Compile Include="SF2_HW_PKCS11_session.cpp" />
-    <Compile Include="SF2_HW_PKCS11_signature.cpp" />-->
+    <Compile Include="SF2_HW_PKCS11_signature.cpp" />
     <Compile Include="SF2_HW_PKCS11_Token.cpp" />
     <IncludePaths Include="DeviceCode\PAL" />
   </ItemGroup>

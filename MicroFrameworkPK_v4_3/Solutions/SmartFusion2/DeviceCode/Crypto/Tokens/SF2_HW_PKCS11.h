@@ -1,6 +1,6 @@
 #include <PKCS11\CryptokiPAL.h>
-#include <EVP\evp.h>
-#include <HMAC\HMAC.h>
+//#include <EVP\evp.h>
+//#include <HMAC\HMAC.h>
 
 #ifndef _SF2_HW_PKCS11_H_
 #define _SF2_HW_PKCS11_H_ 1
