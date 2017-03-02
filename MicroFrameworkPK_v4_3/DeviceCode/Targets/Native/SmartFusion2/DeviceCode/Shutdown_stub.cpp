@@ -4,9 +4,6 @@
  */
 
 #include <tinyhal.h>
-#include <stm32f10x.h>
-#include "drivers\adc\hal_adc_driver.h"
-#include <Samraksh/MAC_decl.h>
 
 /**
  *  Shut down some drivers for reprogramming... this should happen anyway with the soft reboot though.
@@ -15,11 +12,5 @@
 bool ShutdownDrivers(void)
 {
 	bool returnValue;
-
-	returnValue = AD_Uninitialize();
-#if defined(PLATFORM_ARM_EmoteDotNow)	
-	returnValue &= ( DS_Success == MAC_UnInitialize(/*Mac_GetID()*/) );
-#endif
-
 	return returnValue;
 }

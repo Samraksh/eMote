@@ -247,12 +247,22 @@
     <DriverLibs Include="Analog_DA_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\Analog_DA_HAL\dotNetMF.proj" />
   </ItemGroup>-->
-  <!--
+  <ItemGroup>
+    <DriverLibs Include="cpu_DA_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_DA\dotNetMF.proj" />
+  </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="cpu_analog_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_analog\dotNetMF.proj" />
   </ItemGroup>
-  -->
+  <ItemGroup>
+    <DriverLibs Include="cpu_I2C_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_I2C\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="cpu_PWM_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_PWM\dotNetMF.proj" />
+  </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="asyncproccall_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" />
@@ -309,6 +319,10 @@
   <ItemGroup>
     <DriverLibs Include="TimeService_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\TimeService\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="MFUpdate_PAL_stub.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\MFUpdate\stubs\dotnetmf.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="Gesture_pal_stubs.$(LIB_EXT)" />
@@ -421,8 +435,8 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\Processor\stubs_power\dotNetMF.proj" />
   </ItemGroup>-->
   <!--<ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\bl\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_bl.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bl\dotNetMF.proj" />
+    <DriverLibs Include="SF2_M2S090_bl.$(LIB_EXT)" />
   </ItemGroup>-->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\BlockStorage\AddDevices\dotNetMF.proj" />
@@ -458,8 +472,6 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Timer\Timer16Bit\Timer16BitStubs\dotNetMF.proj" />
 	<DriverLibs Include="Timer16Bit.$(LIB_EXT)" />
   </ItemGroup>
-  
-  
   
   
   <!--<ItemGroup>
@@ -676,11 +688,10 @@
     <DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />
   </ItemGroup-->
 
-  <!--<ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_driver_control.$(LIB_EXT)" />
-  </ItemGroup>-->
-
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\dotNetMF.proj" />
+    <DriverLibs Include="SmartFusion2_driver_control.$(LIB_EXT)" />
+  </ItemGroup>
 <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Algorithms\dotNetMF.proj" />
     <DriverLibs Include="Algorithm_pal.$(LIB_EXT)" />

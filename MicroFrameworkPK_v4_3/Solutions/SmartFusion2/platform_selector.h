@@ -24,7 +24,7 @@ typedef uint16_t ushort;
 //#define SAMRAKSH_UPDATE_EXT
 
 
-// #define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
+#define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
 
 
 #if defined(PLATFORM_ARM_SmartFusion2)
@@ -57,11 +57,11 @@ typedef uint16_t ushort;
 #define SRAM1_MEMORY_Base   0x20000000
 #define SRAM1_MEMORY_Size   0x00010000
 #if defined(TINYCLR_SOLO) || defined(SAM_APP_TINYBOOTER)
-#define FLASH_MEMORY_Base   0x60000000
-#define FLASH_MEMORY_Size   0x00040000
+#define FLASH_MEMORY_Base   0x00000000
+#define FLASH_MEMORY_Size   0x0007FFFF
 #else
-#define FLASH_MEMORY_Base   0x60010000
-#define FLASH_MEMORY_Size   0x000E0000
+#define FLASH_MEMORY_Base   0x00010000
+#define FLASH_MEMORY_Size   0x0006FFFF
 #endif
 
 

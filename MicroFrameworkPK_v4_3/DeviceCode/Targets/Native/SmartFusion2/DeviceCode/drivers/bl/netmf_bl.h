@@ -6,7 +6,7 @@
 
 #include <stm32f10x.h>
 
-#define FLASH_BANK1_END_ADDRESS   ((uint32_t)0x807FFFF)
+#define FLASH_BANK1_END_ADDRESS   ((uint32_t)0x0007FFFF)
 #define CR_PG_Set                ((uint32_t)0x00000001)
 #define EraseTimeout          ((uint32_t)0x000B0000)
 

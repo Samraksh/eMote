@@ -41,7 +41,7 @@
   <PropertyGroup />
   <ItemGroup>
 	<HFiles Include="Shutdown.h" />
-	<Compile Include="Shutdown.cpp" />
+	<Compile Include="Shutdown_stub.cpp" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

@@ -4,11 +4,11 @@
     <ProjectGuid>{36101ca5-349a-4471-aeb0-3babba567477}</ProjectGuid>
     <Size>
     </Size>
-    <Description>STM32F10x bl</Description>
+    <Description>SF2 M2S090 bl</Description>
     <Level>HAL</Level>
-    <LibraryFile>STM32F10x_bl.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\bl\dotNetMF.proj</ProjectPath>
-    <ManifestFile>STM32F10x_bl.$(LIB_EXT).manifest</ManifestFile>
+    <LibraryFile>SF2_M2S090_bl_bl.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bl\dotNetMF.proj</ProjectPath>
+    <ManifestFile>SF2_M2S090_bl.$(LIB_EXT).manifest</ManifestFile>
     <Groups>Processor\STM32F10x</Groups>
     <LibraryCategory>
       <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="bl_HAL" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" Conditional="" xmlns="">
@@ -41,10 +41,7 @@
   <ItemGroup>
 	<HFiles Include="netmf_bl.h" />
     <Compile Include="netmf_bl.cpp" />
-	<HFiles Include="netmf_bl_nor.h" />
-    <Compile Include="netmf_bl_nor.cpp" />
     <Compile Include="bl_config.cpp" />
-    <Compile Include="bl_nor_config.cpp" />
     <Compile Include="bl_addDevices.cpp" />
   </ItemGroup>
   <ItemGroup />
