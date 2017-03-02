@@ -24,7 +24,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_AnalogOutput::Write
     
     INT32 level = stack.Arg1().NumericByRef().s4;
 
-    //::
+    ::DA_Write(channel, level);
 
     TINYCLR_NOCLEANUP_NOLABEL();
 }
@@ -37,7 +37,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_AnalogOutput::Initi
     DA_CHANNEL channel = (DA_CHANNEL)stack.Arg0().NumericByRef().s4;
     INT32 precisionInBits = stack.Arg1().NumericByRef().s4;
     
-    bool fRes = true;
+    bool fRes = ::DA_Initialize(channel, precisionInBits) != 0;
     
     TINYCLR_SET_AND_LEAVE(fRes ? S_OK : CLR_E_FAIL);
 
@@ -49,7 +49,7 @@ HRESULT Library_spot_hardware_native_Microsoft_SPOT_Hardware_AnalogOutput::Unini
     NATIVE_PROFILE_CLR_HARDWARE();
     TINYCLR_HEADER();
     
-    //::DA_Uninitialize((DA_CHANNEL)stack.Arg0().NumericByRef().s4);
+    ::DA_Uninitialize((DA_CHANNEL)stack.Arg0().NumericByRef().s4);
     
     TINYCLR_NOCLEANUP_NOLABEL();
 }
