@@ -4,7 +4,7 @@
 #include <tinyhal.h>
 #include <Samraksh/Hal_util.h>
 #include <stm32f10x.h>
-#include "../intc/STM32.h"
+#include "../intc/SF2.h"
 
 #define I2C1_SDA 23
 #define I2C1_SCL 22

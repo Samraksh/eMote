@@ -60,8 +60,8 @@ typedef uint16_t ushort;
 #define FLASH_MEMORY_Base   0x00000000
 #define FLASH_MEMORY_Size   0x0007FFFF
 #else
-#define FLASH_MEMORY_Base   0x00010000
-#define FLASH_MEMORY_Size   0x0006FFFF
+#define FLASH_MEMORY_Base   0x00020000
+#define FLASH_MEMORY_Size   0x0004FFFF
 #endif
 
 

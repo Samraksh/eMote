@@ -3,8 +3,8 @@
 #ifndef _NETMF_USART_H_
 #define _NETMF_USART_H_
 #include <stm32f10x.h>
-#include "..\intc\STM32.h"
 #include <gpio\netmf_gpio.h>
+#include "../intc/SF2.h"
 
 //TODO Calculate this based on the System Clock value.
 #define MAX_BAUDRATE 115200

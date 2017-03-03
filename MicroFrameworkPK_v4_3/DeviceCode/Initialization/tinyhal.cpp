@@ -14,6 +14,11 @@ extern Krait_Timer g_Krait_Timer;
 #endif
 
 
+#if defined(PLATFORM_ARM_SmartFusion2)
+#include <DeviceCode/Crypto/aes_test.h>
+//extern int (*aes_test_main)();
+#endif
+
 #if !defined(__GNUC__)
 #include <rt_fp.h>
 #endif
@@ -514,6 +519,10 @@ extern "C"
 
 void BootEntry()
 {
+#if defined(PLATFORM_ARM_SmartFusion2)
+    aesTest();
+#endif
+
 #if defined(PLATFORM_ARM_SOC_ADAPT)
 mipi_dsi_shutdown();
 #endif
@@ -627,6 +636,9 @@ mipi_dsi_shutdown();
     Watchdog_GetSetTimeout ( WATCHDOG_TIMEOUT , TRUE );
     Watchdog_GetSetBehavior( WATCHDOG_BEHAVIOR, TRUE );
     Watchdog_GetSetEnabled ( WATCHDOG_ENABLE, TRUE );
+
+
+
 
 #if defined( SAM_APP_TINYCLR )
 	// if we have the JTAG attached we will wait two seconds to allow us to attach a debugger or openOCD

@@ -11,10 +11,10 @@
 
 #include <tinyhal.h>
 #include <pwr/netmf_pwr.h>
+#include "../intc/SF2.h"
 #include "../Timer/Timer16Bit/netmf_timers16Bit.h"
 #include "../Timer/advancedtimer/netmf_advancedtimer.h"
 #include "../Timer/netmf_rtc/netmf_rtc.h"
-#include <intc/stm32.h>
 
 
 extern const UINT8 ADVTIMER_32BIT;

@@ -7,7 +7,8 @@
 
 #include <tinyhal.h>
 #include "netmf_sdio.h"
-#include "../INTC/STM32.h"
+
+#include "../intc/SF2.h"
 
 
 SDIO_Driver g_SDIODriver;
