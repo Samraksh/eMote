@@ -26,7 +26,7 @@
     <BUILD_TOOL_GUID>{722B0D5D-1243-4557-913F-61FAB04E9209}</BUILD_TOOL_GUID>
   </PropertyGroup>
   <ItemGroup>
-   <!-- <IncludePaths Include="devicecode\Targets\Native\SmartFusion2" />-->
+    <IncludePaths Include="devicecode\Targets\Native\SmartFusion2" />
 	<IncludePaths Include="devicecode\Targets\Native\STM32F10x" />
   </ItemGroup>
 </Project>

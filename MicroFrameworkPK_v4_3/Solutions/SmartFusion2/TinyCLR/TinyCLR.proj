@@ -224,7 +224,7 @@
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="TinyHal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cores\arm\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\cores\arm\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <PlatformIndependentLibs Include="WireProtocol.$(LIB_EXT)" />
