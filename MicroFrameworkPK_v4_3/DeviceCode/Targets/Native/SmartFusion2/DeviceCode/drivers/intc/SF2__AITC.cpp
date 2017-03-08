@@ -615,7 +615,7 @@ void __irq USB_IRQHandler()
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 
 #ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_PVD]++;
+		interrupt_count[c_IRQ_INDEX_ComBlk]++;
 #endif
 
 		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_ComBlk];

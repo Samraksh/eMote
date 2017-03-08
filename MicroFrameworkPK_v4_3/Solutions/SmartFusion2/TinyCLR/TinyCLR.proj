@@ -484,6 +484,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\adc\dotNetMF.proj" />
   </ItemGroup>-->
   <ItemGroup>
+    <DriverLibs Include="SmartFusion2_sys_services.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\sys_services\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="SmartFusion2_intc.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\intc\dotNetMF.proj" />
   </ItemGroup>
