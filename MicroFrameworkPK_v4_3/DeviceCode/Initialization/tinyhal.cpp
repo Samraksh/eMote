@@ -520,7 +520,7 @@ extern "C"
 void BootEntry()
 {
 #if defined(PLATFORM_ARM_SmartFusion2)
-   // aesTest();
+   aesTest();
 #endif
 
 #if defined(PLATFORM_ARM_SOC_ADAPT)
@@ -588,7 +588,7 @@ mipi_dsi_shutdown();
     CPU_Initialize();
 
 #if defined( SAM_APP_TINYCLR ) // TinyBooter, (and future MicroBooter) use SimpleTimer. SimpleTimer needs HAL_Time_Initialize().
-    VirtTimer_Initialize();
+    //VirtTimer_Initialize();
 #endif
     HAL_Time_Initialize();
 

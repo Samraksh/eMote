@@ -29,91 +29,91 @@
 
 SF2_AITC_Driver::IRQ_VECTORING __section(rwdata) SF2_AITC_Driver::s_IsrTable[] =
 {
-	DEFINE_IRQ(SF2_AITC::c_IRQ_INDEX_WWDG			, SF2_AITC::c_IRQ_Priority_15),
-    DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_RTC          ,SF2_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_SPI0            ,SF2_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_SPI1     ,SF2_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_I2C0     ,SF2_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_I2C0_SMBAlert    ,SF2_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_I2C0_SMBus   ,SF2_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_I2C1        ,SF2_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_I2C1_SMBAlert        ,SF2_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_I2C1_SMBus        ,SF2_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_USART1        ,SF2_AITC::c_IRQ_Priority_0  ),
-    DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_USART2       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_EthernetMAC       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_DMA       ,SF2_AITC::c_IRQ_Priority_3  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_TIM1_CC       ,SF2_AITC::c_IRQ_Priority_1  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_TIM2       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_CAN       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_ENVM0       ,SF2_AITC::c_IRQ_Priority_4  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_ENVM1       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_ComBlk       ,SF2_AITC::c_IRQ_Priority_2  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_USB       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_USB_DMA       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_PLL_Lock       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_PLL_LockLost      ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_CommSwitchError       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_CacheError       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_DDR       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_HPDMA_Complete       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_HPDMA_Error       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_ECC_Error       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_MDDR_IOCalib       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FAB_PLL_Lock       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FAB_PLL_LockLost       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FIC64       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq0       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq1       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq2       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq3       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq4       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq5       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq6       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq7       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq8       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq9       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq10       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq11       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq12       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq13       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq14       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_FabricIrq15       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO0       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO1       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO2       ,SF2_AITC::c_IRQ_Priority_15 ),
-    DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO3       ,SF2_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO4       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO5       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO6       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO7       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO8       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO9       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO10       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO11       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO12       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO13       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO14       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO15       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO16       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO17       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO18       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO19       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO20       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO21       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO22       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO23       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO24       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO25       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO26       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO27       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO28       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO29       ,SF2_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO30       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_GPIO31       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ(VectorIndex::c_IRQ_INDEX_WWDG			, SF2_AITC::c_IRQ_Priority_15),
+    DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_RTC          ,SF2_AITC::c_IRQ_Priority_15  ),
+    DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_SPI0            ,SF2_AITC::c_IRQ_Priority_15  ),
+    DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_SPI1     ,SF2_AITC::c_IRQ_Priority_15  ),
+    DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_I2C0     ,SF2_AITC::c_IRQ_Priority_15  ),
+    DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_I2C0_SMBAlert    ,SF2_AITC::c_IRQ_Priority_15  ),
+    DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_I2C0_SMBus   ,SF2_AITC::c_IRQ_Priority_15  ),
+    DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_I2C1        ,SF2_AITC::c_IRQ_Priority_15  ),
+    DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_I2C1_SMBAlert        ,SF2_AITC::c_IRQ_Priority_15  ),
+    DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_I2C1_SMBus        ,SF2_AITC::c_IRQ_Priority_15  ),
+    DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_USART1        ,SF2_AITC::c_IRQ_Priority_0  ),
+    DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_USART2       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_EthernetMAC       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_DMA       ,SF2_AITC::c_IRQ_Priority_3  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_TIM1_CC       ,SF2_AITC::c_IRQ_Priority_1  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_TIM2       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_CAN       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_ENVM0       ,SF2_AITC::c_IRQ_Priority_4  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_ENVM1       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_ComBlk       ,SF2_AITC::c_IRQ_Priority_2  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_USB       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_USB_DMA       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_PLL_Lock       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_PLL_LockLost      ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_CommSwitchError       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_CacheError       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_DDR       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_HPDMA_Complete       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_HPDMA_Error       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_ECC_Error       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_MDDR_IOCalib       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FAB_PLL_Lock       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FAB_PLL_LockLost       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FIC64       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq0       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq1       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq2       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq3       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq4       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq5       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq6       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq7       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq8       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq9       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq10       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq11       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq12       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq13       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq14       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq15       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO0       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO1       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO2       ,SF2_AITC::c_IRQ_Priority_15 ),
+    DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO3       ,SF2_AITC::c_IRQ_Priority_15  ),
+    DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO4       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO5       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO6       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO7       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO8       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO9       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO10       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO11       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO12       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO13       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO14       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO15       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO16       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO17       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO18       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO19       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO20       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO21       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO22       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO23       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO24       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO25       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO26       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO27       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO28       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO29       ,SF2_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO30       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO31       ,SF2_AITC::c_IRQ_Priority_15 ),
 
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_PendSV          ,SF2_AITC::c_IRQ_Priority_15 ), //Mukundan
-	DEFINE_IRQ( SF2_AITC::c_IRQ_INDEX_SVCall        ,SF2_AITC::c_IRQ_Priority_5  ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_PendSV          ,SF2_AITC::c_IRQ_Priority_15 ), //Mukundan
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_SVCall        ,SF2_AITC::c_IRQ_Priority_5  ),
 };
 
 #undef DEFINE_IRQ
@@ -379,7 +379,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_SVCall]++;
 #endif
 
-		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[SF2_AITC::c_IRQ_INDEX_SVCall];
+		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_SVCall];
 
 		// In case the interrupt was forced, remove the flag.
 		AITC.RemoveForcedInterrupt( 0 );
@@ -409,7 +409,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_PendSV]++;
 #endif
 
-		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[SF2_AITC::c_IRQ_INDEX_PendSV];
+		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_PendSV];
 
 		// In case the interrupt was forced, remove the flag.
 		AITC.RemoveForcedInterrupt( 0 );
@@ -450,7 +450,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_RTC]++;
 #endif
 
-		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[SF2_AITC::c_IRQ_INDEX_RTC];
+		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_RTC];
 
 		// In case the interrupt was forced, remove the flag.
 
@@ -474,7 +474,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_FLASH]++;
 #endif
 
-		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[SF2_AITC::c_IRQ_INDEX_ENVM0];
+		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_ENVM0];
 
 		// In case the interrupt was forced, remove the flag.
 		AITC.RemoveForcedInterrupt( 0 );
@@ -489,7 +489,6 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	void __irq TIM1_CC_IRQHandler()
 	{
 		UINT32 index;
-
 		SF2_AITC& AITC = SF2::AITC();
 		GLOBAL_LOCK(irq);
 		// set before jumping elsewhere or allowing other interrupts
@@ -500,14 +499,33 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_TIM1_CC]++;
 #endif
 
-		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[SF2_AITC::c_IRQ_INDEX_TIM1_CC];
-
+		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_TIM1_CC];
 		IsrVector->Handler.Execute();
-
 
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 	}
+
+	void __irq  TIM2_IRQHandler()
+	{
+		UINT32 index;
+		SF2_AITC& AITC = SF2::AITC();
+		GLOBAL_LOCK(irq);
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_TIM1_CC]++;
+#endif
+
+		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_TIM2];
+		IsrVector->Handler.Execute();
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+
 
 	void __irq USART1_IRQHandler()
 	{
@@ -524,7 +542,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	interrupt_count[c_IRQ_INDEX_USART1]++;
 #endif
 
-		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[SF2_AITC::c_IRQ_INDEX_USART1];
+		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_USART1];
 
 		// In case the interrupt was forced, remove the flag.
 
@@ -550,7 +568,7 @@ void __irq USB_IRQHandler()
 #endif
 
 		//SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[19];
-		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[SF2_AITC::c_IRQ_INDEX_USB];
+		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_USB];
 
 
 		IsrVector->Handler.Execute();
@@ -576,7 +594,7 @@ void __irq USB_IRQHandler()
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL1]++;
 #endif
 
-		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[SF2_AITC::c_IRQ_INDEX_DMA];
+		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_DMA];
 
 		IsrVector->Handler.Execute();
 
@@ -600,7 +618,7 @@ void __irq USB_IRQHandler()
 		interrupt_count[c_IRQ_INDEX_PVD]++;
 #endif
 
-		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[SF2_AITC::c_IRQ_INDEX_ComBlk];
+		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_ComBlk];
 
 		// In case the interrupt was forced, remove the flag.
 		AITC.RemoveForcedInterrupt( 0 );
@@ -663,10 +681,6 @@ void __irq USB_IRQHandler()
 
 	}
 
-	void __irq  TIM2_IRQHandler()
-	{
-
-	}
 
 	void __irq  CAN_IRQHandler()
 	{
