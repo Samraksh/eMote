@@ -55,11 +55,16 @@
 	<HFiles Include="drivers/mss_timer/mss_timer.h" />
 	<HFiles Include="drivers/mss_uart/mss_uart_regs.h" />
 	<HFiles Include="drivers/mss_uart/mss_uart.h" />
+	<HFiles Include="drivers/mss_gpio/mss_gpio.h" />
+	<HFiles Include="drivers/CoreGPIO/core_gpio.h" />
+	<HFiles Include="drivers/CoreGPIO/cpu_types.h" />
+	<HFiles Include="drivers/CoreGPIO/coregpio_regs.h" />
 	<HFiles Include="drivers_config/sys_config/sysconfig_mss_clocks.h" />
 	<HFiles Include="drivers_config/sys_config/sys_config.h" />
+	<HFiles Include="hal/hw_reg_access.h" />
 	<!--<HFiles Include="hal/hal.h" />
 	<HFiles Include="hal/hal_assert.h" />
-	<HFiles Include="hal/hw_reg_access.h" />
+	
 	<HFiles Include="hal/CortexM3/.h" />
 	<HFiles Include="hal/CortexM3/.h" />
 	-->
@@ -70,7 +75,11 @@
     <Compile Include="drivers/mss_sys_services/mss_comblk.c" />
     <Compile Include="drivers/mss_sys_services/mss_sys_services.c" />
     <Compile Include="drivers/mss_uart/mss_uart.c" />
+    <Compile Include="drivers/mss_gpio/mss_gpio.c" />
+    <Compile Include="drivers/CoreGPIO/core_gpio.c" />
     <Compile Include="drivers_config/sys_config/sys_config.c" />  
+	<Compile Include="drivers_config/sys_config/sys_config.c" />  
+	<Compile Include="hal\CortexM3\GNU\hw_reg_access.S" />
     
   </ItemGroup>
   <ItemGroup />
