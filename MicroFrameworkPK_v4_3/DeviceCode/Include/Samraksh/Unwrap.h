@@ -1,7 +1,7 @@
 #ifndef _UNWRAP_H_INCLUDED_
 #define _UNWRAP_H_INCLUDED_
 
-#define MAX_IQ_REJECTION 150 
+#define MAX_IQ_REJECTION 4000 
 
 INT16 findMedian(UINT16* buffer, INT32 length);
 int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT32 noiseRejection, UINT16 debugVal, UINT16 IDNumber, UINT16 versionNumber, UINT16 classifierTarget);
