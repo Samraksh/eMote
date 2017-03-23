@@ -34,8 +34,8 @@
   </PropertyGroup>
   <ItemGroup>
     <IncludePaths Include="DeviceCode\PAL" />
-    <IncludePaths Include="DeviceCode\PAL\OpenSSL" />
-    <IncludePaths Include="DeviceCode\PAL\OpenSSL\OpenSSL_1_0" />
+    <!--<IncludePaths Include="DeviceCode\PAL\OpenSSL" />
+    <IncludePaths Include="DeviceCode\PAL\OpenSSL\OpenSSL_1_0" />-->
     <Compile Include="allocator.cpp" />
     <Compile Include="tinyclr.cpp" />
     <HFiles Include="$(SPOCLIENT)\clr\include\tinyclr_application.h" />
@@ -64,8 +64,8 @@
   <!--<Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />-->
   <Import Condition="'$(CRYPTO_FEATUREPROJ)'==''" Project="$(SPOCLIENT)\Framework\Features\Crypto.featureproj" />
   
-  <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote\Samraksh_eMote.featureproj" />
-  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow.featureproj" />
+ <!-- <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote\Samraksh_eMote.featureproj" /> -->
+  <!--<Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow.featureproj" />-->
   <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Net\Samraksh_eMote_Net.featureproj" />
   <!--<Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DSP\Samraksh_eMote_DSP.featureproj" />-->
@@ -494,9 +494,17 @@
     <DriverLibs Include="STM32F10x_i2c.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\i2c\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="STM32F10x_dac.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\dac\dotNetMF.proj" />
+  </ItemGroup>-->
+  <ItemGroup>
+    <DriverLibs Include="cpu_DA_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_DA\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="cpu_analog_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_analog\dotNetMF.proj" />
   </ItemGroup>
   <!--<ItemGroup>
     <DriverLibs Include="STM32F10x_adc.$(LIB_EXT)" />
@@ -506,10 +514,10 @@
     <DriverLibs Include="STM32F10x_intc.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\intc\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="STM32F10x_math.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\math\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="STM32F10x_spi.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\spi\dotNetMF.proj" />
@@ -607,14 +615,14 @@
   
   <!--     - - - - - - - -               Samraksh's Extensions   - - - - - - - -                  -->
   <!-- 									Hardware Extension        								-->
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote_DotNow.$(LIB_EXT)" />
-</ItemGroup>
+</ItemGroup>-->
 
   <!-- 									DSP Extension        								-->
  <!--<ItemGroup>
@@ -658,6 +666,10 @@
     <DriverLibs Include="VirtualTimer.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\Stubs\dotNetMF.proj" />
+    <DriverLibs Include="Mac_pal_stubs.$(LIB_EXT)" />
+  </ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\dotNetMF.proj" />
     <DriverLibs Include="mac_pal.$(LIB_EXT)" />
   </ItemGroup>
@@ -668,7 +680,7 @@
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\OMAC\dotNetMF.proj" />
     <DriverLibs Include="omac_pal.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup>-->
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\Routing\MACTest\dotNetMF.proj" />
     <DriverLibs Include="mactest_pal.$(LIB_EXT)" />
@@ -682,7 +694,7 @@
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_radio_rf231.$(LIB_EXT)" />
-	<DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />
+	<!--<DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />-->
   </ItemGroup>
   <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\dotNetMF.proj" />
@@ -694,10 +706,10 @@
     <DriverLibs Include="STM32F10x_driver_control.$(LIB_EXT)" />
   </ItemGroup>
 
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Algorithms\dotNetMF.proj" />
     <DriverLibs Include="Algorithm_pal.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup>-->
   
   <!--                      	    Wireless Networking Stack ::End                      -->
   
@@ -749,12 +761,12 @@
   </ItemGroup>
   <ItemGroup Condition="'$(COMPILER_TOOL)'!='RVDS'">
     <DriverLibs Include="aes_openssl.$(LIB_EXT)" />
-   <!-- <DriverLibs Include="asn1_openssl.$(LIB_EXT)" />
+    <DriverLibs Include="asn1_openssl.$(LIB_EXT)" />
     <DriverLibs Include="asn1pt2_openssl.$(LIB_EXT)" />
     <DriverLibs Include="bf_openssl.$(LIB_EXT)" />
-    <DriverLibs Include="bio_openssl.$(LIB_EXT)" /> -->
+    <DriverLibs Include="bio_openssl.$(LIB_EXT)" />
     <DriverLibs Include="buffer_openssl.$(LIB_EXT)" />
-  <!--  <DriverLibs Include="bn_openssl.$(LIB_EXT)" />
+    <DriverLibs Include="bn_openssl.$(LIB_EXT)" />
     <DriverLibs Include="cast_openssl.$(LIB_EXT)" />
     <DriverLibs Include="comp_openssl.$(LIB_EXT)" />
     <DriverLibs Include="conf_openssl.$(LIB_EXT)" />
@@ -764,9 +776,9 @@
     <DriverLibs Include="dso_openssl.$(LIB_EXT)" />
     <DriverLibs Include="ecdh_openssl.$(LIB_EXT)" />
     <DriverLibs Include="ec_openssl.$(LIB_EXT)" />
-    <DriverLibs Include="ecdsa_openssl.$(LIB_EXT)" /> -->
+    <DriverLibs Include="ecdsa_openssl.$(LIB_EXT)" /> 
     <DriverLibs Include="engine_openssl.$(LIB_EXT)" />
-    <DriverLibs Include="err_openssl.$(LIB_EXT)" />
+ 	<DriverLibs Include="err_openssl.$(LIB_EXT)" />
     <DriverLibs Include="evp_openssl.$(LIB_EXT)" />
     <DriverLibs Include="hmac_openssl.$(LIB_EXT)" />
     <DriverLibs Include="lhash_openssl.$(LIB_EXT)" />

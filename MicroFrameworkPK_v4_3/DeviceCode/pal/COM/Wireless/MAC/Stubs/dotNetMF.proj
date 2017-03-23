@@ -1,20 +1,20 @@
 ﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>Mac_stubs</AssemblyName>
+    <AssemblyName>Mac_pal_stubs</AssemblyName>
     <Size>
     </Size>
     <ProjectGuid>{74a19efb-8b98-4269-bca2-eedce6bbdc38}</ProjectGuid>
-    <Description>Mac HAL stubs</Description>
+    <Description>Mac pal stubs</Description>
     <Level>HAL</Level>
-    <LibraryFile>Mac_stubs.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\DeviceCode\PAL\COM\Mac\Stubs\dotNetMF.proj</ProjectPath>
-    <ManifestFile>Mac_stubs.$(LIB_EXT).manifest</ManifestFile>
+    <LibraryFile>Mac_pal_stubs.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\Stubs\dotNetMF.proj</ProjectPath>
+    <ManifestFile>Mac_pal_stubs.$(LIB_EXT).manifest</ManifestFile>
     <Groups>Radio</Groups>
     <LibraryCategory>
       <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Mac_HAL" Guid="{A25658BA-4C02-45bb-AD8C-191DCD99D8F0}" ProjectPath="" Conditional="" xmlns="">
         <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
           <Major>4</Major>
-          <Minor>0</Minor>
+          <Minor>3</Minor>
           <Revision>0</Revision>
           <Build>0</Build>
           <Extra />
@@ -31,10 +31,10 @@
     <Required>False</Required>
     <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
     <IsStub>False</IsStub>
-    <Directory>DeviceCode\pal\COM\Radio\</Directory>
+    <Directory>DeviceCode\pal\COM\Wireless\MAC\Stubs</Directory>
     <OutputType>Library</OutputType>
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
-    <Version>4.0.0.0</Version>
+    <Version>4.3.0.0</Version>
   </PropertyGroup>
   
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
