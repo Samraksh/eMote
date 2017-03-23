@@ -33,6 +33,8 @@
 
 #define OMAC_SEND_DEBUGGING_FOR_MF 0
 
+#define OMAC_DTH_PRINT_NEIGHBOR_TABLE_AFTER_SEND 0
+
 //#include "Scheduler.h"
 enum DataTransmissionHandlerStates{
 	DTS_EXECUTE_START,
@@ -48,6 +50,10 @@ enum DataTransmissionHandlerStates{
 	DTS_WAITING_FOR_ACKS,
 	DTS_RECEIVEDDATAACK,
 	DTS_POSTEXECUTION,
+	DTS_SEND_INITIATED,
+	DTS_SEND_PACKET_NOT_READY,
+	DTS_PACKET_SELECTED,
+	DTS_PACKET_NOTSELECTED
 };
 
 //page 70 in RF231 datasheet
@@ -103,6 +109,7 @@ private:
 	void SendACKToUpperLayers(Message_15_4_t* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus);
 
 	Message_15_4_t* SelectPacketForDest(UINT16 m_outgoingEntryPtr_dest_);
+
 
 public:
 	void Initialize();

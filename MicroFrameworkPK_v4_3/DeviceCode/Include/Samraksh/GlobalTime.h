@@ -12,7 +12,7 @@
 #include <tinyhal.h>
 
 #define MAX_SAMPLES 8
-#define MAX_NBR 12
+#define MAX_NBR 6
 #define INVALID_TIMESTAMP 0x7FFFFFFFFFFFFFFF
 #define INVALID_NBR_ID 0xFFFF
 #define MAXRangeUINT64 0xFFFFFFFFFFFFFFFF
@@ -283,6 +283,20 @@ public:
 		){ // Discard out of orderly received time stamps // Consider adding it in between.
 			CleanNbrwithIndex(nbrIndex);
 		}
+//		else{
+//			if(nbr_loffset < 0){
+//				timeDifference = Local2NeighborTime(nbr, nbr_ltime + (UINT64)(nbr_loffset*(-1)));
+//			}
+//			else{
+//				timeDifference = Local2NeighborTime(nbr, nbr_ltime  - nbr_loffset);
+//			}
+//			if(timeDifference > nbr_ltime && timeDifference - nbr_ltime > 40000  ){
+//				CleanNbrwithIndex(nbrIndex);
+//			}
+//			else if( nbr_ltime > timeDifference && nbr_ltime - timeDifference > 40000  ){
+//				CleanNbrwithIndex(nbrIndex);
+//			}
+//		}
 		samples[nbrIndex].lastTimeIndex++;
 		samples[nbrIndex].lastTimeIndex = samples[nbrIndex].lastTimeIndex % MAX_SAMPLES;
 		samples[nbrIndex].isused[samples[nbrIndex].lastTimeIndex] = true;
@@ -314,6 +328,11 @@ public:
 			}
 		}
 	}
+
+	UINT64 Local2NeighborTime(UINT16 nbr, const UINT64& curtime);
+	UINT64 Neighbor2LocalTime(UINT16 nbr, const UINT64& nbrtime);
+
+
 	void Init(){
 		nbrCount=0;
 		for (NeighborIndex_t ii=0; ii< MAX_NBR; ii++){
@@ -351,8 +370,8 @@ public:
 	GlobalTime(){};
 	void Init();
 
-	UINT64 Local2NeighborTime(UINT16 nbr, UINT64 curtime);
-	UINT64 Neighbor2LocalTime(UINT16 nbr, UINT64 nbrtime);
+	UINT64 Local2NeighborTime(UINT16 nbr, const UINT64& curtime);
+	UINT64 Neighbor2LocalTime(UINT16 nbr, const UINT64& nbrtime);
 
 	void UnsuccessfulTransmission(UINT16 nbr){
 		NeighborIndex_t nbrIndex = regressgt2.FindNeighbor(nbr);
@@ -401,9 +420,17 @@ void GlobalTime::Init(){
 }
 
 
-UINT64 GlobalTime::Neighbor2LocalTime(UINT16 nbr, UINT64 nbrTime){
-	if (regressgt2.NumberOfRecordedElements(nbr) < 2) return(HAL_Time_CurrentTicks());
-	NeighborIndex_t nbrIndex = regressgt2.FindNeighbor(nbr);
+UINT64 GlobalTime::Neighbor2LocalTime(UINT16 nbr, const UINT64& nbrTime){
+	return regressgt2.Neighbor2LocalTime(nbr, nbrTime);
+}
+
+UINT64 GlobalTime::Local2NeighborTime(UINT16 nbr, const UINT64& curtime){
+	return regressgt2.Local2NeighborTime(nbr, curtime);
+}
+
+UINT64 Regression::Neighbor2LocalTime(UINT16 nbr, const UINT64& nbrTime){
+	if (NumberOfRecordedElements(nbr) < 2) return(HAL_Time_CurrentTicks());
+	NeighborIndex_t nbrIndex = FindNeighbor(nbr);
 	if(nbrIndex == c_bad_nbrIndex) {
 		ASSERT_SP(0);
 		return 0;
@@ -430,12 +457,12 @@ UINT64 GlobalTime::Neighbor2LocalTime(UINT16 nbr, UINT64 nbrTime){
 	if (negativeperiod) lastrecordedTime = lastrecordedTime - (((float) periodlength)  * regressgt2.samples[nbrIndex].relativeFreq);
 	else lastrecordedTime = lastrecordedTime + (((float) periodlength)  * regressgt2.samples[nbrIndex].relativeFreq);
 	return (lastrecordedTime);*/
-	return ( ( (double)nbrTime - regressgt2.samples[nbrIndex].y_intercept - regressgt2.samples[nbrIndex].additional_y_intercept_offset)/regressgt2.samples[nbrIndex].relativeFreq );
+	return ( ( (double)nbrTime - samples[nbrIndex].y_intercept - samples[nbrIndex].additional_y_intercept_offset)/samples[nbrIndex].relativeFreq );
 }
 
-UINT64 GlobalTime::Local2NeighborTime(UINT16 nbr, UINT64 curtime){
-	if (regressgt2.NumberOfRecordedElements(nbr) < 2) return(0);
-	NeighborIndex_t nbrIndex = regressgt2.FindNeighbor(nbr);
+UINT64 Regression::Local2NeighborTime(UINT16 nbr, const UINT64& curtime){
+	if (NumberOfRecordedElements(nbr) < 2) return(0);
+	NeighborIndex_t nbrIndex = FindNeighbor(nbr);
 	if(nbrIndex == c_bad_nbrIndex) {
 		ASSERT_SP(0);
 		return 0;
@@ -473,6 +500,8 @@ UINT64 GlobalTime::Local2NeighborTime(UINT16 nbr, UINT64 curtime){
 	if (negativeperiod) lastlocalTime = lastlocalTime - (((float) periodlength) / regressgt2.samples[nbrIndex].relativeFreq);
 	else lastlocalTime = lastlocalTime + (((float) periodlength) / regressgt2.samples[nbrIndex].relativeFreq);
 	return (lastlocalTime);*/
-	return ( regressgt2.samples[nbrIndex].relativeFreq * (double)curtime + regressgt2.samples[nbrIndex].y_intercept + regressgt2.samples[nbrIndex].additional_y_intercept_offset);
+	return ( samples[nbrIndex].relativeFreq * (double)curtime + samples[nbrIndex].y_intercept + samples[nbrIndex].additional_y_intercept_offset);
 }
+
+
 #endif //GLOBALTIME_H_

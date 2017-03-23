@@ -17,6 +17,8 @@
 
 #define PACK __attribute__ ((packed))
 
+
+
 // template for message header
 //template<class Header_T,UINT16 PayLoadSize_T, class Footer_T>
 template<class Header_T,UINT16 PayLoadSize_T, class Footer_T, class Metadata_T>
@@ -28,6 +30,8 @@ class Message
 	Metadata_T metadata;
 
 public:
+
+
 	// Returns a pointer to the message
 	Message* GetMessage()
 	{
@@ -43,6 +47,12 @@ public:
 
 	// returns a pointer to the header
 	Header_T* GetHeader()
+	{
+		return &header;
+	}
+
+	// returns a pointer to the header
+	const Header_T* GetHeaderConst() const
 	{
 		return &header;
 	}
@@ -80,6 +90,12 @@ public:
 
 	// returns a pointer to the metadata
 	Metadata_T* GetMetaData()
+	{
+		return &metadata;
+	}
+
+	// returns a pointer to the metadata
+	const Metadata_T* GetMetaDataConst() const
 	{
 		return &metadata;
 	}
@@ -215,7 +231,6 @@ typedef union{
 //MAC Protocol Layer Data Unit (MPDU) in page 80 of RF231 datasheet.
 //Do not modify as extended mode will not work
 typedef struct PACK IEEE802_15_4_Header {
-public:
   //UINT16 fcf;
   IEEE802_15_4_Header_FCF_t fcf;
   UINT8 dsn;
@@ -229,6 +244,37 @@ public:
   UINT8 payloadType;
   UINT8 flags;
   //UINT8 retryAttempt;
+
+//  IEEE802_15_4_Header() : dsn(0), destpan(0), dest(0), src(0), length(0), macName(0), payloadType(0), flags(0) {
+//	  fcf.fcfWordValue = 0;
+//  }
+
+  IEEE802_15_4_Header() {
+	  Clear();
+  }
+
+  UINT8 GetDestConst() const{
+	  return dest;
+  }
+  UINT8 GetPayloadTypeConst() const{
+	  return payloadType;
+  }
+  UINT8 GetFlagsConst() const{
+	  return flags;
+  }
+
+  void Clear(){
+	  fcf.fcfWordValue = 0;
+	  dsn = 0;
+	  destpan = 0;
+	  dest = 0;
+	  src = 0;
+	  length = 0;
+	  macName = 0;
+	  payloadType = 0;
+	  flags = 0;
+
+  }
 
 /*public:
 	UINT8 GetLength(){
@@ -260,12 +306,18 @@ public:
 
 //Transmitting footer in a MAC frame is not required, though for FCS to succeed, footer is needed.
 //It has been tested that footer need not be transmitted along with header and payload.
-typedef class IEEE802_15_4_Footer{
-public:
+typedef struct PACK IEEE802_15_4_Footer{
 	UINT16 FCS;
+//	IEEE802_15_4_Footer() : FCS(0) {};
+	IEEE802_15_4_Footer(){
+		Clear();
+	}
+	void Clear(){
+		FCS = 0;
+	}
 }IEEE802_15_4_Footer_t;
 
-typedef class IEEE802_15_4_Metadata{
+typedef struct PACK IEEE802_15_4_Metadata{
 	/*UINT8 length;
 	UINT8 mac_id;
 	UINT8 type;
@@ -277,7 +329,12 @@ typedef class IEEE802_15_4_Metadata{
 	UINT32 ReceiveTimeStamp1;
 	UINT8 RetryAttempts;
 
-  public:
+	UINT8 PacketID;
+
+//  public:
+	IEEE802_15_4_Metadata(){
+		ClearData();
+	}
 	void ClearData(){
 		RetryAttempts = 0;	//Retry attempt per packet
 		ReceiveTimeStamp1 = 0;
@@ -285,6 +342,7 @@ typedef class IEEE802_15_4_Metadata{
 		Lqi = 0;
 		Rssi = 0;
 		network = 0;
+		PacketID = 0;
 	}
 	/*UINT8 GetLength(){
 		return this->length;
@@ -311,29 +369,33 @@ typedef class IEEE802_15_4_Metadata{
 	void SetFlags(UINT8 flags) {
 		this->flags = flags;
 	}*/
-	UINT8 GetNetwork(){
+	UINT8 GetNetwork() const{
 		return this->network;
 	}
 	void SetNetwork(UINT8 network){
 		this->network = network;
 	}
-	UINT8 GetRssi(){
+	UINT8 GetRssi() const{
 		return Rssi;
 	}
 	void SetRssi(UINT8 Rssi){
 		this->Rssi = Rssi;
 	}
-	UINT8 GetLqi(){
+	UINT8 GetLqi() const{
 		return Lqi;
 	}
 	void SetLqi(UINT8 Lqi){
 		this->Lqi = Lqi;
 	}
-	UINT64 GetReceiveTimeStamp(){
+	UINT64 GetReceiveTimeStamp() const{
 		UINT64 rtn;
 		rtn=((UINT64)ReceiveTimeStamp1)<<32;
 		rtn+=ReceiveTimeStamp0;
 		return rtn;
+	}
+	void SetReceiveTimeStamp(UINT64 timestamp){
+		this->ReceiveTimeStamp0 = (UINT32)timestamp;
+		this->ReceiveTimeStamp1= (UINT32)(timestamp>>32);
 	}
 	void SetReceiveTimeStamp(INT64 timestamp){
 		this->ReceiveTimeStamp0 = (UINT32)timestamp;
@@ -342,13 +404,22 @@ typedef class IEEE802_15_4_Metadata{
 	void SetReceiveTimeStamp(UINT32 timestamp){
 		this->ReceiveTimeStamp0 = timestamp;
 	}
-	UINT8 GetRetryAttempts(){
+	UINT8 GetRetryAttempts() const{
 		return RetryAttempts;
 	}
 	UINT8 SetRetryAttempts(UINT8 r){
 		RetryAttempts = r;
 		return RetryAttempts;
 	}
+
+	UINT8 GetPacketID() const{
+		return PacketID;
+	}
+	UINT8 SetPacketID(UINT8 r){
+		PacketID = r;
+		return PacketID;
+	}
+
 
 }IEEE802_15_4_Metadata_t;
 
@@ -361,6 +432,25 @@ const int timestamp_size = 4;	//used in Radio driver's RF231Radio::Send_TimeStam
 
 typedef Message<IEEE802_15_4_Header_t,IEEE802_15_4_MAX_PAYLOAD,IEEE802_15_4_Footer_t,IEEE802_15_4_Metadata_t> IEEE802_15_4_Message_t;
 //typedef Message<IEEE802_15_4_Header_t,IEEE802_15_4_MAX_PAYLOAD,IEEE802_15_4_Footer_t> IEEE802_15_4_Message_t;
-#define Message_15_4_t IEEE802_15_4_Message_t
+
+class IEEE802_15_4_Message_t2 : public IEEE802_15_4_Message_t{
+public:
+	IEEE802_15_4_Message_t2(){
+
+	}
+	IEEE802_15_4_Message_t2& operator=(const IEEE802_15_4_Message_t2& other){
+//		this->GetHeader()->dest = other.GetHeaderConst()->dest;
+		memcpy(this, &other, sizeof(IEEE802_15_4_Message_t2));
+		return *this;
+	}
+};
+
+#define Message_15_4_t IEEE802_15_4_Message_t2
+
+
+void ClearMsgContents(Message_15_4_t* msg){
+	memset(msg,0,sizeof(Message_15_4_t));
+}
+
 
 #endif /* MESSAGE_H_ */
