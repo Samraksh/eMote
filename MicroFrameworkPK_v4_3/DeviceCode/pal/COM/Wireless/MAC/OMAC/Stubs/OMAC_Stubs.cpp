@@ -68,7 +68,7 @@ DeviceStatus SetOMACParametersBasedOnRadioName(UINT8 radioID){return DS_Fail;}
 BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int size){return false;}
 BOOL SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime) {return false;}
 
-Message_15_4_t* ReceiveHandler(Message_15_4_t* msg, int size){ return NULL:}
+Message_15_4_t* ReceiveHandler(Message_15_4_t* msg, int size){ return NULL;}
 
 
 BOOL RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){return false;}

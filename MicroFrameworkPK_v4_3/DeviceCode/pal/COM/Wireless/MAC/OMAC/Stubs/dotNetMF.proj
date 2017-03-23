@@ -48,7 +48,7 @@
     <HFiles Include="DeviceCode/Include/Samraksh/Buffer.h" />
     <HFiles Include="DeviceCode/Include/Samraksh/GlobalTime.h" />
     <HFiles Include="OMAC.h" />
-	<Compile Include="OMAC.cpp" />
+	<Compile Include="OMAC_Stubs.cpp" />
  
     
     <IncludePaths Include="DeviceCode\include" />
