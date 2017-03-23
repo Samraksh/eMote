@@ -22,7 +22,7 @@ bool FTSPTimeSync::IsInTransitionPeriod(RadioAddress_t nodeID){
 		} else {
 			return FALSE;
 		}
-		*/
+	 */
 }
 
 void FTSPTimeSync::SetCounterOffset(UINT16 counterOffset){
@@ -40,7 +40,7 @@ void FTSPTimeSync::InsertBeacon(Message_15_4_t *ptr){
 
 	bufPtr = call MessagePool.get();
 	if (bufPtr != NULL) {
-		*bufPtr = *ptr;
+	 *bufPtr = *ptr;
 		call MessageQueue.enqueue(bufPtr);
 	}
 
@@ -50,7 +50,7 @@ void FTSPTimeSync::InsertBeacon(Message_15_4_t *ptr){
 #endif
 
 	m_receivedPiggybackBeacon = TRUE;
-	*/
+	 */
 }
 
 bool FTSPTimeSync::IsProccessingBeacon(){
@@ -84,23 +84,23 @@ DeviceStatus FTSPTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 }
 
 #ifdef ORIGINAL_OMAC
-	async command error_t TimeSyncInfo.sendBeaconAck(am_addr_t dest, uint8_t dsn) {
-		cc2420_header_t* hdrPtr = call CC2420PacketBody.getHeader( &m_timeSyncBeaconBuffer );
-		hdrPtr->dsn = dsn;
-		hdrPtr->dest = dest;
-		return beacon(dest, &m_timeSyncBeaconBuffer);
-	}
+async command error_t TimeSyncInfo.sendBeaconAck(am_addr_t dest, uint8_t dsn) {
+	cc2420_header_t* hdrPtr = call CC2420PacketBody.getHeader( &m_timeSyncBeaconBuffer );
+	hdrPtr->dsn = dsn;
+	hdrPtr->dest = dest;
+	return beacon(dest, &m_timeSyncBeaconBuffer);
+}
 #endif
 
-	//GlobalTime interface implementation
-	/*async command uint32_t GlobalTime.getLocalTime()
+//GlobalTime interface implementation
+/*async command uint32_t GlobalTime.getLocalTime()
 	{
 		return call LocalTime.get();
 	}
 
 	async command error_t GlobalTime.getGlobalTime(uint32_t *time, am_addr_t nodeID)
 	{
-		*time = call GlobalTime.getLocalTime();
+ *time = call GlobalTime.getLocalTime();
 		if (nodeID == TOS_NODE_ID) {
 			return SUCCESS;
 		}
@@ -123,7 +123,7 @@ DeviceStatus FTSPTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 				TableItem *ptr = &(m_beaconTable[nbrIdx]);
 			//	printf("ofset=%ld lclAvg=%lu lcl=%lu, sk=%ld\n",
 			//	    ptr->offsetAvg, ptr->localAvg, *time, (int32_t)(ptr->skew * 1000));
-				*time += ptr->offsetAvg
+ *time += ptr->offsetAvg
 					+ (int32_t)(ptr->skew * (int32_t)(*time - ptr->localAvg));
 			} else {
 				result = FAIL;
@@ -145,7 +145,7 @@ DeviceStatus FTSPTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 			if (nbrIdx != INVALID_INDEX) {
 				TableItem *ptr = &(m_beaconTable[nbrIdx]);
 				uint32_t approxLocalTime = *time - ptr->offsetAvg;
-				*time = approxLocalTime
+ *time = approxLocalTime
 					- (int32_t)(ptr->skew * (int32_t)(approxLocalTime - ptr->localAvg));
 				return SUCCESS;
 			}
@@ -158,4 +158,4 @@ DeviceStatus FTSPTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 			return FAIL;
 		}
 	}
-*/
+ */

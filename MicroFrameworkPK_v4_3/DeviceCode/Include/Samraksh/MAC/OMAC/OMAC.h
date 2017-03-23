@@ -202,6 +202,7 @@ private:
 	RadioControl_t m_omac_RadioControl;
 	OMACScheduler m_omac_scheduler;
 
+	Message_15_4_t tx_msg;
 	Message_15_4_t rx_msg;
 	// Pointer to the outgoing message
 	Message_15_4_t* tx_msg_ptr;

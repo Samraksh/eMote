@@ -4,8 +4,8 @@
  *  Created on: Oct 1, 2012
  *      Author: Mukundan
  */
-#include "../MAC/Base/Radio_decl.h"
-
+//#include "../MAC/Base/Radio_decl.h"
+#include <Samraksh\Radio_decl.h>
 
 DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8* radioIDs, UINT8 numberRadios ) //Initializes Return the ID of the Radio layer that was initialized
 {
