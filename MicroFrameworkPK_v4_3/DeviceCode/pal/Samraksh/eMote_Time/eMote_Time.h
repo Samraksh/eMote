@@ -28,8 +28,9 @@ struct Time_Driver
 	void StopTimer();
     void SetCompareValue( UINT64 CompareValue );
 	void StopTimerSleepClock();
-    void SetCompareValueSleepClock( UINT64 CompareValue );
+    void SetCompareValueSleepClockMicroSeconds( UINT32 compareTimeInMicroSecs );
     INT64 TicksToTime( UINT64 Ticks );
+    INT64 TicksToMicroseconds( UINT64 Ticks );
     INT64 CurrentTime();
     INT64 TimeNow();
     UINT64 CurrentTicks();

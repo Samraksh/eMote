@@ -47,6 +47,11 @@ INT64 HAL_Time_TicksToTime( UINT64 Ticks )
 	return g_Time_Driver.TicksToTime(Ticks);
 }
 
+INT64 HAL_Time_TicksToMicroseconds( UINT64 Ticks )
+{
+	return g_Time_Driver.TicksToMicroseconds(Ticks);
+}
+
 #if defined(DEBUG_EMOTE_TIME)
 volatile UINT64 badComparesCount = 0;    //!< number of requests set in the past.
 volatile UINT64 badComparesAvg = 11;     //!< average delay of requests set in the past. init to observed value.
@@ -75,22 +80,9 @@ void HAL_Time_SetCompare( UINT64 CompareTicks )
 	}
 }
 
-void HAL_Time_SetCompare_Sleep_Clock( UINT64 CompareTicks )
+void HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( UINT32 compareTimeInMicroSecs )
 {
-	// here we change a 64-bit time from the MF to a 32-bit time
-	// we need to move to 64-bit absolute time and clean this portion of code up
-	if (CompareTicks == HAL_Completion_IdleValue){
-		g_Time_Driver.StopTimerSleepClock();
-	} else {
-		UINT64 NowTicks = HAL_Time_CurrentTicks();
-		if(CompareTicks > NowTicks) {
-			g_Time_Driver.SetCompareValueSleepClock(CompareTicks - NowTicks );
-		}
-		else {
-
-			g_Time_Driver.SetCompareValueSleepClock( 300 );  // assume g_Time_Driver uses virtual timer so compare value cannot miss and therefore any small compare value suffices.
-		}
-	}
+	g_Time_Driver.SetCompareValueSleepClockMicroSeconds(compareTimeInMicroSecs);
 }
 
 void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
