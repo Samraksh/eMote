@@ -10,7 +10,7 @@
 #define NEIGHBORS_H_
 
 #include <Samraksh/Mac_decl.h>
-#include <Samraksh\Buffer.h>
+#include <Samraksh/Buffer.h>
 
 #define NeighborChanged 1
 #define Received 0
@@ -290,7 +290,7 @@ public:
 		return numneigh;
 	}
 
-	void DeletePacket(Message_15_4_t* msg_carrier){
+	bool DeletePacket(Message_15_4_t* msg_carrier){
 		//		for(UINT8 i = 0; i < MAX_NEIGHBORS ; ++i){
 		//			if(Neighbor[i].MACAddress == msg_carrier->GetHeader()->dest){
 		//				if(msg_carrier == FindTSRPacketForNeighbor(Neighbor[i].MACAddress)){
@@ -301,7 +301,7 @@ public:
 		//				}
 		//			}
 		//		}
-		send_buffer.DeletePacket(msg_carrier);
+		return send_buffer.DeletePacket(msg_carrier);
 	}
 	void FindAndRemoveStalePackets(UINT8 retryLimit){
 		send_buffer.RemovePacketsWithRetryAttemptsGreaterThan(retryLimit);
@@ -381,34 +381,6 @@ public:
 		return send_buffer.FindDataPacketForNeighbor(neigh);
 	}
 	bool InsertMessage(Message_15_4_t* msg_carrier){
-		//		if(!msg_carrier){
-		//			return false;
-		//		}
-		//		Neighbor_t* neigh_ptr = GetNeighborPtr(msg_carrier->GetHeader()->dest);
-		//		Message_15_4_t* dest_msg_ptr = NULL;
-		//		if(neigh_ptr == NULL){
-		//			memset(msg_carrier,0,sizeof(Message_15_4_t));
-		//			return false;
-		//		}
-		//		else if(msg_carrier->GetHeader()->payloadType == MFM_OMAC_TIMESYNCREQ){
-		//			while(!neigh_ptr->tsr_send_buffer.IsBufferEmpty()){
-		//				neigh_ptr->tsr_send_buffer.DropOldest(1);
-		//			}
-		//			dest_msg_ptr = neigh_ptr->tsr_send_buffer.GetNextFreeBuffer();
-		//		}
-		//		else{
-		//			dest_msg_ptr = neigh_ptr->send_buffer.GetNextFreeBuffer();
-		//		}
-		//		if(dest_msg_ptr){
-		//			memcpy(dest_msg_ptr,msg_carrier, sizeof(Message_15_4_t));
-		//			memset(msg_carrier,0,sizeof(Message_15_4_t));
-		////			send_buffer.Insert(*dest_msg_ptr);
-		//			return true;
-		//		}
-		//		else{
-		//			memset(msg_carrier,0,sizeof(Message_15_4_t));
-		//			return false;
-		//		}
 		if(msg_carrier){ // If the msg is valid
 			UINT8 numneigh = NumberofNeighborsWithNoPacketinQueue(); //Preserve space for nodes that do not have any packets in the buffer
 			if(numneigh < Total_Buffer_SIZE - send_buffer.GetNumberofElements()){ //If the remaining space is larger than the amount of space that needs to be preserved
@@ -425,6 +397,33 @@ public:
 			return false;
 		}
 	}
+	PacketID_T InsertMessageGetIndex(Message_15_4_t* msg_carrier){
+		if(msg_carrier){ // If the msg is valid
+			UINT8 numneigh = NumberofNeighborsWithNoPacketinQueue(); //Preserve space for nodes that do not have any packets in the buffer
+			if(numneigh < Total_Buffer_SIZE - send_buffer.GetNumberofElements()){ //If the remaining space is larger than the amount of space that needs to be preserved
+				while(IsThereATSRPacketWithDest(msg_carrier->GetHeaderConst()->GetDestConst())) {
+					DeletePacket(FindTSRPacketForNeighbor(msg_carrier->GetHeaderConst()->GetDestConst()));
+				}
+				return send_buffer.InsertMessageGetIndex(msg_carrier);
+			}
+			else{ // Refuse packet If we need to preserve empty space
+				return INVALID_PACKET_ID;
+			}
+		}
+		else{  // Refuse packet If we need to preserve empty space
+			return INVALID_PACKET_ID;
+		}
+	}
+	Message_15_4_t* GetPacketPtrWithIndex(PacketID_T index){
+		return send_buffer.GetPacketPtrWithIndex(index);
+	}
+	PacketID_T GetIndexWithPtr(Message_15_4_t* msg_carrier){
+		if(msg_carrier){
+			return send_buffer.GetIndex(*msg_carrier);
+		}
+		return INVALID_PACKET_ID;
+	}
+
 };
 
 

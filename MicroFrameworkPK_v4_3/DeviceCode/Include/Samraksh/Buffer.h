@@ -18,16 +18,16 @@
 //#define BUFFERSIZE 10
 
 
-template <UINT8 BufferSizeT>
-class Buffer_15_4: public  CircularBuffer<Message_15_4_t, BufferSizeT>{
+template <UINT8 BufferSize>
+class Buffer_15_4: public  CircularBuffer<Message_15_4_t, BufferSize>{
 public:
 	BOOL Initialize(){
-		return CircularBuffer<Message_15_4_t, BufferSizeT>::Initialize();
+		return CircularBuffer<Message_15_4_t, BufferSize>::Initialize();
 	}
 
 	BOOL CopyPayload(void* payload, UINT8 size){
 		Message_15_4_t* dummy;
-		if(CircularBuffer<Message_15_4_t, BufferSizeT>::IsFull()){
+		if(CircularBuffer<Message_15_4_t, BufferSize>::IsFull()){
 			return FALSE;
 		}
 		if(size > dummy->GetPayloadSize()){
@@ -41,7 +41,7 @@ public:
 
 	BOOL Store(void* msg, UINT8 size){
 		Message_15_4_t* dummy;
-		if(CircularBuffer<Message_15_4_t, BufferSizeT>::IsFull()){
+		if(CircularBuffer<Message_15_4_t, BufferSize>::IsFull()){
 			return FALSE;
 		}
 		if(size > dummy->GetMessageSize()){

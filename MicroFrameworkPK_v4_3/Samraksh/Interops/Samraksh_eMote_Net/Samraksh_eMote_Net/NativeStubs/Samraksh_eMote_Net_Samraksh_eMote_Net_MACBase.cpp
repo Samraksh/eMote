@@ -82,6 +82,30 @@ INT32 MACBase::GetMACNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_Typ
     return retVal;
 }
 
+INT32 MACBase::DeletePacketWithIndexInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 MACBase::GetPacketWithIndex( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, UINT16 param2, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 MACBase::GetPacketSizeWithIndex( CLR_RT_HeapBlock* pMngObj, UINT8 * param0, UINT16 param1, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+UINT16 MACBase::EnqueueToSend( CLR_RT_HeapBlock* pMngObj, UINT16 param0, UINT8 param1, CLR_RT_TypedArray_UINT8 param2, UINT16 param3, UINT16 param4, HRESULT &hr )
+{
+    UINT16 retVal = 0; 
+    return retVal;
+}
+
 INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, UINT32 param4, HRESULT &hr )
 {
     INT32 retVal = 0; 

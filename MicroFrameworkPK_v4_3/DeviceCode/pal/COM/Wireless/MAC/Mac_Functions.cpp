@@ -133,6 +133,50 @@ BOOL MAC_SetRadioChannel(int channel){
 	return status;
 }
 
+DeviceStatus MAC_DeletePacketWithIndexInternal(PacketID_T index){
+	if(currentMacName == CSMAMAC){
+		return DS_Fail;
+	}
+	else if(currentMacName == OMAC){
+		return g_OMAC.DeletePacketWithIndexInternal(index);
+	}
+	return DS_Fail;
+}
+
+UINT16 MAC_GetMsgIdWithPtr(Message_15_4_t* msg_carrier)
+{
+	if(currentMacName == CSMAMAC){
+		return INVALID_PACKET_ID;
+	}
+	else if(currentMacName == OMAC){
+		return  g_NeighborTable.GetIndexWithPtr(msg_carrier);
+	}
+	return INVALID_PACKET_ID;
+}
+
+DeviceStatus MAC_GetPacketWithIndex(UINT8 **managedBuffer, UINT8 buffersize, PacketID_T index)
+{
+	if(currentMacName == CSMAMAC){
+		return DS_Fail;
+	}
+	else if(currentMacName == OMAC){
+		return g_OMAC.GetPacketWithIndex(managedBuffer, buffersize, index);
+	}
+	return DS_Fail;
+}
+
+DeviceStatus MAC_GetPacketSizeWithIndex( UINT8* buffersizeptr, PacketID_T index)
+{
+	if(currentMacName == CSMAMAC){
+		return DS_Fail;
+	}
+	else if(currentMacName == OMAC){
+		return g_OMAC.GetPacketSizeWithIndex( buffersizeptr, index);
+	}
+	return DS_Fail;
+}
+
+
 DeviceStatus MAC_GetNextPacket(UINT8 **managedBuffer)
 {
 	GLOBAL_LOCK(irq);
@@ -250,6 +294,18 @@ DeviceStatus MAC_Send(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 siz
 
 	return DS_Success;
 }
+
+PacketID_T MAC_EnqueueToSend(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size){
+	if(currentMacName == CSMAMAC){
+		return INVALID_PACKET_ID;
+	}
+	else if(currentMacName == OMAC){
+		return g_OMAC.EnqueueToSend(destAddress, dataType, msg, size);
+	}
+	return INVALID_PACKET_ID;
+}
+
+
 
 DeviceStatus MAC_GetNeighborList(UINT16 *buffer)
 {

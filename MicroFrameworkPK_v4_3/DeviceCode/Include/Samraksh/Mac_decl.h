@@ -4,6 +4,7 @@
 #include "Hal_util.h"
 #include "Radio_decl.h"
 #include "Neighbors.h"
+#include "Buffer.h"
 
 //typedef UINT16 MacAddress_t;
 
@@ -100,6 +101,7 @@ UINT8 MAC_GetID();
 DeviceStatus MAC_Send(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size); //msg is just the payload,
 DeviceStatus MAC_SendTimeStamped(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size, UINT32 timeStamp); //msg is just the payload,
 DeviceStatus MAC_Config(void *macConfig);
+PacketID_T MAC_EnqueueToSend(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size);
 
 //Neighbor functions
 //NeighborTable* MAC_GetNeighborTable(UINT8 macID);
@@ -118,6 +120,12 @@ UINT8 MAC_GetReceiveBufferSize();
 UINT8 MAC_GetPendingPacketsCount_Send();
 UINT8 MAC_GetPendingPacketsCount_Receive();
 DeviceStatus MAC_RemovePacket(UINT8* msg);
+DeviceStatus MAC_GetPacketWithIndex(UINT8 **managedBuffer, UINT8 buffersize, PacketID_T index);
+DeviceStatus MAC_GetPacketSizeWithIndex( UINT8* buffersizeptr, PacketID_T index);
+DeviceStatus MAC_DeletePacketWithIndexInternal( PacketID_T index);
+UINT16 MAC_GetMsgIdWithPtr(Message_15_4_t* msg_carrier);
+
+
 
 //MAC Aggregate APIs
 BOOL MACLayer_Initialize();

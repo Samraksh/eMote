@@ -76,7 +76,7 @@ namespace Samraksh.eMote.Net
 		// ReSharper disable once InconsistentNaming
 		MFM_Data = 0x20
 	};
-
+           
 	/// <summary>
 	/// 
 	/// </summary>

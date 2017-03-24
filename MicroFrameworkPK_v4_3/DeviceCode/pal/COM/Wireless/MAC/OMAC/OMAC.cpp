@@ -925,6 +925,45 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 }
 
 
+PacketID_T OMACType::EnqueueToSend(UINT16 address, UINT8 dataType, void* msg, int size){
+	if(size + timestamp_size < OMACType::GetMaxPayload() ){
+		return EnqueueToSendTimeStamped(address, dataType,  msg, size, g_OMAC.m_Clock.GetCurrentTimeinTicks());
+	}
+	else{
+		return INVALID_PACKET_ID;
+	}
+}
+
+
+PacketID_T OMACType::EnqueueToSendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime){
+	PacketID_T rv = INVALID_PACKET_ID;
+	if(!Initialized){
+#if OMAC_DEBUG_PACKET_REJECTION
+		hal_printf("OMACType::SendTimeStamped Pckt Reject Initialized destID = %u dataType = %u  \r\n", address, dataType);
+#endif
+		return rv;
+	}
+	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
+	if(msg_carrier == (Message_15_4_t*)(NULL)){
+#if OMAC_DEBUG_PACKET_REJECTION
+		hal_printf("OMACType::SendTimeStamped Pckt Reject destID = %u dataType = %u  \r\n", address, dataType);
+#endif
+		return rv;
+	}
+	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
+	IEEE802_15_4_Metadata* metadata = msg_carrier->GetMetaData();
+	metadata->SetReceiveTimeStamp(eventTime);
+	header->flags = (TIMESTAMPED_FLAG);
+	//return true;
+	rv = g_NeighborTable.InsertMessageGetIndex(msg_carrier);
+	if(!ISPACKET_ID_VALID(rv)) {
+#if OMAC_DEBUG_PACKET_REJECTION
+		hal_printf("OMACType::SendTimeStamped Pckt Reject buffer full destID = %u dataType = %u  \r\n", address, dataType);
+#endif
+	}
+	return rv;
+}
+
 /*
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
  */
@@ -953,6 +992,53 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
 		//	return true;
 	}
 }
+
+
+DeviceStatus OMACType::GetPacketWithIndex(UINT8 **managedBuffer, UINT8 buffersize, PacketID_T index){
+	Message_15_4_t* msg_carrier = g_NeighborTable.GetPacketPtrWithIndex(index);
+	if(msg_carrier){
+		DataMsg_t* data_msg = (DataMsg_t*)msg_carrier->GetPayload();
+		UINT8* payload = data_msg->payload;
+		UINT8 size = data_msg->size;
+		if(size != buffersize) {
+			return DS_Fail;
+		}
+		else{
+			for(UINT8 i = 0 ; i < size; i++){
+				(*managedBuffer)[i] = payload[i];
+			}
+			return DS_Success;
+		}
+	}
+	else{
+		return DS_Fail;
+	}
+}
+
+DeviceStatus OMACType::GetPacketSizeWithIndex(UINT8* buffersizeptr, PacketID_T index){
+	Message_15_4_t* msg_carrier = g_NeighborTable.GetPacketPtrWithIndex(index);
+	if(msg_carrier){
+		DataMsg_t* data_msg = (DataMsg_t*)msg_carrier->GetPayload();
+		UINT8* payload = data_msg->payload;
+		UINT8 size = data_msg->size;
+		*buffersizeptr = size;
+		return DS_Success;
+	}
+	else{
+		return DS_Fail;
+	}
+}
+
+DeviceStatus OMACType::DeletePacketWithIndexInternal(PacketID_T index){
+	Message_15_4_t* msg_carrier = g_NeighborTable.GetPacketPtrWithIndex(index);
+	if(msg_carrier){
+		if(g_NeighborTable.DeletePacket(msg_carrier)){
+			return DS_Success;
+		}
+	}
+	return DS_Fail;
+}
+
 
 /*
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
