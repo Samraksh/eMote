@@ -640,8 +640,8 @@ mipi_dsi_shutdown();
 			 now = HAL_Time_CurrentTicks();
 		}
 	}
-//CPU_GPIO_EnableOutputPin(25, FALSE);
-//	CPU_GPIO_EnableOutputPin(29, FALSE);
+CPU_GPIO_EnableOutputPin(25, FALSE);
+	CPU_GPIO_EnableOutputPin(29, FALSE);
 	
 #endif
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine

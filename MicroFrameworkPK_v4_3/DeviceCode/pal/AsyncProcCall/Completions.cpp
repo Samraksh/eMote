@@ -210,19 +210,22 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
     }
 #ifndef DISABLE_SLEEP
 #if defined( SAM_APP_TINYCLR )
-if ((HAL_Time_TicksToTime(Expire - HAL_Time_CurrentTicks())) >= 5) {
+// result of HAL_Time_TicksToTime is in 100-nanosecond (ns) increments
+UINT32 sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(Expire - HAL_Time_CurrentTicks()));
+if (sleepTimeMicroseconds >= 5000) {
+//if (sleepTimeMicroseconds >= 10000000){
 		if(state & c_SetCompare){ 
-			HAL_Time_SetCompare_Sleep_Clock( Expire );
-			//CPU_GPIO_SetPinState(25,true);
-			//CPU_GPIO_SetPinState(25,false);
+			HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );
+			CPU_GPIO_SetPinState(25,true);
 			CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
+			CPU_GPIO_SetPinState(25,false);
 		}
 	} else {
 		// sleep times < 1 ms will snooze with HF clock
 		if(state & c_SetCompare) HAL_Time_SetCompare( Expire  );
-			//CPU_GPIO_SetPinState(25,true);
-			//CPU_GPIO_SetPinState(25,false);
+			CPU_GPIO_SetPinState(29,true);
 			CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
+			CPU_GPIO_SetPinState(29,false);
 	}	
 	
 #else
