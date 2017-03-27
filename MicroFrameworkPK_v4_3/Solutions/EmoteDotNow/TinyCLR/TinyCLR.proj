@@ -723,7 +723,11 @@
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Samraksh\Crypto\AES_PKCS\dotnetmf.proj" />
-    <DriverLibs Include="Crypto_config_SF2.$(LIB_EXT)" />
+    <DriverLibs Include="Crypto_config_AES.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Samraksh\Crypto\mbedTLS\dotnetmf.proj" />
+    <DriverLibs Include="mbedtls-crypto.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Samraksh\Crypto\AES_PKCS\SW_Tokens\dotNetMF.proj" />
