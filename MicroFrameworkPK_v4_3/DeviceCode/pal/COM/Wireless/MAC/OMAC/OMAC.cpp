@@ -930,7 +930,31 @@ PacketID_T OMACType::EnqueueToSend(UINT16 address, UINT8 dataType, void* msg, in
 		return EnqueueToSendTimeStamped(address, dataType,  msg, size, g_OMAC.m_Clock.GetCurrentTimeinTicks());
 	}
 	else{
-		return INVALID_PACKET_ID;
+		PacketID_T rv = INVALID_PACKET_ID;
+		if(!Initialized){
+	#if OMAC_DEBUG_PACKET_REJECTION
+			hal_printf("OMACType::SendTimeStamped Pckt Reject Initialized destID = %u dataType = %u  \r\n", address, dataType);
+	#endif
+			return rv;
+		}
+		Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
+		if(msg_carrier == (Message_15_4_t*)(NULL)){
+	#if OMAC_DEBUG_PACKET_REJECTION
+			hal_printf("OMACType::SendTimeStamped Pckt Reject destID = %u dataType = %u  \r\n", address, dataType);
+	#endif
+			return rv;
+		}
+		IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
+		IEEE802_15_4_Metadata* metadata = msg_carrier->GetMetaData();
+		metadata->SetReceiveTimeStamp(g_OMAC.m_Clock.GetCurrentTimeinTicks());
+
+		rv = g_NeighborTable.InsertMessageGetIndex(msg_carrier);
+		if(!ISPACKET_ID_VALID(rv)) {
+	#if OMAC_DEBUG_PACKET_REJECTION
+			hal_printf("OMACType::SendTimeStamped Pckt Reject buffer full destID = %u dataType = %u  \r\n", address, dataType);
+	#endif
+		}
+		return rv;
 	}
 }
 
@@ -972,24 +996,31 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
 		return SendTimeStamped(address, dataType,  msg, size, g_OMAC.m_Clock.GetCurrentTimeinTicks());
 	}
 	else{
-		return false;
-		//	if(!Initialized){
-		//#if OMAC_DEBUG_PACKET_REJECTION
-		//		hal_printf("OMACType::Send Pckt Reject Initialized destID = %u dataType = %u  \r\n", address, dataType);
-		//#endif
-		//		return false;
-		//	}
-		//	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
-		//	if(msg_carrier == (Message_15_4_t*)(NULL)){
-		//#if OMAC_DEBUG_PACKET_REJECTION
-		//		hal_printf("OMACType::Send Pckt Reject destID = %u dataType = %u  \r\n", address, dataType);
-		//#endif
-		//		return false;
-		//	}
-		//	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
-		//	IEEE802_15_4_Metadata* metadata = msg_carrier->GetMetaData();
-		//	header->flags = (0);
-		//	return true;
+//		return false;
+			if(!Initialized){
+		#if OMAC_DEBUG_PACKET_REJECTION
+				hal_printf("OMACType::Send Pckt Reject Initialized destID = %u dataType = %u  \r\n", address, dataType);
+		#endif
+				return false;
+			}
+			Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
+			if(msg_carrier == (Message_15_4_t*)(NULL)){
+		#if OMAC_DEBUG_PACKET_REJECTION
+				hal_printf("OMACType::Send Pckt Reject destID = %u dataType = %u  \r\n", address, dataType);
+		#endif
+				return false;
+			}
+			IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
+			IEEE802_15_4_Metadata* metadata = msg_carrier->GetMetaData();
+			header->flags = (0);
+			metadata->SetReceiveTimeStamp(g_OMAC.m_Clock.GetCurrentTimeinTicks());
+			bool rv = g_NeighborTable.InsertMessage(msg_carrier);
+			if(rv == false) {
+		#if OMAC_DEBUG_PACKET_REJECTION
+				hal_printf("OMACType::SendTimeStamped Pckt Reject buffer full destID = %u dataType = %u  \r\n", address, dataType);
+		#endif
+			}
+			return rv;
 	}
 }
 
