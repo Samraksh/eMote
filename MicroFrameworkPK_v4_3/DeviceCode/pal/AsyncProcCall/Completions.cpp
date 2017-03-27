@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "tinyhal.h"
-
+static UINT64 waitTime = 0;
 /***************************************************************************/
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
@@ -210,23 +210,34 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
     }
 #ifndef DISABLE_SLEEP
 #if defined( SAM_APP_TINYCLR )
-// result of HAL_Time_TicksToTime is in 100-nanosecond (ns) increments
-UINT32 sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(Expire - HAL_Time_CurrentTicks()));
-if (sleepTimeMicroseconds >= 5000) {
-//if (sleepTimeMicroseconds >= 10000000){
-		if(state & c_SetCompare){ 
-			HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );
-			CPU_GPIO_SetPinState(25,true);
-			CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
-			CPU_GPIO_SetPinState(25,false);
-		}
+	if (waitTime == 0){
+		// If we ever attempt to enter deep sleep then we are not able to program, so for now, since wakelock is not sufficient, we wait a minute before attempting sleep allowing the user time to reprogram.
+		waitTime = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * 60 * 1);
 	} else {
-		// sleep times < 1 ms will snooze with HF clock
-		if(state & c_SetCompare) HAL_Time_SetCompare( Expire  );
-			CPU_GPIO_SetPinState(29,true);
-			CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
-			CPU_GPIO_SetPinState(29,false);
-	}	
+		UINT64 now = HAL_Time_CurrentTicks();
+		if (now > waitTime) {
+			UINT32 sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(Expire - HAL_Time_CurrentTicks()));
+			if (sleepTimeMicroseconds >= 5000) {
+				if(state & c_SetCompare){ 
+					HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );
+					//CPU_GPIO_SetPinState(25,true);
+					CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
+					//CPU_GPIO_SetPinState(25,false);
+				}
+			} else {
+				// sleep times < 5 ms will snooze with HF clock
+				if(state & c_SetCompare) HAL_Time_SetCompare( Expire  );
+					//CPU_GPIO_SetPinState(29,true);
+					CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
+					//CPU_GPIO_SetPinState(29,false);
+			}
+		} else {
+			if(state & c_SetCompare) {
+				HAL_Time_SetCompare( Expire );
+				CPU_Sleep( SLEEP_LEVEL__AWAKE, wakeEvents );
+			}
+		}
+	}
 	
 #else
 	// TinyBooter

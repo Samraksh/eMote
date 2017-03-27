@@ -172,7 +172,7 @@ typedef uint16_t ushort;
 #endif /* !DEBUG */
 
 //#define DISABLE_SLEEP
-//#define EMOTE_WAKELOCKS // in power driver
+#define EMOTE_WAKELOCKS // in power driver
 //#define DOTNOW_HSI_CALIB
 
 //Comment below line to below the regular CLR
