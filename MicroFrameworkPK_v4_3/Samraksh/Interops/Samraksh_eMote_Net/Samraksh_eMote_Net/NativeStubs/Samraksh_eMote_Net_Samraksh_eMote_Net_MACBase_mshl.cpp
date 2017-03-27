@@ -324,6 +324,40 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::EnqueueToSend___U
     TINYCLR_NOCLEANUP();
 }
 
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::EnqueueToSend___U2__U2__U1__SZARRAY_U1__U2__U2__U4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        UINT16 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 1, param0 ) );
+
+        UINT8 param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 2, param1 ) );
+
+        CLR_RT_TypedArray_UINT8 param2;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 3, param2 ) );
+
+        UINT16 param3;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 4, param3 ) );
+
+        UINT16 param4;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 5, param4 ) );
+
+        UINT32 param5;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 6, param5 ) );
+
+        UINT16 retVal = MACBase::EnqueueToSend( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_UINT16( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
 HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::Send___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;

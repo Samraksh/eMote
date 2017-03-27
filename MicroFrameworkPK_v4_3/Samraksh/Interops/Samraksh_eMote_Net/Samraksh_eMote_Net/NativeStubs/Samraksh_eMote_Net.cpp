@@ -90,12 +90,17 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetPacketSizeWithIndex___SamraksheMoteNetDeviceStatus__BYREF_U1__U2,
     NULL,
     NULL,
+    NULL,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::EnqueueToSend___U2__U2__U1__SZARRAY_U1__U2__U2,
+    Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::EnqueueToSend___U2__U2__U1__SZARRAY_U1__U2__U2__U4,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::Send___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2__U4,
     NULL,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::Send___SamraksheMoteNetNetOpStatus__U2__U1__SZARRAY_U1__U2__U2,
     NULL,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::Send___SamraksheMoteNetNetOpStatus__U2__U1__SZARRAY_U1__U2__U2__U4,
+    NULL,
+    NULL,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -236,7 +241,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_Net =
 {
     "Samraksh_eMote_Net", 
-    0x726FDA95,
+    0x944F7C5D,
     method_lookup
 };
 

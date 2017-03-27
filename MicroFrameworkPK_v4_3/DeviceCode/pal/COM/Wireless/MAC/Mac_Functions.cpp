@@ -305,6 +305,17 @@ PacketID_T MAC_EnqueueToSend(UINT16 destAddress, UINT8 dataType, void * msg, UIN
 	return INVALID_PACKET_ID;
 }
 
+PacketID_T MAC_EnqueueToSendTimeStamped(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size, UINT32 eventTime){
+	if(currentMacName == CSMAMAC){
+		return INVALID_PACKET_ID;
+	}
+	else if(currentMacName == OMAC){
+		return g_OMAC.EnqueueToSendTimeStamped(destAddress, dataType, msg, size, eventTime);
+	}
+	return INVALID_PACKET_ID;
+}
+
+
 
 
 DeviceStatus MAC_GetNeighborList(UINT16 *buffer)

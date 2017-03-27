@@ -424,6 +424,14 @@
             <param name="size">Size of payload</param>
             <returns>Result status</returns>
         </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.EnqueueToSend(System.UInt16,Samraksh.eMote.Net.PayloadType,System.Byte[],System.UInt16,System.UInt16,System.DateTime)">
+            <summary>Send packet</summary>
+            <param name="address">Address of recipient</param>
+            <param name="payload">Payload (in byte array) to send</param>
+            <param name="offset">Offset into array</param>
+            <param name="size">Size of payload</param>
+            <returns>Result status</returns>
+        </member>
         <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16,System.DateTime)">
             <summary>Send a _packet</summary>
             <param name="address">The address of the receiver. Use <code>Addresses.BROADCAST</code> for broadcast</param>
@@ -1498,6 +1506,14 @@
             <param name="offset">Offset into array</param>
             <param name="size">Size of packet</param>
             <param name="eventTime">Time value to add to packet</param>
+            <returns>Result status</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACPipe.EnqueueToSend(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
+            <summary>Enqueue a message to be sent</summary>
+            <param name="address">Address of recipient</param>
+            <param name="payload">Payload (in byte array) to send</param>
+            <param name="offset">Offset into array</param>
+            <param name="size">Size of payload</param>
             <returns>Result status</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACPipe.NeighborList(System.UInt16[])">

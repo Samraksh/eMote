@@ -191,6 +191,12 @@ UINT16 MACBase::EnqueueToSend(  CLR_RT_HeapBlock* pMngObj, UINT16 address, UINT8
     return retVal;
 }
 
+UINT16 MACBase::EnqueueToSend( CLR_RT_HeapBlock* pMngObj, UINT16 address, UINT8 payloadType, CLR_RT_TypedArray_UINT8 payloadTemp, UINT16 offset, UINT16 size, UINT32 eventtime, HRESULT &hr )
+{
+    UINT32 retVal = MAC_EnqueueToSendTimeStamped(address, payloadType, (void*) payloadTemp.GetBuffer(), size, eventtime);
+    return retVal;
+}
+
 INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 address, UINT8 payloadType, CLR_RT_TypedArray_UINT8 payloadTemp, UINT16 offset, UINT16 size, HRESULT &hr )
 {
 	InteropNetOpStatus retVal;

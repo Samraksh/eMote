@@ -102,6 +102,7 @@ DeviceStatus MAC_Send(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 siz
 DeviceStatus MAC_SendTimeStamped(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size, UINT32 timeStamp); //msg is just the payload,
 DeviceStatus MAC_Config(void *macConfig);
 PacketID_T MAC_EnqueueToSend(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size);
+PacketID_T MAC_EnqueueToSendTimeStamped(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size, UINT32 timeStamp);
 
 //Neighbor functions
 //NeighborTable* MAC_GetNeighborTable(UINT8 macID);

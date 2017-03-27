@@ -49,6 +49,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
     TINYCLR_NATIVE_DECLARE(GetPacketWithIndex___SamraksheMoteNetDeviceStatus__SZARRAY_U1__U1__U2);
     TINYCLR_NATIVE_DECLARE(GetPacketSizeWithIndex___SamraksheMoteNetDeviceStatus__BYREF_U1__U2);
     TINYCLR_NATIVE_DECLARE(EnqueueToSend___U2__U2__U1__SZARRAY_U1__U2__U2);
+	TINYCLR_NATIVE_DECLARE(EnqueueToSend___U2__U2__U1__SZARRAY_U1__U2__U2__U4);
     TINYCLR_NATIVE_DECLARE(Send___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2__U4);
     TINYCLR_NATIVE_DECLARE(Send___SamraksheMoteNetNetOpStatus__U2__U1__SZARRAY_U1__U2__U2);
     TINYCLR_NATIVE_DECLARE(Send___SamraksheMoteNetNetOpStatus__U2__U1__SZARRAY_U1__U2__U2__U4);
