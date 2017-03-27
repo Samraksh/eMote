@@ -55,6 +55,11 @@ namespace Samraksh.eMote.Net
 
         ArrayList msg_id_list;
 
+        public readonly ArrayList GetMsgList()
+        {
+            return msg_id_list;
+        }
+
 		/// <summary>
 		/// Register callback functions for CSHARP payload types. 
 		/// This is used to register multiple callbacks for different payload types
