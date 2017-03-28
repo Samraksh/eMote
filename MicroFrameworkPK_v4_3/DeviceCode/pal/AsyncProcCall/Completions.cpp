@@ -219,6 +219,9 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 			UINT32 sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(Expire - HAL_Time_CurrentTicks()));
 			if (sleepTimeMicroseconds >= 5000) {
 				if(state & c_SetCompare){ 
+					if (sleepTimeMicroseconds > 1000000){
+						sleepTimeMicroseconds = 1000000;
+					}
 					HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );
 					//CPU_GPIO_SetPinState(25,true);
 					CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
