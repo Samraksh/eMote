@@ -15,6 +15,7 @@
 #include "Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase.h"
 #include <Samraksh/MAC_decl.h>
 #include <Samraksh/MAC.h>
+#include <Samraksh\Buffer.h>
 
 using namespace Samraksh::eMote::Net;
 
@@ -266,19 +267,21 @@ void NeighborChangedCallbackFn(INT16 countOfNeighbors)
 void ManagedSendAckCallbackFn(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus){
 	Message_15_4_t* tx_msg = (Message_15_4_t*)msg;
 	UINT16 index = MAC_GetMsgIdWithPtr(tx_msg);
+
 	// NetOpStatus needs to be revisted...here we translate from NetOpStatus to the opcodes used in the callback (CallbackTyep in Samraksh_eMote_Net)
 	if (status == NetworkOperations_SendInitiated){
 		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendInitiated %u %u \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
 		ManagedCallback(((UINT32)(tx_msg->GetHeader()->dest) << 16) + SendInitiated, (((UINT32)index)<<16) + tx_msg->GetHeader()->payloadType);
-	} else if (status == NetworkOperations_SendACKed){
+	} else if (status == NetworkOperations_Success){
 		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendACKed %u %u \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
+		MAC_ChangeOwnerShipOfElementwIndex(index, BO_MFUser);
 		ManagedCallback(((UINT32)(tx_msg->GetHeader()->dest) << 16) + SendACKed, (((UINT32)index)<<16) + tx_msg->GetHeader()->payloadType);
 	} else if (status == NetworkOperations_SendNACKed){
 		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendNACKed %u %u  \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
 		ManagedCallback(((UINT32)(tx_msg->GetHeader()->dest) << 16) + SendNACKed, (((UINT32)index)<<16) + tx_msg->GetHeader()->payloadType);
-	} else if (status == NetworkOperations_SendFailed){
-		UINT16 index = MAC_GetMsgIdWithPtr(tx_msg);
+	} else if (status == NetworkOperations_Fail){
 		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendFailed %u %u  \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
+		MAC_ChangeOwnerShipOfElementwIndex(index, BO_MFUser);
 		ManagedCallback(((UINT32)(tx_msg->GetHeader()->dest) << 16) + SendFailed,  (((UINT32)index)<<16) + tx_msg->GetHeader()->payloadType);
 	}
 	//else{

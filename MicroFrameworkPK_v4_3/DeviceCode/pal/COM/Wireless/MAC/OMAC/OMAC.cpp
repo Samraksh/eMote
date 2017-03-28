@@ -76,6 +76,9 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 	//Set flag when send is complete
 	g_OMAC.isSendDone = true;
 
+	if(status != NetworkOperations_Success){
+		return;
+	}
 	if(Size == sizeof(softwareACKHeader)){ //For not this type is not expected.
 		if(g_OMAC.m_omac_scheduler.m_execution_started && g_OMAC.m_omac_scheduler.m_state == I_DATA_RCV_PENDING){
 			g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
@@ -951,7 +954,7 @@ PacketID_T OMACType::EnqueueToSend(UINT16 address, UINT8 dataType, void* msg, in
 		rv = g_NeighborTable.InsertMessageGetIndex(msg_carrier);
 		if(!ISPACKET_ID_VALID(rv)) {
 	#if OMAC_DEBUG_PACKET_REJECTION
-			hal_printf("OMACType::SendTimeStamped Pckt Reject buffer full destID = %u dataType = %u  \r\n", address, dataType);
+			hal_printf("OMACType::EnqueueToSend Pckt Reject buffer full destID = %u dataType = %u buffersize = %u \r\n", address, dataType, g_NeighborTable.send_buffer.GetNumberofElements());
 	#endif
 		}
 		return rv;
@@ -982,7 +985,7 @@ PacketID_T OMACType::EnqueueToSendTimeStamped(UINT16 address, UINT8 dataType, vo
 	rv = g_NeighborTable.InsertMessageGetIndex(msg_carrier);
 	if(!ISPACKET_ID_VALID(rv)) {
 #if OMAC_DEBUG_PACKET_REJECTION
-		hal_printf("OMACType::SendTimeStamped Pckt Reject buffer full destID = %u dataType = %u  \r\n", address, dataType);
+		hal_printf("OMACType::EnqueueToSendTimeStamped3 Pckt Reject buffer full destID = %u dataType = %u buffersize = %u \r\n", address, dataType, g_NeighborTable.send_buffer.GetNumberofElements());
 #endif
 	}
 	return rv;

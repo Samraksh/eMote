@@ -15,6 +15,8 @@ enum MACNames
 	OMAC = 2,
 };
 
+
+
 #define MAC_BROADCAST_ADDRESS RADIO_BROADCAST_ADDRESS
 
 
@@ -126,6 +128,7 @@ DeviceStatus MAC_GetPacketSizeWithIndex( UINT8* buffersizeptr, PacketID_T index)
 DeviceStatus MAC_DeletePacketWithIndexInternal( PacketID_T index);
 UINT16 MAC_GetMsgIdWithPtr(Message_15_4_t* msg_carrier);
 
+bool MAC_ChangeOwnerShipOfElementwIndex(PacketID_T index,  BufferOwner n_buf_ow);
 
 
 //MAC Aggregate APIs

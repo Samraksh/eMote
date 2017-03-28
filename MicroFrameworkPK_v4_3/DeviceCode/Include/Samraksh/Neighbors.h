@@ -32,6 +32,8 @@ extern UINT8 MacName;
 
 #define NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS 2
 
+
+#define NEIGHBORS_DEBUG_QUEUE_INSERT 0
 //extern void  ManagedCallback(UINT16 arg1, UINT16 arg2);
 //#define DEBUG_NEIGHBORTABLE
 
@@ -303,7 +305,15 @@ public:
 		//		}
 		return send_buffer.DeletePacket(msg_carrier);
 	}
-	void FindAndRemoveStalePackets(UINT8 retryLimit){
+	Message_15_4_t* FindStalePacketWithRetryAttemptsGreaterThan(UINT8 retryLimit,  BufferOwner n_buf_ow){
+		return send_buffer.FindStalePacketWithRetryAttemptsGreaterThan(retryLimit,  n_buf_ow);
+	}
+
+	bool ChangeOwnerShipOfElementwIndex(PacketID_T index, BufferOwner n_buf_ow){
+		return send_buffer.ChangeOwnerShipOfElementwIndex(index, n_buf_ow);
+	}
+
+	/*void FindAndRemoveStalePackets(UINT8 retryLimit){
 		send_buffer.RemovePacketsWithRetryAttemptsGreaterThan(retryLimit);
 		//		for(UINT8 i = 0; i < MAX_NEIGHBORS ; ++i){
 		//			if(Neighbor[i].neighborStatus != Dead){
@@ -329,7 +339,7 @@ public:
 		////				}
 		//			}
 		//		}
-	}
+	}*/
 	bool IsThereAPacketWithDest(const UINT16 address){
 		if(IsThereADataPacketWithDest(address) || IsThereATSRPacketWithDest(address)){
 			return true;
@@ -381,21 +391,8 @@ public:
 		return send_buffer.FindDataPacketForNeighbor(neigh);
 	}
 	bool InsertMessage(Message_15_4_t* msg_carrier){
-		if(msg_carrier){ // If the msg is valid
-			UINT8 numneigh = NumberofNeighborsWithNoPacketinQueue(); //Preserve space for nodes that do not have any packets in the buffer
-			if(numneigh < Total_Buffer_SIZE - send_buffer.GetNumberofElements()){ //If the remaining space is larger than the amount of space that needs to be preserved
-				while(IsThereATSRPacketWithDest(msg_carrier->GetHeaderConst()->GetDestConst())) {
-					DeletePacket(FindTSRPacketForNeighbor(msg_carrier->GetHeaderConst()->GetDestConst()));
-				}
-				return send_buffer.InsertMessage(msg_carrier);
-			}
-			else{ // Refuse packet If we need to preserve empty space
-				return false;
-			}
-		}
-		else{  // Refuse packet If we need to preserve empty space
-			return false;
-		}
+		if(ISPACKET_ID_VALID(InsertMessageGetIndex()) ) return true;
+		else return false;
 	}
 	PacketID_T InsertMessageGetIndex(Message_15_4_t* msg_carrier){
 		if(msg_carrier){ // If the msg is valid
@@ -404,13 +401,23 @@ public:
 				while(IsThereATSRPacketWithDest(msg_carrier->GetHeaderConst()->GetDestConst())) {
 					DeletePacket(FindTSRPacketForNeighbor(msg_carrier->GetHeaderConst()->GetDestConst()));
 				}
+#if NEIGHBORS_DEBUG_QUEUE_INSERT
+				hal_printf("\n There is enough space in queue attempting to insert");
+#endif
 				return send_buffer.InsertMessageGetIndex(msg_carrier);
 			}
 			else{ // Refuse packet If we need to preserve empty space
+#if NEIGHBORS_DEBUG_QUEUE_INSERT
+				hal_printf("\nRefuse packet due to need for preserving space numneigh = %u ,  nuel = %u \n", numneigh, send_buffer.GetNumberofElements());
+#endif
 				return INVALID_PACKET_ID;
 			}
 		}
-		else{  // Refuse packet If we need to preserve empty space
+		else{  // Refuse packet If no packet exists
+#if NEIGHBORS_DEBUG_QUEUE_INSERT
+			hal_printf("\nRefuse packet due to pointer null\n");
+#endif
+
 			return INVALID_PACKET_ID;
 		}
 	}
@@ -588,6 +595,7 @@ void NeighborTable::ClearTable(){
 		ClearNeighborwIndex(tableIndex);
 	}
 	NumberValidNeighbor = 0;
+	send_buffer.Initialize();
 }
 
 // neighbor table util functions

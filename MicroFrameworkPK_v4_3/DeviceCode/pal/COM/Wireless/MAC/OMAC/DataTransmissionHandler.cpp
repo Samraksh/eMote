@@ -233,6 +233,11 @@ void DataTransmissionHandler::SendACKToUpperLayers(Message_15_4_t* msg, UINT16 S
 				(m_txAckHandler)(msg, Size, status, radioAckStatus);
 			}
 		}
+		else{
+			if(status == NetworkOperations_Fail || status == NetworkOperations_Success){
+				g_NeighborTable.DeletePacket(msg);
+			}
+		}
 	}
 }
 
@@ -247,8 +252,14 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, TRUE );
 #endif
 
+	Message_15_4_t* msg_carrier = g_NeighborTable.FindStalePacketWithRetryAttemptsGreaterThan(FRAMERETRYMAXATTEMPT, BO_OMAC);
+	while(msg_carrier){
+		SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+		msg_carrier = g_NeighborTable.FindStalePacketWithRetryAttemptsGreaterThan(FRAMERETRYMAXATTEMPT,  BO_OMAC);
+	}
 
-	g_NeighborTable.FindAndRemoveStalePackets(FRAMERETRYMAXATTEMPT);
+
+//	g_NeighborTable.FindAndRemoveStalePackets(FRAMERETRYMAXATTEMPT);
 
 	//Check all Neighbors that have a packet in the queue
 	isDataPacketScheduled = false;
@@ -301,8 +312,9 @@ void DataTransmissionHandler::DropPacket(){
 		ASSERT_SP(0);
 	}
 	else if(m_outgoingEntryPtr == NULL) {
-		hal_printf("Packet is not assigned");
-		ASSERT_SP(0);
+//		hal_printf("Packet is not assigned");
+//		ASSERT_SP(0);
+		return;
 	}
 	else {
 		//		neigh_ptr->random_back_off_window_size = 0;
@@ -349,17 +361,10 @@ void DataTransmissionHandler::DropPacket(){
 					, m_outgoingEntryPtr->GetHeader()->flags
 					, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
 #endif
-			if(true){ //if(g_OMAC.m_txAckHandler != NULL){
-				//				Message_15_4_t* msg = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
-				SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
-#if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
-				hal_printf("DropPacket:NetworkOperations_Success dest = %u \r\r\n", m_outgoingEntryPtr->GetHeader()->dest);
-#endif
-			}
 
 			//			ClearMsgContents(m_outgoingEntryPtr);
 			//			neigh_ptr->send_buffer.DropOldest(1);
-			g_NeighborTable.DeletePacket(m_outgoingEntryPtr);
+			//g_NeighborTable.DeletePacket(m_outgoingEntryPtr);  //BK: Rmoving this case relying on the ACK mechanism to remove the packet
 			neigh_ptr->SendLink.RecordPacketSuccess(true);
 
 			if( (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)
@@ -370,6 +375,14 @@ void DataTransmissionHandler::DropPacket(){
 				neigh_ptr->IncrementNumTimeSyncMessagesSent();
 
 			}
+			if(true){
+#if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
+				hal_printf("DropPacket:NetworkOperations_Success dest = %u \r\r\n", m_outgoingEntryPtr->GetHeader()->dest);
+#endif
+				SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
+			}
+
+
 		}
 		else if(g_NeighborTable.IsThereATSRPacketWithDest(m_outgoingEntryPtr_dest) && m_outgoingEntryPtr == g_NeighborTable.FindTSRPacketForNeighbor(m_outgoingEntryPtr_dest) ){
 #if OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS

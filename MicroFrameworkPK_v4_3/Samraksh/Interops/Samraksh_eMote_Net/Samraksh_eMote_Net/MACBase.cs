@@ -5,6 +5,8 @@ using Samraksh.eMote.Net.Radio;
 using System.Runtime.CompilerServices;
 using Microsoft.SPOT.Hardware;
 
+//using Microsoft.SPOT;           //Required for Debug.Print
+
 namespace Samraksh.eMote.Net
 {
 	/// <summary>Kinds of protocol</summary>
@@ -53,12 +55,9 @@ namespace Samraksh.eMote.Net
         /// <summary>Raised when we get an ACK for a transmitted packet</summary>
         public event MACBase.IMACTransmitACKEventHandler OnSendStatus;
 
-        ArrayList msg_id_list;
+        protected ArrayList msg_id_list;
+        public readonly ArrayList msg_id_list_ro;
 
-        public readonly ArrayList GetMsgList()
-        {
-            return msg_id_list;
-        }
 
 		/// <summary>
 		/// Register callback functions for CSHARP payload types. 
@@ -72,6 +71,7 @@ namespace Samraksh.eMote.Net
 			MACBase = macBase;
 			PayloadType = payloadType;
             msg_id_list = new ArrayList();
+            msg_id_list_ro = msg_id_list;
             /* This might be needed later. 
              *      
              * if (OnReceive == null)
@@ -107,10 +107,8 @@ namespace Samraksh.eMote.Net
 
             if (ACKStatus == SendPacketStatus.SendACKed || ACKStatus == SendPacketStatus.SendFailed)
             {
-                if (msg_id_list.Contains(msgid))
-                {
-                    msg_id_list.Remove(msgid);
-                }
+                //Debug.Print("Deleting msg = " + msgid + " ACKStatus = " + ACKStatus);
+                this.DeleteMsgWithMsgID(msgid);
             }
 
         }
@@ -186,12 +184,18 @@ namespace Samraksh.eMote.Net
                 DeviceStatus rs =  MACBase.DeleteMsgWithMsgID(index);
                 if (rs == DeviceStatus.Success)
                 {
-                    msg_id_list.Remove(rs);    
+                    //Debug.Print("Deleting success msg = " + index);
+                    msg_id_list.Remove(index);
+                }
+                else
+                {
+                    //Debug.Print("Deleting fail msg = " + index);
                 }
                 return rs;
             }
             else
             {
+                //Debug.Print("Attempting to delete msg that does not belong to us msg = " + index);
                 return DeviceStatus.Fail;
             }
             

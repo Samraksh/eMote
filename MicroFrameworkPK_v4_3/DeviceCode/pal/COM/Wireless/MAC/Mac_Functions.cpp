@@ -154,6 +154,17 @@ UINT16 MAC_GetMsgIdWithPtr(Message_15_4_t* msg_carrier)
 	return INVALID_PACKET_ID;
 }
 
+bool MAC_ChangeOwnerShipOfElementwIndex(PacketID_T index,  BufferOwner n_buf_ow)
+{
+	if(currentMacName == CSMAMAC){
+		return INVALID_PACKET_ID;
+	}
+	else if(currentMacName == OMAC){
+		return  g_NeighborTable.ChangeOwnerShipOfElementwIndex(index,n_buf_ow);
+	}
+	return INVALID_PACKET_ID;
+}
+
 DeviceStatus MAC_GetPacketWithIndex(UINT8 **managedBuffer, UINT8 buffersize, PacketID_T index)
 {
 	if(currentMacName == CSMAMAC){
