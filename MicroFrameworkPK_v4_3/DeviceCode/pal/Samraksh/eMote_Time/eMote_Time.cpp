@@ -18,6 +18,7 @@
 Time_Driver g_Time_Driver;
 
 void TimeHandler(void *arg);
+void TimeHandlerRTC(void *arg);
 void SetCompareHandler(void *arg);
 
 
@@ -33,10 +34,22 @@ BOOL Time_Driver::Initialize()
 	retVal = retVal && (VirtTimer_Start( VIRT_TIMER_TIME ) == TimerSupported);
 	ASSERT(retVal);
 
+	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_RTC_ONE_SEC, 0, 1000000, FALSE, TRUE, TimeHandlerRTC, LOW_DRIFT_TIMER) == TimerSupported);
+	retVal = retVal && (VirtTimer_Start( VIRT_TIMER_RTC_ONE_SEC ) == TimerSupported);
+
 	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_SLEEP, 0, CPU_Timer_GetMaxTicks(LOW_DRIFT_TIMER), FALSE, TRUE, SetCompareHandler, LOW_DRIFT_TIMER) == TimerSupported);
 	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_EVENTS, 0, CPU_Timer_GetMaxTicks(ADVTIMER_32BIT), FALSE, TRUE, SetCompareHandler, ADVTIMER_32BIT) == TimerSupported);
 
 	return retVal;
+}
+
+void TimeHandlerRTC(void *arg)
+{
+	static int  timeHandlerCountRTC = 0;
+
+	timeHandlerCountRTC++;
+	//CPU_GPIO_SetPinState(29,true);
+	//			CPU_GPIO_SetPinState(29,false);
 }
 
 
