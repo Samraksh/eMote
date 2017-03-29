@@ -86,9 +86,9 @@ static ICryptokiToken s_Token =
     AES_SW_PKCS11_Token::GetDeviceError,
 };
 
-CK_SLOT_INFO g_AES_SW_PKCS11_SlotInfo =
+CK_SLOT_INFO g_mbedTLS_SlotInfo =
 {
-    "AES_SW_PKCS11_Crypto",
+    "mbedTLS_PKCS11_Crypto",
     "<ProviderNameHere>", 
     CKF_TOKEN_PRESENT, 
     { 0, 0 }, 
@@ -102,7 +102,7 @@ static CryptokiMechanism s_Mechanisms[] =
     { CKM_SHA_1, { 160,  160, CKF_DIGEST } },
 };
 
-CryptokiToken g_AES_SW_PKCS11_Token =
+CryptokiToken g_mbedTLS_Token =
 {
     { // TOKEN INFO
         "<TokenLable>",

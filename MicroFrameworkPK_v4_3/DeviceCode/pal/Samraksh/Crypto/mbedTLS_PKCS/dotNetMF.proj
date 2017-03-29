@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.3" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>Crypto_config_AES</AssemblyName>
+    <AssemblyName>Crypto_config_mbedTLS</AssemblyName>
     <Size>
     </Size>
     <ProjectGuid>{6361CA85-3B9B-4B50-883A-2F0E0340E765}</ProjectGuid>
-    <Description>PKCS11 Crypto configuration for AES</Description>
+    <Description>PKCS11 Crypto configuration for mbedTLS</Description>
     <Level>HAL</Level>
     <LibraryFile>Crypto_config_mbedTLS.$(LIB_EXT)</LibraryFile>
     <ProjectPath>$(SPOCLIENT)\DeviceCode\Pal\Samraksh\Crypto\mbedTLS_PKCS\dotNetMF.proj</ProjectPath>
