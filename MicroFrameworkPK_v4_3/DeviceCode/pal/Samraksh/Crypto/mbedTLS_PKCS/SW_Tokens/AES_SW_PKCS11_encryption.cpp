@@ -1,4 +1,4 @@
-#include "AES_SW_pkcs11.h"
+#include "../../mbedTLS_PKCS/SW_Tokens/AES_SW_PKCS11.h"
 
 CK_RV AES_SW_PKCS11_Encryption::EncryptInit(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pEncryptMech, CK_OBJECT_HANDLE hKey)
 {

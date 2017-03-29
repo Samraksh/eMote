@@ -1,14 +1,14 @@
 #include <PAL\PKCS11\CryptokiPAL.h>
 
-extern CK_SLOT_INFO  g_SF2_HW_SlotInfo;
-extern CryptokiToken g_SF2_HW_Token;
+extern CK_SLOT_INFO  g_mbedTLS_SlotInfo;
+extern CryptokiToken g_mbedTLS_Token;
 
 
 CryptokiSlot  g_CryptokiSlots[] = 
 {
     {
-        &g_SF2_HW_SlotInfo,
-        &g_SF2_HW_Token,
+        &g_mbedTLS_SlotInfo,
+        &g_mbedTLS_Token,
     },
 };
 

@@ -1,4 +1,4 @@
-#include "AES_SW_pkcs11.h"
+#include "../../mbedTLS_PKCS/SW_Tokens/AES_SW_PKCS11.h"
 
 static ICryptokiEncryption s_Encryption =
 {

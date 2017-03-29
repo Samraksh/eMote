@@ -1,4 +1,4 @@
-#include "AES_SW_pkcs11.h"
+#include "../../mbedTLS_PKCS/SW_Tokens_detailApp/AES_SW_PKCS11.h"
 
 CK_RV AES_SW_PKCS11_Signature::SignInit(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hKey)
 {

@@ -1,5 +1,5 @@
-#include "AES_SW_pkcs11.h"
 #include <mbedtls/pkcs11.h>
+#include "../../mbedTLS_PKCS/SW_Tokens_detailApp/AES_SW_PKCS11.h"
 
 CK_RV AES_SW_PKCS11_Session::InitPin(Cryptoki_Session_Context* pSessionCtx, CK_UTF8CHAR_PTR pPin, CK_ULONG ulPinLen)
 {

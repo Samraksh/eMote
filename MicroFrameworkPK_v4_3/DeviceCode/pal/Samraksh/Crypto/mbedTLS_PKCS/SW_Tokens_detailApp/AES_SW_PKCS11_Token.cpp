@@ -1,4 +1,4 @@
-#include "AES_SW_PKCS11.h"
+#include "../../mbedTLS_PKCS/SW_Tokens_detailApp/AES_SW_PKCS11.h"
 
 CK_RV AES_SW_PKCS11_Token::Initialize()
 {

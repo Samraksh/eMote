@@ -18,10 +18,11 @@
  * SVN $Revision: 6794 $
  * SVN $Date: 2014-08-05 22:09:15 +0530 (Tue, 05 Aug 2014) $
  */
+#include "../mbedTLS_PKCS/aes_test.h"
+
 #include <stdio.h>
 #include <drivers/mss_sys_services/mss_sys_services.h>
 #include <drivers/mss_uart/mss_uart.h>
-#include "aes_test.h"
 
 /*==============================================================================
   Messages displayed over the UART.

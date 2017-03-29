@@ -59,6 +59,7 @@
   <!--Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" Condition="'$(USB_PORT_FEATUREPROJ)'==''" /-->
   <!--Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" /-->
   <!--<Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />-->
+  <Import Condition="'$(CRYPTO_FEATUREPROJ)'==''" Project="$(SPOCLIENT)\Framework\Features\Crypto.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote\Samraksh_eMote.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime.featureproj" />
@@ -85,10 +86,6 @@
   <ItemGroup>
     <PlatformIndependentLibs Include="SPOT.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PlatformIndependentLibs Include="SecurityPkcs11.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SecurityPkcs11\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <PlatformIndependentLibs Include="SPOT_Update.$(LIB_EXT)" />
@@ -265,14 +262,6 @@
     <DriverLibs Include="STM32F10x_ID.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\id\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="Crypto_stub.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Crypto\stubs\dotNetMF.proj" />
-  </ItemGroup>
-  <!-- ItemGroup>
-    <DriverLibs Include="Crypto.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Crypto\dotNetMF.proj" />
-  </ItemGroup -->
   <ItemGroup>
     <PlatformIndependentLibs Include="Debugger_full.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotnetmf_full.proj" />
@@ -717,21 +706,34 @@
   <!--                      	    Wireless Networking Stack ::End                      -->
   
   <!--                      	    Crypto Implementation :: Start                      -->
+ <ItemGroup>
+    <PlatformIndependentLibs Include="SecurityPkcs11.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SecurityPkcs11\dotNetMF.proj" />
+  </ItemGroup>
+  <!--<ItemGroup>
+    <DriverLibs Include="Crypto_stub.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Crypto\stubs\dotNetMF.proj" />
+  </ItemGroup>-->
+  <ItemGroup>
+    <DriverLibs Include="Crypto.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Crypto\dotNetMF.proj" />
+  </ItemGroup>
+
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\PKCS11\dotNetMF.proj" />
     <DriverLibs Include="PKCS11_Engine.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Samraksh\Crypto\AES_PKCS\dotnetmf.proj" />
-    <DriverLibs Include="Crypto_config_AES.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Samraksh\Crypto\mbedTLS_PKCS\dotnetmf.proj" />
+    <DriverLibs Include="Crypto_config_mbedTLS.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Samraksh\Crypto\mbedTLS\dotnetmf.proj" />
     <DriverLibs Include="mbedtls-crypto.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Samraksh\Crypto\AES_PKCS\SW_Tokens\dotNetMF.proj" />
-    <DriverLibs Include="AES_SW_PKCS11_Crypto.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Samraksh\Crypto\mbedTLS_PKCS\SW_Tokens\dotNetMF.proj" />
+    <DriverLibs Include="mbedTLS_PKCS11_Crypto.$(LIB_EXT)" />
   </ItemGroup>
   
   <!--                      	    Crypto Implementation :: End                      -->

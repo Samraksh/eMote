@@ -1,4 +1,4 @@
-#include "AES_SW_pkcs11.h"
+#include "../../mbedTLS_PKCS/SW_Tokens/AES_SW_PKCS11.h"
 
 CK_RV AES_SW_PKCS11_Random::SeedRandom(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pSeed, CK_ULONG ulSeedLen)
 {

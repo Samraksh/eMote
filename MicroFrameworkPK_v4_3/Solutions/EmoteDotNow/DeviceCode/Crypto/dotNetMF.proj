@@ -26,7 +26,8 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-    <Compile Include="PKCS11_config_STM32_net_open.cpp" />
+    <!--<Compile Include="PKCS11_config_STM32_net_open.cpp" />-->
+    <Compile Include="PKCS11_config_mbedTLS.cpp" />
   </ItemGroup>
   <ItemGroup>
     <HFiles Include="$(SPOCLIENT)\devicecode\include\tinyclr_endian.h" />

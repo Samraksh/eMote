@@ -1,7 +1,58 @@
 #include <PKCS11\CryptokiPAL.h>
+#include <mbedtls/pkcs11.h>
 
 #ifndef _AES_SW_PKCS11_H_
 #define _AES_SW_PKCS11_H_ 1
+
+#ifndef PKCS11_AES_SW_MAX_OBJECT_COUNT
+#define PKCS11_AES_SW_MAX_OBJECT_COUNT 20
+#endif
+
+#ifndef PKCS11_AES_SW_MAX_IV_LEN
+#define PKCS11_AES_SW_MAX_IV_LEN 64
+#endif
+
+extern CK_SLOT_INFO  g_OpenSSL_SlotInfo;
+extern CryptokiToken g_OpenSSL_Token;
+
+typedef struct _KEY_DATA
+{
+    CK_KEY_TYPE       type;
+    CK_ULONG          size;
+    KEY_ATTRIB        attrib;
+    CK_VOID_PTR       key;
+    CK_VOID_PTR       ctx;
+} KEY_DATA;
+
+/*typedef struct _CERT_DATA
+{
+    X509* cert;
+    KEY_DATA pubKeyData;
+    KEY_DATA privKeyData;
+} CERT_DATA;
+*/
+typedef enum _ObjectType
+{
+    KeyType  = 1,
+    DataType = 2,
+    CertificateType = 3
+} ObjectType;
+
+typedef struct _OBJECT_DATA
+{
+    ObjectType        Type;
+    CHAR              FileName[20];
+    CHAR              GroupName[20];
+    int               RefCount;
+    CK_VOID_PTR       Data;
+} OBJECT_DATA;
+
+struct FIND_OBJECT_DATA
+{
+    UINT32  ObjectType;
+    CHAR    FileName[20];
+    CHAR    GroupName[20];
+};
 
 struct AES_SW_PKCS11_Token
 {
@@ -49,6 +100,17 @@ struct AES_SW_PKCS11_Objects
     static CK_RV FindObjectsInit(Cryptoki_Session_Context* pSessionCtx, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount);
     static CK_RV FindObjects(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE_PTR phObjects, CK_ULONG ulMaxCount, CK_ULONG_PTR pulObjectCount);
     static CK_RV FindObjectsFinal(Cryptoki_Session_Context* pSessionCtx);
+
+    //custom member variables
+    static OBJECT_DATA*     GetObjectFromHandle(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject);
+    static BOOL             FreeObject(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject);
+    static CK_OBJECT_HANDLE AllocObject(Cryptoki_Session_Context* pSessionCtx, ObjectType type, size_t size, OBJECT_DATA** ppData);
+
+    static void IntitializeObjects();
+private:
+    static CK_RV LoadX509Cert(Cryptoki_Session_Context* pSessionCtx, X509* x, OBJECT_DATA** ppObject, EVP_PKEY* privateKey, CK_OBJECT_HANDLE_PTR phObject);
+    static int FindEmptyObjectHandle();
+    static OBJECT_DATA s_Objects[PKCS11_AES_SW_MAX_OBJECT_COUNT];
 };
 
 struct AES_SW_PKCS11_Digest
