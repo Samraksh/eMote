@@ -1,16 +1,50 @@
 #include <PKCS11\CryptokiPAL.h>
 #include <mbedtls/pkcs11.h>
+#include <mbedtls/cipher.h>
 
-#ifndef _AES_SW_PKCS11_H_
-#define _AES_SW_PKCS11_H_ 1
+#ifndef _MBEDTLS_PKCS11_H_
+#define _MBEDTLS_PKCS11_H_ 1
 
-#ifndef PKCS11_AES_SW_MAX_OBJECT_COUNT
-#define PKCS11_AES_SW_MAX_OBJECT_COUNT 20
+#ifndef PKCS11_MBEDTLS_MAX_OBJECT_COUNT
+#define PKCS11_MBEDTLS_MAX_OBJECT_COUNT 20
 #endif
 
-#ifndef PKCS11_AES_SW_MAX_IV_LEN
-#define PKCS11_AES_SW_MAX_IV_LEN 64
+#ifndef PKCS11_MBEDTLS_MAX_IV_LEN
+#define PKCS11_MBEDTLS_MAX_IV_LEN 64
 #endif
+
+#define PKCS11_MBEDTLS_MAX_SESSION_COUNT 10
+
+
+///////////////Macro Definitions
+#define PKCS11_MBEDTLS_HEADER() \
+    CK_RV retVal = CKR_OK
+
+#define PKCS11_MBEDTLS_CLEANUP() \
+    CleanUp:
+
+#define PKCS11_MBEDTLS_RETURN() \
+    return retVal
+
+#define PKCS11_MBEDTLS_NOCLEANUP() \
+    PKCS11_MBEDTLS_CLEANUP(); \
+    PKCS11_MBEDTLS_RETURN()
+
+#define PKCS11_MBEDTLS_LEAVE() \
+    goto CleanUp
+
+#define PKCS11_MBEDTLS_SET_AND_LEAVE(x) \
+{ \
+    retVal = x; \
+    PKCS11_MBEDTLS_LEAVE(); \
+}
+
+#define PKCS11_MBEDTLS_CHECKRESULT(x) \
+    if((x) <= 0) PKCS11_MBEDTLS_SET_AND_LEAVE(CKR_FUNCTION_FAILED)
+
+#define PKCS11_MBEDTLS_CHECK_CK_RESULT(x) \
+    if(CKR_OK != (retVal = x)) PKCS11_MBEDTLS_LEAVE()
+
 
 extern CK_SLOT_INFO  g_mbedTLS_SlotInfo;
 extern CryptokiToken g_mbedTLS_Token;
@@ -54,7 +88,24 @@ struct FIND_OBJECT_DATA
     CHAR    GroupName[20];
 };
 
-struct AES_SW_PKCS11_Token
+typedef enum _mbedTLSCryptoState
+{
+    Uninitialized,
+    Initialized,
+    InProgress,
+} mbedTLSCryptoState;
+
+typedef struct _mbedTLSEncryptData
+{
+    UINT8            IV[PKCS11_MBEDTLS_MAX_IV_LEN];
+    mbedtls_cipher_context_t   SymmetricCtx;
+    BOOL             IsSymmetric;
+    KEY_DATA*        Key;
+    BOOL             IsUpdateInProgress;
+} mbedTLSEncryptData;
+
+
+struct MBEDTLS_PKCS11_Token
 {
     static CK_RV Initialize();
     static CK_RV Uninitialize();
@@ -62,8 +113,9 @@ struct AES_SW_PKCS11_Token
     static CK_RV GetDeviceError(CK_ULONG_PTR pErrorCode);
 };
 
-struct AES_SW_PKCS11_Encryption
+struct MBEDTLS_PKCS11_Encryption
 {
+	static CK_RV InitHelper(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pEncryptMech, CK_OBJECT_HANDLE hKey, BOOL isEncrypt);
 
     static CK_RV EncryptInit     (Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pEncryptMech, CK_OBJECT_HANDLE hKey);
     static CK_RV Encrypt           (Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pEncryptedData, CK_ULONG_PTR pulEncryptedDataLen);
@@ -76,7 +128,7 @@ struct AES_SW_PKCS11_Encryption
     static CK_RV DecryptFinal  (Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pLastPart, CK_ULONG_PTR pulLastPartLen);
 };
 
-struct AES_SW_PKCS11_Session
+struct MBEDTLS_PKCS11_Session
 {
     static CK_RV InitPin(Cryptoki_Session_Context* pSessionCtx, CK_UTF8CHAR_PTR pPin, CK_ULONG ulPinLen);
     static CK_RV SetPin(Cryptoki_Session_Context* pSessionCtx, CK_UTF8CHAR_PTR pOldPin, CK_ULONG ulOldPinLen, CK_UTF8CHAR_PTR pNewPin, CK_ULONG ulNewPinLen);
@@ -88,7 +140,7 @@ struct AES_SW_PKCS11_Session
     static CK_RV Logout(Cryptoki_Session_Context* pSessionCtx);
 };
 
-struct AES_SW_PKCS11_Objects
+struct MBEDTLS_PKCS11_Objects
 {
     static CK_RV CreateObject(Cryptoki_Session_Context* pSessionCtx, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount, CK_OBJECT_HANDLE_PTR phObject);
     static CK_RV CopyObject(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount, CK_OBJECT_HANDLE_PTR phNewObject);
@@ -110,10 +162,10 @@ struct AES_SW_PKCS11_Objects
 private:
    // static CK_RV LoadX509Cert(Cryptoki_Session_Context* pSessionCtx, X509* x, OBJECT_DATA** ppObject, EVP_PKEY* privateKey, CK_OBJECT_HANDLE_PTR phObject);
     static int FindEmptyObjectHandle();
-    static OBJECT_DATA s_Objects[PKCS11_AES_SW_MAX_OBJECT_COUNT];
+    static OBJECT_DATA s_Objects[PKCS11_MBEDTLS_MAX_OBJECT_COUNT];
 };
 
-struct AES_SW_PKCS11_Digest
+struct MBEDTLS_PKCS11_Digest
 {
     static CK_RV DigestInit(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pMechanism);
     static CK_RV Digest(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pDigest, CK_ULONG_PTR pulDigestLen);
@@ -122,7 +174,7 @@ struct AES_SW_PKCS11_Digest
     static CK_RV Final(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pDigest, CK_ULONG_PTR pulDigestLen);
 };
 
-struct AES_SW_PKCS11_Signature
+struct MBEDTLS_PKCS11_Signature
 {
     static CK_RV SignInit(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hKey);
     static CK_RV Sign(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pSignature, CK_ULONG_PTR pulSignatureLen);
@@ -136,8 +188,11 @@ struct AES_SW_PKCS11_Signature
 };
 
 
-struct AES_SW_PKCS11_Keys
+struct MBEDTLS_PKCS11_Keys
 {
+	static CK_RV DeleteKey(Cryptoki_Session_Context* pSessionCtx, KEY_DATA* pKey);
+	static KEY_DATA* GetKeyFromHandle(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hKey, BOOL getPrivate);
+
     static CK_RV GenerateKey(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pMechanism, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount, CK_OBJECT_HANDLE_PTR phKey);
     static CK_RV GenerateKeyPair(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pMechanism, 
                              CK_ATTRIBUTE_PTR pPublicKeyTemplate , CK_ULONG ulPublicCount, 
@@ -152,13 +207,16 @@ struct AES_SW_PKCS11_Keys
     static CK_RV LoadDsaKey  (Cryptoki_Session_Context* pSessionCtx, const DsaKeyData& keyData, CK_BBOOL isPrivate, CK_OBJECT_HANDLE_PTR phKey);
     static CK_RV LoadEcKey   (Cryptoki_Session_Context* pSessionCtx, const EcKeyData&  keyData, CK_BBOOL isPrivate, CK_OBJECT_HANDLE_PTR phKey);
     static CK_RV LoadKeyBlob(Cryptoki_Session_Context* pSessionCtx, const PBYTE pKey, CK_ULONG keyLen, CK_KEY_TYPE keyType, KEY_ATTRIB keyAttrib, CK_OBJECT_HANDLE_PTR phKey);
+
+private:
+    static CK_OBJECT_HANDLE LoadKey(Cryptoki_Session_Context* pSessionCtx, void* pKey, CK_KEY_TYPE type, KEY_ATTRIB attrib, size_t keySize);
 };
 
-struct AES_SW_PKCS11_Random
+struct MBEDTLS_PKCS11_Random
 {
     static CK_RV SeedRandom(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pSeed, CK_ULONG ulSeedLen);
     static CK_RV GenerateRandom(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pRandomData, CK_ULONG ulRandomLen);    
 };
 
-#endif //_AES_SW_PKCS11_H_
+#endif //_MBEDTLS_PKCS11_H_
 

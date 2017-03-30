@@ -1,14 +1,15 @@
-#include "../../mbedTLS_PKCS/SW_Tokens/AES_SW_PKCS11.h"
+#include "mbedTLS_PKCS11.h"
+#include <tinyhal.h>
 
-OBJECT_DATA AES_SW_PKCS11_Objects::s_Objects[];
+OBJECT_DATA MBEDTLS_PKCS11_Objects::s_Objects[];
 
 
-void AES_SW_PKCS11_Objects::IntitializeObjects()
+void MBEDTLS_PKCS11_Objects::IntitializeObjects()
 {
-    memset(AES_SW_PKCS11_Objects::s_Objects, 0, sizeof(AES_SW_PKCS11_Objects::s_Objects));
+    memset(MBEDTLS_PKCS11_Objects::s_Objects, 0, sizeof(MBEDTLS_PKCS11_Objects::s_Objects));
 }
 
-int AES_SW_PKCS11_Objects::FindEmptyObjectHandle()
+int MBEDTLS_PKCS11_Objects::FindEmptyObjectHandle()
 {
     int index;
     for(index=0; index<ARRAYSIZE(s_Objects); index++)
@@ -18,7 +19,7 @@ int AES_SW_PKCS11_Objects::FindEmptyObjectHandle()
     return index < ARRAYSIZE(s_Objects) ? index : -1;
 }
 
-OBJECT_DATA* AES_SW_PKCS11_Objects::GetObjectFromHandle(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject)
+OBJECT_DATA* MBEDTLS_PKCS11_Objects::GetObjectFromHandle(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject)
 {
     OBJECT_DATA* retVal;
 
@@ -32,21 +33,18 @@ OBJECT_DATA* AES_SW_PKCS11_Objects::GetObjectFromHandle(Cryptoki_Session_Context
 }
 
 
-BOOL AES_SW_PKCS11_Objects::FreeObject(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject)
+BOOL MBEDTLS_PKCS11_Objects::FreeObject(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject)
 {
     OBJECT_DATA* retVal;
-
     if((int)hObject < 0 || hObject >= ARRAYSIZE(s_Objects))
     {
         return FALSE;
     }
 
     retVal = &s_Objects[(int)hObject];
-
     if(retVal->Data == NULL) return FALSE;
 
-    free(retVal->Data);
-
+    private_free(retVal->Data);
     retVal->Data = NULL;
     retVal->RefCount = 0;
 
@@ -54,18 +52,16 @@ BOOL AES_SW_PKCS11_Objects::FreeObject(Cryptoki_Session_Context* pSessionCtx, CK
 }
 
 
-CK_OBJECT_HANDLE AES_SW_PKCS11_Objects::AllocObject(Cryptoki_Session_Context* pSessionCtx, ObjectType type, size_t size, OBJECT_DATA** ppData)
+CK_OBJECT_HANDLE MBEDTLS_PKCS11_Objects::AllocObject(Cryptoki_Session_Context* pSessionCtx, ObjectType type, size_t size, OBJECT_DATA** ppData)
 {
     int idx = FindEmptyObjectHandle();
-
     *ppData = NULL;
 
     if(idx == -1) return idx;
-
     *ppData = &s_Objects[idx];
 
     (*ppData)->Type = type;
-    (*ppData)->Data = malloc(size);
+    (*ppData)->Data = private_malloc(size);
     (*ppData)->RefCount = 1;
 
     if((*ppData)->Data == NULL) return CK_OBJECT_HANDLE_INVALID;
@@ -77,7 +73,7 @@ CK_OBJECT_HANDLE AES_SW_PKCS11_Objects::AllocObject(Cryptoki_Session_Context* pS
 
 
 /*
-CK_RV AES_SW_PKCS11_Objects::LoadX509Cert(Cryptoki_Session_Context* pSessionCtx, X509* x, OBJECT_DATA** ppObject, EVP_PKEY* privateKey, CK_OBJECT_HANDLE_PTR phObject)
+CK_RV MBEDTLS_PKCS11_Objects::LoadX509Cert(Cryptoki_Session_Context* pSessionCtx, X509* x, OBJECT_DATA** ppObject, EVP_PKEY* privateKey, CK_OBJECT_HANDLE_PTR phObject)
 {
     CERT_DATA* pCert;
     EVP_PKEY*  pubKey  = X509_get_pubkey(x);
@@ -141,7 +137,7 @@ CK_RV AES_SW_PKCS11_Objects::LoadX509Cert(Cryptoki_Session_Context* pSessionCtx,
 }
 */
 
-CK_RV AES_SW_PKCS11_Objects::CreateObject(Cryptoki_Session_Context* pSessionCtx, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount, CK_OBJECT_HANDLE_PTR phObject)
+CK_RV MBEDTLS_PKCS11_Objects::CreateObject(Cryptoki_Session_Context* pSessionCtx, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount, CK_OBJECT_HANDLE_PTR phObject)
 {
 	UINT32 attribIndex = 0;
 /*
@@ -204,42 +200,62 @@ CK_RV AES_SW_PKCS11_Objects::CreateObject(Cryptoki_Session_Context* pSessionCtx,
 
 }
 
-CK_RV AES_SW_PKCS11_Objects::CopyObject(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount, CK_OBJECT_HANDLE_PTR phNewObject)
+CK_RV MBEDTLS_PKCS11_Objects::CopyObject(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount, CK_OBJECT_HANDLE_PTR phNewObject)
 {
     return CKR_FUNCTION_NOT_SUPPORTED;
 }
 
-CK_RV AES_SW_PKCS11_Objects::DestroyObject(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject)
+CK_RV MBEDTLS_PKCS11_Objects::DestroyObject(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject)
+{
+	OBJECT_DATA* pData = GetObjectFromHandle(pSessionCtx, hObject);
+
+	if(pData == NULL) return CKR_OBJECT_HANDLE_INVALID;
+
+	if(--pData->RefCount <= 0)
+	{
+		if(pData->Type == KeyType)
+		{
+			MBEDTLS_PKCS11_Keys::DeleteKey(pSessionCtx, (KEY_DATA *)pData->Data);
+		}
+		else if(pData->Type == CertificateType)
+		{
+			//CERT_DATA* pCert = (CERT_DATA*)pData->Data;
+			//X509_free(pCert->cert);
+			return CKR_FUNCTION_NOT_SUPPORTED;
+		}
+
+		return FreeObject(pSessionCtx, hObject) == NULL ? CKR_OBJECT_HANDLE_INVALID : CKR_OK;
+	}
+
+	return CKR_OK;
+}
+
+CK_RV MBEDTLS_PKCS11_Objects::GetObjectSize(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject, CK_ULONG_PTR pulSize)
 {
     return CKR_FUNCTION_NOT_SUPPORTED;
 }
 
-CK_RV AES_SW_PKCS11_Objects::GetObjectSize(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject, CK_ULONG_PTR pulSize)
+CK_RV MBEDTLS_PKCS11_Objects::GetAttributeValue(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount)
 {
     return CKR_FUNCTION_NOT_SUPPORTED;
 }
 
-CK_RV AES_SW_PKCS11_Objects::GetAttributeValue(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount)
+CK_RV MBEDTLS_PKCS11_Objects::SetAttributeValue(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount)
 {
     return CKR_FUNCTION_NOT_SUPPORTED;
 }
 
-CK_RV AES_SW_PKCS11_Objects::SetAttributeValue(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount)
+CK_RV MBEDTLS_PKCS11_Objects::FindObjectsInit(Cryptoki_Session_Context* pSessionCtx, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount)
 {
     return CKR_FUNCTION_NOT_SUPPORTED;
 }
 
-CK_RV AES_SW_PKCS11_Objects::FindObjectsInit(Cryptoki_Session_Context* pSessionCtx, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount)
+CK_RV MBEDTLS_PKCS11_Objects::FindObjects(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE_PTR phObjects, CK_ULONG ulMaxCount, CK_ULONG_PTR pulObjectCount)
 {
     return CKR_FUNCTION_NOT_SUPPORTED;
 }
 
-CK_RV AES_SW_PKCS11_Objects::FindObjects(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE_PTR phObjects, CK_ULONG ulMaxCount, CK_ULONG_PTR pulObjectCount)
-{
-    return CKR_FUNCTION_NOT_SUPPORTED;
-}
-
-CK_RV AES_SW_PKCS11_Objects::FindObjectsFinal(Cryptoki_Session_Context* pSessionCtx)
+CK_RV MBEDTLS_PKCS11_Objects::FindObjectsFinal(Cryptoki_Session_Context* pSessionCtx)
 {
     return CKR_FUNCTION_NOT_SUPPORTED;
 }
