@@ -391,7 +391,7 @@ public:
 		return send_buffer.FindDataPacketForNeighbor(neigh);
 	}
 	bool InsertMessage(Message_15_4_t* msg_carrier){
-		if(ISPACKET_ID_VALID(InsertMessageGetIndex()) ) return true;
+		if(ISPACKET_ID_VALID(InsertMessageGetIndex(msg_carrier)) ) return true;
 		else return false;
 	}
 	PacketID_T InsertMessageGetIndex(Message_15_4_t* msg_carrier){
