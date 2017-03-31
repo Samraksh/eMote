@@ -66,11 +66,11 @@ static void initRadarPins(void) {
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	// PB7 --> radar_ldo_en 
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
 	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_7;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_WriteBit(GPIOB, GPIO_Pin_7,  Bit_SET); // default ON
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 	isInit = true;
 }
