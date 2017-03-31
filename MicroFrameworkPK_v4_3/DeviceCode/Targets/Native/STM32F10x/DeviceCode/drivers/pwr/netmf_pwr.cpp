@@ -611,12 +611,13 @@ void Sleep() {
 
 	// Main system timer does not run during sleep
 	// So we have to fix up clock afterwards.
-	// Approx 30.5 microseconds per RTC tick.
-	// Multiple by 10 because we need 100ns ticks for system timer.
-	// Not going to bother with floating point here...
+	// Below code does a two iteration floor estimate for the clock conversion.
+	// But fractional part of sub-256 ticks is lost.
 	uint32_t ticks = aft-now;
+	uint32_t ticks_extra;
+	ticks_extra = ticks/256 * 45;
 	ticks = ticks * 305;
-	HAL_Time_AddClockTime(ticks);
+	HAL_Time_AddClockTime(ticks + ticks_extra);
 
 	irq.Release();
 }
