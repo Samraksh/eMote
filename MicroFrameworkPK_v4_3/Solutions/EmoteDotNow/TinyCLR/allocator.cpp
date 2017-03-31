@@ -39,4 +39,16 @@ void operator delete[] (void*)
     RuntimeFault( "delete[](void*)" );
 }
 
+/*
+void *calloc(size_t x)
+{
+    return private_malloc(x);
+}
+
+void free (void* x)
+{
+    private_free(x);
+}
+*/
+
 ////////////////////////////////////////////////////////////////////////////////
