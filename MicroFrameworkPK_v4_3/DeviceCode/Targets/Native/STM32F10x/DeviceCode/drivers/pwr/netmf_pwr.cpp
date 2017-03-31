@@ -612,10 +612,12 @@ void Sleep() {
 	// Main system timer does not run during sleep
 	// So we have to fix up clock afterwards.
 	// Below code does a two iteration floor estimate for the clock conversion.
-	// But fractional part of sub-256 ticks is lost.
+	// Fractional part (up to 4.5us worth) is carried.
 	uint32_t ticks = aft-now;
 	uint32_t ticks_extra;
-	ticks_extra = ticks/256 * 45;
+	static uint32_t ticks_carried = 0; // only the fractional part
+	ticks_extra = (ticks+ticks_carried)/256 * 45;
+	ticks_carried = (ticks+ticks_carried) % 256;
 	ticks = ticks * 305;
 	HAL_Time_AddClockTime(ticks + ticks_extra);
 
