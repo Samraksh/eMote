@@ -207,16 +207,16 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 			IQRejectionToUse = (int)((double)HeapTrackMedian(medianRawQ)*noiseRejectionPassedParameter);
 	} else if (radarNoiseCtrl == SCALING_NOISE_REJECTION_RAW_RADAR_SCALING){
 			double temp = (double)HeapTrackMedian(medianRawQ);
-			// if the median of the raw radar data is over 100 then we start to scale the suppression based on how high the median is
-            if (temp > 100)
+			// if the median of the raw radar data is over noiseRejectionPassedParameter then we start to scale the suppression based on how high the median is
+            if (temp > noiseRejectionPassedParameter)
             {
-            	temp = temp - 100;
+            	temp = temp - noiseRejectionPassedParameter;
                 temp = (double)((int)temp >> 2); // divide by 4
-                temp = noiseRejectionPassedParameter + (temp * 0.1);
+                temp = 1 + (temp * 0.1);
             }
             else
             {
-            	temp = noiseRejectionPassedParameter;
+            	temp = 1;
             }
             IQRejectionToUse = (int)((double)HeapTrackMedian(medianRawQ) * temp);
 	} else {
