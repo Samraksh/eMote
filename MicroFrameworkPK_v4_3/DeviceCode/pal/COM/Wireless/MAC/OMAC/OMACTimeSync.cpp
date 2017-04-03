@@ -309,7 +309,9 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 			if(INVALID_NBR_ID != g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID){
 				if( g_NeighborTable.FindIndexEvenDead( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID, &index) == DS_Success){
 					if(g_NeighborTable.Neighbor[index].neighborStatus != Alive){ //If it exists in the neighbortable but marked as not alive, delete from the time entires from globalTime Table
-						g_NeighborTable.Neighbor[index].Clear();
+						g_NeighborTable.ClearNeighborwIndex(index);
+						g_NeighborTable.NumberValidNeighbor ++ ;
+						//g_NeighborTable.Neighbor[index].Clear();
 						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
 						if(!m_globalTime.regressgt2.IsTableFull()) {
 							is_space_available_in_table = true;

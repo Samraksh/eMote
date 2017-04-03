@@ -583,8 +583,20 @@ DeviceStatus NeighborTable::ClearNeighbor(UINT16 nodeId){
 	}
 }
 
-DeviceStatus NeighborTable::ClearNeighborwIndex(UINT8 tableIndex){
-	Neighbor[tableIndex].Clear();
+DeviceStatus NeighborTable::ClearNeighborwIndex(UINT8 index){
+	Message_15_4_t* msg_carrier;
+	msg_carrier = FindDataPacketForNeighbor(Neighbor[index].MACAddress);
+	while(msg_carrier != NULL){
+		g_NeighborTable.DeletePacket(msg_carrier);
+		msg_carrier = FindDataPacketForNeighbor(Neighbor[index].MACAddress);
+	}
+	msg_carrier = FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[index].MACAddress);
+	while(msg_carrier != NULL){
+		DeletePacket(msg_carrier);
+		msg_carrier = FindDataPacketForNeighbor(g_NeighborTable.Neighbor[index].MACAddress);
+	}
+
+	Neighbor[index].Clear();
 
 	NumberValidNeighbor--;
 	return DS_Success;
