@@ -92,6 +92,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACPipe
     static const int FIELD__PayloadType = 2;
     static const int FIELD__OnReceive = 3;
     static const int FIELD__OnSendStatus = 4;
+    static const int FIELD__msg_id_list = 5;
+    static const int FIELD__msg_id_list_ro = 6;
 
 
     //--//
