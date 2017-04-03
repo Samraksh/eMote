@@ -1514,7 +1514,16 @@
             <param name="payload">Payload (in byte array) to send</param>
             <param name="offset">Offset into array</param>
             <param name="size">Size of payload</param>
-            <returns>Result status</returns>
+            <returns>MsgID</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACPipe.EnqueueToSend(System.UInt16,System.Byte[],System.UInt16,System.UInt16,System.DateTime)">
+            <summary>Enqueue a message to be sent</summary>
+            <param name="address">Address of recipient</param>
+            <param name="payload">Payload (in byte array) to send</param>
+            <param name="offset">Offset into array</param>
+            <param name="size">Size of payload</param>
+            <param name="eventTime">Packet time. Used for calculating the time it spends at the buffer on the sending side. </param>
+            <returns>MsgID</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACPipe.NeighborList(System.UInt16[])">
             <summary>
