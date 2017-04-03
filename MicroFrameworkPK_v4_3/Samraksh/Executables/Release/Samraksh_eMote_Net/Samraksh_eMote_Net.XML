@@ -1482,6 +1482,11 @@
             The subscribed payload type for the this pipe
             </summary>
         </member>
+        <member name="M:Samraksh.eMote.Net.MACPipe.IsMsgIDValid(System.UInt16)">
+            <summary>IsPacketIDValid</summary>
+            <param name="msgid">msgid</param>
+            <returns>bool</returns>
+        </member>
         <member name="M:Samraksh.eMote.Net.MACPipe.#ctor(Samraksh.eMote.Net.MACBase,Samraksh.eMote.Net.PayloadType)">
             <summary>
             Register callback functions for CSHARP payload types. 

@@ -58,6 +58,14 @@ namespace Samraksh.eMote.Net
         protected ArrayList msg_id_list;
         public readonly ArrayList msg_id_list_ro;
 
+        /// <summary>IsPacketIDValid</summary>
+        /// <param name="msgid">msgid</param>
+        /// <returns>bool</returns>
+        public bool IsMsgIDValid(UInt16 msgid)
+        {
+            return MACBase.IsMsgIDValid(msgid);
+        }
+
 
 		/// <summary>
 		/// Register callback functions for CSHARP payload types. 
@@ -203,6 +211,8 @@ namespace Samraksh.eMote.Net
             }
             return msg_id;
         }
+
+
 
 
         public DeviceStatus GetMsgWithMsgID(ref byte[] nativeBuffer, UInt16 index)
