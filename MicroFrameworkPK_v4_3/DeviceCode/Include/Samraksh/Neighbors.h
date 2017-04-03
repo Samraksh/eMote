@@ -21,13 +21,13 @@
 #define TimeSync_Send_Buffer_15_4_t_SIZE 	1
 
 extern UINT8 MacName;
-#define MAX_NEIGHBORS 6
+#define MAX_NEIGHBORS 12
 #define INVALID_NEIGHBOR_INDEX 255
 #define INVALID_MACADDRESS 0
 #define INVALID_MACADDRESS2 65535
 #define ISMAC_VALID(x) ( (x==INVALID_MACADDRESS2 || x==INVALID_MACADDRESS) ? false : true)
 
-#define Total_Buffer_SIZE 15
+#define Total_Buffer_SIZE 18
 
 
 #define NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS 2
