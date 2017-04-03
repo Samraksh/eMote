@@ -108,7 +108,12 @@ namespace Samraksh.eMote.Net
             if (ACKStatus == SendPacketStatus.SendACKed || ACKStatus == SendPacketStatus.SendFailed)
             {
                 //Debug.Print("Deleting msg = " + msgid + " ACKStatus = " + ACKStatus);
-                this.DeleteMsgWithMsgID(msgid);
+              
+                
+                if (  this.DeleteMsgWithMsgID(msgid) != DeviceStatus.Success)
+                {
+                   MACBase.DeleteMsgWithMsgID(msgid);
+                }
             }
 
         }
@@ -130,7 +135,16 @@ namespace Samraksh.eMote.Net
 		/// <returns>Result status</returns>
 		public NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size)
 		{
-			return MACBase.Send(address, PayloadType, payload, offset, size);
+		    var msg_id = EnqueueToSend(address, payload, offset, size);
+
+            if (MACBase.IsMsgIDValid(msg_id)  )
+            {
+                return NetOpStatus.S_Success;
+            }
+            else
+            {
+                return NetOpStatus.E_MACBufferFull;
+            }
 		}
 
 		/// <summary>Send packet with time value</summary>
@@ -142,7 +156,16 @@ namespace Samraksh.eMote.Net
 		/// <returns>Result status</returns>
 		public NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size, DateTime eventTime)
 		{
-			return MACBase.Send(address, PayloadType, payload, offset, size, eventTime);
+            var msg_id = EnqueueToSend(address, payload, offset, size, eventTime);
+
+            if (MACBase.IsMsgIDValid(msg_id) )
+            {
+                return NetOpStatus.S_Success;
+            }
+            else
+            {
+                return NetOpStatus.E_MACBufferFull;
+            }
 		}
 
 
@@ -153,7 +176,7 @@ namespace Samraksh.eMote.Net
         /// <param name="payload">Payload (in byte array) to send</param>
         /// <param name="offset">Offset into array</param>
         /// <param name="size">Size of payload</param>
-        /// <returns>Result status</returns>
+        /// <returns>MsgID</returns>
         public UInt16 EnqueueToSend(ushort address, byte[] payload, ushort offset, ushort size)
         {
             UInt16 msg_id =  MACBase.EnqueueToSend(address, PayloadType, payload, offset, size);
@@ -163,6 +186,24 @@ namespace Samraksh.eMote.Net
             }
             return msg_id;
         }
+
+        /// <summary>Enqueue a message to be sent</summary>
+        /// <param name="address">Address of recipient</param>
+        /// <param name="payload">Payload (in byte array) to send</param>
+        /// <param name="offset">Offset into array</param>
+        /// <param name="size">Size of payload</param>
+        /// <param name="eventTime">Packet time. Used for calculating the time it spends at the buffer on the sending side. </param>
+        /// <returns>MsgID</returns>
+        public UInt16 EnqueueToSend(ushort address, byte[] payload, ushort offset, ushort size, DateTime eventTime)
+        {
+            UInt16 msg_id = MACBase.EnqueueToSend(address, PayloadType, payload, offset, size, eventTime);
+            if (MACBase.IsMsgIDValid(msg_id))
+            {
+                msg_id_list.Add(msg_id);
+            }
+            return msg_id;
+        }
+
 
         public DeviceStatus GetMsgWithMsgID(ref byte[] nativeBuffer, UInt16 index)
         {
