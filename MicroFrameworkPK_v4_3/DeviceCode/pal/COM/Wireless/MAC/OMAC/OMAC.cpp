@@ -1232,6 +1232,7 @@ Message_15_4_t* OMACType::FindFirstSyncedNbrMessage(){
  */
 UINT8 OMACType::UpdateNeighborTable(){
 	Neighbor_t* neighbor_ptr = NULL;
+	Message_15_4_t* msg_carrier = NULL;
 	UINT8 numberOfDeadNeighbors = 0, numberofNeighbors = 0;
 	UINT64 currentTime =  m_Clock.GetCurrentTimeinTicks();
 	UINT64 livelinessDelayInTicks = m_Clock.ConvertMicroSecstoTicks((UINT64)(MyConfig.NeighborLivenessDelay * 1000000));
@@ -1254,12 +1255,23 @@ UINT8 OMACType::UpdateNeighborTable(){
 						++numberOfDeadNeighbors;
 						g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
 						g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
+						//Return Packets for neighbors
+						msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+						while(msg_carrier){
+							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+							msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+						}
+						msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+						while(msg_carrier){
+							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+							msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+						}
 						//						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); //  BK: New logic enables deleting by the time sync table. We don't need to delete here.
 					}
-					else if(!g_NeighborTable.Neighbor[tableIndex].SendLink.IsReliable()){
-						++numberOfDeadNeighbors;
-						g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
-					}
+//					else if(!g_NeighborTable.Neighbor[tableIndex].SendLink.IsReliable()){
+//						++numberOfDeadNeighbors;
+//						g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
+//					}
 				}
 				else{ //If IsNeighborTime NOT Available
 					g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
@@ -1272,6 +1284,19 @@ UINT8 OMACType::UpdateNeighborTable(){
 #endif
 						++numberOfDeadNeighbors;
 						g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
+
+
+						msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+						while(msg_carrier){
+							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+							msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+						}
+						msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+						while(msg_carrier){
+							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+							msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+						}
+
 						//						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); // BK: New logic enables deleting by the time sync table. We don't need to delete here.
 					}
 					//					else{ //We are still waiting for time samples to accumulate to give reliable time estimate keep it in the table

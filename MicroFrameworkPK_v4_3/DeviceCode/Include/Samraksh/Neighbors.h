@@ -86,10 +86,10 @@ public:
 			Link_reliability_bitmap = Link_reliability_bitmap & 0x7F;
 		}
 	}
-	bool IsReliable(){
-		if(Link_reliability_bitmap <= 0x0F ) return false;
-		else return true;
-	}
+//	bool IsReliable(){
+//		if(Link_reliability_bitmap <= 0x0F ) return false;
+//		else return true;
+//	}
 };
 
 enum NeighborStatus {
@@ -394,23 +394,57 @@ public:
 		if(ISPACKET_ID_VALID(InsertMessageGetIndex(msg_carrier)) ) return true;
 		else return false;
 	}
-	PacketID_T InsertMessageGetIndex(Message_15_4_t* msg_carrier){
+	PacketID_T InsertMessageGetIndex(Message_15_4_t* msg_carrier){ //TODO: BK: This needs to be revisited. The criteria should not be whether there is a packet for a destination but whether there is a packet for a destination that piggybacks time info
+
 		if(msg_carrier){ // If the msg is valid
-			UINT8 numneigh = NumberofNeighborsWithNoPacketinQueue(); //Preserve space for nodes that do not have any packets in the buffer
-			if(numneigh < Total_Buffer_SIZE - send_buffer.GetNumberofElements()){ //If the remaining space is larger than the amount of space that needs to be preserved
-				while(IsThereATSRPacketWithDest(msg_carrier->GetHeaderConst()->GetDestConst())) {
-					DeletePacket(FindTSRPacketForNeighbor(msg_carrier->GetHeaderConst()->GetDestConst()));
+			if(IsThereAPacketWithDest(msg_carrier->GetHeader()->dest)){//Preserve space for nodes that do not have any packets in the buffer
+				UINT8 numneigh = NumberofNeighborsWithNoPacketinQueue();
+				if(numneigh < Total_Buffer_SIZE - send_buffer.GetNumberofElements()){ //If the remaining space is larger than the amount of space that needs to be preserved
+					while(IsThereATSRPacketWithDest(msg_carrier->GetHeaderConst()->GetDestConst())) {
+						DeletePacket(FindTSRPacketForNeighbor(msg_carrier->GetHeaderConst()->GetDestConst()));
+					}
+	#if NEIGHBORS_DEBUG_QUEUE_INSERT
+					hal_printf("\n There is enough space in queue attempting to insert");
+	#endif
+					return send_buffer.InsertMessageGetIndex(msg_carrier);
 				}
+				else{ // Refuse packet If we need to preserve empty space
+	#if NEIGHBORS_DEBUG_QUEUE_INSERT
+					hal_printf("\nRefuse packet due to need for preserving space numneigh = %u ,  nuel = %u \n", numneigh, send_buffer.GetNumberofElements());
+	#endif
+					return INVALID_PACKET_ID;
+				}
+
+			}
+			else{ //This dest has no packets directly insert
 #if NEIGHBORS_DEBUG_QUEUE_INSERT
-				hal_printf("\n There is enough space in queue attempting to insert");
+				hal_printf("\n There might be critical space in queue but inserting since this since no other packets exists for this dest");
 #endif
 				return send_buffer.InsertMessageGetIndex(msg_carrier);
-			}
-			else{ // Refuse packet If we need to preserve empty space
-#if NEIGHBORS_DEBUG_QUEUE_INSERT
-				hal_printf("\nRefuse packet due to need for preserving space numneigh = %u ,  nuel = %u \n", numneigh, send_buffer.GetNumberofElements());
-#endif
-				return INVALID_PACKET_ID;
+//				if(msg_carrier->GetHeader()->flags & (TIMESTAMPED_FLAG)){
+//#if NEIGHBORS_DEBUG_QUEUE_INSERT
+//				hal_printf("\n There might be critical space in queue but inserting since this since no other packets exists and this is a timesync packet");
+//#endif
+//				return send_buffer.InsertMessageGetIndex(msg_carrier);
+//				}
+//				else{
+//					UINT8 numneigh = NumberofNeighborsWithNoPacketinQueue(); //Preserve space for nodes that do not have any packets in the buffer
+//					if(numneigh < Total_Buffer_SIZE - send_buffer.GetNumberofElements()){ //If the remaining space is larger than the amount of space that needs to be preserved
+//						while(IsThereATSRPacketWithDest(msg_carrier->GetHeaderConst()->GetDestConst())) {
+//							DeletePacket(FindTSRPacketForNeighbor(msg_carrier->GetHeaderConst()->GetDestConst()));
+//						}
+//		#if NEIGHBORS_DEBUG_QUEUE_INSERT
+//						hal_printf("\n There is enough space in queue attempting to insert");
+//		#endif
+//						return send_buffer.InsertMessageGetIndex(msg_carrier);
+//					}
+//					else{ // Refuse packet If we need to preserve empty space
+//		#if NEIGHBORS_DEBUG_QUEUE_INSERT
+//						hal_printf("\nRefuse packet due to need for preserving space numneigh = %u ,  nuel = %u \n", numneigh, send_buffer.GetNumberofElements());
+//		#endif
+//						return INVALID_PACKET_ID;
+//					}
+//				}
 			}
 		}
 		else{  // Refuse packet If no packet exists
@@ -431,6 +465,23 @@ public:
 		return INVALID_PACKET_ID;
 	}
 
+	void FlushDataPacketQueueForNeighbor(const UINT16 address){
+		Message_15_4_t* msg_carrier = FindDataPacketForNeighbor(address);
+		while(msg_carrier){
+			DeletePacket(msg_carrier);
+		}
+	}
+	void FlushTSRPacketQueueForNeighbor(const UINT16 address){
+		Message_15_4_t* msg_carrier = FindTSRPacketForNeighbor(address);
+		while(msg_carrier){
+			DeletePacket(msg_carrier);
+		}
+	}
+
+	void FlushAllPacketQueueForNeighbor(const UINT16 address){
+		FlushTSRPacketQueueForNeighbor(address);
+		FlushDataPacketQueueForNeighbor(address);
+	}
 };
 
 
