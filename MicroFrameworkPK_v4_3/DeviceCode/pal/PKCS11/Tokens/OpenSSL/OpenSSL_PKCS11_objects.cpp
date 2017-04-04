@@ -200,7 +200,7 @@ CK_RV PKCS11_Objects_OpenSSL::CreateObject(Cryptoki_Session_Context* pSessionCtx
                     }
                 }
                 break;
-                
+
         }
     }
 

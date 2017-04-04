@@ -9,11 +9,12 @@
 #define PKCS11_MBEDTLS_MAX_OBJECT_COUNT 20
 #endif
 
+//Check for the MBEDTLS implementation size in config.h
 #ifndef PKCS11_MBEDTLS_MAX_IV_LEN
-#define PKCS11_MBEDTLS_MAX_IV_LEN 64
+#define PKCS11_MBEDTLS_MAX_IV_LEN 16
 #endif
 
-#define PKCS11_MBEDTLS_MAX_SESSION_COUNT 10
+#define PKCS11_MBEDTLS_MAX_SESSION_COUNT 5
 
 
 ///////////////Macro Definitions
@@ -40,7 +41,7 @@
 }
 
 #define PKCS11_MBEDTLS_CHECKRESULT(x) \
-    if((x) <= 0) PKCS11_MBEDTLS_SET_AND_LEAVE(CKR_FUNCTION_FAILED)
+    if((x) != 0) PKCS11_MBEDTLS_SET_AND_LEAVE(CKR_FUNCTION_FAILED)
 
 #define PKCS11_MBEDTLS_CHECK_CK_RESULT(x) \
     if(CKR_OK != (retVal = x)) PKCS11_MBEDTLS_LEAVE()

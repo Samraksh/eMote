@@ -1,27 +1,38 @@
 #include "mbedTLS_PKCS11.h"
 #include <mbedtls/cipher.h>
 
-BOOL MBedTLSEncryptDecryptInit(mbedtls_cipher_context_t *cipher_ctx, const unsigned char *key,
+int MBedTLSEncryptDecryptInit(mbedtls_cipher_context_t *cipher_ctx, const unsigned char *key,
         int key_bitlen, const unsigned char *iv, size_t iv_len, BOOL encrypt)
 {
-    BOOL ret=FALSE;
+    int ret=-1;
+    const mbedtls_cipher_info_t *info = cipher_ctx->cipher_info;
+    mbedtls_cipher_init( cipher_ctx );
+    if( mbedtls_cipher_setup(cipher_ctx, info) != 0 ) {
+    	hal_printf("mbedTLS Cipher Setup failed!\n");
+    	return ret;
+    }
+    //cipher_ctx->cipher_info = info;
+
     if(encrypt){
-		if( mbedtls_cipher_setkey(cipher_ctx, key, key_bitlen, MBEDTLS_ENCRYPT) ){
-			if( mbedtls_cipher_set_iv(cipher_ctx, iv, iv_len) ){
-				if( mbedtls_cipher_reset(cipher_ctx )){
-					ret =TRUE;
+		if( mbedtls_cipher_setkey(cipher_ctx, key, key_bitlen, MBEDTLS_ENCRYPT) == 0 ){
+			if( mbedtls_cipher_set_iv(cipher_ctx, iv, iv_len)  == 0){
+				if( mbedtls_cipher_reset(cipher_ctx ) == 0){
+					ret =0;
+					hal_printf("mbedTLS Cipher Set Key Success for Encrypt: cipher specific ctx ptr %p !\n", cipher_ctx->cipher_ctx);
 				}
 			}
 		}
     }
     else {
-		if(mbedtls_cipher_setkey(cipher_ctx, key, key_bitlen, MBEDTLS_DECRYPT)){
-			if(mbedtls_cipher_set_iv(cipher_ctx, iv, iv_len)){
-				if(mbedtls_cipher_reset(cipher_ctx )){
-					ret=TRUE;
+
+		/*if(mbedtls_cipher_setkey(cipher_ctx, key, key_bitlen, MBEDTLS_DECRYPT) == 0){
+			if(mbedtls_cipher_set_iv(cipher_ctx, iv, iv_len) == 0){
+				if(mbedtls_cipher_reset(cipher_ctx ) == 0){
+					hal_printf("mbedTLS Cipher Set Key Success for DeCrypt!\n");
+					ret=0;
 				}
 			}
-		}
+		}*/
     }
    return ret;
 }
@@ -38,11 +49,11 @@ CK_RV  MBEDTLS_PKCS11_Encryption::InitHelper(Cryptoki_Session_Context* pSessionC
     if( isEncrypt && pSessionCtx->EncryptionCtx != NULL) return CKR_SESSION_PARALLEL_NOT_SUPPORTED;
     if(!isEncrypt && pSessionCtx->DecryptionCtx != NULL) return CKR_SESSION_PARALLEL_NOT_SUPPORTED;
 
-    pEnc = (mbedTLSEncryptData*)private_malloc(sizeof(*pEnc));
+    pEnc = (mbedTLSEncryptData*)private_malloc(sizeof(mbedTLSEncryptData));
 
     if(pEnc == NULL) return CKR_DEVICE_MEMORY;
 
-    memset(pEnc, 0, sizeof(*pEnc));
+    memset(pEnc, 0, sizeof(mbedTLSEncryptData));
 
     pEnc->Key = MBEDTLS_PKCS11_Keys::GetKeyFromHandle(pSessionCtx, hKey, !isEncrypt);
 
@@ -123,13 +134,21 @@ CK_RV  MBEDTLS_PKCS11_Encryption::InitHelper(Cryptoki_Session_Context* pSessionC
             ivSize=pEncryptMech->ulParameterLen;
         }
 
-        pEnc->Key->ctx = &pEnc->SymmetricCtx;
+        if(ivSize > PKCS11_MBEDTLS_MAX_IV_LEN) {
+        	PKCS11_MBEDTLS_SET_AND_LEAVE(CKR_FUNCTION_NOT_SUPPORTED);
+        }
+
+        pEnc->Key->ctx = &(pEnc->SymmetricCtx);
+
+        KEY_DATA tmpKey;
+        memcpy(&tmpKey,pEnc->Key, sizeof(KEY_DATA));
 
         //Initialize Encryption or Decryption
         PKCS11_MBEDTLS_CHECKRESULT( MBedTLSEncryptDecryptInit(&pEnc->SymmetricCtx, (const UINT8*)pEnc->Key->key,
         		pEnc->Key->size, pEnc->IV, ivSize, isEncrypt ) );
 
-        //TODO: Not sure how to do padding
+        memcpy(pEnc->Key,&tmpKey, sizeof(KEY_DATA));
+        //TODO: Mukundan: Not sure how to do padding
         //PKCS11_MBEDTLS_CHECKRESULT(EVP_CIPHER_CTX_set_padding(&pEnc->SymmetricCtx, padding));
     }
     else
@@ -226,16 +245,19 @@ CK_RV MBEDTLS_PKCS11_Encryption::EncryptUpdate(Cryptoki_Session_Context* pSessio
     if(pSessionCtx == NULL || pSessionCtx->EncryptionCtx == NULL) return CKR_SESSION_CLOSED;
 
     pEnc = (mbedTLSEncryptData*)pSessionCtx->EncryptionCtx;
+    //mbedtls_cipher_context_t * cipher_ctx = (mbedtls_cipher_context_t *)pEnc->Key->ctx;
+    mbedtls_cipher_context_t * cipher_ctx = (mbedtls_cipher_context_t *) &pEnc->SymmetricCtx;
+
+    hal_printf("Crypto specific ctx ptr: %p \n", cipher_ctx->cipher_ctx );
 
     if(pEnc->IsSymmetric)
     {
         size_t outLen = *pulEncryptedPartLen;
-        PKCS11_MBEDTLS_CHECKRESULT( mbedtls_cipher_update ((mbedtls_cipher_context_t *)pEnc->Key->ctx,  pPart, ulPartLen, pEncryptedPart, &outLen));
+        PKCS11_MBEDTLS_CHECKRESULT( mbedtls_cipher_update (cipher_ctx,  pPart, ulPartLen, pEncryptedPart, &outLen));
         *pulEncryptedPartLen = outLen;
     }
     else
     {
-
     	//size_t encLen = *pulEncryptedPartLen;
         //PKCS11_MBEDTLS_CHECKRESULT(EVP_PKEY_encrypt((EVP_PKEY_CTX*)pEnc->Key->ctx, pEncryptedPart, &encLen, pPart, ulPartLen));
         //*pulEncryptedPartLen = encLen;

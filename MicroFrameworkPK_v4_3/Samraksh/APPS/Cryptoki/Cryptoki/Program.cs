@@ -63,8 +63,6 @@ namespace Cryptoki
 
             //Create encryptor and decryptor
             var encryptor = aes.CreateEncryptor();
-            var decryptor = aes.CreateDecryptor();
-
 
             // The data we want to encrypt
             string original_string = "Samraksh eMote Cryptoki Demo!";
@@ -72,13 +70,17 @@ namespace Cryptoki
             byte[] original_data = UTF8Encoding.UTF8.GetBytes(original_string);
             //Encrypt the data
             byte[] encrypted_bytes = encryptor.TransformFinalBlock(original_data, 0, original_data.Length);
+
             //Decrypt the data
-            byte[] decrypted_bytes = decryptor.TransformFinalBlock(encrypted_bytes,0, encrypted_bytes.Length);
+            //var decryptor = aes.CreateDecryptor();
+            //byte[] decrypted_bytes = decryptor.TransformFinalBlock(encrypted_bytes,0, encrypted_bytes.Length);
             //print the decrypted data
-            string decrypted_string = new string(Encoding.UTF8.GetChars(decrypted_bytes));
+
+            //string decrypted_string = new string(Encoding.UTF8.GetChars(decrypted_bytes));
             Debug.Print("Data Size= " + original_string.Length + ", Data= " + original_string);
             Debug.Print("Encrypted Data: " + encrypted_bytes.ToString());
-            Debug.Print("Encrypted Data size= " + encrypted_bytes.Length + ", Decrypted Data= " + decrypted_string);
+            Debug.Print("Encrypted Data size= " + encrypted_bytes.Length);
+            //Debug.Print("Decrypted Data= " + decrypted_string);
         }
 
         public static void Main()
