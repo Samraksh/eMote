@@ -37,6 +37,13 @@ int MBedTLSEncryptDecryptInit(mbedtls_cipher_context_t *cipher_ctx, const unsign
    return ret;
 }
 
+int FreeCyptoData(mbedTLSEncryptData* pEnc){
+	mbedtls_cipher_context_t *cipher_ctx = &pEnc->SymmetricCtx;
+	mbedtls_cipher_free(cipher_ctx);
+	private_free(pEnc);
+	return 0;
+}
+
 CK_RV  MBEDTLS_PKCS11_Encryption::InitHelper(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pEncryptMech, CK_OBJECT_HANDLE hKey, BOOL isEncrypt)
 {
     PKCS11_MBEDTLS_HEADER();
@@ -175,7 +182,7 @@ CK_RV  MBEDTLS_PKCS11_Encryption::InitHelper(Cryptoki_Session_Context* pSessionC
     PKCS11_MBEDTLS_CLEANUP();
     if(retVal != CKR_OK && pEnc != NULL)
     {
-        private_free(pEnc);
+    	FreeCyptoData(pEnc);
     }
     PKCS11_MBEDTLS_RETURN();
 }
@@ -269,7 +276,7 @@ CK_RV MBEDTLS_PKCS11_Encryption::EncryptUpdate(Cryptoki_Session_Context* pSessio
 
     if(retVal != CKR_OK)
     {
-        private_free(pEnc);
+    	FreeCyptoData(pEnc);
         pSessionCtx->EncryptionCtx = NULL;
     }
 
@@ -292,7 +299,7 @@ CK_RV MBEDTLS_PKCS11_Encryption::EncryptFinal(Cryptoki_Session_Context* pSession
         PKCS11_MBEDTLS_CHECKRESULT(mbedtls_cipher_finish((mbedtls_cipher_context_t *)pEnc->Key->ctx, pLastEncryptedPart, &outLen));
         *pulLastEncryptedPartLen = outLen;
 
-        PKCS11_MBEDTLS_CHECKRESULT(mbedtls_cipher_reset((mbedtls_cipher_context_t *)pEnc->Key->ctx));
+       // PKCS11_MBEDTLS_CHECKRESULT(mbedtls_cipher_reset((mbedtls_cipher_context_t *)pEnc->Key->ctx));
     }
     else
     {
@@ -304,7 +311,7 @@ CK_RV MBEDTLS_PKCS11_Encryption::EncryptFinal(Cryptoki_Session_Context* pSession
 
     PKCS11_MBEDTLS_CLEANUP();
 
-    private_free(pEnc);
+    FreeCyptoData(pEnc);
     pSessionCtx->EncryptionCtx = NULL;
 
     PKCS11_MBEDTLS_RETURN();
@@ -396,7 +403,7 @@ CK_RV MBEDTLS_PKCS11_Encryption::DecryptUpdate(Cryptoki_Session_Context* pSessio
 
     if(retVal != CKR_OK)
     {
-        private_free(pDec);
+    	FreeCyptoData(pDec);
         pSessionCtx->DecryptionCtx = NULL;
     }
 
@@ -430,7 +437,7 @@ CK_RV MBEDTLS_PKCS11_Encryption::DecryptFinal(Cryptoki_Session_Context* pSession
 
     PKCS11_MBEDTLS_CLEANUP();
 
-    private_free(pDec);
+    FreeCyptoData(pDec);
     pSessionCtx->DecryptionCtx = NULL;
 
     PKCS11_MBEDTLS_RETURN();

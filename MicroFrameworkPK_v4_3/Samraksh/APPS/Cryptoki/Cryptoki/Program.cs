@@ -50,6 +50,19 @@ namespace Cryptoki
            r.GetBytes(bkey);
        }
        */
+
+       public static string ByteArrayToString (byte[] bArray)
+        {
+            //char[] cArray = bArray;
+            string s ="";
+            for (int i = 0; i < bArray.Length; i++)
+            {
+                s += bArray[i].ToString();
+                s += " ";
+            }
+            return s;
+        }
+
        public void AES_Example()
        {
 
@@ -69,8 +82,8 @@ namespace Cryptoki
             //convert to byte array
             byte[] original_data = UTF8Encoding.UTF8.GetBytes(original_string);
             //Encrypt the data
-            byte[] encrypted_bytes = encryptor.TransformFinalBlock(original_data, 0, original_data.Length);
-
+            byte[] en_bytes = encryptor.TransformFinalBlock(original_data, 0, original_data.Length);
+            //string en_s = new string(Encoding.UTF8.GetChars(en_bytes));
             //Decrypt the data
             //var decryptor = aes.CreateDecryptor();
             //byte[] decrypted_bytes = decryptor.TransformFinalBlock(encrypted_bytes,0, encrypted_bytes.Length);
@@ -78,8 +91,8 @@ namespace Cryptoki
 
             //string decrypted_string = new string(Encoding.UTF8.GetChars(decrypted_bytes));
             Debug.Print("Data Size= " + original_string.Length + ", Data= " + original_string);
-            Debug.Print("Encrypted Data: " + encrypted_bytes.ToString());
-            Debug.Print("Encrypted Data size= " + encrypted_bytes.Length);
+            Debug.Print("Encrypted Data: " + ByteArrayToString(en_bytes));
+            Debug.Print("Encrypted Data size= " + en_bytes.Length);
             //Debug.Print("Decrypted Data= " + decrypted_string);
         }
 
