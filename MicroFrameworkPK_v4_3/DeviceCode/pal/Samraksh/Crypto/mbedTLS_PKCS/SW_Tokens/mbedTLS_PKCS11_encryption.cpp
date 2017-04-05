@@ -40,7 +40,7 @@ int MBedTLSEncryptDecryptInit(mbedtls_cipher_context_t *cipher_ctx, const unsign
 int FreeCyptoData(mbedTLSEncryptData* pEnc){
 	mbedtls_cipher_context_t *cipher_ctx = &pEnc->SymmetricCtx;
 	mbedtls_cipher_free(cipher_ctx);
-	private_free(pEnc);
+	PKCS11_MBEDTLS_FREE(pEnc);
 	return 0;
 }
 
@@ -56,7 +56,7 @@ CK_RV  MBEDTLS_PKCS11_Encryption::InitHelper(Cryptoki_Session_Context* pSessionC
     if( isEncrypt && pSessionCtx->EncryptionCtx != NULL) return CKR_SESSION_PARALLEL_NOT_SUPPORTED;
     if(!isEncrypt && pSessionCtx->DecryptionCtx != NULL) return CKR_SESSION_PARALLEL_NOT_SUPPORTED;
 
-    pEnc = (mbedTLSEncryptData*)private_malloc(sizeof(mbedTLSEncryptData));
+    pEnc = (mbedTLSEncryptData*)PKCS11_MBEDTLS_MALLOC(sizeof(mbedTLSEncryptData));
 
     if(pEnc == NULL) return CKR_DEVICE_MEMORY;
 
@@ -174,6 +174,8 @@ CK_RV  MBEDTLS_PKCS11_Encryption::InitHelper(Cryptoki_Session_Context* pSessionC
             PKCS11_MBEDTLS_CHECKRESULT(EVP_PKEY_CTX_set_rsa_padding((EVP_PKEY_CTX*)pEnc->Key->ctx, padding));
         }
         */
+    	PKCS11_MBEDTLS_SET_AND_LEAVE(CKR_FUNCTION_NOT_SUPPORTED);
+
     }
 
     if(isEncrypt) pSessionCtx->EncryptionCtx = pEnc;

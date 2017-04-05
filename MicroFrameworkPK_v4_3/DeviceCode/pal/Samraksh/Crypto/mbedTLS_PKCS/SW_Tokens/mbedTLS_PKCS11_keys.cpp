@@ -1,6 +1,23 @@
 #include "mbedTLS_PKCS11.h"
 #include "../../RandomUtils.h"
 
+const UINT16 KEY_DATA_SIZE=((256+7)/8+sizeof(KEY_DATA));
+#define MAX_KEYS 4
+UINT8 KeyArray[MAX_KEYS][KEY_DATA_SIZE];
+BOOL KeyArrayUse[MAX_KEYS];
+
+int FindEmptyKeyIndex(){
+	int ret= -1;
+	for (int i=0 ; i< MAX_KEYS; i++)
+	{
+		if(KeyArrayUse[i]==0){
+			ret = i;
+			break;
+		}
+	}
+	return ret;
+}
+
 CK_RV MBEDTLS_PKCS11_Keys::DeleteKey(Cryptoki_Session_Context* pSessionCtx, KEY_DATA* pKey)
 {
     if(pKey == NULL) return CKR_OBJECT_HANDLE_INVALID;
@@ -49,10 +66,22 @@ CK_RV MBEDTLS_PKCS11_Keys::GenerateKey(Cryptoki_Session_Context* pSessionCtx, CK
 	                KEY_DATA* pKey = NULL;
 
 	                *phKey = MBEDTLS_PKCS11_Objects::AllocObject(pSessionCtx, KeyType, (len+7)/8 + sizeof(KEY_DATA), &pData);
-
+	                /*
+	                //Todo::Mukundan:: The following a hack to fix a problem with vanish Key data.
+	                //This needs to be relooked
+	                int x=FindEmptyKeyIndex();
+	                if(x<0){
+	                	return CKR_DEVICE_MEMORY;
+	                }
+	                else {
+	                	*phKey = (CK_OBJECT_HANDLE) KeyArray[x];
+	                }
+					*/
 	                if(*phKey == CK_OBJECT_HANDLE_INVALID) return CKR_DEVICE_MEMORY;
 
 	                pKey = (KEY_DATA*)pData->Data;
+
+	                //pKey->ArrayIndex = x;
 
 	                GetRandomBytes((UINT8*)&pKey[1], len/8);
 

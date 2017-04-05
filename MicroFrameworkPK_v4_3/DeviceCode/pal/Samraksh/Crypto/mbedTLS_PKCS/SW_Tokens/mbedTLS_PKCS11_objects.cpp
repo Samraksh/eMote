@@ -44,7 +44,7 @@ BOOL MBEDTLS_PKCS11_Objects::FreeObject(Cryptoki_Session_Context* pSessionCtx, C
     retVal = &s_Objects[(int)hObject];
     if(retVal->Data == NULL) return FALSE;
 
-    private_free(retVal->Data);
+    PKCS11_MBEDTLS_FREE(retVal->Data);
     retVal->Data = NULL;
     retVal->RefCount = 0;
 
@@ -61,7 +61,7 @@ CK_OBJECT_HANDLE MBEDTLS_PKCS11_Objects::AllocObject(Cryptoki_Session_Context* p
     *ppData = &s_Objects[idx];
 
     (*ppData)->Type = type;
-    (*ppData)->Data = private_malloc(size);
+    (*ppData)->Data = PKCS11_MBEDTLS_MALLOC(size);
     (*ppData)->RefCount = 1;
 
     if((*ppData)->Data == NULL) return CK_OBJECT_HANDLE_INVALID;

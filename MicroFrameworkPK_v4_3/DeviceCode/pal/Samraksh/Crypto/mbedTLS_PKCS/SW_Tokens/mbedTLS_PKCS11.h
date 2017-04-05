@@ -1,4 +1,7 @@
 #include <PKCS11\CryptokiPAL.h>
+#include <TinyCLR_Runtime.h>
+#include <TinyCLR_Runtime__HeapBlock.h>
+
 #include <mbedtls/pkcs11.h>
 #include <mbedtls/cipher.h>
 
@@ -46,12 +49,20 @@
 #define PKCS11_MBEDTLS_CHECK_CK_RESULT(x) \
     if(CKR_OK != (retVal = x)) PKCS11_MBEDTLS_LEAVE()
 
+/////////////Malloc and Free////////////////
+
+#define PKCS11_MBEDTLS_MALLOC(x) \
+	CLR_RT_Memory::Allocate(x,CLR_RT_HeapBlock::HB_Unmovable | CLR_RT_HeapBlock::HB_Alive)
+
+#define PKCS11_MBEDTLS_FREE(x) \
+	CLR_RT_Memory::Release(x)
 
 extern CK_SLOT_INFO  g_mbedTLS_SlotInfo;
 extern CryptokiToken g_mbedTLS_Token;
 
 typedef struct _KEY_DATA
 {
+	UINT8 		ArrayIndex;
     CK_KEY_TYPE       type;
     CK_ULONG          size;
     KEY_ATTRIB        attrib;
