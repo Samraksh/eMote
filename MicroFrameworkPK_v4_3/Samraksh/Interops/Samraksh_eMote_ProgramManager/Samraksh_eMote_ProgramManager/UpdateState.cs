@@ -17,6 +17,7 @@ namespace Samraksh.eMote.ProgramManager
         GETMISSINGPACKETS = 7, GETMISSINGPACKETS_ACK = 8,
         ADDPACKET = 9, ADDPACKET_ACK = 10,
         INSTALL = 11, INSTALL_ACK = 12,
+        FAIL = 13,
     };
 
     /// <summary>
