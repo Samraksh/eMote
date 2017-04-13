@@ -417,6 +417,7 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                     {
                         //TODO: create and read reason for failure
                         SOFT_BREAKPOINT();
+                        Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, START_ACK, 0);
                     }
                 }
             }
