@@ -29,6 +29,7 @@ enum UpdateMessage
         GETMISSINGPKTS = 7, GETMISSINGPKTS_ACK = 8,
         ADDPACKET = 9, ADDPACKET_ACK = 10,
         INSTALL = 11, INSTALL_ACK = 12,
+        FAIL_GENERIC = 13, // FAIL_NEIGHBOR, FAIL_NO_STORAGE, FAIL_TOO_BIG???
 };
 
 /// used for g_UpdateManagerContext for Interop callback.
