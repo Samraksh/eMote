@@ -119,7 +119,7 @@ BOOL Samraksh_Emote_Update::s_fRadioOn = false;
 BOOL Samraksh_Emote_Update::s_fBaseStationMode = false;
 BOOL Samraksh_Emote_Update::s_fPublishUpdateMode = false;
 UINT16 Samraksh_Emote_Update::s_destAddr = MAC_BROADCAST_ADDRESS;
-UINT32 Samraksh_Emote_Update::s_destMissingPkts[MFUpdate::MAX_MISSING_WORDFIELD_SIZE];
+UINT32 Samraksh_Emote_Update::s_destMissingPkts[MFUpdate::MAX_MISSING_WORDFIELD_SIZE]; // TODO: static assert 4*MAX_MISSING_WORDFIELD_SIZE must be less than IEEE802_15_4_MAX_PAYLOAD - sizeof(simple_header_t)
 UINT8 Samraksh_Emote_Update::s_RadioID = RF231RADIO;
 UPDATER_PROGRESS_HANDLER Samraksh_Emote_Update::s_UpdaterProgressHandler = 0;
 
@@ -238,6 +238,7 @@ bool Samraksh_Emote_Update::Wireless_Phy_TransmitMessage( void* state, const WP_
 		}
 		else {
 			// send shorter packet over wireless interface.
+			//TODO: split message bigger than IEEE802_15_4_MAX_PAYLOAD into multiple messages. 
 			size_t shortHeaderSize = sizeof(UINT32 /*m_cmd*/) + sizeof(UINT32 /*m_flags*/);
 			((simple_payload_t*)g_Samraksh_Emote_Update.SendBuffer)->cmd = msg->m_header.m_cmd;
 			((simple_payload_t*)g_Samraksh_Emote_Update.SendBuffer)->flags = msg->m_header.m_flags;
