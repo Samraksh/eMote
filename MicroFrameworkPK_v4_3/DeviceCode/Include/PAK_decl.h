@@ -97,6 +97,7 @@ private:
 public:
     static const INT32 COMM_BUFFER_SIZE = IEEE802_15_4_MAX_PAYLOAD;
     static const INT32 MAX_MSG_PAYLOAD = COMM_BUFFER_SIZE - (sizeof(simple_payload_t) - 1);
+    static const INT32 MAX_ADDPACKET_DATA = MAX_MSG_PAYLOAD - 4*sizeof(CLR_UINT32); //TODO: FIXME: use actual offsetof(MFUpdate_AddPacket)?
 
     MACEventHandler PAK_EventHandler;  //!< handle incoming wireless events.
     UINT8 PAK_MacName;                 //!< really enum MacName, aka MacId in other parts of the API.
