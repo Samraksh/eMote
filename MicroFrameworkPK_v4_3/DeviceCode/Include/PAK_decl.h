@@ -95,8 +95,7 @@ private:
 
 
 public:
-    static const INT32 COMM_BUFFER_SIZE = (IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t));
-    //TODO: static_assert(COMM_BUFFER_SIZE == MAC.h's template instantiation size minus the header).
+    static const INT32 COMM_BUFFER_SIZE = IEEE802_15_4_MAX_PAYLOAD;
 
     MACEventHandler PAK_EventHandler;  //!< handle incoming wireless events.
     UINT8 PAK_MacName;                 //!< really enum MacName, aka MacId in other parts of the API.
