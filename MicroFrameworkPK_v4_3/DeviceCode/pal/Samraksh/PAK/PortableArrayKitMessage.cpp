@@ -1084,6 +1084,14 @@ void Samraksh_Emote_Update::SendStart(UpdateID_t updateId, UINT16 destAddr)
         SOFT_BREAKPOINT();
         return;
     }
+    if( update->Header.PacketSize > MAX_ADDPACKET_DATA ) {
+        SOFT_BREAKPOINT();//TODO: USE MACRO and ALLOW FOR HALPRINTF INSTEAD.
+        return;
+    }
+    if( update->Header.UpdateSize > ( update->Header.PacketSize * MAX_MISSING_WORDFIELD_SIZE * 32 ) ) {//TODO: fix access to MAX...
+        SOFT_BREAKPOINT();//TODO: tell user.
+        return;
+    }
 
     WP_Message* msg = &g_Samraksh_Emote_Update.m_outboundMessage;
 
