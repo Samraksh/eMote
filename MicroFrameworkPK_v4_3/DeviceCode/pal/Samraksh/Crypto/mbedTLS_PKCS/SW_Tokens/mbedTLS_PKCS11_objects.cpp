@@ -2,7 +2,12 @@
 #include <tinyhal.h>
 
 OBJECT_DATA MBEDTLS_PKCS11_Objects::s_Objects[];
-
+const UINT16 KEY_DATA_SIZE=((256+7)/8+sizeof(KEY_DATA));
+//extern const UINT16 KEY_DATA_SIZE;
+//extern UINT8 **KeyArray;
+//extern bool KeyArrayUse[PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT];
+extern CK_RV AllocateKeyData(KEY_DATA **pKey);
+extern CK_RV FreeKeyData(KEY_DATA *pKey);
 
 void MBEDTLS_PKCS11_Objects::IntitializeObjects()
 {
@@ -23,12 +28,17 @@ OBJECT_DATA* MBEDTLS_PKCS11_Objects::GetObjectFromHandle(Cryptoki_Session_Contex
 {
     OBJECT_DATA* retVal;
 
-    if((int)hObject < 0 || hObject >= ARRAYSIZE(s_Objects))
+    if((int)hObject < 0 || hObject >= PKCS11_MBEDTLS_MAX_OBJECT_COUNT)
     {
         return NULL;
     }
+    //if((int)hObject >= PKCS11_MBEDTLS_MAX_HEAP_OBJECT_COUNT && (int)hObject < PKCS11_MBEDTLS_MAX_OBJECT_COUNT){
+    	//This is a static Key object.
+    	//retVal= (OBJECT_DATA*)KeyArray[(int)hObject - PKCS11_MBEDTLS_MAX_HEAP_OBJECT_COUNT];
 
-    retVal = &s_Objects[(int)hObject];
+    //}else {
+    	retVal = &s_Objects[(int)hObject];
+    //}
     return (retVal->Data == NULL) ? NULL : retVal;
 }
 
@@ -44,7 +54,11 @@ BOOL MBEDTLS_PKCS11_Objects::FreeObject(Cryptoki_Session_Context* pSessionCtx, C
     retVal = &s_Objects[(int)hObject];
     if(retVal->Data == NULL) return FALSE;
 
-    PKCS11_MBEDTLS_FREE(retVal->Data);
+    if(retVal->Type == KeyType){
+    	FreeKeyData((KEY_DATA*)retVal->Data);
+    }else {
+    	PKCS11_MBEDTLS_FREE(retVal->Data);
+    }
     retVal->Data = NULL;
     retVal->RefCount = 0;
 
@@ -61,9 +75,12 @@ CK_OBJECT_HANDLE MBEDTLS_PKCS11_Objects::AllocObject(Cryptoki_Session_Context* p
     *ppData = &s_Objects[idx];
 
     (*ppData)->Type = type;
-    (*ppData)->Data = PKCS11_MBEDTLS_MALLOC(size);
+    if(type == KeyType){
+    	AllocateKeyData((KEY_DATA **) &(*ppData)->Data);
+    }else {
+    	(*ppData)->Data = PKCS11_MBEDTLS_MALLOC(size);
+    }
     (*ppData)->RefCount = 1;
-
     if((*ppData)->Data == NULL) return CK_OBJECT_HANDLE_INVALID;
 
     memset((*ppData)->Data, 0, size);
@@ -235,6 +252,13 @@ CK_RV MBEDTLS_PKCS11_Objects::CopyObject(Cryptoki_Session_Context* pSessionCtx, 
 
 CK_RV MBEDTLS_PKCS11_Objects::DestroyObject(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject)
 {
+	 /*if((int)hObject >= PKCS11_MBEDTLS_MAX_HEAP_OBJECT_COUNT && (int)hObject < PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT){
+	    	//This is a static Key object.
+	    	//memset(KeyArray[(int)hObject - PKCS11_MBEDTLS_MAX_HEAP_OBJECT_COUNT], 0, KEY_DATA_SIZE);
+	    	//KeyArrayUse[(int)hObject - PKCS11_MBEDTLS_MAX_HEAP_OBJECT_COUNT]=0;
+
+	 }*/
+
 	OBJECT_DATA* pData = GetObjectFromHandle(pSessionCtx, hObject);
 
 	if(pData == NULL) return CKR_OBJECT_HANDLE_INVALID;

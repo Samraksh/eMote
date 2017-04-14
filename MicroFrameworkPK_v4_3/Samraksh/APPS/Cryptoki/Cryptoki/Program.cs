@@ -129,6 +129,9 @@ namespace Cryptoki
            //Specify the key size. Native side will figure out the key to use.
            AesCryptoServiceProvider aes = new AesCryptoServiceProvider(_keysize);
 
+           Session aesSession = aes.Session;
+
+           //CryptoKey _key;
            /*AesCryptoServiceProvider aes = new AesCryptoServiceProvider
            {
                Padding = _padding, Key = key, Mode = _cipherMode, KeySize = _keysize
@@ -141,9 +144,11 @@ namespace Cryptoki
            //var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
 
            //Store the key securely. will need for decrypting latter
-           //byte[] aesKey = aes.Key.ExportKey(true);
-           string aesKey = aes.Key.ToString(); 
-           Debug.Print("Key = " + aesKey);
+           byte[] aesKey = aes.Key.ExportKey(true);
+           Debug.Print("Key = " + ByteArrayToString(aesKey));
+
+           //string aesKey = aes.Key.ToString(); 
+           //Debug.Print("Key = " + aesKey);
 
             // The data we want to encrypt
             string original_string = "Samraksh eMote Cryptoki Demo!";
@@ -152,17 +157,18 @@ namespace Cryptoki
             //Encrypt the data
             byte[] en_bytes = encryptor.TransformFinalBlock(original_data, 0, original_data.Length);
             //string en_s = new string(Encoding.UTF8.GetChars(en_bytes));
-            
+            //Debug.Print("Data Size= " + original_string.Length + ", Data= " + original_string);
+            //Debug.Print("Encrypted Data: " + ByteArrayToString(en_bytes));
+            //Debug.Print("Encrypted Data size= " + en_bytes.Length);       
+     
             //Decrypt the data
-            //var decryptor = aes.CreateDecryptor();
-            //byte[] de_bytes = decryptor.TransformFinalBlock(en_bytes,0, en_bytes.Length);
+            var decryptor = aes.CreateDecryptor();
+            byte[] de_bytes = decryptor.TransformFinalBlock(en_bytes,0, en_bytes.Length);
             //print the decrypted data
 
-            //string decrypted_string = new string(Encoding.UTF8.GetChars(decrypted_bytes));
-            Debug.Print("Data Size= " + original_string.Length + ", Data= " + original_string);
-            Debug.Print("Encrypted Data: " + ByteArrayToString(en_bytes));
-            Debug.Print("Encrypted Data size= " + en_bytes.Length);
+            string decrypted_string = new string(Encoding.UTF8.GetChars(de_bytes));
             //Debug.Print("Decrypted Data= " + ByteArrayToString(de_bytes));
+            Debug.Print("Decrypted String= " + decrypted_string);
         }
 
         public static void Main()

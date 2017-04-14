@@ -25,14 +25,14 @@ int MBedTLSEncryptDecryptInit(mbedtls_cipher_context_t *cipher_ctx, const unsign
     }
     else {
 
-		/*if(mbedtls_cipher_setkey(cipher_ctx, key, key_bitlen, MBEDTLS_DECRYPT) == 0){
+		if(mbedtls_cipher_setkey(cipher_ctx, key, key_bitlen, MBEDTLS_DECRYPT) == 0){
 			if(mbedtls_cipher_set_iv(cipher_ctx, iv, iv_len) == 0){
 				if(mbedtls_cipher_reset(cipher_ctx ) == 0){
 					hal_printf("mbedTLS Cipher Set Key Success for DeCrypt!\n");
 					ret=0;
 				}
 			}
-		}*/
+		}
     }
    return ret;
 }

@@ -8,9 +8,19 @@
 #ifndef _MBEDTLS_PKCS11_H_
 #define _MBEDTLS_PKCS11_H_ 1
 
-#ifndef PKCS11_MBEDTLS_MAX_OBJECT_COUNT
-#define PKCS11_MBEDTLS_MAX_OBJECT_COUNT 20
+
+#ifndef PKCS11_MBEDTLS_MAX_HEAP_OBJECT_COUNT
+#define PKCS11_MBEDTLS_MAX_HEAP_OBJECT_COUNT 20
 #endif
+
+#ifndef PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT
+#define PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT 4
+#endif
+
+#ifndef PKCS11_MBEDTLS_MAX_OBJECT_COUNT
+#define PKCS11_MBEDTLS_MAX_OBJECT_COUNT PKCS11_MBEDTLS_MAX_HEAP_OBJECT_COUNT+PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT
+#endif
+
 
 //Check for the MBEDTLS implementation size in config.h
 #ifndef PKCS11_MBEDTLS_MAX_IV_LEN
@@ -51,8 +61,12 @@
 
 /////////////Malloc and Free////////////////
 
+//#define PKCS11_MBEDTLS_MALLOC(x) \
+//	CLR_RT_Memory::Allocate(x,CLR_RT_HeapBlock::HB_Unmovable | CLR_RT_HeapBlock::HB_Alive)
+
 #define PKCS11_MBEDTLS_MALLOC(x) \
-	CLR_RT_Memory::Allocate(x,CLR_RT_HeapBlock::HB_Unmovable | CLR_RT_HeapBlock::HB_Alive)
+	CLR_RT_Memory::Allocate(x)
+
 
 #define PKCS11_MBEDTLS_FREE(x) \
 	CLR_RT_Memory::Release(x)
@@ -62,7 +76,7 @@ extern CryptokiToken g_mbedTLS_Token;
 
 typedef struct _KEY_DATA
 {
-	UINT8 		ArrayIndex;
+	UINT8 		arrayIndex;
     CK_KEY_TYPE       type;
     CK_ULONG          size;
     KEY_ATTRIB        attrib;

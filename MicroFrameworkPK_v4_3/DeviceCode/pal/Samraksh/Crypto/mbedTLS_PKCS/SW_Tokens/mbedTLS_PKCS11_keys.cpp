@@ -3,14 +3,15 @@
 
 const UINT16 KEY_DATA_SIZE=((256+7)/8+sizeof(KEY_DATA));
 #define MAX_KEYS 4
-UINT8 KeyArray[MAX_KEYS][KEY_DATA_SIZE];
-BOOL KeyArrayUse[MAX_KEYS];
+UINT8 KeyArray[PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT][KEY_DATA_SIZE];
+bool KeyArrayUse[PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT];
 
 int FindEmptyKeyIndex(){
 	int ret= -1;
-	for (int i=0 ; i< MAX_KEYS; i++)
+	for (int i=0 ; i< PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT; i++)
 	{
 		if(KeyArrayUse[i]==0){
+			KeyArrayUse[i]=1;
 			ret = i;
 			break;
 		}
@@ -18,22 +19,61 @@ int FindEmptyKeyIndex(){
 	return ret;
 }
 
+CK_RV AllocateKeyData(KEY_DATA **pKey){
+	int x=FindEmptyKeyIndex();
+	if(x<0){
+		return CKR_DEVICE_MEMORY;
+	}
+	else {
+		//*phKey = (CK_OBJECT_HANDLE) KeyArray[x];
+		//*phKey = (CK_OBJECT_HANDLE) x+PKCS11_MBEDTLS_MAX_HEAP_OBJECT_COUNT;
+		//pData = (OBJECT_DATA*)KeyArray[x];
+		*pKey = (KEY_DATA*)&(KeyArray[x][0]);
+		(*pKey)->arrayIndex =x;
+		return CKR_OK;
+	}
+}
+
+CK_RV FreeKeyData(KEY_DATA *pKey){
+	UINT8 x=pKey->arrayIndex;
+	if (x > PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT){
+		return CKR_ARGUMENTS_BAD;
+	}
+	KeyArrayUse[x]=0;
+	memset(KeyArray[x], 0, KEY_DATA_SIZE);
+	return CKR_OK;
+}
+
 CK_RV MBEDTLS_PKCS11_Keys::DeleteKey(Cryptoki_Session_Context* pSessionCtx, KEY_DATA* pKey)
 {
     if(pKey == NULL) return CKR_OBJECT_HANDLE_INVALID;
-    switch(pKey->attrib)
+
+
+    /*switch(pKey->attrib)
     {
         case Secret:
         default:
             private_free(pKey->key);
             break;
-    }
+    }*/
+    UINT8 keyIndex=pKey->arrayIndex;
+    KeyArrayUse[keyIndex]=0;
+    memset(pKey,0,sizeof(KEY_DATA));
+
     return CKR_OK;
 }
 
 KEY_DATA* MBEDTLS_PKCS11_Keys::GetKeyFromHandle(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hKey, BOOL getPrivate)
 {
     OBJECT_DATA* pObj = MBEDTLS_PKCS11_Objects::GetObjectFromHandle(pSessionCtx, hKey);
+
+	//hKey is not in the right range to be a Key
+	//if(hKey < PKCS11_MBEDTLS_MAX_HEAP_OBJECT_COUNT || hKey == PKCS11_MBEDTLS_MAX_OBJECT_COUNT){
+	//	return NULL;
+	//}
+	//UINT8 arrayIndex = hKey - PKCS11_MBEDTLS_MAX_HEAP_OBJECT_COUNT;
+
+	//OBJECT_DATA* pObj = (OBJECT_DATA*)(KeyArray[arrayIndex]);
 
     if(pObj == NULL) return NULL;
 
@@ -66,22 +106,25 @@ CK_RV MBEDTLS_PKCS11_Keys::GenerateKey(Cryptoki_Session_Context* pSessionCtx, CK
 	                KEY_DATA* pKey = NULL;
 
 	                *phKey = MBEDTLS_PKCS11_Objects::AllocObject(pSessionCtx, KeyType, (len+7)/8 + sizeof(KEY_DATA), &pData);
-	                /*
-	                //Todo::Mukundan:: The following a hack to fix a problem with vanish Key data.
+
+	                /*Todo::Mukundan:: The following a hack to fix a problem with vanish Key data.
 	                //This needs to be relooked
 	                int x=FindEmptyKeyIndex();
 	                if(x<0){
 	                	return CKR_DEVICE_MEMORY;
 	                }
 	                else {
-	                	*phKey = (CK_OBJECT_HANDLE) KeyArray[x];
-	                }
-					*/
+	                	//*phKey = (CK_OBJECT_HANDLE) KeyArray[x];
+	                	*phKey = (CK_OBJECT_HANDLE) x+PKCS11_MBEDTLS_MAX_HEAP_OBJECT_COUNT;
+	                	//pData = (OBJECT_DATA*)KeyArray[x];
+	                	pKey = (KEY_DATA*)KeyArray[x];
+	                }*/
+
 	                if(*phKey == CK_OBJECT_HANDLE_INVALID) return CKR_DEVICE_MEMORY;
 
 	                pKey = (KEY_DATA*)pData->Data;
 
-	                //pKey->ArrayIndex = x;
+	                //pKey->arrayIndex = x;
 
 	                GetRandomBytes((UINT8*)&pKey[1], len/8);
 
