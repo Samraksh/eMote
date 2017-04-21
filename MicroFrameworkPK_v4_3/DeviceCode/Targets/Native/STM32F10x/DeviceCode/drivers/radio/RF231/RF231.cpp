@@ -1,6 +1,7 @@
 #include "RF231.h"
 #include <tinyhal.h>
 #include <stm32f10x.h> // TODO. FIX ME. Only needed for interrupt pin check and NOPs. Not platform independant.
+#include "..\..\pwr\netmf_pwr_wakelock.h"
 
 #define TIME_OPTIMIZED_TRANSMIT
 #ifndef TIME_OPTIMIZED_TRANSMIT
@@ -201,6 +202,11 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 	const uint32_t timeout = 0xFFFF;
 
 	GLOBAL_LOCK(irq);
+	//if (target == RX_ON){
+		WakeLock(1);
+	//} else {
+	//	WakeUnlock(1);
+	//}
 
 	Wakeup();
 
