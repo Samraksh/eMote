@@ -71,6 +71,21 @@
 #define PKCS11_MBEDTLS_FREE(x) \
 	CLR_RT_Memory::Release(x)
 
+/////String operations
+#define PKCS11_MBEDTLS_STRCAT              strcat
+#define PKCS11_MBEDTLS_STRCPY              strcpy
+#define PKCS11_MBEDTLS_STRLEN              strlen
+#define PKCS11_MBEDTLS_STRNCPY             strncpy
+#define PKCS11_MBEDTLS_STRNCMP             strncmp
+#define PKCS11_MBEDTLS_STRCMP              strcmp
+#define PKCS11_MBEDTLS_STRNCASECMP         strncasecmp
+#define PKCS11_MBEDTLS_STRCASECMP          strcasecmp
+#define PKCS11_MBEDTLS_FPRINTF             fprintf
+#define PKCS11_MBEDTLS_SNPRINTF            _snprintf
+#define PKCS11_MBEDTLS_PRINTF              printf
+#define PKCS11_MBEDTLS_STAT                stat
+#define PKCS11_MBEDTLS_PERROR              perror
+
 extern CK_SLOT_INFO  g_mbedTLS_SlotInfo;
 extern CryptokiToken g_mbedTLS_Token;
 
