@@ -520,7 +520,7 @@ extern "C"
 void BootEntry()
 {
 #if defined(PLATFORM_ARM_SmartFusion2)
-   aesTest();
+   //aesTest();
 #endif
 
 #if defined(PLATFORM_ARM_SOC_ADAPT)
