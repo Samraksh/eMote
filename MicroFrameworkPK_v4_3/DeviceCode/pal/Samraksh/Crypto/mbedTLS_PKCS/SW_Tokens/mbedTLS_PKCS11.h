@@ -61,6 +61,8 @@
 
 /////////////Malloc and Free////////////////
 
+
+
 //#define PKCS11_MBEDTLS_MALLOC(x) \
 //	CLR_RT_Memory::Allocate(x,CLR_RT_HeapBlock::HB_Unmovable | CLR_RT_HeapBlock::HB_Alive)
 
@@ -70,6 +72,8 @@
 
 #define PKCS11_MBEDTLS_FREE(x) \
 	CLR_RT_Memory::Release(x)
+
+#define PKCS11_MBEDTLS_MEMCPY			  memcpy
 
 /////String operations
 #define PKCS11_MBEDTLS_STRCAT              strcat
@@ -118,7 +122,8 @@ typedef struct _OBJECT_DATA
     ObjectType        Type;
     CHAR              FileName[20];
     CHAR              GroupName[20];
-    int               RefCount;
+    UINT16            RefCount;
+    UINT16			  Size;
     CK_VOID_PTR       Data;
 } OBJECT_DATA;
 

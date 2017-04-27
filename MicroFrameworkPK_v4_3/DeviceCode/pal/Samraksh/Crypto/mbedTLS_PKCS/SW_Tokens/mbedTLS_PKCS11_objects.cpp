@@ -9,6 +9,8 @@ const UINT16 KEY_DATA_SIZE=((256+7)/8+sizeof(KEY_DATA));
 extern CK_RV AllocateKeyData(KEY_DATA **pKey);
 extern CK_RV FreeKeyData(KEY_DATA *pKey);
 
+int heapUsage =0;
+
 void MBEDTLS_PKCS11_Objects::IntitializeObjects()
 {
     memset(MBEDTLS_PKCS11_Objects::s_Objects, 0, sizeof(MBEDTLS_PKCS11_Objects::s_Objects));
@@ -57,7 +59,9 @@ BOOL MBEDTLS_PKCS11_Objects::FreeObject(Cryptoki_Session_Context* pSessionCtx, C
     if(retVal->Type == KeyType){
     	FreeKeyData((KEY_DATA*)retVal->Data);
     }else {
+    	heapUsage -= retVal->Size;
     	PKCS11_MBEDTLS_FREE(retVal->Data);
+
     }
     retVal->Data = NULL;
     retVal->RefCount = 0;
@@ -79,6 +83,10 @@ CK_OBJECT_HANDLE MBEDTLS_PKCS11_Objects::AllocObject(Cryptoki_Session_Context* p
     	AllocateKeyData((KEY_DATA **) &(*ppData)->Data);
     }else {
     	(*ppData)->Data = PKCS11_MBEDTLS_MALLOC(size);
+    	if((*ppData)->Data != NULL) {
+    		(*ppData)->Size = size;
+    		heapUsage += size;
+    	}
     }
     (*ppData)->RefCount = 1;
     if((*ppData)->Data == NULL) return CK_OBJECT_HANDLE_INVALID;
@@ -475,54 +483,56 @@ CK_RV MBEDTLS_PKCS11_Objects::GetAttributeValue(Cryptoki_Session_Context* pSessi
 				case CKA_MODULUS:
 					if(pKey->type == CKK_RSA)
 					{
-						EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
-
-						valLen = BN_bn2bin(pRealKey->pkey.rsa->n, (UINT8*)pTemplate[i].pValue);
+						//Mukundan: We dont support rsa at this point
+						//EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
+						//valLen = BN_bn2bin(pRealKey->pkey.rsa->n, (UINT8*)pTemplate[i].pValue);
+						return CKR_FUNCTION_NOT_SUPPORTED;
 					}
 					break;
 
 				case CKA_EXPONENT_1:
 					if(pKey->type == CKK_RSA)
 					{
-						EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
-
-						valLen = BN_bn2bin(pRealKey->pkey.rsa->dmp1, (UINT8*)pTemplate[i].pValue);
+						//Mukundan: We dont support rsa at this point
+						//EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
+						//valLen = BN_bn2bin(pRealKey->pkey.rsa->dmp1, (UINT8*)pTemplate[i].pValue);
+						return CKR_FUNCTION_NOT_SUPPORTED;
 					}
 					break;
 
 				case CKA_EXPONENT_2:
 					if(pKey->type == CKK_RSA)
 					{
-						EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
-
-						valLen = BN_bn2bin(pRealKey->pkey.rsa->dmq1, (UINT8*)pTemplate[i].pValue);
+						//EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
+						//valLen = BN_bn2bin(pRealKey->pkey.rsa->dmq1, (UINT8*)pTemplate[i].pValue);
+						return CKR_FUNCTION_NOT_SUPPORTED;
 					}
 					break;
 
 				case CKA_COEFFICIENT:
 					if(pKey->type == CKK_RSA)
 					{
-						EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
-
-						valLen = BN_bn2bin(pRealKey->pkey.rsa->iqmp, (UINT8*)pTemplate[i].pValue);
+						//EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
+						//valLen = BN_bn2bin(pRealKey->pkey.rsa->iqmp, (UINT8*)pTemplate[i].pValue);
+						return CKR_FUNCTION_NOT_SUPPORTED;
 					}
 					break;
 
 				case CKA_PRIME_1:
 					if(pKey->type == CKK_RSA)
 					{
-						EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
-
-						valLen = BN_bn2bin(pRealKey->pkey.rsa->p, (UINT8*)pTemplate[i].pValue);
+						//EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
+						//valLen = BN_bn2bin(pRealKey->pkey.rsa->p, (UINT8*)pTemplate[i].pValue);
+						return CKR_FUNCTION_NOT_SUPPORTED;
 					}
 					break;
 
 				case CKA_PRIME_2:
 					if(pKey->type == CKK_RSA)
 					{
-						EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
-
-						valLen = BN_bn2bin(pRealKey->pkey.rsa->q, (UINT8*)pTemplate[i].pValue);
+						//EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
+						//valLen = BN_bn2bin(pRealKey->pkey.rsa->q, (UINT8*)pTemplate[i].pValue);
+						return CKR_FUNCTION_NOT_SUPPORTED;
 					}
 					break;
 
@@ -530,28 +540,27 @@ CK_RV MBEDTLS_PKCS11_Objects::GetAttributeValue(Cryptoki_Session_Context* pSessi
 				case CKA_PRIVATE_EXPONENT:
 					if(pKey->type == CKK_DSA)
 					{
-						EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
-
-						valLen = BN_bn2bin(pRealKey->pkey.dsa->priv_key, (UINT8*)pTemplate[i].pValue);
+						//EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
+						//valLen = BN_bn2bin(pRealKey->pkey.dsa->priv_key, (UINT8*)pTemplate[i].pValue);
+						return CKR_FUNCTION_NOT_SUPPORTED;
 					}
 					else if(pKey->type == CKK_RSA)
 					{
-						EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
-
-						valLen = BN_bn2bin(pRealKey->pkey.rsa->d, (UINT8*)pTemplate[i].pValue);
+						//EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
+						//valLen = BN_bn2bin(pRealKey->pkey.rsa->d, (UINT8*)pTemplate[i].pValue);
+						return CKR_FUNCTION_NOT_SUPPORTED;
 					}
 					break;
 				case CKA_PUBLIC_EXPONENT:
 					if(pKey->type == CKK_DSA)
 					{
-						EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
-
-						valLen = BN_bn2bin(pRealKey->pkey.dsa->pub_key, (UINT8*)pTemplate[i].pValue);
+						//EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
+						//valLen = BN_bn2bin(pRealKey->pkey.dsa->pub_key, (UINT8*)pTemplate[i].pValue);
+						return CKR_FUNCTION_NOT_SUPPORTED;
 					}
 					else if(pKey->type == CKK_EC)
 					{
-						UINT8 pTmp[66*2+1];
-
+						/*UINT8 pTmp[66*2+1];
 						EC_KEY* pEC = ((EVP_PKEY*)pKey->key)->pkey.ec;
 
 						const EC_POINT* point = EC_KEY_get0_public_key(pEC);
@@ -560,39 +569,41 @@ CK_RV MBEDTLS_PKCS11_Objects::GetAttributeValue(Cryptoki_Session_Context* pSessi
 						if(valLen == 0) return CKR_FUNCTION_FAILED;
 
 						memmove(pTemplate[i].pValue, &pTmp[1], valLen-1); // remove POINT_CONVERSION_UNCOMPRESSED header byte
+						*/
+						return CKR_FUNCTION_NOT_SUPPORTED;
 					}
 					else if(pKey->type == CKK_RSA)
 					{
-						EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
-
-						valLen = BN_bn2bin(pRealKey->pkey.rsa->e, (UINT8*)pTemplate[i].pValue);
+						//EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
+						//valLen = BN_bn2bin(pRealKey->pkey.rsa->e, (UINT8*)pTemplate[i].pValue);
+						return CKR_FUNCTION_NOT_SUPPORTED;
 					}
 					break;
 
 				case CKA_PRIME:
 					if(pKey->type == CKK_DSA)
 					{
-						EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
-
-						valLen = BN_bn2bin(pRealKey->pkey.dsa->p, (UINT8*)pTemplate[i].pValue);
+						//EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
+						//valLen = BN_bn2bin(pRealKey->pkey.dsa->p, (UINT8*)pTemplate[i].pValue);
+						return CKR_FUNCTION_NOT_SUPPORTED;
 					}
 					break;
 
 				case CKA_SUBPRIME:
 					if(pKey->type == CKK_DSA)
 					{
-						EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
-
-						valLen = BN_bn2bin(pRealKey->pkey.dsa->q, (UINT8*)pTemplate[i].pValue);
+						//EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
+						//valLen = BN_bn2bin(pRealKey->pkey.dsa->q, (UINT8*)pTemplate[i].pValue);
+						return CKR_FUNCTION_NOT_SUPPORTED;
 					}
 					break;
 
 				case CKA_BASE:
 					if(pKey->type == CKK_DSA)
 					{
-						EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
-
-						valLen = BN_bn2bin(pRealKey->pkey.dsa->g, (UINT8*)pTemplate[i].pValue);
+						//EVP_PKEY* pRealKey = (EVP_PKEY*)pKey->key;
+						//valLen = BN_bn2bin(pRealKey->pkey.dsa->g, (UINT8*)pTemplate[i].pValue);
+						return CKR_FUNCTION_NOT_SUPPORTED;
 					}
 					break;
 
@@ -655,13 +666,14 @@ CK_RV MBEDTLS_PKCS11_Objects::GetAttributeValue(Cryptoki_Session_Context* pSessi
 
 CK_RV MBEDTLS_PKCS11_Objects::SetAttributeValue(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount)
 {
-    OBJECT_DATA* pObj = PKCS11_Objects_OpenSSL::GetObjectFromHandle(pSessionCtx, hObject);
+    OBJECT_DATA* pObj = MBEDTLS_PKCS11_Objects::GetObjectFromHandle(pSessionCtx, hObject);
 
     if(pObj == NULL) return CKR_OBJECT_HANDLE_INVALID;
 
+    /* We dont support certificates at this time
     if(pObj->Type == CertificateType)
     {
-    	/*We dont support certificates at this time
+
     	CERT_DATA* pCertData = (CERT_DATA*)pObj->Data;
         X509* pCert = pCertData->cert;
         CHAR group[20] = {0};
@@ -760,13 +772,13 @@ CK_RV MBEDTLS_PKCS11_Objects::SetAttributeValue(Cryptoki_Session_Context* pSessi
             else
             {
                 return CKR_FUNCTION_NOT_SUPPORTED;
-            }*/
+            }
         }
         else
         {
             return CKR_ATTRIBUTE_TYPE_INVALID;
         }
-    }
+    }*/
 
     return CKR_OK;
 }

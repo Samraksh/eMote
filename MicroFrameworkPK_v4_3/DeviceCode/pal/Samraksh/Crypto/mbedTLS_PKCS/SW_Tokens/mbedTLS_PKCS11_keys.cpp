@@ -183,7 +183,14 @@ CK_RV MBEDTLS_PKCS11_Keys::DeriveKey(Cryptoki_Session_Context* pSessionCtx, CK_M
 
 CK_RV MBEDTLS_PKCS11_Keys::LoadKeyBlob(Cryptoki_Session_Context* pSessionCtx, const PBYTE pKey, CK_ULONG keyLen, CK_KEY_TYPE keyType, KEY_ATTRIB keyAttrib, CK_OBJECT_HANDLE_PTR phKey )
 {
-    return CKR_FUNCTION_NOT_SUPPORTED;
+	PKCS11_MBEDTLS_HEADER();
+	*phKey = LoadKey(pSessionCtx, (void*)pKey, keyType, Secret, ulKeyLength * 8);
+
+	if(*phKey == CK_OBJECT_HANDLE_INVALID) PKCS11_MBEDTLS_SET_AND_LEAVE(CKR_FUNCTION_FAILED);
+
+	PKCS11_MBEDTLS_NOCLEANUP();
+
+	return CKR_FUNCTION_NOT_SUPPORTED;
 }
 
 CK_RV MBEDTLS_PKCS11_Keys::LoadSecretKey(Cryptoki_Session_Context* pSessionCtx, CK_KEY_TYPE keyType, const UINT8* pKey, CK_ULONG ulKeyLength, CK_OBJECT_HANDLE_PTR phKey)
