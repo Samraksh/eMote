@@ -246,7 +246,8 @@
 #include <stddef.h>
 #include <cmsis/m2sxxx.h>
 
-
+#define MAX_BAUDRATE 115200
+#define MIN_BAUDRATE 0
 
 /***************************************************************************//**
   Baud rates

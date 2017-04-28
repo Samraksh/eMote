@@ -17,7 +17,34 @@
 #define GPIO_INT_ENABLE_MASK        ((uint32_t)0x00000008uL)
 #define OUTPUT_BUFFER_ENABLE_MASK   0x00000004u
 
+const int GPIO_PINS = 112;
 #define NB_OF_GPIO  ((uint32_t)32)
+typedef void (*GPIO_INTERRUPT_SERVICE_ROUTINE)( GPIO_PIN Pin, BOOL PinState, void* Param );
+static GPIO_INTERRUPT_SERVICE_ROUTINE gpio_isr[GPIO_PINS];
+
+enum GPIO_RESISTOR
+{
+    RESISTOR_DISABLED = 0,
+    RESISTOR_PULLDOWN = 1,
+    RESISTOR_PULLUP = 2
+};
+
+enum GPIO_INT_EDGE
+{
+    GPIO_INT_NONE       = 0,
+    GPIO_INT_EDGE_LOW   = 1,
+    GPIO_INT_EDGE_HIGH  = 2,
+    GPIO_INT_EDGE_BOTH  = 3,
+    GPIO_INT_LEVEL_HIGH = 4,
+    GPIO_INT_LEVEL_LOW  = 5
+};
+
+struct GPIO_FLAG_RESISTOR
+{
+    GPIO_PIN      Pin;
+    BOOL          ActiveState;
+    GPIO_RESISTOR Resistor;
+};
 
 BOOL CPU_GPIO_Initialize()
 {
@@ -30,6 +57,60 @@ void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 
 void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
 {
+}
+
+INT32  CPU_GPIO_GetPinCount    ()
+{
+	return 1;
+}
+
+BOOL   CPU_GPIO_ReservePin     ( GPIO_PIN Pin, BOOL fReserve )
+{
+	return TRUE;
+}
+
+BOOL   CPU_GPIO_Uninitialize   ()
+{
+	return TRUE;
+}
+
+UINT32 CPU_GPIO_GetDebounce    ()
+{
+	return 1;
+}
+
+BOOL   CPU_GPIO_SetDebounce    ( INT64 debounceTimeMilliseconds )
+{
+	return TRUE;
+}
+
+void   CPU_GPIO_GetPinsMap     ( UINT8* pins, size_t size )
+{
+}
+
+UINT32 CPU_GPIO_Attributes     ( GPIO_PIN Pin )
+{
+	return 0;
+}
+
+UINT8  CPU_GPIO_GetSupportedResistorModes(GPIO_PIN pin )
+{
+	return 1;
+}
+
+UINT8 CPU_GPIO_GetSupportedInterruptModes( GPIO_PIN pin )
+{
+    return 1;
+}
+
+BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, void* ISR_Param, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
+{
+	return TRUE;
+}
+
+BOOL   CPU_GPIO_GetPinState    ( GPIO_PIN Pin )
+{
+	return TRUE;
 }
 /*-------------------------------------------------------------------------*//**
  * Lookup table of GPIO configuration registers address indexed on GPIO ID.

@@ -593,21 +593,9 @@ mipi_dsi_shutdown();
     HAL_Time_Initialize();
 
     HAL_Initialize();
-	hal_printf("This is a test.\r\n");
+	
 
-	int i;
-	for (i=0; i<31; i++){
-		CPU_GPIO_EnableOutputPin((GPIO_PIN) i, TRUE);
-	}
-	while (1){
-		//hal_printf("This is a test.\r\n");
-		for (i=0; i<31; i++){
-			CPU_GPIO_SetPinState((GPIO_PIN) i, TRUE);
-		}
-		for (i=0; i<31; i++){
-			CPU_GPIO_SetPinState((GPIO_PIN) i, FALSE);
-		}
-	}
+	
 
 #if !defined(BUILD_RTM)
 #ifdef TINYHAL_BOOTUP_DISPLAY_BUILD_INFO
@@ -666,6 +654,18 @@ mipi_dsi_shutdown();
 		}
 	}*/
 #endif
+	/*int i;
+	for (i=0; i<31; i++){
+		CPU_GPIO_EnableOutputPin((GPIO_PIN) i, TRUE);
+	}
+	while (1){
+		for (i=0; i<31; i++){
+			CPU_GPIO_SetPinState((GPIO_PIN) i, TRUE);
+		}
+		for (i=0; i<31; i++){
+			CPU_GPIO_SetPinState((GPIO_PIN) i, FALSE);
+		}
+	}*/
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

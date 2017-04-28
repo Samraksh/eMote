@@ -86,10 +86,77 @@ static void config_baud_divisors
  */
 mss_uart_instance_t g_mss_uart0;
 mss_uart_instance_t g_mss_uart1;
+static int PORTS_IN_USE_MASK = 0;
+const uint8_t g_greeting_msg[] =
+"COM0 initialized\r\n";
+const uint8_t g_greeting_msg2[] =
+"COM1 initialized\r\n";
+
+#define RX_BUFF_SIZE    64
+
+void uart1_rx_handler(mss_uart_instance_t * this_uart)
+   {
+      uint8_t rx_buff[RX_BUFF_SIZE];
+      uint32_t rx_idx  = 0;
+      uint32_t rx_size = MSS_UART_get_rx(this_uart, rx_buff, sizeof(rx_buff));
+      USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), (char*) &rx_buff, (size_t)rx_size);
+   }
+
+void uart0_rx_handler(mss_uart_instance_t * this_uart)
+   {
+      uint8_t rx_buff[RX_BUFF_SIZE];
+      uint32_t rx_idx  = 0;
+      uint32_t rx_size = MSS_UART_get_rx(this_uart, rx_buff, sizeof(rx_buff));
+      USART_AddToRxBuffer( ConvertCOM_ComPort(COM2), (char*) &rx_buff, (size_t)rx_size);
+   }
 
 BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
 {
-	return TRUE;
+	// Check to make sure not already up.
+	if (ComPortNum == 0 && (PORTS_IN_USE_MASK&1)) return TRUE;
+	if (ComPortNum == 1 && (PORTS_IN_USE_MASK&2)) return TRUE;
+	
+	uint32_t baud_rate = 0;
+	uint8_t line_config = 0;
+
+	// If COM0, don't initialize until we see something connected (i.e. usb-serial attached)
+	if (ComPortNum == 0) {
+		PORTS_IN_USE_MASK |= 1;
+		mss_uart_instance_t * const gp_my_uart = &g_mss_uart1;
+		// we use default values for COM0 - this is to allow Visual Studios to attach
+		baud_rate = 115200;
+		line_config = MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT;
+		MSS_UART_init(gp_my_uart, baud_rate, line_config);
+		MSS_UART_polled_tx(gp_my_uart, g_greeting_msg,sizeof(g_greeting_msg));
+
+		MSS_UART_set_rx_handler(&g_mss_uart1,
+                              uart1_rx_handler,
+                              MSS_UART_FIFO_SINGLE_BYTE);
+
+		return TRUE;
+	}
+
+	if (ComPortNum == 1) {
+		PORTS_IN_USE_MASK |= 2;
+		mss_uart_instance_t * const gp_my_uart = &g_mss_uart0;
+		baud_rate = BaudRate;
+
+
+
+		line_config = MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT;
+
+
+		MSS_UART_init(gp_my_uart, baud_rate, line_config);
+		MSS_UART_polled_tx_string(gp_my_uart, g_greeting_msg2);
+
+		MSS_UART_set_rx_handler(&g_mss_uart0,
+                              uart0_rx_handler,
+                              MSS_UART_FIFO_SINGLE_BYTE);
+
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 BOOL CPU_USART_TxBufferEmpty( int ComPortNum )
@@ -99,7 +166,38 @@ BOOL CPU_USART_TxBufferEmpty( int ComPortNum )
 
 void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 {
-	
+	uint8_t characterToSend[1];
+	characterToSend[0] = c;
+	mss_uart_instance_t * gp_my_uart;
+	switch(ComPortNum)
+	{
+	case 0:
+		gp_my_uart = &g_mss_uart1; 
+		break;
+	case 1:
+	default:
+		gp_my_uart = &g_mss_uart0; 
+		break;
+	}
+
+	MSS_UART_polled_tx(gp_my_uart, characterToSend, 1);
+}
+
+void CPU_USART_WriteStringToTxBuffer( int ComPortNum, char* Data, size_t size )
+{
+	mss_uart_instance_t * gp_my_uart;
+	switch(ComPortNum)
+	{
+	case 0:
+		gp_my_uart = &g_mss_uart1; 
+		break;
+	case 1:
+	default:
+		gp_my_uart = &g_mss_uart0; 
+		break;
+	}
+	const uint8_t * DataToSend = (const uint8_t *)Data;
+	MSS_UART_polled_tx(gp_my_uart, DataToSend, size);
 }
 
 void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
@@ -107,6 +205,48 @@ void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 }
 
 BOOL CPU_USART_TxBufferEmptyInterruptState( int ComPortNum )
+{
+	return FALSE;
+}
+
+void CPU_USART_RxBufferFullInterruptEnable ( int ComPortNum, BOOL Enable  )
+{
+}
+
+UINT32 CPU_USART_PortsCount()
+{
+    return TOTAL_USART_PORT;
+}
+
+void CPU_USART_GetPins                     ( int ComPortNum, GPIO_PIN& rxPin, GPIO_PIN& txPin,GPIO_PIN& ctsPin, GPIO_PIN& rtsPin )
+{
+}
+
+BOOL CPU_USART_SupportNonStandardBaudRate  ( int ComPortNum               )
+{
+	return FALSE;
+}
+
+void CPU_USART_GetBaudrateBoundary( int ComPortNum, UINT32& maxBaudrateHz, UINT32& minBaudrateHz )
+{
+    maxBaudrateHz = MAX_BAUDRATE;
+	minBaudrateHz = MIN_BAUDRATE;
+}
+
+BOOL CPU_USART_IsBaudrateSupported( int ComPortNum, UINT32& BaudrateHz )
+{
+  if (BaudrateHz <= 115200)
+  {
+    return true;
+  }
+  else
+  {
+    BaudrateHz = MAX_BAUDRATE;
+    return false;
+  }
+}
+
+BOOL CPU_USART_Uninitialize                ( int ComPortNum               )
 {
 	return TRUE;
 }
