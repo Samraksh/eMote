@@ -32,7 +32,7 @@ const BlockRegionInfo  STM32F10x_BlockRegionInfo_InternalFlash[1] =
 {
 
     0x60000000,		// ByteAddress     Address;            // Start address
-    512,			// UINT32          NumBlocks;          // total number of blocks in this region
+    256,			// UINT32          NumBlocks;          // total number of blocks in this region
     0x800,			// UINT32          BytesPerBlock;      // Total number of bytes per block (MUST be SectorsPerBlock * DataBytesPerSector)
 
     ARRAYSIZE_CONST_EXPR(STM32F10x_BlockRange_InternalFlash),
