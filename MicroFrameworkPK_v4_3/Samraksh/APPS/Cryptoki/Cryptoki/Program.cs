@@ -182,6 +182,7 @@ namespace Cryptoki
             //p.RSA_Example();
             p.AES_Example();
             Debug.Print(Resources.GetString(Resources.StringResources.String1));
+            Thread.Sleep(Timeout.Infinite);
         }
     }
 }

@@ -95,7 +95,7 @@ extern CryptokiToken g_mbedTLS_Token;
 
 typedef struct _KEY_DATA
 {
-	UINT8 		arrayIndex;
+	//UINT8 		arrayIndex;
     CK_KEY_TYPE       type;
     CK_ULONG          size;
     KEY_ATTRIB        attrib;

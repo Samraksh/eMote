@@ -3,8 +3,15 @@
 
 const UINT16 KEY_DATA_SIZE=((256+7)/8+sizeof(KEY_DATA));
 #define MAX_KEYS 4
+
+UINT8 DummyKeyArray[PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT][KEY_DATA_SIZE];
 UINT8 KeyArray[PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT][KEY_DATA_SIZE];
 bool KeyArrayUse[PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT];
+
+void InitKeyArray(){
+	memset(KeyArray, 0, KEY_DATA_SIZE*PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT);
+	memset(KeyArrayUse, 0, PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT);
+}
 
 int FindEmptyKeyIndex(){
 	int ret= -1;
@@ -29,14 +36,22 @@ CK_RV AllocateKeyData(KEY_DATA **pKey){
 		//*phKey = (CK_OBJECT_HANDLE) x+PKCS11_MBEDTLS_MAX_HEAP_OBJECT_COUNT;
 		//pData = (OBJECT_DATA*)KeyArray[x];
 		*pKey = (KEY_DATA*)&(KeyArray[x][0]);
-		(*pKey)->arrayIndex =x;
+		//(*pKey)->arrayIndex =x;
 		return CKR_OK;
 	}
 }
 
 CK_RV FreeKeyData(KEY_DATA *pKey){
-	UINT8 x=pKey->arrayIndex;
-	if (x > PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT){
+	UINT8 x= PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT;
+	for (int i=0 ; i< PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT; i++)
+	{
+		if(pKey == (KEY_DATA *)KeyArray[i]){
+			x = i;
+			break;
+		}
+	}
+
+	if (x >= PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT){
 		return CKR_ARGUMENTS_BAD;
 	}
 	KeyArrayUse[x]=0;
@@ -56,9 +71,8 @@ CK_RV MBEDTLS_PKCS11_Keys::DeleteKey(Cryptoki_Session_Context* pSessionCtx, KEY_
             private_free(pKey->key);
             break;
     }*/
-    UINT8 keyIndex=pKey->arrayIndex;
-    KeyArrayUse[keyIndex]=0;
-    memset(pKey,0,sizeof(KEY_DATA));
+
+    FreeKeyData(pKey);
 
     return CKR_OK;
 }
@@ -183,19 +197,18 @@ CK_RV MBEDTLS_PKCS11_Keys::DeriveKey(Cryptoki_Session_Context* pSessionCtx, CK_M
 
 CK_RV MBEDTLS_PKCS11_Keys::LoadKeyBlob(Cryptoki_Session_Context* pSessionCtx, const PBYTE pKey, CK_ULONG keyLen, CK_KEY_TYPE keyType, KEY_ATTRIB keyAttrib, CK_OBJECT_HANDLE_PTR phKey )
 {
-	PKCS11_MBEDTLS_HEADER();
-	*phKey = LoadKey(pSessionCtx, (void*)pKey, keyType, Secret, ulKeyLength * 8);
-
-	if(*phKey == CK_OBJECT_HANDLE_INVALID) PKCS11_MBEDTLS_SET_AND_LEAVE(CKR_FUNCTION_FAILED);
-
-	PKCS11_MBEDTLS_NOCLEANUP();
 
 	return CKR_FUNCTION_NOT_SUPPORTED;
 }
 
 CK_RV MBEDTLS_PKCS11_Keys::LoadSecretKey(Cryptoki_Session_Context* pSessionCtx, CK_KEY_TYPE keyType, const UINT8* pKey, CK_ULONG ulKeyLength, CK_OBJECT_HANDLE_PTR phKey)
 {
-    return CKR_FUNCTION_NOT_SUPPORTED;
+	PKCS11_MBEDTLS_HEADER();
+	*phKey = LoadKey(pSessionCtx, (void*)pKey, keyType, Secret, ulKeyLength * 8);
+	if(*phKey == CK_OBJECT_HANDLE_INVALID) PKCS11_MBEDTLS_SET_AND_LEAVE(CKR_FUNCTION_FAILED);
+	memcpy(DummyKeyArray, KeyArray, KEY_DATA_SIZE*PKCS11_MBEDTLS_MAX_KEY_OBJECT_COUNT);
+
+	PKCS11_MBEDTLS_NOCLEANUP();
 }
 
 CK_RV MBEDTLS_PKCS11_Keys::LoadRsaKey(Cryptoki_Session_Context* pSessionCtx, const RsaKeyData& keyData, CK_BBOOL isPrivate, CK_OBJECT_HANDLE_PTR phKey)
