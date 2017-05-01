@@ -394,7 +394,7 @@ void HAL_Initialize()
 
     BlockStorage_AddDevices();
 
-    //BlockStorageList::InitializeDevices();
+    BlockStorageList::InitializeDevices();
 
     FS_Initialize();
 

@@ -3,6 +3,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //--//
+#ifndef NETMF_BL_H_
+#define NETMF_BL_H_
 
 #include <stm32f10x.h>
 
@@ -26,3 +28,7 @@ struct STM32F10x_blDriver
     static UINT32 MaxSectorWrite_uSec( void* context );
     static UINT32 MaxBlockErase_uSec( void* context );
 };
+
+void BlockStorage_AddDevices();
+
+#endif // NETMF_BL_H_
