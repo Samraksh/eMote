@@ -8,7 +8,7 @@ int MBedTLSEncryptDecryptInit(mbedtls_cipher_context_t *cipher_ctx, const unsign
     const mbedtls_cipher_info_t *info = cipher_ctx->cipher_info;
     mbedtls_cipher_init( cipher_ctx );
     if( mbedtls_cipher_setup(cipher_ctx, info) != 0 ) {
-    	hal_printf("mbedTLS Cipher Setup failed!\n");
+    	//hal_printf("mbedTLS Cipher Setup failed!\n");
     	return ret;
     }
     //cipher_ctx->cipher_info = info;
@@ -18,7 +18,7 @@ int MBedTLSEncryptDecryptInit(mbedtls_cipher_context_t *cipher_ctx, const unsign
 			if( mbedtls_cipher_set_iv(cipher_ctx, iv, iv_len)  == 0){
 				if( mbedtls_cipher_reset(cipher_ctx ) == 0){
 					ret =0;
-					hal_printf("mbedTLS Cipher Set Key Success for Encrypt: cipher specific ctx ptr %p !\n", cipher_ctx->cipher_ctx);
+					//hal_printf("mbedTLS Cipher Set Key Success for Encrypt: cipher specific ctx ptr %p !\n", cipher_ctx->cipher_ctx);
 				}
 			}
 		}
@@ -28,7 +28,7 @@ int MBedTLSEncryptDecryptInit(mbedtls_cipher_context_t *cipher_ctx, const unsign
 		if(mbedtls_cipher_setkey(cipher_ctx, key, key_bitlen, MBEDTLS_DECRYPT) == 0){
 			if(mbedtls_cipher_set_iv(cipher_ctx, iv, iv_len) == 0){
 				if(mbedtls_cipher_reset(cipher_ctx ) == 0){
-					hal_printf("mbedTLS Cipher Set Key Success for DeCrypt!\n");
+					//hal_printf("mbedTLS Cipher Set Key Success for DeCrypt!\n");
 					ret=0;
 				}
 			}
@@ -40,6 +40,7 @@ int MBedTLSEncryptDecryptInit(mbedtls_cipher_context_t *cipher_ctx, const unsign
 int FreeCyptoData(mbedTLSEncryptData* pEnc){
 	mbedtls_cipher_context_t *cipher_ctx = &pEnc->SymmetricCtx;
 	mbedtls_cipher_free(cipher_ctx);
+
 	PKCS11_MBEDTLS_FREE(pEnc);
 	return 0;
 }
@@ -257,7 +258,7 @@ CK_RV MBEDTLS_PKCS11_Encryption::EncryptUpdate(Cryptoki_Session_Context* pSessio
     //mbedtls_cipher_context_t * cipher_ctx = (mbedtls_cipher_context_t *)pEnc->Key->ctx;
     mbedtls_cipher_context_t * cipher_ctx = (mbedtls_cipher_context_t *) &pEnc->SymmetricCtx;
 
-    hal_printf("Crypto specific ctx ptr: %p \n", cipher_ctx->cipher_ctx );
+    //hal_printf("Crypto specific ctx ptr: %p \n", cipher_ctx->cipher_ctx );
 
     if(pEnc->IsSymmetric)
     {

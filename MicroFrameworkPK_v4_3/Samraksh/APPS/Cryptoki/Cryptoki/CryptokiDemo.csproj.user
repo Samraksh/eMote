@@ -5,7 +5,7 @@
     <DeployTransport>Serial</DeployTransport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <DeployTransport>Emulator</DeployTransport>
-    <DeployDevice>Microsoft</DeployDevice>
+    <DeployTransport>Serial</DeployTransport>
+    <DeployDevice>COM3</DeployDevice>
   </PropertyGroup>
 </Project>

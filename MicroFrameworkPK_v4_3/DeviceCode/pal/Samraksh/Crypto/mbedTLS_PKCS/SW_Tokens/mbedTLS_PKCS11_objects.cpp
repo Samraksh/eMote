@@ -220,31 +220,31 @@ CK_RV MBEDTLS_PKCS11_Objects::CreateObject(Cryptoki_Session_Context* pSessionCtx
 				*/
 				break;
 			case CKO_SECRET_KEY:
-				hal_printf("I am in CreateObjects:: Secret key, not implemented\n");
+				//hal_printf("I am in CreateObjects:: Secret key, not implemented\n");
 				break;
 
 			case CKO_DATA:
-				hal_printf("I am in CreateObjects:: Data, not implemented\n");
+				//hal_printf("I am in CreateObjects:: Data, not implemented\n");
 				break;
 
 			case CKO_PUBLIC_KEY:
-				hal_printf("I am in CreateObjects:: Public key, not implemented\n");
+				//hal_printf("I am in CreateObjects:: Public key, not implemented\n");
 				break;
 
 			case CKO_PRIVATE_KEY:
-				hal_printf("I am in CreateObjects:: Pivate key, not implemented\n");
+				//hal_printf("I am in CreateObjects:: Pivate key, not implemented\n");
 				break;
 
 			case CKO_HW_FEATURE:
-				hal_printf("I am in CreateObjects:: HW_Feature, not implemented\n");
+				//hal_printf("I am in CreateObjects:: HW_Feature, not implemented\n");
 				break;
 
 			case CKO_DOMAIN_PARAMETERS:
-				hal_printf("I am in CreateObjects:: Domain Parameters, not implemented\n");
+				//hal_printf("I am in CreateObjects:: Domain Parameters, not implemented\n");
 				break;
 
 			case CKO_MECHANISM:
-				hal_printf("I am in CreateObjects:: Mechanism, not implemented\n");
+				//hal_printf("I am in CreateObjects:: Mechanism, not implemented\n");
 				break;
 		}
 	}
@@ -292,7 +292,7 @@ CK_RV MBEDTLS_PKCS11_Objects::DestroyObject(Cryptoki_Session_Context* pSessionCt
 
 CK_RV MBEDTLS_PKCS11_Objects::GetObjectSize(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hObject, CK_ULONG_PTR pulSize)
 {
-	hal_printf("I am in Objects::GetObjectSize , not implemented\n");
+	//hal_printf("I am in Objects::GetObjectSize , not implemented\n");
     return CKR_FUNCTION_NOT_SUPPORTED;
 }
 
@@ -785,19 +785,19 @@ CK_RV MBEDTLS_PKCS11_Objects::SetAttributeValue(Cryptoki_Session_Context* pSessi
 
 CK_RV MBEDTLS_PKCS11_Objects::FindObjectsInit(Cryptoki_Session_Context* pSessionCtx, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount)
 {
-	hal_printf("I am in Objects::FindObjectsInit , not implemented\n");
+	//hal_printf("I am in Objects::FindObjectsInit , not implemented\n");
     return CKR_FUNCTION_NOT_SUPPORTED;
 }
 
 CK_RV MBEDTLS_PKCS11_Objects::FindObjects(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE_PTR phObjects, CK_ULONG ulMaxCount, CK_ULONG_PTR pulObjectCount)
 {
-	hal_printf("I am in Objects::FindObjects , not implemented\n");
+	//hal_printf("I am in Objects::FindObjects , not implemented\n");
     return CKR_FUNCTION_NOT_SUPPORTED;
 }
 
 CK_RV MBEDTLS_PKCS11_Objects::FindObjectsFinal(Cryptoki_Session_Context* pSessionCtx)
 {
-	hal_printf("I am in Objects::FindObjectsFinal , not implemented\n");
+	//hal_printf("I am in Objects::FindObjectsFinal , not implemented\n");
     return CKR_FUNCTION_NOT_SUPPORTED;
 }
 

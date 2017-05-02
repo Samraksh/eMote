@@ -35,7 +35,7 @@ namespace Cryptoki
                 0x70, 0x60, 0x50, 0x40, 0x30, 0x20, 0x10, 0x00,
             };
 
-        public void RSA_Example()
+       /* public void RSA_Example()
         {
             try
             {
@@ -59,7 +59,7 @@ namespace Cryptoki
             {
                 Debug.Print(e.ToString());
             }
-        }
+        }*/
 
         public CryptoKey GetAESKey(byte[] key, AesCryptoServiceProvider csp)
         {
@@ -181,6 +181,8 @@ namespace Cryptoki
             Program p= new Program();
             //p.RSA_Example();
             p.AES_Example();
+            Debug.GC(true);
+
             Debug.Print(Resources.GetString(Resources.StringResources.String1));
             Thread.Sleep(Timeout.Infinite);
         }
