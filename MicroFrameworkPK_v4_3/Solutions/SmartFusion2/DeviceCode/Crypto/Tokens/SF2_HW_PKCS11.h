@@ -60,7 +60,7 @@ typedef struct _KEY_DATA
 
 typedef struct _CERT_DATA
 {
-    X509* cert;
+   // X509* cert;
     KEY_DATA pubKeyData;
     KEY_DATA privKeyData;
 } CERT_DATA;
@@ -82,7 +82,7 @@ typedef struct _OBJECT_DATA
 } OBJECT_DATA;
 
 
-struct PKCS11_Token_SF2_HW
+struct SF2_HW_PKCS11_Token
 {
     static CK_RV Initialize();
     static CK_RV Uninitialize();
@@ -100,13 +100,13 @@ typedef enum _SF2_HWCryptoState
 typedef struct _SF2_HWEncryptData
 {
     UINT8            IV[PKCS11_SF2_HW_MAX_IV_LEN];
-    EVP_CIPHER_CTX   SymmetricCtx;
+  //  EVP_CIPHER_CTX   SymmetricCtx;
     BOOL             IsSymmetric;
     KEY_DATA*        Key;
     BOOL             IsUpdateInProgress;
 } SF2_HWEncryptData;
 
-struct PKCS11_Encryption_SF2_HW
+struct SF2_HW_PKCS11_Encryption
 {
     static CK_RV EncryptInit     (Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pEncryptMech, CK_OBJECT_HANDLE hKey);
     static CK_RV Encrypt           (Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pEncryptedData, CK_ULONG_PTR pulEncryptedDataLen);
@@ -122,7 +122,7 @@ private:
     static CK_RV InitHelper(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pEncryptMech, CK_OBJECT_HANDLE hKey, BOOL isEncrypt);
 };
 
-struct PKCS11_Session_SF2_HW
+struct SF2_HW_PKCS11_Session
 {
     static CK_RV InitPin(Cryptoki_Session_Context* pSessionCtx, CK_UTF8CHAR_PTR pPin, CK_ULONG ulPinLen);
     static CK_RV SetPin(Cryptoki_Session_Context* pSessionCtx, CK_UTF8CHAR_PTR pOldPin, CK_ULONG ulOldPinLen, CK_UTF8CHAR_PTR pNewPin, CK_ULONG ulNewPinLen);
@@ -141,7 +141,7 @@ struct FIND_OBJECT_DATA
     CHAR    GroupName[20];
 };
 
-struct PKCS11_Objects_SF2_HW
+struct SF2_HW_PKCS11_Objects
 {
 
     static CK_RV CreateObject(Cryptoki_Session_Context* pSessionCtx, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount, CK_OBJECT_HANDLE_PTR phObject);
@@ -161,11 +161,11 @@ struct PKCS11_Objects_SF2_HW
 
     static void IntitializeObjects();
 private:
-    static CK_RV LoadX509Cert(Cryptoki_Session_Context* pSessionCtx, X509* x, OBJECT_DATA** ppObject, EVP_PKEY* privateKey, CK_OBJECT_HANDLE_PTR phObject);
+    //static CK_RV LoadX509Cert(Cryptoki_Session_Context* pSessionCtx, X509* x, OBJECT_DATA** ppObject, EVP_PKEY* privateKey, CK_OBJECT_HANDLE_PTR phObject);
     static int FindEmptyObjectHandle();
     static OBJECT_DATA s_Objects[PKCS11_SF2_HW_MAX_OBJECT_COUNT];
 };
-
+/*
 typedef struct _SF2_HWDigestData
 {
     EVP_MD_CTX CurrentCtx;
@@ -173,8 +173,8 @@ typedef struct _SF2_HWDigestData
     KEY_DATA*  HmacKey;
     BOOL       IsUpdateInProgress;
 } SF2_HWDigestData;
-
-struct PKCS11_Digest_SF2_HW
+*/
+struct SF2_HW_PKCS11_Digest
 {
     static CK_RV DigestInit(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pMechanism);
     static CK_RV Digest(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pDigest, CK_ULONG_PTR pulDigestLen);
@@ -182,16 +182,16 @@ struct PKCS11_Digest_SF2_HW
     static CK_RV DigestKey(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hKey);
     static CK_RV Final(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pDigest, CK_ULONG_PTR pulDigestLen);
 };
-
+/*
 typedef struct _SF2_HWSignatureData
 {
     KEY_DATA*  Key;
     EVP_MD_CTX Ctx;
     BOOL       IsUpdateInProgress;
 } SF2_HWSignatureData;
+*/
 
-
-struct PKCS11_Signature_SF2_HW
+struct SF2_HW_PKCS11_Signature
 {
     static CK_RV SignInit(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hKey);
     static CK_RV Sign(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pSignature, CK_ULONG_PTR pulSignatureLen);
@@ -204,12 +204,12 @@ struct PKCS11_Signature_SF2_HW
     static CK_RV VerifyFinal(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pSignature, CK_ULONG ulSignatureLen);
 
 private:
-    static CK_RV GetDigestFromMech(CK_MECHANISM_PTR pMechanism, const EVP_MD*& pDigest, CK_KEY_TYPE &keyType);
+   // static CK_RV GetDigestFromMech(CK_MECHANISM_PTR pMechanism, const EVP_MD*& pDigest, CK_KEY_TYPE &keyType);
     static CK_RV InitHelper(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pMechanism, CK_OBJECT_HANDLE hKey, BOOL isSign);
 };
 
 
-struct PKCS11_Keys_SF2_HW
+struct SF2_HW_PKCS11_Keys
 {
     static CK_RV DeleteKey(Cryptoki_Session_Context* pSessionCtx, KEY_DATA* pKey);
     
@@ -236,7 +236,7 @@ private:
     static CK_OBJECT_HANDLE LoadKey(Cryptoki_Session_Context* pSessionCtx, void* pKey, CK_KEY_TYPE type, KEY_ATTRIB attrib, size_t keySize);
 };
 
-struct PKCS11_Random_SF2_HW
+struct SF2_HW_PKCS11_Random
 {
     static CK_RV SeedRandom(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pSeed, CK_ULONG ulSeedLen);
     static CK_RV GenerateRandom(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pRandomData, CK_ULONG ulRandomLen);    

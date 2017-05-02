@@ -1,5 +1,10 @@
 #include "SF2_HW_pkcs11.h"
 
+
+void SF2_HW_PKCS11_Objects::IntitializeObjects(){
+
+}
+
 CK_RV SF2_HW_PKCS11_Objects::CreateObject(Cryptoki_Session_Context* pSessionCtx, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount, CK_OBJECT_HANDLE_PTR phObject)
 {
     return CKR_FUNCTION_NOT_SUPPORTED;
