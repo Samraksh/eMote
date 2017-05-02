@@ -394,7 +394,7 @@ void HAL_Initialize()
 
     BlockStorage_AddDevices();
 
-    //BlockStorageList::InitializeDevices();
+    BlockStorageList::InitializeDevices();
 
     FS_Initialize();
 
@@ -520,7 +520,7 @@ extern "C"
 void BootEntry()
 {
 #if defined(PLATFORM_ARM_SmartFusion2)
-   aesTest();
+   //aesTest();
 #endif
 
 #if defined(PLATFORM_ARM_SOC_ADAPT)
@@ -593,6 +593,9 @@ mipi_dsi_shutdown();
     HAL_Time_Initialize();
 
     HAL_Initialize();
+	
+
+	
 
 #if !defined(BUILD_RTM)
 #ifdef TINYHAL_BOOTUP_DISPLAY_BUILD_INFO
@@ -651,6 +654,18 @@ mipi_dsi_shutdown();
 		}
 	}*/
 #endif
+	/*int i;
+	for (i=0; i<31; i++){
+		CPU_GPIO_EnableOutputPin((GPIO_PIN) i, TRUE);
+	}
+	while (1){
+		for (i=0; i<31; i++){
+			CPU_GPIO_SetPinState((GPIO_PIN) i, TRUE);
+		}
+		for (i=0; i<31; i++){
+			CPU_GPIO_SetPinState((GPIO_PIN) i, FALSE);
+		}
+	}*/
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

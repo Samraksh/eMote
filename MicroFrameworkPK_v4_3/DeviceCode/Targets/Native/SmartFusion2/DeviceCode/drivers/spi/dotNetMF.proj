@@ -1,17 +1,17 @@
 <Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>SmartFusion2_SimplePower</AssemblyName>
+    <AssemblyName>sf2_spi</AssemblyName>
     <ProjectGuid>{36101ca5-349a-4471-aeb0-3babba567477}</ProjectGuid>
     <Size>
     </Size>
-    <Description>SmartFusion2 pwr</Description>
+    <Description>SF2 spi</Description>
     <Level>HAL</Level>
-    <LibraryFile>SmartFusion2_SimplePower.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\SimplePower\dotNetMF.proj</ProjectPath>
-    <ManifestFile>SmartFusion2_SimplePower.$(LIB_EXT).manifest</ManifestFile>
-    <Groups>Processor\SmartFusion2</Groups>
+    <LibraryFile>sf2_spi.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\spi\dotNetMF.proj</ProjectPath>
+    <ManifestFile>sf2_spi.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Processor\SF2</Groups>
     <LibraryCategory>
-      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="pwr_HAL" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" Conditional="" xmlns="">
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="spi_HAL" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" Conditional="" xmlns="">
         <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
           <Major>4</Major>
           <Minor>0</Minor>
@@ -31,7 +31,7 @@
     <Required>False</Required>
     <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
     <IsStub>False</IsStub>
-    <Directory>DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\SimplePower</Directory>
+    <Directory>DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\spi</Directory>
     <OutputType>Library</OutputType>
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
     <Version>4.0.0.0</Version>
@@ -39,10 +39,8 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-    <HFiles Include="SimplePower.h" />
-    <Compile Include="SimplePower.cpp" />
-	<Compile Include="netmf_pwr_functions.cpp" />
-	<HFiles Include="..\sam_cortexM3.h" />
+	<HFiles Include="netmf_spi.h" />	
+	<Compile Include="netmf_spi.cpp" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

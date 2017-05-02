@@ -102,6 +102,7 @@ BOOL CPU_USART_Uninitialize                ( int ComPortNum               );
 BOOL CPU_USART_TxBufferEmpty               ( int ComPortNum               );
 BOOL CPU_USART_TxShiftRegisterEmpty        ( int ComPortNum               );
 void CPU_USART_WriteCharToTxBuffer         ( int ComPortNum, UINT8 c      );
+void CPU_USART_WriteStringToTxBuffer( int ComPortNum, char* Data, size_t size );
 void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable  );
 BOOL CPU_USART_TxBufferEmptyInterruptState ( int ComPortNum               );
 void CPU_USART_RxBufferFullInterruptEnable ( int ComPortNum, BOOL Enable  );

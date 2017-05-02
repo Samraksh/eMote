@@ -575,14 +575,14 @@
     <DriverLibs Include="STM32_Flash.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32\DeviceCode\STM32_Flash\dotNetMF.proj" />
   </ItemGroup>-->
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="BlockStorageAddDevices_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\BlockStorageAddDevices_HAL\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="BlockStorageConfig_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\BlockStorageConfig_HAL\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="I2C_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\I2C_HAL\dotNetMF.proj" />

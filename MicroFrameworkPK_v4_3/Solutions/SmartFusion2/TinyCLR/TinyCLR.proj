@@ -304,8 +304,8 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cores\arm\Common\GlobalLock\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_gpio.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\gpio\dotNetMF.proj" />
+    <DriverLibs Include="SmartFusion2_gpio.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\gpio\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
@@ -421,21 +421,18 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\fsmc\dotNetMF.proj" />
   </ItemGroup>-->
   <ItemGroup>
-    <DriverLibs Include="SF2_SimplePower.$(LIB_EXT)" />
+    <DriverLibs Include="SmartFusion2_SimplePower.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\SimplePower\dotNetMF.proj" />
   </ItemGroup>
   <!--<ItemGroup>
     <DriverLibs Include="cpu_power_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\Processor\stubs_power\dotNetMF.proj" />
   </ItemGroup>-->
-  <!--<ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bl\dotNetMF.proj" />
     <DriverLibs Include="SF2_M2S090_bl.$(LIB_EXT)" />
-  </ItemGroup>-->
-  <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\BlockStorage\AddDevices\dotNetMF.proj" />
-    <DriverLibs Include="BlockStorage_AddDevices_stubs.$(LIB_EXT)" />
   </ItemGroup>
+  
   
   <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\exti\dotNetMF.proj" />
@@ -491,13 +488,17 @@
     <DriverLibs Include="SmartFusion2_intc.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\intc\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="STM32F10x_math.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\math\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
+  </ItemGroup>-->
+  <!--<ItemGroup>
     <DriverLibs Include="STM32F10x_spi.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\spi\dotNetMF.proj" />
+  </ItemGroup>-->
+<ItemGroup>
+    <DriverLibs Include="sf2_spi.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\spi\dotNetMF.proj" />
   </ItemGroup>
   
   <!--ItemGroup>
@@ -515,8 +516,8 @@
   -->
   
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_usart.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\usart\dotNetMF.proj" />
+    <DriverLibs Include="SmartFusion2_usart.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\usart\dotNetMF.proj" />
   </ItemGroup>
  <!-- <ItemGroup>
     <DriverLibs Include="cpu_usart_stubs.$(LIB_EXT)" />
@@ -552,12 +553,12 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32\DeviceCode\STM32_Flash\dotNetMF.proj" />
   </ItemGroup>-->
   <!--<ItemGroup>
-    <DriverLibs Include="BlockStorageAddDevices_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\BlockStorageAddDevices_HAL\dotNetMF.proj" />
+    <DriverLibs Include="BlockStorageAddDevices_HAL_SF2.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\BlockStorageAddDevices_HAL\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="BlockStorageConfig_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\BlockStorageConfig_HAL\dotNetMF.proj" />
+    <DriverLibs Include="BlockStorageConfig_HAL_SF2.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\BlockStorageConfig_HAL\dotNetMF.proj" />
   </ItemGroup>-->
   <!--<ItemGroup>
     <DriverLibs Include="I2C_HAL_EmoteDotNow.$(LIB_EXT)" />

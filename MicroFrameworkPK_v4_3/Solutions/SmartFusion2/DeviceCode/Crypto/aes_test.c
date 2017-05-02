@@ -21,7 +21,11 @@
 #include <stdio.h>
 #include <drivers/mss_sys_services/mss_sys_services.h>
 #include <drivers/mss_uart/mss_uart.h>
+#include <drivers/mss_gpio/mss_gpio.h>
+#include <drivers/CoreGPIO/core_gpio.h>
 #include "aes_test.h"
+
+gpio_instance_t g_gpio;
 
 /*==============================================================================
   Messages displayed over the UART.
@@ -173,48 +177,106 @@ int aesTest()
 
     /* MMUART Initialization */
     MSS_UART_init(gp_my_uart,
-    		      MSS_UART_57600_BAUD,
+    		      MSS_UART_115200_BAUD,
                   MSS_UART_DATA_8_BITS  | \
                   MSS_UART_NO_PARITY    | \
                   MSS_UART_ONE_STOP_BIT);
 
     /* Display greeting message. */
     display_greeting();
-
-    /* Select cryptographic operation to perform */
+	
+    // Select cryptographic operation to perform 
     display_operation_choices();
+	
+/*	MSS_GPIO_init();
+	int i;
+	for (i=0; i<31;i++){
+		MSS_GPIO_config(0, MSS_GPIO_OUTPUT_MODE);
+	}*/
+	//uint32_t gpio_pattern;
 
+	/*while (1){
+		//MSS_UART_polled_tx_string(gp_my_uart, g_separator);
+		for (i=0; i<31;i++){
+			MSS_GPIO_set_output(i, 0);
+		}
+		for (i=0; i<31;i++){
+			MSS_GPIO_set_output(i, 1);
+		}
+		gpio_pattern = MSS_GPIO_get_outputs();
+        gpio_pattern ^= 0xFFFFFFFF;
+        MSS_GPIO_set_outputs( gpio_pattern );
+		
+	}*/
+
+	uint32_t io_state;
+    
+    /**************************************************************************
+     * Initialize the CoreGPIO driver with the base address of the CoreGPIO
+     * instance to use and the initial state of the outputs. 
+     *************************************************************************/    
+    GPIO_init( &g_gpio,    COREGPIO_BASE_ADDR, GPIO_APB_32_BITS_BUS );
+    
+    /**************************************************************************
+     * Configure the GPIOs.
+     *************************************************************************/     
+    GPIO_config( &g_gpio, GPIO_0, GPIO_OUTPUT_MODE );
+    //GPIO_config( &g_gpio, GPIO_1, GPIO_OUTPUT_MODE );
+    //GPIO_config( &g_gpio, GPIO_2, GPIO_OUTPUT_MODE );
+    //GPIO_config( &g_gpio, GPIO_3, GPIO_OUTPUT_MODE );
+    //GPIO_config( &g_gpio, GPIO_4, GPIO_INPUT_MODE );
+    //GPIO_config( &g_gpio, GPIO_5, GPIO_INPUT_MODE );
+
+    /**************************************************************************
+     * Infinite Loop.
+     *************************************************************************/        
+    while(1)
+    {
+        /**********************************************************************
+         * Read inputs.
+         *********************************************************************/
+        //io_state = GPIO_get_inputs( &g_gpio );
+        
+        /**********************************************************************
+         * Write state of inputs back to the outputs.
+         *********************************************************************/
+        //io_state = io_state >> INPUT_TO_OUTPUT_BIT_OFFSET;
+        GPIO_set_outputs( &g_gpio, 1 );    
+        GPIO_set_outputs( &g_gpio, 0 );    
+    }
+
+	/*
     for(;;)
     {
-        /* Start command line interface if any key is pressed. */
+        // Start command line interface if any key is pressed. 
         rx_size = MSS_UART_get_rx(gp_my_uart, rx_buff, sizeof(rx_buff));
         if(rx_size > 0)
         {
             switch(rx_buff[0])
             {
                 case '1':
-                    /* Perform encryption using AES-128 */
+                    // Perform encryption using AES-128 
                     aes128_encryption();
                     display_option();
                     display_operation_choices();
                 break;
 
                 case '2':
-                    /* Perform decryption using AES-128 */
+                    // Perform decryption using AES-128 
                     aes128_decryption();
                     display_option();
                     display_operation_choices();
                 break;
 
                 case '3':
-                    /* Perform encryption using AES-256 */
+                    // Perform encryption using AES-256 
                     aes256_encryption();
                     display_option();
                     display_operation_choices();
                 break;
 
                 case '4':
-                    /* Perform decryption using AES-256 */
+                    // Perform decryption using AES-256 
                     aes256_decryption();
                     display_option();
                     display_operation_choices();
@@ -225,6 +287,7 @@ int aesTest()
             }
         }
     }
+	*/
 }
 
 /*==============================================================================
