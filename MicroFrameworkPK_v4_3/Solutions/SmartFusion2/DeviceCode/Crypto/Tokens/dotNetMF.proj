@@ -37,11 +37,13 @@
     <Compile Include="SF2_HW_PKCS11_session.cpp" />
     <Compile Include="SF2_HW_PKCS11_signature.cpp" />
     <Compile Include="SF2_HW_PKCS11_Token.cpp" />
+    <Compile Include="..\SF2_HW_Crypto.cpp" />
     <IncludePaths Include="DeviceCode\PAL" />
   </ItemGroup>
   <ItemGroup>
     <HFiles Include="$(SPOCLIENT)\devicecode\include\tinyclr_endian.h" />
     <HFiles Include="SF2_HW_pkcs11.h" />
+    <HFiles Include="..\SF2_HW_Crypto.h" />
   </ItemGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

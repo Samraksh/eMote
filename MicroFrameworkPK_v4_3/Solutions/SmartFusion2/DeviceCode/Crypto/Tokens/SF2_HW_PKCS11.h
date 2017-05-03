@@ -1,49 +1,84 @@
 #include <PKCS11\CryptokiPAL.h>
-//#include <EVP\evp.h>
+#include <TinyCLR_Runtime.h>
+#include <TinyCLR_Runtime__HeapBlock.h>
+
+
+#include "../SF2_HW_Crypto.h"
 //#include <HMAC\HMAC.h>
 
 #ifndef _SF2_HW_PKCS11_H_
 #define _SF2_HW_PKCS11_H_ 1
 
-#ifndef PKCS11_SF2_HW_MAX_OBJECT_COUNT
-#define PKCS11_SF2_HW_MAX_OBJECT_COUNT 40
+#ifndef SF2_HW_PKCS11_MAX_OBJECT_COUNT
+#define SF2_HW_PKCS11_MAX_OBJECT_COUNT 40
 #endif
 
-#ifndef PKCS11_SF2_HW_MAX_IV_LEN
-#define PKCS11_SF2_HW_MAX_IV_LEN 64
+#ifndef MAX_KEY_OBJECT_COUNT
+#define MAX_KEY_OBJECT_COUNT 4
+#endif
+
+#ifndef SF2_HW_PKCS11_MAX_IV_LEN
+#define SF2_HW_PKCS11_MAX_IV_LEN 64
 #endif
 
 // TODO: Add platform dependent value
 #define SF2_HW_MAX_SESSION_COUNT 10
 
+////MACRO definitions
 
-#define SF2_HW_HEADER() \
+#define SF2_HW_PKCS11_HEADER() \
     CK_RV retVal = CKR_OK
 
-#define SF2_HW_CLEANUP() \
+#define SF2_HW_PKCS11_CLEANUP() \
     CleanUp: 
 
-#define SF2_HW_RETURN() \
+#define SF2_HW_PKCS11_RETURN() \
     return retVal
 
-#define SF2_HW_NOCLEANUP() \
-    SF2_HW_CLEANUP(); \
-    SF2_HW_RETURN()
+#define SF2_HW_PKCS11_NOCLEANUP() \
+    SF2_HW_PKCS11_CLEANUP(); \
+    SF2_HW_PKCS11_RETURN()
 
-#define SF2_HW_LEAVE() \
+#define SF2_HW_PKCS11_LEAVE() \
     goto CleanUp
 
-#define SF2_HW_SET_AND_LEAVE(x) \
+#define SF2_HW_PKCS11_SET_AND_LEAVE(x) \
 { \
     retVal = x; \
-    SF2_HW_LEAVE(); \
+    SF2_HW_PKCS11_LEAVE(); \
 }
    
-#define SF2_HW_CHECKRESULT(x) \
-    if((x) <= 0) SF2_HW_SET_AND_LEAVE(CKR_FUNCTION_FAILED)
+#define SF2_HW_PKCS11_CHECKRESULT(x) \
+    if((x) != 0) SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_FAILED)
 
-#define SF2_HW_CHECK_CK_RESULT(x) \
-    if(CKR_OK != (retVal = x)) SF2_HW_LEAVE()
+#define SF2_HW_PKCS11_CHECK_CK_RESULT(x) \
+    if(CKR_OK != (retVal = x)) SF2_HW_PKCS11_LEAVE()
+
+//Malloc and string defines
+
+#define SF2_HW_PKCS11_MALLOC(x) \
+	CLR_RT_Memory::Allocate(x)
+
+
+#define SF2_HW_PKCS11_FREE(x) \
+	CLR_RT_Memory::Release(x)
+
+#define SF2_HW_PKCS11_MEMCPY			  memcpy
+
+/////String operations
+#define SF2_HW_PKCS11_STRCAT              strcat
+#define SF2_HW_PKCS11_STRCPY              strcpy
+#define SF2_HW_PKCS11_STRLEN              strlen
+#define SF2_HW_PKCS11_STRNCPY             strncpy
+#define SF2_HW_PKCS11_STRNCMP             strncmp
+#define SF2_HW_PKCS11_STRCMP              strcmp
+#define SF2_HW_PKCS11_STRNCASECMP         strncasecmp
+#define SF2_HW_PKCS11_STRCASECMP          strcasecmp
+#define SF2_HW_PKCS11_FPRINTF             fprintf
+#define SF2_HW_PKCS11_SNPRINTF            _snprintf
+#define SF2_HW_PKCS11_PRINTF              printf
+#define SF2_HW_PKCS11_STAT                stat
+#define SF2_HW_PKCS11_PERROR              perror
 
 
 extern CK_SLOT_INFO  g_SF2_HW_SlotInfo;
@@ -78,6 +113,7 @@ typedef struct _OBJECT_DATA
     CHAR              FileName[20];
     CHAR              GroupName[20];
     int               RefCount;
+    UINT16			  Size;
     CK_VOID_PTR       Data;
 } OBJECT_DATA;
 
@@ -99,12 +135,12 @@ typedef enum _SF2_HWCryptoState
 
 typedef struct _SF2_HWEncryptData
 {
-    UINT8            IV[PKCS11_SF2_HW_MAX_IV_LEN];
-  //  EVP_CIPHER_CTX   SymmetricCtx;
+    UINT8            IV[SF2_HW_PKCS11_MAX_IV_LEN];
+    sf2_cipher_context_t   SymmetricCtx;
     BOOL             IsSymmetric;
     KEY_DATA*        Key;
     BOOL             IsUpdateInProgress;
-} SF2_HWEncryptData;
+} SF2_HW_EncryptData;
 
 struct SF2_HW_PKCS11_Encryption
 {
@@ -163,7 +199,7 @@ struct SF2_HW_PKCS11_Objects
 private:
     //static CK_RV LoadX509Cert(Cryptoki_Session_Context* pSessionCtx, X509* x, OBJECT_DATA** ppObject, EVP_PKEY* privateKey, CK_OBJECT_HANDLE_PTR phObject);
     static int FindEmptyObjectHandle();
-    static OBJECT_DATA s_Objects[PKCS11_SF2_HW_MAX_OBJECT_COUNT];
+    static OBJECT_DATA s_Objects[SF2_HW_PKCS11_MAX_OBJECT_COUNT];
 };
 /*
 typedef struct _SF2_HWDigestData
@@ -211,8 +247,6 @@ private:
 
 struct SF2_HW_PKCS11_Keys
 {
-    static CK_RV DeleteKey(Cryptoki_Session_Context* pSessionCtx, KEY_DATA* pKey);
-    
     static CK_RV GenerateKey(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pMechanism, CK_ATTRIBUTE_PTR pTemplate, CK_ULONG ulCount, CK_OBJECT_HANDLE_PTR phKey);
     static CK_RV GenerateKeyPair(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pMechanism, 
                              CK_ATTRIBUTE_PTR pPublicKeyTemplate , CK_ULONG ulPublicCount, 
@@ -229,7 +263,7 @@ struct SF2_HW_PKCS11_Keys
     static CK_RV LoadKeyBlob(Cryptoki_Session_Context* pSessionCtx, const PBYTE pKey, CK_ULONG keyLen, CK_KEY_TYPE keyType, KEY_ATTRIB keyAttrib, CK_OBJECT_HANDLE_PTR phKey);
 
     //--//
-
+    static CK_RV DeleteKey(Cryptoki_Session_Context* pSessionCtx, KEY_DATA* pKey);
     static KEY_DATA* GetKeyFromHandle(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hKey, BOOL getPrivate);
 
 private:
