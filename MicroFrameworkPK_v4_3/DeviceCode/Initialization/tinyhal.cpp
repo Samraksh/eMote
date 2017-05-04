@@ -666,6 +666,12 @@ mipi_dsi_shutdown();
 			CPU_GPIO_SetPinState((GPIO_PIN) i, FALSE);
 		}
 	}*/
+	CPU_GPIO_EnableOutputPin( 0, FALSE );
+	while (1){
+		CPU_GPIO_SetPinState(0, TRUE);
+		CPU_GPIO_SetPinState(0, FALSE);
+	}
+	
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

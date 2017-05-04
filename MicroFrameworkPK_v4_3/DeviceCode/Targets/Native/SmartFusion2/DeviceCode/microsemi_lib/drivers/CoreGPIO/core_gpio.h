@@ -69,6 +69,9 @@
 
 #include <stdint.h>
 #include "cpu_types.h"
+#ifdef __cplusplus
+  extern "C" {
+#endif
 
 #define COREGPIO_BASE_ADDR  0x50000000
 /*-------------------------------------------------------------------------*//**
@@ -549,5 +552,9 @@ void GPIO_clear_irq
     gpio_instance_t *   this_gpio,
     gpio_id_t           port_id
 );
+
+#ifdef __cplusplus
+  };
+#endif
 
 #endif /* CORE_GPIO_H_ */

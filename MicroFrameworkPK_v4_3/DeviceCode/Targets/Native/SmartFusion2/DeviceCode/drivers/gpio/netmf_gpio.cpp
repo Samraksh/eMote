@@ -8,8 +8,9 @@
  */
 #include "netmf_gpio.h"
 #include <cmsis/mss_assert.h>
+#include <drivers/CoreGPIO/core_gpio.h>
 
-
+gpio_instance_t g_gpio;
 
 /*-------------------------------------------------------------------------*//**
  * Defines.
@@ -48,15 +49,29 @@ struct GPIO_FLAG_RESISTOR
 
 BOOL CPU_GPIO_Initialize()
 {
+	GPIO_init( &g_gpio,    COREGPIO_BASE_ADDR, GPIO_APB_32_BITS_BUS );
 	return TRUE;
 }
 
 void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 {
+	GPIO_config( &g_gpio, GPIO_0, GPIO_OUTPUT_MODE );
 }
 
 void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
 {
+	/*uint32_t gpio_outputs;
+	//uint32_t mask = 1 << Pin;
+    gpio_outputs = GPIO_get_outputs( &g_gpio );
+	if  (PinState == TRUE){
+		gpio_outputs &= GPIO_0_MASK;
+		//gpio_outputs &= mask;
+	} else {
+		gpio_outputs &= ~GPIO_0_MASK;
+		//gpio_outputs &= ~mask;
+	}
+    GPIO_set_outputs( &g_gpio, gpio_outputs );*/
+	GPIO_set_outputs( &g_gpio, PinState );
 }
 
 INT32  CPU_GPIO_GetPinCount    ()
@@ -110,7 +125,14 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 
 BOOL   CPU_GPIO_GetPinState    ( GPIO_PIN Pin )
 {
-	return TRUE;
+	uint32_t gpio_outputs;
+	uint32_t mask = 1 << Pin;
+    gpio_outputs = GPIO_get_outputs( &g_gpio );
+	
+	if ( (gpio_outputs & mask) > 0)
+		return TRUE;
+	else 
+		return FALSE;
 }
 /*-------------------------------------------------------------------------*//**
  * Lookup table of GPIO configuration registers address indexed on GPIO ID.
