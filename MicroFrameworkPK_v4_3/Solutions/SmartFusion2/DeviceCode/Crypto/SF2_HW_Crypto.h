@@ -24,16 +24,21 @@ enum SF2_CipherOperation {
 	DECRYPT
 };
 
-enum SF2_CipherMode {
+#define DECRYPT_MASK 0x80
+#define ECB_MASK 0x00
+#define CBC_MASK 0x01
+#define OFB_MASK 0x02
+#define CTR_MASK 0x03
+/*enum SF2_CipherMode {
 	ECB, CBC, OFB, CTR
 };
-
+*/
 
 ///Please note this is defined by Samraksh. Should really use sf2 defintion if available.
 typedef struct {
 	SF2_CipherType type;
 	SF2_CipherOperation operation;
-	SF2_CipherMode mode;
+	uint8_t mode;
     /** Buffer for data that hasn't been encrypted yet */
     //unsigned char unprocessed_data[MBEDTLS_MAX_BLOCK_LENGTH];
 
@@ -54,21 +59,13 @@ typedef struct {
 } sf2_cipher_context_t;
 
 
-
-
-
-
-
-
-
-
-
-
-
 //function prototypes
 
 
 int GetRandomSeed(uint8_t *buf, uint16_t length);
 int GetRandomBytes(uint8_t *buf, uint16_t length);
+
+//main wrapper function for all symmetric cipher methods
+int SF2_Cipher(sf2_cipher_context_t* ctx, uint8_t* data, int dataSize, uint8_t* result );
 
 #endif //_SF2_HW_CRYPTO_H_

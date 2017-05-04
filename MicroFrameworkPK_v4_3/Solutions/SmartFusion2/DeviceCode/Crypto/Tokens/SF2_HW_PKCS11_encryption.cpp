@@ -6,7 +6,7 @@ int EncryptDecryptInit(sf2_cipher_context_t *cipher_ctx, const unsigned char *ke
 		SF2_CipherType type, SF2_CipherMode _mode)
 {
     int ret=0;
-    //const mbedtls_cipher_info_t *info = cipher_ctx->cipher_info;
+    //const sf2_cipher_info_t *info = cipher_ctx->cipher_info;
     cipher_ctx->type = type;
     cipher_ctx->iv_size = iv_len;
     cipher_ctx->key_bitlen=key_bitlen;
@@ -22,7 +22,7 @@ int EncryptDecryptInit(sf2_cipher_context_t *cipher_ctx, const unsigned char *ke
 
 int FreeCyptoData(SF2_HW_EncryptData* pEnc){
 	sf2_cipher_context_t *cipher_ctx = &pEnc->SymmetricCtx;
-	//mbedtls_cipher_free(cipher_ctx);
+	//sf2_cipher_free(cipher_ctx);
 	//SF2_HW_PKCS11_FREE()
 	SF2_HW_PKCS11_FREE(pEnc);
 	return 0;
@@ -34,8 +34,8 @@ CK_RV  SF2_HW_PKCS11_Encryption::InitHelper(Cryptoki_Session_Context* pSessionCt
 
     SF2_HW_EncryptData* pEnc;
     SF2_CipherType cipherType;
-    SF2_CipherMode mode;
-   // const mbedtls_cipher_info_t* pCipherInfo;
+    uint8_t mode=0;
+   // const sf2_cipher_info_t* pCipherInfo;
     int padding = 0;
 
     if(             pSessionCtx                 == NULL) return CKR_SESSION_CLOSED;
@@ -67,7 +67,7 @@ CK_RV  SF2_HW_PKCS11_Encryption::InitHelper(Cryptoki_Session_Context* pSessionCt
                 default:
                     SF2_HW_PKCS11_SET_AND_LEAVE(CKR_MECHANISM_INVALID);
             }
-            mode = CBC;
+            mode = mode| CBC_MASK;
             if(pEncryptMech->mechanism == CKM_AES_CBC_PAD)
             {
                 padding = 1;
@@ -87,7 +87,7 @@ CK_RV  SF2_HW_PKCS11_Encryption::InitHelper(Cryptoki_Session_Context* pSessionCt
 				default:
 					SF2_HW_PKCS11_SET_AND_LEAVE(CKR_MECHANISM_INVALID);
             }
-            mode = ECB;
+            mode = mode| ECB_MASK;
             if(pEncryptMech->mechanism == CKM_AES_ECB_PAD)
             {
                 padding = 1;
@@ -98,6 +98,8 @@ CK_RV  SF2_HW_PKCS11_Encryption::InitHelper(Cryptoki_Session_Context* pSessionCt
     }
 
     pEnc->SymmetricCtx.type = cipherType;
+
+    if(!isEncrypt){mode = mode| DECRYPT_MASK;}
 
     if(pEnc->IsSymmetric)
     {
@@ -179,11 +181,11 @@ CK_RV SF2_HW_PKCS11_Encryption::Encrypt(Cryptoki_Session_Context* pSessionCtx, C
 
 		/*if(pEnc->IsSymmetric)
 		{
-			blockSize = mbedtls_cipher_get_block_size(&pEnc->SymmetricCtx);
+			blockSize = sf2_cipher_get_block_size(&pEnc->SymmetricCtx);
 		}
 		else
 		{
-			blockSize = mbedtls_cipher_get_block_size(&pEnc->SymmetricCtx);
+			blockSize = sf2_cipher_get_block_size(&pEnc->SymmetricCtx);
 
 		}
 
@@ -203,11 +205,11 @@ CK_RV SF2_HW_PKCS11_Encryption::Encrypt(Cryptoki_Session_Context* pSessionCtx, C
 
 	CK_ULONG tmp = *pulEncryptedDataLen;
 
-	SF2_HW_PKCS11_CHECK_CK_RESULT(MBEDTLS_PKCS11_Encryption::EncryptUpdate(pSessionCtx, pData, ulDataLen, pEncryptedData, pulEncryptedDataLen));
+	SF2_HW_PKCS11_CHECK_CK_RESULT(SF2_HW_PKCS11_Encryption::EncryptUpdate(pSessionCtx, pData, ulDataLen, pEncryptedData, pulEncryptedDataLen));
 
 	tmp -= *pulEncryptedDataLen;
 
-	SF2_HW_PKCS11_CHECK_CK_RESULT(MBEDTLS_PKCS11_Encryption::EncryptFinal(pSessionCtx, &pEncryptedData[*pulEncryptedDataLen], &tmp));
+	SF2_HW_PKCS11_CHECK_CK_RESULT(SF2_HW_PKCS11_Encryption::EncryptFinal(pSessionCtx, &pEncryptedData[*pulEncryptedDataLen], &tmp));
 
 	*pulEncryptedDataLen += tmp;
 
@@ -223,15 +225,15 @@ CK_RV SF2_HW_PKCS11_Encryption::EncryptUpdate(Cryptoki_Session_Context* pSession
     if(pSessionCtx == NULL || pSessionCtx->EncryptionCtx == NULL) return CKR_SESSION_CLOSED;
 
     pEnc = (SF2_HW_EncryptData*)pSessionCtx->EncryptionCtx;
-    //mbedtls_cipher_context_t * cipher_ctx = (mbedtls_cipher_context_t *)pEnc->Key->ctx;
-    mbedtls_cipher_context_t * cipher_ctx = (mbedtls_cipher_context_t *) &pEnc->SymmetricCtx;
+    //mbedtls_cipher_context_t * cipher_ctx = (sf2_cipher_context_t *)pEnc->Key->ctx;
+    sf2_cipher_context_t * cipher_ctx = (sf2_cipher_context_t *) &pEnc->SymmetricCtx;
 
     hal_printf("Crypto specific ctx ptr: %p \n", cipher_ctx->cipher_ctx );
 
     if(pEnc->IsSymmetric)
     {
         size_t outLen = *pulEncryptedPartLen;
-        SF2_HW_PKCS11_CHECKRESULT( mbedtls_cipher_update (cipher_ctx,  pPart, ulPartLen, pEncryptedPart, &outLen));
+        SF2_HW_PKCS11_CHECKRESULT( SF2_Cipher(cipher_ctx,  pPart, ulPartLen, pEncryptedPart, &outLen));
         *pulEncryptedPartLen = outLen;
     }
     else
@@ -266,10 +268,10 @@ CK_RV SF2_HW_PKCS11_Encryption::EncryptFinal(Cryptoki_Session_Context* pSessionC
     if(pEnc->IsSymmetric)
     {
         size_t outLen = *pulLastEncryptedPartLen;
-        SF2_HW_PKCS11_CHECKRESULT(mbedtls_cipher_finish((mbedtls_cipher_context_t *)pEnc->Key->ctx, pLastEncryptedPart, &outLen));
+        SF2_HW_PKCS11_CHECKRESULT(sf2_cipher_finish((sf2_cipher_context_t *)pEnc->Key->ctx, pLastEncryptedPart, &outLen));
         *pulLastEncryptedPartLen = outLen;
 
-       // SF2_HW_PKCS11_CHECKRESULT(mbedtls_cipher_reset((mbedtls_cipher_context_t *)pEnc->Key->ctx));
+       // SF2_HW_PKCS11_CHECKRESULT(sf2_cipher_reset((sf2_cipher_context_t *)pEnc->Key->ctx));
     }
     else
     {
