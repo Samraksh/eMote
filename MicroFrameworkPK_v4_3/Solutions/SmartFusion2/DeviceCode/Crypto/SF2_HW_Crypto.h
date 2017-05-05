@@ -3,8 +3,8 @@
 
 #include <drivers/mss_sys_services/mss_sys_services.h>
 
-#define SF2_HW_MAX_IV_LENGTH 16
-#define SF2_HW_MAX_KEY_LENGTH 32 // This is in bytes
+#define SF2_HW_MAX_IV_LENGTH 32
+#define SF2_HW_MAX_KEY_LENGTH 64 // This is in bytes
 
 #define SF2_MYSYS_SET_AND_LEAVE(x) \
 	return x

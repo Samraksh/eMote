@@ -8,17 +8,17 @@ static uint8_t additionalStr[8];
 const uint8_t personalStr[16]= "H e y !$*)0@n/?";
 
 //encryption related variables.
-static uint8_t g_key_256[64];
+//static uint8_t g_key_256[64];
 //static uint8_t g_plain_text[64];
 //static uint8_t g_encrypted_text[32];
-static uint8_t g_decrypted_text[32];
-static uint8_t g_dec_input_text[64];
-static uint8_t g_hash_input_text[128];
-static uint8_t g_hmac_input_text[128];
-static uint8_t g_nb_blocks;
-static uint8_t g_hmac_code_stored[32];
-static uint8_t g_checksum_hash[32];
-static uint8_t g_aes_iv[32];
+//static uint8_t g_decrypted_text[32];
+//static uint8_t g_dec_input_text[64];
+//static uint8_t g_hash_input_text[128];
+//static uint8_t g_hmac_input_text[128];
+//static uint8_t g_nb_blocks;
+//static uint8_t g_hmac_code_stored[32];
+//static uint8_t g_checksum_hash[32];
+//static uint8_t g_aes_iv[32];
 
 
 
@@ -56,6 +56,11 @@ int SF2_CipherReset(sf2_cipher_context_t* ctx) {
 	return MSS_SYS_SUCCESS;
 }
 
+https://gist.github.com/waldyrfelix/3908162
+
+int SF2_CipherPad(sf2_cipher_context_t* ctx, uint8_t* data, int dataSize, uint8_t* result ){
+
+}
 int SF2_Cipher(sf2_cipher_context_t* ctx, uint8_t* data, int dataSize, uint8_t* result ){
 	int status=0;
 	uint16_t nb_blocks; //specifies the size of data as 128-bit/16-byte blocks
