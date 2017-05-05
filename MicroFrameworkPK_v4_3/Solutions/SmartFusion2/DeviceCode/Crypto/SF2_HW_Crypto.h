@@ -67,5 +67,8 @@ int GetRandomBytes(uint8_t *buf, uint16_t length);
 
 //main wrapper function for all symmetric cipher methods
 int SF2_Cipher(sf2_cipher_context_t* ctx, uint8_t* data, int dataSize, uint8_t* result );
+int SF2_GetBlockSize(sf2_cipher_context_t* ctx){
+	return 16;
+}
 
 #endif //_SF2_HW_CRYPTO_H_

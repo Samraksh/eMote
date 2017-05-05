@@ -89,7 +89,7 @@ static ICryptokiToken s_Token =
 CK_SLOT_INFO g_SF2_HW_PKCS11_SlotInfo =
 {
     "SF2_HW_PKCS11_Crypto",
-    "<ProviderNameHere>", 
+    "SmartFusion2 FPGA",
     CKF_TOKEN_PRESENT, 
     { 0, 0 }, 
     { 1, 0 }
@@ -99,13 +99,21 @@ static CryptokiMechanism s_Mechanisms[] =
 {
     // Add your supported mechanisms here
     
-    { CKM_SHA_1, { 160,  160, CKF_DIGEST } },
+    //{ CKM_SHA_1, { 160,  160, CKF_DIGEST } },
+	{ CKM_SHA256_HMAC          , { 256,  256, CKF_DIGEST                | CKF_SIGN | CKF_VERIFY} },
+	{ CKM_SHA256               , { 256,  256, CKF_DIGEST                                       } },
+	{ CKM_AES_CBC              , { 128,  256, CKF_ENCRYPT | CKF_DECRYPT                        } },
+	{ CKM_AES_CBC_PAD          , { 128,  256, CKF_ENCRYPT | CKF_DECRYPT                        } },
+	{ CKM_AES_ECB              , { 128,  256, CKF_ENCRYPT | CKF_DECRYPT                        } },
+	{ CKM_AES_ECB_PAD          , { 128,  256, CKF_ENCRYPT | CKF_DECRYPT                        } },
+	{ CKM_AES_KEY_GEN          , { 128,  256, CKF_GENERATE                                     } },
+
 };
 
 CryptokiToken g_SF2_HW_PKCS11_Token =
 {
     { // TOKEN INFO
-        "<TokenLable>",
+        "SF2",
         "<TokenManufacturer>",
         "<model>",
         "<serialNumber>",

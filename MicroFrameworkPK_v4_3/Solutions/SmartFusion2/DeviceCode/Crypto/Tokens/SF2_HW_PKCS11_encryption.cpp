@@ -3,7 +3,7 @@
 
 int EncryptDecryptInit(sf2_cipher_context_t *cipher_ctx, const unsigned char *key,
         int key_bitlen, const unsigned char *iv, size_t iv_len, BOOL _encrypt,
-		SF2_CipherType type, SF2_CipherMode _mode)
+		SF2_CipherType type, uint8_t _mode)
 {
     int ret=0;
     //const sf2_cipher_info_t *info = cipher_ctx->cipher_info;
@@ -172,20 +172,20 @@ CK_RV SF2_HW_PKCS11_Encryption::Encrypt(Cryptoki_Session_Context* pSessionCtx, C
 	if(pEncryptedData == NULL)
 	{
 		SF2_HW_EncryptData *pEnc;
-		//int blockSize;
+		int blockSize;
 		int mod;
 
 		if(pSessionCtx == NULL || pSessionCtx->EncryptionCtx == NULL) return CKR_SESSION_CLOSED;
 
 		pEnc = (SF2_HW_EncryptData*)pSessionCtx->EncryptionCtx;
 
-		/*if(pEnc->IsSymmetric)
+		if(pEnc->IsSymmetric)
 		{
-			blockSize = sf2_cipher_get_block_size(&pEnc->SymmetricCtx);
+			blockSize = SF2_GetBlockSize(&pEnc->SymmetricCtx);
 		}
 		else
 		{
-			blockSize = sf2_cipher_get_block_size(&pEnc->SymmetricCtx);
+			blockSize = SF2_GetBlockSize(&pEnc->SymmetricCtx);
 
 		}
 
@@ -198,7 +198,7 @@ CK_RV SF2_HW_PKCS11_Encryption::Encrypt(Cryptoki_Session_Context* pSessionCtx, C
 		{
 			*pulEncryptedDataLen = ulDataLen + blockSize;
 		}
-		*/
+
 
 		return CKR_OK;
 	}
@@ -208,10 +208,9 @@ CK_RV SF2_HW_PKCS11_Encryption::Encrypt(Cryptoki_Session_Context* pSessionCtx, C
 	SF2_HW_PKCS11_CHECK_CK_RESULT(SF2_HW_PKCS11_Encryption::EncryptUpdate(pSessionCtx, pData, ulDataLen, pEncryptedData, pulEncryptedDataLen));
 
 	tmp -= *pulEncryptedDataLen;
-
 	SF2_HW_PKCS11_CHECK_CK_RESULT(SF2_HW_PKCS11_Encryption::EncryptFinal(pSessionCtx, &pEncryptedData[*pulEncryptedDataLen], &tmp));
-
 	*pulEncryptedDataLen += tmp;
+
 
 	SF2_HW_PKCS11_NOCLEANUP();
 
@@ -228,13 +227,13 @@ CK_RV SF2_HW_PKCS11_Encryption::EncryptUpdate(Cryptoki_Session_Context* pSession
     //mbedtls_cipher_context_t * cipher_ctx = (sf2_cipher_context_t *)pEnc->Key->ctx;
     sf2_cipher_context_t * cipher_ctx = (sf2_cipher_context_t *) &pEnc->SymmetricCtx;
 
-    hal_printf("Crypto specific ctx ptr: %p \n", cipher_ctx->cipher_ctx );
+    hal_printf("Crypto specific ctx ptr: %p \n", cipher_ctx );
 
     if(pEnc->IsSymmetric)
     {
         size_t outLen = *pulEncryptedPartLen;
-        SF2_HW_PKCS11_CHECKRESULT( SF2_Cipher(cipher_ctx,  pPart, ulPartLen, pEncryptedPart, &outLen));
-        *pulEncryptedPartLen = outLen;
+        SF2_HW_PKCS11_CHECKRESULT( SF2_Cipher(cipher_ctx,  pPart, ulPartLen, pEncryptedPart ));
+        *pulEncryptedPartLen = ulPartLen;
     }
     else
     {
@@ -261,16 +260,20 @@ CK_RV SF2_HW_PKCS11_Encryption::EncryptFinal(Cryptoki_Session_Context* pSessionC
     SF2_HW_PKCS11_HEADER();
     SF2_HW_EncryptData *pEnc;
 
+    //We dont have the concept of EncryptFinal in SF2 aes. Hence, this is just a dummy call, no actual encryption
+
     if(pSessionCtx == NULL || pSessionCtx->EncryptionCtx == NULL) return CKR_SESSION_CLOSED;
 
     pEnc = (SF2_HW_EncryptData*)pSessionCtx->EncryptionCtx;
 
     if(pEnc->IsSymmetric)
     {
-        size_t outLen = *pulLastEncryptedPartLen;
-        SF2_HW_PKCS11_CHECKRESULT(sf2_cipher_finish((sf2_cipher_context_t *)pEnc->Key->ctx, pLastEncryptedPart, &outLen));
-        *pulLastEncryptedPartLen = outLen;
+        //size_t outLen = *pulLastEncryptedPartLen;
+        //SF2_HW_PKCS11_CHECKRESULT(SF2_Cipher((sf2_cipher_context_t *)pEnc->Key->ctx, pLastEncryptedPart));
+        //*pulLastEncryptedPartLen = outLen;
 
+    	//We dont have the concept of EncryptFinal in SF2 aes. Hence This should never be called.
+        *pulLastEncryptedPartLen = 0;
        // SF2_HW_PKCS11_CHECKRESULT(sf2_cipher_reset((sf2_cipher_context_t *)pEnc->Key->ctx));
     }
     else

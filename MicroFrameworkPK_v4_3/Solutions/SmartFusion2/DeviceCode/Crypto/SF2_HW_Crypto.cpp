@@ -59,7 +59,7 @@ int SF2_Cipher(sf2_cipher_context_t* ctx, uint8_t* data, int dataSize, uint8_t* 
 	if(dataSize % 16) { return -1;}
 
 	nb_blocks = dataSize/16;
-	switch(ctx->type) {
+	switch (ctx->type) {
 	case AES_128:
 	    // Perform 128-bit encryption.
 	    status = MSS_SYS_128bit_aes(ctx->key,
@@ -80,7 +80,7 @@ int SF2_Cipher(sf2_cipher_context_t* ctx, uint8_t* data, int dataSize, uint8_t* 
 
 		break;
 	default:
-
+		break;
 	}
 	return status;
 }
