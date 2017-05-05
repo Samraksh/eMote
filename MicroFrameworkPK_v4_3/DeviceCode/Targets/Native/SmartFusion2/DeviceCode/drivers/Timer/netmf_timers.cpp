@@ -37,10 +37,13 @@ BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CA
 	uint32_t tim64_load_value;
 	SystemCoreClockUpdate();
 	MSS_TIM64_init(MSS_TIMER_PERIODIC_MODE);
-	tim64_load_value = 700000;
+	tim64_load_value = g_FrequencyPCLK0;
     MSS_TIM64_load_immediate(0, tim64_load_value);
 	if( !CPU_INTC_ActivateInterrupt(Timer1_IRQn, Timer1_IRQHandler, NULL) )
 		return DS_Fail;
+	CPU_GPIO_EnableOutputPin( 0, FALSE );
+	MSS_TIM64_start();
+    MSS_TIM64_enable_irq();
     
 	return TRUE;
 
