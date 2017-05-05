@@ -12,6 +12,7 @@
 #include "..\Targets\Native\Krait\DeviceCode\Krait_TIMER\Krait__TIMER.h"
 extern Krait_Timer g_Krait_Timer;
 #endif
+
 #include "..\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer\mss_timer.h"
 #include <CMSIS/system_m2sxxx.h>
 
@@ -515,14 +516,7 @@ void HAL_Uninitialize()
     HAL_COMPLETION  ::Uninitialize();
 }
 
-void Timer1_IRQHandler(void)
-{
 
-    CPU_GPIO_SetPinState(0, TRUE);
-		CPU_GPIO_SetPinState(0, FALSE);
-    // Clear interrupt 
-    MSS_TIM64_clear_irq();
-}
 
 extern "C"
 {
@@ -598,7 +592,7 @@ mipi_dsi_shutdown();
     CPU_Initialize();
 
 #if defined( SAM_APP_TINYCLR ) // TinyBooter, (and future MicroBooter) use SimpleTimer. SimpleTimer needs HAL_Time_Initialize().
-    //VirtTimer_Initialize();
+    VirtTimer_Initialize();
 #endif
     HAL_Time_Initialize();
 
@@ -664,35 +658,10 @@ mipi_dsi_shutdown();
 		}
 	}*/
 #endif
-	/*int i;
-	for (i=0; i<31; i++){
-		CPU_GPIO_EnableOutputPin((GPIO_PIN) i, TRUE);
-	}
-	while (1){
-		for (i=0; i<31; i++){
-			CPU_GPIO_SetPinState((GPIO_PIN) i, TRUE);
-		}
-		for (i=0; i<31; i++){
-			CPU_GPIO_SetPinState((GPIO_PIN) i, FALSE);
-		}
-	}*/
-	uint32_t tim64_load_value;
-	SystemCoreClockUpdate();
-	MSS_TIM64_init(MSS_TIMER_PERIODIC_MODE);
-	tim64_load_value = 500;
-    MSS_TIM64_load_immediate(0, tim64_load_value);
-    MSS_TIM64_start();
-    MSS_TIM64_enable_irq();
+
 	CPU_GPIO_EnableOutputPin( 0, FALSE );
-	CPU_GPIO_SetPinState(0, TRUE);
-		CPU_GPIO_SetPinState(0, FALSE);
-		CPU_GPIO_SetPinState(0, TRUE);
-		CPU_GPIO_SetPinState(0, FALSE);
-		MSS_TIM64_start();
+	MSS_TIM64_start();
     MSS_TIM64_enable_irq();
-	while (1){
-		
-	}
 	
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();

@@ -31,7 +31,7 @@
 	.extern  UART1_IRQHandler
 	.extern  EthernetMAC_IRQHandler
 	.extern  DMA_IRQHandler
-	.extern  Timer1_IRQHandler
+	.extern  TIM1_CC_IRQHandler
 	.extern  TIM2_IRQHandler
 	.extern  CAN_IRQHandler
 	.extern  EVM0_IRQHandler
@@ -138,7 +138,7 @@ ARM_Vectors:
   .word  UART1_IRQHandler
   .word  EthernetMAC_IRQHandler
   .word  DMA_IRQHandler
-  .word  Timer1_IRQHandler
+  .word  TIM1_CC_IRQHandler
   .word  TIM2_IRQHandler
   .word  CAN_IRQHandler
   .word  EVM0_IRQHandler
@@ -362,8 +362,8 @@ ARM_Vectors:
   .weak  TIM1_TRG_COM_IRQHandler
   .thumb_set TIM1_TRG_COM_IRQHandler,Default_Handler
 
-  .weak  Timer1_IRQHandler
-  .thumb_set Timer1_IRQHandler,Default_Handler
+  .weak  TIM1_CC_IRQHandler
+  .thumb_set TIM1_CC_IRQHandler,Default_Handler
 
   .weak  TIM2_IRQHandler
   .thumb_set TIM2_IRQHandler,Default_Handler
@@ -468,4 +468,5 @@ ARM_Vectors:
 
     
     
+
 

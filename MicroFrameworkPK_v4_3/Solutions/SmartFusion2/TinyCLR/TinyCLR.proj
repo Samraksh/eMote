@@ -649,10 +649,10 @@
   <DriverLibs Include="Samraksh_eMote_NET.$(LIB_EXT)" />
   </ItemGroup>-->
   
-  <!--<ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\VirtualTimer\dotNetMF.proj" />
     <DriverLibs Include="VirtualTimer.$(LIB_EXT)" />
-  </ItemGroup>-->
+  </ItemGroup>
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\dotNetMF.proj" />
     <DriverLibs Include="mac_pal.$(LIB_EXT)" />
