@@ -4,6 +4,7 @@
 
 #include <tinyhal.h>
 #include "netmf_bl.h"
+#include "../eNVM/eNVM.h"
 
 //--//
 #define CR_PER_Reset             ((uint32_t)0x00001FFD)
@@ -32,13 +33,17 @@ BOOL STM32F10x_blDriver::Read( void* context, ByteAddress Address, UINT32 NumByt
 
 BOOL STM32F10x_blDriver::Write( void* context, ByteAddress address, UINT32 numBytes, BYTE * pSectorBuff, BOOL ReadModifyWrite )
 {
-	FLASH_Status status;
+	// unlocking deployment section
+	//NVM_unlock(0x064000, 110592);
+return FALSE;
+
+	//NVM_write(address, (const uint8_t *)pSectorBuff, numBytes, NVM_DO_NOT_LOCK_PAGE);
+	/*FLASH_Status status;
 	UINT8 pages 	= (numBytes / 0x800) + 1;
 	UINT8 startPage = address / 0x800;
 	UINT16* addressPtr    = (UINT16* )address;	// 16-bit writing
 	UINT16* buffPtr       = (UINT16* )pSectorBuff;
-	//if(ReadModifyWrite) {						// CLR is asking us to take care of the erasing
-	// Nived.Sivadas - VS assumes flash is erased before writing into flash
+	// VS assumes flash is erased before writing into flash
 	if(*addressPtr != 0xffff) {						// CLR is asking us to take care of the erasing
 		UINT8 ii;
 		for(ii = 0; ii < pages; ii++) {
@@ -87,14 +92,23 @@ BOOL STM32F10x_blDriver::Write( void* context, ByteAddress address, UINT32 numBy
 	else
 	{
 		FLASH->CR2 = FLASH_CR_LOCK;
-	}
+	}*/
 	// @todo check programming
 	return TRUE;
 }
 
 BOOL STM32F10x_blDriver::Memset(void* context, ByteAddress address, UINT8 Data, UINT32 numBytes)
 {
-	UINT8 pages 	= (numBytes / 0x800) + 1;
+	// unlocking deployment section
+	//NVM_unlock(0x064000, 110592);
+	uint8_t data_block[numBytes];
+	int i;
+	for (i=0; i<numBytes; i++){
+		data_block[i] = Data;
+	}
+return FALSE;
+	//NVM_write(address, data_block, numBytes, NVM_DO_NOT_LOCK_PAGE);
+	/*UINT8 pages 	= (numBytes / 0x800) + 1;
 	UINT8 startPage = address / 0x800;
 	UINT8 ii;
 	for(ii = 0; ii < pages; ii++) {
@@ -109,7 +123,7 @@ BOOL STM32F10x_blDriver::Memset(void* context, ByteAddress address, UINT8 Data, 
 		FLASH->CR = FLASH_CR_PG;				// Set Programming Bit
 		*addressPtr++ = *buffPtr++;
 	}
-	// @todo check programming
+	// @todo check programming*/
 	return TRUE;
 }
 
@@ -125,178 +139,30 @@ BOOL STM32F10x_blDriver::SetSectorMetadata(void* context, ByteAddress SectorStar
 
 BOOL STM32F10x_blDriver::IsBlockErased( void* context, ByteAddress Address, UINT32 BlockLength )
 {
-
-	UINT16* addressPtr    = (UINT16* )Address;	// 16-bit writing
-	// @todo this method sucks - make better
+	/*UINT16* addressPtr    = (UINT16* )Address;	// 16-bit writing
 	if(*addressPtr ==  0xFFFF) {
 		return TRUE;
 	} else {
-#if 0
-		FLASH_Unlock();
-		while(FLASH->SR2 & FLASH_SR_BSY);
-		FLASH->KEYR2 = 0x45670123;			// Key1
-		FLASH->KEYR2 = 0xCDEF89AB;
-		FLASH->CR2   = FLASH_CR_MER;
-		//FLASH->AR2	= address;
-		FLASH->CR2	= FLASH_CR_STRT;
-		while(FLASH->SR2 & FLASH_SR_BSY);
-		FLASH->CR2 &= CR_PER_Reset;
-		if(*addressPtr ==  0xFFFF) {
-			return TRUE;
-		}
-		else{
-			return FALSE;
-		}
-#endif
-		return FALSE;
-
-	}
-}
-
-#if 0
-BOOL STM32F10x_blDriver::EraseBlock(void* context, ByteAddress Page_Address)
-{
-	  FLASH_Status status = FLASH_COMPLETE;
-	  /* Check the parameters */
-	  assert_param(IS_FLASH_ADDRESS(Page_Address));
-
-#ifdef STM32F10X_XL
-	  if(Page_Address < FLASH_BANK1_END_ADDRESS)
-	  {
-	    /* Wait for last operation to be completed */
-	    status = FLASH_WaitForLastBank1Operation(EraseTimeout);
-	    if(status == FLASH_COMPLETE)
-	    {
-	      /* if the previous operation is completed, proceed to erase the page */
-	      FLASH->CR = FLASH_CR_PER;
-	      FLASH->AR = Page_Address;
-	      FLASH->CR = FLASH_CR_STRT;
-
-	      /* Wait for last operation to be completed */
-	      status = FLASH_WaitForLastBank1Operation(EraseTimeout);
-	      if(status != FLASH_TIMEOUT)
-	      {
-	        /* if the erase operation is completed, disable the PER Bit */
-	        FLASH->CR &= CR_PER_Reset;
-	      }
-	    }
-	  }
-	  else
-	  {
-	    /* Wait for last operation to be completed */
-	    status = FLASH_WaitForLastBank2Operation(EraseTimeout);
-	    if(status == FLASH_COMPLETE)
-	    {
-	      /* if the previous operation is completed, proceed to erase the page */
-	      FLASH->CR2 = FLASH_CR_PER;
-	      FLASH->AR2 = Page_Address;
-	      FLASH->CR2 |= FLASH_CR_STRT;
-
-	      /* Wait for last operation to be completed */
-	      status = FLASH_WaitForLastBank2Operation(EraseTimeout);
-	      if(status != FLASH_TIMEOUT)
-	      {
-	        /* if the erase operation is completed, disable the PER Bit */
-	        FLASH->CR2 &= CR_PER_Reset;
-	      }
-	    }
-	  }
-#else
-	  /* Wait for last operation to be completed */
-	  status = FLASH_WaitForLastOperation(EraseTimeout);
-
-	  if(status == FLASH_COMPLETE)
-	  {
-	    /* if the previous operation is completed, proceed to erase the page */
-	    FLASH->CR|= CR_PER_Set;
-	    FLASH->AR = Page_Address;
-	    FLASH->CR|= CR_STRT_Set;
-
-	    /* Wait for last operation to be completed */
-	    status = FLASH_WaitForLastOperation(EraseTimeout);
-	    if(status != FLASH_TIMEOUT)
-	    {
-	      /* if the erase operation is completed, disable the PER Bit */
-	      FLASH->CR &= CR_PER_Reset;
-	    }
-	  }
-#endif /* STM32F10X_XL */
-
-	  UINT16* addressPtr    = (UINT16* )Page_Address;	// 16-bit writing
-	  if(*addressPtr != 0xffff)
-	  	{
-	  			hal_printf("EraseBlock Failed 0x%08x", (UINT32)addressPtr);
 	  			return FALSE;
+	}*/
+	return TRUE;
 	  	}
 
-	  /* Return the Erase Status */
-	  return status;
-
-}
-#endif
-
-
-
-// I don't know why this code was made so painful. I'll probably rediscover.
-// But you definitely can't do a global lock on a flash erase...
-// --NPS 2014-06-26
 BOOL STM32F10x_blDriver::EraseBlock( void* context, ByteAddress address )
 {
 	FLASH_Status stat;
 
-	FLASH_Unlock();
+	//FLASH_Unlock();
+	//// unlocking deployment section
+	//NVM_unlock(0x064000, 110592);
 
-	stat = FLASH_ErasePage(address);
+	/*stat = FLASH_ErasePage(address);
 
 	while(stat != FLASH_COMPLETE) {
 		stat = FLASH_ErasePage(address);
-	}
+	}*/
 
-	return TRUE;
-
-	/*
-	GLOBAL_LOCK(irq);
-
-	FLASH_Unlock();
-
-	UINT16* addressPtr    = (UINT16* )address;	// 16-bit writing
-	//if(*addressPtr == 0xffff)
-	//	return TRUE;
-
-	if(address < FLASH_BANK1_END_ADDRESS)
-	{
-		while(FLASH->SR & FLASH_SR_BSY);	// Wait until flash is ready
-		FLASH->KEYR = 0x45670123;			// Key1
-		FLASH->KEYR = 0xCDEF89AB;			// Key2
-		FLASH->CR   = FLASH_CR_PER;			// Set Page Erase Bit
-		FLASH->AR	= address;				// Set arbitrary address in page
-		FLASH->CR	= FLASH_CR_PER | FLASH_CR_STRT;
-		FLASH->CR	= FLASH_CR_PER | FLASH_CR_STRT;
-		while(FLASH->SR & FLASH_SR_BSY);	// Wait until flash is ready
-		 FLASH->CR = FLASH_CR_LOCK;
-	}
-	else
-	{
-		while(FLASH->SR2 & FLASH_SR_BSY);
-		FLASH->KEYR2 = 0x45670123;			// Key1
-		FLASH->KEYR2 = 0xCDEF89AB;
-		FLASH->CR2   = FLASH_CR_PER;
-		FLASH->AR2	= address;
-		FLASH->CR2	= FLASH_CR_PER | FLASH_CR_STRT;
-		FLASH->CR2	= FLASH_CR_PER | FLASH_CR_STRT;
-		//FLASH->CR = FLASH_CR_PER | FLASH_CR_STRT;
-		while(FLASH->SR2 & FLASH_SR_BSY);
-	    FLASH->CR2 = FLASH_CR_LOCK;
-
-	}
-	if(*addressPtr != 0xffff)
-	{
-			hal_printf("EraseBlock Failed 0x%08x", (UINT32)addressPtr);
-			return FALSE;
-	}
-	//FLASH_ErasePage(address);
     return TRUE;
-	*/
 }
 
 

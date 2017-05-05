@@ -401,6 +401,8 @@ void MSS_GPIO_clear_irq
     {
         GPIO->GPIO_IRQ = ((uint32_t)1) << gpio_idx;
     }
+    __ASM volatile ("dsb");
+
 }
 
 

@@ -18,8 +18,8 @@ const BlockRange STM32F10x_BlockRange_InternalFlash[] =
         // TODO: check if User Storage B region is needed for EWR Extended Weak References to work (eg, for wear-leveling).
 
 	   // { BlockRange::BLOCKTYPE_BOOTSTRAP       ,  0, 63 },  // 64 blocks, 128K for Booter,     address 0x0000_0000
-	    { BlockRange::BLOCKTYPE_CODE            , 0,199 },  //200 blocks, 400K for CLR,        address 0x0000_0000
-	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,200,253 },  // 54 blocks, 108K for Deployment, address 0x06_4000
+	    { BlockRange::BLOCKTYPE_CODE            , 0,200 },  //201 blocks, 400K for CLR,        address 0x0000_0000
+	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,201,253 },  // 53 blocks, 108K for Deployment, address 0x06_4000
 	    { BlockRange::BLOCKTYPE_CONFIG          ,254,255 }   //  2 blocks,   4K for Config,     address 0x07_F000
 	    //Flash ends at address 0x07_FFFF
 };

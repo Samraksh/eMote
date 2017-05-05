@@ -416,10 +416,10 @@
     <DriverLibs Include="cpu_timer_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_timer\dotNetMF.proj" />
   </ItemGroup>
-  <!--<ItemGroup>
-    <DriverLibs Include="STM32F10x_fsmc.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\fsmc\dotNetMF.proj" />
-  </ItemGroup>-->
+  <ItemGroup>
+    <DriverLibs Include="SmartFusion2_eNVM.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\eNVM\dotNetMF.proj" />
+  </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="SmartFusion2_SimplePower.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\SimplePower\dotNetMF.proj" />
