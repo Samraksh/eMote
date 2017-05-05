@@ -61,12 +61,24 @@ typedef struct {
 
 //function prototypes
 
-
+///returns a random seed of size length, using FPGA random functions
 int GetRandomSeed(uint8_t *buf, uint16_t length);
+
+///returns a random byte stream of size length, using FPGA random functions
 int GetRandomBytes(uint8_t *buf, uint16_t length);
 
-//main wrapper function for all symmetric cipher methods
+/// Reset the context of the cipher
+int SF2_CipherReset(sf2_cipher_context_t* ctx);
+
+///main wrapper function for all symmetric cipher methods. Ctx all relevant information for cipher,
+///data points to array to be encrypted/decrpted
+///dataSize is size of data in bytes
+///result points to the array where the output should be stored
+///The output is of the same size as that of the input.
 int SF2_Cipher(sf2_cipher_context_t* ctx, uint8_t* data, int dataSize, uint8_t* result );
+
+///returns the block size used for a given cipher as specified by ctx. Currently we support only
+/// aes128 and aes256, which both use 128bit/16-byte block size
 int SF2_GetBlockSize(sf2_cipher_context_t* ctx){
 	return 16;
 }

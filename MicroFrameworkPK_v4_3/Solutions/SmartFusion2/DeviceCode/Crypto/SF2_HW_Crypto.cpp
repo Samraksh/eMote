@@ -50,6 +50,12 @@ int GetRandomBytes(uint8_t *buf, uint16_t length){
 
 }
 
+
+int SF2_CipherReset(sf2_cipher_context_t* ctx) {
+	memset(ctx, 0, sizeof(sf2_cipher_context_t));
+	return MSS_SYS_SUCCESS;
+}
+
 int SF2_Cipher(sf2_cipher_context_t* ctx, uint8_t* data, int dataSize, uint8_t* result ){
 	int status=0;
 	uint16_t nb_blocks; //specifies the size of data as 128-bit/16-byte blocks

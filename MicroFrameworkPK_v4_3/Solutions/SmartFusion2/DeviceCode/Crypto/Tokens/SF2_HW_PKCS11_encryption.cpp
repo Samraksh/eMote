@@ -208,12 +208,12 @@ CK_RV SF2_HW_PKCS11_Encryption::Encrypt(Cryptoki_Session_Context* pSessionCtx, C
 	SF2_HW_PKCS11_CHECK_CK_RESULT(SF2_HW_PKCS11_Encryption::EncryptUpdate(pSessionCtx, pData, ulDataLen, pEncryptedData, pulEncryptedDataLen));
 
 	tmp -= *pulEncryptedDataLen;
+
 	SF2_HW_PKCS11_CHECK_CK_RESULT(SF2_HW_PKCS11_Encryption::EncryptFinal(pSessionCtx, &pEncryptedData[*pulEncryptedDataLen], &tmp));
+
 	*pulEncryptedDataLen += tmp;
 
-
 	SF2_HW_PKCS11_NOCLEANUP();
-
 }
 
 CK_RV SF2_HW_PKCS11_Encryption::EncryptUpdate(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pPart, CK_ULONG ulPartLen, CK_BYTE_PTR pEncryptedPart, CK_ULONG_PTR pulEncryptedPartLen)
@@ -299,17 +299,127 @@ CK_RV SF2_HW_PKCS11_Encryption::DecryptInit(Cryptoki_Session_Context* pSessionCt
 
 CK_RV SF2_HW_PKCS11_Encryption::Decrypt(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pEncryptedData, CK_ULONG ulEncryptedDataLen, CK_BYTE_PTR pData, CK_ULONG_PTR pulDataLen)
 {
-    return CKR_FUNCTION_NOT_SUPPORTED;
+	SF2_HW_PKCS11_HEADER();
+
+	if(pData == NULL)
+	{
+		SF2_HW_EncryptData *pDecr;
+		int blockSize;
+		int mod;
+
+		if(pSessionCtx == NULL || pSessionCtx->DecryptionCtx == NULL) return CKR_SESSION_CLOSED;
+
+		pDecr = (SF2_HW_EncryptData*)pSessionCtx->DecryptionCtx;
+
+		if(pDecr->IsSymmetric)
+		{
+			blockSize =  SF2_GetBlockSize(&pDecr->SymmetricCtx);
+		}
+		else
+		{
+			//Not sure if this is right. But just keep it same
+			blockSize =  SF2_GetBlockSize(&pDecr->SymmetricCtx);
+			//blockSize = EVP_PKEY_size((EVP_PKEY*)pDecr->Key->key);
+		}
+
+		mod = ulEncryptedDataLen % blockSize;
+		if(0 != mod)
+		{
+			*pulDataLen = ulEncryptedDataLen + (blockSize - mod);
+		}
+		else
+		{
+			*pulDataLen = ulEncryptedDataLen + blockSize;
+		}
+
+		return CKR_OK;
+	}
+
+	CK_ULONG tmp = *pulDataLen;
+
+	SF2_HW_PKCS11_CHECK_CK_RESULT(SF2_HW_PKCS11_Encryption::DecryptUpdate(pSessionCtx, pEncryptedData, ulEncryptedDataLen, pData, pulDataLen));
+
+	tmp -= *pulDataLen;
+
+	SF2_HW_PKCS11_CHECK_CK_RESULT(SF2_HW_PKCS11_Encryption::DecryptFinal(pSessionCtx, &pData[*pulDataLen], &tmp));
+
+	*pulDataLen += tmp;
+
+	SF2_HW_PKCS11_NOCLEANUP();
+
 }    
 
 CK_RV SF2_HW_PKCS11_Encryption::DecryptUpdate(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pEncryptedPart, CK_ULONG ulEncryptedPartLen, CK_BYTE_PTR pPart, CK_ULONG_PTR pulPartLen)
 {
-    return CKR_FUNCTION_NOT_SUPPORTED;
+    SF2_HW_PKCS11_HEADER();
+
+    SF2_HW_EncryptData *pDec;
+
+    if(pSessionCtx == NULL || pSessionCtx->DecryptionCtx == NULL) return CKR_SESSION_CLOSED;
+
+    pDec = (SF2_HW_EncryptData*)pSessionCtx->DecryptionCtx;
+    sf2_cipher_context_t *cipher_ctx = &(pDec->SymmetricCtx);
+
+    if(pDec->IsSymmetric)
+    {
+        size_t outLen = *pulPartLen;
+        SF2_HW_PKCS11_CHECKRESULT( SF2_Cipher(cipher_ctx, pEncryptedPart, ulEncryptedPartLen, pPart));
+        outLen = ulEncryptedPartLen;
+        *pulPartLen = outLen;
+    }
+    else
+    {
+        //size_t outLen = *pulPartLen;
+        //SF2_HW_PKCS11_CHECKRESULT(EVP_PKEY_decrypt((EVP_PKEY_CTX*)pDec->Key->ctx, pPart, &outLen, pEncryptedPart, ulEncryptedPartLen));
+        //*pulPartLen = outLen;
+    	 SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_NOT_SUPPORTED);
+    }
+
+    SF2_HW_PKCS11_CLEANUP();
+
+    if(retVal != CKR_OK)
+    {
+    	FreeCyptoData(pDec);
+        pSessionCtx->DecryptionCtx = NULL;
+    }
+
+    SF2_HW_PKCS11_RETURN();
 }    
 
 CK_RV SF2_HW_PKCS11_Encryption::DecryptFinal(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pLastPart, CK_ULONG_PTR pulLastPartLen)
 {
-    return CKR_FUNCTION_NOT_SUPPORTED;
+    SF2_HW_PKCS11_HEADER();
+
+    SF2_HW_EncryptData *pDec;
+
+    if(pSessionCtx == NULL || pSessionCtx->DecryptionCtx == NULL) return CKR_SESSION_CLOSED;
+
+    pDec = (SF2_HW_EncryptData*)pSessionCtx->DecryptionCtx;
+    sf2_cipher_context_t *cipher_ctx = &(pDec->SymmetricCtx);
+
+    if(pDec->IsSymmetric)
+    {
+        size_t outLen = *pulLastPartLen;
+        if(outLen != 0){
+        	hal_printf("Something wrong: SF2 crypto does not have the concept of DecryptFinal \n");
+        }
+        //SF2_HW_PKCS11_CHECKRESULT(SF2_Cipher((sf2_cipher_context_t *)pDec->Key->ctx, pLastPart, &outLen));
+        *pulLastPartLen = outLen;
+        SF2_HW_PKCS11_CHECKRESULT(SF2_CipherReset( cipher_ctx));
+    }
+    else
+    {
+        //EVP_PKEY_CTX_free((EVP_PKEY_CTX*)pDec->Key->ctx);
+        //*pulLastPartLen = 0;
+    	SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_NOT_SUPPORTED);
+    }
+
+    SF2_HW_PKCS11_CLEANUP();
+
+    FreeCyptoData(pDec);
+    pSessionCtx->DecryptionCtx = NULL;
+
+    SF2_HW_PKCS11_RETURN();
 }    
 
 
