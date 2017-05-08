@@ -9,6 +9,7 @@
 #include "netmf_gpio.h"
 #include <cmsis/mss_assert.h>
 #include <drivers/CoreGPIO/core_gpio.h>
+#include <tinyhal.h>
 
 gpio_instance_t g_gpio;
 
@@ -23,29 +24,6 @@ const int GPIO_PINS = 112;
 typedef void (*GPIO_INTERRUPT_SERVICE_ROUTINE)( GPIO_PIN Pin, BOOL PinState, void* Param );
 static GPIO_INTERRUPT_SERVICE_ROUTINE gpio_isr[GPIO_PINS];
 
-enum GPIO_RESISTOR
-{
-    RESISTOR_DISABLED = 0,
-    RESISTOR_PULLDOWN = 1,
-    RESISTOR_PULLUP = 2
-};
-
-enum GPIO_INT_EDGE
-{
-    GPIO_INT_NONE       = 0,
-    GPIO_INT_EDGE_LOW   = 1,
-    GPIO_INT_EDGE_HIGH  = 2,
-    GPIO_INT_EDGE_BOTH  = 3,
-    GPIO_INT_LEVEL_HIGH = 4,
-    GPIO_INT_LEVEL_LOW  = 5
-};
-
-struct GPIO_FLAG_RESISTOR
-{
-    GPIO_PIN      Pin;
-    BOOL          ActiveState;
-    GPIO_RESISTOR Resistor;
-};
 
 BOOL CPU_GPIO_Initialize()
 {

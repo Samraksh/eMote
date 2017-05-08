@@ -12,7 +12,7 @@
 #include "..\Targets\Native\Krait\DeviceCode\Krait_TIMER\Krait__TIMER.h"
 extern Krait_Timer g_Krait_Timer;
 #endif
-
+#include <drivers/mss_sys_services/mss_sys_services.h>
 #include "..\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer\mss_timer.h"
 #include <CMSIS/system_m2sxxx.h>
 
@@ -598,7 +598,8 @@ mipi_dsi_shutdown();
 
     HAL_Initialize();
 	
-
+	// System Services Driver Initialization
+    MSS_SYS_init(MSS_SYS_NO_EVENT_HANDLER);
 	
 
 #if !defined(BUILD_RTM)
