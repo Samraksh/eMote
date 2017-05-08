@@ -23,28 +23,47 @@
 //extern STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
 //extern STM32F10x_RTC g_STM32F10x_RTC;
 
+UINT64 m_systemTime = 0;
+const UINT64 TIME_CUSHION = 40;  // 15 us
+
 void Timer1_IRQHandler(void* Param)
 {
+    m_systemTime += (0x1ull <<32);
+    // Clear interrupt 
+    MSS_TIM1_clear_irq();
+}
 
+void Timer2_IRQHandler(void* Param)
+{
+	//UINT64 getCount = CPU_Timer_CurrentTicks(0);
+	//hal_printf("%llu\r\n",getCount);
     CPU_GPIO_SetPinState(0, TRUE);
 	CPU_GPIO_SetPinState(0, FALSE);
     // Clear interrupt 
-    MSS_TIM64_clear_irq();
+    MSS_TIM2_clear_irq();
 }
 
 BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CALLBACK_FPN ISR)
 {
-	uint32_t tim64_load_value;
+	// TIM1 will keep system time
+	// TIM2 will be for VT
+	uint32_t tim_load_value;
 	SystemCoreClockUpdate();
-	MSS_TIM64_init(MSS_TIMER_PERIODIC_MODE);
-	tim64_load_value = g_FrequencyPCLK0;
-    MSS_TIM64_load_immediate(0, tim64_load_value);
+	MSS_TIM1_init(MSS_TIMER_PERIODIC_MODE);
+	tim_load_value = g_FrequencyPCLK0;
+	MSS_TIM1_load_immediate(0xFFFFFFFF);
+    MSS_TIM2_load_immediate(tim_load_value);
 	if( !CPU_INTC_ActivateInterrupt(Timer1_IRQn, Timer1_IRQHandler, NULL) )
 		return DS_Fail;
+
+	//if( !CPU_INTC_ActivateInterrupt(Timer2_IRQn, ISR, NULL) )
+	if( !CPU_INTC_ActivateInterrupt(Timer2_IRQn, Timer2_IRQHandler, NULL) )
+		return DS_Fail;
 	CPU_GPIO_EnableOutputPin( 0, FALSE );
-	MSS_TIM64_start();
-    MSS_TIM64_enable_irq();
-    
+	MSS_TIM1_start();
+	MSS_TIM2_start();
+    MSS_TIM1_enable_irq();
+    MSS_TIM2_enable_irq();
 	return TRUE;
 
 }
@@ -63,10 +82,14 @@ BOOL CPU_Timer_UnInitialize(UINT16 Timer)
 // Calls the timer driver set compare function.
 BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue)
 {
-	//	g_STM32F10x_AdvancedTimer.SetCompare(CompareValue);
+	uint64_t currentValue = CompareValue - CPU_Timer_CurrentTicks(0);
 	
-
-	return TRUE;
+	if (currentValue > TIME_CUSHION){
+		MSS_TIM2_load_immediate(currentValue&0xFFFFFFFF);
+		return TRUE;
+	} else {
+		return FALSE;
+	}
 }
 
 // Returns current counter value
@@ -75,8 +98,7 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue)
 //TODO: not used?
 UINT32 CPU_Timer_GetCounter(UINT16 Timer)
 {
-UINT32 counterValue = 0;
-	//	counterValue = g_STM32F10x_AdvancedTimer.GetCounter();
+UINT32 counterValue = (UINT32)(0xFFFFFFFF - MSS_TIM1_get_current_value());
 
 	return counterValue;
 }
@@ -94,14 +116,11 @@ UINT32 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count)
 //TODO: AnanthAtSamraksh - to check if this is the right place
 UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 {
+	uint32_t currentValue = (0xFFFFFFFF - MSS_TIM1_get_current_value());
+	m_systemTime &= (0xFFFFFFFF00000000ull);
+	m_systemTime |= currentValue;
 
-
-	UINT64 currentTicksValue = 0;
-
-	//	currentTicksValue = g_STM32F10x_AdvancedTimer.Get64Counter();
-
-
-	return currentTicksValue;
+	return (UINT64)m_systemTime;
 }
 
 // This function is tuned for 8MHz of the emote in Release mode

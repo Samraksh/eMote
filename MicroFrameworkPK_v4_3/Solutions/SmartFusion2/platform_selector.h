@@ -47,10 +47,10 @@ typedef uint16_t ushort;
 // constants
 //
 
-#define SYSTEM_CLOCK_HZ                 80000000
+#define SYSTEM_CLOCK_HZ                 100000000
 #define SYSTEM_CYCLE_CLOCK_HZ           SYSTEM_CLOCK_HZ
 #define CLOCK_COMMON_FACTOR             1000000
-#define SLOW_CLOCKS_PER_SECOND          80000000
+#define SLOW_CLOCKS_PER_SECOND          100000000
 #define SLOW_CLOCKS_TEN_MHZ_GCD         2000000
 #define SLOW_CLOCKS_MILLISECOND_GCD     1000
 
@@ -214,7 +214,7 @@ const UINT8 LOW_DRIFT_TIMER = ADVTIMER_32BIT;
 const UINT8 g_CountOfHardwareTimers = 1;
 const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {DEFAULT_TIMER };
 const UINT8 g_VirtualTimerPerHardwareTimer = 16;
-const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
+const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {100000000};
 
 
 /*BK: TImer Mapper does not seem to work. We need manually select timers from range 0-8 anyways

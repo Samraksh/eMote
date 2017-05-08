@@ -408,14 +408,14 @@
     <DriverLibs Include="SimpleHeap.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="cpu_time_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_time\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="cpu_timer_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_timer\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="SmartFusion2_eNVM.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\eNVM\dotNetMF.proj" />
@@ -637,10 +637,10 @@
   -->
   
   <!-- 									Samraksh Time Extension        								-->
-  <!--<ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\eMote_Time\dotNetMF.proj" />
     <DriverLibs Include="eMote_time.$(LIB_EXT)" />
-  </ItemGroup>-->
+  </ItemGroup>
     
   <!-- 									Wireless Stack Start								-->
   

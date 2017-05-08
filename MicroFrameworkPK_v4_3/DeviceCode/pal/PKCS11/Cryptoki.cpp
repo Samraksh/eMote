@@ -98,7 +98,7 @@ CK_DEFINE_FUNCTION(CK_RV, C_Initialize)(
         return CKR_ARGUMENTS_BAD;
     }
 
-    if(g_isCryptokiInitialized) return CKR_CRYPTOKI_ALREADY_INITIALIZED;
+    if(g_isCryptokiInitialized) return CKR_OK;
 
     Cryptoki_InitializeSession();
     Cryptoki_InitializeSlots();

@@ -12,7 +12,7 @@
 #include "..\Targets\Native\Krait\DeviceCode\Krait_TIMER\Krait__TIMER.h"
 extern Krait_Timer g_Krait_Timer;
 #endif
-
+#include <drivers/mss_sys_services/mss_sys_services.h>
 #include "..\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer\mss_timer.h"
 #include <CMSIS/system_m2sxxx.h>
 
@@ -598,7 +598,8 @@ mipi_dsi_shutdown();
 
     HAL_Initialize();
 	
-
+	// System Services Driver Initialization
+    MSS_SYS_init(MSS_SYS_NO_EVENT_HANDLER);
 	
 
 #if !defined(BUILD_RTM)
@@ -659,10 +660,6 @@ mipi_dsi_shutdown();
 	}*/
 #endif
 
-	CPU_GPIO_EnableOutputPin( 0, FALSE );
-	MSS_TIM64_start();
-    MSS_TIM64_enable_irq();
-	
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

@@ -99,7 +99,7 @@ void GPIO_config
          * It may also indicate that the base address passed as parameter to
          * GPIO_init() was incorrect.
          */
-        HAL_ASSERT( HW_get_32bit_reg( cfg_reg_addr ) == config );
+        //HAL_ASSERT( HW_get_32bit_reg( cfg_reg_addr ) == config );
     }
 }
 
@@ -143,7 +143,7 @@ void GPIO_set_outputs
      * It may also indicate that the base address or APB bus width passed as
      * parameter to the GPIO_init() function do not match the hardware design.
      */
-    HAL_ASSERT( GPIO_get_outputs( this_gpio ) == value );
+    //HAL_ASSERT( GPIO_get_outputs( this_gpio ) == value );
 }
 
 /*-------------------------------------------------------------------------*//**
