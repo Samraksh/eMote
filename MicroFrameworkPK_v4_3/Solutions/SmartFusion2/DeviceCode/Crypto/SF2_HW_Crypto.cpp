@@ -56,8 +56,6 @@ int SF2_CipherReset(sf2_cipher_context_t* ctx) {
 	return MSS_SYS_SUCCESS;
 }
 
-https://gist.github.com/waldyrfelix/3908162
-
 int SF2_CipherPad(sf2_cipher_context_t* ctx, uint8_t* data, int dataSize, uint8_t* result ){
 
 }

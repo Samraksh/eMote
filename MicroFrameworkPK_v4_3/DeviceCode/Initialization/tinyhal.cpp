@@ -660,10 +660,6 @@ mipi_dsi_shutdown();
 	}*/
 #endif
 
-	CPU_GPIO_EnableOutputPin( 0, FALSE );
-	MSS_TIM64_start();
-    MSS_TIM64_enable_irq();
-	
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 
