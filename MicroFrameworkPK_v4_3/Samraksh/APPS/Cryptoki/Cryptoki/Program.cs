@@ -120,13 +120,12 @@ namespace Cryptoki
 
        public void AES_Example()
        {
+            Debug.Print("Lets begin the aes example");
+            //Specify the key size. Native side will figure out the key to use.
+            //AesCryptoServiceProvider aes = new AesCryptoServiceProvider(_keysize);
+            AesCryptoServiceProvider aes = new AesCryptoServiceProvider(256);
 
-           //Specify the key size. Native side will figure out the key to use.
-           //AesCryptoServiceProvider aes = new AesCryptoServiceProvider(_keysize);
-           AesCryptoServiceProvider aes = new AesCryptoServiceProvider(256);
-
-           Session aesSession = aes.Session;
-
+            Session aesSession = aes.Session;
 
             /*AesCryptoServiceProvider aes = new AesCryptoServiceProvider
             {
@@ -138,15 +137,16 @@ namespace Cryptoki
                 CryptoKey.KeyClass.Secret, CryptoKey.KeyType.AES, true);
           
 
-            CryptoKey ckey2 = aes.Key;
+            //CryptoKey ckey2 = aes.Key;
 
-           //Create encryptor and decryptor
-           //var encryptor = aes.CreateEncryptor();
-           aes.Key = ckey;
-           aes.IV = IV16;
-           // var encryptor = aes.CreateEncryptor(ckey, aes.IV);
-           //var encryptor = aes.CreateEncryptor(ckey, IV16);
-           var encryptor = aes.CreateEncryptor();
+            //Create encryptor and decryptor
+            //var encryptor = aes.CreateEncryptor();
+            aes.Key = ckey;
+            aes.IV = IV16;
+           
+            // var encryptor = aes.CreateEncryptor(ckey, aes.IV);
+            //var encryptor = aes.CreateEncryptor(ckey, IV16);
+            var encryptor = aes.CreateEncryptor();
 
             //Store the key securely. will need for decrypting latter
             //byte[] aesKey = aes.Key.ExportKey(true);
