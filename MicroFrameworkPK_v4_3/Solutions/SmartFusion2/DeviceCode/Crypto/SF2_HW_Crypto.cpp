@@ -36,6 +36,7 @@ int GetRandomSeed(uint8_t *buf, uint16_t length){
 
 int GetRandomBytes(uint8_t *buf, uint16_t length){
 	nrbgInit();
+	int ret =0;
 	do {
 		uint16_t dataSize=0;
 		if(length > 128) { dataSize=128; length -=128;} else { dataSize = length;}
@@ -45,9 +46,9 @@ int GetRandomBytes(uint8_t *buf, uint16_t length){
 
 		if(status != MSS_SYS_SUCCESS) return -1;
 
-		result+=dataSize;
+		result+=dataSize; ret+=dataSize;
 	} while (length < 128);
-
+	return ret;
 }
 
 
@@ -63,15 +64,17 @@ int SF2_CipherPad(sf2_cipher_context_t* ctx, uint8_t* data, int dataSize, uint8_
 
 }
 
-int SF2_Cipher(sf2_cipher_context_t* ctx, uint8_t* data, int dataSize, uint8_t* result ){
+int SF2_Cipher(sf2_cipher_context_t* ctx, uint8_t* data, uint32_t dataSize, uint8_t* result, uint32_t *resultSize){
 	int status=0;
 	uint16_t nb_blocks; //specifies the size of data as 128-bit/16-byte blocks
 
+	nb_blocks = dataSize/16;
 	// if data size is not multiple of 128-bits return error.
 	//We dont do padding at this level, padding should have been already done.
-	if(dataSize % 16) { return -1;}
+	if(dataSize % 16) {
+		nb_blocks++;
+	}
 
-	nb_blocks = dataSize/16;
 	switch (ctx->type) {
 	case AES_128:
 	    // Perform 128-bit encryption.
@@ -95,5 +98,6 @@ int SF2_Cipher(sf2_cipher_context_t* ctx, uint8_t* data, int dataSize, uint8_t* 
 	default:
 		break;
 	}
+	*resultSize = nb_blocks*16;
 	return status;
 }

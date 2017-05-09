@@ -75,7 +75,7 @@ int SF2_CipherReset(sf2_cipher_context_t* ctx);
 ///dataSize is size of data in bytes
 ///result points to the array where the output should be stored
 ///The output is of the same size as that of the input.
-int SF2_Cipher(sf2_cipher_context_t* ctx, uint8_t* data, int dataSize, uint8_t* result );
+int SF2_Cipher(sf2_cipher_context_t* ctx, uint8_t* data, uint32_t dataSize, uint8_t* result, uint32_t *resultSize );
 
 ///returns the block size used for a given cipher as specified by ctx. Currently we support only
 /// aes128 and aes256, which both use 128bit/16-byte block size

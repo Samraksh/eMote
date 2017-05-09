@@ -141,9 +141,10 @@ namespace Cryptoki
 
             //Create encryptor and decryptor
             //var encryptor = aes.CreateEncryptor();
-            aes.Key = ckey;
+            //aes.Key = ckey;
             aes.IV = IV16;
-           
+
+            Debug.Print("Lets create encryptor ");
             // var encryptor = aes.CreateEncryptor(ckey, aes.IV);
             //var encryptor = aes.CreateEncryptor(ckey, IV16);
             var encryptor = aes.CreateEncryptor();
@@ -155,25 +156,36 @@ namespace Cryptoki
             //string aesKey = aes.Key.ToString(); 
             //Debug.Print("Key = " + aesKey);
 
+            
+            
             // The data we want to encrypt
             string original_string = "Samraksh eMote Cryptoki Demo!";
             //convert to byte array
             byte[] original_data = UTF8Encoding.UTF8.GetBytes(original_string);
             //Encrypt the data
+            //TimeSpan s = TimeSpan(DateTime.Now);
+            
+            DateTime start = DateTime.Now;
             byte[] en_bytes = encryptor.TransformFinalBlock(original_data, 0, original_data.Length);
+            TimeSpan encTime = (DateTime.Now - start);
             //string en_s = new string(Encoding.UTF8.GetChars(en_bytes));
-            //Debug.Print("Data Size= " + original_string.Length + ", Data= " + original_string);
-            //Debug.Print("Encrypted Data: " + ByteArrayToString(en_bytes));
-            //Debug.Print("Encrypted Data size= " + en_bytes.Length);       
-     
+            Debug.Print("Data Size= " + original_string.Length + ", Data= " + original_string);
+            Debug.Print("Encrypted Data Size: " + en_bytes.Length +", Encrypte Data= "+ ByteArrayToString(en_bytes));
+            Debug.Print("Time to encrypt (ms)= " + encTime.ToString());       
+
+            Debug.Print("Lets create dencryptor.... ");
             //Decrypt the data
             var decryptor = aes.CreateDecryptor();
+            start = DateTime.Now;
             byte[] de_bytes = decryptor.TransformFinalBlock(en_bytes,0, en_bytes.Length);
+            TimeSpan decTime = (DateTime.Now - start);
             //print the decrypted data
 
             string decrypted_string = new string(Encoding.UTF8.GetChars(de_bytes));
             //Debug.Print("Decrypted Data= " + ByteArrayToString(de_bytes));
-            Debug.Print("Decrypted String= " + decrypted_string);
+            Debug.Print("Decrypted String Size= " + decrypted_string.Length 
+                + ", Decrypted String= " + decrypted_string);
+            Debug.Print("Time to dencrypt= " + decTime.ToString());
         }
 
         public static void Main()

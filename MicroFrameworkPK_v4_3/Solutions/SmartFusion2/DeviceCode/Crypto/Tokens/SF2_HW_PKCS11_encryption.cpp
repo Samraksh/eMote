@@ -227,13 +227,13 @@ CK_RV SF2_HW_PKCS11_Encryption::EncryptUpdate(Cryptoki_Session_Context* pSession
     //mbedtls_cipher_context_t * cipher_ctx = (sf2_cipher_context_t *)pEnc->Key->ctx;
     sf2_cipher_context_t * cipher_ctx = (sf2_cipher_context_t *) &pEnc->SymmetricCtx;
 
-    hal_printf("Crypto specific ctx ptr: %p \n", cipher_ctx );
+    //hal_printf("Crypto specific ctx ptr: %p \n", cipher_ctx );
 
     if(pEnc->IsSymmetric)
     {
-        size_t outLen = *pulEncryptedPartLen;
-        SF2_HW_PKCS11_CHECKRESULT( SF2_Cipher(cipher_ctx,  pPart, ulPartLen, pEncryptedPart ));
-        *pulEncryptedPartLen = ulPartLen;
+        uint32_t outLen = *pulEncryptedPartLen;
+        SF2_HW_PKCS11_CHECKRESULT( SF2_Cipher(cipher_ctx,  pPart, ulPartLen, pEncryptedPart, &outLen ));
+        *pulEncryptedPartLen = outLen;
     }
     else
     {
@@ -268,9 +268,12 @@ CK_RV SF2_HW_PKCS11_Encryption::EncryptFinal(Cryptoki_Session_Context* pSessionC
 
     if(pEnc->IsSymmetric)
     {
-        //size_t outLen = *pulLastEncryptedPartLen;
+        size_t outLen = *pulLastEncryptedPartLen;
         //SF2_HW_PKCS11_CHECKRESULT(SF2_Cipher((sf2_cipher_context_t *)pEnc->Key->ctx, pLastEncryptedPart));
         //*pulLastEncryptedPartLen = outLen;
+    	if(outLen > 0){
+    		hal_printf("This shouldnt the case, something seems wrong\n");
+    	}
 
     	//We dont have the concept of EncryptFinal in SF2 aes. Hence This should never be called.
         *pulLastEncryptedPartLen = 0;
@@ -362,9 +365,8 @@ CK_RV SF2_HW_PKCS11_Encryption::DecryptUpdate(Cryptoki_Session_Context* pSession
 
     if(pDec->IsSymmetric)
     {
-        size_t outLen = *pulPartLen;
-        SF2_HW_PKCS11_CHECKRESULT( SF2_Cipher(cipher_ctx, pEncryptedPart, ulEncryptedPartLen, pPart));
-        outLen = ulEncryptedPartLen;
+        uint32_t outLen = *pulPartLen;
+        SF2_HW_PKCS11_CHECKRESULT( SF2_Cipher(cipher_ctx, pEncryptedPart, ulEncryptedPartLen, pPart, &outLen));
         *pulPartLen = outLen;
     }
     else
@@ -399,13 +401,14 @@ CK_RV SF2_HW_PKCS11_Encryption::DecryptFinal(Cryptoki_Session_Context* pSessionC
 
     if(pDec->IsSymmetric)
     {
+    	*pulLastPartLen = 0;
         size_t outLen = *pulLastPartLen;
-        if(outLen != 0){
+        if(outLen > 0){
         	hal_printf("Something wrong: SF2 crypto does not have the concept of DecryptFinal \n");
         }
         //SF2_HW_PKCS11_CHECKRESULT(SF2_Cipher((sf2_cipher_context_t *)pDec->Key->ctx, pLastPart, &outLen));
-        *pulLastPartLen = outLen;
-        SF2_HW_PKCS11_CHECKRESULT(SF2_CipherReset( cipher_ctx));
+        //*pulLastPartLen = outLen;
+        //SF2_HW_PKCS11_CHECKRESULT(SF2_CipherReset( cipher_ctx));
     }
     else
     {
