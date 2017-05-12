@@ -416,6 +416,9 @@ BOOL MFUpdate_GetMissingPackets( UpdateID_t updateHandle, UINT32* pPacketBits, I
 
     updateSize += offset;
 
+    // Bill
+    hal_printf( "O %d P %d U %d\n", offset, updateSize, partIdx );
+
     while(offset < updateSize && partIdx < cnt)
     {
         for(int i=0; i<32 && offset < updateSize; i++)
