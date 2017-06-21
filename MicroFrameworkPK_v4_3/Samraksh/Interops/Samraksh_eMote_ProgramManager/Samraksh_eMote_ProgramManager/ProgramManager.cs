@@ -55,6 +55,9 @@ namespace Samraksh.eMote.ProgramManager
 
         static private void InternalUpdaterProgressCallback(uint data1, uint data2, DateTime time)
         {
+			// Bill
+			Debug.Print("C# start InternalUpdaterProgressCallback");
+
             //TODO: fetch UpdateState info for UpdateID
             //TODO: fill more state variables. keep track of some state across callbacks or query MFUpdate directly.
             UpdateState state = new UpdateState();
@@ -74,8 +77,16 @@ namespace Samraksh.eMote.ProgramManager
             //TODO: show user how to grab more info about the update in C-Sharp.
 
             if (_updaterProgressCallback != null) {
+				// Bill
+				Debug.Print("C# begin user callback");
+
                 _updaterProgressCallback( id, state);  //TODO: process a list of callbacks for individual updateID, destAddr
+	            
+				// Bill
+	            Debug.Print("C# finish user callback");
             }
+			// Bill
+	        Debug.Print("C# finish InternalUpdaterProgressCallback");
         }
 
         public void SetUpdaterProgressCallback(UInt32 updateID, UInt16 destAddr, UpdaterProgressCallback callback)

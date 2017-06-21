@@ -292,13 +292,21 @@ DeviceStatus MAC_SendTimeStamped(UINT16 destAddress, UINT8 dataType, void * msg,
 DeviceStatus MAC_Send(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size){
 	//msg is just the payload,
 
+	hal_printf("MAC_Send. Start\r\n");
+
 	BOOL status = FALSE;
 	if(currentMacName == CSMAMAC){
+		hal_printf("MAC_Send. CSMAMAC\r\n");
+
 		status = g_csmaMacObject.Send(destAddress, dataType, msg, size);
 	}
 	else if(currentMacName == OMAC){
+		hal_printf("MAC_Send. OMAC\r\n");
+
 		status = g_OMAC.Send(destAddress, dataType, msg, size);
 	}
+
+	hal_printf("MAC_Send. status %d\r\n", status);
 
 	if(status != TRUE)
 		return DS_Fail;

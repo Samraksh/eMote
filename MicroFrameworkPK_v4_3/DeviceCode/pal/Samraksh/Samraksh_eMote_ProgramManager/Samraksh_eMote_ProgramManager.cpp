@@ -52,6 +52,8 @@ BOOL g_UpdateManager_Driver_Initialized = FALSE;
 
 void NativeToManagedUpdaterProgressHandler(UINT32 updateID, UINT16 destAddr, UINT8 u4_cmd, UINT16 u12_data)
 {
+	hal_printf("NativeToManagedUpdaterProgressHandler.\r\n"); // Bill
+
 	//TODO: filter messages based on user data?
 	GLOBAL_LOCK(irq);
 	SaveNativeEventToHALQueue( g_UpdateManagerContext, updateID, (((UINT32)destAddr) << 16) | (((UINT32)(u4_cmd & 0xF)) << 12) | ((UINT32)(u12_data & 0xFFF)) );

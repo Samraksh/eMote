@@ -203,6 +203,8 @@ bool Samraksh_Emote_Update::Wireless_Phy_ReadReceiveBytes( void* state, UINT8*& 
 bool Samraksh_Emote_Update::Wireless_Phy_TransmitMessage( void* state, const WP_Message* msg ) {
     DeviceStatus ds_ret = DS_Fail;
 
+    hal_printf("Wireless_Phy_TransmitMessage. Start\r\n"); // Bill
+
     UINT8 currentMACID = MAC_GetID();
     if(currentMACID != NONE) {
 
@@ -227,8 +229,13 @@ bool Samraksh_Emote_Update::Wireless_Phy_TransmitMessage( void* state, const WP_
 			}
 		}
 
+		hal_printf("Wireless_Phy_TransmitMessage. 1\r\n"); // Bill
+
 		//need to combine buffers based on header structure.
 		if(g_Samraksh_Emote_Update.s_fUseWpPacket) { //also could get g_Sam... through *state.
+
+			hal_printf("Wireless_Phy_TransmitMessage. 1a\r\n"); // Bill
+
 			// send full WiredProtocol packet over wireless interface.
 			((UINT32*)g_Samraksh_Emote_Update.SendBuffer)[0] = msg->m_header.m_cmd;
 			memcpy(g_Samraksh_Emote_Update.SendBuffer, &msg->m_header, sizeof(WP_Packet));
@@ -237,6 +244,9 @@ bool Samraksh_Emote_Update::Wireless_Phy_TransmitMessage( void* state, const WP_
 
 		}
 		else {
+
+			hal_printf("Wireless_Phy_TransmitMessage. 1b\r\n"); // Bill
+
 			// send shorter packet over wireless interface.
 			//TODO: split message bigger than IEEE802_15_4_MAX_PAYLOAD into multiple messages. 
 			size_t shortHeaderSize = sizeof(UINT32 /*m_cmd*/) + sizeof(UINT32 /*m_flags*/);
@@ -246,6 +256,8 @@ bool Samraksh_Emote_Update::Wireless_Phy_TransmitMessage( void* state, const WP_
 			ds_ret = MAC_Send(/*g_Samraksh_Emote_Update.PAK_MacName,*/ local_destAddr, g_Samraksh_Emote_Update.PAK_routingAppID, (void*)g_Samraksh_Emote_Update.SendBuffer, shortHeaderSize + msg->m_header.m_size);
 		}
     }
+
+    hal_printf("Wireless_Phy_TransmitMessage. ds_ret %d\r\n", ds_ret); // Bill
 
     return (ds_ret == DS_Success);
 }
@@ -407,6 +419,9 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 updateInfo = g_Updates->GetUpdate(incomingReply->m_updateHandle);
                 CHECK_PTR(updateInfo);
                 updateInfo->Flags |= NEIGHBOR_FLAGS__START;
+
+                hal_printf("UpdaterProgressHandler. App_ProcessPayload:Debugging_MFUpdate_Start.\r\n"); // Bill
+
                 Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, START_ACK, 0);
                 if(s_fPublishUpdateMode == true) {
                     if( incomingReply->m_success == 1)
@@ -433,6 +448,8 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 int idx_word = incomingReply->m_packetIndex / 32;
                 int idx_bit = incomingReply->m_packetIndex % 32;
                 s_destMissingPkts[idx_word] = s_destMissingPkts[idx_word] | (1u << idx_bit);
+
+                hal_printf("UpdaterProgressHandler. App_ProcessPayload:Debugging_MFUpdate_AddPacket.\r\n"); // Bill
 
                 Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, ADDPACKET_ACK, incomingReply->m_nextMissingPacketIndex);
                 // TODO: record next missing packet inside update struct, allow querying from c-sharp.
@@ -466,6 +483,9 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 //TODO: handle negative install message (and reason).
                 //TODO: if negative, try to send a start message to resend Authenticate and fix the problem.
                 updateInfo->Flags |= NEIGHBOR_FLAGS__INSTALL;
+
+                hal_printf("UpdaterProgressHandler. App_ProcessPayload: Debugging_MFUpdate_Install.\r\n"); // Bill
+
                 Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr/*dest from received packet*/, INSTALL_ACK, 0);
             }
                 break;
@@ -477,6 +497,9 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 CHECK_PTR(updateInfo);
 
                 updateInfo->Flags |= NEIGHBOR_FLAGS__AUTHCMD;
+
+                hal_printf("UpdaterProgressHandler. App_ProcessPayload: Debugging_MFUpdate_AuthCommand.\r\n"); // Bill
+
                 Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, AUTHCMD_ACK, 0);
                 if(s_fPublishUpdateMode == true) {
                     //TODO: implement authentication
@@ -492,6 +515,9 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 CHECK_PTR(updateInfo);
 
                 updateInfo->Flags |= NEIGHBOR_FLAGS__AUTHENTICATED;
+
+                hal_printf("UpdaterProgressHandler. App_ProcessPayload: Debugging_MFUpdate_Authenticate.\r\n"); // Bill
+
                 Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, AUTHENTICATE_ACK, 0);
                 if(s_fPublishUpdateMode == true) {
                     SendGetMissingPkts(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr);
@@ -513,6 +539,8 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 for(UINT32 i = 0; i < updateInfo->m_missingPktsWordfieldSize; i++) {
                     s_destMissingPkts[i] = incomingReply->m_missingPkts[i];
                 }
+
+                hal_printf("UpdaterProgressHandler. App_ProcessPayload: Debugging_MFUpdate_GetMissingPkts.\r\n"); // Bill
 
                 Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, GETMISSINGPKTS_ACK, 0);
                 if(s_fPublishUpdateMode == true) {
@@ -943,12 +971,12 @@ bool Samraksh_Emote_Update::InitializeMac() {
     if(MAC_Initialize(&(g_Samraksh_Emote_Update.PAK_EventHandler), g_Samraksh_Emote_Update.PAK_MacName, /*g_Samraksh_Emote_Update.PAK_routingAppID*/3, Samraksh_Emote_Update::s_RadioID, (void*) &g_Samraksh_Emote_Update.PAK_MacConfig) != DS_Success)
     {
         SOFT_BREAKPOINT();
-        hal_printf("%s: ERROR! Mac_Initialize failed.\n", __func__);
+        hal_printf("%s: ERROR! Mac_Initialize failed.\r\n", __func__);
         ret = FALSE;
     }
     if(InitializeMacHandler() != TRUE) {
         SOFT_BREAKPOINT();
-        hal_printf("%s: ERROR! InitializeMacHandler failed.\n", __func__);
+        hal_printf("%s: ERROR! InitializeMacHandler failed.\r\n", __func__);
         ret = FALSE;
     }
     if(CPU_Radio_ChangeTxPower(Samraksh_Emote_Update::s_RadioID, /*WTF, only enumerated in Radio_802_15_4_Base.cs?*/ 0x0/*Power_0Point7dBm:0x5*/ ) != DS_Success)
@@ -1076,11 +1104,17 @@ void InitializeManager() {
 
 void Samraksh_Emote_Update::SendStart(UpdateID_t updateId, UINT16 destAddr)
 {
+    hal_printf( "SendStart. updateId %d, destAddr %d\r\n", updateId, destAddr); // Bill
+
     if(Samraksh_Emote_Update::s_fBaseStationMode == true) { SOFT_BREAKPOINT(); }
     Samraksh_Emote_Update::s_fPublishUpdateMode = TRUE; //TODO: remove this and expose call to InitializeManager then add bool return type to this function and return false if s_fPublishUpdateMode == FALSE in this function.
 
+    hal_printf( "SendStart--call GetUpdate\r\n");	// Bill
+
     MFUpdate* update = MFUpdate::GetUpdate(updateId);
     if( update == NULL) {
+        hal_printf( "SendStart -- update == NULL\r\n");	// Bill
+
         SOFT_BREAKPOINT();
         return;
     }
@@ -1096,6 +1130,11 @@ void Samraksh_Emote_Update::SendStart(UpdateID_t updateId, UINT16 destAddr)
     pay->m_updatePacketSize = update->Header.PacketSize;
     pay->m_versionMajor     = update->Header.Version.usMajor;
     pay->m_versionMinor     = update->Header.Version.usMinor;
+
+
+    hal_printf( "SendStart:\r\n\tUpdateId %d, UpdateType %d, UpdateSubType %d, UpdateSize %d, PacketSize %d, VersionMajor %d, VersionMinor %d\r\n",
+    		update->Header.UpdateID, update->Header.UpdateType, update->Header.UpdateSubType, update->Header.UpdateSize, update->Header.PacketSize,
+			update->Header.Version.usMajor, update->Header.Version.usMinor); // Bill
 
     msg->PrepareRequest(c_Debugging_MFUpdate_Start, 0, sizeof(MFUpdate_Commands::Debugging_MFUpdate_Start), (UINT8*)pay);
 
