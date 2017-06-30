@@ -23,14 +23,14 @@ UpdateID_t updateIDInUse;
 
 INT8 ProgramManager::UpdaterStart( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    hal_printf( "UpdaterStart 1\r\n"); // Bill
+    hal_printf( "* UpdaterStart 1\r\n"); // Bill
 
     INT8 retVal = 0;
 	
 	Samraksh_Emote_Update::CreateInstance();
 	if(updateIDInUse == MFUpdate::badHandle) {
 
-	    hal_printf( "UpdaterStart 1--updateIDInUse == MFUpdate::badHandle\r\n"); // Bill
+	    hal_printf( "* UpdaterStart 1--updateIDInUse == MFUpdate::badHandle\r\n"); // Bill
 
 		int len = 10;  // should be >= to number of updates.
 		UpdateID_t updateIDs[len];
@@ -45,7 +45,7 @@ INT8 ProgramManager::UpdaterStart( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 	if(updateIDInUse != MFUpdate::badHandle) {
 		ushort destAddr = Samraksh_Emote_Update::s_destAddr;
 
-		hal_printf( "UpdaterStart 1-- Call SendStart\r\n");	// Bill
+		hal_printf( "* UpdaterStart 1-- Call SendStart\r\n");	// Bill
 
 		Samraksh_Emote_Update::SendStart(updateIDInUse,destAddr);
 	}
@@ -54,17 +54,17 @@ INT8 ProgramManager::UpdaterStart( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 
 INT8 ProgramManager::UpdaterStart( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
 {
-    hal_printf( "UpdaterStart 2, update id %d\r\n", param0); // Bill
+    hal_printf( "* UpdaterStart 2, update id %d\r\n", param0); // Bill
 
     INT8 retVal = 0;
     MFUpdate* updateInfo = MFUpdate::GetUpdate(param0);
     if(updateInfo != NULL) {
         updateIDInUse = updateInfo->Header.UpdateID;
-        hal_printf( "UpdaterStart 2--Found Update\r\n");	// Bill
+        hal_printf( "* UpdaterStart 2--Found Update\r\n");	// Bill
 
         UpdaterStart(pMngObj, hr);
     }
-        hal_printf( "UpdaterStart 2 -- FAIL. No Update\r\n"); // Bill
+        hal_printf( "* UpdaterStart 2 -- FAIL. No Update\r\n"); // Bill
 
     return retVal;
 }

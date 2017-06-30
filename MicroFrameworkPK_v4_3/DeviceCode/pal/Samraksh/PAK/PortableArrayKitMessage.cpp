@@ -203,7 +203,7 @@ bool Samraksh_Emote_Update::Wireless_Phy_ReadReceiveBytes( void* state, UINT8*& 
 bool Samraksh_Emote_Update::Wireless_Phy_TransmitMessage( void* state, const WP_Message* msg ) {
     DeviceStatus ds_ret = DS_Fail;
 
-    hal_printf("Wireless_Phy_TransmitMessage. Start\r\n"); // Bill
+    hal_printf("* Wireless_Phy_TransmitMessage. Start\r\n"); // Bill
 
     UINT8 currentMACID = MAC_GetID();
     if(currentMACID != NONE) {
@@ -229,12 +229,12 @@ bool Samraksh_Emote_Update::Wireless_Phy_TransmitMessage( void* state, const WP_
 			}
 		}
 
-		hal_printf("Wireless_Phy_TransmitMessage. 1\r\n"); // Bill
+		hal_printf("* Wireless_Phy_TransmitMessage. 1\r\n"); // Bill
 
 		//need to combine buffers based on header structure.
 		if(g_Samraksh_Emote_Update.s_fUseWpPacket) { //also could get g_Sam... through *state.
 
-			hal_printf("Wireless_Phy_TransmitMessage. 1a\r\n"); // Bill
+			hal_printf("* Wireless_Phy_TransmitMessage. 1a\r\n"); // Bill
 
 			// send full WiredProtocol packet over wireless interface.
 			((UINT32*)g_Samraksh_Emote_Update.SendBuffer)[0] = msg->m_header.m_cmd;
@@ -245,7 +245,7 @@ bool Samraksh_Emote_Update::Wireless_Phy_TransmitMessage( void* state, const WP_
 		}
 		else {
 
-			hal_printf("Wireless_Phy_TransmitMessage. 1b\r\n"); // Bill
+			hal_printf("* Wireless_Phy_TransmitMessage. 1b\r\n"); // Bill
 
 			// send shorter packet over wireless interface.
 			//TODO: split message bigger than IEEE802_15_4_MAX_PAYLOAD into multiple messages. 
@@ -257,7 +257,7 @@ bool Samraksh_Emote_Update::Wireless_Phy_TransmitMessage( void* state, const WP_
 		}
     }
 
-    hal_printf("Wireless_Phy_TransmitMessage. ds_ret %d\r\n", ds_ret); // Bill
+    hal_printf("* Wireless_Phy_TransmitMessage. ds_ret %d\r\n", ds_ret); // Bill
 
     return (ds_ret == DS_Success);
 }
@@ -420,9 +420,12 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 CHECK_PTR(updateInfo);
                 updateInfo->Flags |= NEIGHBOR_FLAGS__START;
 
-                hal_printf("UpdaterProgressHandler. App_ProcessPayload:Debugging_MFUpdate_Start.\r\n"); // Bill
+                hal_printf("* UpdaterProgressHandler. App_ProcessPayload:Debugging_MFUpdate_Start before\r\n"); // Bill
 
                 Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, START_ACK, 0);
+
+                hal_printf("* UpdaterProgressHandler. App_ProcessPayload: Debugging_MFUpdate_Start: after\r\n"); // Bill
+
                 if(s_fPublishUpdateMode == true) {
                     if( incomingReply->m_success == 1)
                     {
@@ -449,7 +452,7 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 int idx_bit = incomingReply->m_packetIndex % 32;
                 s_destMissingPkts[idx_word] = s_destMissingPkts[idx_word] | (1u << idx_bit);
 
-                hal_printf("UpdaterProgressHandler. App_ProcessPayload:Debugging_MFUpdate_AddPacket.\r\n"); // Bill
+                hal_printf("* UpdaterProgressHandler. App_ProcessPayload:Debugging_MFUpdate_AddPacket.\r\n"); // Bill
 
                 Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, ADDPACKET_ACK, incomingReply->m_nextMissingPacketIndex);
                 // TODO: record next missing packet inside update struct, allow querying from c-sharp.
@@ -484,7 +487,7 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 //TODO: if negative, try to send a start message to resend Authenticate and fix the problem.
                 updateInfo->Flags |= NEIGHBOR_FLAGS__INSTALL;
 
-                hal_printf("UpdaterProgressHandler. App_ProcessPayload: Debugging_MFUpdate_Install.\r\n"); // Bill
+                hal_printf("* UpdaterProgressHandler. App_ProcessPayload: Debugging_MFUpdate_Install.\r\n"); // Bill
 
                 Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr/*dest from received packet*/, INSTALL_ACK, 0);
             }
@@ -498,7 +501,7 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
 
                 updateInfo->Flags |= NEIGHBOR_FLAGS__AUTHCMD;
 
-                hal_printf("UpdaterProgressHandler. App_ProcessPayload: Debugging_MFUpdate_AuthCommand.\r\n"); // Bill
+                hal_printf("* UpdaterProgressHandler. App_ProcessPayload: Debugging_MFUpdate_AuthCommand.\r\n"); // Bill
 
                 Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, AUTHCMD_ACK, 0);
                 if(s_fPublishUpdateMode == true) {
@@ -516,7 +519,7 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
 
                 updateInfo->Flags |= NEIGHBOR_FLAGS__AUTHENTICATED;
 
-                hal_printf("UpdaterProgressHandler. App_ProcessPayload: Debugging_MFUpdate_Authenticate.\r\n"); // Bill
+                hal_printf("* UpdaterProgressHandler. App_ProcessPayload: Debugging_MFUpdate_Authenticate.\r\n"); // Bill
 
                 Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, AUTHENTICATE_ACK, 0);
                 if(s_fPublishUpdateMode == true) {
@@ -540,7 +543,7 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                     s_destMissingPkts[i] = incomingReply->m_missingPkts[i];
                 }
 
-                hal_printf("UpdaterProgressHandler. App_ProcessPayload: Debugging_MFUpdate_GetMissingPkts.\r\n"); // Bill
+                hal_printf("* UpdaterProgressHandler. App_ProcessPayload: Debugging_MFUpdate_GetMissingPkts.\r\n"); // Bill
 
                 Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, GETMISSINGPKTS_ACK, 0);
                 if(s_fPublishUpdateMode == true) {
@@ -1104,16 +1107,16 @@ void InitializeManager() {
 
 void Samraksh_Emote_Update::SendStart(UpdateID_t updateId, UINT16 destAddr)
 {
-    hal_printf( "SendStart. updateId %d, destAddr %d\r\n", updateId, destAddr); // Bill
+    hal_printf( "* SendStart. updateId %d, destAddr %d\r\n", updateId, destAddr); // Bill
 
     if(Samraksh_Emote_Update::s_fBaseStationMode == true) { SOFT_BREAKPOINT(); }
     Samraksh_Emote_Update::s_fPublishUpdateMode = TRUE; //TODO: remove this and expose call to InitializeManager then add bool return type to this function and return false if s_fPublishUpdateMode == FALSE in this function.
 
-    hal_printf( "SendStart--call GetUpdate\r\n");	// Bill
+    hal_printf( "* SendStart--call GetUpdate\r\n");	// Bill
 
     MFUpdate* update = MFUpdate::GetUpdate(updateId);
     if( update == NULL) {
-        hal_printf( "SendStart -- update == NULL\r\n");	// Bill
+        hal_printf( "* SendStart -- update == NULL\r\n");	// Bill
 
         SOFT_BREAKPOINT();
         return;
@@ -1132,7 +1135,7 @@ void Samraksh_Emote_Update::SendStart(UpdateID_t updateId, UINT16 destAddr)
     pay->m_versionMinor     = update->Header.Version.usMinor;
 
 
-    hal_printf( "SendStart:\r\n\tUpdateId %d, UpdateType %d, UpdateSubType %d, UpdateSize %d, PacketSize %d, VersionMajor %d, VersionMinor %d\r\n",
+    hal_printf( "* SendStart:\r\n\tUpdateId %d, UpdateType %d, UpdateSubType %d, UpdateSize %d, PacketSize %d, VersionMajor %d, VersionMinor %d\r\n",
     		update->Header.UpdateID, update->Header.UpdateType, update->Header.UpdateSubType, update->Header.UpdateSize, update->Header.PacketSize,
 			update->Header.Version.usMajor, update->Header.Version.usMinor); // Bill
 

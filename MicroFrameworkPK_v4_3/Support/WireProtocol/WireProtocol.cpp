@@ -28,7 +28,7 @@ void WP_Message::PrepareReception()
 
 void WP_Message::PrepareRequest( UINT32 cmd, UINT32 flags, UINT32 payloadSize, UINT8* payload )
 {
-	hal_printf("Prepare Request. cmd %d, flags %d, payloadSize %d, payload %d\r\n",
+	hal_printf("* Prepare Request. cmd %d, flags %d, payloadSize %d, payload %d\r\n",
 			cmd, flags, payloadSize, payload);	// Bill
 
     memcpy( m_header.m_signature, m_parent->m_szMarker ? m_parent->m_szMarker : MARKER_PACKET_V1, sizeof(m_header.m_signature) );

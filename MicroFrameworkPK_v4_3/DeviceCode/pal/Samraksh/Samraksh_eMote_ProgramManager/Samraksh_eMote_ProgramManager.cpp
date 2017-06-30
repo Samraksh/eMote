@@ -52,7 +52,7 @@ BOOL g_UpdateManager_Driver_Initialized = FALSE;
 
 void NativeToManagedUpdaterProgressHandler(UINT32 updateID, UINT16 destAddr, UINT8 u4_cmd, UINT16 u12_data)
 {
-	hal_printf("NativeToManagedUpdaterProgressHandler.\r\n"); // Bill
+	hal_printf("* NativeToManagedUpdaterProgressHandler.\r\n"); // Bill
 
 	//TODO: filter messages based on user data?
 	GLOBAL_LOCK(irq);
