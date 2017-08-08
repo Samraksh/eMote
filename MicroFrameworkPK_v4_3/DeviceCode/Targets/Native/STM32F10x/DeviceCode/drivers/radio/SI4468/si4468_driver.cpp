@@ -666,7 +666,7 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 		GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_9;
 		GPIO_Init(GPIOB, &GPIO_InitStructure);
-		set_radio_power_pwm(1);
+		set_radio_power_pwm(0);
 		// END TEST
 	}
 	else { // I am a .NOW
@@ -972,6 +972,8 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		si446x_spi_unlock();
 		return DS_Fail;
 	}
+
+	set_radio_power_pwm(1); // Make sure we have enough juice to do this
 
 	tx_buf[0] = len;
 	if (doTS) { tx_buf[0] += 4; } // Add timestamp to packet size if used.
@@ -1399,6 +1401,7 @@ UINT32 si446x_hal_get_rssi(UINT8 radioID) {
 // INTERRUPT CONTEXT, LOCKED
 static void si446x_pkt_tx_int() {
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_tx_int()\r\n");
+	set_radio_power_pwm(0); // TX done, idle power supply
 	tx_callback_continuation.Enqueue();
 }
 

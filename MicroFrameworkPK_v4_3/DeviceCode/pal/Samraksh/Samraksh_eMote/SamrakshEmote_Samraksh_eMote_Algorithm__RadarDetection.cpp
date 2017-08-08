@@ -49,6 +49,8 @@ static int initialAdjustmentCnt = INITIAL_ADJUSTMENT_SAMPLE_CNT;
 static int prevIQrejectionValue = IQRejectionToUse;
 static bool windowOverThreshold = false;
 static bool detectionFinished = false;
+static UINT16 targetSizeFilter = 300;
+static UINT16 classifierTargetFilter = 250;
 
 enum RADAR_NOISE_CONTROL
 {
@@ -56,7 +58,8 @@ enum RADAR_NOISE_CONTROL
 	SCALING_NOISE_REJECTION_ADD,
 	SCALING_NOISE_REJECTION_MULTIPLY,
 	SCALING_NOISE_REJECTION_TARGET,
-	SCALING_NOISE_REJECTION_RAW_RADAR
+	SCALING_NOISE_REJECTION_RAW_RADAR,
+	SCALING_NOISE_REJECTION_RAW_RADAR_SCALING
 };
 
 enum RADAR_NOISE_REQUEST
@@ -201,14 +204,28 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 		else if (IQRejectionToUse > MAX_IQ_REJECTION)
 			IQRejectionToUse = MAX_IQ_REJECTION;
 	} else if (radarNoiseCtrl == SCALING_NOISE_REJECTION_RAW_RADAR){
-		IQRejectionToUse = (int)((double)HeapTrackMedian(medianRawQ)*noiseRejectionPassedParameter);
+			IQRejectionToUse = (int)((double)HeapTrackMedian(medianRawQ)*noiseRejectionPassedParameter);
+	} else if (radarNoiseCtrl == SCALING_NOISE_REJECTION_RAW_RADAR_SCALING){
+			double temp = (double)HeapTrackMedian(medianRawQ);
+			// if the median of the raw radar data is over noiseRejectionPassedParameter then we start to scale the suppression based on how high the median is
+            if (temp > noiseRejectionPassedParameter)
+            {
+            	temp = temp - noiseRejectionPassedParameter;
+                temp = (double)((int)temp >> 2); // divide by 4
+                temp = 1 + (temp * 0.1);
+            }
+            else
+            {
+            	temp = 1;
+            }
+            IQRejectionToUse = (int)((double)HeapTrackMedian(medianRawQ) * temp);
 	} else {
 		// radarNoiseCtrl == FIXED_NOISE_REJECTION
 		IQRejectionToUse = noiseRejectionPassedParameter;
 	}
 
 	// copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR
-	unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, (INT16)HeapTrackMedian(radarI), (INT16)HeapTrackMedian(radarQ), IQRejectionToUse, debugVal, IDNumber, codeVersion);
+	unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, (INT16)HeapTrackMedian(radarI), (INT16)HeapTrackMedian(radarQ), IQRejectionToUse, debugVal, IDNumber, codeVersion, classifierTargetFilter);
 
 	lastUnwrap = unwrap;
 	lastUnwrapZero = getUnwrapZero();
@@ -226,13 +243,16 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 	mOfnCounter.count += 1;
 	if (unwrap > threshold)
     {
-		windowOverThreshold = true;
-		mOfnDetector.Update(mOfnCounter.count, 1);
-    /*} else if (unwrap >= doubleThreshold ){
-		// if an unwrap is double the threshold we will count it twice here
-		windowOverThreshold = true;
-		mOfnDetector.Update(mOfnCounter.count, 1);
-		mOfnDetector.Update(mOfnCounter.count, 1);*/
+		// another way to screen out noise is to ignore any detects that happened when the actual ADC levels of both I and Q for the radar (minus median) is less than 400
+		INT16 offsetQ = getAbsOffsetQ();
+		INT16 offsetI = getAbsOffsetI();
+		if ( (offsetQ < targetSizeFilter) && (offsetI < targetSizeFilter) ){
+			windowOverThreshold = false;
+			mOfnDetector.Update(mOfnCounter.count, 0);
+		} else {
+			windowOverThreshold = true;
+			mOfnDetector.Update(mOfnCounter.count, 1);
+		}
 	}
     else
     {
@@ -273,7 +293,7 @@ INT8 Algorithm_RadarDetection::Initialize( CLR_RT_HeapBlock* pMngObj, HRESULT &h
 		unwrapMedianMax = HeapTrackNew(10);
 		radarQ = HeapTrackNew(100);
 		radarI = HeapTrackNew(100);
-		medianRawQ = HeapTrackNew(800);
+		medianRawQ = HeapTrackNew(100);
 		initialized = true;
 		HeapTrackInsert(unwrapMedian,0);
 		HeapTrackInsert(unwrapMedianZero,0);
@@ -314,10 +334,8 @@ INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, 
     return detection;
 }
 
-INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, INT32 param0, double param1, double param2, UINT16 param3, UINT16 param4, UINT16 param5, UINT16 param6, HRESULT &hr )
+INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, INT32 param0, double param1, double param2, UINT16 param3, UINT16 param4, UINT16 param5, UINT16 param6, UINT16 param7, HRESULT &hr )
 {
-    INT8 retVal = 0; 
-
 	radarNoiseCtrl = param0;
 	threshold = param1;
 	callbacksPerSecond = 0; // this will cause the threshold to be recalculated based on callbacks per second. That might change after the detection parameters are set so we can't do that here.
@@ -335,7 +353,9 @@ INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj
 	mOfnCounter.count = 0;
 
 	debugVal = param5;
-	codeVersion =  param6;
+	codeVersion =  1;
+	targetSizeFilter =  param6;
+	classifierTargetFilter = param7;
 
 	initialAdjustmentCnt = INITIAL_ADJUSTMENT_SAMPLE_CNT;
 	IQRejectionToUse = 100;
@@ -366,7 +386,7 @@ INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj
 		IDNumber=IDNumber ^ temp[i]; //XOR 72-bit number to generate 16-bit hash
 	}
 
-    return retVal;
+    return true;
 }
 
 INT32 Algorithm_RadarDetection::GetBackgroundNoiseLevel( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
@@ -435,3 +455,8 @@ INT32 Algorithm_RadarDetection::GetDisplacementRange( CLR_RT_HeapBlock* pMngObj,
 	return getRange(param0);
 }
 
+
+INT32 Algorithm_RadarDetection::GetCountOverTarget( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    return getCountOverTarget(); 
+}

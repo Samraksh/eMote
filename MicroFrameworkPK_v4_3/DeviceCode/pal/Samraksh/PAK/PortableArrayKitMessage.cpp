@@ -119,7 +119,7 @@ BOOL Samraksh_Emote_Update::s_fRadioOn = false;
 BOOL Samraksh_Emote_Update::s_fBaseStationMode = false;
 BOOL Samraksh_Emote_Update::s_fPublishUpdateMode = false;
 UINT16 Samraksh_Emote_Update::s_destAddr = MAC_BROADCAST_ADDRESS;
-UINT32 Samraksh_Emote_Update::s_destMissingPkts[MFUpdate::MAX_MISSING_WORDFIELD_SIZE];
+UINT32 Samraksh_Emote_Update::s_destMissingPkts[MFUpdate::MAX_MISSING_WORDFIELD_SIZE]; // TODO: static assert 4*MAX_MISSING_WORDFIELD_SIZE must be less than IEEE802_15_4_MAX_PAYLOAD - sizeof(simple_header_t)
 UINT8 Samraksh_Emote_Update::s_RadioID = RF231RADIO;
 UPDATER_PROGRESS_HANDLER Samraksh_Emote_Update::s_UpdaterProgressHandler = 0;
 
@@ -238,6 +238,7 @@ bool Samraksh_Emote_Update::Wireless_Phy_TransmitMessage( void* state, const WP_
 		}
 		else {
 			// send shorter packet over wireless interface.
+			//TODO: split message bigger than IEEE802_15_4_MAX_PAYLOAD into multiple messages. 
 			size_t shortHeaderSize = sizeof(UINT32 /*m_cmd*/) + sizeof(UINT32 /*m_flags*/);
 			((simple_payload_t*)g_Samraksh_Emote_Update.SendBuffer)->cmd = msg->m_header.m_cmd;
 			((simple_payload_t*)g_Samraksh_Emote_Update.SendBuffer)->flags = msg->m_header.m_flags;
@@ -782,9 +783,14 @@ void Samraksh_Emote_Update::Receive(void *buffer, UINT16 sz_buf) {
 /**
  * Implement wireless SendAckFuncPtrType.  MAC API changed mid-development, so this is glue.
  * FIXME: cut out the middle man.
+ * BK: SendAck is not doing anything either. I am not sure what behaviour is expected. However, I am implemenmting what is expected by the MAC
  */
 void SendAckHandler (void* msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus){
-    return g_Samraksh_Emote_Update.SendAck(msg,size,status);
+	g_Samraksh_Emote_Update.SendAck(msg,size,status);
+	Message_15_4_t* packet_ptr = static_cast<Message_15_4_t*>(msg);
+	g_NeighborTable.DeletePacket(packet_ptr);
+	return;
+
 }
 
 
@@ -934,7 +940,7 @@ bool Samraksh_Emote_Update::InitializeMac() {
     g_Samraksh_Emote_Update.PAK_MacConfig.CCASenseTime = 140;
     g_Samraksh_Emote_Update.PAK_MacConfig.BufferSize = 8;
     // g_Samraksh_Emote_Update.PAK_MacConfig.RadioID = /*RadioID::*/RF231RADIO;  //WHY IS THE RADIOID IN THE CONFIG ALSO PASSED AS A PARAMETER???
-    g_Samraksh_Emote_Update.PAK_MacConfig.NeighborLivenessDelay = 300;
+    g_Samraksh_Emote_Update.PAK_MacConfig.NeighborLivenessDelay = 620;
     g_Samraksh_Emote_Update.PAK_channel = 0xE;
 
 

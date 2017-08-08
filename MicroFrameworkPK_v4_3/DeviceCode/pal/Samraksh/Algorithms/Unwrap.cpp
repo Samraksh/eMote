@@ -26,6 +26,11 @@ static int maxDisplacementFirstHalf = 0;
 static int maxDisplacementSecondHalf = 0;
 static int maxDisplacementEntire = 0;
 
+static INT16 absOffsetQ =0;
+static INT16 absOffsetI =0;
+
+static INT16 countOverTarget = 0;
+
 enum PI
 {
     HALF = 6434,
@@ -96,7 +101,7 @@ INT16 findMedian(UINT16* buffer, INT32 length)
 	}
 }
 
-int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT32 noiseRejection, UINT16 debugVal, UINT16 IDNumber, UINT16 versionNumber)
+int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT32 noiseRejection, UINT16 debugVal, UINT16 IDNumber, UINT16 versionNumber, UINT16 classifierTarget)
 {
 	int i;
 	int unwrappedPhase;
@@ -114,8 +119,14 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 	static UINT8 uartPort = 0;
 	INT16 iBufferI[length];
 	INT16 iBufferQ[length];
+	INT16 maxOffsetQ = 2048;
+	INT16 maxOffsetI = 2048;
+	INT16 minOffsetQ = 2048;
+	INT16 minOffsetI = 2048;
 	int midPoint = (int)length>>1;
 	int sampleDisplacement = 0;
+
+	countOverTarget = 0;
 
 	unwrappedPhaseCrossProduct = 0;
 	unwrappedPhaseCrossProductMax = 0;
@@ -159,7 +170,19 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 			checksumPrimary += bufferQ[i];
 		}
 		iBufferI[i] = (INT16)bufferI[i] - medianI;
+		if (iBufferI[i] > maxOffsetI)
+			maxOffsetI = iBufferI[i];
+		if (iBufferI[i] < minOffsetI)
+			minOffsetI = iBufferI[i];
 		iBufferQ[i] = (INT16)bufferQ[i] - medianQ; 
+		if (iBufferQ[i] > maxOffsetQ)
+			maxOffsetQ = iBufferQ[i];
+		if (iBufferQ[i] < minOffsetQ)
+			minOffsetQ = iBufferQ[i];
+
+		if (abs( iBufferI[i] + iBufferQ[i]) > classifierTarget){
+			countOverTarget++;
+		}
 		
 		// sampleDisplacement contains the current samples displacement
 		sampleDisplacement = unwrapCrossProduct(iBufferI[i], iBufferQ[i], noiseRejection);
@@ -229,6 +252,16 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 		//memcpy(prevBufferI, bufferI, 500);
 		//memcpy(prevBufferQ, bufferQ, 500);
 	}
+
+	if ((maxOffsetI - 2048) > (2048 - minOffsetI))
+		absOffsetI = abs(maxOffsetI);
+	else
+		absOffsetI = abs(minOffsetI);
+
+	if ((maxOffsetQ - 2048) > (2048 - minOffsetQ))
+		absOffsetQ = abs(maxOffsetQ);
+	else
+		absOffsetQ = abs(minOffsetQ);
 
 	return (abs(unwrappedPhaseCrossProduct));
 }
@@ -335,4 +368,16 @@ int getRange(INT32 portion){
 		// SAMPLE_WINDOW_SECOND_HALF
 		return (maxDisplacementSecondHalf - minDisplacementSecondHalf);
 	}
+}
+
+INT16 getAbsOffsetQ(){
+	return absOffsetQ;
+}
+
+INT16 getAbsOffsetI(){
+	return absOffsetI;
+}
+
+INT16 getCountOverTarget(){
+	return countOverTarget;
 }

@@ -102,7 +102,7 @@ UINT64 DiscoveryHandler::NextEvent(){
 		TempIncreaseDiscoRate();
 		g_OMAC.m_omac_RadioControl.stayOn = true;
 #if OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE
-	hal_printf("Turning ON ALWAYSONMODE \r\n");
+		hal_printf("Turning ON ALWAYSONMODE \r\n");
 #endif
 	}
 
@@ -142,7 +142,7 @@ UINT64 DiscoveryHandler::NextEventinSlots(const UINT64 &currentSlotNum){
 		else{
 			return (period2Remaining - 1);
 		}
-//		return ((period1Remaining < period2Remaining) ? (2*period1Remaining ) : (2*period2Remaining ));
+		//		return ((period1Remaining < period2Remaining) ? (2*period1Remaining ) : (2*period2Remaining ));
 	}
 }
 
@@ -252,9 +252,9 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 	DiscoveryMsg_t* m_discoveryMsg = (DiscoveryMsg_t*)msgPtr->GetPayload();
 	CreateMessage(m_discoveryMsg);
 
-	 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+	y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 
-	 while(1){
+	while(1){
 		//Check CCA
 		DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 		if(DS != DS_Success){
@@ -286,13 +286,13 @@ void DiscoveryHandler::CreateMessage(DiscoveryMsg_t* discoveryMsg){
 	discoveryMsg->seedUpdateIntervalinSlots = g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_seedUpdateIntervalinSlots;
 	//discoveryMsg->nodeID = g_OMAC.GetMyAddress();
 
-//	UINT64 curticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-//	discoveryMsg->localTime0 = (UINT32) curticks;
-//	discoveryMsg->localTime1 = (UINT32) (curticks>>32);
-//
-//	discoveryMsg->lastwakeupSlotUpdateTimeinTicks0 = (UINT32) g_OMAC.m_omac_scheduler.m_DataReceptionHandler.lastwakeupSlotUpdateTimeinTicks;
-//	discoveryMsg->lastwakeupSlotUpdateTimeinTicks1 = (UINT32) (g_OMAC.m_omac_scheduler.m_DataReceptionHandler.lastwakeupSlotUpdateTimeinTicks>>32);
-//	discoveryMsg->msg_identifier = 33686018; // 0x02020202
+	//	UINT64 curticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+	//	discoveryMsg->localTime0 = (UINT32) curticks;
+	//	discoveryMsg->localTime1 = (UINT32) (curticks>>32);
+	//
+	//	discoveryMsg->lastwakeupSlotUpdateTimeinTicks0 = (UINT32) g_OMAC.m_omac_scheduler.m_DataReceptionHandler.lastwakeupSlotUpdateTimeinTicks;
+	//	discoveryMsg->lastwakeupSlotUpdateTimeinTicks1 = (UINT32) (g_OMAC.m_omac_scheduler.m_DataReceptionHandler.lastwakeupSlotUpdateTimeinTicks>>32);
+	//	discoveryMsg->msg_identifier = 33686018; // 0x02020202
 }
 
 /*
@@ -303,26 +303,26 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 	OMAC_CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, FALSE);
 	OMAC_CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, TRUE);
 	switch(m_state){
-		case BEACON1_SEND_START:
-			m_state = BEACON1_SEND_DONE;
-			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
-			rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  1, TRUE, OMACClockSpecifier );
-			rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
-			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
-				PostExecuteEvent();
-			}
-			break;
-		case BEACON2_SEND_START:
-			m_state = BEACON2_SEND_DONE;
-			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
-			rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  1, TRUE, OMACClockSpecifier );
-			rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
-			break;
-		default:
+	case BEACON1_SEND_START:
+		m_state = BEACON1_SEND_DONE;
+		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  1, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
+		}
+		break;
+	case BEACON2_SEND_START:
+		m_state = BEACON2_SEND_DONE;
+		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  1, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+		break;
+	default:
 #ifdef OMAC_DEBUG_PRINTF
-			OMAC_HAL_PRINTF("DiscoveryHandler::Received Unexpected SendACK \r\n");
+		OMAC_HAL_PRINTF("DiscoveryHandler::Received Unexpected SendACK \r\n");
 #endif
-			break;
+		break;
 	}
 	/* Don't use this for now
 	if(status == NO_Busy){
@@ -345,7 +345,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 		//call SlotScheduler.printState();
 		//signalBeaconDone(error, call GlobalTime.getLocalTime());
 #endif
-*/
+	 */
 	/*if(m_disco_state == DISCO_STATE_BEACON_N){
 		VirtualTimerReturnMessage rm;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
@@ -478,20 +478,20 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 	NeighborTableCommonParameters_One_t neighborTableCommonParameters_One_t;
 	NeighborTableCommonParameters_Two_t neighborTableCommonParameters_two_t;
 
-//	if(discoMsg -> msg_identifier != 33686018){
-//		localTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-//		//ASSERT_SP(0);
-//	}
+	//	if(discoMsg -> msg_identifier != 33686018){
+	//		localTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+	//		//ASSERT_SP(0);
+	//	}
 #ifdef def_Neighbor2beFollowed
 	if (source == g_OMAC.Neighbor2beFollowed){
 #ifdef OMAC_DEBUG_GPIO
-			OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, TRUE );
+		OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, TRUE );
 #endif
 	}
 #endif
 
 #ifdef OMAC_DEBUG_GPIO
-		OMAC_CPU_GPIO_SetPinState(DISCO_SYNCRECEIVEPIN, TRUE );
+	OMAC_CPU_GPIO_SetPinState(DISCO_SYNCRECEIVEPIN, TRUE );
 #endif
 	//DiscoveryMsg_t* discoMsg = (DiscoveryMsg_t *) msg->GetPayload();
 	//RadioAddress_t source = msg->GetHeader()->src;
@@ -516,8 +516,8 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 	hal_printf("Disco RX SourceID = %u TimeAvail = %s \r\n"
 			,source
 			,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(source) ? "TRUE" : "FALSE"
-			);
-//	g_OMAC.PrintNeighborTable();
+	);
+	//	g_OMAC.PrintNeighborTable();
 	g_OMAC.is_print_neigh_table = true;
 #endif
 
@@ -525,12 +525,12 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 #ifdef def_Neighbor2beFollowed
 	if (source == g_OMAC.Neighbor2beFollowed){
 #ifdef OMAC_DEBUG_GPIO
-			OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, FALSE );
+		OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, FALSE );
 #endif
 	}
 #endif
 #ifdef OMAC_DEBUG_GPIO
-		OMAC_CPU_GPIO_SetPinState(DISCO_SYNCRECEIVEPIN, FALSE );
+	OMAC_CPU_GPIO_SetPinState(DISCO_SYNCRECEIVEPIN, FALSE );
 #endif
 
 	return DS_Success;

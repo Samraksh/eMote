@@ -98,7 +98,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::Detectio
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::SetDetectionParameters___BOOLEAN__SamraksheMoteRADARNOISECONTROL__R8__R8__U2__U2__U2__U2( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::SetDetectionParameters___BOOLEAN__SamraksheMoteRADARNOISECONTROL__R8__R8__U2__U2__U2__U2__U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -127,7 +127,10 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::SetDetec
         UINT16 param6;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 7, param6 ) );
 
-        INT8 retVal = Algorithm_RadarDetection::SetDetectionParameters( pMngObj,  param0, param1, param2, param3, param4, param5, param6, hr );
+        UINT16 param7;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 8, param7 ) );
+
+        INT8 retVal = Algorithm_RadarDetection::SetDetectionParameters( pMngObj,  param0, param1, param2, param3, param4, param5, param6, param7, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 
@@ -287,6 +290,22 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetDispl
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
 
         INT32 retVal = Algorithm_RadarDetection::GetDisplacementRange( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetCountOverTarget___I4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT32 retVal = Algorithm_RadarDetection::GetCountOverTarget( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 

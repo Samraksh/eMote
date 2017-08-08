@@ -99,20 +99,35 @@ extern NeighborTable g_NeighborTable;
  */
 class OMACType: public MAC<Message_15_4_t, MACConfig>{
   private:
-	//Underlying radio variables
-	static const UINT8 NumberRadios = 1;
+	//BK Not Used
 
+	//BK: Non-esentials but used
+	softwareACKHeader* swAckHeader;
+
+	//BK: USed but don't know why
+	UINT8 CurrentActiveApp;
+	UINT16 MyID; 						//Radio MAC ID is stored locally to speed up packet reception instead of going to radio
+
+	//Continuataion Related
 	static HAL_CONTINUATION OMAC_callback_continuation;
 
 	static const UINT8 payloadTypeArrayMaxValue = 8;
 	static UINT8 payloadTypeArrayIndex;
 	UINT8 payloadTypeArray[payloadTypeArrayMaxValue];
 
-	BOOL flushTimerRunning;
+	//BK: Used for valid reason
 
-	UINT8 CurrentActiveApp;
-	UINT16 MyID;
-	softwareACKHeader* swAckHeader;
+	//Underlying radio variables
+	static const UINT8 NumberRadios = 1;
+
+
+
+
+
+
+
+
+
 
 	//Protocol variables
 	//-------------------------------
@@ -154,6 +169,24 @@ private:
 	void PrintNeighborTable();
   public:
 
+	//Not used
+		Message_15_4_t rx_msg;
+		// Pointer to the outgoing message
+		Message_15_4_t* tx_msg_ptr;
+		// Pointer to the incoming message
+		Message_15_4_t* rx_msg_ptr;
+		volatile UINT16 tx_length;
+		volatile UINT16 rx_length;
+
+
+	//BK: USed but don't know why
+	Message_15_4_t tx_msg;
+	volatile bool isSendDone;
+	MACReceiveFuncPtrType m_rxAckHandler;
+	SendAckFuncPtrType m_txAckHandler;
+
+	// Legitimate Public
+
 #if OMAC_DEBUG_PRINTF_NEIGHCHANGE || OMAC_DEBUG_PRINTF_DISCO_RX || OMAC_DEBUG_PRINTF_TS_RX ||OMAC_DEBUG_PRINTF_TSREQ_TX
 	bool is_print_neigh_table;
 #endif
@@ -189,26 +222,16 @@ private:
 	int LISTEN_PERIOD_FOR_RECEPTION_HANDLER;
 	//-------------------------------
 
-	volatile bool isSendDone;
 
-	MACReceiveFuncPtrType m_rxAckHandler;
-	SendAckFuncPtrType m_txAckHandler;
 
-	//Buffer_15_4_t g_send_buffer;
-	//Buffer_15_4_t g_receive_buffer;
-	//NeighborTable m_NeighborTable;
+
 	OMACClock m_Clock;
 
 	RadioControl_t m_omac_RadioControl;
 	OMACScheduler m_omac_scheduler;
 
-	Message_15_4_t rx_msg;
-	// Pointer to the outgoing message
-	Message_15_4_t* tx_msg_ptr;
-	// Pointer to the incoming message
-	Message_15_4_t* rx_msg_ptr;
-	volatile UINT16 tx_length;
-	volatile UINT16 rx_length;
+
+
 
 	/*Already set in MAC class from which OMAC is derived
 	UINT16 GetAddress(){return MyID;}
@@ -243,8 +266,12 @@ private:
 		return ret;
 	}
 
-	UINT16 GetMaxPayload(){return MaxPayload;	}
-	void SetMaxPayload(UINT16 payload){MaxPayload = payload;}
+	UINT16 GetMaxPayload(){
+		return MaxPayload;
+	}
+	void SetMaxPayload(UINT16 payload){
+		MaxPayload = payload;
+	}
 
 	void SetCurrentActiveApp(UINT8 CurrentActiveApp){
 		this->CurrentActiveApp = CurrentActiveApp;
@@ -269,6 +296,13 @@ private:
 	BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int size);
 	//BOOL SendTimeStamped(RadioAddress_t dest, UINT8 dataType, Message_15_4_t* msg, int Size, UINT32 eventTime);
 	BOOL SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime);
+	PacketID_T EnqueueToSend(UINT16 address, UINT8 dataType, void* msg, int size);
+	PacketID_T EnqueueToSendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime);
+
+	DeviceStatus GetPacketWithIndex(UINT8 **managedBuffer, UINT8 size, PacketID_T index);
+	DeviceStatus GetPacketSizeWithIndex( UINT8* buffersizeptr, PacketID_T index);
+	DeviceStatus DeletePacketWithIndexInternal( PacketID_T index);
+
 
 	Message_15_4_t* ReceiveHandler(Message_15_4_t* msg, int size);
 

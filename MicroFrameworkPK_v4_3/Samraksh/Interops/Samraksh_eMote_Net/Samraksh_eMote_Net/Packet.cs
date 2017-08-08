@@ -76,7 +76,7 @@ namespace Samraksh.eMote.Net
 		// ReSharper disable once InconsistentNaming
 		MFM_Data = 0x20
 	};
-
+           
 	/// <summary>
 	/// 
 	/// </summary>
@@ -192,10 +192,7 @@ namespace Samraksh.eMote.Net
 
             Payload = new byte[Size];
 
-			for (i = 0; i < length; i++)
-			{
-				Payload[i] = msg[i + 2];
-			}
+			Array.Copy(msg, 2, Payload, 0, length); 		
 
 			PayloadType = (PayloadType)msg[length + 2];    //2 is for the first 2 bytes msg[0] and msg[1]
 			RSSI = msg[length + 3];
@@ -245,11 +242,8 @@ namespace Samraksh.eMote.Net
 			//Create a payload object of default size
 			Payload = new byte[MACPacketSize];
 
-			// Copy the payload to the receive packet buffer the traditional way 
-			for (var i = 0; i < payload.Length; i++)
-			{
-				Payload[i] = payload[i];
-			}
+			// Copy the payload to the receive packet buffer
+            Array.Copy(payload, 0, Payload, 0, payload.Length);
 
 			// Copy other parameters to this object 
 			Src = src;
@@ -272,11 +266,8 @@ namespace Samraksh.eMote.Net
 			//Create a packet object of default size
 			Payload = new byte[size];
 
-			// Copy the packet to the receive message buffer the traditional way 
-			for (int i = 0; i < payload.Length; i++)
-			{
-				Payload[i] = payload[i];
-			}
+			// Copy the packet to the receive message buffer 
+            Array.Copy(payload, 0, Payload, 0, payload.Length);
 
 			// Copy other parameters to this object 
 			Src = src;
@@ -300,11 +291,8 @@ namespace Samraksh.eMote.Net
 			//Create a payload object of default size
 			Payload = new byte[size];
 
-			// Copy the payload to the receive message buffer the traditional way 
-			for (var i = 0; i < payload.Length; i++)
-			{
-				Payload[i] = payload[i];
-			}
+			// Copy the payload to the receive message buffer 
+            Array.Copy(payload, 0, Payload, 0, payload.Length);
 
 			// Copy other parameters to this object 
 			Src = src;

@@ -1,0 +1,31 @@
+﻿Quick(ish) Installation of Samraksh Dev Enviornment
+=================================================
+Written on Feb 17, 2015.
+
+
+Note 1: As of Feb 2017 VS 2013 is still need for compiling v4.3, but VS 2012 Express is not needed anymore
+Note 1.5: If you have VS 2015 or 2017 edition its ok. VS 2013 can be installed along with them.
+Note 2: MF 4.3 porting kit installation is not needed anymore
+
+- Everything you need is in Dropbox at Dropbox(Samraksh)/Dev eMote/MF432/
+- Install Visual Studio Community Edition 2013, exe is available in dropbox
+- Install VS2013 update 5, exe is available in dropbox 
+- Install MF 4.3 SDK, found in dropbox
+- Checkout Samraksh MF repo
+- Checkout Samraksh TestSystem repo
+
+- Find out the highest compiler version dir from TestSystem\Compiler directory.
+- Go the MF\MicroFrameworkPK_v4_3\ dir
+
+- Run 
+> setenv_gcc.cmd compiler_version compiler_dir
+
+The above command should finish without any error or warning. If it complains about VS or VC++ missing, then something is wrong.
+
+You are all set to compile the Emote solutions. Compile using
+
+> msbuild /t:clean /maxcpucount /p:memory=FLASH,flavor=release tinyclr.proj
+> msbuild /t:build /maxcpucount /p:memory=FLASH,flavor=release tinyclr.proj
+
+
+

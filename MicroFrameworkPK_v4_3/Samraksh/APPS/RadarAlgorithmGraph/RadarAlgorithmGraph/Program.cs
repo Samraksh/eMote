@@ -1,4 +1,5 @@
-﻿using System;
+﻿#region hide
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ using System.Runtime.InteropServices;
 namespace testchart2
 {
     static class Program
-    {
+    {        
         [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern int Test(int a);
         [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -57,7 +58,7 @@ namespace testchart2
 
             private System.ComponentModel.IContainer components = null;
             System.Windows.Forms.DataVisualization.Charting.Chart chart1;
-
+        #endregion
             #region arcTan table
             static int[] arcTan = new int[]{
                      0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
@@ -164,9 +165,8 @@ namespace testchart2
                      3188, 3189, 3189, 3190, 3190, 3191, 3191, 3192, 3192, 3193, 3193, 3194, 3194, 3195, 3195, 3196, 3196, 3197, 3197, 3198, 3198, 3199, 3199, 3200, 3200, 3201, 3201, 3202, 3202, 3203, 3203, 3204, 3204, 3205, 3205, 3206, 3206, 3207, 3207, 3208,
                      3208, 3209, 3209, 3210, 3210, 3211, 3211, 3212, 3212, 3213, 3213, 3214, 3214, 3215, 3215, 3216, 3216
                     };
-            #endregion
-            #region variables
-            static int MAX_IQ_REJECTION = 600;
+            #endregion            
+            static int MAX_IQ_REJECTION = 4000;
             static int wPhase = 0, uwPhase = 0, wPhase_prev = 0, uwPhase_prev = 0;
             static double wPhaseApprox = 0, uwPhaseApprox = 0, wPhase_prevApprox = 0, uwPhase_prevApprox = 0;
             //static int wPhaseMaxApprox = 0, uwPhaseMaxApprox = 0, wPhase_prevMaxApprox = 0, uwPhase_prevMaxApprox = 0;
@@ -179,6 +179,8 @@ namespace testchart2
             //unsafe static HeapTrack* unwrapMedianZero;
             //unsafe static HeapTrack* unwrapMedianMax;
 
+            static int ADCBufferSize = 128;
+
             static int INITIAL_ADJUST_SAMPLE_CNT = 10;
             static int IQ_ADJUSTMENT_PERIOD = 80;
             static int adjustmentIQPeriod = IQ_ADJUSTMENT_PERIOD;
@@ -188,14 +190,23 @@ namespace testchart2
             static int prevIQrejectionValue = IQRejectionToUse;
 
             static bool fixIQRjections = false;
-            static int IQRejectionToFixTo = 45;
+            static int IQRejectionToFixTo = 550;
             static BinaryWriter outPut;
-            // NEW
-            static float threshold = 3f; // half of what we should enter into radar app
+
+            static float threshold = 4f; // double of what we should enter into radar app
             static int detection = 0;
             static int M = 2;
-            static int N = 4;
+            static int N = 3;
+            static int USE_TARGET_FILTER = 2; // 0 - don't use any small target filter, 1 - use sample suppression, 2 - use walk level suppression
+            static int targetFilter = 310;
+            static int ADJUST_RADAR_MEDIAN = 1;
+            static int ADJUST_SCALING_PARAMETER = 1;
+            static double adjustmentParameter = 1;
+            static int adjustmentParameterStepSize = 4;
+            static int time = 8;
+            static int graphScalingFactor = 40; // this helps some graphs look better (1 is no scaling)
 
+            static int contDetectCnt = -1;
             static int RAW_UNWRAP_RESULT_DATA = 0;
 
             enum PI
@@ -222,25 +233,29 @@ namespace testchart2
             static ushort[] radarQMedian = new ushort[dataCntMax];
             static ushort[] radarIMedian = new ushort[dataCntMax];
 
-            static int ADJUST_RADAR_MEDIAN = 1;
-            static double adjustmentParameter = 0.9;
+            
 
             static int xTrackSampleCnt = 300; //unwrap phase median (background noise)
-            static int yTrackSampleCnt = 1200; //rawQ median
+            static int yTrackSampleCnt = 100; //rawQ median
 
             static int wTrackSampleCnt = 100;
-            static int zTrackSampleCnt = 100; 
+            static int zTrackSampleCnt = 100;
 
             static int size = 128;
             static UInt16 medianI = 2040;
             static UInt16 medianQ = 2040;
             //static UInt16 qsmedianI = 2040;
             //static UInt16 qsmedianQ = 2040;
+            static int DetectLength = 0;
+            static Int16 maxMinValueI = 0;
+            static Int16 maxMinValueQ = 0;
 
             //static bool detection = false;
             static UInt16[] prevBufferI = new UInt16[size];
             static UInt16[] prevBufferQ = new UInt16[size];
-            #endregion
+
+            static int countOverTarget = 0;
+            
             #region read in samples from file
             static bool readInSamples(BinaryReader r, UInt16[] I, UInt16[] Q, int size)
             {
@@ -463,7 +478,78 @@ namespace testchart2
                     }
                 }
             }
+            static Int16 findMaxOffset(Int16[] buffer, Int32 length)
+            {
+                Int16 max = 2048;
+                Int16 min = 2048;
+
+                for (int i = 0; i < length; i++)
+                {
+                    if (buffer[i] > max)
+                        max = buffer[i];
+                    if (buffer[i] < min)
+                        min = buffer[i];
+                }
+                    if ((max - 2048) > (2048 - min))
+                        return (Int16)(Math.Abs(max));
+                    else
+                        return (Int16)(Math.Abs(min));
+            }
             #endregion
+            static int partitions(int low, int high, Int16[] buffer)
+            {
+                int p = low, r = high, x = buffer[r], i = p - 1;
+                Int16 tempVal;
+                for (int j = p; j <= r - 1; j++)
+                {
+                    if (buffer[j] <= x)
+                    {
+                        i++;
+                        tempVal = buffer[i];
+                        buffer[i] = buffer[j];
+                        buffer[j] = tempVal;
+                    }
+                }
+                tempVal = buffer[i + 1];
+                buffer[i + 1] = buffer[r];
+                buffer[r] = tempVal;
+
+                return i + 1;
+            }
+
+            static Int16 findMedian(Int16[] buffer, Int32 length)
+            {
+                int left = 0;
+                int right = length - 1;
+                int kth = (int)(length >> 1); // divide by 2
+
+                Int16[] iBuffer = new Int16[length];
+                int i;
+                for (i = 0; i < length; i++)
+                {
+                    iBuffer[i] = (Int16)buffer[i];
+                }
+
+                while (true)
+                {
+                    int pivotIndex = partitions(left, right, iBuffer);
+
+                    int len = pivotIndex - left + 1;
+
+                    if (kth == len)
+                    {
+                        //buffer[0] = buffer[pivotIndex]; // for debugging median
+                        return iBuffer[pivotIndex];
+                    }
+                    else if (kth < len)
+                        right = pivotIndex - 1;
+                    else
+                    {
+                        kth = kth - len;
+                        left = pivotIndex + 1;
+                    }
+                }
+            }
             #region m of n
             class Counter
             {
@@ -536,6 +622,10 @@ namespace testchart2
                 int minPhaseMax = 0, maxPhaseMax = 0;
                 int minPhaseApprox = 0, maxPhaseApprox = 0;
                 int initialPhaseApprox = 0;
+	            int maxOffsetQ = 2048;
+	            int maxOffsetI = 2048;
+	            int minOffsetQ = 2048;
+	            int minOffsetI = 2048;
 
                 Int16[] iBufferI = new Int16[length];
                 Int16[] iBufferQ = new Int16[length];
@@ -543,10 +633,24 @@ namespace testchart2
                 crossUnwrappedPhaseMax = 0;
                 crossUnwrappedPhaseZero = 0;
 
+                countOverTarget = 0;
+
                 for (i = 0; i < length; i++)
                 {
                     iBufferI[i] = (Int16)(bufferI[i] - medianI);
+                    if (iBufferI[i] > maxOffsetI)
+                        maxOffsetI = iBufferI[i];
+                    if (iBufferI[i] < minOffsetI)
+                        minOffsetI = iBufferI[i];
                     iBufferQ[i] = (Int16)(bufferQ[i] - medianQ);
+                    if (iBufferQ[i] > maxOffsetQ)
+                        maxOffsetQ = iBufferQ[i];
+                    if (iBufferQ[i] < minOffsetQ)
+                        minOffsetQ = iBufferQ[i];
+                    if (Math.Abs(iBufferI[i] + iBufferQ[i]) > targetFilter)
+                    {
+                        countOverTarget++;
+                    }
                     unwrappedPhase = (unwrapPhase(iBufferI[i], iBufferQ[i], noiseRejection) >> 12);	// divide by 4096
                     // scaling and using abs on cross product result
                     //crossUnwrappedPhase += (int)(Math.Abs((double)unwrapCrossProduct(iBufferI[i], iBufferQ[i], noiseRejection)*2*Math.PI));                    
@@ -591,6 +695,19 @@ namespace testchart2
                 crossUnwrappedPhaseZero = (Math.Abs(crossUnwrappedPhaseZero));
                 crossUnwrappedPhaseMax = (Math.Abs(crossUnwrappedPhaseMax));
                 //return (int)((maxPhase - minPhase) / (2 * Math.PI));
+
+                maxMinValueI = findMaxOffset(iBufferI, length);
+                maxMinValueQ = findMaxOffset(iBufferQ, length);
+
+                for (i = 0; i < length; i++)
+                {
+                    iBufferI[i] = Math.Abs(iBufferI[i]);
+                    iBufferQ[i] = Math.Abs(iBufferQ[i]);
+                }
+                Int16 medI = findMedian(iBufferI, length);
+                Int16 medQ = findMedian(iBufferQ, length);
+                //System.Diagnostics.Debug.WriteLine("| " + medI.ToString() + " " + medQ.ToString() + " |");
+                
                 return (int)((maxPhase - minPhase));
             }
             #endregion
@@ -764,11 +881,10 @@ namespace testchart2
             }
             #endregion
             #region main
-            static int processPhase(UInt16[] bufferI, UInt16[] bufferQ, Int32 length, System.Windows.Forms.DataVisualization.Charting.Series normalUnwrapSeries, System.Windows.Forms.DataVisualization.Charting.Series approxUnwrapSeries, System.Windows.Forms.DataVisualization.Charting.Series crossSeries, System.Windows.Forms.DataVisualization.Charting.Series detectionSeries)
+            static int processPhase(UInt16[] bufferI, UInt16[] bufferQ, Int32 length, System.Windows.Forms.DataVisualization.Charting.Series normalUnwrapSeries, System.Windows.Forms.DataVisualization.Charting.Series approxUnwrapSeries, System.Windows.Forms.DataVisualization.Charting.Series crossSeries, System.Windows.Forms.DataVisualization.Charting.Series detectionSeries, System.Windows.Forms.DataVisualization.Charting.Series humanDetectionSeries, System.Windows.Forms.DataVisualization.Charting.Series debugSeries, System.Windows.Forms.DataVisualization.Charting.Series debug2Series)
             {
-                
                 //bool detection = false;
-                ushort medianQData=0;
+                ushort medianQData = 0;
                 int unwrap;
                 //Int32 backgroundDisplacementNoise = 0;
                 Int32 currentDisplacementNoise = 0;
@@ -785,7 +901,15 @@ namespace testchart2
                 zHeapTrackInsert(medianQ);
                 // tracking the raw I/Q radar median. To save time I just use one data point each pass
                 medianQData = (ushort)Math.Abs((bufferQ[0] - zHeapTrackMedian()));
-                yHeapTrackInsert(medianQData * 2);           
+                if (plotPt < 5)
+                {
+                    // This helps remove some innacurate first couple of samples from being included which throws off the graph's scale
+                    yHeapTrackInsert(100);
+                }
+                else
+                {
+                    yHeapTrackInsert(medianQData * 2);
+                }
                 /*if (dataCnt < dataCntMax)
                 {
                     double v1 = (bufferI[100] - medianI) * (bufferI[100] - medianI);
@@ -819,10 +943,28 @@ namespace testchart2
                 //currentRadarNoise = HeapTrackMedian(radarQ);
                 if (ADJUST_RADAR_MEDIAN == 1)
                 {
-                    //System.Diagnostics.Debug.WriteLine(yHeapTrackMedian().ToString());
-                    IQRejectionToUse = (int)((double)yHeapTrackMedian() * adjustmentParameter);                                        
-                    
-                } else
+                    if (ADJUST_SCALING_PARAMETER == 0)
+                    {
+                        //System.Diagnostics.Debug.WriteLine(yHeapTrackMedian().ToString());
+                        IQRejectionToUse = (int)((double)yHeapTrackMedian() * adjustmentParameter);
+                    }
+                    else
+                    {
+                        double temp = yHeapTrackMedian();
+                        if (temp > 100)
+                        {
+                            temp = temp - 100;
+                            temp = temp / adjustmentParameterStepSize;
+                            temp = adjustmentParameter + (temp * 0.1);
+                        }
+                        else
+                        {
+                            temp = adjustmentParameter;
+                        }
+                        IQRejectionToUse = (int)((double)yHeapTrackMedian() * temp);
+                    }
+                }
+                else
                 {
                     if (initialAdjustmentCnt > 0)
                     {
@@ -864,27 +1006,38 @@ namespace testchart2
                             prevIQrejectionValue = IQRejectionToUse;
                         }
                     }
-                } 
+                }
                 // capping the noise rejection to a max or min
                 if (IQRejectionToUse < 0)
                     IQRejectionToUse = 0;
                 else if (IQRejectionToUse > MAX_IQ_REJECTION)
                     IQRejectionToUse = MAX_IQ_REJECTION;
-                
-                if (fixIQRjections == true){
+
+                if (fixIQRjections == true)
+                {
                     IQRejectionToUse = IQRejectionToFixTo;
                 }
-                // copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR                
+                // copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR         
+                //System.Diagnostics.Debug.WriteLine(IQRejectionToUse.ToString());
+                //debugSeries.Points.AddXY(plotPt, IQRejectionToUse);
+                
+                debugSeries.Points.AddXY(plotPt, yHeapTrackMedian());
+                debug2Series.Points.AddXY(plotPt, IQRejectionToUse);
+
+                //debugSeries.Points.AddXY(plotPt, medianQData);
+                //debug2Series.Points.AddXY(plotPt, medianI);
+
                 unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, (ushort)wHeapTrackMedian(), (ushort)zHeapTrackMedian(), IQRejectionToUse, 0, 0, 0);
+                //System.Diagnostics.Debug.WriteLine("! " + crossUnwrappedPhase.ToString() +  " !");
                 //unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, medianI, medianQ, IQRejectionToUse, 0, 0, 0);
 
                 //normalUnwrapSeries.Points.AddXY(plotPt, unwrap/6.28318);
                 //approxUnwrapSeries.Points.AddXY(plotPt, approxUnwrappedPhase / 6.28318);
                 normalUnwrapSeries.Points.AddXY(plotPt, unwrap);
                 approxUnwrapSeries.Points.AddXY(plotPt, approxUnwrappedPhase);
-                crossSeries.Points.AddXY(plotPt, crossUnwrappedPhase);
+                crossSeries.Points.AddXY(plotPt, crossUnwrappedPhase * graphScalingFactor);
 
-                
+
                 /*
 
                 // if the AD callbacks per second is not yet set we will attempt to read the correct value now and then adjust the threshold appropriately
@@ -900,41 +1053,79 @@ namespace testchart2
                 mOfnCounter.count += 1;
                 if (crossUnwrappedPhase > threshold)
                 {
-                    mOfnDetector.Update(mOfnCounter.count, 1);
+                    if ( ((maxMinValueI < targetFilter) && (maxMinValueQ < targetFilter)) && USE_TARGET_FILTER == 1)
+                    {
+                        // here we suppress the entire sample if the max I and max Q are both below a certain level
+                        mOfnDetector.Update(mOfnCounter.count, 0);
+                        //System.Diagnostics.Debug.WriteLine("SUPPRESSED *****" + plotPt.ToString() + "*****" + medianI.ToString() + " " + medianQ.ToString() + " " + maxMinValueI.ToString() + " " + maxMinValueQ.ToString());
+                    }
+                    else
+                    {
+                        mOfnDetector.Update(mOfnCounter.count, 1);
+                        //System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****" + medianI.ToString() + " " + medianQ.ToString() + " " + maxMinValueI.ToString() + " " + maxMinValueQ.ToString());
+                    }
                 }
                 else
                 {
                     mOfnDetector.Update(mOfnCounter.count, 0);
                     // we are only adding the current unwrap value to the background noise tracking if we did not detect anything
-                    
+
                 }
                 if (mOfnDetector.state == 1 && mOfnDetector.prevstate == 0)
                 {
-                    //hal_printf("Detection\r\n");
+                    DetectLength = 1;                    
                     detection = 10;
-                    //System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****");
+                    contDetectCnt += 2;
+                }
+                else if (mOfnDetector.state == 1 && mOfnDetector.prevstate == 1)
+                {
+                    DetectLength++;
+                    //System.Diagnostics.Debug.WriteLine("~~~~" + DetectLength.ToString());
+                    contDetectCnt += 2;
                 }
                 else
                 {
                     detection = 0;
+                    contDetectCnt = -1;
+                    //System.Diagnostics.Debug.WriteLine("####" + DetectLength.ToString());
                 }
-                if (crossUnwrappedPhase >= 2 * threshold)
+                /*if (crossUnwrappedPhase >= 2 * threshold)
                 {
                     detection = 10;
                     //System.Diagnostics.Debug.WriteLine("*****" + plotPt.ToString() + "*****");
+                }*/
+                if ((contDetectCnt > time) )
+                {
+                    if (USE_TARGET_FILTER==2){
+                        if (((double)countOverTarget)/(time*ADCBufferSize/2) <= 0.05){
+                            // not enough samples are above the small target suppression target
+                            humanDetectionSeries.Points.AddXY(plotPt, 0);
+                        }
+                        else
+                        {
+                            humanDetectionSeries.Points.AddXY(plotPt, graphScalingFactor * 10);
+                        }
+                    }
+                    else {
+                        humanDetectionSeries.Points.AddXY(plotPt, graphScalingFactor*10);
+                    }
+
+                    //System.Diagnostics.Debug.WriteLine("human @ " + plotPt.ToString());
                 }
+                else
+                    humanDetectionSeries.Points.AddXY(plotPt, 0);
 
                 detectionSeries.Points.AddXY(plotPt, detection);
-                
+
                 //if (debugVal == 6)
                 //    hal_printf("%d %d %d %d %d %d %d\r\n", getUnwrapMax(), unwrap, getUnwrapZero(), HeapTrackMedian(unwrapMedianMax), HeapTrackMedian(unwrapMedian), HeapTrackMedian(unwrapMedianZero), IQRejectionToUse);
 
 
                 //xHeapTrackInsert(unwrap);
-                System.Diagnostics.Debug.WriteLine(unwrap.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString());
+                //System.Diagnostics.Debug.WriteLine(unwrap.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString());
 
                 plotPt++;
-                xHeapTrackInsert(crossUnwrappedPhase);                     
+                xHeapTrackInsert(crossUnwrappedPhase);
                 //System.Diagnostics.Debug.Write(crossUnwrappedPhaseZero.ToString() + " " + crossUnwrappedPhase.ToString() + " " + crossUnwrappedPhaseMax.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString() + "   ");
 
                 return unwrap;
@@ -949,6 +1140,7 @@ namespace testchart2
 
             private void Form1_Load(object sender, EventArgs e)
             {
+                this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
                 chart1.Series.Clear();
                 var normalUnwrapSeries = new System.Windows.Forms.DataVisualization.Charting.Series
                 {
@@ -962,7 +1154,7 @@ namespace testchart2
                 var approxUnwrapSeries = new System.Windows.Forms.DataVisualization.Charting.Series
                 {
                     Name = "Approx Unwrap",
-                    Color = System.Drawing.Color.Red,
+                    Color = System.Drawing.Color.Blue,
                     IsVisibleInLegend = false,
                     IsXValueIndexed = true,
                     ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
@@ -980,7 +1172,34 @@ namespace testchart2
                 var detectionSeries = new System.Windows.Forms.DataVisualization.Charting.Series
                 {
                     Name = "Detections",
+                    Color = System.Drawing.Color.Green,
+                    IsVisibleInLegend = false,
+                    IsXValueIndexed = true,
+                    //ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Range
+                    ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+                };
+                var humanDetectionSeries = new System.Windows.Forms.DataVisualization.Charting.Series
+                {
+                    Name = "HumanDetections",
                     Color = System.Drawing.Color.Red,
+                    IsVisibleInLegend = false,
+                    IsXValueIndexed = true,
+                    //ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Range
+                    ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+                };
+                var debugSeries = new System.Windows.Forms.DataVisualization.Charting.Series
+                {
+                    Name = "Debug",
+                    Color = System.Drawing.Color.DarkCyan,
+                    IsVisibleInLegend = false,
+                    IsXValueIndexed = true,
+                    //ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Range
+                    ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line
+                };
+                var debug2Series = new System.Windows.Forms.DataVisualization.Charting.Series
+                {
+                    Name = "Debug2",
+                    Color = System.Drawing.Color.DarkOliveGreen,
                     IsVisibleInLegend = false,
                     IsXValueIndexed = true,
                     //ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Range
@@ -1018,9 +1237,7 @@ namespace testchart2
                 mOfnDetector = new MoutOfNDetector();
                 mOfnCounter.count = 0;
                 mOfnDetector.Init(M, N);
-
-                // ADJUSTME
-                // Create the new, empty data file.
+                
                 string fileName;
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\generated.data";
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\south.bbs";
@@ -1030,7 +1247,7 @@ namespace testchart2
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\test05.bbs";
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\i40-60 walk.bbs";
                 //fileName = @"..\..\recorded.bbs";
-                //fileName = @"..\..\recorded.int";
+                fileName = @"..\..\recorded.int";
                 //fileName = @"..\..\office_noise.bbs";
                 //fileName = @"E:\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\grass near tree.bbs";
                 //fileName = @"E:\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\room1.bbs";
@@ -1069,10 +1286,43 @@ namespace testchart2
                 //fileName= @"D:\Work\radar\data collects\wwf-test-03 board\omac radar inteference test\radar only no rx tx - power cycle.int";
                 //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-11 overnight noise\basement 5094-03 radar csma overnight.bbs";
                 //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\overnight radar csma board 2 on stand.int";
-                fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-12 overnight noise\radar csma overnight2.int";
-                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
-                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
-                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-5 radio interference test\";
+                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\10-12 overnight noise\radar csma overnight2.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-13\30670 on brown board.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-13\cleaned 30670 hour on stand.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\32203\32203 raw data collect.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-14\bipole on stand.int";                
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-14\bipole brown board on stand.int"; 
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 in woods board on stand within branches.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 bush brown board new position.int";                
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 bush brown board normal position.int";  
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 on tree trunk on block of wood upside down.int";                
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 upside down on stand in log.int";   
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24783 walk pattern antenna away from walk pattern.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise 2.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 inside tree trunk on stand.int"; 
+
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise problem.int";                
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 background noise NO antenna.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24783 background noise.int";
+                fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\29896 walk pattern.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\24738 walk pattern.int";                
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\2-17 noise tests\2-17 raw radar tests\26315 walk pattern.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 in woods stand in branches.int";                 
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\30670 2-16\2-16 30670 bush wind problem.int";
+                fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\3-2 30670 cold night\cold overnight.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\3-2 30670 cold night\close zoom.bbs";
+                //fileName = @"C:\Users\Chris\Desktop\out.bbs";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\radar cold tests\cooler tests\3-8 baseline cooler.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\radar cold tests\cooler tests\3-9 30670 cooler test1.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\radar cold tests\cooler tests\3-10 30670 cooler test2.int";                
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\radar cold tests\3-2 30670 overnight cold.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\radar cold tests\3-3 30670 cold with board.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\radar cold tests\3-4 30670 cold overnight.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\radar cold tests\3-5 30670 cold with board.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\radar cold tests\3-11 26315 overnight outside.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\radar cold tests\3-12 26315 overnight outside.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\radar cold tests\3-13 30670 snow.int";
+                //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\group noise 3 min.int";
 
                 if (fileName.Contains(".int"))
                 {
@@ -1082,7 +1332,7 @@ namespace testchart2
                 {
                     RAW_UNWRAP_RESULT_DATA = 0;
                 }
-                string outFileName = fileName.Substring(0,fileName.Length-4) + ".bbs";
+                string outFileName = fileName.Substring(0, fileName.Length - 4) + ".bbs";
                 if (RAW_UNWRAP_RESULT_DATA == 1)
                 {
                     FileStream stream = new FileStream(outFileName, FileMode.Create);
@@ -1122,7 +1372,7 @@ namespace testchart2
                     //if ((graphOnlyCnt > 800) && (graphOnlyCnt < 810))
                     //if ((graphOnlyCnt < 500))
                     {
-                        unwrapRet = processPhase(IBuffer, QBuffer, size, normalUnwrapSeries, approxUnwrapSeries, crossSeries, detectionSeries);
+                        unwrapRet = processPhase(IBuffer, QBuffer, size, normalUnwrapSeries, approxUnwrapSeries, crossSeries, detectionSeries, humanDetectionSeries, debugSeries, debug2Series);
                         /*for (int j = 0; j<size; j++){
                             rawSeries.Points.AddXY(plotPt, IBuffer[j]);
                             
@@ -1174,7 +1424,7 @@ namespace testchart2
                                 int iqrejectionValue = int.Parse(intString);
                                 int returnChar = r.ReadChar();
                                 int dataMarker = r.ReadUInt16();
-                                System.Diagnostics.Debug.Write(unwrapResultZero.ToString() + " " + unwrapResult.ToString() + " " + unwrapResultMax.ToString() + " " + unwrapMedianResult.ToString() + " " + iqrejectionValue.ToString()+"          ");
+                                //System.Diagnostics.Debug.Write(unwrapResultZero.ToString() + " " + unwrapResult.ToString() + " " + unwrapResultMax.ToString() + " " + unwrapMedianResult.ToString() + " " + iqrejectionValue.ToString() + "          ");
                             }
                             catch (Exception ex)
                             {
@@ -1203,12 +1453,15 @@ namespace testchart2
                 //this.chart1.Series.Add(normalUnwrapSeries);
                 //this.chart1.Series.Add(approxUnwrapSeries);
                 this.chart1.Series.Add(crossSeries);
-                this.chart1.Series.Add(detectionSeries);
+                //this.chart1.Series.Add(detectionSeries);
+                this.chart1.Series.Add(humanDetectionSeries);
+                this.chart1.Series.Add(debugSeries);
+                //this.chart1.Series.Add(debug2Series);
                 //this.chart1.Series.Add(rawSeries);
-                //this.chart1.ChartAreas[0].AxisX.Minimum = 4000;
-                //this.chart1.ChartAreas[0].AxisX.Maximum = 5000;
-                //this.chart1.ChartAreas[0].AxisY.Minimum = 0;
-                this.chart1.ChartAreas[0].AxisY.Maximum = 12;
+                //this.chart1.ChartAreas[0].AxisX.Minimum = 5;
+                //this.chart1.ChartAreas[0].AxisX.Maximum = 85937;
+                //this.chart1.ChartAreas[0].AxisY.Minimum = 50;
+                //this.chart1.ChartAreas[0].AxisY.Maximum = 400;
 
                 chart1.Invalidate();
             }

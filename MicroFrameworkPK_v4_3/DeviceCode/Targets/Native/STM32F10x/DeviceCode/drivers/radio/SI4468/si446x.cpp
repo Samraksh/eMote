@@ -229,7 +229,7 @@ int si446x_part_info()
 	
 	// RF4463PRO board from niceRF has ROMID 6 == revC2A
 	// Unfortunately it looks like different chip revs need different treatment. So must verify ROMID
-	hal_printf("\nROMID = %d\n", Si446xCmd.PART_INFO.ROMID);
+	si446x_debug_print(DEBUG01, "\nROMID = %d\n", Si446xCmd.PART_INFO.ROMID);
 	ret += SI_ASSERT(Si446xCmd.PART_INFO.ROMID == ROMC2A, "Fatal: Bad ROMID\r\n");
 	ret += SI_ASSERT(Si446xCmd.PART_INFO.PART  == PART_SI446X, "Fatal: Bad Part\r\n");
 	
