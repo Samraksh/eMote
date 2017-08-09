@@ -14,8 +14,8 @@ void* csmaReceiveHandler(void *msg, UINT16 Size){
 	return (void*) g_csmaMacObject.ReceiveHandler((Message_15_4_t *) msg, Size);
 }
 
-void csmaSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus){
-	g_csmaMacObject.SendAckHandler(msg, Size, status, radioAckStatus);
+void csmaSendAckHandler(void* msg, UINT16 Size, RadioSendStatus_t status){
+	g_csmaMacObject.SendAckHandler(msg, Size, status);
 }
 
 BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param){
@@ -333,7 +333,7 @@ void csmaMAC::UpdateNeighborTable(){
 	if(numberOfDeadNeighbors > 0)
 	{
 		DEBUG_PRINTF_CSMA("number of dead neighbors: %d\r\n",numberOfDeadNeighbors);
-		NeighborChangeFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
+		MACNeighborChangeFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
 		// Check if neighbor change has been registered and the user is interested in this information
 		if(appHandler != NULL)
@@ -477,7 +477,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 				neighborTableCommonParameters_two_t.seedUpdateIntervalinSlots = 0;
 				if(g_NeighborTable.InsertNeighbor(&neighborTableCommonParameters_One_t, &neighborTableCommonParameters_two_t) == DS_Success)
 				{
-					NeighborChangeFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
+					MACNeighborChangeFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
 					// Check if  a neighbor change has been registered
 					if(appHandler != NULL)
@@ -567,19 +567,47 @@ BOOL csmaMAC::RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 }
 
 
-void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radioAckStatus){
+void csmaMAC::SendAckHandler(void* msg, int Size, RadioSendStatus_t status){
 #ifdef DEBUG_CSMAMAC
 	Message_15_4_t* temp = (Message_15_4_t *)msg;
 	UINT8* rcv_payload =  temp->GetPayload();
 #endif
 	switch(status)
 	{
-		case NetworkOperations_Success:
+		case RadioSendStatus_PacketAccepted: //wait for the end of the packet
+		case RadioSendStatus_SendInitiated:
+			break;
+		case RadioSendStatus_SendACKed:
+		case RadioSendStatus_SendNACKed:
+		case RadioSendStatus_ACKTimeout:
+		case RadioSendStatus_TXCompleteNoACK: //case NetworkOperations_Success:
 			{
 				DEBUG_PRINTF_CSMA("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 				//VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
-				if(SendAckFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->SendAckHandler)
-					(*appHandler)(msg, Size, status, radioAckStatus);
+				MACEventHandler* mchandler =  g_csmaMacObject.GetAppHandler(CurrentActiveApp);
+				if(mchandler){
+					MACSendAckFuncPtrType appHandler = mchandler->GetSendAckHandler();
+					if(appHandler){
+						switch(status){
+							case RadioSendStatus_SendACKed:
+								(*appHandler)(msg, Size, MACSendStatus_SendSuccess);
+								break;
+							case RadioSendStatus_SendNACKed:
+								(*appHandler)(msg, Size, MACSendStatus_SendFailed);
+								break;
+							case RadioSendStatus_ACKTimeout:
+								(*appHandler)(msg, Size, MACSendStatus_SendFailed);
+								break;
+							case RadioSendStatus_TXCompleteNoACK:
+								(*appHandler)(msg, Size, MACSendStatus_SendSuccess);
+								break;
+							break;
+
+						}
+					}
+				}
+
+
 				// Attempt to send the next packet out since we have no scheduler
 				if(!g_send_buffer.IsBufferEmpty())
 				{
@@ -587,8 +615,9 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 				}
 			}
 			break;
-		
-		case NetworkOperations_Busy:
+		case RadioSendStatus_SendFail:
+		case RadioSendStatus_PacketRejected:
+		case RadioSendStatus_Busy: //case NetworkOperations_Busy:
 			//TODO: when resend is called, packet should be placed at front of buffer. Right now it is at end of buffer.
 			DEBUG_PRINTF_CSMA("Resending <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 			Resend(msg, Size);

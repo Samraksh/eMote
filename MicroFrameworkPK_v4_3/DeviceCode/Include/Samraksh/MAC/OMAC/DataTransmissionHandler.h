@@ -106,7 +106,7 @@ private:
 	UINT64 CalculateNextTxMicro(UINT16 dest);
 	void SelectRetrySlotNumForNeighborBackOff();
 public:
-	void SendACKToUpperLayers(Message_15_4_t* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus);
+	void SendACKToUpperLayers(Message_15_4_t* msg, UINT16 Size, MACSendStatus_t status);
 private:
 	Message_15_4_t* SelectPacketForDest(UINT16 m_outgoingEntryPtr_dest_);
 
@@ -125,7 +125,7 @@ public:
 	void DropPacket();
 	bool Send();
 	void SendRetry();
-	void SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus);
+	void SendACKHandler(Message_15_4_t* rcv_msg, RadioSendStatus_t status);
 	void ReceiveDATAACK(UINT16 sourceaddress);
 	void FailsafeStop();
 

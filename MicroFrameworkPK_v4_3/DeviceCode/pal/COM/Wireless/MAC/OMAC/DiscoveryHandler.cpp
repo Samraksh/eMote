@@ -298,7 +298,7 @@ void DiscoveryHandler::CreateMessage(DiscoveryMsg_t* discoveryMsg){
 /*
  *
  */
-void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus status){
+void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len){
 	VirtualTimerReturnMessage rm;
 	OMAC_CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, FALSE);
 	OMAC_CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, TRUE);

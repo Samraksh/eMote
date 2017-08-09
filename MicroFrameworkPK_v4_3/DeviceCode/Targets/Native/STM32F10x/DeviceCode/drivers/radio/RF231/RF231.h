@@ -520,7 +520,7 @@ private:
 	BOOL Careful_State_Change(uint32_t target); // Our register enums are a mess. Until I fix. --NPS
 	BOOL Careful_State_Change_Extended(radio_hal_trx_status_t target);
 	BOOL Careful_State_Change_Extended(uint32_t target);
-	void* Send_Ack(void *msg, UINT16 size, NetOpStatus status, UINT8 tracStatus);
+	void* Send_Ack(void *msg, UINT16 size, NetOpStatus status, TRAC_STATUS tracStatus);
 
 	RadioEventHandler Radio_event_handler;
 

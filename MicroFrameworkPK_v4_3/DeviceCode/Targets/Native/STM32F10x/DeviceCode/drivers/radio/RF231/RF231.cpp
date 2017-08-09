@@ -147,10 +147,43 @@ static void interrupt_mode_check() {
 #endif
 }
 
-void* RF231Radio::Send_Ack(void *msg, UINT16 size, NetOpStatus status, UINT8 tracStatus) {
-	////SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
-	////(*AckHandler)(msg, size, status);
-	(Radio_event_handler.GetSendAckHandler())(msg, size, status, tracStatus);
+void* RF231Radio::Send_Ack(void *msg, UINT16 size, NetOpStatus status, TRAC_STATUS tracStatus) {
+
+		RadioSendAckFuncPtrType sendackptr = (Radio_event_handler.GetSendAckHandler());
+		if(sendackptr) {
+			switch(status){
+				case NetworkOperations_Success:
+					switch(tracStatus){
+						case TRAC_STATUS_SUCCESS_DATA_PENDING:
+						case TRAC_STATUS_SUCCESS: //Check for ack requested
+							(sendackptr)(msg, size, RadioSendStatus_SendACKed);
+							break;
+						case TRAC_STATUS_CHANNEL_ACCESS_FAILURE:
+							(sendackptr)(msg, size, RadioSendStatus_Busy);
+							break;
+						case TRAC_STATUS_NO_ACK:
+							(sendackptr)(msg, size, RadioSendStatus_ACKTimeout);
+							break;
+						case TRAC_STATUS_INVALID:
+						default:
+							break;
+
+					}
+					break;
+				case NetworkOperations_Fail:
+					(sendackptr)(msg, size, RadioSendStatus_PacketRejected);
+					break;
+				case NetworkOperations_Busy:
+					(sendackptr)(msg, size, RadioSendStatus_Busy);
+					break;
+				case NetworkOperations_BadPacket:
+					(sendackptr)(msg, size, RadioSendStatus_PacketRejected);
+					break;
+				default:
+				break;
+			}
+		}
+
 	if (status != NetworkOperations_Success) return NULL;
 	else return msg;
 }
@@ -2365,11 +2398,12 @@ void RF231Radio::HandleInterrupt()
 
 			state = STATE_PLL_ON;
 
-			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & TRAC_STATUS_MASK;
+			TRAC_STATUS trx_state = static_cast<TRAC_STATUS>(ReadRegister(RF230_TRX_STATE) & TRAC_STATUS_MASK);
 			// Call radio send done event handler when the send is complete
 			//SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 			//(*AckHandler)(tx_msg_ptr, tx_length,NetworkOperations_Success);
-			(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length, NetworkOperations_Success, trx_state);
+//			(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length, NetworkOperations_Success, trx_state);
+			Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Success, trx_state);
 
 			cmd = CMD_NONE;
 
@@ -2466,7 +2500,7 @@ void RF231Radio::HandleInterrupt()
 #endif
 			//CPU_GPIO_SetPinState( RF231_TRX_TX_END, TRUE );
 			//CPU_GPIO_SetPinState( RF231_TRX_TX_END, FALSE );
-			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & TRAC_STATUS_MASK;
+			TRAC_STATUS trx_state = static_cast<TRAC_STATUS>(ReadRegister(RF230_TRX_STATE) & TRAC_STATUS_MASK);
 			//if(trx_state == 0x00){	//Success
 				//hal_printf("(CMD_TX_ARET)trx_state: %d\n", trx_state);
 				//CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
@@ -2483,7 +2517,8 @@ void RF231Radio::HandleInterrupt()
 						hal_printf("ACK seq number: %d\n", header->dsn);
 					}
 				}*/
-				(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length, NetworkOperations_Success, trx_state);
+//				(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length, NetworkOperations_Success, trx_state);
+				Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Success, trx_state);
 			//}
 			//else if(trx_state == 0x00){	//Success)
 

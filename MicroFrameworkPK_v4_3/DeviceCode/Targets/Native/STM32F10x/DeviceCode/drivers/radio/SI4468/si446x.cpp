@@ -853,6 +853,8 @@ uint8_t radio_comm_SendCmdGetResp(uint8_t cmdByteCount, uint8_t* pCmdData, uint8
     return radio_comm_GetResp(respByteCount, pRespData);
 }
 
+
+
 // END RADIO COMMON
 // --------------------------------------------------------
 // RADIO HAL

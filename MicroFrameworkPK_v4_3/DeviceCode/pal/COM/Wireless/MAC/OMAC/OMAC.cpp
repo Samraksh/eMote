@@ -67,7 +67,7 @@ BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 /*
  *
  */
-void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus){
+void OMACSendAckHandler(void* msg, UINT16 Size, RadioSendStatus_t status){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(DATA_TX_ACK_PIN, TRUE);
 #endif
@@ -76,19 +76,22 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 	//Set flag when send is complete
 	g_OMAC.isSendDone = true;
 
-	if(status != NetworkOperations_Success){
-		return;
-	}
 	if(Size == sizeof(softwareACKHeader)){ //For not this type is not expected.
 		if(g_OMAC.m_omac_scheduler.m_execution_started && g_OMAC.m_omac_scheduler.m_state == I_DATA_RCV_PENDING){
-			g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
+			if(status == RadioSendStatus_TXCompleteNoACK || status == RadioSendStatus_SendACKed){
+				g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
+			}
+
 		}
 	}
 	else{
 		//Demutiplex packets received based on type
 		switch(rcv_msg->GetHeader()->payloadType){
 		case MFM_OMAC_DISCOVERY:
-			g_OMAC.m_omac_scheduler.m_DiscoveryHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize(),status);
+			if(status == RadioSendStatus_TXCompleteNoACK || status == RadioSendStatus_SendACKed){
+				g_OMAC.m_omac_scheduler.m_DiscoveryHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize());
+			}
+
 			break;
 		case MFM_OMAC_ROUTING:
 			break;
@@ -101,15 +104,17 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 		case MFM_OMAC_DATA_ACK:
 			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 				if(g_OMAC.m_omac_scheduler.m_execution_started && g_OMAC.m_omac_scheduler.m_state == I_DATA_RCV_PENDING ){
-					g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
+					if(status == RadioSendStatus_TXCompleteNoACK || status == RadioSendStatus_SendACKed){
+						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
+					}
 				}
 			}
 			break;
 		case MFM_DATA:
 		default:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
-			if(g_OMAC.m_omac_scheduler.m_execution_started && g_OMAC.m_omac_scheduler.m_state == I_DATA_SEND_PENDING && radioAckStatus == NetworkOperations_Success){
-				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendACKHandler(rcv_msg, radioAckStatus);
+			if(g_OMAC.m_omac_scheduler.m_execution_started && g_OMAC.m_omac_scheduler.m_state == I_DATA_SEND_PENDING){
+				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendACKHandler(rcv_msg, status);
 			}
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
 			break;
@@ -1258,12 +1263,12 @@ UINT8 OMACType::UpdateNeighborTable(){
 						//Return Packets for neighbors
 						msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailed);
 							msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						}
 						msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailed);
 							msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						}
 						//						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); //  BK: New logic enables deleting by the time sync table. We don't need to delete here.
@@ -1288,12 +1293,12 @@ UINT8 OMACType::UpdateNeighborTable(){
 
 						msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailed);
 							msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						}
 						msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailed);
 							msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						}
 
@@ -1324,7 +1329,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 #if OMAC_DEBUG_PRINTF_NEIGHCHANGE
 		is_print_neigh_table = true;
 #endif
-		NeighborChangeFuncPtrType appHandler = g_OMAC.GetAppHandler(CurrentActiveApp)->neighborHandler;
+		MACNeighborChangeFuncPtrType appHandler = g_OMAC.GetAppHandler(CurrentActiveApp)->GetNeighborChangeHandler();
 
 #if OMAC_DEBUG_PRINTF_NEIGHCHANGE
 		if(is_print_neigh_table){

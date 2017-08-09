@@ -38,17 +38,17 @@ struct MACConfig {
 //typedef  void (*MacReceiveFuncPtrType) (void *msg, UINT16 Size, UINT16 Src, BOOL Unicast, UINT8 RSSI, UINT8 LinkQuality);
 typedef void (*MACReceiveFuncPtrType) (void *msg, UINT16 arg1);
 
-typedef void (*NeighborChangeFuncPtrType) (INT16 arg2);
+typedef void (*MACNeighborChangeFuncPtrType) (INT16 arg2);
 
 // Typedef defining the signature of the send function
-typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus);
+typedef void (*MACSendAckFuncPtrType) (void* msg, UINT16 Size, MACSendStatus_t status);
 
 typedef  class MACEventHandler{
 
 public:
 	MACReceiveFuncPtrType ReceiveHandler;
-	SendAckFuncPtrType SendAckHandler;
-	NeighborChangeFuncPtrType neighborHandler;
+	MACSendAckFuncPtrType SendAckHandler;
+	MACNeighborChangeFuncPtrType neighborHandler;
 
 	MACEventHandler(){
 		ReceiveHandler = NULL;
@@ -61,12 +61,12 @@ public:
 		this->ReceiveHandler = receive_handler;
 	}
 
-	void SetSendAckHandler(SendAckFuncPtrType send_ack_handler)
+	void SetSendAckHandler(MACSendAckFuncPtrType send_ack_handler)
 	{
 		this->SendAckHandler = send_ack_handler;
 	}
 
-	void SetNeighborChangeHandler(NeighborChangeFuncPtrType neighbor_change_handler)
+	void SetNeighborChangeHandler(MACNeighborChangeFuncPtrType neighbor_change_handler)
 	{
 		this->neighborHandler = neighbor_change_handler;
 	}
@@ -76,12 +76,12 @@ public:
 		return this->ReceiveHandler;
 	}
 
-	SendAckFuncPtrType GetSendAckHandler()
+	MACSendAckFuncPtrType GetSendAckHandler()
 	{
 		return this->SendAckHandler;
 	}
 
-	NeighborChangeFuncPtrType GetNeighborChangeHandler()
+	MACNeighborChangeFuncPtrType GetNeighborChangeHandler()
 	{
 		return this->neighborHandler;
 	}

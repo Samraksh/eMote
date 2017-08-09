@@ -124,6 +124,8 @@ static radio_lock_id_t si446x_radio_lock_nofail(radio_lock_id_t id) {
 	return ret;
 }
 
+
+
 // Conditional lock set. If and only if lock owner is "cond", progress to "target".
 // IRQ mask is used due to a) gives guarantee and b) cannot false-negative and c) chain-of-custody
 // Returns: true if 'cond' was met.
@@ -238,6 +240,20 @@ static Message_15_4_t rx_msg;
 static Message_15_4_t* rx_msg_ptr;
 // END RADIO PALL STUFF
 
+//Convert the data status interupt to the standart and send it up
+void si446x_SendACKUp(void *msg, UINT16 size, NetOpStatus status){
+	RadioSendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
+	RadioSendStatus_t rt;
+	if(status == NetworkOperations_Success) rt = RadioSendStatus_TXCompleteNoACK;
+	else if(status == NetworkOperations_Busy) rt = RadioSendStatus_Busy;
+	else if(status == NetworkOperations_BadPacket) rt = RadioSendStatus_PacketRejected;
+	else if(status == NetworkOperations_Fail) rt = RadioSendStatus_SendFail;
+
+	if(AckHandler){
+		(*AckHandler)(msg, size, rt);
+	}
+}
+
 // In case we had to defer interrupt handling for any reason...
 static void int_cont_do(void *arg) {
 	si446x_debug_print(DEBUG02,"SI446X: int_cont_do()\r\n");
@@ -270,8 +286,9 @@ static void tx_cont_do(void *arg) {
 
 	si446x_debug_print(DEBUG02,"SI446X: tx_cont_do()\r\n");
 
-	SendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
-	(*AckHandler)(tx_msg_ptr, si446x_packet_size, NetworkOperations_Success, SI_DUMMY);
+//	SendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
+//	(*AckHandler)(tx_msg_ptr, si446x_packet_size, NetworkOperations_Success, SI_DUMMY);
+	si446x_SendACKUp(tx_msg_ptr, si446x_packet_size, NetworkOperations_Success);
 
 	// only unlock if TX was the source. Could overlap with RX, which overrides.
 	si446x_radio_lock_if_then_nofail(radio_lock_tx, radio_lock_none);
@@ -1020,11 +1037,14 @@ void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
 	// Do the send
 	ret = si446x_packet_send(si446x_channel, (uint8_t *) msg, size, 0, NO_TIMESTAMP, SI446x_TX_DONE_STATE);
 	if (ret != DS_Success) {
-		SendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
+//		SendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
 		switch (ret) {
-			case DS_Busy: 	(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Busy, SI_DUMMY);			break;
-			case DS_Timeout:(*AckHandler)(tx_msg_ptr, size, NetworkOperations_BadPacket, SI_DUMMY); 	break;
-			default:		(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Fail, SI_DUMMY); 		break;
+//			case DS_Busy: 	(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Busy, SI_DUMMY);			break;
+//			case DS_Timeout:(*AckHandler)(tx_msg_ptr, size, NetworkOperations_BadPacket, SI_DUMMY); 	break;
+//			default:		(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Fail, SI_DUMMY); 		break;
+		case DS_Busy: 	 	si446x_SendACKUp(tx_msg_ptr, size, NetworkOperations_Busy);		break;
+		case DS_Timeout: 	si446x_SendACKUp(tx_msg_ptr, size, NetworkOperations_BadPacket);		break;
+		default:		 	si446x_SendACKUp(tx_msg_ptr, size, NetworkOperations_Fail); 		break;
 		}
 		return msg;
 	}
@@ -1048,11 +1068,14 @@ void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime
 	// Do the send
 	ret = si446x_packet_send(si446x_channel, (uint8_t *) msg, size, eventTime, YES_TIMESTAMP, SI446x_TX_DONE_STATE);
 	if (ret != DS_Success) {
-		SendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
+//		SendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
 		switch (ret) {
-			case DS_Busy: 	(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Busy, SI_DUMMY);			break;
-			case DS_Timeout:(*AckHandler)(tx_msg_ptr, size, NetworkOperations_BadPacket, SI_DUMMY);	break;
-			default:		(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Fail, SI_DUMMY);			break;
+//			case DS_Busy: 	(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Busy, SI_DUMMY);			break;
+//			case DS_Timeout:(*AckHandler)(tx_msg_ptr, size, NetworkOperations_BadPacket, SI_DUMMY);	break;
+//			default:		(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Fail, SI_DUMMY);			break;
+		case DS_Busy: 	 	si446x_SendACKUp(tx_msg_ptr, size, NetworkOperations_Busy);		break;
+		case DS_Timeout: 	si446x_SendACKUp(tx_msg_ptr, size, NetworkOperations_BadPacket);		break;
+		default:		 	si446x_SendACKUp(tx_msg_ptr, size, NetworkOperations_Fail); 		break;
 		}
 		return msg;
 	}

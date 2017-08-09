@@ -126,6 +126,8 @@ void			si446x_hal_unregister_rx_callback();
 
 // END MF HAL FUNCTIONS
 
+void si446x_SendACKUp(void *msg, UINT16 size, NetOpStatus status);
+
 void si446x_set_debug_print(my_debug_print_t f, unsigned level);
 void si446x_reset(void);
 int si446x_part_info();

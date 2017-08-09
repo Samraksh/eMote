@@ -11,21 +11,40 @@ DS_Bug,
 };
 
 
-enum NetOpStatus{
+enum NetOpStatus{ //THis is the data status between a MAC and the upper layers
 NetworkOperations_Success,
 NetworkOperations_Fail,
-NetworkOperations_Busy,
+NetworkOperations_Busy,			// Radio retun status for CCA failure
 NetworkOperations_Full,
 NetworkOperations_Ready,
 NetworkOperations_BadPacket,
 NetworkOperations_Collision,
-NetworkOperations_SendInitiated,
+NetworkOperations_SendInitiated,			//
 NetworkOperations_SendACKed,
 NetworkOperations_SendNACKed,
 NetworkOperations_SendFailed
 };
 
+enum MACSendStatus_t {
+	MACSendStatus_SendInitiated,			//
+	MACSendStatus_SendSuccess,
+	MACSendStatus_SendFailed
+};
 
+
+enum RadioSendStatus_t{
+	RadioSendStatus_PacketAccepted,			// Radio return status for packet acceptance
+	RadioSendStatus_PacketRejected,			// Radio return status for packet rejection. Radio will not attempt to send the packet after this status
+	RadioSendStatus_Busy,					// Radio return status for CCA failure
+
+	RadioSendStatus_SendInitiated,			// Radio return status for initiation of send
+	RadioSendStatus_SendFail, 				// Radio return status for signalling interruption of a send operation. Radio will not attempt to re-transmit the packet..
+
+	RadioSendStatus_TXCompleteNoACK,		// Radio return status for successful transmission of the packet and no ACK is expected
+	RadioSendStatus_SendACKed,				// Radio return status for
+	RadioSendStatus_SendNACKed,				// Radio return status for signaling that the receiver has not received this packet and the radio will not attempt to transmit the packet.
+	RadioSendStatus_ACKTimeout,				// Radio return status for signaling that it is unknown whether the receiver has received the packet and the radio will not attempt to transmit the packet.
+};
 
 
 enum InteropNetOpStatus{

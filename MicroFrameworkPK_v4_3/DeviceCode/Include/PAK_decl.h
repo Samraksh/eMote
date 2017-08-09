@@ -135,7 +135,7 @@ public:
 
     static void Receive_IEEE_802_15_4(void* buffer, UINT16 payloadType);
     static void Receive(void* msg, UINT16 size);
-    static void SendAck(void* msg, UINT16 size, NetOpStatus status);
+    static void SendAck(void* msg, MACSendStatus_t status);
     static void NeighborChange(INT16 numberOfNeighbors);
 
     static bool Wireless_Phy_ReadReceiveBytes( void* state, UINT8*& ptr, UINT32 & size );
