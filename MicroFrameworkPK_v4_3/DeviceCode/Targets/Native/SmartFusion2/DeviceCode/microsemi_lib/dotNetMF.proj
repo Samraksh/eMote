@@ -1,0 +1,87 @@
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AssemblyName>M2SXXX</AssemblyName>
+    <ProjectGuid>{36101ca5-349a-4471-aeb0-3babba567477}</ProjectGuid>
+    <Size>
+    </Size>
+    <Description>MicroSemi's Library</Description>
+    <Level>HAL</Level>
+    <LibraryFile>M2SXXX.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\microsemi_lib\dotNetMF.proj</ProjectPath>
+    <ManifestFile>M2SXXX.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Processor\M2SXXX</Groups>
+    <LibraryCategory>
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="pwr_HAL" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" Conditional="" xmlns="">
+        <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
+          <Major>4</Major>
+          <Minor>3</Minor>
+          <Revision>0</Revision>
+          <Build>0</Build>
+          <Extra />
+          <Date>2017-03-01</Date>
+        </VersionDependency>
+        <ComponentType xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">LibraryCategory</ComponentType>
+      </MFComponent>
+    </LibraryCategory>
+    <Documentation>
+    </Documentation>
+    <PlatformIndependent>False</PlatformIndependent>
+    <CustomFilter>
+    </CustomFilter>
+    <Required>False</Required>
+    <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
+    <IsStub>False</IsStub>
+    <Directory>DeviceCode\Targets\Native\SmartFusion2\DeviceCode\microsemi_lib</Directory>
+    <OutputType>Library</OutputType>
+    <PlatformIndependentBuild>false</PlatformIndependentBuild>
+    <Version>4.3.0.0</Version>
+  </PropertyGroup>
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <PropertyGroup />
+  <ItemGroup>
+    <HFiles Include="Top_hw_platform.h" />
+    
+    <HFiles Include="CMSIS/hw_reg_io.h" />
+    <HFiles Include="CMSIS/m2sxxx.h" />
+    <HFiles Include="CMSIS/mss_assert.h" />
+    <HFiles Include="CMSIS/sys_init_cfg_types.h" />
+    <HFiles Include="CMSIS/system_m2sxxx.h" />
+    
+    <HFiles Include="drivers/mss_hpdma/mss_hpdma.h" />
+	<HFiles Include="drivers/mss_nvm/mss_nvm.h" />
+	<HFiles Include="drivers/mss_sys_services/mss_comblk_page_handler.h" />
+	<HFiles Include="drivers/mss_sys_services/mss_comblk.h" />
+	<HFiles Include="drivers/mss_sys_services/mss_sys_services.h" />
+	<HFiles Include="drivers/mss_timer/mss_timer.h" />
+	<HFiles Include="drivers/mss_uart/mss_uart_regs.h" />
+	<HFiles Include="drivers/mss_uart/mss_uart.h" />
+	<HFiles Include="drivers/mss_gpio/mss_gpio.h" />
+	<HFiles Include="drivers/CoreGPIO/core_gpio.h" />
+	<HFiles Include="drivers/CoreGPIO/cpu_types.h" />
+	<HFiles Include="drivers/CoreGPIO/coregpio_regs.h" />
+	<HFiles Include="drivers_config/sys_config/sysconfig_mss_clocks.h" />
+	<HFiles Include="drivers_config/sys_config/sys_config.h" />
+	<HFiles Include="hal/hw_reg_access.h" />
+	<!--<HFiles Include="hal/hal.h" />
+	<HFiles Include="hal/hal_assert.h" />
+	
+	<HFiles Include="hal/CortexM3/.h" />
+	<HFiles Include="hal/CortexM3/.h" />
+	-->
+	
+    <Compile Include="CMSIS/system_m2sxxx.c" />
+    <Compile Include="drivers/mss_hpdma/mss_hpdma.c" />
+    <Compile Include="drivers/mss_nvm/mss_nvm.c" />
+    <Compile Include="drivers/mss_sys_services/mss_comblk.c" />
+    <Compile Include="drivers/mss_sys_services/mss_sys_services.c" />
+    <Compile Include="drivers/mss_uart/mss_uart.c" />
+    <Compile Include="drivers/mss_gpio/mss_gpio.c" />
+    <Compile Include="drivers/CoreGPIO/core_gpio.c" />
+    <Compile Include="drivers_config/sys_config/sys_config.c" />  
+	<Compile Include="drivers_config/sys_config/sys_config.c" />  
+	<Compile Include="hal\CortexM3\GNU\hw_reg_access.S" />
+    
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+</Project>
