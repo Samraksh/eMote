@@ -24,6 +24,9 @@
         <member name="F:Samraksh.eMote.RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_RAW_RADAR">
             <summary>The noise rejection parameter will adjusted based on the median of the raw radar values.</summary>
         </member>
+        <member name="F:Samraksh.eMote.RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_RAW_RADAR_SCALING">
+            <summary>The noise rejection parameter will scale depending upon how high the median of the raw radar values are. Higher medians are suppressed more.</summary>
+        </member>
         <member name="T:Samraksh.eMote.RADAR_NOISE_REQUEST">
             <summary>
             Options for requesting the IQ rejection parameter for the Radar Detection class  
@@ -98,7 +101,15 @@
             <summary>
             Sets detection parameters.
             </summary>
-            <returns>Returns true if detection made, false if there was no detection.</returns>
+            <param name="radarNoiseCtrl">The type of algorithm used to control background noise.</param>
+            <param name="thresholdSet">The threshold used to determine if there is a detection. Lower thresholds increase sensitivity but might cause false alarms.</param>
+            <param name="noiseRejection">The parameter used in the algorithm controling background noise. 1 is default. Higher suppresses noise more but hurts sensitivity.</param>
+            <param name="M">The number of M windows used in the M out of N detection.</param>
+            <param name="N">The number of windows used in the M out of N detection.</param>
+            <param name="debugVal">A value that outputs raw radar data in different formats to the serial port.</param>
+            <param name="targetSizeFilter">A small target filter that suppresses windows where no radar data exceeds this value. The higher the value the greater the suppression. Generally only this or classifierTargetFilter is used.</param>
+            <param name="classifierTargetFilter">A small target filter that partially suppresses windows where no radar data exceeds this value. The higher the value the greater the suppression. Generally only this or targetSizeFilter is used.</param>
+            <returns>Returns true if parameters are set, false if there was a problem.</returns>
         </member>
         <member name="M:Samraksh.eMote.Algorithm.RadarDetection.GetBackgroundNoiseLevel(Samraksh.eMote.RADAR_NOISE_REQUEST)">
             <summary>

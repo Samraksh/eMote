@@ -5,6 +5,8 @@ using Samraksh.eMote.Net.Radio;
 using System.Runtime.CompilerServices;
 using Microsoft.SPOT.Hardware;
 
+//using Microsoft.SPOT;           //Required for Debug.Print
+
 namespace Samraksh.eMote.Net
 {
 	/// <summary>Kinds of protocol</summary>
@@ -24,11 +26,14 @@ namespace Samraksh.eMote.Net
 		OMAC = 2,
 	}
 
+    
+
 	/// <summary>
 	/// Class to register multiple callbacks for CSHARP payload types.
 	/// </summary>
 	public class MACPipe : IMAC
 	{
+        
 		/// <summary>The MACBase instance this pipe subscribes to</summary>
 		public readonly MACBase MACBase;
 
@@ -50,6 +55,18 @@ namespace Samraksh.eMote.Net
         /// <summary>Raised when we get an ACK for a transmitted packet</summary>
         public event MACBase.IMACTransmitACKEventHandler OnSendStatus;
 
+        protected ArrayList msg_id_list;
+        public readonly ArrayList msg_id_list_ro;
+
+        /// <summary>IsPacketIDValid</summary>
+        /// <param name="msgid">msgid</param>
+        /// <returns>bool</returns>
+        public bool IsMsgIDValid(UInt16 msgid)
+        {
+            return MACBase.IsMsgIDValid(msgid);
+        }
+
+
 		/// <summary>
 		/// Register callback functions for CSHARP payload types. 
 		/// This is used to register multiple callbacks for different payload types
@@ -61,6 +78,8 @@ namespace Samraksh.eMote.Net
 		{
 			MACBase = macBase;
 			PayloadType = payloadType;
+            msg_id_list = new ArrayList();
+            msg_id_list_ro = msg_id_list;
             /* This might be needed later. 
              *      
              * if (OnReceive == null)
@@ -85,13 +104,26 @@ namespace Samraksh.eMote.Net
             }*/
 		}
 
-        internal void MACPipeCallbackforSendStatus(PayloadType payloadTypeTemp, DateTime time, SendPacketStatus ACKStatus, ushort Dest)
+        internal void MACPipeCallbackforSendStatus(PayloadType payloadTypeTemp, DateTime time, SendPacketStatus ACKStatus, ushort Dest, UInt16 msgid)
         {
+
             if (OnSendStatus != null)
             {
                 //throw new MACNotConfiguredException("---ACK callback--- payloadTypeTemp=" + payloadTypeTemp.ToString() + " ACKStatus=" + ACKStatus.ToString() + " Dest=" + Dest.ToString());
-                OnSendStatus(this, time, ACKStatus, Dest);
+                OnSendStatus(this, time, ACKStatus, Dest, msgid);
             }
+
+            if (ACKStatus == SendPacketStatus.SendACKed || ACKStatus == SendPacketStatus.SendFailed)
+            {
+                //Debug.Print("Deleting msg = " + msgid + " ACKStatus = " + ACKStatus);
+              
+                
+                if (  this.DeleteMsgWithMsgID(msgid) != DeviceStatus.Success)
+                {
+                   MACBase.DeleteMsgWithMsgID(msgid);
+                }
+            }
+
         }
 
 		///// <summary>
@@ -111,7 +143,16 @@ namespace Samraksh.eMote.Net
 		/// <returns>Result status</returns>
 		public NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size)
 		{
-			return MACBase.Send(address, PayloadType, payload, offset, size);
+		    var msg_id = EnqueueToSend(address, payload, offset, size);
+
+            if (MACBase.IsMsgIDValid(msg_id)  )
+            {
+                return NetOpStatus.S_Success;
+            }
+            else
+            {
+                return NetOpStatus.E_MACBufferFull;
+            }
 		}
 
 		/// <summary>Send packet with time value</summary>
@@ -123,8 +164,95 @@ namespace Samraksh.eMote.Net
 		/// <returns>Result status</returns>
 		public NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size, DateTime eventTime)
 		{
-			return MACBase.Send(address, PayloadType, payload, offset, size, eventTime);
+            var msg_id = EnqueueToSend(address, payload, offset, size, eventTime);
+
+            if (MACBase.IsMsgIDValid(msg_id) )
+            {
+                return NetOpStatus.S_Success;
+            }
+            else
+            {
+                return NetOpStatus.E_MACBufferFull;
+            }
 		}
+
+
+        
+
+        /// <summary>Enqueue a message to be sent</summary>
+        /// <param name="address">Address of recipient</param>
+        /// <param name="payload">Payload (in byte array) to send</param>
+        /// <param name="offset">Offset into array</param>
+        /// <param name="size">Size of payload</param>
+        /// <returns>MsgID</returns>
+        public UInt16 EnqueueToSend(ushort address, byte[] payload, ushort offset, ushort size)
+        {
+            UInt16 msg_id =  MACBase.EnqueueToSend(address, PayloadType, payload, offset, size);
+            if (MACBase.IsMsgIDValid(msg_id))
+            {
+                msg_id_list.Add(msg_id);
+            }
+            return msg_id;
+        }
+
+        /// <summary>Enqueue a message to be sent</summary>
+        /// <param name="address">Address of recipient</param>
+        /// <param name="payload">Payload (in byte array) to send</param>
+        /// <param name="offset">Offset into array</param>
+        /// <param name="size">Size of payload</param>
+        /// <param name="eventTime">Packet time. Used for calculating the time it spends at the buffer on the sending side. </param>
+        /// <returns>MsgID</returns>
+        public UInt16 EnqueueToSend(ushort address, byte[] payload, ushort offset, ushort size, DateTime eventTime)
+        {
+            UInt16 msg_id = MACBase.EnqueueToSend(address, PayloadType, payload, offset, size, eventTime);
+            if (MACBase.IsMsgIDValid(msg_id))
+            {
+                msg_id_list.Add(msg_id);
+            }
+            return msg_id;
+        }
+
+
+
+
+        public DeviceStatus GetMsgWithMsgID(ref byte[] nativeBuffer, UInt16 index)
+        {
+            if (msg_id_list.Contains(index))
+            {
+                return MACBase.GetMsgWithMsgID(ref nativeBuffer, index);
+            }
+            else
+            {
+                return DeviceStatus.Fail;
+            }
+            
+        }
+
+        public DeviceStatus DeleteMsgWithMsgID(UInt16 index)
+        {
+            if (msg_id_list.Contains(index))
+            {
+                DeviceStatus rs =  MACBase.DeleteMsgWithMsgID(index);
+                if (rs == DeviceStatus.Success)
+                {
+                    //Debug.Print("Deleting success msg = " + index);
+                    msg_id_list.Remove(index);
+                }
+                else
+                {
+                    //Debug.Print("Deleting fail msg = " + index);
+                }
+                return rs;
+            }
+            else
+            {
+                //Debug.Print("Attempting to delete msg that does not belong to us msg = " + index);
+                return DeviceStatus.Fail;
+            }
+            
+        }
+
+
 
 		/*/// <summary>Send packet with payload type</summary>
 		/// <param name="address">Address of recipient</param>
@@ -387,7 +515,7 @@ namespace Samraksh.eMote.Net
         ///		The destination ID
         /// </param>
         /// <param name="time"></param>
-        public delegate void IMACTransmitACKEventHandler(IMAC macInstance, DateTime time, SendPacketStatus ACKStatus, uint transmitDestination);
+        public delegate void IMACTransmitACKEventHandler(IMAC macInstance, DateTime time, SendPacketStatus ACKStatus, uint transmitDestination, UInt16 index);
 
         /// <summary>Raised when a transmited packet is ACKed</summary>
         public event IMACTransmitACKEventHandler OnSendStatus;
@@ -674,7 +802,8 @@ namespace Samraksh.eMote.Net
 			/*if (MACConfig.MACRadioConfig.OnNeighborChangeCallback == null)
 				throw new CallbackNotConfiguredException();*/
             UInt16 y = (UInt16)(data1);
-
+            UInt16 payloadtype = (UInt16)(data2);
+            
             switch (y)
 			{
                 case (UInt16)CallbackType.Received:
@@ -693,7 +822,7 @@ namespace Samraksh.eMote.Net
                     }
 
                     // OnReceive is raised for MFM_Data payload type
-                    if (data2 == (uint)PayloadType.MFM_Data)
+                    if (payloadtype == (UInt16)PayloadType.MFM_Data)
                     {
                         if (OnReceive != null)
                         {
@@ -709,7 +838,7 @@ namespace Samraksh.eMote.Net
                         //int eventCounter = keyCollection.Count;
                         foreach (PayloadType payloadTypeKey in keyCollection)
                         {
-                            if (data2 == (uint)payloadTypeKey)
+                            if (payloadtype == (UInt16)payloadTypeKey)
                             {
                                 var macPipe = (MACPipe)_macPipeHashtable[payloadTypeKey];
                                 //If a registered payload type is received, subtract count
@@ -746,13 +875,14 @@ namespace Samraksh.eMote.Net
                 case (UInt16)CallbackType.SendACKed:
                 case (UInt16)CallbackType.SendNACKed:
                 case (UInt16)CallbackType.SendFailed:
-                {                    
+                {
+                    UInt16 msgid = (UInt16)(data2 >> 16);
                     // OnReceive is raised for MFM_Data payload type
-                    if (data2 == (uint)PayloadType.MFM_Data)
+                    if (payloadtype == (uint)PayloadType.MFM_Data)
                     {
                         if (OnSendStatus != null)
                         {
-                            OnSendStatus(this, time, ConvertCallbackTypeToSendPacketStatus((uint)y), data2);
+                            OnSendStatus(this, time, ConvertCallbackTypeToSendPacketStatus((uint)y), payloadtype, msgid);
                         }
                     }
 
@@ -764,14 +894,14 @@ namespace Samraksh.eMote.Net
                         //int eventCounter = keyCollection.Count;
                         foreach (PayloadType payloadTypeKey in keyCollection)
                         {
-                            if (data2 == (uint)payloadTypeKey)
+                            if (payloadtype == (uint)payloadTypeKey)
                             {
                                 //throw new MACNotConfiguredException("---ACK callback--- data1=" + data1 + " Low Bits = " + y + " High bits" + (ushort)(data1 >> 16) + " SendInitiated = " + (UInt16)CallbackType.SendInitiated + " SendFailed = " + (UInt16)CallbackType.SendFailed);
                                 var macPipe = (MACPipe)_macPipeHashtable[payloadTypeKey];
                                 //If a registered payload type is received, subtract count
                                 //eventCounter--;
                                 ushort dest = (ushort)(data1 >> 16);
-                                macPipe.MACPipeCallbackforSendStatus(payloadTypeKey, time, ConvertCallbackTypeToSendPacketStatus((uint)y), dest);
+                                macPipe.MACPipeCallbackforSendStatus(payloadTypeKey, time, ConvertCallbackTypeToSendPacketStatus((uint)y), dest, msgid);
                                 break;
                             }
                             else
@@ -1159,6 +1289,101 @@ namespace Samraksh.eMote.Net
 		/// <returns>Result status</returns>
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public extern NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size);
+
+        /// <summary></summary>
+        /// <param name="nativeBuffer"></param>
+        /// <returns></returns>
+        public DeviceStatus GetMsgWithMsgID(ref byte[] nativeBuffer, UInt16 index)
+        {
+            byte size = 0;
+            if (GetPacketSizeWithIndex(ref size, index) == DeviceStatus.Success)
+            {
+                if (nativeBuffer == null)
+                {
+                    nativeBuffer = new byte[size];
+                }
+                else if (nativeBuffer.Length != size)
+                {
+                    nativeBuffer = new byte[size];
+                }
+                return GetPacketWithIndex(nativeBuffer, size, index) ; 
+            }
+
+            return DeviceStatus.Fail;
+        }
+
+        /// <summary></summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public DeviceStatus DeleteMsgWithMsgID( UInt16 index)
+        {
+            return DeletePacketWithIndexInternal(index);
+        }
+
+        /// <summary></summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus DeletePacketWithIndexInternal( UInt16 index);
+
+
+        /// <summary></summary>
+        /// <param name="nativeBuffer"></param>
+        /// <param name="size"></param>
+        /// <param name="index"></param>
+        /// <returns>Result status</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus GetPacketWithIndex(byte[] nativeBuffer, byte size, UInt16 index);
+
+
+        /// <summary></summary>
+        /// <param name="nativeBuffer"></param>
+        /// <param name="size"></param>
+        /// <param name="index"></param>
+        /// <returns>Result status</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus GetPacketSizeWithIndex(ref byte size, UInt16 index);
+
+
+        /// <summary>IsPacketIDValid</summary>
+        /// <param name="address">Address of recipient</param>
+        /// <param name="payload">Payload (in byte array) to send</param>
+        /// <param name="offset">Offset into array</param>
+        /// <param name="size">Size of payload</param>
+        /// <returns>Result status</returns>
+        public bool IsMsgIDValid(UInt16 msgid)
+        {
+            if (msgid == 255) return false;
+            else return true;
+        }
+
+        /// <summary>Send packet</summary>
+        /// <param name="address">Address of recipient</param>
+        /// <param name="payload">Payload (in byte array) to send</param>
+        /// <param name="offset">Offset into array</param>
+        /// <param name="size">Size of payload</param>
+        /// <returns>Result status</returns>
+        public UInt16 EnqueueToSend(ushort address, PayloadType payloadType, byte[] payload, ushort offset, ushort size)
+        {
+            return EnqueueToSend(address, (byte)payloadType, payload, offset, size);
+        }
+
+        /// <summary>Send packet</summary>
+        /// <param name="address">Address of recipient</param>
+        /// <param name="payload">Payload (in byte array) to send</param>
+        /// <param name="offset">Offset into array</param>
+        /// <param name="size">Size of payload</param>
+        /// <returns>Result status</returns>
+        public UInt16 EnqueueToSend(ushort address, PayloadType payloadType, byte[] payload, ushort offset, ushort size, DateTime eventTime)
+        {
+            return EnqueueToSend(address, (byte)payloadType, payload, offset, size, (uint)(eventTime.Ticks & uint.MaxValue));
+        }
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern UInt16 EnqueueToSend(ushort address, byte payloadType, byte[] payload, ushort offset, ushort size);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern UInt16 EnqueueToSend(ushort address, byte payloadType, byte[] payload, ushort offset, ushort size, uint eventTime);
 
 		/// <summary>Send a _packet</summary>
 		/// <param name="address">The address of the receiver. Use <code>Addresses.BROADCAST</code> for broadcast</param>

@@ -68,11 +68,11 @@ UINT64 OMACTimeSync::NextEvent(){
 	nextEventsSlot = NextEventinSlots();
 	while(true){
 		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(
-				  g_OMAC.m_Clock.GetCurrentTimeinTicks()
+				g_OMAC.m_Clock.GetCurrentTimeinTicks()
 				, m_messagePeriod
 				, g_OMAC.m_Clock.ConvertMicroSecstoTicks(FORCE_REQUESTTIMESYNC_INMICS)
 				, g_OMAC.m_Clock.ConvertMicroSecstoTicks(INITIALIZATION_TIMESYNC_INTERVAL_INMICS)
-				);
+		);
 		if(sn != NULL) {
 			y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 			if(sn->IsInitializationTimeSamplesNeeded()){ //If the node needs initialization
@@ -104,17 +104,17 @@ UINT64 OMACTimeSync::NextEvent(){
  *
  */
 UINT16 OMACTimeSync::NextEventinSlots(){
-//	UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-//	UINT64 currentSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
-//	Neighbor_t* sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(y, m_messagePeriod,g_OMAC.m_Clock.ConvertMicroSecstoTicks(FORCE_REQUESTTIMESYNC_INMICS) );
-//	if ( sn == NULL ) return ((UINT16) MAX_UINT32);
-//
-//	else if( y - sn->LastTimeSyncSendTime >= m_messagePeriod) { //Already passed the time. schedule send immediately
-//		return 0;
-//	}
-//	else {
-//		UINT64 remslots = (m_messagePeriod - (y - sn->LastTimeSyncSendTime) ) / SLOT_PERIOD;
-//	}
+	//	UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+	//	UINT64 currentSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
+	//	Neighbor_t* sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(y, m_messagePeriod,g_OMAC.m_Clock.ConvertMicroSecstoTicks(FORCE_REQUESTTIMESYNC_INMICS) );
+	//	if ( sn == NULL ) return ((UINT16) MAX_UINT32);
+	//
+	//	else if( y - sn->LastTimeSyncSendTime >= m_messagePeriod) { //Already passed the time. schedule send immediately
+	//		return 0;
+	//	}
+	//	else {
+	//		UINT64 remslots = (m_messagePeriod - (y - sn->LastTimeSyncSendTime) ) / SLOT_PERIOD;
+	//	}
 	return 0;
 }
 
@@ -124,11 +124,11 @@ UINT16 OMACTimeSync::NextEventinSlots(){
  */
 void OMACTimeSync::ExecuteEvent(){
 	//BK: This will be handled with the non_interrupt timer
-//	Neighbor_t* sn;
-//	while(NextEventinSlots() == 0){
-//		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(g_OMAC.m_Clock.GetCurrentTimeinTicks(),m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS);
-//		Send(sn->MacAddress);
-//	}
+	//	Neighbor_t* sn;
+	//	while(NextEventinSlots() == 0){
+	//		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(g_OMAC.m_Clock.GetCurrentTimeinTicks(),m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS);
+	//		Send(sn->MacAddress);
+	//	}
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TIMESYNC);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -170,16 +170,16 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 
 	//ASSERT_SP( y > lastTimeSyncRecv); //Ensure no rollover
 
-	 if( y - lastTimeSyncRecv > g_OMAC.m_Clock.ConvertMicroSecstoTicks(FORCE_REQUESTTIMESYNC_INMICS) ){
-		 request_TimeSync = true;
-	 }
-	 else{
-		 request_TimeSync = false;
-	 }
+	if( y - lastTimeSyncRecv > g_OMAC.m_Clock.ConvertMicroSecstoTicks(FORCE_REQUESTTIMESYNC_INMICS) ){
+		request_TimeSync = true;
+	}
+	else{
+		request_TimeSync = false;
+	}
 
 	if (m_globalTime.regressgt2.NumberOfRecordedElements(address) >=2  ){
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( TIMESYNC_GENERATE_MESSAGEPIN, TRUE );
+		CPU_GPIO_SetPinState( TIMESYNC_GENERATE_MESSAGEPIN, TRUE );
 #endif
 		IEEE802_15_4_Header_t * header = m_timeSyncMsgBuffer.GetHeader();
 		tsreqmsg = (TimeSyncRequestMsg *) m_timeSyncMsgBuffer.GetPayload();
@@ -190,21 +190,21 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 #ifdef OMAC_DEBUG_PRINTF
 			OMAC_HAL_PRINTF("OMACTimeSync::Send failed. Addr=%d", address);
 #endif
-		//	return rs;
+			//	return rs;
 		}
 #if OMAC_TSYNC_DEBUG_PRINTF_PACKET_ENQUE
-	if(rs){
-		hal_printf("TSREQ ENQUE SUCCESS d: %d\r\n", address);
-	}
-	else{
-		hal_printf("TSREQ ENQUE FAIL d: %d\r\n", address);
-	}
+		if(rs){
+			hal_printf("TSREQ ENQUE SUCCESS d: %d\r\n", address);
+		}
+		else{
+			hal_printf("TSREQ ENQUE FAIL d: %d\r\n", address);
+		}
 #endif
 #ifdef OMAC_DEBUG_PRINTF
 		OMAC_HAL_PRINTF("TS Send: %d, LTime: %lld  \r\n",m_seqNo, y);
 #endif
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( TIMESYNC_GENERATE_MESSAGEPIN, FALSE );
+		CPU_GPIO_SetPinState( TIMESYNC_GENERATE_MESSAGEPIN, FALSE );
 #endif
 	}
 
@@ -258,11 +258,11 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	//RadioAddress_t msg_src = msg->GetHeader()->src;
 	UINT64 y,neighborscurtime;
 
-//	if(rcv_msg->timesyncIdentifier != 50529027 ){
-//		y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-//		neighborscurtime = m_globalTime.Neighbor2LocalTime(msg_src,y);
-//		//ASSERT_SP(0);
-//	}
+	//	if(rcv_msg->timesyncIdentifier != 50529027 ){
+	//		y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+	//		neighborscurtime = m_globalTime.Neighbor2LocalTime(msg_src,y);
+	//		//ASSERT_SP(0);
+	//	}
 	//UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
 	//TimeSyncMsg* rcv_msg = (TimeSyncMsg *) msg->GetPayload();
 	ReceiveTS = ReceiveTS - TIME_BETWEEN_TX_RX_TS_TICKS;
@@ -276,9 +276,9 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	else{
 		l_offset = rcv_ltime - ReceiveTS;
 	}
-//	if((m_globalTime.regressgt2.LastRecordedTime(msg_src) >= rcv_ltime)){
-//		return DS_Fail;
-//	}
+	//	if((m_globalTime.regressgt2.LastRecordedTime(msg_src) >= rcv_ltime)){
+	//		return DS_Fail;
+	//	}
 
 	bool is_space_available_in_table = false;
 	if(m_globalTime.regressgt2.FindNeighbor(msg_src) != c_bad_nbrIndex){
@@ -294,12 +294,12 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 		for(UINT8 i =0; i < MAX_NBR; ++i){
 			if(INVALID_NBR_ID != g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID){
 				if( g_NeighborTable.FindIndexEvenDead( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID, &index) != DS_Success){ //If it does not exist in the neighbortable, delete from the time entires from globalTime Table
-				 	 g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
-						if(!m_globalTime.regressgt2.IsTableFull()) {
-							is_space_available_in_table = true;
-							m_globalTime.regressgt2.InsertNbrID(msg_src);
-							break;
-						}
+					g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
+					if(!m_globalTime.regressgt2.IsTableFull()) {
+						is_space_available_in_table = true;
+						m_globalTime.regressgt2.InsertNbrID(msg_src);
+						break;
+					}
 				}
 			}
 		}
@@ -309,7 +309,9 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 			if(INVALID_NBR_ID != g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID){
 				if( g_NeighborTable.FindIndexEvenDead( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID, &index) == DS_Success){
 					if(g_NeighborTable.Neighbor[index].neighborStatus != Alive){ //If it exists in the neighbortable but marked as not alive, delete from the time entires from globalTime Table
-						g_NeighborTable.Neighbor[index].Clear();
+						g_NeighborTable.ClearNeighborwIndex(index);
+						g_NeighborTable.NumberValidNeighbor ++ ;
+						//g_NeighborTable.Neighbor[index].Clear();
 						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
 						if(!m_globalTime.regressgt2.IsTableFull()) {
 							is_space_available_in_table = true;
@@ -327,7 +329,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 		ds = g_NeighborTable.RecordTimeSyncRecv(msg_src,ReceiveTS);
 #if OMAC_DEBUG_PRINTF_TS_RX
 		hal_printf("TS Receive from = %u \r\n", msg_src);
-//		g_OMAC.PrintNeighborTable();
+		//		g_OMAC.PrintNeighborTable();
 		g_OMAC.is_print_neigh_table = true;
 #endif
 	}
@@ -352,7 +354,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 			//TimerReturn = false;
 		}
 #ifdef DEBUG_TSYNC_PIN
-	CPU_GPIO_SetPinState( TIMESYNC_RECEIVEPIN, TRUE );
+		CPU_GPIO_SetPinState( TIMESYNC_RECEIVEPIN, TRUE );
 #endif
 	}
 #endif
@@ -372,7 +374,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 
 		}
 #ifdef DEBUG_TSYNC_PIN
-	CPU_GPIO_SetPinState( TIMESYNC_RECEIVEPIN, FALSE );
+		CPU_GPIO_SetPinState( TIMESYNC_RECEIVEPIN, FALSE );
 #endif
 	}
 #endif
@@ -382,14 +384,14 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 
 
 //GlobalTime interface implementation
-	/*async command uint32_t GlobalTime.getLocalTime()
+/*async command uint32_t GlobalTime.getLocalTime()
 	{
 		return call LocalTime.get();
 	}
 
 	async command error_t GlobalTime.getGlobalTime(uint32_t *time, am_addr_t nodeID)
 	{
-		*time = call GlobalTime.getLocalTime();
+ *time = call GlobalTime.getLocalTime();
 		if (nodeID == TOS_NODE_ID) {
 			return SUCCESS;
 		}
@@ -412,7 +414,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 				TableItem *ptr = &(m_beaconTable[nbrIdx]);
 			//	printf("ofset=%ld lclAvg=%lu lcl=%lu, sk=%ld \r\n",
 			//	    ptr->offsetAvg, ptr->localAvg, *time, (int32_t)(ptr->skew * 1000));
-				*time += ptr->offsetAvg
+ *time += ptr->offsetAvg
 					+ (int32_t)(ptr->skew * (int32_t)(*time - ptr->localAvg));
 			} else {
 				result = FAIL;
@@ -434,7 +436,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 			if (nbrIdx != INVALID_INDEX) {
 				TableItem *ptr = &(m_beaconTable[nbrIdx]);
 				uint32_t approxLocalTime = *time - ptr->offsetAvg;
-				*time = approxLocalTime
+ *time = approxLocalTime
 					- (int32_t)(ptr->skew * (int32_t)(approxLocalTime - ptr->localAvg));
 				return SUCCESS;
 			}
@@ -447,4 +449,4 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 			return FAIL;
 		}
 	}
-*/
+ */

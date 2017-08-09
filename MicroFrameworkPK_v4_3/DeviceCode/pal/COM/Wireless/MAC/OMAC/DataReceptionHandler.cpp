@@ -20,29 +20,29 @@ void PublicDataRxCallback(void * param){
 	g_OMAC.m_omac_scheduler.m_DataReceptionHandler.is_VIRT_TIMER_OMAC_RECEIVER_in_use = false;
 	g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_curTime_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 	if(g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_scheduledTimer_in_ticks > g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_curTime_in_ticks){ //Check for early firing from the timer
-//		hal_printf("DTH::EARLY FIRING PEE!! m_scheduledTimer_in_ticks = %llu, m_curTime_in_ticks = %llu",m_scheduledTimer_in_ticks,m_curTime_in_ticks  );
+		//		hal_printf("DTH::EARLY FIRING PEE!! m_scheduledTimer_in_ticks = %llu, m_curTime_in_ticks = %llu",m_scheduledTimer_in_ticks,m_curTime_in_ticks  );
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.is_VIRT_TIMER_OMAC_RECEIVER_in_use = false;
-		 if(rm != TimerSupported) {
-		 SOFT_BREAKPOINT();
-		 }
+		if(rm != TimerSupported) {
+			SOFT_BREAKPOINT();
+		}
 		UINT64 rem_time_micros = g_OMAC.m_Clock.ConvertTickstoMicroSecs( g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_scheduledTimer_in_ticks - g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_curTime_in_ticks);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, rem_time_micros, TRUE, OMACClockSpecifier );
-		 if(rm != TimerSupported) {
-		 SOFT_BREAKPOINT();
-		 }
-		 rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
-		 if(rm != TimerSupported) {
-			 SOFT_BREAKPOINT();
-		 }
-		 g_OMAC.m_omac_scheduler.m_DataReceptionHandler.is_VIRT_TIMER_OMAC_RECEIVER_in_use = true;
+		if(rm != TimerSupported) {
+			SOFT_BREAKPOINT();
+		}
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
+		if(rm != TimerSupported) {
+			SOFT_BREAKPOINT();
+		}
+		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.is_VIRT_TIMER_OMAC_RECEIVER_in_use = true;
 	}
 	else{
 #endif
 
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
-	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
 #endif
 		if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 			if(g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_receptionstate==DRS_RX_END){
@@ -276,7 +276,7 @@ void DataReceptionHandler::ExecuteEvent(){
 		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.is_VIRT_TIMER_OMAC_RECEIVER_in_use = false;
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, g_OMAC.LISTEN_PERIOD_FOR_RECEPTION_HANDLER, TRUE, OMACClockSpecifier );
 #if	OMAC_DRH_TIMER_TARGET_TIME_CORRECTION
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( g_OMAC.LISTEN_PERIOD_FOR_RECEPTION_HANDLER);
+		m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( g_OMAC.LISTEN_PERIOD_FOR_RECEPTION_HANDLER);
 #endif
 #if OMAC_DRXH_DEBUG_LATEWAKEUP
 		m_lastScheduledOriginTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
@@ -308,7 +308,7 @@ m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Cl
 		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.is_VIRT_TIMER_OMAC_RECEIVER_in_use = false;
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 100, TRUE,OMACClockSpecifier);
 #if	OMAC_DRH_TIMER_TARGET_TIME_CORRECTION
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 100);
+		m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 100);
 #endif
 #if OMAC_DRXH_DEBUG_LATEWAKEUP
 		m_lastScheduledOriginTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
@@ -351,7 +351,7 @@ void DataReceptionHandler::HandleRadioInterrupt(){ // This is the beginning of a
 	}
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, g_OMAC.MAX_PACKET_RX_DURATION_MICRO, TRUE, OMACClockSpecifier );
 #if	OMAC_DRH_TIMER_TARGET_TIME_CORRECTION
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( g_OMAC.MAX_PACKET_RX_DURATION_MICRO);
+	m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( g_OMAC.MAX_PACKET_RX_DURATION_MICRO);
 #endif
 
 #if OMAC_DRXH_DEBUG_LATEWAKEUP
@@ -389,7 +389,7 @@ void DataReceptionHandler::SendACKHandler(){ // Handler for end of tranmission i
 		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.is_VIRT_TIMER_OMAC_RECEIVER_in_use = false;
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
 #if	OMAC_DRH_TIMER_TARGET_TIME_CORRECTION
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
+		m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
 #endif
 #if OMAC_DRXH_DEBUG_LATEWAKEUP
 		m_lastScheduledOriginTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();//HAL_Time_CurrentTicks();
@@ -436,7 +436,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.is_VIRT_TIMER_OMAC_RECEIVER_in_use = false;
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
 #if	OMAC_DRH_TIMER_TARGET_TIME_CORRECTION
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
+		m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
 #endif
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 		if(rm != TimerSupported){
@@ -458,7 +458,7 @@ m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Cl
 		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.is_VIRT_TIMER_OMAC_RECEIVER_in_use = false;
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
 #if	OMAC_DRH_TIMER_TARGET_TIME_CORRECTION
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
+		m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
 #endif
 #if OMAC_DRXH_DEBUG_LATEWAKEUP
 		m_lastScheduledOriginTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
@@ -537,7 +537,7 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.is_VIRT_TIMER_OMAC_RECEIVER_in_use = false;
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE,OMACClockSpecifier );
 #if	OMAC_DRH_TIMER_TARGET_TIME_CORRECTION
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
+		m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
 #endif
 #if OMAC_DRXH_DEBUG_LATEWAKEUP
 		m_lastScheduledOriginTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
@@ -553,7 +553,7 @@ m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Cl
 		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.is_VIRT_TIMER_OMAC_RECEIVER_in_use = false;
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, g_OMAC.ACK_TX_MAX_DURATION_MICRO, TRUE,OMACClockSpecifier );
 #if	OMAC_DRH_TIMER_TARGET_TIME_CORRECTION
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( g_OMAC.ACK_TX_MAX_DURATION_MICRO);
+		m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( g_OMAC.ACK_TX_MAX_DURATION_MICRO);
 #endif
 #if OMAC_DRXH_DEBUG_LATEWAKEUP
 		m_lastScheduledOriginTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
@@ -594,7 +594,7 @@ void DataReceptionHandler::PostExecuteEvent(){
 	DeviceStatus returnVal = DS_Success;
 	returnVal = g_OMAC.m_omac_RadioControl.Stop();
 #if OMAC_WAKEUP_DEBUGGING_FOR_MF
-		hal_printf("Z\r\n");
+	hal_printf("Z\r\n");
 #endif
 	if(returnVal == DS_Success) {
 #ifdef OMAC_DEBUG_GPIO

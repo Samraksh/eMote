@@ -9,6 +9,7 @@
 
   <PropertyGroup>
     <GITBIN>$(ProgramFiles32)\Git\bin\sh.exe</GITBIN>
+	<GITBIN64 Condition="!Exists('$(GITBIN)')">c:\Program Files\Git\bin\sh.exe</GITBIN64> <!--HACK 32/64 bit issues. Also see below, script is different. Not a proper fix. UGH.-->
   </PropertyGroup>
 
   <Target Name='CreateGitRevisionHeader'>
@@ -17,6 +18,8 @@
         <Exec Command="echo #define GIT_INDEX_STATUS_AT_BUILD &quot;ENOGIT&quot; >> $(SPOCLIENT)\DeviceCode\Include\Samraksh\githash.h " />
         <Exec Condition="Exists('$(GITBIN)')" Command="&quot;$(GITBIN)&quot; --norc -c 'echo &quot;#define GIT_HASH_AT_BUILD \&quot;`/bin/git rev-parse HEAD`\&quot;&quot; > $(SPOCLIENT)\DeviceCode\Include\Samraksh\githash.h '" />
         <Exec Condition="Exists('$(GITBIN)')" Command="&quot;$(GITBIN)&quot; --norc -c 'echo -n &quot;#define GIT_INDEX_STATUS_AT_BUILD  \&quot;&quot; ; if `/bin/git diff-index --quiet HEAD`; then echo -n &quot;clean&quot; ; else echo -n &quot;modified&quot; ; fi ; echo -n &quot;\&quot;&quot; >> $(SPOCLIENT)\DeviceCode\Include\Samraksh\githash.h '" />
+        <Exec Condition="Exists('$(GITBIN64)')" Command="&quot;$(GITBIN64)&quot; --norc -c 'echo &quot;#define GIT_HASH_AT_BUILD \&quot;`/mingw64/bin/git rev-parse HEAD`\&quot;&quot; > $(SPOCLIENT)\DeviceCode\Include\Samraksh\githash.h '" />
+        <Exec Condition="Exists('$(GITBIN64)')" Command="&quot;$(GITBIN64)&quot; --norc -c 'echo -n &quot;#define GIT_INDEX_STATUS_AT_BUILD  \&quot;&quot; ; if `/mingw64/bin/git diff-index --quiet HEAD`; then echo -n &quot;clean&quot; ; else echo -n &quot;modified&quot; ; fi ; echo -n &quot;\&quot;&quot; >> $(SPOCLIENT)\DeviceCode\Include\Samraksh\githash.h '" />
   </Target>
 
   <Target Name='CreateTeamHeader'>

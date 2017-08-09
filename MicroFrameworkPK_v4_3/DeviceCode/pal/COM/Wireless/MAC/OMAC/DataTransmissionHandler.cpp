@@ -29,22 +29,22 @@ void PublicDataTxCallback(void * param){
 #if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION
 	VirtualTimerReturnMessage rm;
 	g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.m_curTime_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-//	m_TimeDiff_in_micros = g_OMAC.m_Clock.ConvertTickstoMicroSecs(m_curTime_in_ticks - m_scheduledTimer_in_ticks);
+	//	m_TimeDiff_in_micros = g_OMAC.m_Clock.ConvertTickstoMicroSecs(m_curTime_in_ticks - m_scheduledTimer_in_ticks);
 	if(g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.m_scheduledTimer_in_ticks > g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.m_curTime_in_ticks){ //Check for early firing from the timer
-//		hal_printf("DTH::EARLY FIRING PEE!! m_scheduledTimer_in_ticks = %llu, m_curTime_in_ticks = %llu",m_scheduledTimer_in_ticks,m_curTime_in_ticks  );
+		//		hal_printf("DTH::EARLY FIRING PEE!! m_scheduledTimer_in_ticks = %llu, m_curTime_in_ticks = %llu",m_scheduledTimer_in_ticks,m_curTime_in_ticks  );
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-		 if(rm != TimerSupported) {
-		 //SOFT_BREAKPOINT();
-		 }
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
 		UINT64 rem_time_micros = g_OMAC.m_Clock.ConvertTickstoMicroSecs( g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.m_scheduledTimer_in_ticks - g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.m_curTime_in_ticks);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, rem_time_micros, TRUE, OMACClockSpecifier );
-		 if(rm != TimerSupported) {
-		 //SOFT_BREAKPOINT();
-		 }
-		 rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
-		 if(rm != TimerSupported) {
-			 //SOFT_BREAKPOINT();
-		 }
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
 	}
 	else{
 #endif
@@ -67,31 +67,7 @@ void PublicFastRecoveryCallback(void* param){
 	g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendRetry();
 }
 
-void ClearMsgContents(Message_15_4_t* msg){
-	IEEE802_15_4_Header_t* header = msg->GetHeader();
-	int length = header->length;
-	header->fcf.fcfWordValue = 0;
-	header->dest = 0;
-	header->length = 0;
-	header->payloadType = 0;
-	header->flags = 0;
 
-	DataMsg_t* data_msg = (DataMsg_t*)msg->GetPayload();
-	//data_msg->msg_identifier = 0;
-	int size = data_msg->size;
-	data_msg->size = 0;
-	for(int i = 0; i < length; i++){
-		data_msg->payload[i] = 0;
-	}
-
-	IEEE802_15_4_Metadata_t* metadata = msg->GetMetaData();
-	metadata->SetRetryAttempts(0);
-	metadata->SetReceiveTimeStamp((INT64)0);
-	metadata->SetReceiveTimeStamp((UINT32)0);
-	metadata->SetRssi(0);
-	metadata->SetLqi(0);
-	metadata->SetNetwork(0);
-}
 
 /*
  *
@@ -257,6 +233,11 @@ void DataTransmissionHandler::SendACKToUpperLayers(Message_15_4_t* msg, UINT16 S
 				(m_txAckHandler)(msg, Size, status, radioAckStatus);
 			}
 		}
+		else{
+			if(status == NetworkOperations_Fail || status == NetworkOperations_Success){
+				g_NeighborTable.DeletePacket(msg);
+			}
+		}
 	}
 }
 
@@ -271,7 +252,14 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, TRUE );
 #endif
 
+	Message_15_4_t* msg_carrier = g_NeighborTable.FindStalePacketWithRetryAttemptsGreaterThan(FRAMERETRYMAXATTEMPT, BO_OMAC);
+	while(msg_carrier){
+		SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+		msg_carrier = g_NeighborTable.FindStalePacketWithRetryAttemptsGreaterThan(FRAMERETRYMAXATTEMPT,  BO_OMAC);
+	}
 
+
+//	g_NeighborTable.FindAndRemoveStalePackets(FRAMERETRYMAXATTEMPT);
 
 	//Check all Neighbors that have a packet in the queue
 	isDataPacketScheduled = false;
@@ -282,71 +270,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		if(g_NeighborTable.Neighbor[i].neighborStatus != Dead){
 			if( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(g_NeighborTable.Neighbor[i].MACAddress)){
 				// Readjust the neighbors queues and drop packets that have failed FRAMERETRYMAXATTEMPT
-
-				while(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0
-						&& g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT // This can be handled more gracefully
-				){
-#if defined(OMAC_DEBUG_PRINTF)
-					if(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPTWARNINGLEVEL){
-
-						OMAC_HAL_PRINTF("FRAMERETRYMAXATTEMPTWARNINGLEVEL tsr_send_buffer dest = %u, payloadType = %u, GetRetryAttempts = %u \r\n"
-								, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
-								, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
-								, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts()
-						);
-					}
-#endif
-#if OMAC_DEBUG_PRINTF_PACKETDROP_MAXTRIES
-					hal_printf("Dropping TSR Packet FRAMERETRYMAXATTEMPT dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
-							, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
-							, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
-							, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->flags
-							, g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts());
-#endif
-					ClearMsgContents(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval());
-					g_NeighborTable.Neighbor[i].tsr_send_buffer.DropOldest(1);
-				}
-				while(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0
-						&& g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT
-				){
-#if defined(OMAC_DEBUG_PRINTF)
-					if(g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPTWARNINGLEVEL){
-
-						OMAC_HAL_PRINTF("FRAMERETRYMAXATTEMPTWARNINGLEVEL send_buffer dest = %u, payloadType = %u, GetRetryAttempts = %u \r\n"
-								, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
-								, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
-								, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts()
-						);
-					}
-#endif
-#if OMAC_DEBUG_PRINTF_PACKETDROP_MAXTRIES
-					hal_printf("Dropping Data Packet FRAMERETRYMAXATTEMPT dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
-							, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
-							, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
-							, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetHeader()->flags
-							, g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts());
-#endif
-					if(true){ //if(g_OMAC.m_txAckHandler != NULL){ //If user is interested in ACKS, send negative acknowledgements for packets that are getting dropped due to exceeding number of retries
-						Message_15_4_t* msg = g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval();
-						SendACKToUpperLayers(msg, sizeof(Message_15_4_t), NetworkOperations_SendFailed, TRAC_STATUS_NO_ACK);
-#if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
-				hal_printf("NextEvent:NetworkOperations_SendFailed dest = %u \r\r\n", msg->GetHeader()->dest);
-#endif
-					}
-					ClearMsgContents(g_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval());
-					g_NeighborTable.Neighbor[i].send_buffer.DropOldest(1);
-				}
-
-
-				if(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0 ) {
-					cur_remMicroSecnextTX = CalculateNextRXOpp(g_NeighborTable.Neighbor[i].MACAddress);
-					if(cur_remMicroSecnextTX < remMicroSecnextTX){
-						remMicroSecnextTX = cur_remMicroSecnextTX;
-						m_outgoingEntryPtr_dest = g_NeighborTable.Neighbor[i].MACAddress;
-						isDataPacketScheduled = true;
-					}
-				}
-				else if(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
+				if(g_NeighborTable.IsThereAPacketWithDest(g_NeighborTable.Neighbor[i].MACAddress)){
 					cur_remMicroSecnextTX = CalculateNextRXOpp(g_NeighborTable.Neighbor[i].MACAddress);
 					if(cur_remMicroSecnextTX < remMicroSecnextTX){
 						remMicroSecnextTX = cur_remMicroSecnextTX;
@@ -373,81 +297,110 @@ UINT64 DataTransmissionHandler::NextEvent(){
 void DataTransmissionHandler::DropPacket(){
 	//Packet will have to be dropped if retried max attempts
 	//However this function is only used for successfull packet drops
+#if OMAC_DTH_PRINT_NEIGHBOR_TABLE_AFTER_SEND
+			g_OMAC.is_print_neigh_table = true;
+#endif
 #ifdef OMAC_DEBUG_PRINTF
 	OMAC_HAL_PRINTF("dropping packet\r\n");
 #endif
 #if OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
 #endif
+
+
 	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
 	if(neigh_ptr == NULL) {
 		ASSERT_SP(0);
 	}
+	else if(m_outgoingEntryPtr == NULL) {
+//		hal_printf("Packet is not assigned");
+//		ASSERT_SP(0);
+		return;
+	}
 	else {
-		neigh_ptr->random_back_off_window_size = 0;
-		if(neigh_ptr->IsInitializationTimeSamplesNeeded() && neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval() ) {
+		//		neigh_ptr->random_back_off_window_size = 0;
+		//		neigh_ptr->SendLink.RecordPacketSuccess(true);
+		//		#if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
+		//						hal_printf("DropPacket:NetworkOperations_Success dest = %u \r\r\n", m_outgoingEntryPtr->GetHeader()->dest);
+		//		#endif
+		//
+		//		if(m_outgoingEntryPtr->GetHeaderConst()->GetPayloadTypeConst() != MFM_OMAC_TIMESYNCREQ){
+		//			SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
+		//		}
+		//		if(m_outgoingEntryPtr->GetHeaderConst()->GetFlagsConst() & MFM_TIMESYNC_FLAG){
+		//			neigh_ptr->IncrementNumTimeSyncMessagesSent();
+		//		}
+		//
+		//
+		//		ClearMsgContents(m_outgoingEntryPtr);
+		//		g_NeighborTable.DeletePacket(m_outgoingEntryPtr);
+
+
+
+		if(neigh_ptr->IsInitializationTimeSamplesNeeded() && g_NeighborTable.IsThereATSRPacketWithDest(m_outgoingEntryPtr_dest) && m_outgoingEntryPtr == g_NeighborTable.FindTSRPacketForNeighbor(m_outgoingEntryPtr_dest)  ) {
 #if OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
 			hal_printf("Dropping TSR Packet SUCCESS NumTimeSyncMessagesSent = %u < INITIAL_RETRY_BACKOFF_WINDOW_SIZE dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
 					, neigh_ptr->NumTimeSyncMessagesSent
-					, neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
-					, neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
-					, neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->flags
-					, neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts());
+					, m_outgoingEntryPtr->GetHeader()->dest
+					, m_outgoingEntryPtr->GetHeader()->payloadType
+					, m_outgoingEntryPtr->GetHeader()->flags
+					, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
 #endif
-			ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
-			neigh_ptr->tsr_send_buffer.DropOldest(1);
+			//			ClearMsgContents(m_outgoingEntryPtr);
+			g_NeighborTable.DeletePacket(m_outgoingEntryPtr);
+			//			neigh_ptr->tsr_send_buffer.DropOldest(1);
+			neigh_ptr->SendLink.RecordPacketSuccess(true);
 			neigh_ptr->IncrementNumTimeSyncMessagesSent();
 
-#if OMAC_DEBUG_PRINTF_TSREQ_TX
-		g_OMAC.is_print_neigh_table = true;
-#endif
 
 		}
-		else if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
+		else if(g_NeighborTable.IsThereAPacketWithDest(m_outgoingEntryPtr_dest) && m_outgoingEntryPtr == g_NeighborTable.FindDataPacketForNeighbor(m_outgoingEntryPtr_dest) ) {
 #if OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
 			hal_printf("Dropping Data Packet SUCCESS dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
-					, neigh_ptr->send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
-					, neigh_ptr->send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
-					, neigh_ptr->send_buffer.GetOldestwithoutRemoval()->GetHeader()->flags
-					, neigh_ptr->send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts());
+					, m_outgoingEntryPtr->GetHeader()->dest
+					, m_outgoingEntryPtr->GetHeader()->payloadType
+					, m_outgoingEntryPtr->GetHeader()->flags
+					, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
 #endif
-			if(true){ //if(g_OMAC.m_txAckHandler != NULL){
-				Message_15_4_t* msg = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
-				SendACKToUpperLayers(msg, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
+
+			//			ClearMsgContents(m_outgoingEntryPtr);
+			//			neigh_ptr->send_buffer.DropOldest(1);
+			//g_NeighborTable.DeletePacket(m_outgoingEntryPtr);  //BK: Rmoving this case relying on the ACK mechanism to remove the packet
+			neigh_ptr->SendLink.RecordPacketSuccess(true);
+
+			if( (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)
+			){ //This is flushing the time sync message queue if the previous message was successful
+				while((g_NeighborTable.IsThereATSRPacketWithDest(m_outgoingEntryPtr_dest))){
+					g_NeighborTable.DeletePacket(g_NeighborTable.FindTSRPacketForNeighbor(m_outgoingEntryPtr_dest));
+				}
+				neigh_ptr->IncrementNumTimeSyncMessagesSent();
+
+			}
+			if(true){
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
 				hal_printf("DropPacket:NetworkOperations_Success dest = %u \r\r\n", m_outgoingEntryPtr->GetHeader()->dest);
 #endif
+				SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
 			}
 
-			ClearMsgContents(neigh_ptr->send_buffer.GetOldestwithoutRemoval());
-			neigh_ptr->send_buffer.DropOldest(1);
 
-			if((neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0)	&& (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)
-			){ //This is flushing the time sync message queue if the previous message was successful
-				ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
-				neigh_ptr->tsr_send_buffer.DropOldest(1);
-				neigh_ptr->IncrementNumTimeSyncMessagesSent();
-
-#if OMAC_DEBUG_PRINTF_TSREQ_TX
-		g_OMAC.is_print_neigh_table = true;
-#endif
-
-			}
 		}
-		else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval() ){
+		else if(g_NeighborTable.IsThereATSRPacketWithDest(m_outgoingEntryPtr_dest) && m_outgoingEntryPtr == g_NeighborTable.FindTSRPacketForNeighbor(m_outgoingEntryPtr_dest) ){
 #if OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
 			hal_printf("Dropping TSR Packet SUCCESS DestID dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
-					, neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->dest
-					, neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->payloadType
-					, neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetHeader()->flags
-					, neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts());
+					, m_outgoingEntryPtr->GetHeader()->dest
+					, m_outgoingEntryPtr->GetHeader()->payloadType
+					, neigh_ptr->tsr_send_buffer.Getm_outgoingEntryPtreigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts());
 #endif
-			ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
-			neigh_ptr->tsr_send_buffer.DropOldest(1);
-			neigh_ptr->IncrementNumTimeSyncMessagesSent();
+			//			ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
+			//			neigh_ptr->tsr_send_buffer.DropOldest(1);
+			if( (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)){
+				neigh_ptr->IncrementNumTimeSyncMessagesSent();
+			}
 
-#if OMAC_DEBUG_PRINTF_TSREQ_TX
-		g_OMAC.is_print_neigh_table = true;
-#endif
+			g_NeighborTable.DeletePacket(m_outgoingEntryPtr);
+			neigh_ptr->SendLink.RecordPacketSuccess(true);
+
+
 
 			//neigh_ptr->tsr_send_buffer.ClearBuffer();
 		}
@@ -513,10 +466,10 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		//Check CCA only for DATA packets
 
 #if OMAC_DTH_DEBUG_CCA
-	if(DATATX_CCA_PIN_TOGGLER != DISABLED_PIN){
-		CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
-		CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
-	}
+		if(DATATX_CCA_PIN_TOGGLER != DISABLED_PIN){
+			CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
+			CPU_GPIO_SetPinState( DATATX_CCA_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_CCA_PIN_TOGGLER) );
+		}
 #endif
 		DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 
@@ -629,24 +582,24 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 #endif
 		}
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
 
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, g_OMAC.MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
 #if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION||OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( g_OMAC.MAX_PACKET_TX_DURATION_MICRO);
-m_scheduledTimer_in_ticks2 = m_scheduledTimer_in_ticks;
+		m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( g_OMAC.MAX_PACKET_TX_DURATION_MICRO);
+		m_scheduledTimer_in_ticks2 = m_scheduledTimer_in_ticks;
 #endif
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
 
 		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, FAST_RECOVERY_WAIT_PERIOD_MICRO, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER); 
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
 
 
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -691,22 +644,22 @@ m_scheduledTimer_in_ticks2 = m_scheduledTimer_in_ticks;
 
 		//Stop execution
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
 
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 #if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION||OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
+		m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
 #endif
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
 
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER); 
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
 
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -786,17 +739,17 @@ void DataTransmissionHandler::ExecuteEvent(){
 #endif
 		//OMAC_HAL_PRINTF("DataTransmissionHandler::ExecuteEvent Radio not in RX state\r\n");
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
 
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 #if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION||OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
+		m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
 #endif
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
 
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -854,7 +807,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 				if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
 					SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_SendACKed, radioAckStatus);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
-				hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_SendACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
+					hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_SendACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
 #endif
 
 				}
@@ -878,22 +831,22 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 
 			txhandler_state = DTS_RECEIVEDDATAACK;
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+			if(rm != TimerSupported) {
+				//SOFT_BREAKPOINT();
+			}
 
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 #if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION||OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
+			m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
 #endif
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+			if(rm != TimerSupported) {
+				//SOFT_BREAKPOINT();
+			}
 
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER); 
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+			if(rm != TimerSupported) {
+				//SOFT_BREAKPOINT();
+			}
 
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, FALSE);
@@ -923,7 +876,7 @@ m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Cl
 					if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
 						SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_SendNACKed, radioAckStatus);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
-				hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_SendNACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
+						hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_SendNACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
 #endif
 					}
 				}
@@ -953,24 +906,24 @@ m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Cl
 				if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
 					SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_Busy, radioAckStatus);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
-				hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_Busy dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
+					hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_Busy dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
 #endif
 				}
 			}
 
 			txhandler_state = DTS_WAITING_FOR_ACKS;
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+			if(rm != TimerSupported) {
+				//SOFT_BREAKPOINT();
+			}
 
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 #if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION||OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
+			m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
 #endif
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+			if(rm != TimerSupported) {
+				//SOFT_BREAKPOINT();
+			}
 
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 			//if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
@@ -1003,22 +956,22 @@ m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Cl
 	}
 	else if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
 
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, g_OMAC.ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier );
 #if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION||OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( g_OMAC.ACK_RX_MAX_DURATION_MICRO);
+		m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( g_OMAC.ACK_RX_MAX_DURATION_MICRO);
 #endif
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
- //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
+		//Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER); 
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
 
 		if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -1036,16 +989,16 @@ m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Cl
 	else {
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 #if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION||OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
+		m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
 #endif
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
- //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
+		//Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER); 
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
 
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -1072,16 +1025,16 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 		}
 
 #if OMAC_DTH_DEBUG_ReceiveDATAACK
-	if(DATATX_ReceiveDATAACK_PIN_TOGGLER != DISABLED_PIN){
-		CPU_GPIO_SetPinState( DATATX_ReceiveDATAACK_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_ReceiveDATAACK_PIN_TOGGLER) );
-		CPU_GPIO_SetPinState( DATATX_ReceiveDATAACK_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_ReceiveDATAACK_PIN_TOGGLER) );
-	}
+		if(DATATX_ReceiveDATAACK_PIN_TOGGLER != DISABLED_PIN){
+			CPU_GPIO_SetPinState( DATATX_ReceiveDATAACK_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_ReceiveDATAACK_PIN_TOGGLER) );
+			CPU_GPIO_SetPinState( DATATX_ReceiveDATAACK_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_ReceiveDATAACK_PIN_TOGGLER) );
+		}
 #endif
 
 
-	#if OMAC_SEND_DEBUGGING_FOR_MF
-			hal_printf("A\r\n");
-	#endif
+#if OMAC_SEND_DEBUGGING_FOR_MF
+		hal_printf("A\r\n");
+#endif
 
 
 		txhandler_state = DTS_RECEIVEDDATAACK;
@@ -1124,23 +1077,23 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 
 
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+		if(rm != TimerSupported) {
+			//SOFT_BREAKPOINT();
+		}
 
 		if(rm == TimerSupported){
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 #if OMAC_DTH_TIMER_TARGET_TIME_CORRECTION||OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
-m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
+			m_scheduledTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( 0);
 #endif
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
- //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+			if(rm != TimerSupported) {
+				//SOFT_BREAKPOINT();
+			}
+			//Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER); 
- if(rm != TimerSupported) { 
- //SOFT_BREAKPOINT();
- } 
+			if(rm != TimerSupported) {
+				//SOFT_BREAKPOINT();
+			}
 
 			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 				PostExecuteEvent();
@@ -1162,12 +1115,12 @@ void DataTransmissionHandler::PostExecuteEvent(){
 #if OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
 	if(txhandler_state != DTS_RECEIVEDDATAACK && txhandler_state != DTS_RECEIVEDDATAACK){
 #ifdef OMAC_DEBUG_GPIO //Mark 6 Before  Initiating Send from DTH
-	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
-	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
-	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
-	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
-	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
-	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
 #endif
 		m_curTime_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 		m_TimeDiff_in_micros = g_OMAC.m_Clock.ConvertTickstoMicroSecs(m_curTime_in_ticks - m_scheduledTimer_in_ticks);
@@ -1183,7 +1136,7 @@ void DataTransmissionHandler::PostExecuteEvent(){
 					, m_outgoingEntryPtr->GetHeader()->flags
 					, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts()
 					,txhandler_state
-					);
+			);
 		}
 		else{
 			hal_printf("DTH:UEPE NO m_outgoingEntryPtr, txhandler_state= %u \r\n", txhandler_state);
@@ -1193,8 +1146,8 @@ void DataTransmissionHandler::PostExecuteEvent(){
 	if(txhandler_state == DTS_WAITING_FOR_ACKS && m_outgoingEntryPtr && m_outgoingEntryPtr_dest != 0){
 #if OMAC_DEBUG_PRINTF_PACKET_ACK_RX_FAIL
 #ifdef OMAC_DEBUG_GPIO //Mark 6 Before  Initiating Send from DTH
-	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
-	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
 #endif
 		if(m_outgoingEntryPtr && m_outgoingEntryPtr_dest != 0){
 			hal_printf("ACK RX FAIL dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
@@ -1202,6 +1155,9 @@ void DataTransmissionHandler::PostExecuteEvent(){
 					, m_outgoingEntryPtr->GetHeader()->payloadType
 					, m_outgoingEntryPtr->GetHeader()->flags
 					, m_outgoingEntryPtr->GetMetaData()->GetRetryAttempts());
+#if OMAC_DTH_PRINT_NEIGHBOR_TABLE_AFTER_SEND
+			g_OMAC.is_print_neigh_table = true;
+#endif
 		}
 		else{
 			hal_printf("ACK RX FAIL NO m_outgoingEntryPtr \r\n");
@@ -1210,9 +1166,9 @@ void DataTransmissionHandler::PostExecuteEvent(){
 #endif
 		SelectRetrySlotNumForNeighborBackOff();
 		if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
-				SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_SendNACKed, 0);
+			SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_SendNACKed, 0);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
-				hal_printf("DataTransmissionHandler:SOFTWARE_ACKSendACK:NetworkOperations_SendNACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
+			hal_printf("DataTransmissionHandler:SOFTWARE_ACKSendACK:NetworkOperations_SendNACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
 #endif
 		}
 	}
@@ -1242,16 +1198,20 @@ Message_15_4_t* DataTransmissionHandler::SelectPacketForDest(UINT16 m_outgoingEn
 	}
 
 	m_outgoingEntryPtr_local = NULL;
-	if(neigh_ptr->IsInitializationTimeSamplesNeeded() && neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ) {
-		m_outgoingEntryPtr_local = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
+	if(neigh_ptr->IsInitializationTimeSamplesNeeded() && g_NeighborTable.IsThereATSRPacketWithDest(m_outgoingEntryPtr_dest_) ) {
+		m_outgoingEntryPtr_local = g_NeighborTable.FindTSRPacketForNeighbor(m_outgoingEntryPtr_dest_);
+		txhandler_state = DTS_PACKET_SELECTED;
 	}
-	else if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
-		m_outgoingEntryPtr_local = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
+	else if(g_NeighborTable.IsThereADataPacketWithDest(m_outgoingEntryPtr_dest_) ) {
+		m_outgoingEntryPtr_local = g_NeighborTable.FindDataPacketForNeighbor(m_outgoingEntryPtr_dest_);
+		txhandler_state = DTS_PACKET_SELECTED;
 	}
-	else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
-		m_outgoingEntryPtr_local = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
+	else if(g_NeighborTable.IsThereATSRPacketWithDest(m_outgoingEntryPtr_dest_) ){
+		m_outgoingEntryPtr_local = g_NeighborTable.FindTSRPacketForNeighbor(m_outgoingEntryPtr_dest_);
+		txhandler_state = DTS_PACKET_SELECTED;
 	}
 	else{
+		txhandler_state = DTS_PACKET_NOTSELECTED;
 		//Commenting out, as sometimes there may not be anything to be sent,
 		//	in which case Send returns a false.
 		//ASSERT_SP(0);
@@ -1275,8 +1235,7 @@ bool DataTransmissionHandler::Send(){
 	//	}
 	//
 	//	m_outgoingEntryPtr = NULL;
-	//	if(neigh_ptr->IsInitializationTimeSamplesNeeded() && neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ) {
-	//		m_outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
+	//	if(neigh_ptr->IsInitializationTimeSamplesNeeded() && neigh_ptr->tsr_send_bum_outgoingEntryPtrgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
 	//	}
 	//	else if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
 	//		m_outgoingEntryPtr = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
@@ -1318,15 +1277,16 @@ bool DataTransmissionHandler::Send(){
 #endif
 
 #ifdef OMAC_DEBUG_GPIO //Mark 6 Before  Initiating Send from DTH
-	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
-	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
 #endif
 
+		txhandler_state = DTS_SEND_INITIATED;
 		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
 
-		#if OMAC_SEND_DEBUGGING_FOR_MF
-				hal_printf("S\r\n");
-		#endif
+#if OMAC_SEND_DEBUGGING_FOR_MF
+		hal_printf("S\r\n");
+#endif
 
 #if OMAC_DTH_DEBUG_PRINTF_PACKET_SEND
 		hal_printf("DTH:Send() dest= %u payloadType= %u, flags = %u, Retry Attempts = %u, rs = %u \r\n"
@@ -1376,6 +1336,7 @@ bool DataTransmissionHandler::Send(){
 		}
 	}
 	else{
+		txhandler_state = DTS_SEND_PACKET_NOT_READY;
 		return false;
 	}
 }
@@ -1430,4 +1391,5 @@ BOOL DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skip
 		return FALSE;
 	}
 }
+
 

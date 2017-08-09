@@ -34,19 +34,19 @@ void PublicSchedulerTaskHandler1(void * param){
 	if(g_OMAC.m_omac_scheduler.m_scheduledTimer_in_ticks > g_OMAC.m_omac_scheduler.m_curTime_in_ticks){ //Check for early firing from the timer
 		g_OMAC.m_omac_scheduler.m_num_rescheduled = g_OMAC.m_omac_scheduler.m_num_rescheduled + 1;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER);
-		 if(rm != TimerSupported) {
-			 SOFT_BREAKPOINT();
-		 }
+		if(rm != TimerSupported) {
+			SOFT_BREAKPOINT();
+		}
 		rem_time_micros = g_OMAC.m_Clock.ConvertTickstoMicroSecs( g_OMAC.m_omac_scheduler.m_scheduledTimer_in_ticks - g_OMAC.m_omac_scheduler.m_curTime_in_ticks);
 		if(rem_time_micros < OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) rem_time_micros = OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO;
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, rem_time_micros, TRUE, OMACClockSpecifier );
-		 if(rm != TimerSupported) {
-			 SOFT_BREAKPOINT();
-		 }
-		 rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
-		 if(rm != TimerSupported) {
-			 SOFT_BREAKPOINT();
-		 }
+		if(rm != TimerSupported) {
+			SOFT_BREAKPOINT();
+		}
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
+		if(rm != TimerSupported) {
+			SOFT_BREAKPOINT();
+		}
 
 	}
 	else{
@@ -79,7 +79,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 
 	radioID = _radioID;
 	macID = _macID;
-	
+
 #ifdef PROFILING
 	minStartDelay = 300; maxStartDelay = 10;
 	minStopDelay = 300; maxStopDelay = 10;
@@ -270,28 +270,28 @@ void OMACScheduler::ScheduleNextEvent(){
 	//ASSERT_SP(rm == TimerSupported);
 
 
-//
-//	BOOL* completionFlag = (BOOL*)false;
-//	// we assume only 1 can be active, abort previous just in case
-//	OMAC_scheduler_TimerCompletion.Abort();
-//	OMAC_scheduler_TimerCompletion.InitializeForISR(PublicSchedulerTaskHandler, completionFlag);
-//	//Enqueue a task to listen for messages 100 usec from now (almost immediately)
-//	//TODO (Ananth): to check what the right enqueue value should be
-//	OMAC_scheduler_TimerCompletion.EnqueueDelta(nextWakeupTimeInMicSec);
+	//
+	//	BOOL* completionFlag = (BOOL*)false;
+	//	// we assume only 1 can be active, abort previous just in case
+	//	OMAC_scheduler_TimerCompletion.Abort();
+	//	OMAC_scheduler_TimerCompletion.InitializeForISR(PublicSchedulerTaskHandler, completionFlag);
+	//	//Enqueue a task to listen for messages 100 usec from now (almost immediately)
+	//	//TODO (Ananth): to check what the right enqueue value should be
+	//	OMAC_scheduler_TimerCompletion.EnqueueDelta(nextWakeupTimeInMicSec);
 }
 
 bool OMACScheduler::RunEventTask(){
 #ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
-		CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, TRUE);
+	CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
+	CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, TRUE);
 #endif
-		SchedulerINUse = false;
-		if(m_state != I_RADIO_STOP_RETRY) m_num_sleep_retry_attempts = 0;
-		VirtualTimerReturnMessage rm;
-//		rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, FAILSAFETIME_MICRO, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
-//		if(rm == TimerSupported) rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
+	SchedulerINUse = false;
+	if(m_state != I_RADIO_STOP_RETRY) m_num_sleep_retry_attempts = 0;
+	VirtualTimerReturnMessage rm;
+	//		rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, FAILSAFETIME_MICRO, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
+	//		if(rm == TimerSupported) rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 
-		 m_scheduledFailSafeTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( FAILSAFETIME_MICRO);
+	m_scheduledFailSafeTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( FAILSAFETIME_MICRO);
 
 	//g_OMAC.UpdateNeighborTable();
 	UINT64 curTicks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
@@ -305,76 +305,76 @@ bool OMACScheduler::RunEventTask(){
 
 	m_execution_started = true;
 	switch(m_state) {
-		case I_DATA_SEND_PENDING:
+	case I_DATA_SEND_PENDING:
 #ifdef OMAC_DEBUG_GPIO
-			CPU_GPIO_SetPinState(SCHED_TX_EXEC_PIN, TRUE);
-			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
+		CPU_GPIO_SetPinState(SCHED_TX_EXEC_PIN, TRUE);
+		CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
 #endif
-			m_lastHandler = DATA_TX_HANDLER;
-			m_DataTransmissionHandler.ExecuteEvent();
-			break;
-		case I_DATA_RCV_PENDING:
+		m_lastHandler = DATA_TX_HANDLER;
+		m_DataTransmissionHandler.ExecuteEvent();
+		break;
+	case I_DATA_RCV_PENDING:
 #ifdef OMAC_DEBUG_GPIO
-			CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, TRUE);
-			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
-			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, TRUE);
-			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
+		CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, TRUE);
+		CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
+		CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, TRUE);
+		CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
 #endif
-			m_lastHandler = DATA_RX_HANDLER;
-			m_DataReceptionHandler.ExecuteEvent();
-			break;
-		case I_TIMESYNC_PENDING:
+		m_lastHandler = DATA_RX_HANDLER;
+		m_DataReceptionHandler.ExecuteEvent();
+		break;
+	case I_TIMESYNC_PENDING:
 #ifdef OMAC_DEBUG_GPIO
-			CPU_GPIO_SetPinState(SCHED_TSREQ_EXEC_PIN, TRUE);
+		CPU_GPIO_SetPinState(SCHED_TSREQ_EXEC_PIN, TRUE);
 #endif
-			m_lastHandler = TIMESYNC_HANDLER;
-			m_TimeSyncHandler.ExecuteEvent();
-			break;
-		case I_DISCO_PENDING:
+		m_lastHandler = TIMESYNC_HANDLER;
+		m_TimeSyncHandler.ExecuteEvent();
+		break;
+	case I_DISCO_PENDING:
 #ifdef OMAC_DEBUG_GPIO
-			CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, TRUE);
-			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
-			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, TRUE);
-			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
-			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, TRUE);
-			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
+		CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, TRUE);
+		CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
+		CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, TRUE);
+		CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
+		CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, TRUE);
+		CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
 #endif
-			m_DiscoveryHandler.ExecuteEvent();
-			m_lastHandler = CONTROL_BEACON_HANDLER;
-			break;
-		default: //Case for
-			CPU_GPIO_SetPinState(OMAC_SCHED_POST_POST_EXEC, TRUE);
-			PostExecution();
-			CPU_GPIO_SetPinState(OMAC_SCHED_POST_POST_EXEC, FALSE);
+		m_DiscoveryHandler.ExecuteEvent();
+		m_lastHandler = CONTROL_BEACON_HANDLER;
+		break;
+	default: //Case for
+		CPU_GPIO_SetPinState(OMAC_SCHED_POST_POST_EXEC, TRUE);
+		PostExecution();
+		CPU_GPIO_SetPinState(OMAC_SCHED_POST_POST_EXEC, FALSE);
 	}
 	return true;
 }
 
 void OMACScheduler::PostExecution(){
 #ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
-		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
+	CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
+	CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
 #endif
-		m_execution_started = false;
+	m_execution_started = false;
 	VirtualTimerReturnMessage rm = TimerNotSupported;
-//	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
-//		while (rm !=  TimerSupported){
-//			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
-//		}
-//	if(rm != TimerSupported) {
-//		SOFT_BREAKPOINT();
-//		return; //BK: Failsafe does not stop. let it fire and stop itself.
-//	}
+	//	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
+	//		while (rm !=  TimerSupported){
+	//			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
+	//		}
+	//	if(rm != TimerSupported) {
+	//		SOFT_BREAKPOINT();
+	//		return; //BK: Failsafe does not stop. let it fire and stop itself.
+	//	}
 	if(!EnsureStopRadio()){ //BK: Radio does not stop// Reschedule another stopping periof
 		++m_num_sleep_retry_attempts;
 #ifdef OMAC_DEBUG_PRINTF
-	hal_printf(" \r\n OMACScheduler::PostExecution() Radio stop failure! m_num_sleep_retry_attempts = %u  \r\n", m_num_sleep_retry_attempts);
+		hal_printf(" \r\n OMACScheduler::PostExecution() Radio stop failure! m_num_sleep_retry_attempts = %u  \r\n", m_num_sleep_retry_attempts);
 #endif
 		if(m_num_sleep_retry_attempts < MAX_SLEEP_RETRY_ATTEMPTS){ //Schedule retrial
 			m_state = I_RADIO_STOP_RETRY;
 
 
-//			rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, RADIO_STOP_RETRY_PERIOD_IN_MICS, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
+			//			rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, RADIO_STOP_RETRY_PERIOD_IN_MICS, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
 			if(rm == TimerSupported) rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_RADIO_STOP_RETRY);
 			if(rm == TimerSupported) rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_RADIO_STOP_RETRY);
 			if(rm != TimerSupported){
@@ -389,15 +389,15 @@ void OMACScheduler::PostExecution(){
 	}
 	else{
 
-	m_state = I_IDLE;
-//	rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, FAILSAFETIME_MICRO, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
+		m_state = I_IDLE;
+		//	rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, FAILSAFETIME_MICRO, TRUE, OMACClockSpecifier); //1 sec Timer in micro seconds
 
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
 #endif
 
-	ScheduleNextEvent();
+		ScheduleNextEvent();
 
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
@@ -444,40 +444,40 @@ void OMACScheduler::FailsafeStop(){
 #endif
 
 
-	#if OMAC_DEBUG_PRINTF_FAILSAFE_STOP
+#if OMAC_DEBUG_PRINTF_FAILSAFE_STOP
 		hal_printf("FAILSAFE_STOP m_state = %u \r\n", m_state);
-	#endif
+#endif
 		bool rv = false;
 		switch(m_state) {
-			case I_DATA_SEND_PENDING:
-				m_DataTransmissionHandler.FailsafeStop();
-				PostExecution();
-				break;
-			case I_DATA_RCV_PENDING:
-				m_DataReceptionHandler.FailsafeStop();
-				PostExecution();
-				break;
-			case I_TIMESYNC_PENDING:
-				m_TimeSyncHandler.FailsafeStop();
-				PostExecution();
-				break;
-			case I_DISCO_PENDING:
-				rv = m_DiscoveryHandler.FailsafeStop();
-				if (!rv){
-	//				rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
-					m_scheduledFailSafeTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( FAILSAFETIME_MICRO);
+		case I_DATA_SEND_PENDING:
+			m_DataTransmissionHandler.FailsafeStop();
+			PostExecution();
+			break;
+		case I_DATA_RCV_PENDING:
+			m_DataReceptionHandler.FailsafeStop();
+			PostExecution();
+			break;
+		case I_TIMESYNC_PENDING:
+			m_TimeSyncHandler.FailsafeStop();
+			PostExecution();
+			break;
+		case I_DISCO_PENDING:
+			rv = m_DiscoveryHandler.FailsafeStop();
+			if (!rv){
+				//				rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
+				m_scheduledFailSafeTimer_in_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks() + g_OMAC.m_Clock.ConvertMicroSecstoTicks( FAILSAFETIME_MICRO);
 
-				}
-				else{
-					PostExecution();
-				}
-				break;
-			case I_RADIO_STOP_RETRY:
+			}
+			else{
 				PostExecution();
-					break;
-			default: //Case for
-				PostExecution();
-				break;
+			}
+			break;
+		case I_RADIO_STOP_RETRY:
+			PostExecution();
+			break;
+		default: //Case for
+			PostExecution();
+			break;
 		}
 	}
 }
