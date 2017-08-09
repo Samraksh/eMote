@@ -124,6 +124,7 @@ UINT8 Samraksh_Emote_Update::s_RadioID = RF231RADIO;
 UPDATER_PROGRESS_HANDLER Samraksh_Emote_Update::s_UpdaterProgressHandler = 0;
 
 Samraksh_Emote_Update g_Samraksh_Emote_Update;
+extern NeighborTable g_NeighborTable;
 
 //////////////////////////////////////////////////////////////////////////////
 // HELPERS

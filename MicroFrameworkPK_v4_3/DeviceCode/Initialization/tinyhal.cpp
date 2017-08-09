@@ -8,17 +8,18 @@
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/MAC_decl.h>
 #endif
+
 #if defined(PLATFORM_ARM_SOC_ADAPT)
 #include "..\Targets\Native\Krait\DeviceCode\Krait_TIMER\Krait__TIMER.h"
 extern Krait_Timer g_Krait_Timer;
 #endif
+
+
+#if defined(PLATFORM_ARM_SmartFusion2)
 #include <drivers/mss_sys_services/mss_sys_services.h>
 #include "..\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer\mss_timer.h"
 #include <CMSIS/system_m2sxxx.h>
-
-#if defined(PLATFORM_ARM_SmartFusion2)
 #include <DeviceCode/Crypto/aes_test.h>
-//extern int (*aes_test_main)();
 #endif
 
 #if !defined(__GNUC__)
@@ -599,8 +600,9 @@ mipi_dsi_shutdown();
     HAL_Initialize();
 	
 	// System Services Driver Initialization
+#if defined(PLATFORM_ARM_SmartFusion2)
     MSS_SYS_init(MSS_SYS_NO_EVENT_HANDLER);
-	
+#endif
 
 #if !defined(BUILD_RTM)
 #ifdef TINYHAL_BOOTUP_DISPLAY_BUILD_INFO

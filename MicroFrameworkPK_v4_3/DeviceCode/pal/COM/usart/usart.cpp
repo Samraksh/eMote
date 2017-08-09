@@ -360,10 +360,12 @@ int USART_Driver::Write( int ComPortNum, const char* Data, size_t size )
             return 0;
         }
     }
+#if defined(PLATFORM_ARM_SmartFusion2)
 	char* DataToSend = (char*)Data;
 	CPU_USART_WriteStringToTxBuffer(ComPortNum, DataToSend, size);
 	totWrite = size;
-/*
+#else
+
     // loop twice if needed because of our implementaition of a circular buffered QUEUE
     for(j=0; (j < 2) && (totWrite < size); j++)
     {
@@ -401,8 +403,8 @@ int USART_Driver::Write( int ComPortNum, const char* Data, size_t size )
             // so we do this once to be efficient in the common case (buffer has room for all chars)
             CPU_USART_TxBufferEmptyInterruptEnable( ComPortNum, TRUE );
         }
-    }*/
-
+    }
+#endif
     return totWrite;
 }
 
