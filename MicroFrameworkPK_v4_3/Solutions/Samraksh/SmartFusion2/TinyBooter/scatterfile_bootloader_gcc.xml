@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<ScatterFile xmlns="http://schemas.microsoft.com/netmf/ScatterfileSchema.xsd">
+
+    <Set Name="Valid" Value="false"/>
+
+    <!-- ################################################################################ -->
+    <!-- SAM_$ are defined inside Solutions\Samraksh\EmoteDotNow\EmoteDotNow.settings -->
+    <Set Name="Heap_Begin"          Value="%SAM_HEAP_BEGIN%"/><!-- TinyBooter uses SimpleHeap but passes location from Heap library -->
+    <Set Name="Heap_End"            Value="%SAM_HEAP_END%"/>
+    <Set Name="Stack_Bottom"        Value="%SAM_STACK_BOTTOM%"/>
+    <Set Name="Stack_Top"           Value="%SAM_STACK_TOP%"/>
+
+
+    <IfDefined Name="PROFILE_BUILD">
+        <Set Name="ProfilerBufferBegin" Value="%SAM_PROFILER_BUFFER_BEGIN%"/>
+        <Set Name="ProfilerBufferEnd"   Value="%SAM_PROFILER_BUFFER_END%"/>
+    </IfDefined>
+
+    <If Name="TARGETLOCATION" In="FLASH">
+        <!-- The STM32F10x has 1MB flash divided into the following regions -->
+        <!-- THIS MUST MATCH THE BLOCK STORAGE DRIVER! -->
+        <Set Name="Config_BaseAddress"  Value="0x6003F000"/><!-- Config_BaseAddress MUST MATCH TINYCLR SCATTERFILE -->
+        <Set Name="Config_Size"         Value="0x00001000"/><!--        Config_Size MUST MATCH TINYCLR SCATTERFILE -->
+        <Set Name="Code_RunAddress"    Value="0x00000000"/>
+        <Set Name="Code_LoadAddress"    Value="0x60000000"/>
+        <Set Name="Deploy_BaseAddress"  Value="0x00030000"/>
+        <Set Name="Code_Size"           Value="%Deploy_BaseAddress - Code_RunAddress%"/>
+        <Set Name="Valid"               Value="true"/>
+    </If>
+
+    <!-- ################################################################################ -->
+
+    <If Name="Valid" Value="false">
+        <Error Message="Configuration not recognized"/>
+    </If>
+
+
+    <NamedGroup Name="MEMORY">
+      <LoadRegion Name="LR_ENVM" Base="%Code_LoadAddress%" Size="%Code_Size%"/>
+      <LoadRegion Name="LR_EXEC" Base="%Code_RunAddress%" Size="%Code_Size%"/>
+      <LoadRegion Name="STACK" Base="%Stack_Bottom%" Size="%Stack_Top - Stack_Bottom% + 1"/>
+      <LoadRegion Name="HEAP" Base="%Heap_Begin%" Size="%Heap_End - Heap_Begin% + 1"/>
+      <IfDefined Name="Config_BaseAddress">
+        <LoadRegion Name="LR_CONFIG" Base="%Config_BaseAddress%" Size="%Config_Size%"/>
+      </IfDefined>
+      <LoadRegion Name="RELOC_RAM" Base="%Stack_Top% + 8" Size="%Heap_Begin - Stack_Top%"/>
+    </NamedGroup>
+
+    <EntryPoint Name="EntryPoint"/>
+
+    <NamedGroup Name="SECTIONS">
+      <ExecRegion Name="ER_FLASH" Options="&gt;LR_EXEC AT&gt;LR_ENVM">
+        <FileMapping Name="*" Options="(VectorsTrampolines)" />
+        <FileMapping Name="*" Options="(i.EntryPoint)" />
+        <FileMapping Name="*" Options="(SectionForBootstrapOperations)" />
+        <FileMapping Name="*" Options="(.text*)" />
+        <FileMapping Name="*" Options="(i.*)" />
+        <FileMapping Name="*" Options="(t.*)" />
+        <FileMapping Name="*" Options="(.rodata*)" />
+        <FileMapping Name="*" Options="(rodata)" />
+        <FileMapping Name="*" Options="(.constdata*)" />
+        <FileMapping Name="*" Options="(.conststring*)" />
+        <IfNotDefined Name="Config_BaseAddress">
+          <FileMapping Name="*" Options="(SectionForConfig)" />
+        </IfNotDefined>
+
+        <!-- libc thinks that it needs these routines, but they are never called -->
+        <Include File="%SPOCLIENT%\Solutions\Samraksh\%PLATFORM%\scatterfile_gcc_missing_symbols.xml"/>
+      </ExecRegion>
+
+      <ExecRegion Name="ER_STACK_BOTTOM" Base="%Stack_Bottom%">
+        <FileMapping Name="*" Options="(SectionForStackBottom)" />
+      </ExecRegion>
+      <ExecRegion Name="ER_STACK_TOP" Base="%Stack_Top%">
+        <FileMapping Name="*" Options="(SectionForStackTop)" />
+      </ExecRegion>
+      <ExecRegion Name="ER_RAM_RO" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_ENVM">
+        <!--<FileMapping Name="*" Options="(VectorsTrampolines)" />--><!-- if vector table copied to RAM, must also set Vector Table Offset Register-->
+        <!--<Include File="%SPOCLIENT%\Solutions\Samraksh\%PLATFORM%\TinyCLR\scatterfile_ram_functions.xml"/>--><!--CLR RT functions to be placed in SRAM-->
+        <!--<Include File="%SPOCLIENT%\Solutions\Samraksh\%PLATFORM%\TinyCLR\scatterfile_tinyclr_ram_functions.xml"/>--><!--Samraksh HAL functions to be placed in SRAM-->
+        <If Name="TARGETLOCATION" In="FLASH">     
+          <FileMapping Name="*" Options="(SectionForFlashOperations)" />       
+        </If>
+      </ExecRegion>      
+      <ExecRegion Name="ER_RAM_RW" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_ENVM">
+        <FileMapping Name="*" Options="(rwdata)" />
+        <FileMapping Name="*" Options="(.data*)" />
+        <FileMapping Name="*" Options="(.zidata*)" />
+      </ExecRegion>      
+      <ExecRegion Name=".bss" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_ENVM">
+        <FileMapping Name="*" Options="(.bss*)" />
+        <FileMapping Name="PROVIDE(__exidx_start = .);" />
+        <FileMapping Name="PROVIDE(__exidx_end = .);" />
+      </ExecRegion>
+      <ExecRegion Name="/DISCARD/">
+        <FileMapping Name="*" Options="(.glue*)" />
+        <FileMapping Name="*" Options="(.vfp11*)" />
+        <FileMapping Name="*" Options="(.ARM.exidx*)" />
+        <FileMapping Name="*" Options="(.ARM.extab*)" />
+        <FileMapping Name="*" Options="(SectionForCustomHeapBegin)" />
+        <FileMapping Name="*" Options="(SectionForCustomHeapEnd)" />
+      </ExecRegion>
+      <ExecRegion Name="ER_HEAP_BEGIN" Align="0x10" Options="&gt;RELOC_RAM"> <!-- Base="%Heap_Begin%"> Experimental: let the linker expand the heap starting address down -->
+        <FileMapping Name="*" Options="(SectionForHeapBegin)" />
+      </ExecRegion>
+      <ExecRegion Name="ER_HEAP_END" Base="%Heap_End%">
+        <FileMapping Name="*" Options="(SectionForHeapEnd)" />
+      </ExecRegion>
+      <!-- no ER_CUSTOMHEAP_BEGIN, nor ER_CUSTOMHEAP_END for TinyBooter -->
+
+    <IfDefined Name="Config_BaseAddress">         
+      <ExecRegion Name="ER_CONFIG" Options="&gt;LR_CONFIG">
+        <FileMapping Name="*" Options="(SectionForConfig)" />
+      </ExecRegion>
+    </IfDefined>    
+    </NamedGroup>
+
+    <!-- The following variables are used to simulate the ones autogenerated by RVDS -->
+    <!-- The address calculations must follow the desired layout order -->
+    <GlobalVariable Name="Load$$ER_FLASH$$Base"          			Value="ADDR(ER_FLASH)"/>
+    <GlobalVariable Name="Image$$ER_FLASH$$Length"       			Value="SIZEOF(ER_FLASH)"/>
+    <GlobalVariable Name="Image$$ER_RAM_RO$$Base"                   Value="ADDR(ER_STACK_TOP) + 8"/>
+    <GlobalVariable Name="Image$$ER_RAM_RO$$Length"                 Value="ADDR(ER_RAM_RW) - ADDR(ER_RAM_RO)"/>
+    <GlobalVariable Name="Load$$ER_RAM_RO$$Base"                    Value="LOADADDR(ER_RAM_RO)"/>
+    <GlobalVariable Name="Image$$ER_RAM_RW$$Base"                   Value="ADDR(ER_RAM_RW)"/>
+    <GlobalVariable Name="Image$$ER_RAM_RW$$Length"                 Value="(ADDR(.bss) + SIZEOF(.bss)) - ADDR(ER_RAM_RW)"/>
+    <GlobalVariable Name="Load$$ER_RAM_RW$$Base"                    Value="LOADADDR(ER_RAM_RO) + (ADDR(ER_RAM_RW) - ADDR(ER_RAM_RO))"/>
+    <GlobalVariable Name="Image$$ER_RAM_RW$$ZI$$Base"               Value="ADDR(.bss)"/>
+    <GlobalVariable Name="Image$$ER_RAM_RW$$ZI$$Length"             Value="SIZEOF(.bss)"/>
+    <GlobalVariable Name="__use_no_semihosting_swi"                 Value="0"/>
+
+</ScatterFile>

@@ -1,0 +1,371 @@
+The .NET Micro Framework Solution Wizard will create the 'EmoteDotNow' solution in the directory:
+
+	D:\Main\Work\SRC\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Solutions\Samraksh\EmoteDotNow
+
+The following is a description of the components of this solution.  Each solution consists of a set of projects which in turn have a set of features and libraries.
+
+    Solution:                          	 EmoteDotNow
+    Author:                            	 Nived.Sivadas, Mukundan.Sridharan
+    Description:                       	 This is "The Samraksh Companys" solution for the EmoteDotNow platform
+    Processor:                         	 TEMPLATE
+    Debugger Port:                     	 COM1
+
+
+Project MicroBooter
+    Description:                       	 
+    Path:                              	 Solutions\Samraksh\EmoteDotNow\MicroBooter
+
+Libraries:
+    MicroBooterLib:                    	 MicroBooter Library
+    cpu_analog_stubs:                  	 Analog stub library
+    asyncproccall_pal_stubs:           	 Asynchronous procedure call library
+    cpu_bootstrap_stubs:               	 Processor bootstrap stub library
+    cpu_cache_stubs:                   	 Cache stub library
+    usart_pal:                         	 USART driver
+    usb_pal_stubs:                     	 USB stub driver
+    config_pal_loader:                 	 System configuration boot loader library
+    CRC:                               	 CRC library
+    Crypto_stub:                       	 Crypto stub library
+    diagnostics_pal_stubs:             	 Diagnostics stub library
+    cpu_ebiu_stubs:                    	 EBIU stub library
+    events_pal_stubs:                  	 System event stub library
+    GlobalLock_hal_stubs:              	 Global lock stub library
+    SH7264_Keypad:                     	 SH7264 Keypad driver
+    system_initialization_hal_loader:  	 System initialization (for boot loaders)
+    Time_pal_stubs:                    	 Time set of methods used by Time, Time
+    cpu_intc_stubs:                    	 Interrupt controller stub library
+    cpu_power_stubs:                   	 CPU power stub library
+    cpu_prestackinit_stubs:            	 Pre stack initialization stub driver
+    cpu_pwm_stubs:                     	 PWM stub library
+    SimpleHeap_config_stubs:           	 SimpleHeap configuration stub library
+    SimpleHeap_stubs:                  	 SimpleHeap unmanaged heap stub library
+    cpu_time_stubs:                    	 Time stub library
+    tinycrt_pal_loader:                	 CRT functionality (for boot loaders)
+    TinyHal_loader:                    	 Core HAL library (for boot loaders)
+    cpu_watchdog_stubs:                	 Watchdog driver
+    Watchdog_pal_stubs:                	 Watchdog stub
+    WireProtocol:                      	 Device communication protocol
+    heap_pal_stubs:                    	 Simple heap stub library
+    TimeService_pal_stubs:             	 TimeService set of methods used by TimeService, TimeService
+    palevent_pal_stubs:                	 palevent set of methods used by Gesture, Ink
+    Gesture_pal_stubs:                 	 Gesture set of methods used by Gesture, Ink
+    Ink_pal_stubs:                     	 Ink set of methods used by Ink, Ink
+    cpu_spi_stubs:                     	 SPI stub library
+    piezo_pal_stubs:                   	 Piezo stub driver
+    cpu_mmu_stubs:                     	 Memory management unit stub library
+    lcd_hal_stubs:                     	 Stub display driver
+    cpu_LCD_stubs:                     	 Display controller stub library
+    i2c_pal_stubs:                     	 I2C stub library
+    fs_pal_stubs:                      	 File System stub library
+    FS_Config_stubs:                   	 File system config stub
+    sockets_pal_stubs:                 	 Network socket stub driver
+    COM_pal_stubs:                     	 Communication port directory stub
+    Buttons_pal_stubs:                 	 Buttons stub library
+    BlockStorage_AddDevices_stubs:     	 Block storage add device stub driver
+    blockstorage_pal_stubs:            	 Block storage stub library
+    batterymeasurement_hal_stubs:      	 Battery measurement stub library
+    batterycharger_hal_stubs:          	 Battery charger stub library
+    backlight_hal_stubs:               	 Backlight HAL stub library
+    cpu_usart_stubs:                   	 USART stub library
+    Analog_DA_HAL_EmoteDotNow:         	 Generates template code in your solution's DeviceCode directory for the given Library Category.The project will be generated in Solutions\Samraksh\EmoteDotNow\DeviceCode\Analog_DA_HAL
+    native_double_pal:                 	 Doubles Native PAL library
+
+
+Project NativeSample
+    Description:                       	 
+    Path:                              	 Solutions\Samraksh\EmoteDotNow\NativeSample
+
+Libraries:
+    Native:                            	 
+    usart_pal:                         	 USART driver
+    usb_pal:                           	 USB driver
+    CRC:                               	 CRC library
+    diagnostics_pal:                   	 Diagnostics library
+    TinyHal:                           	 Core HAL library
+    WireProtocol:                      	 Device communication protocol
+    Analog_DA_HAL_EmoteDotNow:         	 Generates template code in your solution's DeviceCode directory for the given Library Category.The project will be generated in Solutions\Samraksh\EmoteDotNow\DeviceCode\Analog_DA_HAL
+    cpu_analog_stubs:                  	 Analog stub library
+    asyncproccall_pal:                 	 Asynchronous procedure call library
+    cpu_bootstrap_stubs:               	 Processor bootstrap stub library
+    Crypto_stub:                       	 Crypto stub library
+    cpu_ebiu_stubs:                    	 EBIU stub library
+    events_pal:                        	 System event library
+    GlobalLock_hal:                    	 Global lock (native threading control)
+    cpu_gpio_stubs:                    	 GPIO stub library
+    config_pal_Stubs:                  	 Configuration stub library
+    system_initialization_hal:         	 System initialization library
+    sockets_pal_stubs:                 	 Network socket stub driver
+    COM_pal:                           	 Communication port director
+    ARM9_mmu:                          	 ARM9 MMU core driver
+    lcd_hal_stubs:                     	 Stub display driver
+    cpu_LCD_stubs:                     	 Display controller stub library
+    blockstorage_pal:                  	 Block storage library
+    i2c_pal:                           	 I2C drivers
+    batterymeasurement_hal_stubs:      	 Battery measurement stub library
+    batterycharger_hal_stubs:          	 Battery charger stub library
+    backlight_hal_stubs:               	 Backlight HAL stub library
+    fs_pal_stubs:                      	 File System stub library
+    FS_Config_stubs:                   	 File system config stub
+    Ink_pal_stubs:                     	 Ink set of methods used by Ink, Ink
+    Gesture_pal_stubs:                 	 Gesture set of methods used by Gesture, Ink
+    TimeService_pal_stubs:             	 TimeService set of methods used by TimeService, TimeService
+    Buttons_pal_stubs:                 	 Buttons stub library
+    cpu_cache_stubs:                   	 Cache stub library
+    heap_pal:                          	 Managed heap size and location configuration
+    piezo_pal:                         	 Piezo sound driver
+    Time_pal:                          	 Time set of methods used by Time, Time
+    cpu_intc_stubs:                    	 Interrupt controller stub library
+    cpu_power_stubs:                   	 CPU power stub library
+    cpu_prestackinit_stubs:            	 Pre stack initialization stub driver
+    SimpleHeap_config:                 	 Simple unmanaged heap
+    SimpleHeap:                        	 SimpleHeap unmanaged heap
+    cpu_time_stubs:                    	 Time stub library
+    tinycrt_pal:                       	 CRT functionality
+    cpu_watchdog_stubs:                	 Watchdog driver
+    Watchdog_pal:                      	 Watchdog set of methods used by Watchdog feature
+    palevent_pal:                      	 palevent set of methods used by Gesture, Ink
+    piezo_config_pal_stubs:            	 Piezo configuration stub
+    BlockStorageDriver_stubs:          	 Stub block storage driver
+    BlockStorage_AddDevices_stubs:     	 Block storage add device stub driver
+    cpu_i2c_stubs:                     	 I2C stub library
+    cpu_pwm_stubs:                     	 PWM stub library
+    cpu_spi_stubs:                     	 SPI stub library
+    cpu_usart_stubs:                   	 USART stub library
+    usb_pal_config_stub:               	 USB configuration stub library
+    cpu_usb_stubs:                     	 USB stub library
+    native_double_pal:                 	 Doubles Native PAL library
+
+
+Project Tinybooter
+    Description:                       	 
+    Path:                              	 Solutions\Samraksh\EmoteDotNow\TinyBooter
+
+Libraries:
+    TinybooterLib:                     	 TinyBooter core library
+    cpu_analog_stubs:                  	 Analog stub library
+    asyncproccall_pal_stubs:           	 Asynchronous procedure call library
+    cpu_bootstrap_stubs:               	 Processor bootstrap stub library
+    cpu_cache_stubs:                   	 Cache stub library
+    usart_pal:                         	 USART driver
+    usb_pal_stubs:                     	 USB stub driver
+    config_pal_loader:                 	 System configuration boot loader library
+    CRC:                               	 CRC library
+    Crypto_stub:                       	 Crypto stub library
+    diagnostics_pal_stubs:             	 Diagnostics stub library
+    cpu_ebiu_stubs:                    	 EBIU stub library
+    events_pal_stubs:                  	 System event stub library
+    GlobalLock_hal_stubs:              	 Global lock stub library
+    SH7264_Keypad:                     	 SH7264 Keypad driver
+    system_initialization_hal_loader:  	 System initialization (for boot loaders)
+    Time_pal_stubs:                    	 Time set of methods used by Time, Time
+    cpu_intc_stubs:                    	 Interrupt controller stub library
+    cpu_power_stubs:                   	 CPU power stub library
+    cpu_prestackinit_stubs:            	 Pre stack initialization stub driver
+    cpu_pwm_stubs:                     	 PWM stub library
+    SimpleHeap_config_stubs:           	 SimpleHeap configuration stub library
+    SimpleHeap_stubs:                  	 SimpleHeap unmanaged heap stub library
+    cpu_time_stubs:                    	 Time stub library
+    tinycrt_pal_loader:                	 CRT functionality (for boot loaders)
+    TinyHal_loader:                    	 Core HAL library (for boot loaders)
+    cpu_watchdog_stubs:                	 Watchdog driver
+    Watchdog_pal_stubs:                	 Watchdog stub
+    WireProtocol:                      	 Device communication protocol
+    heap_pal_stubs:                    	 Simple heap stub library
+    TimeService_pal_stubs:             	 TimeService set of methods used by TimeService, TimeService
+    palevent_pal_stubs:                	 palevent set of methods used by Gesture, Ink
+    Gesture_pal_stubs:                 	 Gesture set of methods used by Gesture, Ink
+    Ink_pal_stubs:                     	 Ink set of methods used by Ink, Ink
+    cpu_spi_stubs:                     	 SPI stub library
+    piezo_pal_stubs:                   	 Piezo stub driver
+    cpu_mmu_stubs:                     	 Memory management unit stub library
+    lcd_hal_stubs:                     	 Stub display driver
+    cpu_LCD_stubs:                     	 Display controller stub library
+    i2c_pal_stubs:                     	 I2C stub library
+    fs_pal_stubs:                      	 File System stub library
+    FS_Config_stubs:                   	 File system config stub
+    sockets_pal_stubs:                 	 Network socket stub driver
+    COM_pal_stubs:                     	 Communication port directory stub
+    Buttons_pal_stubs:                 	 Buttons stub library
+    BlockStorage_AddDevices_stubs:     	 Block storage add device stub driver
+    blockstorage_pal_stubs:            	 Block storage stub library
+    batterymeasurement_hal_stubs:      	 Battery measurement stub library
+    batterycharger_hal_stubs:          	 Battery charger stub library
+    backlight_hal_stubs:               	 Backlight HAL stub library
+    cpu_usart_stubs:                   	 USART stub library
+    Analog_DA_HAL_EmoteDotNow:         	 Generates template code in your solution's DeviceCode directory for the given Library Category.The project will be generated in Solutions\Samraksh\EmoteDotNow\DeviceCode\Analog_DA_HAL
+    native_double_pal:                 	 Doubles Native PAL library
+
+
+Project TinyBooterDecompressor
+    Description:                       	 
+    Path:                              	 Solutions\Samraksh\EmoteDotNow\TinyBooter
+
+Libraries:
+    TinyBooterDecompressorLib:         	 TinyBooter decompressor library
+    cpu_analog_stubs:                  	 Analog stub library
+    asyncproccall_pal_stubs:           	 Asynchronous procedure call library
+    cpu_bootstrap_stubs:               	 Processor bootstrap stub library
+    cpu_cache_stubs:                   	 Cache stub library
+    usart_pal:                         	 USART driver
+    usb_pal_stubs:                     	 USB stub driver
+    config_pal_loader:                 	 System configuration boot loader library
+    CRC:                               	 CRC library
+    Crypto_stub:                       	 Crypto stub library
+    diagnostics_pal_stubs:             	 Diagnostics stub library
+    cpu_ebiu_stubs:                    	 EBIU stub library
+    events_pal_stubs:                  	 System event stub library
+    GlobalLock_hal_stubs:              	 Global lock stub library
+    SH7264_Keypad:                     	 SH7264 Keypad driver
+    system_initialization_hal_loader:  	 System initialization (for boot loaders)
+    Time_pal_stubs:                    	 Time set of methods used by Time, Time
+    cpu_intc_stubs:                    	 Interrupt controller stub library
+    cpu_power_stubs:                   	 CPU power stub library
+    cpu_prestackinit_stubs:            	 Pre stack initialization stub driver
+    cpu_pwm_stubs:                     	 PWM stub library
+    SimpleHeap_config_stubs:           	 SimpleHeap configuration stub library
+    SimpleHeap_stubs:                  	 SimpleHeap unmanaged heap stub library
+    cpu_time_stubs:                    	 Time stub library
+    tinycrt_pal_loader:                	 CRT functionality (for boot loaders)
+    TinyHal_loader:                    	 Core HAL library (for boot loaders)
+    cpu_watchdog_stubs:                	 Watchdog driver
+    Watchdog_pal_stubs:                	 Watchdog stub
+    WireProtocol:                      	 Device communication protocol
+    heap_pal_stubs:                    	 Simple heap stub library
+    TimeService_pal_stubs:             	 TimeService set of methods used by TimeService, TimeService
+    palevent_pal_stubs:                	 palevent set of methods used by Gesture, Ink
+    Gesture_pal_stubs:                 	 Gesture set of methods used by Gesture, Ink
+    Ink_pal_stubs:                     	 Ink set of methods used by Ink, Ink
+    cpu_spi_stubs:                     	 SPI stub library
+    piezo_pal_stubs:                   	 Piezo stub driver
+    cpu_mmu_stubs:                     	 Memory management unit stub library
+    lcd_hal_stubs:                     	 Stub display driver
+    cpu_LCD_stubs:                     	 Display controller stub library
+    i2c_pal_stubs:                     	 I2C stub library
+    fs_pal_stubs:                      	 File System stub library
+    FS_Config_stubs:                   	 File system config stub
+    sockets_pal_stubs:                 	 Network socket stub driver
+    COM_pal_stubs:                     	 Communication port directory stub
+    Buttons_pal_stubs:                 	 Buttons stub library
+    BlockStorage_AddDevices_stubs:     	 Block storage add device stub driver
+    blockstorage_pal_stubs:            	 Block storage stub library
+    batterymeasurement_hal_stubs:      	 Battery measurement stub library
+    batterycharger_hal_stubs:          	 Battery charger stub library
+    backlight_hal_stubs:               	 Backlight HAL stub library
+    cpu_usart_stubs:                   	 USART stub library
+    Analog_DA_HAL_EmoteDotNow:         	 Generates template code in your solution's DeviceCode directory for the given Library Category.The project will be generated in Solutions\Samraksh\EmoteDotNow\DeviceCode\Analog_DA_HAL
+    native_double_pal:                 	 Doubles Native PAL library
+
+
+Project tinyclr
+    Description:                       	 
+    Path:                              	 Solutions\Samraksh\EmoteDotNow\TinyCLR
+
+Features:
+    Core:                              	 Core functionality (required)
+    Hardware:                          	 Core hardware component
+    NativeEventDispatcher:             	 Native event dispatching for interop
+    BlockStorage:                      	 Block storage support
+    Debugger:                          	 Visual Studio debugger support
+    Diagnostics:                       	 Diagnostic utilities
+    I2C:                               	 I2C Support
+    InterruptHandler:                  	 Support for interrupt handling
+    Microsoft_SPOT_InteropAPI:         	 
+    NXP.Interop.DAC:                   	 Managed access to native DAC driver, NXP Research
+    PWM:                               	 PWM component
+    SD:                                	 SD card feature
+    SPI:                               	 SPI support
+    Serial:                            	 Serial transport
+    SerialPort:                        	 Serial port component
+    USB:                               	 Usb Transport
+    UsbClient:                         	 Usb client component
+
+Libraries:
+    Core:                              	 CLR core library
+    CLRStartup:                        	 Common CLR initialization library
+    CorLib:                            	 Subset of mscorlib
+    SPOT:                              	 Common interop library
+    SecurityPkcs11:                    	 PKCS11
+    SPOT_Update:                       	 Common interop library
+    Debugger:                          	 Visual Studio debugging support
+    Graphics_stub:                     	 Graphics stub library
+    openssl_pal_stubs:                 	 OPENSSL PAL layer stub library
+    batterycharger_hal_stubs:          	 Battery charger stub library
+    batterymeasurement_hal_stubs:      	 Battery measurement stub library
+    Hardware:                          	 Core hardware functionality
+    SPOT_Hardware:                     	 Hardware interop library
+    IOPort:                            	 Native event dispatcher (formerly IOPort)
+    blockstorage_pal:                  	 Block storage library
+    Messaging:                         	 Core communication component
+    SPOT_Messaging_stub:               	 Messaging interop stub library
+    Diagnostics:                       	 Diagnostic functionality
+    I2C:                               	 I2C support
+    i2c_pal:                           	 I2C drivers
+    InterruptHandler:                  	 Interrupt handler library
+    SPOT_Hardware_PWM:                 	 PWM interop library
+    SD_BL:                             	 SD driver
+    usart_pal:                         	 USART driver
+    SPOT_Hardware_SerialPort:          	 SerialPort interop library
+    usb_pal:                           	 USB driver
+    SPOT_Hardware_Usb:                 	 
+    CRC:                               	 CRC library
+    diagnostics_pal:                   	 Diagnostics library
+    HeapPersistence_stub:              	 Heap persistence stub library
+    RPC_stub:                          	 Remote procedure call stub library
+    Serialization_stub:                	 Binary serialization stub library
+    SPOT_Serialization_stub:           	 Serialization interop stub library
+    TinyHal:                           	 Core HAL library
+    WireProtocol:                      	 Device communication protocol
+    COM_pal:                           	 Communication port director
+    sockets_pal_stubs:                 	 Network socket stub driver
+    Analog_DA_HAL_EmoteDotNow:         	 Generates template code in your solution's DeviceCode directory for the given Library Category.The project will be generated in Solutions\Samraksh\EmoteDotNow\DeviceCode\Analog_DA_HAL
+    cpu_analog_stubs:                  	 Analog stub library
+    asyncproccall_pal:                 	 Asynchronous procedure call library
+    cpu_bootstrap_stubs:               	 Processor bootstrap stub library
+    config_pal_Stubs:                  	 Configuration stub library
+    Crypto_stub:                       	 Crypto stub library
+    Debugger_full:                     	 Full Visual Studio debugging support
+    cpu_ebiu_stubs:                    	 EBIU stub library
+    events_pal:                        	 System event library
+    GlobalLock_hal:                    	 Global lock (native threading control)
+    cpu_gpio_stubs:                    	 GPIO stub library
+    system_initialization_hal:         	 System initialization library
+    TimeService_pal_stubs:             	 TimeService set of methods used by TimeService, TimeService
+    Gesture_pal_stubs:                 	 Gesture set of methods used by Gesture, Ink
+    Ink_pal_stubs:                     	 Ink set of methods used by Ink, Ink
+    ARM9_mmu:                          	 ARM9 MMU core driver
+    lcd_hal_stubs:                     	 Stub display driver
+    cpu_LCD_stubs:                     	 Display controller stub library
+    fs_pal_stubs:                      	 File System stub library
+    FS_Config_stubs:                   	 File system config stub
+    backlight_hal_stubs:               	 Backlight HAL stub library
+    Buttons_pal_stubs:                 	 Buttons stub library
+    cpu_cache_stubs:                   	 Cache stub library
+    heap_pal:                          	 Managed heap size and location configuration
+    cpu_intc_stubs:                    	 Interrupt controller stub library
+    LargeBuffer_hal_stubs:             	 LargeBuffer stub library
+    MFUpdate_PAL_stub:                 	 MFUpdate PAL stub component
+    palevent_pal:                      	 palevent set of methods used by Gesture, Ink
+    cpu_performancecounter_stubs:      	 Performance counter stub library
+    piezo_pal:                         	 Piezo sound driver
+    piezo_config_pal_stubs:            	 Piezo configuration stub
+    cpu_power_stubs:                   	 CPU power stub library
+    cpu_prestackinit_stubs:            	 Pre stack initialization stub driver
+    SimpleHeap_config:                 	 Simple unmanaged heap
+    SimpleHeap:                        	 SimpleHeap unmanaged heap
+    cpu_time_stubs:                    	 Time stub library
+    Time_pal:                          	 Time set of methods used by Time, Time
+    tinycrt_pal:                       	 CRT functionality
+    virtualkey_hal_stubs:              	 Virtual key stub library
+    cpu_watchdog_stubs:                	 Watchdog driver
+    Watchdog_pal:                      	 Watchdog set of methods used by Watchdog feature
+    STM32_Flash:                       	 STM32 internal flash block storage driver
+    BlockStorageAddDevices_HAL_EmoteDotNow:	 Generates template code in your solution's DeviceCode directory for the given Library Category.The project will be generated in Solutions\Samraksh\EmoteDotNow\DeviceCode\BlockStorageAddDevices_HAL
+    BlockStorageConfig_HAL_EmoteDotNow:	 Generates template code in your solution's DeviceCode directory for the given Library Category.The project will be generated in Solutions\Samraksh\EmoteDotNow\DeviceCode\BlockStorageConfig_HAL
+    I2C_HAL_EmoteDotNow:               	 Generates template code in your solution's DeviceCode directory for the given Library Category.The project will be generated in Solutions\Samraksh\EmoteDotNow\DeviceCode\I2C_HAL
+    PWM_HAL_EmoteDotNow:               	 Generates template code in your solution's DeviceCode directory for the given Library Category.The project will be generated in Solutions\Samraksh\EmoteDotNow\DeviceCode\PWM_HAL
+    SD_Config_HAL_EmoteDotNow:         	 Generates template code in your solution's DeviceCode directory for the given Library Category.The project will be generated in Solutions\Samraksh\EmoteDotNow\DeviceCode\SD_Config_HAL
+    SPI_HAL_EmoteDotNow:               	 Generates template code in your solution's DeviceCode directory for the given Library Category.The project will be generated in Solutions\Samraksh\EmoteDotNow\DeviceCode\SPI_HAL
+    USART_HAL_EmoteDotNow:             	 Generates template code in your solution's DeviceCode directory for the given Library Category.The project will be generated in Solutions\Samraksh\EmoteDotNow\DeviceCode\USART_HAL
+    USB_Config_PAL_EmoteDotNow:        	 Generates template code in your solution's DeviceCode directory for the given Library Category.The project will be generated in Solutions\Samraksh\EmoteDotNow\DeviceCode\USB_Config_PAL
+    USB_HAL_EmoteDotNow:               	 Generates template code in your solution's DeviceCode directory for the given Library Category.The project will be generated in Solutions\Samraksh\EmoteDotNow\DeviceCode\USB_HAL
+    native_double_pal:                 	 Doubles Native PAL library

@@ -1,0 +1,908 @@
+Microsoft (R) Build Engine Version 4.0.30319.1
+[Microsoft .NET Framework, Version 4.0.30319.269]
+Copyright (C) Microsoft Corporation 2007. All rights reserved.
+
+Build started 9/14/2012 11:47:12 AM.
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" on node 1 (build target(s)).
+StartMessage:
+  Doing build of Executable NativeSample - rule is BuildAXF;BuildSigFiles
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Test\native\src\dotnetmf.proj" (2) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library Native - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Test\native\src\dotnetmf.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\USART\dotNetMF.proj" (4) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library usart_pal - rule is ArmBuildLib
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\USART\dotNetMF.proj" (4) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\USART\Stubs\dotNetMF.proj" (5) on node 1 (default targets).
+StartMessage:
+  Doing build of Library usart_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\USART\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\USART\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\USB\dotNetMF.proj" (6) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library usb_pal - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\USB\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Support\CRC\dotNetMF.proj" (7) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library CRC - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Support\CRC\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Diagnostics\stubs\dotNetMF.proj" (8) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library diagnostics_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Diagnostics\stubs\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\cores\arm\dotNetMF.proj" (9) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library TinyHal - rule is ArmBuildLib
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\cores\arm\dotNetMF.proj" (9) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\cores\arm\dotNetMF_loader.proj" (10) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library TinyHal_loader - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmAssemble:
+Skipping target "ArmAssemble" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\cores\arm\dotNetMF_loader.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmAssemble:
+Skipping target "ArmAssemble" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\cores\arm\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Support\WireProtocol\dotNetMF.proj" (11) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library WireProtocol - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Support\WireProtocol\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_analog\dotNetMF.proj" (12) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_analog_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_analog\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" (13) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library asyncproccall_pal - rule is ArmBuildLib
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" (13) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\AsyncProcCall\Stubs\dotNetMF.proj" (14) on node 1 (default targets).
+StartMessage:
+  Doing build of Library asyncproccall_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\AsyncProcCall\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\drivers\stubs\processor\stubs_bootstrap\dotNetMF.proj" (15) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_bootstrap_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\drivers\stubs\processor\stubs_bootstrap\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_cache\dotNetMF.proj" (16) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_cache_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_cache\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Crypto\dotNetMF.proj" (17) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Custom Crypto - rule is CryptoLib
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Crypto\dotNetMF.proj" (17) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Crypto\stubs\dotnetmf.proj" (18) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library Crypto_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Crypto\stubs\dotnetmf.proj" (Build target(s)).
+CryptoLib:
+Skipping target "CryptoLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Crypto\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_EBIU\dotNetMF.proj" (19) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_ebiu_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_EBIU\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Events\dotNetMF.proj" (20) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library events_pal - rule is ArmBuildLib
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Events\dotNetMF.proj" (20) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Events\Stubs\dotNetMF.proj" (21) on node 1 (default targets).
+StartMessage:
+  Doing build of Library events_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Events\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Events\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm\Common\GlobalLock\dotNetMF.proj" (22) on node 1 (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm\Common\GlobalLock\dotNetMF.proj" (22) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm\Common\GlobalLock\gcc\dotNetMF.proj" (23) on node 1 (default targets).
+StartMessage:
+  Doing build of Library GlobalLock_hal - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmAssemble:
+Skipping target "ArmAssemble" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm\Common\GlobalLock\gcc\dotNetMF.proj" (default targets).
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm\Common\GlobalLock\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_GPIO\dotNetMF.proj" (24) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_gpio_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_GPIO\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\drivers\stubs\processor\stubs_INTC\dotNetMF.proj" (25) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_intc_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\drivers\stubs\processor\stubs_INTC\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_power\dotNetMF.proj" (26) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_power_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_power\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\Stubs\Processor\stubs_PreStackInit\dotNetMF.proj" (27) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_prestackinit_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmAssemble:
+Skipping target "ArmAssemble" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\Stubs\Processor\stubs_PreStackInit\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_PWM\dotNetMF.proj" (28) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_pwm_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_PWM\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\SimpleHeap_config\dotNetMF.proj" (29) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library SimpleHeap_config - rule is ArmBuildLib
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\SimpleHeap_config\dotNetMF.proj" (29) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\SimpleHeap_config\Stubs\dotNetMF.proj" (30) on node 1 (default targets).
+StartMessage:
+  Doing build of Library SimpleHeap_config_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\SimpleHeap_config\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\SimpleHeap_config\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" (31) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library SimpleHeap - rule is ArmBuildLib
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" (31) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\SimpleHeap\Stubs\dotNetMF.proj" (32) on node 1 (default targets).
+StartMessage:
+  Doing build of Library SimpleHeap_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\SimpleHeap\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\drivers\stubs\processor\stubs_time\dotNetMF.proj" (33) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_time_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\drivers\stubs\processor\stubs_time\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Time\dotNetMF.proj" (34) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library Time_pal - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Time\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\Stubs\processor\stubs_USART\dotNetMF.proj" (35) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_usart_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\Stubs\processor\stubs_USART\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\Stubs\USB_Config\dotNetMF.proj" (36) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library usb_pal_config_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\Stubs\USB_Config\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\Processor\stubs_watchdog\dotNetMF.proj" (37) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_watchdog_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\Processor\stubs_watchdog\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Watchdog\dotNetMF.proj" (38) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library Watchdog_pal - rule is ArmBuildLib
+MakeDirectories:
+  Creating directory "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\obj\DeviceCode\pal\Watchdog".
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Watchdog\dotNetMF.proj" (38) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Watchdog\Stubs\dotNetMF.proj" (39) on node 1 (default targets).
+StartMessage:
+  Doing build of Library Watchdog_pal_stubs - rule is ArmBuildLib
+MakeDirectories:
+  Creating directory "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\obj\DeviceCode\pal\Watchdog\stubs".
+DelBuildLib:
+  del /q  D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\Watchdog_pal_stubs.lib
+  Could Not Find D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\Watchdog_pal_stubs.lib
+  del /q  D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\Watchdog_pal_stubs.lib.manifest
+  Could Not Find D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\Watchdog_pal_stubs.lib.manifest
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+   "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\bin\arm-none-eabi-g++.exe" -xc++ -Wno-invalid-offsetof -fcheck-new    -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mstructure-size-boundary=8  -DTINYCLR_ENABLE_SOURCELEVELDEBUGGING  -DCOMPILE_ARM  -DVERSION_MAJOR=4 -DVERSION_MINOR=2 -DVERSION_BUILD=0 -DVERSION_REVISION=0 -DOEMSYSTEMINFOSTRING="\"Microsoft Copyright (C) Microsoft Corporation.  All rights reserved.\"" -DPLATFORM_ARM_Krait -DPLATFORM_ARM_SOC_ADAPT -DTARGETLOCATION_RAM -DLITTLE_ENDIAN -DGCC      -mfloat-abi=soft   -mcpu=cortex-a8 -mlittle-endian  -g -O0 -femit-class-debug-always -DDEBUG  -D_DEBUG   -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\pal\Watchdog\stubs -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Support\Include   -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\crypto\inc  -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\CorLib -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT_Hardware -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT_Graphics -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT_Net -Id:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\lib\gcc\arm-none-eabi\4.4.1\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\devicecode\Targets\Native\Krait -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Targets\Native\Krait\SOC_ADAPT -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Support\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Crypto\inc -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\include   -Wabi  -fno-default-inline  -o D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\obj\DeviceCode\pal\Watchdog\stubs\Watchdog_stubs.obj -c D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Watchdog\Stubs\Watchdog_stubs.cpp  
+ArmBuildLib:
+  "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\bin\arm-none-eabi-ar.exe"  -rcs D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\Watchdog_pal_stubs.lib Watchdog_stubs.obj 
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Watchdog\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+  del /q  D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\Watchdog_pal.lib
+  Could Not Find D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\Watchdog_pal.lib
+  del /q  D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\Watchdog_pal.lib.manifest
+  Could Not Find D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\Watchdog_pal.lib.manifest
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+   "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\bin\arm-none-eabi-g++.exe" -xc++ -Wno-invalid-offsetof -fcheck-new    -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mstructure-size-boundary=8  -DTINYCLR_ENABLE_SOURCELEVELDEBUGGING  -DCOMPILE_ARM  -DVERSION_MAJOR=4 -DVERSION_MINOR=2 -DVERSION_BUILD=0 -DVERSION_REVISION=0 -DOEMSYSTEMINFOSTRING="\"Microsoft Copyright (C) Microsoft Corporation.  All rights reserved.\"" -DPLATFORM_ARM_Krait -DPLATFORM_ARM_SOC_ADAPT -DTARGETLOCATION_RAM -DLITTLE_ENDIAN -DGCC      -mfloat-abi=soft   -mcpu=cortex-a8 -mlittle-endian  -g -O0 -femit-class-debug-always -DDEBUG  -D_DEBUG   -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\pal\Watchdog -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Support\Include   -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\crypto\inc  -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\CorLib -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT_Hardware -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT_Graphics -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT_Net -Id:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\lib\gcc\arm-none-eabi\4.4.1\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\devicecode\Targets\Native\Krait -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Targets\Native\Krait\SOC_ADAPT -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Support\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Crypto\inc -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\include   -Wabi  -fno-default-inline  -o D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\obj\DeviceCode\pal\Watchdog\Watchdog_functions.obj -c D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Watchdog\Watchdog_functions.cpp  
+   "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\bin\arm-none-eabi-g++.exe" -xc++ -Wno-invalid-offsetof -fcheck-new    -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mstructure-size-boundary=8  -DTINYCLR_ENABLE_SOURCELEVELDEBUGGING  -DCOMPILE_ARM  -DVERSION_MAJOR=4 -DVERSION_MINOR=2 -DVERSION_BUILD=0 -DVERSION_REVISION=0 -DOEMSYSTEMINFOSTRING="\"Microsoft Copyright (C) Microsoft Corporation.  All rights reserved.\"" -DPLATFORM_ARM_Krait -DPLATFORM_ARM_SOC_ADAPT -DTARGETLOCATION_RAM -DLITTLE_ENDIAN -DGCC      -mfloat-abi=soft   -mcpu=cortex-a8 -mlittle-endian  -g -O0 -femit-class-debug-always -DDEBUG  -D_DEBUG   -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\pal\Watchdog -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Support\Include   -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\crypto\inc  -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\CorLib -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT_Hardware -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT_Graphics -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT_Net -Id:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\lib\gcc\arm-none-eabi\4.4.1\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\devicecode\Targets\Native\Krait -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Targets\Native\Krait\SOC_ADAPT -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Support\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Crypto\inc -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\include   -Wabi  -fno-default-inline  -o D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\obj\DeviceCode\pal\Watchdog\Watchdog_driver.obj -c D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Watchdog\Watchdog_driver.cpp  
+ArmBuildLib:
+  "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\bin\arm-none-eabi-ar.exe"  -rcs D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\Watchdog_pal.lib Watchdog_functions.obj Watchdog_driver.obj 
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Watchdog\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Configuration\dotNetMF.proj" (40) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library config_pal - rule is ArmBuildLib
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Configuration\dotNetMF.proj" (40) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Configuration\Stubs\dotNetMF.proj" (41) on node 1 (default targets).
+StartMessage:
+  Doing build of Library config_pal_Stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Configuration\Stubs\dotNetMF.proj" (default targets).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Configuration\dotNetMF.proj" (40) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Configuration\dotNetMF_loader.proj" (42) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library config_pal_loader - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Configuration\dotNetMF_loader.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Configuration\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Initialization\dotNetMF.proj" (43) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library system_initialization_hal - rule is ArmBuildLib
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Initialization\dotNetMF.proj" (43) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Initialization\dotNetMF_loader.proj" (44) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library system_initialization_hal_loader - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Initialization\dotNetMF_loader.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Initialization\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\devicecode\pal\TinyCRT\stubs\dotNetMF.proj" (45) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library tinycrt_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\devicecode\pal\TinyCRT\stubs\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\palevent\dotNetMF.proj" (46) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library palevent_pal - rule is ArmBuildLib
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\palevent\dotNetMF.proj" (46) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\palevent\Stubs\dotNetMF.proj" (47) on node 1 (default targets).
+StartMessage:
+  Doing build of Library palevent_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\palevent\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\palevent\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Gesture\stubs\dotNetMF.proj" (48) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library Gesture_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Gesture\stubs\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Ink\stubs\dotNetMF.proj" (49) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library Ink_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Ink\stubs\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Piezo\stubs\dotNetMF.proj" (50) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library piezo_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Piezo\stubs\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_MMU\dotNetMF.proj" (51) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_mmu_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_MMU\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\Display\stubs\dotNetMF.proj" (52) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library lcd_hal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\Display\stubs\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_lcd\dotNetMF.proj" (53) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_LCD_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_lcd\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\I2C\dotNetMF.proj" (54) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library i2c_pal - rule is ArmBuildLib
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\I2C\dotNetMF.proj" (54) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\I2C\Stubs\dotNetMF.proj" (55) on node 1 (default targets).
+StartMessage:
+  Doing build of Library i2c_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\I2C\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\I2C\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\BatteryMeasurement\stubs\dotNetMF.proj" (56) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library batterymeasurement_hal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\BatteryMeasurement\stubs\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\fs\stubs\dotNetMF.proj" (57) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library fs_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\fs\stubs\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\FS\stubs\config\dotnetmf.proj" (58) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library FS_Config_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\FS\stubs\config\dotnetmf.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" (59) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library sockets_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\stubs\dotNetMF.proj" (60) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library COM_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\COM\stubs\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Buttons\stubs\dotNetMF.proj" (61) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library Buttons_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Buttons\stubs\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\BlockStorage\dotNetMF.proj" (62) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library blockstorage_pal - rule is ArmBuildLib
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\BlockStorage\dotNetMF.proj" (62) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\BlockStorage\Stubs\dotNetMF.proj" (63) on node 1 (default targets).
+StartMessage:
+  Doing build of Library blockstorage_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\BlockStorage\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\BlockStorage\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Heap\dotNetMF.proj" (64) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library heap_pal - rule is ArmBuildLib
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Heap\dotNetMF.proj" (64) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Heap\Stubs\dotNetMF.proj" (65) on node 1 (default targets).
+StartMessage:
+  Doing build of Library heap_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Heap\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Heap\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\BatteryCharger\stubs\dotNetMF.proj" (66) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library batterycharger_hal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\BatteryCharger\stubs\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\Backlight\stubs\dotNetMF.proj" (67) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library backlight_hal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\Backlight\stubs\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\TimeService\stubs\dotNetMF.proj" (68) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library TimeService_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\TimeService\stubs\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\DeviceCode\Analog_DA_HAL\dotNetMF.proj" (69) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library Analog_DA_HAL_SOC_ADAPT - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\DeviceCode\Analog_DA_HAL\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\BlockStorage\Driver\dotNetMF.proj" (70) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library BlockStorageDriver_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\BlockStorage\Driver\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\drivers\stubs\Blockstorage\addDevices\dotNetMF.proj" (71) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library BlockStorage_AddDevices_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\drivers\stubs\Blockstorage\addDevices\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_I2C\dotNetMF.proj" (72) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_i2c_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Drivers\stubs\processor\stubs_I2C\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\drivers\stubs\processor\stubs_spi\dotNetMF.proj" (73) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_spi_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\drivers\stubs\processor\stubs_spi\dotNetMF.proj" (Build target(s)).
+Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (1) is building "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Double\dotNetMF.proj" (74) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library native_double_pal - rule is ArmBuildLib
+DelBuildLib:
+  del /q  D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\native_double_pal.lib
+  del /q  D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\native_double_pal.lib.manifest
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+   "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\bin\arm-none-eabi-g++.exe" -xc++ -Wno-invalid-offsetof -fcheck-new    -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mstructure-size-boundary=8  -DTINYCLR_ENABLE_SOURCELEVELDEBUGGING  -DCOMPILE_ARM  -DVERSION_MAJOR=4 -DVERSION_MINOR=2 -DVERSION_BUILD=0 -DVERSION_REVISION=0 -DOEMSYSTEMINFOSTRING="\"Microsoft Copyright (C) Microsoft Corporation.  All rights reserved.\"" -DPLATFORM_ARM_Krait -DPLATFORM_ARM_SOC_ADAPT -DTARGETLOCATION_RAM -DLITTLE_ENDIAN -DGCC      -mfloat-abi=soft   -mcpu=cortex-a8 -mlittle-endian  -g -O0 -femit-class-debug-always -DDEBUG  -D_DEBUG   -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\pal\Double -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Support\Include   -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\crypto\inc  -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\CorLib -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT_Hardware -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT_Graphics -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Libraries\SPOT_Net -Id:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\lib\gcc\arm-none-eabi\4.4.1\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\devicecode\Targets\Native\Krait -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Cores\arm\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Targets\Native\Krait\SOC_ADAPT -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Support\Include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\CLR\include -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Crypto\inc -ID:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\include   -Wabi  -fno-default-inline  -o D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\obj\DeviceCode\pal\Double\native_double_pal_fastcompile.obj -c D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Double\native_double_pal_fastcompile.cpp 
+  In file included from D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Double\native_double_pal_fastcompile.cpp:1:
+  D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Double\/native_double_pal.cpp:25: warning: "isgreater" redefined
+  d:\main\work\tools\codesourcery4.5.0\codesourcery-nick\bin\../lib/gcc/arm-none-eabi/4.4.1/include-fixed/math.h:204: note: this is the location of the previous definition
+  D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Double\/native_double_pal.cpp:26: warning: "isless" redefined
+  d:\main\work\tools\codesourcery4.5.0\codesourcery-nick\bin\../lib/gcc/arm-none-eabi/4.4.1/include-fixed/math.h:210: note: this is the location of the previous definition
+ArmBuildLib:
+  "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\bin\arm-none-eabi-ar.exe"  -rcs D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\native_double_pal.lib native_double_pal_fastcompile.obj 
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\PAL\Double\dotNetMF.proj" (Build target(s)).
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+BuildScatterfile:
+Skipping target "BuildScatterfile" because all output files are up-to-date with respect to the input files.
+BuildAXF:
+  PrepareLibsForConcat.cmd D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib Native.lib usart_pal.lib usb_pal.lib diagnostics_pal_stubs.lib TinyHal.lib cpu_analog_stubs.lib asyncproccall_pal.lib cpu_bootstrap_stubs.lib cpu_cache_stubs.lib Crypto.lib cpu_ebiu_stubs.lib events_pal.lib GlobalLock_hal.lib cpu_gpio_stubs.lib cpu_intc_stubs.lib cpu_power_stubs.lib cpu_prestackinit_stubs.lib cpu_pwm_stubs.lib SimpleHeap_config.lib SimpleHeap.lib cpu_time_stubs.lib Time_pal.lib cpu_usart_stubs.lib usb_pal_config_stub.lib cpu_watchdog_stubs.lib Watchdog_pal.lib config_pal.lib system_initialization_hal.lib tinycrt_pal_stubs.lib palevent_pal.lib Gesture_pal_stubs.lib Ink_pal_stubs.lib piezo_pal_stubs.lib cpu_mmu_stubs.lib lcd_hal_stubs.lib cpu_LCD_stubs.lib i2c_pal.lib batterymeasurement_hal_stubs.lib fs_pal_stubs.lib FS_Config_stubs.lib sockets_pal_stubs.lib COM_pal_stubs.lib Buttons_pal_stubs.lib blockstorage_pal.lib heap_pal.lib batterycharger_hal_stubs.lib backlight_hal_stubs.lib TimeService_pal_stubs.lib Analog_DA_HAL_SOC_ADAPT.lib BlockStorageDriver_stubs.lib BlockStorage_AddDevices_stubs.lib cpu_i2c_stubs.lib cpu_spi_stubs.lib native_double_pal.lib
+  "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\bin\arm-none-eabi-ar.exe"  -rcs D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\tmp_NativeSample.lib D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\tmp\*.obj
+  del D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\tmp\*.obj
+  rmdir D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib\tmp
+  "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\bin\arm-none-eabi-ld.exe"  -static --gc-sections --no-warn-mismatch --library-path=D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib --library-path=D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\ANY_MEDIA\debug\lib   -u ARM_Vectors -u _start --Map D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\bin\NativeSample.map --output=D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\bin\NativeSample.axf --script=D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\bin\NativeSample_scatterfile.ldf D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\obj\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.obj -( D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\ANY_MEDIA\debug\lib\CRC.lib D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\ANY_MEDIA\debug\lib\WireProtocol.lib Native.lib usart_pal.lib usb_pal.lib diagnostics_pal_stubs.lib TinyHal.lib cpu_analog_stubs.lib asyncproccall_pal.lib cpu_bootstrap_stubs.lib cpu_cache_stubs.lib Crypto.lib cpu_ebiu_stubs.lib events_pal.lib GlobalLock_hal.lib cpu_gpio_stubs.lib cpu_intc_stubs.lib cpu_power_stubs.lib cpu_prestackinit_stubs.lib cpu_pwm_stubs.lib SimpleHeap_config.lib SimpleHeap.lib cpu_time_stubs.lib Time_pal.lib cpu_usart_stubs.lib usb_pal_config_stub.lib cpu_watchdog_stubs.lib Watchdog_pal.lib config_pal.lib system_initialization_hal.lib tinycrt_pal_stubs.lib palevent_pal.lib Gesture_pal_stubs.lib Ink_pal_stubs.lib piezo_pal_stubs.lib cpu_mmu_stubs.lib lcd_hal_stubs.lib cpu_LCD_stubs.lib i2c_pal.lib batterymeasurement_hal_stubs.lib fs_pal_stubs.lib FS_Config_stubs.lib sockets_pal_stubs.lib COM_pal_stubs.lib Buttons_pal_stubs.lib blockstorage_pal.lib heap_pal.lib batterycharger_hal_stubs.lib backlight_hal_stubs.lib TimeService_pal_stubs.lib Analog_DA_HAL_SOC_ADAPT.lib BlockStorageDriver_stubs.lib BlockStorage_AddDevices_stubs.lib cpu_i2c_stubs.lib cpu_spi_stubs.lib native_double_pal.lib   -) -( "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\arm-none-eabi\lib\libm.a" "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\arm-none-eabi\lib\libc.a" "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\lib\gcc\arm-none-eabi\4.4.1\libgcc.a" -) -(  -)
+  Watchdog_pal.lib(Watchdog_driver.obj): In function `Watchdog_Driver::WatchdogCallback(void*)':
+  D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Watchdog/Watchdog_driver.cpp:141: undefined reference to `CLR_RetrieveCurrentMethod(unsigned int&, unsigned int&)'
+  D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Watchdog/Watchdog_driver.cpp:159: undefined reference to `CLR_SoftReboot()'
+  D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\DeviceCode\Pal\Watchdog/Watchdog_driver.cpp:165: undefined reference to `CLR_DebuggerBreak()'
+D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\tools\targets\Microsoft.SPOT.System.GCC.targets(332,5): error MSB3073: The command ""d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\bin\arm-none-eabi-ld.exe"  -static --gc-sections --no-warn-mismatch --library-path=D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib --library-path=D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\ANY_MEDIA\debug\lib   -u ARM_Vectors -u _start --Map D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\bin\NativeSample.map --output=D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\bin\NativeSample.axf --script=D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\bin\NativeSample_scatterfile.ldf D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\obj\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.obj -( D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\ANY_MEDIA\debug\lib\CRC.lib D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\ANY_MEDIA\debug\lib\WireProtocol.lib Native.lib usart_pal.lib usb_pal.lib diagnostics_pal_stubs.lib TinyHal.lib cpu_analog_stubs.lib asyncproccall_pal.lib cpu_bootstrap_stubs.lib cpu_cache_stubs.lib Crypto.lib cpu_ebiu_stubs.lib events_pal.lib GlobalLock_hal.lib cpu_gpio_stubs.lib cpu_intc_stubs.lib cpu_power_stubs.lib cpu_prestackinit_stubs.lib cpu_pwm_stubs.lib SimpleHeap_config.lib SimpleHeap.lib cpu_time_stubs.lib Time_pal.lib cpu_usart_stubs.lib usb_pal_config_stub.lib cpu_watchdog_stubs.lib Watchdog_pal.lib config_pal.lib system_initialization_hal.lib tinycrt_pal_stubs.lib palevent_pal.lib Gesture_pal_stubs.lib Ink_pal_stubs.lib piezo_pal_stubs.lib cpu_mmu_stubs.lib lcd_hal_stubs.lib cpu_LCD_stubs.lib i2c_pal.lib batterymeasurement_hal_stubs.lib fs_pal_stubs.lib FS_Config_stubs.lib sockets_pal_stubs.lib COM_pal_stubs.lib Buttons_pal_stubs.lib blockstorage_pal.lib heap_pal.lib batterycharger_hal_stubs.lib backlight_hal_stubs.lib TimeService_pal_stubs.lib Analog_DA_HAL_SOC_ADAPT.lib BlockStorageDriver_stubs.lib BlockStorage_AddDevices_stubs.lib cpu_i2c_stubs.lib cpu_spi_stubs.lib native_double_pal.lib   -) -( "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\arm-none-eabi\lib\libm.a" "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\arm-none-eabi\lib\libc.a" "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\lib\gcc\arm-none-eabi\4.4.1\libgcc.a" -) -(  -)" exited with code 1. [D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj]
+Done Building Project "D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (build target(s)) -- FAILED.
+
+Build FAILED.
+
+"D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj" (build target) (1) ->
+(BuildAXF target) -> 
+  D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\tools\targets\Microsoft.SPOT.System.GCC.targets(332,5): error MSB3073: The command ""d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\bin\arm-none-eabi-ld.exe"  -static --gc-sections --no-warn-mismatch --library-path=D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\lib --library-path=D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\ANY_MEDIA\debug\lib   -u ARM_Vectors -u _start --Map D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\bin\NativeSample.map --output=D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\bin\NativeSample.axf --script=D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\bin\NativeSample_scatterfile.ldf D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\RAM\debug\SOC_ADAPT\obj\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.obj -( D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\ANY_MEDIA\debug\lib\CRC.lib D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\BuildOutput\ARM\GCC4.4\le\ANY_MEDIA\debug\lib\WireProtocol.lib Native.lib usart_pal.lib usb_pal.lib diagnostics_pal_stubs.lib TinyHal.lib cpu_analog_stubs.lib asyncproccall_pal.lib cpu_bootstrap_stubs.lib cpu_cache_stubs.lib Crypto.lib cpu_ebiu_stubs.lib events_pal.lib GlobalLock_hal.lib cpu_gpio_stubs.lib cpu_intc_stubs.lib cpu_power_stubs.lib cpu_prestackinit_stubs.lib cpu_pwm_stubs.lib SimpleHeap_config.lib SimpleHeap.lib cpu_time_stubs.lib Time_pal.lib cpu_usart_stubs.lib usb_pal_config_stub.lib cpu_watchdog_stubs.lib Watchdog_pal.lib config_pal.lib system_initialization_hal.lib tinycrt_pal_stubs.lib palevent_pal.lib Gesture_pal_stubs.lib Ink_pal_stubs.lib piezo_pal_stubs.lib cpu_mmu_stubs.lib lcd_hal_stubs.lib cpu_LCD_stubs.lib i2c_pal.lib batterymeasurement_hal_stubs.lib fs_pal_stubs.lib FS_Config_stubs.lib sockets_pal_stubs.lib COM_pal_stubs.lib Buttons_pal_stubs.lib blockstorage_pal.lib heap_pal.lib batterycharger_hal_stubs.lib backlight_hal_stubs.lib TimeService_pal_stubs.lib Analog_DA_HAL_SOC_ADAPT.lib BlockStorageDriver_stubs.lib BlockStorage_AddDevices_stubs.lib cpu_i2c_stubs.lib cpu_spi_stubs.lib native_double_pal.lib   -) -( "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\arm-none-eabi\lib\libm.a" "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\arm-none-eabi\lib\libc.a" "d:\Main\Work\Tools\codesourcery4.5.0\codesourcery-nick\lib\gcc\arm-none-eabi\4.4.1\libgcc.a" -) -(  -)" exited with code 1. [D:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_2\Solutions\Samraksh\SOC_ADAPT\NativeSample\NativeSample.proj]
+
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:02.31
