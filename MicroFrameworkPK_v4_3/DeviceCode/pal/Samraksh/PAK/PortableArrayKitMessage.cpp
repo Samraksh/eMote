@@ -39,7 +39,7 @@
 #include <Samraksh\Mac_decl.h>
 #include <Samraksh\MAC.h>
 // RF231.h is needed for enum RadioID and enum RadioStateEnum.  enums should be pulled into a public API header file.
-#include "..\..\..\Targets\Native\STM32F10x\DeviceCode\drivers\radio\RF231\RF231.h"
+#include <Targets\Native\Samraksh\Radios\RF231\RF231.h>
 
 extern NeighborTable g_NeighborTable;
 //////////////////////////////////////////////////////////////////////////////

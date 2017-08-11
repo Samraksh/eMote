@@ -666,12 +666,12 @@
   </ItemGroup>
   -->
   <!--<ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Radios\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\Radios\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_radio_rf231.$(LIB_EXT)" />
 	<DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />
   </ItemGroup>-->
   <!--ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Radios\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\Radios\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />
   </ItemGroup-->
 

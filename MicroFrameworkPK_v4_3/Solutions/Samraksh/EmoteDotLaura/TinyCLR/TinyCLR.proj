@@ -5,12 +5,12 @@
     <ProjectGuid>{d280cd35-8481-4eda-b878-6370c17e6273}</ProjectGuid>
     <Description />
     <Documentation />
-    <Directory>Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\TinyCLR</Directory>
+    <Directory>Solutions\Samraksh\EmoteDotLaura\TinyCLR</Directory>
     <IsClrProject>True</IsClrProject>
     <InteropFeatures />
     <ExtraAssemblies />
-    <ProjectPath>$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\TinyCLR\TinyCLR.proj</ProjectPath>
-    <MFSettingsFile>$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\EmoteDotNow.settings</MFSettingsFile>
+    <ProjectPath>$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\TinyCLR\TinyCLR.proj</ProjectPath>
+    <MFSettingsFile>$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\EmoteDotLaura.settings</MFSettingsFile>
     <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
   </PropertyGroup>
   <PropertyGroup>
@@ -60,15 +60,15 @@
   <!--Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" /-->
   <!--<Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />-->
   <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote\Samraksh_eMote.featureproj" />
-  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime.featureproj" />
-  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Net\Samraksh_eMote_Net.featureproj" />
-  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DSP\Samraksh_eMote_DSP.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\Samraksh_eMote_Net\Samraksh_eMote_Net.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\Samraksh_eMote_DSP\Samraksh_eMote_DSP.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_ProgramManager\Samraksh_eMote_ProgramManager.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   <ItemGroup>
-    <DriverLibs Include="STM32F10x.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\stmlib\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\stmlib\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <PlatformIndependentLibs Include="Core.$(LIB_EXT)" />
@@ -220,7 +220,7 @@
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="TinyHal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\cores\arm\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\cores\arm\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <PlatformIndependentLibs Include="WireProtocol.$(LIB_EXT)" />
@@ -235,8 +235,8 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="Analog_DA_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\DeviceCode\Analog_DA_HAL\dotNetMF.proj" />
+    <DriverLibs Include="Analog_DA_HAL_EmoteDotLaura.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\DeviceCode\Analog_DA_HAL\dotNetMF.proj" />
   </ItemGroup>
   <!--
   <ItemGroup>
@@ -254,16 +254,16 @@
   </ItemGroup>
   -->
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_bootstrap.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\bootstrap\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_bootstrap.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\bootstrap\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="config_pal_Redux.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\configuration\redux\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_ID.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\id\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_ID.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\id\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="Crypto_stub.$(LIB_EXT)" />
@@ -287,11 +287,11 @@
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="GlobalLock_hal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\cores\arm\Common\GlobalLock\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\cores\arm\Common\GlobalLock\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_gpio.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\gpio\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_gpio.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\gpio\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
@@ -391,13 +391,13 @@
   </ItemGroup>
   <!--  Add custom implementation of the IDebuggerPortSslConfig configuration  -->
   <!--<ItemGroup>
-    <DriverLibs Include="DebuggerPort_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\DeviceCode\DebuggerPort\dotnetmf.proj" />
+    <DriverLibs Include="DebuggerPort_EmoteDotLaura.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\DeviceCode\DebuggerPort\dotnetmf.proj" />
   </ItemGroup>-->
   <!--  Add custom IUpdatePackage configuration  -->
   <ItemGroup>
-    <DriverLibs Include="MFUpdate_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\DeviceCode\MFUpdate\dotnetmf.proj" />
+    <DriverLibs Include="MFUpdate_EmoteDotLaura.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\DeviceCode\MFUpdate\dotnetmf.proj" />
   </ItemGroup>
  <!--  Add custom update controller that translates COM commands to MFUpdate actions, normally implemented in debugger. -->
   <ItemGroup>
@@ -407,7 +407,7 @@
   <!-- Add Interop for accessing update manager -->
   <ItemGroup>
     <DriverLibs Include="Samraksh_eMote_ProgramManager.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Samraksh_eMote_ProgramManager\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh_eMote_ProgramManager\dotNetMF.proj" />
   </ItemGroup>
   <!--                            END  MFUpdate                         -->
   <ItemGroup>
@@ -452,44 +452,44 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_timer\dotNetMF.proj" />
   </ItemGroup-->
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_fsmc.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\fsmc\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_fsmc.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\fsmc\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_pwr.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\pwr\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_pwr.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\pwr\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\bl\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_bl.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\bl\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_bl.$(LIB_EXT)" />
   </ItemGroup>
   <!--ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\exti\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_exti.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\exti\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_exti.$(LIB_EXT)" />
   </ItemGroup-->
   
   <!--ItemGroup>
-    <DriverLibs Include="STM32F10x_time.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\time\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_time.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\time\dotNetMF.proj" />
   </ItemGroup-->
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\Timer\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_timer.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\Timer\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_timer.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\Timer\advancedtimer\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_adtim.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\Timer\advancedtimer\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_adtim.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\Timer\netmf_rtc\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_rtc.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\Timer\netmf_rtc\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_rtc.$(LIB_EXT)" />
   </ItemGroup>
   <!--<ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\Timer\Timer16Bit\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\Timer\Timer16Bit\dotNetMF.proj" />
     <DriverLibs Include="Timer16Bit.$(LIB_EXT)" />
 </ItemGroup>-->
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\Timer\Timer16Bit\Timer16BitStubs\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\Timer\Timer16Bit\Timer16BitStubs\dotNetMF.proj" />
 	<DriverLibs Include="Timer16Bit.$(LIB_EXT)" />
   </ItemGroup>
   
@@ -497,59 +497,59 @@
   
   
   <!--<ItemGroup>
-    <DriverLibs Include="STM32F10x_cmsis.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\cmsis\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_cmsis.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\cmsis\dotNetMF.proj" />
   </ItemGroup>
   -->
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_sdio.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\sdio\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_sdio.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\sdio\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_i2c.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\i2c\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_i2c.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\i2c\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_dac.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\dac\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_dac.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\dac\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_adc.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\adc\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_adc.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\adc\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_intc.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\intc\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_intc.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\intc\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_math.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\math\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_math.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\math\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_spi.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\spi\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_spi.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\spi\dotNetMF.proj" />
   </ItemGroup>
   
   <!--ItemGroup>
-    <DriverLibs Include="STM32F10x_misc.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\misc\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_misc.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\misc\dotNetMF.proj" />
   </ItemGroup-->
   <!--<ItemGroup>
-    <DriverLibs Include="STM32F10x_usb.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\usb\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_usb.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\usb\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_usb_config.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\usb_config\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_usb_config.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\usb_config\dotNetMF.proj" />
   </ItemGroup>
   -->
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_usart.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\usart\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_usart.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\usart\dotNetMF.proj" />
   </ItemGroup>
   <!--<ItemGroup> No longer seems to exist NPS
-    <DriverLibs Include="STM32F10x_NOR.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\fsmc\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_NOR.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\fsmc\dotNetMF.proj" />
   </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="Time_pal.$(LIB_EXT)" />
@@ -576,43 +576,43 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32\DeviceCode\STM32_Flash\dotNetMF.proj" />
   </ItemGroup>-->
   <ItemGroup>
-    <DriverLibs Include="BlockStorageAddDevices_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\DeviceCode\BlockStorageAddDevices_HAL\dotNetMF.proj" />
+    <DriverLibs Include="BlockStorageAddDevices_HAL_EmoteDotLaura.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\DeviceCode\BlockStorageAddDevices_HAL\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="BlockStorageConfig_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\DeviceCode\BlockStorageConfig_HAL\dotNetMF.proj" />
+    <DriverLibs Include="BlockStorageConfig_HAL_EmoteDotLaura.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\DeviceCode\BlockStorageConfig_HAL\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="I2C_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\DeviceCode\I2C_HAL\dotNetMF.proj" />
+    <DriverLibs Include="I2C_HAL_EmoteDotLaura.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\DeviceCode\I2C_HAL\dotNetMF.proj" />
   </ItemGroup>
   <!-- NOTE: THE FOLLOWING PWM FUNCTIONS ARE JUST STUBS -->
   <ItemGroup>
-    <DriverLibs Include="PWM_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\DeviceCode\PWM_HAL\dotNetMF.proj" />
+    <DriverLibs Include="PWM_HAL_EmoteDotLaura.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\DeviceCode\PWM_HAL\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="SD_Config_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\DeviceCode\SD_Config_HAL\dotNetMF.proj" />
+    <DriverLibs Include="SD_Config_HAL_EmoteDotLaura.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\DeviceCode\SD_Config_HAL\dotNetMF.proj" />
   </ItemGroup>
   <!--<ItemGroup>
-    <DriverLibs Include="SPI_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\DeviceCode\SPI_HAL\dotNetMF.proj" />
+    <DriverLibs Include="SPI_HAL_EmoteDotLaura.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\DeviceCode\SPI_HAL\dotNetMF.proj" />
   </ItemGroup>
   -->
   <!--<ItemGroup>
-    <DriverLibs Include="USART_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\DeviceCode\USART_HAL\dotNetMF.proj" />
+    <DriverLibs Include="USART_HAL_EmoteDotLaura.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\DeviceCode\USART_HAL\dotNetMF.proj" />
   </ItemGroup>
   -->
   <!--ItemGroup>
-    <DriverLibs Include="USB_Config_PAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\DeviceCode\USB_Config_PAL\dotNetMF.proj" />
+    <DriverLibs Include="USB_Config_PAL_EmoteDotLaura.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\DeviceCode\USB_Config_PAL\dotNetMF.proj" />
   </ItemGroup-->
   <!--ItemGroup>
-    <DriverLibs Include="USB_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\DeviceCode\USB_HAL\dotNetMF.proj" />
+    <DriverLibs Include="USB_HAL_EmoteDotLaura.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\DeviceCode\USB_HAL\dotNetMF.proj" />
   </ItemGroup-->
   <ItemGroup>
     <DriverLibs Include="native_double_pal.$(LIB_EXT)" />
@@ -623,23 +623,23 @@
   <!--     - - - - - - - -               Samraksh's Extensions   - - - - - - - -                  -->
   <!-- 									Hardware Extension        								-->
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\Samraksh_eMote\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\Samraksh_eMote_DotNow\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote_DotNow.$(LIB_EXT)" />
 </ItemGroup>
 
   <!-- 									DSP Extension        								-->
  <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DSP\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\Samraksh_eMote_DSP\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote_DSP.$(LIB_EXT)" />
   </ItemGroup>
   <!-- 									Realtime Extension        								-->
   
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\Samraksh_eMote_RealTime\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote_RealTime.$(LIB_EXT)" />
   </ItemGroup>
   
@@ -650,8 +650,8 @@
   </ItemGroup>
   
   <!--<ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\Samraksh_eMote\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_NVM.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\Samraksh_eMote\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_NVM.$(LIB_EXT)" />
   </ItemGroup>
   -->
   
@@ -664,7 +664,7 @@
   <!-- 									Wireless Stack Start								-->
   
   <ItemGroup>
-  <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Net\dotNetMF.proj" />
+  <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\drivers\Samraksh_eMote_Net\dotNetMF.proj" />
   <DriverLibs Include="Samraksh_eMote_NET.$(LIB_EXT)" />
   </ItemGroup>
   
@@ -696,17 +696,17 @@
   -->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\Radios\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_radio_rf231.$(LIB_EXT)" />
-	<DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />
+    <DriverLibs Include="Max3263x_radio_rf231.$(LIB_EXT)" />
+	<DriverLibs Include="Max3263x_radio_si446x.$(LIB_EXT)" />
   </ItemGroup>
   <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\Radios\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />
+    <DriverLibs Include="Max3263x_radio_si446x.$(LIB_EXT)" />
   </ItemGroup-->
 
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_driver_control.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\Max3263x\DeviceCode\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_driver_control.$(LIB_EXT)" />
   </ItemGroup>
 
 <ItemGroup>

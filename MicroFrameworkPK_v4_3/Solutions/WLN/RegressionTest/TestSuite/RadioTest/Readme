@@ -1,9 +1,0 @@
-Description
-===========
-	The Timer test initially starts of by rising pin1 of the gpio to indicate the start of the test. The timer is initialized
-in a default mode as used by the microframework. Other modes can be tested using the same test. The physical timer that is tested
-is timer3. Other timers can also be tested by changing the parameter to the intialize. The intialize function also registers an
-interrupt handler with the interrupt controller. This test therefore also exercises the INTC registration functionality. The SetCompare 
-function sets a compare value on the compare register and toggles a pin in the interrupt handler. The pin should toggle at a time period defined by 
-the value in the compare function.
-

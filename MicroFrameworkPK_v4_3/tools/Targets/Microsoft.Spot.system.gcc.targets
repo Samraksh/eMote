@@ -74,19 +74,34 @@
 	<POS_INDEPENDENT>-mapcs -mabi=aapcs -fPIC -mno-apcs-stack-check </POS_INDEPENDENT>
 	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'=='5.4.1'">$(CC_CPP_COMMON_FLAGS) -DSAMRAKSH_CUSTOM_NEWLIB -mslow-flash-data -fdata-sections -ffunction-sections -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m3 -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
 	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'!='5.4.1'">$(CC_CPP_COMMON_FLAGS) -mslow-flash-data -fdata-sections -ffunction-sections -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m3 -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
-    <CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_COMMON_FLAGS) -ffunction-sections -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mfpu=neon-vfpv4 </CC_CPP_COMMON_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='RTM'     and '$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_TARGETTYPE_FLAGS) -O3 -fno-strict-aliasing </CC_CPP_TARGETTYPE_FLAGS>
-    <!--<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0 -femit-class-debug-always</CC_CPP_TARGETTYPE_FLAGS>-->
-    <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g3 -Og -DSAM_FORCE_GCC_CMDLINE_OPTS</CC_CPP_TARGETTYPE_FLAGS>
-    <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Instrumented'" >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0</CC_CPP_TARGETTYPE_FLAGS>
-    <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release' and '$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_TARGETTYPE_FLAGS) -O3 -fno-strict-aliasing </CC_CPP_TARGETTYPE_FLAGS>
-	<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release' and '$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_TARGETTYPE_FLAGS) -O1 </CC_CPP_TARGETTYPE_FLAGS>
+	<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release' and '$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_TARGETTYPE_FLAGS) -O3 -fno-strict-aliasing </CC_CPP_TARGETTYPE_FLAGS>
+	
+	<!--M4 options-->
+	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M4' and $(GCC_VER) >= 5.4 ">$(CC_CPP_COMMON_FLAGS) -DSAMRAKSH_CUSTOM_NEWLIB -mslow-flash-data -fdata-sections -ffunction-sections -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m4 -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
+	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M4' and $(GCC_VER) &lt; 5.4 ">$(CC_CPP_COMMON_FLAGS) -mslow-flash-data -fdata-sections -ffunction-sections -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m4 -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
+    <CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_COMMON_FLAGS) -ffunction-sections -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mfpu=neon-vfpv4 </CC_CPP_COMMON_FLAGS>
+    <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='RTM'     and '$(DEVICE_TYPE)'=='Cortex-M4'">$(CC_CPP_TARGETTYPE_FLAGS) -O3 -fno-strict-aliasing </CC_CPP_TARGETTYPE_FLAGS>
+	<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release' and '$(DEVICE_TYPE)'=='Cortex-M4'">$(CC_CPP_TARGETTYPE_FLAGS) -O3 -fno-strict-aliasing </CC_CPP_TARGETTYPE_FLAGS>
+    
+        
+	<!--A8 options-->
+	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_COMMON_FLAGS) -ffunction-sections -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mfpu=neon-vfpv4 </CC_CPP_COMMON_FLAGS>
+   	<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release' and '$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_TARGETTYPE_FLAGS) -O1 </CC_CPP_TARGETTYPE_FLAGS>
 
+	<!--CPU neutral target type flags -->
+	<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g3 -Og -DSAM_FORCE_GCC_CMDLINE_OPTS</CC_CPP_TARGETTYPE_FLAGS>
+    <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Instrumented'" >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0</CC_CPP_TARGETTYPE_FLAGS>
+
+	
+	
     <CC_FLAGS>$(CC_FLAGS)-xc </CC_FLAGS>
     <CPP_FLAGS>$(CPP_FLAGS)-xc++ -D_ISOC99_SOURCE -Wno-invalid-offsetof -fcheck-new </CPP_FLAGS>
     <CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
     <CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
+	<CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M4'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-M3'"> -mfloat-abi=soft </FLOATING_POINT_FLAG>
+	<FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-M4'"> -mfloat-abi=softfp </FLOATING_POINT_FLAG>
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-A8'"> -mfloat-abi=softfp </FLOATING_POINT_FLAG>
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'=='true'"> </FLOATING_POINT_FLAG>
 
@@ -213,10 +228,8 @@
 
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(CLRROOT)\$(Directory)</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\DeviceCode\include</CC_CPP_INCS>
-    <CC_CPP_INCS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_INCS) -I$(CLRROOT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis -I$(CLRROOT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\stmlib</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\DeviceCode\Cores\arm</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\Support\Include  </CC_CPP_INCS>
-	<CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\fsmc\P30BF65NOR  </CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\crypto\inc </CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\CLR\Include</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\CLR\Libraries\CorLib</CC_CPP_INCS>
@@ -227,6 +240,10 @@
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(ARMINC)</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) @(IncludePaths->'-I$(CLRROOT)\%(relativedir)%(filename)',' ')</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) @(DirectIncludePaths->'-I%(FullPath)',' ')</CC_CPP_INCS>
+
+	<CC_CPP_INCS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_INCS) -I$(CLRROOT)\DeviceCode\Targets\Native\Samraksh\Soc\STM32F10x\DeviceCode\cmsis -I$(CLRROOT)\DeviceCode\Targets\Native\Samraksh\Soc\STM32F10x\DeviceCode\stmlib -I$(SPO_SDK)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\fsmc\P30BF65NOR</CC_CPP_INCS>
+
+	<CC_CPP_INCS Condition="'$(CpuName)'=='MAX326xx'">$(CC_CPP_INCS) -I$(CLRROOT)\DeviceCode\Targets\Native\Samraksh\Soc\Max326xx\DeviceCode\MaxLib -I$(CLRROOT)\DeviceCode\Targets\Native\Samraksh\Soc\Max326xx\DeviceCode\drivers</CC_CPP_INCS>
 
     <CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) $(AS_CC_CPP_COMMON_FLAGS) $(CC_CPP_TARGETTYPE_FLAGS) $(CC_CPP_INCS) $(ExtraFlags)</CC_CPP_COMMON_FLAGS>
   </PropertyGroup>
@@ -286,9 +303,12 @@
     <ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(ENDIANNESS)'=='le'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.l $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.l</ExtraLibs>
 
 	<GNU_LIB_DIR     Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'!='5.4.1'">$(GNU_TOOLS)\$(GNU_TARGET)\lib\armv7-m</GNU_LIB_DIR>
-	<GNU_LIB_DIR     Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'=='5.4.1'">$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\newlib\armv7-m</GNU_LIB_DIR>
+	<GNU_LIB_DIR     Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'=='5.4.1'">$(SPOCLIENT)\DeviceCode\Targets\Native\Samraksh\SoC\STM32F10x\DeviceCode\newlib\armv7-m</GNU_LIB_DIR>
     <GNU_LIBGCC_DIR  Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(GNU_TOOLS)\lib\gcc\$(GNU_TARGET)\$(GCC_VER)\armv7-m</GNU_LIBGCC_DIR>
 
+	<GNU_LIB_DIR     Condition="'$(DEVICE_TYPE)'=='Cortex-M4'">$(GNU_TOOLS)\$(GNU_TARGET)\lib\armv7e-m</GNU_LIB_DIR>
+	<GNU_LIBGCC_DIR  Condition="'$(DEVICE_TYPE)'=='Cortex-M4'">$(GNU_TOOLS)\lib\gcc\$(GNU_TARGET)\$(GCC_VER)\armv7e-m</GNU_LIBGCC_DIR>
+	
     <LIBGCC >libgcc.a</LIBGCC>
     <LIBCGCC>libc.a</LIBCGCC>
   </PropertyGroup>
