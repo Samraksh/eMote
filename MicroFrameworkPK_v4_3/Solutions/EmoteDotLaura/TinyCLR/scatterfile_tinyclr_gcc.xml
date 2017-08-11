@@ -4,7 +4,7 @@
     <Set Name="Valid" Value="false"/>
 
     <!-- ################################################################################ -->
-    <!-- SAM_$ are defined inside Solutions\Samraksh\Samraksh\Samraksh\EmoteDotNow\EmoteDotNow.settings -->
+    <!-- SAM_$ are defined inside Solutions\EmoteDotNow\EmoteDotNow.settings -->
     <Set Name="Heap_Begin"          Value="%SAM_HEAP_BEGIN%"/>
     <Set Name="Heap_End"            Value="%SAM_HEAP_END%"/>
     <Set Name="Stack_Bottom"        Value="%SAM_STACK_BOTTOM%"/>
@@ -21,10 +21,10 @@
         <!-- The STM32F10x has 1MB flash divided into the following regions -->
         <!-- THIS MUST MATCH THE BLOCK STORAGE DRIVER! -->
         <!-- Regular build: -->
-        <Set Name="Config_BaseAddress"  Value="0x080FF000"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
+        <Set Name="Config_BaseAddress"  Value="0x000FF000"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
         <Set Name="Config_Size"         Value="0x00001000"/><!--        Config_Size MUST MATCH TINYBOOTER SCATTERFILE -->
-        <Set Name="Code_BaseAddress"    Value="0x08020000"/>
-        <Set Name="Deploy_BaseAddress"  Value="0x080C1000"/>
+        <Set Name="Code_BaseAddress"    Value="0x00020000"/>
+        <Set Name="Deploy_BaseAddress"  Value="0x000C1000"/>
         <Set Name="Code_Size"           Value="%Deploy_BaseAddress - Code_BaseAddress%"/>
         <Set Name="Valid"               Value="true"/>
     </If>
@@ -87,7 +87,7 @@
         </IfNotDefined>
 
         <!-- libc thinks that it needs these routines, but they are never called -->
-        <Include File="%SPOCLIENT%\Solutions\Samraksh\Samraksh\Samraksh\%PLATFORM%\scatterfile_gcc_missing_symbols.xml"/>
+        <Include File="%SPOCLIENT%\Solutions\%PLATFORM%\scatterfile_gcc_missing_symbols.xml"/>
 
       </ExecRegion>
       <ExecRegion Name="ER_STACK_BOTTOM" Base="%Stack_Bottom%">
@@ -98,8 +98,8 @@
       </ExecRegion>
       <ExecRegion Name="ER_RAM_RO" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_%TARGETLOCATION%">
         <!--<FileMapping Name="*" Options="(VectorsTrampolines)" />--><!-- if vector table copied to RAM, must also set Vector Table Offset Register-->
-        <!--<Include File="%SPOCLIENT%\Solutions\Samraksh\Samraksh\Samraksh\%PLATFORM%\TinyCLR\scatterfile_ram_functions.xml"/>--><!--CLR RT functions to be placed in SRAM-->
-        <!--<Include File="%SPOCLIENT%\Solutions\Samraksh\Samraksh\Samraksh\%PLATFORM%\TinyCLR\scatterfile_tinyclr_ram_functions.xml"/>--><!--Samraksh HAL functions to be placed in SRAM-->
+        <!--<Include File="%SPOCLIENT%\Solutions\%PLATFORM%\TinyCLR\scatterfile_ram_functions.xml"/>--><!--CLR RT functions to be placed in SRAM-->
+        <!--<Include File="%SPOCLIENT%\Solutions\%PLATFORM%\TinyCLR\scatterfile_tinyclr_ram_functions.xml"/>--><!--Samraksh HAL functions to be placed in SRAM-->
         <If Name="TARGETLOCATION" In="FLASH">     
           <FileMapping Name="*" Options="(SectionForFlashOperations)" />       
         </If>

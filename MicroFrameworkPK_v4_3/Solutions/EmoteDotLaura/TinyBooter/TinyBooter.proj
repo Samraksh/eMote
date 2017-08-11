@@ -39,7 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="Max3263x.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\stmlib\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <PlatformIndependentLibs Include="TinybooterLib.$(LIB_EXT)" />
@@ -53,10 +53,10 @@
     <DriverLibs Include="asyncproccall_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!-- <ItemGroup>
     <DriverLibs Include="Max3263x_bootstrap.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\bootstrap\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup> -->
   <ItemGroup>
     <DriverLibs Include="cpu_cache_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_cache\dotNetMF.proj" />
@@ -93,46 +93,16 @@
     <DriverLibs Include="events_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Events\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="GlobalLock_hal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\cores\arm\Common\GlobalLock\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="system_initialization_hal_loader.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Initialization\dotNetMF_loader.proj" />
   </ItemGroup>
-  <!--ItemGroup>
-    <DriverLibs Include="Max3263x_flash.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\flash\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="Max3263x_rcc.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\rcc\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\exti\dotNetMF.proj" />
-    <DriverLibs Include="Max3263x_exti.$(LIB_EXT)" />
-  </ItemGroup-->
   
-  <!--ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Timer\dotNetMF.proj" />
-    <DriverLibs Include="Max3263x_timer.$(LIB_EXT)" />
-  </ItemGroup-->
-  <!--ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Timer\advancedtimer\dotNetMF.proj" />
-    <DriverLibs Include="Max3263x_adtim.$(LIB_EXT)" />
-  </ItemGroup-->
-  <!--ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Timer\Timer16Bit\dotNetMF.proj" />
-    <DriverLibs Include="Timer16Bit.$(LIB_EXT)" />
-  </ItemGroup-->
-  
-  <!-- 									Samraksh Time Extension        								-->
-  <!--ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\eMote_Time\dotNetMF.proj" />
-    <DriverLibs Include="eMote_time.$(LIB_EXT)" />
-  </ItemGroup-->
-
+  <!-- We need all these drivers, disabling to test bootup   
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\SimpleTimer\dotNetMF.proj" />
     <DriverLibs Include="SimpleTimer.$(LIB_EXT)" />
@@ -150,26 +120,8 @@
     <DriverLibs Include="Max3263x_fsmc.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\fsmc\dotNetMF.proj" />
   </ItemGroup>
-  <!--
-  <ItemGroup>
-    <DriverLibs Include="Max3263x_spi.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\spi\dotNetMF.proj" />
-  </ItemGroup>
   -->
-  <!--
-  <ItemGroup>
-    <DriverLibs Include="Max3263x_i2c.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\i2c\dotNetMF.proj" />
-  </ItemGroup>
-  -->
-  <!--ItemGroup>
-    <DriverLibs Include="Max3263x_time.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\time\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="Max3263x_misc.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\misc\dotNetMF.proj" />
-  </ItemGroup-->
+  
   
   <ItemGroup>
     <DriverLibs Include="Time_pal_stubs.$(LIB_EXT)" />
@@ -199,17 +151,17 @@
     <DriverLibs Include="cpu_timer_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_timer\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="Max3263x_SimplePower.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\SimplePower\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="tinycrt_pal_loader.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\TinyCRT\dotNetMF_loader.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="TinyHal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\cores\arm\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\cores\arm\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="cpu_watchdog_stubs.$(LIB_EXT)" />
@@ -291,10 +243,10 @@
     <DriverLibs Include="blockstorage_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\BlockStorage\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="Max3263x_bl.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\bl\dotNetMF.proj" />
-  </ItemGroup>
+  <!--<ItemGroup>
+    <DriverLibs Include="Max3263x_blockStorage.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\blockStorage\dotNetMF.proj" />
+  </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="batterymeasurement_hal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\BatteryMeasurement\stubs\dotNetMF.proj" />
@@ -307,22 +259,18 @@
     <DriverLibs Include="backlight_hal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Backlight\stubs\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="Max3263x_usart.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\usart\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="Analog_DA_HAL_EmoteDotLaura.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotLaura\DeviceCode\Analog_DA_HAL\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="native_double_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Double\dotNetMF.proj" />
   </ItemGroup>
-  <!--ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\VirtualTimer\dotNetMF.proj" />
-    <DriverLibs Include="VirtualTimer.$(LIB_EXT)" />
-  </ItemGroup-->
 
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

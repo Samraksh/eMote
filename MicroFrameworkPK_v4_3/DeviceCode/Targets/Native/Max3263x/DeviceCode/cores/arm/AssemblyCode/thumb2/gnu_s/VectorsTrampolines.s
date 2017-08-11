@@ -209,7 +209,7 @@ ARM_Vectors:
   .word  0
   .word  0
   .word  BootRAM       /* @0x1E0. This is for boot in RAM mode for
-                         MAX326xx High Density devices. */
+                         STM32F10x High Density devices. */
 /*******************************************************************************
 *
 * Provide weak aliases for each Exception handler to the Default_Handler.

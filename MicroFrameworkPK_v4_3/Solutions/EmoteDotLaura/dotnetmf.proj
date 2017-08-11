@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
-    <Directory>Solutions\Samraksh\Samraksh\Samraksh\EmoteDotLaura</Directory>
-    <MFSettingsFile>$(SPOCLIENT)\Solutions\Samraksh\Samraksh\Samraksh\EmoteDotLaura\EmoteDotLaura.settings</MFSettingsFile>
+    <Directory>Solutions\EmoteDotLaura</Directory>
+    <MFSettingsFile>$(SPOCLIENT)\Solutions\EmoteDotLaura\EmoteDotLaura.settings</MFSettingsFile>
   </PropertyGroup>
   <ItemGroup>
     <!--<RequiredProjects Include="MicroBooter\MicroBooter.proj" />-->

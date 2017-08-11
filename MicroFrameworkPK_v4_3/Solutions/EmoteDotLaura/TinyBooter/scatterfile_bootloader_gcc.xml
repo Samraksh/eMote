@@ -4,7 +4,7 @@
     <Set Name="Valid" Value="false"/>
 
     <!-- ################################################################################ -->
-    <!-- SAM_$ are defined inside Solutions\Samraksh\Samraksh\EmoteDotNow\EmoteDotNow.settings -->
+    <!-- SAM_$ are defined inside Solutions\EmoteDotNow\EmoteDotNow.settings -->
     <Set Name="Heap_Begin"          Value="%SAM_HEAP_BEGIN%"/><!-- TinyBooter uses SimpleHeap but passes location from Heap library -->
     <Set Name="Heap_End"            Value="%SAM_HEAP_END%"/>
     <Set Name="Stack_Bottom"        Value="%SAM_STACK_BOTTOM%"/>
@@ -86,7 +86,7 @@
         </IfNotDefined>
 
         <!-- libc thinks that it needs these routines, but they are never called -->
-        <Include File="%SPOCLIENT%\Solutions\Samraksh\Samraksh\%PLATFORM%\scatterfile_gcc_missing_symbols.xml"/>
+        <Include File="%SPOCLIENT%\Solutions\%PLATFORM%\scatterfile_gcc_missing_symbols.xml"/>
 
       </ExecRegion>
       <ExecRegion Name="ER_STACK_BOTTOM" Base="%Stack_Bottom%">
@@ -97,8 +97,8 @@
       </ExecRegion>
       <ExecRegion Name="ER_RAM_RO" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_%TARGETLOCATION%">
         <!--<FileMapping Name="*" Options="(VectorsTrampolines)" />--><!-- if vector table copied to RAM, must also set Vector Table Offset Register-->
-        <!--<Include File="%SPOCLIENT%\Solutions\Samraksh\Samraksh\%PLATFORM%\TinyCLR\scatterfile_ram_functions.xml"/>--><!--CLR RT functions to be placed in SRAM-->
-        <!--<Include File="%SPOCLIENT%\Solutions\Samraksh\Samraksh\%PLATFORM%\TinyCLR\scatterfile_tinyclr_ram_functions.xml"/>--><!--Samraksh HAL functions to be placed in SRAM-->
+        <!--<Include File="%SPOCLIENT%\Solutions\%PLATFORM%\TinyCLR\scatterfile_ram_functions.xml"/>--><!--CLR RT functions to be placed in SRAM-->
+        <!--<Include File="%SPOCLIENT%\Solutions\%PLATFORM%\TinyCLR\scatterfile_tinyclr_ram_functions.xml"/>--><!--Samraksh HAL functions to be placed in SRAM-->
         <If Name="TARGETLOCATION" In="FLASH">     
           <FileMapping Name="*" Options="(SectionForFlashOperations)" />       
         </If>

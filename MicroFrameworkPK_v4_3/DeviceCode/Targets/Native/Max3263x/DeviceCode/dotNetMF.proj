@@ -5,7 +5,7 @@
     <ProjectGuid>{36101ca5-349a-4471-aeb0-3babba567477}</ProjectGuid>
     <Size>
     </Size>
-    <Description>MAX326xx adc</Description>
+    <Description>MAX326xx drivers </Description>
     <Level>HAL</Level>
     <LibraryFile>MAX326xx_driver_control.$(LIB_EXT)</LibraryFile>
     <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\MAX326xx\DeviceCode\drivers\adc\dotNetMF.proj</ProjectPath>
@@ -39,6 +39,11 @@
   </PropertyGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
+  <ItemGroup>
+    <SubDirectories Include="DeviceCode/CMSIS"/>
+	<SubDirectories Include="DeviceCode/MAX3263XPeriphDriver"/>
+  </ItemGroup>
+  
   <ItemGroup>
 	<HFiles Include="Shutdown.h" />
 	<Compile Include="Shutdown.cpp" />
