@@ -32,6 +32,7 @@ MicroFrameworkPK_v4_0/.cproject
 MicroFrameworkPK_v4_0/.project
 .cproject
 /.settings/
+/.externalToolBuilders/
 
 #ignore header files generated at compile-time
 MicroFrameworkPK_v4_3/DeviceCode/Include/Samraksh/githash.h
