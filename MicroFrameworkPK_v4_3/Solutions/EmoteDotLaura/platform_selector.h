@@ -5,6 +5,11 @@
 #ifndef _PLATFORM_EmoteDotLaura_SELECTOR_H_
 #define _PLATFORM_EmoteDotLaura_SELECTOR_H_ 1
 
+//needed by maxim peripheral drivers
+#define TARGET MAX3263X
+#define TARGET_REV 0x4132
+
+
 // Properly declare them since they are not ANSI
 // Previously declared by accident in compiler setup because we used _GNU_SOURCE (default)
 // In future, prefer not to use.

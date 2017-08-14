@@ -38,6 +38,11 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
     return FALSE;
 }
 
+BOOL   CPU_GPIO_EnableInputPin3( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
+{
+	return FALSE;
+}
+
 BOOL CPU_GPIO_GetPinState( GPIO_PIN Pin )
 {
     return FALSE;

@@ -26,6 +26,12 @@
     <BUILD_TOOL_GUID>{722B0D5D-1243-4557-913F-61FAB04E9209}</BUILD_TOOL_GUID>
   </PropertyGroup>
   <ItemGroup>
-    <IncludePaths Include="devicecode\Targets\Native\MAX3263x" />
+    <IncludePaths Include="DeviceCode\Targets\Native\MAX3263x" />
+    <IncludePaths Include="DeviceCode\Targets\Native\MAX3263x\DeviceCode\MaximLib\CMSIS\Device\Maxim\MAX3263X\Include" />
+    <IncludePaths Include="DeviceCode\Targets\Native\MAX3263x\DeviceCode\MaximLib\CMSIS\Include" />
   </ItemGroup>
+  <PropertyGroup>
+    <TARGET>MAX3263X</TARGET>
+	<TARGET_REV>0x4132</TARGET_REV>
+  </PropertyGroup>
 </Project>

@@ -40,7 +40,8 @@
   <PropertyGroup />
   <ItemGroup>
 	<HFiles Include="Include/core_cm4.h" />
-    <!--<Compile Include="core_cm3.cpp" />-->
+    <Compile Include="Device/Maxim/MAX3263X/Source/system_max3263x.c" />
+    <!--<Compile Include="Device/Maxim/MAX3263X/Source/GCC/startup_max3263x.S" />-->
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

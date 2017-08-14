@@ -5,6 +5,11 @@
 
     <!-- ################################################################################ -->
     <!-- SAM_$ are defined inside Solutions\EmoteDotNow\EmoteDotNow.settings -->
+
+	<!-- These two defines are needed by Maxim drivers -->
+    <Set Name="TARGET"          Value="%TARGET%"/>
+    <Set Name="TARGET_REV"      Value="%TARGET_REV%"/>
+
     <Set Name="Heap_Begin"          Value="%SAM_HEAP_BEGIN%"/>
     <Set Name="Heap_End"            Value="%SAM_HEAP_END%"/>
     <Set Name="Stack_Bottom"        Value="%SAM_STACK_BOTTOM%"/>

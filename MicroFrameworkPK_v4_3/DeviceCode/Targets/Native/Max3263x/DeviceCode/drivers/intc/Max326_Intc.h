@@ -1,21 +1,21 @@
 /////////////////////////////////////////////////////////////////
 // The Samraksh Company
 //  Author      : Nived Sivadas
-//  Description : Equivalent of stm32f10x.h
+//  Description : Equivalent of MAX326f10x.h
 /////////////////////////////////////////////////////////////////
 
-#ifndef _MYSTM32_HEADER_H_
-#define _MYSTM32_HEADER_H_ 1
+#ifndef _MAX326_INTC_HEADER_H_
+#define _MAX326_INTC_HEADER_H_ 1
 
 #include <cores\arm\include\cpu.h>
-#include <stm32f10x.h>
+//#include <MAX326f10x.h>
 
-#define BASE                  ((UINT32)0x40000000)
+//#define BASE                  ((UINT32)0x40000000)
 //0x40010400
 //#define APB2PERIPH_BASE       (PERIPH_BASE + 0x10000)
 //#define EXTI_BASE             (APB2PERIPH_BASE + 0x0400)
-#define EXTI                ((EXTI_TypeDef *) EXTI_BASE)
-#define SCS_BASE            (0xE000E000)                              /*!< System Control Space Base Address */
+//#define EXTI                ((EXTI_TypeDef *) EXTI_BASE)
+//#define SCS_BASE            (0xE000E000)                              /*!< System Control Space Base Address */
 
 #ifndef __NVIC_PRIO_BITS
   #define __NVIC_PRIO_BITS    4               /*!< standard definition for NVIC Priority Bits */
@@ -54,18 +54,17 @@ extern volatile CoreDebug_Type*     pCoreDebug;
 }
 
 //
-// STM32 driver
+// MAX326 driver
 //////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
 // Interrupt Controller driver
 //
 
-struct STM32_AITC_Driver
+
+struct MAX326_AITC_Driver
 {
     static const UINT32 c_VECTORING_GUARD = 62;
-
-    //--//
 
     struct IRQ_VECTORING
     {
@@ -73,68 +72,30 @@ struct STM32_AITC_Driver
         HAL_CALLBACK Handler;
     };
 
-    //--//
 
-    static IRQ_VECTORING s_IsrTable[];
 
-    //--//
-
-    static void Initialize();
-
-    static BOOL ActivateInterrupt  ( UINT32 Irq_Index, BOOL Fast, HAL_CALLBACK_FPN ISR, void* ISR_Param);
-    static BOOL DeactivateInterrupt( UINT32 Irq_Index );
-
-    static BOOL InterruptEnable( UINT32 Irq_Index );
-
-    static BOOL InterruptDisable( UINT32 Irq_Index );
-
-    static BOOL InterruptEnableState( UINT32 Irq_Index );
-
-    static BOOL InterruptState( UINT32 Irq_Index );
 
 #if defined(PLATFORM_ARM)
     static void IRQ_Handler();
 #endif
 
+    static void Initialize();
+    static BOOL ActivateInterrupt  ( UINT32 Irq_Index, BOOL Fast, HAL_CALLBACK_FPN ISR, void* ISR_Param);
+    static BOOL DeactivateInterrupt( UINT32 Irq_Index );
+    static BOOL InterruptEnable( UINT32 Irq_Index );
+    static BOOL InterruptDisable( UINT32 Irq_Index );
+    static BOOL InterruptEnableState( UINT32 Irq_Index );
+    static BOOL InterruptState( UINT32 Irq_Index );
     static IRQ_VECTORING* IRQToIRQVector( UINT32 IRQ );
 
 private:
     static void STUB_ISRVector( void* Param );
 };
 
-//
+
 // Interrupt Controller driver
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-struct STM32_AITC
+struct MAX326_AITC
 {
-	// Base address of the INTC registers
-
-	volatile UINT32 ISER[8];                      /*!< Offset: 0x000  Interrupt Set Enable Register           */
-       UINT32 RESERVED0[24];
-	volatile UINT32 ICER[8];                      /*!< Offset: 0x080  Interrupt Clear Enable Register         */
-       UINT32 RSERVED1[24];
-	volatile UINT32 ISPR[8];                      /*!< Offset: 0x100  Interrupt Set Pending Register          */
-       UINT32 RESERVED2[24];
-	volatile UINT32 ICPR[8];                      /*!< Offset: 0x180  Interrupt Clear Pending Register        */
-       UINT32 RESERVED3[24];
-	volatile UINT32 IABR[8];                      /*!< Offset: 0x200  Interrupt Active bit Register           */
-       UINT32 RESERVED4[56];
-	volatile UINT32  IP[240];                      /*!< Offset: 0x300  Interrupt Priority Register (8Bit wide) */
-       UINT32 RESERVED5[644];
-	volatile  UINT32 STIR;                         /*!< Offset: 0xE00  Software Trigger Interrupt Register     */
-
-
-	// volatile UINT32 IMR;
-	// volatile UINT32 EMR;
-	// volatile UINT32 RTSR;
-	// volatile UINT32 FTSR;
-	// volatile UINT32 SWIER;
-	// volatile UINT32 PR;
-
-	static const UINT32 c_Base = (SCS_BASE +  0x0100);
-
 	static const UINT32 c_IRQ_Priority__3  =  -3;
 	static const UINT32 c_IRQ_Priority__2  =  -2;
 	static const UINT32 c_IRQ_Priority__1  =  -1;
@@ -231,51 +192,46 @@ struct STM32_AITC
 	//
 	void DisableInterrupt( UINT32 Irq_Index )
     {
-        ASSERT(Irq_Index < c_MaxInterruptIndex);
-
-        ICER[Irq_Index >> 0x05] = (UINT32) (0x01 << (Irq_Index & (UINT8)0x1F));
-
-
+       //TODO:
+		//ASSERT(Irq_Index < c_MaxInterruptIndex);
+        //ICER[Irq_Index >> 0x05] = (UINT32) (0x01 << (Irq_Index & (UINT8)0x1F));
     }
 
     void EnableInterrupt( UINT32 Irq_Index )
     {
-        ASSERT(Irq_Index < c_MaxInterruptIndex);
-
-
-        ISER[Irq_Index >> 0x05] = (UINT32)0x01 << (Irq_Index & (UINT8)0x1F);
+    	//TODO:
+        //ASSERT(Irq_Index < c_MaxInterruptIndex);
+        //ISER[Irq_Index >> 0x05] = (UINT32)0x01 << (Irq_Index & (UINT8)0x1F);
     }
 
     BOOL SetInterrupt(UINT32 Irq_Index)
     {
-    	 ASSERT(Irq_Index < c_MaxInterruptIndex);
-
-    	 ISPR[Irq_Index >> 0x05] = (UINT32)0x01 << (Irq_Index & (UINT8)0x1F);;
+    	//TODO:
+    	//ASSERT(Irq_Index < c_MaxInterruptIndex);
+    	//ISPR[Irq_Index >> 0x05] = (UINT32)0x01 << (Irq_Index & (UINT8)0x1F);;
     }
-
 
     BOOL ClearInterrupt(UINT32 Irq_Index)
     {
-    	ASSERT(Irq_Index < c_MaxInterruptIndex);
-
-    	 ICPR[Irq_Index >> 0x05] = (UINT32)0x01 << (Irq_Index & (UINT8)0x1F);;
-
+    	//TODO:
+		//ASSERT(Irq_Index < c_MaxInterruptIndex);
+		//ICPR[Irq_Index >> 0x05] = (UINT32)0x01 << (Irq_Index & (UINT8)0x1F);;
     }
 
 
 	//! Checks if the interrupt has been enabled for the given irq channel by checking the bit value of ISER
     BOOL IsInterruptEnabled( UINT32 Irq_Index )
     {
-        ASSERT(Irq_Index < c_MaxInterruptIndex);
-
-        return (ISER[Irq_Index >> 0x05]) >> (Irq_Index & (uint8_t)0x1F);
+    	//TODO:
+    	//ASSERT(Irq_Index < c_MaxInterruptIndex);
+        //return (ISER[Irq_Index >> 0x05]) >> (Irq_Index & (uint8_t)0x1F);
     }
 
 	//! Returns the state of the interrupt, internally calls the IsInterruptEnabled function
     BOOL GetInterruptState( UINT32 Irq_Index )
     {
-        ASSERT(Irq_Index < c_MaxInterruptIndex);
-
+    	//TODO:
+    	ASSERT(Irq_Index < c_MaxInterruptIndex);
 		return IsInterruptEnabled(Irq_Index);
    }
 
@@ -303,9 +259,9 @@ struct STM32_AITC
        return;
 	}
 
-	// ! assumes the PROGROUP bits in AIRCR[10:8] have already been initialized by calling NVIC_PriorityGroupConfig in STM32_AITC_Driver::Initialize()
+	// ! assumes the PROGROUP bits in AIRCR[10:8] have already been initialized by calling NVIC_PriorityGroupConfig in MAX326_AITC_Driver::Initialize()
 	// ! assumes caller knew the setting to specify acceptable priority
-	// ! FYI, In STM32_AITC_Driver, SCB->AIRCR[10:8] set to NVIC_PriorityGroup_4 which uses 4 bits for priority and 0 bits for subgroup.
+	// ! FYI, In MAX326_AITC_Driver, SCB->AIRCR[10:8] set to NVIC_PriorityGroup_4 which uses 4 bits for priority and 0 bits for subgroup.
     void SetPriority( UINT32 Irq_Index, UINT32 priority )
     {
 
@@ -340,29 +296,26 @@ struct STM32_AITC
 		tmppriority = (tmppriority << 0x04);         // STMicro PM0056 pg125.
 
 		NVIC->IP[(UINT32)Irq_Index] = (UINT8)tmppriority;
-		// Nived.Sivadas - discovered difference between stm32 m3 and official cortex m3
-		// the stm32 firmware uses only 4 bits of the 8 to set priorities
+		// Nived.Sivadas - discovered difference between MAX326 m3 and official cortex m3
+		// the MAX326 firmware uses only 4 bits of the 8 to set priorities
 		// and hence supports only 16 priority levels as opposed to 255
 		// ... 16 priority levels at most.
 	}
 
     UINT32 GetPriority( UINT32 Irq_Index )
     {
-        ASSERT(Irq_Index < c_MaxInterruptIndex);
+        /*ASSERT(Irq_Index < c_MaxInterruptIndex);
+        if(Irq_Index < 0) {
 
-		if(Irq_Index < 0) {
-
-		    	return 0;
-				// Nived : Need to implement SCB Driver for interrupts < 0
-				//return((uint32_t)(SCB->SHP[((uint32_t)(IRQn) & 0xF)-4] >> (8 - __NVIC_PRIO_BITS)));  
-				} /* get priority for Cortex-M3 system interrupts */
+			return 0;
+			// Nived : Need to implement SCB Driver for interrupts < 0
+			//return((uint32_t)(SCB->SHP[((uint32_t)(IRQn) & 0xF)-4] >> (8 - __NVIC_PRIO_BITS)));
+		} // get priority for Cortex-M3 system interrupts
 		else {
-
 				return((UINT32)(NVIC->IP[(UINT32)(Irq_Index)]           >> (8 - __NVIC_PRIO_BITS)));
-
-			 } /* get priority for device specific interrupts  */
+		} // get priority for device specific interrupts
+		*/
     }
-
 
     void ForceInterrupt( UINT32 Irq_Index )
     {
@@ -374,11 +327,9 @@ struct STM32_AITC
     {
         // TBD
     }
-
-
 };
 
-struct STM32_USART
+struct MAX326_USART
 {
 	static const UINT32 c_Base_usart1 = USART1_BASE;
 	static const UINT32 c_Base_usart2 = USART2_BASE;
@@ -401,15 +352,15 @@ struct STM32_USART
 };
 
 
-struct STM32
+struct MAX326
 {
-	    static STM32_AITC &AITC() { return *(STM32_AITC*)(size_t)(STM32_AITC::c_Base); }
-	    static STM32_USART &USART(int port) {
-	    										if (port == STM32_USART::USART_PORT_1)
-	    												return *(STM32_USART *)(size_t)(STM32_USART::c_Base_usart1);
-	    										else
-	    												return *(STM32_USART *)(size_t)(STM32_USART::c_Base_usart2);
-	    										}
+	static MAX326_AITC &AITC() { return *(MAX326_AITC*)(size_t)(MAX326_AITC::c_Base); }
+	static MAX326_USART &USART(int port) {
+			if (port == MAX326_USART::USART_PORT_1)
+					return *(MAX326_USART *)(size_t)(MAX326_USART::c_Base_usart1);
+			else
+					return *(MAX326_USART *)(size_t)(MAX326_USART::c_Base_usart2);
+		}
 
 };
 

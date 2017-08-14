@@ -5,6 +5,7 @@
 
     <!-- ################################################################################ -->
     <!-- SAM_$ are defined inside Solutions\EmoteDotNow\EmoteDotNow.settings -->
+     
     <Set Name="Heap_Begin"          Value="%SAM_HEAP_BEGIN%"/><!-- TinyBooter uses SimpleHeap but passes location from Heap library -->
     <Set Name="Heap_End"            Value="%SAM_HEAP_END%"/>
     <Set Name="Stack_Bottom"        Value="%SAM_STACK_BOTTOM%"/>

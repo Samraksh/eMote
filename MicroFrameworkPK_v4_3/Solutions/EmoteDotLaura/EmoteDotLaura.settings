@@ -22,6 +22,8 @@
     <IncludePaths Include="DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\CMSIS" />
   </ItemGroup>
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\Max3263x.settings" />
+  <!-- Below two are needed by Maxim drivers -->
+  
   <!-- Samraksh Heap and Stack settings to be propagated across ASM, C/C++, and Linker Script targets -->
   <PropertyGroup>
     <!-- BEFORE YOU CHANGE THIS: check size of ER_RAM_RO + ER_RAM_RW + .bss in map file and accommodate accordingly. -->

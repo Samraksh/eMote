@@ -175,13 +175,13 @@ Reset_Handler:
 #if 0
 /* Here are two copies of loop implemenations. First one favors code size
  * and the second one favors performance. Default uses the first one.
- * Change to "#if 0" to use the second one */
+ * Change to "#if 0" to use the second one
 .LC0:
     cmp     r2, r3
     ittt    lt
     ldrlt   r0, [r1], #4
     strlt   r0, [r2], #4
-    blt    .LC0
+    blt    .LC0*/
 #else
     subs    r3, r2
     ble    .LC1

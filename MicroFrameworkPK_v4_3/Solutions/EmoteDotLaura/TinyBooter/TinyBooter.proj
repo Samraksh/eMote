@@ -38,7 +38,8 @@
     <ExtraCleanFiles Include="$(OBJ_DIR)\TinyBooter_Compressed.dat" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="Max3263x.$(LIB_EXT)" />
+    <DriverLibs Include="Max3263x_PeriphDriver.$(LIB_EXT)" />
+    <DriverLibs Include="Max3263x_cmsis.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
@@ -53,10 +54,10 @@
     <DriverLibs Include="asyncproccall_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" />
   </ItemGroup>
-  <!-- <ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="Max3263x_bootstrap.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\bootstrap\dotNetMF.proj" />
-  </ItemGroup> -->
+  </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="cpu_cache_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_cache\dotNetMF.proj" />
@@ -98,6 +99,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\cores\arm\Common\GlobalLock\dotNetMF.proj" />
   </ItemGroup>-->
   <ItemGroup>
+    <DriverLibs Include="GlobalLock_hal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\GlobalLock\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="system_initialization_hal_loader.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Initialization\dotNetMF_loader.proj" />
   </ItemGroup>
@@ -107,21 +112,31 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\SimpleTimer\dotNetMF.proj" />
     <DriverLibs Include="SimpleTimer.$(LIB_EXT)" />
   </ItemGroup>
-  
   <ItemGroup>
     <DriverLibs Include="Max3263x_gpio.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\gpio\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="Max3263x_intc.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\intc\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
+  -->
+  
+  
+  <!--<ItemGroup>
     <DriverLibs Include="Max3263x_fsmc.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\fsmc\dotNetMF.proj" />
   </ItemGroup>
   -->
+  <ItemGroup>
+    <DriverLibs Include="cpu_gpio_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\Processor\stubs_gpio\dotNetMF.proj" />
+  </ItemGroup>
   
+  <ItemGroup>
+    <DriverLibs Include="Max3263x_intc.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\intc\dotNetMF.proj" />
+  </ItemGroup>
+  <!--<ItemGroup>
+    <DriverLibs Include="cpu_intc_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\Processor\stubs_INTC\dotNetMF.proj" />
+  </ItemGroup>-->
   
   <ItemGroup>
     <DriverLibs Include="Time_pal_stubs.$(LIB_EXT)" />
@@ -156,12 +171,16 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\SimplePower\dotNetMF.proj" />
   </ItemGroup>-->
   <ItemGroup>
+    <DriverLibs Include="cpu_power_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\Processor\stubs_power\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="tinycrt_pal_loader.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\TinyCRT\dotNetMF_loader.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="TinyHal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\cores\arm\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\cores\arm\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="cpu_watchdog_stubs.$(LIB_EXT)" />
@@ -248,6 +267,11 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\blockStorage\dotNetMF.proj" />
   </ItemGroup>-->
   <ItemGroup>
+    <DriverLibs Include="BlockStorage_AddDevices_stubs.$(LIB_EXT)" />
+    <DriverLibs Include="BlockStorageDriver_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\BlockStorage\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="batterymeasurement_hal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\BatteryMeasurement\stubs\dotNetMF.proj" />
   </ItemGroup>
@@ -262,8 +286,12 @@
   <!--<ItemGroup>
     <DriverLibs Include="Max3263x_usart.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\usart\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
+    <DriverLibs Include="cpu_usart_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\Processor\stubs_USART\dotNetMF.proj" />
+  </ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="Analog_DA_HAL_EmoteDotLaura.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotLaura\DeviceCode\Analog_DA_HAL\dotNetMF.proj" />
   </ItemGroup>-->

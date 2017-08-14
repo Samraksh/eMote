@@ -3,8 +3,10 @@
 //
 
 #include <tinyhal.h>
-#include <stm32f10x.h>
-#define VectorTableOffsetRegister 0xE000ED08
+#include <system_max3263x.h>
+#include "mxc_config.h"
+
+//#define VectorTableOffsetRegister 0xE000ED08
 
 #if defined(TARGETLOCATION_RAM)
 extern UINT32 Load$$ER_RAM$$Base
@@ -15,7 +17,8 @@ extern UINT32 Load$$ER_FLASH$$Base;
 extern "C"
 {
 
-	void __section(SectionForBootstrapOperations) VectorRelocate()
+	//void __section(SectionForBootstrapOperations) VectorRelocate()
+	void VectorRelocate()
 	{
 #if defined(TARGETLOCATION_RAM)
 		const UINT32 VTABLE_ADDR = (UINT32) &Load$$ER_RAM$$Base;    // TODO: independent loader section for RAM VectorTable
@@ -37,7 +40,7 @@ extern "C"
 			newVTOR = newVTOR | TBLBASE_MASK;          // vector table in RAM
 		}
 
-		*(__IO uint32_t *) VectorTableOffsetRegister = newVTOR;
+		SCB->VTOR = (uint32_t)newVTOR;
 	}
 
 }

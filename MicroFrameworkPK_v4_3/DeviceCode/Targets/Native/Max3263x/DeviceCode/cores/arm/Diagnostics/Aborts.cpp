@@ -3,12 +3,16 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
-#include <stm32f10x.h>
+#include <Device/Maxim/MAX3263X/Include/system_max3263x.h>
+#include <mxc_config.h>
 
-#if defined(PLATFORM_ARM_MC9328)
-#include <Targets\Native\MC9328\DeviceCode\MC9328MXL.h>
-#endif
-//--//
+
+//ToDo: This needs to be implemented. Currently it always returns true
+ uint32_t JTAG_Attached() {
+    return 1;
+}
+
+
 extern "C"
 {
 void HARD_Breakpoint_Handler(UINT32 *registers);

@@ -39,8 +39,37 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-    <Compile Include="*.c" />
-	<HFiles Include="*.h" />
+	<HFiles Include="..\..\processor_selector.h" />
+	
+	<Compile Include="Source/adc.c" />
+	<Compile Include="Source/aes.c" />
+	<Compile Include="Source/clkman.c" />
+	<Compile Include="Source/crc.c" />
+	<Compile Include="Source/flc.c" />
+	<Compile Include="Source/gpio.c" />
+	<Compile Include="Source/i2cm.c" />
+	<Compile Include="Source/i2cs.c" />
+	<Compile Include="Source/icc.c" />
+	<Compile Include="Source/ioman.c" />
+	<Compile Include="Source/lp.c" />
+	<Compile Include="Source/maa.c" />
+	<Compile Include="Source/mxc_assert.c" />
+	<Compile Include="Source/mxc_lock.c" />
+	<Compile Include="Source/mxc_sys.c" />
+	<Compile Include="Source/nvic_table.c" />
+	<Compile Include="Source/owm.c" />
+	<Compile Include="Source/pmu.c" />
+	<Compile Include="Source/prng.c" />
+	<Compile Include="Source/pt.c" />
+	<Compile Include="Source/rtc.c" />
+	<Compile Include="Source/spim.c" />
+	<Compile Include="Source/spix.c" />
+	<Compile Include="Source/tmr_utils.c" />
+	<Compile Include="Source/tmr.c" />
+	<Compile Include="Source/uart.c" />
+	<Compile Include="Source/wdt.c" />
+	<Compile Include="Source/wdt2.c" />
+	
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

@@ -194,6 +194,7 @@ __weak void SystemInit(void)
 {
     /* Configure the interrupt controller to use the application vector table in */
     /* the application space */
+#if 0
 #if defined ( __GNUC__) 
     /* IAR sets the VTOR pointer prior to SystemInit and causes stack corruption to change it here. */
     __disable_irq(); /* Disable interrupts */
@@ -201,6 +202,7 @@ __weak void SystemInit(void)
     __DSB();                        /* bus sync */
     __enable_irq();                 /* enable interrupts */
 #endif /* __GNUC__ */
+#endif
     /* Copy trim information from shadow registers into power manager registers */
     /* NOTE: Checks have been added to prevent bad/missing trim values from being loaded */
     if ((MXC_FLC->ctrl & MXC_F_FLC_CTRL_INFO_BLOCK_VALID) &&

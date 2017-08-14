@@ -2,10 +2,17 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef _MAX3263X_PROCESSOR_SELECTOR_H_
+#define _MAX3263X_PROCESSOR_SELECTOR_H_ 1
 
-#ifndef _TEMPLATE_PROCESSOR_SELECTOR_H_
-#define _TEMPLATE_PROCESSOR_SELECTOR_H_ 1
+#define PLATFORM_ARM_DEFINED
 
-    #define PLATFORM_ARM_DEFINED
+#ifndef TARGET
+#define TARGET MAX3263X
+#endif
+
+#ifndef TARGET_REV
+#define TARGET_REV 0x4132
+#endif
 
 #endif

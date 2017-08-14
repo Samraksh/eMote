@@ -3,10 +3,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
-#include <stm32f10x.h>
-//#include <led/stm32f10x_led.h>
-//#include <gpio/stm32f10x_gpio.h>
-#include "STM32.h"
+#include <mxc_config.h>
+#include <string.h>
+//#include <nvic_table.h>
+#include "Max326_Intc.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,75 +22,78 @@
 //#define DEBUG_DOTNOW_ISR
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
-#pragma arm section rwdata = "s_IsrTable_STM32"
+#pragma arm section rwdata = "s_IsrTable_MAX326"
 #endif
 
 #define DEFINE_IRQ(index, priority) { priority, { NULL, (void*)(size_t)index } }
 
-STM32_AITC_Driver::IRQ_VECTORING __section(rwdata) STM32_AITC_Driver::s_IsrTable[] =
+static IRQ_VECTORING s_IsrTable[];
+#define s_IsrTable __isr_vector;
+
+MAX326_AITC_Driver::IRQ_VECTORING __section(rwdata) MAX326_AITC_Driver::s_IsrTable[] =
 {
-	DEFINE_IRQ(STM32_AITC::c_IRQ_INDEX_WWDG			, STM32_AITC::c_IRQ_Priority_15),
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_PVD          ,STM32_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TAMPER            ,STM32_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_RTC     ,STM32_AITC::c_IRQ_Priority_1  ),
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_FLASH     ,STM32_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_RCC    ,STM32_AITC::c_IRQ_Priority_10  ),
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI0   ,STM32_AITC::c_IRQ_Priority_10  ),
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI1        ,STM32_AITC::c_IRQ_Priority_10  ),
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI2        ,STM32_AITC::c_IRQ_Priority_10  ),
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI3        ,STM32_AITC::c_IRQ_Priority_10  ),
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI4        ,STM32_AITC::c_IRQ_Priority_10  ),
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL1       ,STM32_AITC::c_IRQ_Priority_14  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL2       ,STM32_AITC::c_IRQ_Priority_14  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL3       ,STM32_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL4       ,STM32_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL5       ,STM32_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL6       ,STM32_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL7       ,STM32_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_ADC1_2       ,STM32_AITC::c_IRQ_Priority_3  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_USB_HP_CAN_TX       ,STM32_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_USB_LP_CAN_RX0       ,STM32_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_CAN_RX1       ,STM32_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_CAN_SCE       ,STM32_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI9_5       ,STM32_AITC::c_IRQ_Priority_10 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM1_BRK_TIM9       ,STM32_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM1_UP_TIM10       ,STM32_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM1_TRG_COM_TIM11       ,STM32_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM1_CC       ,STM32_AITC::c_IRQ_Priority_1 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM2       ,STM32_AITC::c_IRQ_Priority_2 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM3       ,STM32_AITC::c_IRQ_Priority_5 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM4       ,STM32_AITC::c_IRQ_Priority_3 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_I2C1_EV       ,STM32_AITC::c_IRQ_Priority_10 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_I2C1_ER       ,STM32_AITC::c_IRQ_Priority_10 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_I2C2_EV       ,STM32_AITC::c_IRQ_Priority_10 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_I2C2_ER       ,STM32_AITC::c_IRQ_Priority_10 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_SPI1       ,STM32_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_SPI2       ,STM32_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_USART1       ,STM32_AITC::c_IRQ_Priority_0 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_USART2       ,STM32_AITC::c_IRQ_Priority_5 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_USART3       ,STM32_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI15_10       ,STM32_AITC::c_IRQ_Priority_10 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_RTCAlarm       ,STM32_AITC::c_IRQ_Priority_1 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_USBWakeUp       ,STM32_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM8_BRK_TIM12       ,STM32_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM8_UP       ,STM32_AITC::c_IRQ_Priority_14 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM8_TRG_COM       ,STM32_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM8_CC       ,STM32_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_ADC3       ,STM32_AITC::c_IRQ_Priority_15 ),
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_FSMC          ,STM32_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_SDIO          ,STM32_AITC::c_IRQ_Priority_5  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM5          ,STM32_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_SPI3          ,STM32_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_USART4          ,STM32_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_USART5          ,STM32_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM6          ,STM32_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM7          ,STM32_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA2_Channel1          ,STM32_AITC::c_IRQ_Priority_14  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA2_Channel2          ,STM32_AITC::c_IRQ_Priority_14  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA2_Channel3          ,STM32_AITC::c_IRQ_Priority_14  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA2_Channel4_5          ,STM32_AITC::c_IRQ_Priority_14  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_PendSV          ,STM32_AITC::c_IRQ_Priority_15 ), //Mukundan
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_SVCall        ,STM32_AITC::c_IRQ_Priority_5  ),
+	DEFINE_IRQ(MAX326_AITC::c_IRQ_INDEX_WWDG			, MAX326_AITC::c_IRQ_Priority_15),
+    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_PVD          ,MAX326_AITC::c_IRQ_Priority_15  ),
+    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TAMPER            ,MAX326_AITC::c_IRQ_Priority_15  ),
+    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_RTC     ,MAX326_AITC::c_IRQ_Priority_1  ),
+    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_FLASH     ,MAX326_AITC::c_IRQ_Priority_15  ),
+    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_RCC    ,MAX326_AITC::c_IRQ_Priority_10  ),
+    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_EXTI0   ,MAX326_AITC::c_IRQ_Priority_10  ),
+    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_EXTI1        ,MAX326_AITC::c_IRQ_Priority_10  ),
+    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_EXTI2        ,MAX326_AITC::c_IRQ_Priority_10  ),
+    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_EXTI3        ,MAX326_AITC::c_IRQ_Priority_10  ),
+    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_EXTI4        ,MAX326_AITC::c_IRQ_Priority_10  ),
+    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL1       ,MAX326_AITC::c_IRQ_Priority_14  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL2       ,MAX326_AITC::c_IRQ_Priority_14  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL3       ,MAX326_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL4       ,MAX326_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL5       ,MAX326_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL6       ,MAX326_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL7       ,MAX326_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_ADC1_2       ,MAX326_AITC::c_IRQ_Priority_3  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USB_HP_CAN_TX       ,MAX326_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USB_LP_CAN_RX0       ,MAX326_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_CAN_RX1       ,MAX326_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_CAN_SCE       ,MAX326_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_EXTI9_5       ,MAX326_AITC::c_IRQ_Priority_10 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM1_BRK_TIM9       ,MAX326_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM1_UP_TIM10       ,MAX326_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM1_TRG_COM_TIM11       ,MAX326_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM1_CC       ,MAX326_AITC::c_IRQ_Priority_1 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM2       ,MAX326_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM3       ,MAX326_AITC::c_IRQ_Priority_5 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM4       ,MAX326_AITC::c_IRQ_Priority_3 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_I2C1_EV       ,MAX326_AITC::c_IRQ_Priority_10 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_I2C1_ER       ,MAX326_AITC::c_IRQ_Priority_10 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_I2C2_EV       ,MAX326_AITC::c_IRQ_Priority_10 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_I2C2_ER       ,MAX326_AITC::c_IRQ_Priority_10 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_SPI1       ,MAX326_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_SPI2       ,MAX326_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USART1       ,MAX326_AITC::c_IRQ_Priority_0 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USART2       ,MAX326_AITC::c_IRQ_Priority_5 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USART3       ,MAX326_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_EXTI15_10       ,MAX326_AITC::c_IRQ_Priority_10 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_RTCAlarm       ,MAX326_AITC::c_IRQ_Priority_1 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USBWakeUp       ,MAX326_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM8_BRK_TIM12       ,MAX326_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM8_UP       ,MAX326_AITC::c_IRQ_Priority_14 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM8_TRG_COM       ,MAX326_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM8_CC       ,MAX326_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_ADC3       ,MAX326_AITC::c_IRQ_Priority_15 ),
+    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_FSMC          ,MAX326_AITC::c_IRQ_Priority_15  ),
+    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_SDIO          ,MAX326_AITC::c_IRQ_Priority_5  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM5          ,MAX326_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_SPI3          ,MAX326_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USART4          ,MAX326_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USART5          ,MAX326_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM6          ,MAX326_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM7          ,MAX326_AITC::c_IRQ_Priority_15  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA2_Channel1          ,MAX326_AITC::c_IRQ_Priority_14  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA2_Channel2          ,MAX326_AITC::c_IRQ_Priority_14  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA2_Channel3          ,MAX326_AITC::c_IRQ_Priority_14  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA2_Channel4_5          ,MAX326_AITC::c_IRQ_Priority_14  ),
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_PendSV          ,MAX326_AITC::c_IRQ_Priority_15 ), //Mukundan
+	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_SVCall        ,MAX326_AITC::c_IRQ_Priority_5  ),
 };
 
 #undef DEFINE_IRQ
@@ -101,9 +104,9 @@ STM32_AITC_Driver::IRQ_VECTORING __section(rwdata) STM32_AITC_Driver::s_IsrTable
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void STM32_AITC_Driver::Initialize()
+void MAX326_AITC_Driver::Initialize()
 {
-    STM32_AITC& AITC = STM32::AITC();
+    MAX326_AITC& AITC = MAX326::AITC();
 
 	// Nived : Remains of stm's code here .. need to make this more elegant
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
@@ -122,7 +125,7 @@ void STM32_AITC_Driver::Initialize()
 
     // // set all priorities to the lowest
      IRQ_VECTORING* IsrVector = s_IsrTable;
-	 
+
 #ifdef DEBUG_DOTNOW_ISR
 	memset(interrupt_count, 0, 4*64);
 #endif
@@ -136,7 +139,7 @@ void STM32_AITC_Driver::Initialize()
 
 }
 
-BOOL STM32_AITC_Driver::ActivateInterrupt( UINT32 Irq_Index, BOOL Fast, HAL_CALLBACK_FPN ISR, void* ISR_Param)
+BOOL MAX326_AITC_Driver::ActivateInterrupt( UINT32 Irq_Index, BOOL Fast, HAL_CALLBACK_FPN ISR, void* ISR_Param)
 {
     // figure out the interrupt
     IRQ_VECTORING* IsrVector = IRQToIRQVector( Irq_Index ); if(!IsrVector) return FALSE;
@@ -144,7 +147,7 @@ BOOL STM32_AITC_Driver::ActivateInterrupt( UINT32 Irq_Index, BOOL Fast, HAL_CALL
     {
         GLOBAL_LOCK(irq);
 
-        STM32_AITC& AITC = STM32::AITC();
+        MAX326_AITC& AITC = MAX326::AITC();
 
         // disable this interrupt while we change it
 
@@ -162,7 +165,7 @@ BOOL STM32_AITC_Driver::ActivateInterrupt( UINT32 Irq_Index, BOOL Fast, HAL_CALL
     return TRUE;
 }
 
-BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
+BOOL MAX326_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 {
     // figure out the interrupt
     IRQ_VECTORING* IsrVector = IRQToIRQVector( Irq_Index ); if(!IsrVector) return FALSE;
@@ -170,7 +173,7 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
     {
         GLOBAL_LOCK(irq);
 
-        STM32_AITC& AITC = STM32::AITC();
+        MAX326_AITC& AITC = MAX326::AITC();
 
         // disable this interrupt while we change it
         AITC.DisableInterrupt(Irq_Index);
@@ -351,7 +354,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 	void __irq SVC_Handler()
 	{
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -361,7 +364,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_SVCall]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SVCall];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_SVCall];
 
 		// In case the interrupt was forced, remove the flag.
 		AITC.RemoveForcedInterrupt( 0 );
@@ -380,7 +383,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		SCB->ICSR |= SCB_ICSR_PENDSVCLR;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -390,7 +393,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_PendSV]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_PendSV];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_PendSV];
 
 		// In case the interrupt was forced, remove the flag.
 		AITC.RemoveForcedInterrupt( 0 );
@@ -417,7 +420,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	void __irq PVD_IRQHandler()
 	{
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -427,7 +430,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_PVD]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_PVD];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_PVD];
 
 		// In case the interrupt was forced, remove the flag.
 		AITC.RemoveForcedInterrupt( 0 );
@@ -443,7 +446,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	void __irq TAMPER_IRQHandler()
 	{
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -453,7 +456,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_TAMPER]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TAMPER];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_TAMPER];
 
 		IsrVector->Handler.Execute();
 
@@ -466,7 +469,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		GLOBAL_LOCK(irq);
 		// set before jumping elsewhere or allowing other interrupts
@@ -478,7 +481,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_RTC]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_RTC];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_RTC];
 
 		// In case the interrupt was forced, remove the flag.
 
@@ -492,7 +495,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	void __irq FLASH_IRQHandler()
 	{
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -502,7 +505,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_FLASH]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_FLASH];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_FLASH];
 
 		// In case the interrupt was forced, remove the flag.
 		AITC.RemoveForcedInterrupt( 0 );
@@ -517,7 +520,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	void __irq RCC_IRQHandler()
 	{
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -527,7 +530,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_RCC]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_RCC];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_RCC];
 
 		// In case the interrupt was forced, remove the flag.
 		AITC.RemoveForcedInterrupt( 0 );
@@ -544,13 +547,13 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[5];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[5];
 
 		IsrVector->Handler.Execute();
 
@@ -564,7 +567,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		GLOBAL_LOCK(irq);
@@ -576,7 +579,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_EXTI1]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI1];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_EXTI1];
 
 		IsrVector->Handler.Execute();
 
@@ -590,7 +593,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -600,7 +603,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_EXTI2]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI2];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_EXTI2];
 
 		IsrVector->Handler.Execute();
 
@@ -613,7 +616,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -623,7 +626,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_EXTI3]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI3];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_EXTI3];
 
 		IsrVector->Handler.Execute();
 
@@ -636,7 +639,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -646,7 +649,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_EXTI4]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI4];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_EXTI4];
 
 		IsrVector->Handler.Execute();
 
@@ -658,7 +661,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		GLOBAL_LOCK(irq);
@@ -670,7 +673,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL1]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL1];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL1];
 
 		IsrVector->Handler.Execute();
 
@@ -684,7 +687,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -694,7 +697,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL2]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL2];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL2];
 
 		IsrVector->Handler.Execute();
 
@@ -707,7 +710,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -717,7 +720,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL3]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL3];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL3];
 
 		IsrVector->Handler.Execute();
 
@@ -731,7 +734,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -741,7 +744,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL4]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL4];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL4];
 
 		IsrVector->Handler.Execute();
 
@@ -754,7 +757,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -764,7 +767,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL5]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL5];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL5];
 
 		IsrVector->Handler.Execute();
 
@@ -777,7 +780,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -787,7 +790,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL6]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL6];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL6];
 
 		IsrVector->Handler.Execute();
 
@@ -800,7 +803,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -810,7 +813,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL7]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL7];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL7];
 
 		IsrVector->Handler.Execute();
 
@@ -823,7 +826,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -833,7 +836,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_ADC1_2]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_ADC1_2];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_ADC1_2];
 
 		IsrVector->Handler.Execute();
 
@@ -846,7 +849,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -856,8 +859,8 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_USB_HP_CAN_TX]++;
 #endif
 
-		//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[18];
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USB_HP_CAN_TX];
+		//MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[18];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_USB_HP_CAN_TX];
 		IsrVector->Handler.Execute();
 
 
@@ -869,7 +872,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 		//LED_GREEN();
 
 		// set before jumping elsewhere or allowing other interrupts
@@ -880,8 +883,8 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_USB_LP_CAN_RX0]++;
 #endif
 
-		//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[19];
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USB_LP_CAN_RX0];
+		//MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[19];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_USB_LP_CAN_RX0];
 
 
 		IsrVector->Handler.Execute();
@@ -895,7 +898,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -905,7 +908,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_CAN_RX1]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_CAN_RX1];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_CAN_RX1];
 
 		IsrVector->Handler.Execute();
 
@@ -918,7 +921,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -928,7 +931,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_CAN_SCE]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_CAN_SCE];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_CAN_SCE];
 
 		IsrVector->Handler.Execute();
 
@@ -941,7 +944,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		GLOBAL_LOCK(irq);
@@ -953,7 +956,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_EXTI9_5]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI9_5];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_EXTI9_5];
 
 		IsrVector->Handler.Execute();
 
@@ -966,7 +969,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -976,7 +979,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_TIM1_BRK_TIM9]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM1_BRK_TIM9];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_TIM1_BRK_TIM9];
 
 		IsrVector->Handler.Execute();
 
@@ -989,7 +992,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -999,7 +1002,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_TIM1_UP_TIM10]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM1_UP_TIM10];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_TIM1_UP_TIM10];
 
 		IsrVector->Handler.Execute();
 
@@ -1012,7 +1015,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1022,7 +1025,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_TIM1_TRG_COM_TIM11]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM1_TRG_COM_TIM11];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_TIM1_TRG_COM_TIM11];
 
 		IsrVector->Handler.Execute();
 
@@ -1035,7 +1038,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 		GLOBAL_LOCK(irq);
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1045,7 +1048,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_TIM1_CC]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM1_CC];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_TIM1_CC];
 
 		IsrVector->Handler.Execute();
 
@@ -1061,13 +1064,13 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[27];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[27];
 
 		// In case the interrupt was forced, remove the flag.
 
@@ -1083,7 +1086,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1093,8 +1096,8 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_TIM3]++;
 #endif
 
-			//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[28];
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM3];
+			//MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[28];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_TIM3];
 
 			// In case the interrupt was forced, remove the flag.
 			IsrVector->Handler.Execute();
@@ -1108,7 +1111,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1118,8 +1121,8 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_TIM4]++;
 #endif
 
-			//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[29];
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM4];
+			//MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[29];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_TIM4];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1164,7 +1167,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			GLOBAL_LOCK(irq);
 			// set before jumping elsewhere or allowing other interrupts
@@ -1176,7 +1179,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_I2C1_EV]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_I2C1_EV];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_I2C1_EV];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1193,7 +1196,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			GLOBAL_LOCK(irq);
 			// set before jumping elsewhere or allowing other interrupts
@@ -1205,7 +1208,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_I2C1_ER]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_I2C1_ER];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_I2C1_ER];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1222,7 +1225,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1232,7 +1235,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_I2C2_EV]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_I2C2_EV];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_I2C2_EV];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1247,7 +1250,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1257,7 +1260,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_I2C2_ER]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_I2C2_ER];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_I2C2_ER];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1272,7 +1275,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1282,7 +1285,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_SPI1]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SPI1];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_SPI1];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1297,7 +1300,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1307,7 +1310,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_SPI2]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SPI2];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_SPI2];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1322,7 +1325,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1332,7 +1335,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_USART1]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART1];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_USART1];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1348,7 +1351,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1358,7 +1361,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_USART2]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART2];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_USART2];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1373,7 +1376,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1383,7 +1386,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_USART3]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART3];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_USART3];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1398,7 +1401,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 			GLOBAL_LOCK(irq);
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1408,7 +1411,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_EXTI15_10]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI15_10];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_EXTI15_10];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1423,7 +1426,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1433,7 +1436,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_RTCAlarm]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_RTCAlarm];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_RTCAlarm];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1448,7 +1451,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1458,7 +1461,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_USBWakeUp]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USBWakeUp];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_USBWakeUp];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1473,7 +1476,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1483,7 +1486,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_TIM8_BRK_TIM12]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM8_BRK_TIM12];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_TIM8_BRK_TIM12];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1498,7 +1501,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1508,7 +1511,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_USART4]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART4];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_USART4];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1523,7 +1526,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1533,7 +1536,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_USART5]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART5];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_USART5];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1548,7 +1551,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1558,7 +1561,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_TIM8_CC]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM8_CC];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_TIM8_CC];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1573,7 +1576,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1583,7 +1586,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_ADC3]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_ADC3];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_ADC3];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1599,13 +1602,13 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[47];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[47];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1621,7 +1624,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 			UINT32 index;
 
-			STM32_AITC& AITC = STM32::AITC();
+			MAX326_AITC& AITC = MAX326::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1631,7 +1634,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_FSMC]++;
 #endif
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_FSMC];
+			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_FSMC];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1649,7 +1652,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1659,7 +1662,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_SDIO]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SDIO];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_SDIO];
 
 		// In case the interrupt was forced, remove the flag.
 
@@ -1674,7 +1677,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1684,7 +1687,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_TIM5]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM5];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_TIM5];
 
 		// In case the interrupt was forced, remove the flag.
 
@@ -1699,7 +1702,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1709,7 +1712,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_SPI3]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SPI3];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_SPI3];
 
 		// In case the interrupt was forced, remove the flag.
 
@@ -1725,7 +1728,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1735,7 +1738,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_TIM6]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM6];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_TIM6];
 
 		// In case the interrupt was forced, remove the flag.
 
@@ -1750,7 +1753,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1760,7 +1763,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_TIM7]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM7];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_TIM7];
 
 		// In case the interrupt was forced, remove the flag.
 
@@ -1775,7 +1778,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1785,7 +1788,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_DMA2_Channel1]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA2_Channel1];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_DMA2_Channel1];
 
 		// In case the interrupt was forced, remove the flag.
 
@@ -1800,7 +1803,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1810,7 +1813,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_DMA2_Channel2]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA2_Channel2];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_DMA2_Channel2];
 
 		// In case the interrupt was forced, remove the flag.
 
@@ -1825,7 +1828,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1835,7 +1838,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_DMA2_Channel3]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA2_Channel3];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_DMA2_Channel3];
 
 		// In case the interrupt was forced, remove the flag.
 
@@ -1850,7 +1853,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1860,7 +1863,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_DMA2_Channel4_5]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA2_Channel4_5];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_DMA2_Channel4_5];
 
 		// In case the interrupt was forced, remove the flag.
 
@@ -1876,7 +1879,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -1886,7 +1889,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_EXTI0]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI0];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_EXTI0];
 
 		IsrVector->Handler.Execute();
 
@@ -1900,7 +1903,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		MAX326_AITC& AITC = MAX326::AITC();
 
 		GLOBAL_LOCK(irq);
 		// set before jumping elsewhere or allowing other interrupts
@@ -1911,7 +1914,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		interrupt_count[c_IRQ_INDEX_TIM2]++;
 #endif
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM2];
+		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_TIM2];
 
 		IsrVector->Handler.Execute();
 
@@ -1922,12 +1925,12 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 }
 
 
-BOOL STM32_AITC_Driver::InterruptEnable( UINT32 Irq_Index  )
+BOOL MAX326_AITC_Driver::InterruptEnable( UINT32 Irq_Index  )
 {
 
     if(Irq_Index >= c_VECTORING_GUARD ) return FALSE;
 
-    STM32_AITC& AITC = STM32::AITC();
+    MAX326_AITC& AITC = MAX326::AITC();
 
     GLOBAL_LOCK(irq);
 
@@ -1939,11 +1942,11 @@ BOOL STM32_AITC_Driver::InterruptEnable( UINT32 Irq_Index  )
 }
 
 
-BOOL STM32_AITC_Driver::InterruptDisable( UINT32 Irq_Index )
+BOOL MAX326_AITC_Driver::InterruptDisable( UINT32 Irq_Index )
 {
     if(Irq_Index >= c_VECTORING_GUARD ) return FALSE;
 
-    STM32_AITC& AITC = STM32::AITC();
+    MAX326_AITC& AITC = MAX326::AITC();
 
     GLOBAL_LOCK(irq);
 
@@ -1955,22 +1958,22 @@ BOOL STM32_AITC_Driver::InterruptDisable( UINT32 Irq_Index )
 }
 
 
-BOOL STM32_AITC_Driver::InterruptEnableState( UINT32 Irq_Index )
+BOOL MAX326_AITC_Driver::InterruptEnableState( UINT32 Irq_Index )
 {
-    STM32_AITC& AITC = STM32::AITC();
+    MAX326_AITC& AITC = MAX326::AITC();
 
     return AITC.IsInterruptEnabled( Irq_Index );
 }
 
 
-BOOL  STM32_AITC_Driver::InterruptState( UINT32 Irq_Index )
+BOOL  MAX326_AITC_Driver::InterruptState( UINT32 Irq_Index )
 {
-    STM32_AITC& AITC = STM32::AITC();
+    MAX326_AITC& AITC = MAX326::AITC();
 
     return AITC.GetInterruptState( Irq_Index );
 }
 
-STM32_AITC_Driver::IRQ_VECTORING* STM32_AITC_Driver::IRQToIRQVector( UINT32 IRQ )
+MAX326_AITC_Driver::IRQ_VECTORING* MAX326_AITC_Driver::IRQToIRQVector( UINT32 IRQ )
 {
     IRQ_VECTORING* IsrVector = s_IsrTable;
 
@@ -1985,7 +1988,7 @@ STM32_AITC_Driver::IRQ_VECTORING* STM32_AITC_Driver::IRQToIRQVector( UINT32 IRQ 
     return NULL;
 }
 
-void STM32_AITC_Driver::STUB_ISRVector( void* Param )
+void MAX326_AITC_Driver::STUB_ISRVector( void* Param )
 {
     lcd_printf( "\fSTUB_ISR %08x\r\n", (size_t)Param );
 	//Nived :  Calling Default Interrupt Handler
