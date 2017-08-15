@@ -11,7 +11,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #undef  TRACE_ALWAYS
-
 #define TRACE_ALWAYS               0x00000001
 
 #undef  DEBUG_TRACE
@@ -19,7 +18,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//#define DEBUG_DOTNOW_ISR
+#define DEBUG_MAX326_ISR
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
 #pragma arm section rwdata = "s_IsrTable_MAX326"
@@ -27,73 +26,71 @@
 
 #define DEFINE_IRQ(index, priority) { priority, { NULL, (void*)(size_t)index } }
 
-static IRQ_VECTORING s_IsrTable[];
-#define s_IsrTable __isr_vector;
 
-MAX326_AITC_Driver::IRQ_VECTORING __section(rwdata) MAX326_AITC_Driver::s_IsrTable[] =
+MAX326_AITC_Driver::IRQ_VECTORING __section(rwdata) MAX326_AITC_Driver::s_IsrTable[MXC_IRQ_COUNT] =
 {
-	DEFINE_IRQ(MAX326_AITC::c_IRQ_INDEX_WWDG			, MAX326_AITC::c_IRQ_Priority_15),
-    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_PVD          ,MAX326_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TAMPER            ,MAX326_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_RTC     ,MAX326_AITC::c_IRQ_Priority_1  ),
-    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_FLASH     ,MAX326_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_RCC    ,MAX326_AITC::c_IRQ_Priority_10  ),
-    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_EXTI0   ,MAX326_AITC::c_IRQ_Priority_10  ),
-    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_EXTI1        ,MAX326_AITC::c_IRQ_Priority_10  ),
-    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_EXTI2        ,MAX326_AITC::c_IRQ_Priority_10  ),
-    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_EXTI3        ,MAX326_AITC::c_IRQ_Priority_10  ),
-    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_EXTI4        ,MAX326_AITC::c_IRQ_Priority_10  ),
-    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL1       ,MAX326_AITC::c_IRQ_Priority_14  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL2       ,MAX326_AITC::c_IRQ_Priority_14  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL3       ,MAX326_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL4       ,MAX326_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL5       ,MAX326_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL6       ,MAX326_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA_CHANNEL7       ,MAX326_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_ADC1_2       ,MAX326_AITC::c_IRQ_Priority_3  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USB_HP_CAN_TX       ,MAX326_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USB_LP_CAN_RX0       ,MAX326_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_CAN_RX1       ,MAX326_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_CAN_SCE       ,MAX326_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_EXTI9_5       ,MAX326_AITC::c_IRQ_Priority_10 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM1_BRK_TIM9       ,MAX326_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM1_UP_TIM10       ,MAX326_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM1_TRG_COM_TIM11       ,MAX326_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM1_CC       ,MAX326_AITC::c_IRQ_Priority_1 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM2       ,MAX326_AITC::c_IRQ_Priority_2 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM3       ,MAX326_AITC::c_IRQ_Priority_5 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM4       ,MAX326_AITC::c_IRQ_Priority_3 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_I2C1_EV       ,MAX326_AITC::c_IRQ_Priority_10 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_I2C1_ER       ,MAX326_AITC::c_IRQ_Priority_10 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_I2C2_EV       ,MAX326_AITC::c_IRQ_Priority_10 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_I2C2_ER       ,MAX326_AITC::c_IRQ_Priority_10 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_SPI1       ,MAX326_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_SPI2       ,MAX326_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USART1       ,MAX326_AITC::c_IRQ_Priority_0 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USART2       ,MAX326_AITC::c_IRQ_Priority_5 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USART3       ,MAX326_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_EXTI15_10       ,MAX326_AITC::c_IRQ_Priority_10 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_RTCAlarm       ,MAX326_AITC::c_IRQ_Priority_1 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USBWakeUp       ,MAX326_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM8_BRK_TIM12       ,MAX326_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM8_UP       ,MAX326_AITC::c_IRQ_Priority_14 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM8_TRG_COM       ,MAX326_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM8_CC       ,MAX326_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_ADC3       ,MAX326_AITC::c_IRQ_Priority_15 ),
-    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_FSMC          ,MAX326_AITC::c_IRQ_Priority_15  ),
-    DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_SDIO          ,MAX326_AITC::c_IRQ_Priority_5  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM5          ,MAX326_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_SPI3          ,MAX326_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USART4          ,MAX326_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_USART5          ,MAX326_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM6          ,MAX326_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_TIM7          ,MAX326_AITC::c_IRQ_Priority_15  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA2_Channel1          ,MAX326_AITC::c_IRQ_Priority_14  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA2_Channel2          ,MAX326_AITC::c_IRQ_Priority_14  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA2_Channel3          ,MAX326_AITC::c_IRQ_Priority_14  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_DMA2_Channel4_5          ,MAX326_AITC::c_IRQ_Priority_14  ),
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_PendSV          ,MAX326_AITC::c_IRQ_Priority_15 ), //Mukundan
-	DEFINE_IRQ( MAX326_AITC::c_IRQ_INDEX_SVCall        ,MAX326_AITC::c_IRQ_Priority_5  ),
+	DEFINE_IRQ(NonMaskableInt_IRQn, MAX326_AITC::c_IRQ_Priority_5  ), //    = -14, ARM Core : Non-maskable IRQ  */
+	DEFINE_IRQ(HardFault_IRQn         = -13, /**< ARM Core : Hard Fault IRQ  */
+	DEFINE_IRQ(MemoryManagement_IRQn  = -12, /**< ARM Core : Memory Management IRQ  */
+	DEFINE_IRQ(BusFault_IRQn          = -11, /**< ARM Core : Bus Fault IRQ  */
+	DEFINE_IRQ(UsageFault_IRQn        = -10, /**< ARM Core : Usage Fault IRQ  */
+	DEFINE_IRQ(SVCall_IRQn            = -5,  /**< ARM Core : SVCall IRQ  */
+	DEFINE_IRQ(DebugMonitor_IRQn      = -4,  /**< ARM Core : Debug Monitor IRQ          */
+	DEFINE_IRQ(PendSV_IRQn            = -2,  /**< ARM Core : PendSV IRQ                 */
+	DEFINE_IRQ(SysTick_IRQn           = -1,  /**< ARM Core : SysTick IRQ                */
+	DEFINE_IRQ(	    CLKMAN_IRQn = 0,              /**< CLKMAN                                */
+	DEFINE_IRQ(	    PWRMAN_IRQn,                  /**< PWRMAN                                */
+	DEFINE_IRQ(	    FLC_IRQn,                     /**< Flash Controller                      */
+	DEFINE_IRQ(	    RTC0_IRQn,                    /**< RTC Counter match with Compare 0      */
+	DEFINE_IRQ(	    RTC1_IRQn,                    /**< RTC Counter match with Compare 1      */
+	DEFINE_IRQ(	    RTC2_IRQn,                    /**< RTC Prescaler interval compare match  */
+	DEFINE_IRQ(	    RTC3_IRQn,                    /**< RTC Overflow                          */
+	DEFINE_IRQ(	    PMU_IRQn,                     /**< Peripheral Management Unit (PMU/DMA)  */
+	DEFINE_IRQ(	    USB_IRQn,                     /**< USB                                   */
+	DEFINE_IRQ(	    AES_IRQn,                     /**< AES                                   */
+	DEFINE_IRQ(	    MAA_IRQn,                     /**< MAA                                   */
+	DEFINE_IRQ(	    WDT0_IRQn,                    /**< Watchdog 0 timeout                   */
+	DEFINE_IRQ(	    WDT0_P_IRQn,                  /**< Watchdog 0 pre-window (fed too early) */
+	DEFINE_IRQ(	    WDT1_IRQn,                    /**< Watchdog 1 timeout                    */
+		    WDT1_P_IRQn,                  /**< Watchdog 1 pre-window (fed too early) */
+		    GPIO_P0_IRQn,                 /**< GPIO Port 0                           */
+		    GPIO_P1_IRQn,                 /**< GPIO Port 1                           */
+		    GPIO_P2_IRQn,                 /**< GPIO Port 2                           */
+		    GPIO_P3_IRQn,                 /**< GPIO Port 3                           */
+		    GPIO_P4_IRQn,                 /**< GPIO Port 4                           */
+		    GPIO_P5_IRQn,                 /**< GPIO Port 5                           */
+		    GPIO_P6_IRQn,                 /**< GPIO Port 6                           */
+		    TMR0_0_IRQn,                  /**< Timer 0 (32-bit, 16-bit #0)           */
+		    TMR0_1_IRQn,                  /**< Timer 0 (16-bit #1)                   */
+		    TMR1_0_IRQn,                  /**< Timer 1 (32-bit, 16-bit #0)           */
+		    TMR1_1_IRQn,                  /**< Timer 1 (16-bit #1)                   */
+		    TMR2_0_IRQn,                  /**< Timer 2 (32-bit, 16-bit #0)           */
+		    TMR2_1_IRQn,                  /**< Timer 2 (16-bit #1)                   */
+		    TMR3_0_IRQn,                  /**< Timer 3 (32-bit, 16-bit #0)           */
+		    TMR3_1_IRQn,                  /**< Timer 3 (16-bit #1)                   */
+		    TMR4_0_IRQn,                  /**< Timer 4 (32-bit, 16-bit #0)           */
+		    TMR4_1_IRQn,                  /**< Timer 4 (16-bit #1)                   */
+		    TMR5_0_IRQn,                  /**< Timer 5 (32-bit, 16-bit #0)           */
+		    TMR5_1_IRQn,                  /**< Timer 5 (16-bit #1)                   */
+		    UART0_IRQn,                   /**< UART 0                                */
+		    UART1_IRQn,                   /**< UART 1                                */
+		    UART2_IRQn,                   /**< UART 2                                */
+		    UART3_IRQn,                   /**< UART 3                                */
+		    PT_IRQn,                      /**< Pulse Trains                          */
+		    I2CM0_IRQn,                   /**< I2C Master 0                          */
+		    I2CM1_IRQn,                   /**< I2C Master 1                          */
+		    I2CM2_IRQn,                   /**< I2C Master 2                          */
+		    I2CS_IRQn,                    /**< I2C Slave                             */
+		    SPIM0_IRQn,                   /**< SPI Master 0                          */
+		    SPIM1_IRQn,                   /**< SPI Master 1                          */
+		    SPIM2_IRQn,                   /**< SPI Master 2                          */
+		    SPIB_IRQn,                    /**< SPI Bridge                            */
+		    OWM_IRQn,                     /**< 1-Wire Master                         */
+		    AFE_IRQn,                     /**< ADC                                   */
+		    SPIS_IRQn,                    /**< SPI Slave                             */
+		    GPIO_P7_IRQn,                 /**< GPIO Port 7                           */
+		    GPIO_P8_IRQn,                 /**< GPIO Port 8                           */
+		    MXC_IRQ_EXT_COUNT,MAX326_AITC::c_IRQ_Priority_5  ),             //< Total number of non-core IRQ vectors.
 };
 
 #undef DEFINE_IRQ
@@ -106,27 +103,17 @@ MAX326_AITC_Driver::IRQ_VECTORING __section(rwdata) MAX326_AITC_Driver::s_IsrTab
 
 void MAX326_AITC_Driver::Initialize()
 {
-    MAX326_AITC& AITC = MAX326::AITC();
+    //MAX326_AITC& AITC = MAX326::AITC();
 
-	// Nived : Remains of stm's code here .. need to make this more elegant
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
-    // // disable all interrupts
-    // AITC.ICMR = 0;
-    // AITC.ICMR2 = 0;
-    // // Only active interrupt will trigger the IRQ on idle
-    // AITC.ICCR = AITC.ICCR__DIM_OTHER;
-
-	// Nived : Test 1 - Check if this actually disables all interrupts.
-	for(int i = 0 ; i < 8; i++)
+	for(int i = c_MinInterruptIndex ; i <= c_MaxInterruptIndex;i++)
 	{
-		AITC.ICER[i] = 0xFFFFFFFF;   // Clear all enabled interrupts
-		AITC.ICPR[i] = 0xFFFFFFFF;   // Clear all pending interrupts if any
+
 	}
 
     // // set all priorities to the lowest
      IRQ_VECTORING* IsrVector = s_IsrTable;
 
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 	memset(interrupt_count, 0, 4*64);
 #endif
 
@@ -143,25 +130,17 @@ BOOL MAX326_AITC_Driver::ActivateInterrupt( UINT32 Irq_Index, BOOL Fast, HAL_CAL
 {
     // figure out the interrupt
     IRQ_VECTORING* IsrVector = IRQToIRQVector( Irq_Index ); if(!IsrVector) return FALSE;
-
     {
         GLOBAL_LOCK(irq);
-
         MAX326_AITC& AITC = MAX326::AITC();
-
         // disable this interrupt while we change it
-
         AITC.DisableInterrupt(Irq_Index);
-
 
         // set the vector
         IsrVector->Handler.Initialize( ISR, ISR_Param );
-
         	// enable the interrupt if we have a vector
         AITC.EnableInterrupt(Irq_Index);
-
     }
-
     return TRUE;
 }
 
@@ -169,279 +148,71 @@ BOOL MAX326_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 {
     // figure out the interrupt
     IRQ_VECTORING* IsrVector = IRQToIRQVector( Irq_Index ); if(!IsrVector) return FALSE;
-
     {
         GLOBAL_LOCK(irq);
-
         MAX326_AITC& AITC = MAX326::AITC();
-
         // disable this interrupt while we change it
         AITC.DisableInterrupt(Irq_Index);
         // as it is stub, just put the Priority to the ISR parameter
         IsrVector->Handler.Initialize( STUB_ISRVector, (void*)(size_t)IsrVector->Priority );
     }
-
     return TRUE;
 }
 
-	extern "C"
-	{
-		void HardFault_Display()
-		{
-			CPU_GPIO_EnableOutputPin (9, FALSE);
-			CPU_GPIO_SetPinState(9,FALSE);
-			CPU_GPIO_SetPinState(9,TRUE);
-			CPU_GPIO_SetPinState(9,FALSE);
-			CPU_GPIO_SetPinState(9,TRUE);
-			CPU_GPIO_SetPinState(9,FALSE);
-
-
-		}
-
-
-		#if defined(DEBUG)
-		// help GDB inspect CMSIS register definitions in core_cm3.h
-		volatile NVIC_Type*          pNVIC      = NVIC;
-		volatile SCB_Type*           pSCB       = SCB;
-		volatile SysTick_Type*       pSysTick   = SysTick;
-		volatile ITM_Type*           pITM       = ITM;
-		volatile InterruptType_Type* pInterruptType = InterruptType;
-		volatile MPU_Type*           pMPU       = MPU;
-		volatile CoreDebug_Type*     pCoreDebug = CoreDebug;
-		#endif
-
-
-__attribute__((optimize("O0")))
-void HardFault_HandlerC(unsigned long *hardfault_args)
+BOOL MAX326_AITC_Driver::InterruptEnable( UINT32 Irq_Index  )
 {
-  	volatile unsigned long stacked_r0 ;
-  	volatile unsigned long stacked_r1 ;
-  	volatile unsigned long stacked_r2 ;
-  	volatile unsigned long stacked_r3 ;
-  	volatile unsigned long stacked_r12 ;
-  	volatile unsigned long stacked_lr ;
-  	volatile unsigned long stacked_pc ;
-  	volatile unsigned long stacked_psr ;
-  	volatile unsigned long _CFSR ;
-	volatile unsigned long _UFSR ;
-  	volatile unsigned long _HFSR ;
-  	volatile unsigned long _DFSR ;
-  	volatile unsigned long _AFSR ;
-  	volatile unsigned long _BFAR ;
-  	volatile unsigned long _MMAR ;
- 
-  	stacked_r0 = ((unsigned long)hardfault_args[0]) ;
-  	stacked_r1 = ((unsigned long)hardfault_args[1]) ;
-  	stacked_r2 = ((unsigned long)hardfault_args[2]) ;
-  	stacked_r3 = ((unsigned long)hardfault_args[3]) ;
-  	stacked_r12 = ((unsigned long)hardfault_args[4]) ;
-  	stacked_lr = ((unsigned long)hardfault_args[5]) ;
-  	stacked_pc = ((unsigned long)hardfault_args[6]) ;
-  	stacked_psr = ((unsigned long)hardfault_args[7]) ;
- 
-  	// Configurable Fault Status Register
-  	// Consists of MMSR, BFSR and UFSR
-  	_CFSR = (*((volatile unsigned long *)(0xE000ED28))) ;
+    if(Irq_Index >= c_VECTORING_GUARD ) return FALSE;
+    MAX326_AITC& AITC = MAX326::AITC();
+    GLOBAL_LOCK(irq);
+    BOOL WasEnabled = AITC.IsInterruptEnabled( Irq_Index );
+    AITC.EnableInterrupt(Irq_Index);
+    return WasEnabled;
+}
 
-	// Usage Fault Status Register
-	_UFSR = _CFSR >> 0x10;
- 
-  	// Hard Fault Status Register
-  	_HFSR = (*((volatile unsigned long *)(0xE000ED2C))) ;
- 
-  	// Debug Fault Status Register
-  	_DFSR = (*((volatile unsigned long *)(0xE000ED30))) ;
- 
-  	// Auxiliary Fault Status Register
-  	_AFSR = (*((volatile unsigned long *)(0xE000ED3C))) ;
- 
-  	// Read the Fault Address Registers. These may not contain valid values.
-  	// Check BFARVALID/MMARVALID to see if they are valid values
-  	// MemManage Fault Address Register
-  	_MMAR = (*((volatile unsigned long *)(0xE000ED34))) ;
-  	// Bus Fault Address Register
-  	_BFAR = (*((volatile unsigned long *)(0xE000ED38))) ;
+BOOL MAX326_AITC_Driver::InterruptDisable( UINT32 Irq_Index )
+{
+    if(Irq_Index >= c_VECTORING_GUARD ) return FALSE;
+    MAX326_AITC& AITC = MAX326::AITC();
+    GLOBAL_LOCK(irq);
+    BOOL WasEnabled = AITC.IsInterruptEnabled( Irq_Index );
+    AITC.DisableInterrupt(Irq_Index);
+    return WasEnabled;
+}
 
-#if defined(DEBUG)
-	                                       // Possible Causes of Fault Status Registers (Yiu, The definitive guide to the ARM Cortex-M3, 2010)
-	bool MMARVALID = (_MMAR & (1<<7)) > 0; // Indicates the Memory Manage Address register (MMAR) contains a valid fault addressing value.
-	bool MSTKERR   = (_MMAR & (1<<4)) > 0; // Error occurred during stacking (starting of exception).
-	                                       // 1. Stack pointer is corrupted.
-	                                       // 2. Stack size is too large, reaching a region not defined by the MPU or disallowed in the MPU configuration.
-	bool MUNSTKERR = (_MMAR & (1<<3)) > 0; // Error occurred during unstacking (ending of exception). If there was no error
-	                                       // stacking but error occurred during unstacking, it might be because of the
-	                                       // following reasons:
-	                                       // 1. Stack pointer was corrupted during exception.
-	                                       // 2. MPU configuration was changed by exception handler.
-	bool DACCVIOL = (_MMAR & (1<<1)) > 0;  // Violation to memory access protection, which is defined by MPU setup.
-	                                       // For example, user application trying to access privileged-only region.
-	bool IACCVIOL = (_MMAR & (1<<0)) > 0;  // 1. Violation to memory access protection, which is defined by MPU setup.
-	                                       // For example, user application trying to access privileged-only region.
-	                                       // Stacked PC might be able to locate the code that caused the problem.
-	                                       // 2. Branch to nonexecutable regions.
-	                                       // 3. Invalid exception return code.
-	                                       // 4. Invalid entry in exception vector table. For example, loading of an executable
-	                                       // image for traditional ARM core into the memory, or exception happened before vector table was set.
-	                                       // 5. Stacked PC corrupted during exception handling.
+BOOL MAX326_AITC_Driver::InterruptEnableState( UINT32 Irq_Index )
+{
+    MAX326_AITC& AITC = MAX326::AITC();
+    return AITC.IsInterruptEnabled( Irq_Index );
+}
 
-	bool BFARVALID = (_BFAR & (1<<7)) > 0; // Indicates the Bus Fault Address register contains a valid bus fault address.
-	bool STKERR    = (_BFAR & (1<<4)) > 0; // Error occurred during stacking (starting of exception).
-	bool UNSTKERR  = (_BFAR & (1<<3)) > 0; // Error occurred during unstacking (ending of exception. If there was no error
-	                                       // stacking but error occurred during unstacking, it might be that the stack pointer was corrupted during exception.
-	bool IMPRECISERR=(_BFAR & (1<<2)) > 0; // Bus error during data access. The fault address may be indicated by BFAR.
-	bool PRECISERR = (_BFAR & (1<<1)) > 0; // Bus error during data access. The fault address may be inidcated by BFAR.
-	bool IBUSERR   = (_BFAR & (1<<0)) > 0; // Branch to invalid memory regions, or invalid exception return code, or invalid entry in exception vector table, or stacked PC corrupted during function calls, or access to NVIC or SCB in user mode (nonprivileged).
+BOOL  MAX326_AITC_Driver::InterruptState( UINT32 Irq_Index )
+{
+    MAX326_AITC& AITC = MAX326::AITC();
+    return AITC.GetInterruptState( Irq_Index );
+}
 
-	bool DIVBYZERO = (_UFSR & (1<<9)) > 0; // is DIV_0_TRP set? find code at fault with stacked PC
-	bool UNALIGNED = (_UFSR & (1<<8)) > 0;
-	bool NOCP      = (_UFSR & (1<<3)) > 0;
-	bool INVPC     = (_UFSR & (1<<2)) > 0;
-	bool INVSTATE  = (_UFSR & (1<<1)) > 0;
-	bool UNDEFINSTR= (_UFSR & (1<<0)) > 0; // 1. Use of instructions not supported in Cortex-M3.
-	                                       // 2. Bad/corrupted memory contents.
-	                                       // 3. Loading of ARM object code during link stage. Checks compile steps.
-	                                       // 4. Instruction align problem. for example, if GNU tool chain is used, omitting of
-	                                       //    .align after .ascii might cause next instruction to be unaligned
-	bool DEBUGEVF  = (_HFSR &(1<<31)) > 0;
-	bool FORCED    = (_HFSR &(1<<30)) > 0; // 1. Trying to run SVC/BKPT within SVC/monitor or another handler with same or higher priority.
-	                                       // 2. A hard fault occurred if the corresponding handler is disabled or cannot be started because
-	                                       // another exception with the same or higher priority is running, or because another exception
-	                                       // with the same or higher priority is running, or because exception mask is set.
-	bool VECTBL    = (_HFSR &(1<< 1)) > 0;
+MAX326_AITC_Driver::IRQ_VECTORING* MAX326_AITC_Driver::IRQToIRQVector( UINT32 IRQ )
+{
+    IRQ_VECTORING* IsrVector = s_IsrTable;
+    if (IRQ < c_VECTORING_GUARD) { return &IsrVector[IRQ]; }
+    return NULL;
+}
 
-	bool EXTERNAL  = (_DFSR & (1<<4)) > 0;
-	bool VCATCH    = (_DFSR & (1<<3)) > 0;
-	bool DWTTRAP   = (_DFSR & (1<<2)) > 0; // DWT watchpoint event has occurred.
-	bool BKPT      = (_DFSR & (1<<1)) > 0; // Breakpoint instruction is executed, or FPB unit generated breakpoint event.
-	bool HALTED    = (_DFSR & (1<<0)) > 0; // Halt request in NVIC
-
-    pNVIC      = NVIC;
-    pSCB       = SCB;
-    pSysTick   = SysTick;
-    pITM       = ITM;
-    pInterruptType = InterruptType;
-    pMPU       = MPU;
-    pCoreDebug = CoreDebug;
-#endif // defined(DEBUG)
-
- 	// at this point you can read data from the variables with 
-	// "p/x stacked_pc"
-	// "info symbol <address>" should list the code line
-	// "info address <FunctionName>"
-	// "info registers" might help 
-	// "*((char *)0x00) = 5;" should create a hard-fault to test
-//    SOFT_BREAKPOINT();
-//#if !defined(NDEBUG)
- 	while (1){
-	}
-//#endif
-	
+void MAX326_AITC_Driver::STUB_ISRVector( void* Param )
+{
+    lcd_printf( "\fSTUB_ISR %08x\r\n", (size_t)Param );
+	//Nived :  Calling Default Interrupt Handler
+	hal_printf(" Calling Default Interrupt Handler \n");
+    HARD_BREAKPOINT();
 }
 
 
-	void __irq HardFault_Handler()
-	{
-			// This assembly code will find the location of the stack and pass it to a C function hard fault handler (HardFault_HandlerC)
-			asm(
-				"TST LR, #4 \n"          // Test EXC_RETURN number in LR bit 2 to determine if main stack or program stack is in use.
-				"ITE EQ \n"
-				"MRSEQ R0, MSP \n"
-				"MRSNE R0, PSP \n"
-				"B HardFault_HandlerC \n"
-   			);
-	}
 
 
-	void __irq SVC_Handler()
-	{
-		MAX326_AITC& AITC = MAX326::AITC();
+/*
+extern "C"
+{
 
-		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-		
-#ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_SVCall]++;
-#endif
-
-		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_SVCall];
-
-		// In case the interrupt was forced, remove the flag.
-		AITC.RemoveForcedInterrupt( 0 );
-
-		IsrVector->Handler.Execute();
-
-		//ISR_PendSV_Handler(NULL);
-
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
-
-	}
-
-
-	void __irq PendSV_Handler()
-	{
-		SCB->ICSR |= SCB_ICSR_PENDSVCLR;
-
-		MAX326_AITC& AITC = MAX326::AITC();
-
-		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-		
-#ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_PendSV]++;
-#endif
-
-		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_PendSV];
-
-		// In case the interrupt was forced, remove the flag.
-		AITC.RemoveForcedInterrupt( 0 );
-
-		IsrVector->Handler.Execute();
-
-		//ISR_PendSV_Handler(NULL);
-
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
-	}
-
-	// Stub here to save potential confusion later.
-	void __irq SysTick_Handler()
-	{
-		HARD_BREAKPOINT();
-	}
-
-	void __irq Default_Handler()
-	{
-		HARD_BREAKPOINT();
-	}
-
-	void __irq PVD_IRQHandler()
-	{
-
-		MAX326_AITC& AITC = MAX326::AITC();
-
-		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-		
-#ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_PVD]++;
-#endif
-
-		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_PVD];
-
-		// In case the interrupt was forced, remove the flag.
-		AITC.RemoveForcedInterrupt( 0 );
-
-		IsrVector->Handler.Execute();
-
-
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
-	}
-	
 	
 	void __irq TAMPER_IRQHandler()
 	{
@@ -452,7 +223,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_TAMPER]++;
 #endif
 
@@ -477,7 +248,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		irq.Release();
 
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_RTC]++;
 #endif
 
@@ -501,7 +272,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_FLASH]++;
 #endif
 
@@ -526,7 +297,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_RCC]++;
 #endif
 
@@ -542,27 +313,6 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 	}
 	
-	/*
-	void __irq EXTI0_IRQHandler()
-	{
-		UINT32 index;
-
-		MAX326_AITC& AITC = MAX326::AITC();
-
-		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-
-		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[5];
-
-		IsrVector->Handler.Execute();
-
-
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
-	}
-	*/
-
 	void __irq EXTI1_IRQHandler()
 	{
 		UINT32 index;
@@ -575,7 +325,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		irq.Release();
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_EXTI1]++;
 #endif
 
@@ -599,7 +349,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_EXTI2]++;
 #endif
 
@@ -622,7 +372,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_EXTI3]++;
 #endif
 
@@ -645,7 +395,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_EXTI4]++;
 #endif
 
@@ -669,7 +419,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		irq.Release();
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL1]++;
 #endif
 
@@ -693,7 +443,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL2]++;
 #endif
 
@@ -716,7 +466,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL3]++;
 #endif
 
@@ -740,7 +490,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL4]++;
 #endif
 
@@ -763,7 +513,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL5]++;
 #endif
 
@@ -786,7 +536,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL6]++;
 #endif
 
@@ -809,7 +559,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL7]++;
 #endif
 
@@ -832,7 +582,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_ADC1_2]++;
 #endif
 
@@ -855,7 +605,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_USB_HP_CAN_TX]++;
 #endif
 
@@ -879,7 +629,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_USB_LP_CAN_RX0]++;
 #endif
 
@@ -904,7 +654,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_CAN_RX1]++;
 #endif
 
@@ -927,7 +677,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_CAN_SCE]++;
 #endif
 
@@ -952,7 +702,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		// do not release irq. *SPOT_Hardware_Port::IsrProcedure() wants IRQ off.
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_EXTI9_5]++;
 #endif
 
@@ -975,7 +725,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_TIM1_BRK_TIM9]++;
 #endif
 
@@ -998,7 +748,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_TIM1_UP_TIM10]++;
 #endif
 
@@ -1021,7 +771,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_TIM1_TRG_COM_TIM11]++;
 #endif
 
@@ -1044,7 +794,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_TIM1_CC]++;
 #endif
 
@@ -1058,29 +808,6 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	}
 	
 
-    /*	
-	void __irq TIM2_IRQHandler()
-	{
-
-		UINT32 index;
-
-		MAX326_AITC& AITC = MAX326::AITC();
-
-		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-
-		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[27];
-
-		// In case the interrupt was forced, remove the flag.
-
-		IsrVector->Handler.Execute();
-
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
-	}
-	*/
-
 	void __irq TIM3_IRQHandler()
 		{
 
@@ -1092,7 +819,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_TIM3]++;
 #endif
 
@@ -1117,7 +844,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_TIM4]++;
 #endif
 
@@ -1132,36 +859,8 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 		}
 
-	/*
-	int TimerUnderTest=4;
-	int TimerTicks=220;
-	int NoOfTimerFiring=100;
-	int testCount = 0;
-	//int secCount=0;
-	UINT16 preCompare=0;
-//	int count=0;
-	void ISR_TIMER()
-	{
-
-		//count = Timer_Driver ::GetCounter(TimerUnderTest);
-		GPIOF->BSRR = (0x1 << 7);
-		TIM_ClearITPendingBit(TIM4, TIM_IT_CC1 );
-		preCompare+=TimerTicks;
-		Timer_Driver::SetCompare( TimerUnderTest, preCompare);
-
-		//GPIOF->ODR ^= TRUE;
-		testCount++;
-
-		GPIOF->BRR = (0x1 << 7);
-	}
-
-	void __irq TIM4_IRQHandler()
-		{
-			ISR_TIMER();
-		}
-*/
-
 	
+
 	void __irq I2C1_EV_IRQHandler()
 		{
 
@@ -1175,7 +874,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 			irq.Release();
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_I2C1_EV]++;
 #endif
 
@@ -1204,7 +903,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 			irq.Release();
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_I2C1_ER]++;
 #endif
 
@@ -1231,7 +930,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_I2C2_EV]++;
 #endif
 
@@ -1256,7 +955,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_I2C2_ER]++;
 #endif
 
@@ -1281,7 +980,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_SPI1]++;
 #endif
 
@@ -1306,7 +1005,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_SPI2]++;
 #endif
 
@@ -1331,7 +1030,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_USART1]++;
 #endif
 
@@ -1357,7 +1056,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_USART2]++;
 #endif
 
@@ -1382,7 +1081,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_USART3]++;
 #endif
 
@@ -1407,7 +1106,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 			irq.Release();
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_EXTI15_10]++;
 #endif
 
@@ -1432,7 +1131,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_RTCAlarm]++;
 #endif
 
@@ -1457,7 +1156,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_USBWakeUp]++;
 #endif
 
@@ -1482,7 +1181,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_TIM8_BRK_TIM12]++;
 #endif
 
@@ -1507,7 +1206,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_USART4]++;
 #endif
 
@@ -1532,7 +1231,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_USART5]++;
 #endif
 
@@ -1557,7 +1256,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_TIM8_CC]++;
 #endif
 
@@ -1582,7 +1281,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_ADC3]++;
 #endif
 
@@ -1596,29 +1295,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 		}
 		
-		/*
-		void __irq FSMC_IRQHandler()
-		{
 
-			UINT32 index;
-
-			MAX326_AITC& AITC = MAX326::AITC();
-
-			// set before jumping elsewhere or allowing other interrupts
-			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-
-			MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[47];
-
-			// In case the interrupt was forced, remove the flag.
-
-			IsrVector->Handler.Execute();
-
-			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
-		}
-		*/
-		
 		void __irq FSMC_IRQHandler()
 		{
 
@@ -1630,7 +1307,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_FSMC]++;
 #endif
 
@@ -1658,7 +1335,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_SDIO]++;
 #endif
 
@@ -1683,7 +1360,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_TIM5]++;
 #endif
 
@@ -1708,7 +1385,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_SPI3]++;
 #endif
 
@@ -1734,7 +1411,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_TIM6]++;
 #endif
 
@@ -1759,7 +1436,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_TIM7]++;
 #endif
 
@@ -1784,7 +1461,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_DMA2_Channel1]++;
 #endif
 
@@ -1809,7 +1486,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_DMA2_Channel2]++;
 #endif
 
@@ -1834,7 +1511,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_DMA2_Channel3]++;
 #endif
 
@@ -1859,7 +1536,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_DMA2_Channel4_5]++;
 #endif
 
@@ -1885,7 +1562,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_EXTI0]++;
 #endif
 
@@ -1900,22 +1577,18 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 	void __irq TIM2_IRQHandler()
 	{
-
 		UINT32 index;
-
 		MAX326_AITC& AITC = MAX326::AITC();
-
 		GLOBAL_LOCK(irq);
-		// set before jumping elsewhere or allowing other interrupts
+
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_MAX326_ISR
 		interrupt_count[c_IRQ_INDEX_TIM2]++;
 #endif
 
 		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_TIM2];
-
 		IsrVector->Handler.Execute();
 
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
@@ -1923,77 +1596,6 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	}
 
 }
+*/
 
-
-BOOL MAX326_AITC_Driver::InterruptEnable( UINT32 Irq_Index  )
-{
-
-    if(Irq_Index >= c_VECTORING_GUARD ) return FALSE;
-
-    MAX326_AITC& AITC = MAX326::AITC();
-
-    GLOBAL_LOCK(irq);
-
-    BOOL WasEnabled = AITC.IsInterruptEnabled( Irq_Index );
-
-    AITC.EnableInterrupt(Irq_Index);
-
-    return WasEnabled;
-}
-
-
-BOOL MAX326_AITC_Driver::InterruptDisable( UINT32 Irq_Index )
-{
-    if(Irq_Index >= c_VECTORING_GUARD ) return FALSE;
-
-    MAX326_AITC& AITC = MAX326::AITC();
-
-    GLOBAL_LOCK(irq);
-
-    BOOL WasEnabled = AITC.IsInterruptEnabled( Irq_Index );
-
-    AITC.DisableInterrupt(Irq_Index);
-
-    return WasEnabled;
-}
-
-
-BOOL MAX326_AITC_Driver::InterruptEnableState( UINT32 Irq_Index )
-{
-    MAX326_AITC& AITC = MAX326::AITC();
-
-    return AITC.IsInterruptEnabled( Irq_Index );
-}
-
-
-BOOL  MAX326_AITC_Driver::InterruptState( UINT32 Irq_Index )
-{
-    MAX326_AITC& AITC = MAX326::AITC();
-
-    return AITC.GetInterruptState( Irq_Index );
-}
-
-MAX326_AITC_Driver::IRQ_VECTORING* MAX326_AITC_Driver::IRQToIRQVector( UINT32 IRQ )
-{
-    IRQ_VECTORING* IsrVector = s_IsrTable;
-
-
-
-    if (IRQ < c_VECTORING_GUARD)
-    {
-        return &IsrVector[IRQ];
-
-    }
-
-    return NULL;
-}
-
-void MAX326_AITC_Driver::STUB_ISRVector( void* Param )
-{
-    lcd_printf( "\fSTUB_ISR %08x\r\n", (size_t)Param );
-	//Nived :  Calling Default Interrupt Handler
-	hal_printf(" Calling Default Interrupt Handler \n");
-    HARD_BREAKPOINT();
-
-}
 

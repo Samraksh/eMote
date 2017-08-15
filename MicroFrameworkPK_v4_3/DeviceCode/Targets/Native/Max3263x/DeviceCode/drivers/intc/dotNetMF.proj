@@ -40,8 +40,8 @@
   <PropertyGroup />
   <ItemGroup>
 	<HFiles Include="Max326.h" />
-   <!-- <Compile Include="Max326_AITC.cpp" />-->
-    <Compile Include="Max326_Intc_stubs.cpp" />
+    <Compile Include="Max326_Intc.cpp" />
+    <Compile Include="Max326_ISR.cpp" />
 	<Compile Include="Max326_nvic_functions.cpp" />
   </ItemGroup>
   <ItemGroup />
