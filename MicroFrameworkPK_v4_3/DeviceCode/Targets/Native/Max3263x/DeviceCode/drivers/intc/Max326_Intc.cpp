@@ -18,7 +18,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define DEBUG_MAX326_ISR
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
 #pragma arm section rwdata = "s_IsrTable_MAX326"
@@ -26,71 +25,74 @@
 
 #define DEFINE_IRQ(index, priority) { priority, { NULL, (void*)(size_t)index } }
 
+#ifdef DEBUG_MAX326_ISR
+int interrupt_count[MXC_IRQ_COUNT];
+#endif
 
-MAX326_AITC_Driver::IRQ_VECTORING __section(rwdata) MAX326_AITC_Driver::s_IsrTable[MXC_IRQ_COUNT] =
+
+IRQ_VECTORING __section(rwdata) MAX326_AITC_Driver::s_IsrTable[MXC_IRQ_COUNT] =
 {
-	DEFINE_IRQ(NonMaskableInt_IRQn, MAX326_AITC::c_IRQ_Priority_5  ), //    = -14, ARM Core : Non-maskable IRQ  */
-	DEFINE_IRQ(HardFault_IRQn         = -13, /**< ARM Core : Hard Fault IRQ  */
-	DEFINE_IRQ(MemoryManagement_IRQn  = -12, /**< ARM Core : Memory Management IRQ  */
-	DEFINE_IRQ(BusFault_IRQn          = -11, /**< ARM Core : Bus Fault IRQ  */
-	DEFINE_IRQ(UsageFault_IRQn        = -10, /**< ARM Core : Usage Fault IRQ  */
-	DEFINE_IRQ(SVCall_IRQn            = -5,  /**< ARM Core : SVCall IRQ  */
-	DEFINE_IRQ(DebugMonitor_IRQn      = -4,  /**< ARM Core : Debug Monitor IRQ          */
-	DEFINE_IRQ(PendSV_IRQn            = -2,  /**< ARM Core : PendSV IRQ                 */
-	DEFINE_IRQ(SysTick_IRQn           = -1,  /**< ARM Core : SysTick IRQ                */
-	DEFINE_IRQ(	    CLKMAN_IRQn = 0,              /**< CLKMAN                                */
-	DEFINE_IRQ(	    PWRMAN_IRQn,                  /**< PWRMAN                                */
-	DEFINE_IRQ(	    FLC_IRQn,                     /**< Flash Controller                      */
-	DEFINE_IRQ(	    RTC0_IRQn,                    /**< RTC Counter match with Compare 0      */
-	DEFINE_IRQ(	    RTC1_IRQn,                    /**< RTC Counter match with Compare 1      */
-	DEFINE_IRQ(	    RTC2_IRQn,                    /**< RTC Prescaler interval compare match  */
-	DEFINE_IRQ(	    RTC3_IRQn,                    /**< RTC Overflow                          */
-	DEFINE_IRQ(	    PMU_IRQn,                     /**< Peripheral Management Unit (PMU/DMA)  */
-	DEFINE_IRQ(	    USB_IRQn,                     /**< USB                                   */
-	DEFINE_IRQ(	    AES_IRQn,                     /**< AES                                   */
-	DEFINE_IRQ(	    MAA_IRQn,                     /**< MAA                                   */
-	DEFINE_IRQ(	    WDT0_IRQn,                    /**< Watchdog 0 timeout                   */
-	DEFINE_IRQ(	    WDT0_P_IRQn,                  /**< Watchdog 0 pre-window (fed too early) */
-	DEFINE_IRQ(	    WDT1_IRQn,                    /**< Watchdog 1 timeout                    */
-		    WDT1_P_IRQn,                  /**< Watchdog 1 pre-window (fed too early) */
-		    GPIO_P0_IRQn,                 /**< GPIO Port 0                           */
-		    GPIO_P1_IRQn,                 /**< GPIO Port 1                           */
-		    GPIO_P2_IRQn,                 /**< GPIO Port 2                           */
-		    GPIO_P3_IRQn,                 /**< GPIO Port 3                           */
-		    GPIO_P4_IRQn,                 /**< GPIO Port 4                           */
-		    GPIO_P5_IRQn,                 /**< GPIO Port 5                           */
-		    GPIO_P6_IRQn,                 /**< GPIO Port 6                           */
-		    TMR0_0_IRQn,                  /**< Timer 0 (32-bit, 16-bit #0)           */
-		    TMR0_1_IRQn,                  /**< Timer 0 (16-bit #1)                   */
-		    TMR1_0_IRQn,                  /**< Timer 1 (32-bit, 16-bit #0)           */
-		    TMR1_1_IRQn,                  /**< Timer 1 (16-bit #1)                   */
-		    TMR2_0_IRQn,                  /**< Timer 2 (32-bit, 16-bit #0)           */
-		    TMR2_1_IRQn,                  /**< Timer 2 (16-bit #1)                   */
-		    TMR3_0_IRQn,                  /**< Timer 3 (32-bit, 16-bit #0)           */
-		    TMR3_1_IRQn,                  /**< Timer 3 (16-bit #1)                   */
-		    TMR4_0_IRQn,                  /**< Timer 4 (32-bit, 16-bit #0)           */
-		    TMR4_1_IRQn,                  /**< Timer 4 (16-bit #1)                   */
-		    TMR5_0_IRQn,                  /**< Timer 5 (32-bit, 16-bit #0)           */
-		    TMR5_1_IRQn,                  /**< Timer 5 (16-bit #1)                   */
-		    UART0_IRQn,                   /**< UART 0                                */
-		    UART1_IRQn,                   /**< UART 1                                */
-		    UART2_IRQn,                   /**< UART 2                                */
-		    UART3_IRQn,                   /**< UART 3                                */
-		    PT_IRQn,                      /**< Pulse Trains                          */
-		    I2CM0_IRQn,                   /**< I2C Master 0                          */
-		    I2CM1_IRQn,                   /**< I2C Master 1                          */
-		    I2CM2_IRQn,                   /**< I2C Master 2                          */
-		    I2CS_IRQn,                    /**< I2C Slave                             */
-		    SPIM0_IRQn,                   /**< SPI Master 0                          */
-		    SPIM1_IRQn,                   /**< SPI Master 1                          */
-		    SPIM2_IRQn,                   /**< SPI Master 2                          */
-		    SPIB_IRQn,                    /**< SPI Bridge                            */
-		    OWM_IRQn,                     /**< 1-Wire Master                         */
-		    AFE_IRQn,                     /**< ADC                                   */
-		    SPIS_IRQn,                    /**< SPI Slave                             */
-		    GPIO_P7_IRQn,                 /**< GPIO Port 7                           */
-		    GPIO_P8_IRQn,                 /**< GPIO Port 8                           */
-		    MXC_IRQ_EXT_COUNT,MAX326_AITC::c_IRQ_Priority_5  ),             //< Total number of non-core IRQ vectors.
+	DEFINE_IRQ(NonMaskableInt_IRQn, MAX326_AITC::c_IRQ_Priority_5  ), //    = -14, ARM Core : Non-maskable IRQ
+	DEFINE_IRQ(HardFault_IRQn , MAX326_AITC::c_IRQ_Priority_5  ), //< ARM Core : Hard Fault IRQ
+	DEFINE_IRQ(MemoryManagement_IRQn , MAX326_AITC::c_IRQ_Priority_5  ), //< ARM Core : Memory Management IRQ
+	DEFINE_IRQ(BusFault_IRQn , MAX326_AITC::c_IRQ_Priority_5  ), //< ARM Core : Bus Fault IRQ
+	DEFINE_IRQ(UsageFault_IRQn , MAX326_AITC::c_IRQ_Priority_5  ), //< ARM Core : Usage Fault IRQ
+	DEFINE_IRQ(SVCall_IRQn , MAX326_AITC::c_IRQ_Priority_5  ),  //< ARM Core : SVCall IRQ
+	DEFINE_IRQ(DebugMonitor_IRQn , MAX326_AITC::c_IRQ_Priority_5  ),  //< ARM Core : Debug Monitor IRQ
+	DEFINE_IRQ(PendSV_IRQn , MAX326_AITC::c_IRQ_Priority_5  ),  //< ARM Core : PendSV IRQ
+	DEFINE_IRQ(SysTick_IRQn , MAX326_AITC::c_IRQ_Priority_5  ),  //< ARM Core : SysTick IRQ
+	DEFINE_IRQ(CLKMAN_IRQn , MAX326_AITC::c_IRQ_Priority_5  ),          //< CLKMAN
+	DEFINE_IRQ(	    PWRMAN_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< PWRMAN
+	DEFINE_IRQ(	    FLC_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                     //< Flash Controller
+	DEFINE_IRQ(	    RTC0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                    //< RTC Counter match with Compare 0
+	DEFINE_IRQ(	    RTC1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                    //< RTC Counter match with Compare 1
+	DEFINE_IRQ(	    RTC2_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                    //< RTC Prescaler interval compare match
+	DEFINE_IRQ(	    RTC3_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                    //< RTC Overflow
+	DEFINE_IRQ(	    PMU_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                     //< Peripheral Management Unit (PMU/DMA)
+	DEFINE_IRQ(	    USB_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                     //< USB
+	DEFINE_IRQ(	    AES_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                     //< AES
+	DEFINE_IRQ(	    MAA_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                     //< MAA
+	DEFINE_IRQ(	    WDT0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                    //< Watchdog 0 timeout
+	DEFINE_IRQ(	    WDT0_P_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Watchdog 0 pre-window (fed too early)
+	DEFINE_IRQ(	    WDT1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                    //< Watchdog 1 timeout
+	DEFINE_IRQ(	    WDT1_P_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Watchdog 1 pre-window (fed too early)
+	DEFINE_IRQ(	    GPIO_P0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                 //< GPIO Port 0
+	DEFINE_IRQ(	    GPIO_P1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                 //< GPIO Port 1
+	DEFINE_IRQ(		GPIO_P2_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                 //< GPIO Port 2
+	DEFINE_IRQ(	    GPIO_P3_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                 //< GPIO Port 3
+	DEFINE_IRQ(	    GPIO_P4_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                 //< GPIO Port 4
+	DEFINE_IRQ(	    GPIO_P5_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                 //< GPIO Port 5
+	DEFINE_IRQ(	    GPIO_P6_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                 //< GPIO Port 6
+	DEFINE_IRQ(	    TMR0_0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 0 (32-bit, 16-bit #0)
+	DEFINE_IRQ(	    TMR0_1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 0 (16-bit #1)
+	DEFINE_IRQ(	    TMR1_0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 1 (32-bit, 16-bit #0)
+	DEFINE_IRQ(	    TMR1_1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 1 (16-bit #1)
+	DEFINE_IRQ(	    TMR2_0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 2 (32-bit, 16-bit #0)
+	DEFINE_IRQ(	    TMR2_1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 2 (16-bit #1)
+	DEFINE_IRQ(	    TMR3_0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 3 (32-bit, 16-bit #0)
+	DEFINE_IRQ(	    TMR3_1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 3 (16-bit #1)
+	DEFINE_IRQ(	    TMR4_0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 4 (32-bit, 16-bit #0)
+	DEFINE_IRQ(	    TMR4_1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 4 (16-bit #1)
+	DEFINE_IRQ(	    TMR5_0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 5 (32-bit, 16-bit #0)
+	DEFINE_IRQ(	    TMR5_1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 5 (16-bit #1)
+	DEFINE_IRQ(	    UART0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< UART 0
+	DEFINE_IRQ(	    UART1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< UART 1
+	DEFINE_IRQ(	    UART2_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< UART 2
+	DEFINE_IRQ(	    UART3_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< UART 3
+	DEFINE_IRQ(	    PT_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                      //< Pulse Trains
+	DEFINE_IRQ(	    I2CM0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< I2C Master 0
+	DEFINE_IRQ(	    I2CM1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< I2C Master 1
+	DEFINE_IRQ(	    I2CM2_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< I2C Master 2
+	DEFINE_IRQ(	    I2CS_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                    //< I2C Slave
+	DEFINE_IRQ(	    SPIM0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< SPI Master 0
+	DEFINE_IRQ(	    SPIM1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< SPI Master 1
+	DEFINE_IRQ(	    SPIM2_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< SPI Master 2
+	DEFINE_IRQ(	    SPIB_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                    //< SPI Bridge
+	DEFINE_IRQ(	    OWM_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                     //< 1-Wire Master
+	DEFINE_IRQ(	    AFE_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                     //< ADC
+	DEFINE_IRQ(	    SPIS_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                    //< SPI Slave
+	DEFINE_IRQ(	    GPIO_P7_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                 //< GPIO Port 7
+	DEFINE_IRQ(	    GPIO_P8_IRQn,  MAX326_AITC::c_IRQ_Priority_5  ),               //< GPIO Port 8
 };
 
 #undef DEFINE_IRQ
@@ -103,24 +105,23 @@ MAX326_AITC_Driver::IRQ_VECTORING __section(rwdata) MAX326_AITC_Driver::s_IsrTab
 
 void MAX326_AITC_Driver::Initialize()
 {
-    //MAX326_AITC& AITC = MAX326::AITC();
 
-	for(int i = c_MinInterruptIndex ; i <= c_MaxInterruptIndex;i++)
+	for(INT32 i = MAX326_AITC::c_MinInterruptIndex ; i <= MAX326_AITC::c_MaxInterruptIndex;i++)
 	{
-
+		MAX326_AITC::ClearInterrupt((UINT32)i);
 	}
 
-    // // set all priorities to the lowest
+    // // set all priorities to the defaults specified
      IRQ_VECTORING* IsrVector = s_IsrTable;
 
 #ifdef DEBUG_MAX326_ISR
-	memset(interrupt_count, 0, 4*64);
+	memset(interrupt_count, 0, sizeof(int)*MXC_IRQ_COUNT);
 #endif
 
     // // set the priority level for each IRQ and stub the IRQ callback
      for (int i=0; i<c_VECTORING_GUARD;i++)
      {
-         AITC.SetPriority(i, IsrVector[i].Priority );
+         MAX326_AITC::SetPriority(i, IsrVector[i].Priority );
          IsrVector->Handler.Initialize( STUB_ISRVector, (void*)(size_t)IsrVector->Priority);
      }
 
@@ -132,14 +133,13 @@ BOOL MAX326_AITC_Driver::ActivateInterrupt( UINT32 Irq_Index, BOOL Fast, HAL_CAL
     IRQ_VECTORING* IsrVector = IRQToIRQVector( Irq_Index ); if(!IsrVector) return FALSE;
     {
         GLOBAL_LOCK(irq);
-        MAX326_AITC& AITC = MAX326::AITC();
         // disable this interrupt while we change it
-        AITC.DisableInterrupt(Irq_Index);
+        MAX326_AITC::DisableInterrupt(Irq_Index);
 
         // set the vector
         IsrVector->Handler.Initialize( ISR, ISR_Param );
         	// enable the interrupt if we have a vector
-        AITC.EnableInterrupt(Irq_Index);
+        MAX326_AITC::EnableInterrupt(Irq_Index);
     }
     return TRUE;
 }
@@ -150,9 +150,9 @@ BOOL MAX326_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
     IRQ_VECTORING* IsrVector = IRQToIRQVector( Irq_Index ); if(!IsrVector) return FALSE;
     {
         GLOBAL_LOCK(irq);
-        MAX326_AITC& AITC = MAX326::AITC();
+        //MAX326_AITC& AITC = MAX326::AITC();
         // disable this interrupt while we change it
-        AITC.DisableInterrupt(Irq_Index);
+        MAX326_AITC::DisableInterrupt(Irq_Index);
         // as it is stub, just put the Priority to the ISR parameter
         IsrVector->Handler.Initialize( STUB_ISRVector, (void*)(size_t)IsrVector->Priority );
     }
@@ -162,39 +162,41 @@ BOOL MAX326_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 BOOL MAX326_AITC_Driver::InterruptEnable( UINT32 Irq_Index  )
 {
     if(Irq_Index >= c_VECTORING_GUARD ) return FALSE;
-    MAX326_AITC& AITC = MAX326::AITC();
+    //MAX326_AITC& AITC = MAX326::AITC();
     GLOBAL_LOCK(irq);
-    BOOL WasEnabled = AITC.IsInterruptEnabled( Irq_Index );
-    AITC.EnableInterrupt(Irq_Index);
+    BOOL WasEnabled = MAX326_AITC::IsInterruptEnabled( Irq_Index );
+    MAX326_AITC::EnableInterrupt(Irq_Index);
     return WasEnabled;
 }
 
 BOOL MAX326_AITC_Driver::InterruptDisable( UINT32 Irq_Index )
 {
     if(Irq_Index >= c_VECTORING_GUARD ) return FALSE;
-    MAX326_AITC& AITC = MAX326::AITC();
+    //MAX326_AITC& AITC = MAX326::AITC();
     GLOBAL_LOCK(irq);
-    BOOL WasEnabled = AITC.IsInterruptEnabled( Irq_Index );
-    AITC.DisableInterrupt(Irq_Index);
+    BOOL WasEnabled = MAX326_AITC::IsInterruptEnabled( Irq_Index );
+    MAX326_AITC::DisableInterrupt(Irq_Index);
     return WasEnabled;
 }
 
 BOOL MAX326_AITC_Driver::InterruptEnableState( UINT32 Irq_Index )
 {
-    MAX326_AITC& AITC = MAX326::AITC();
-    return AITC.IsInterruptEnabled( Irq_Index );
+    //MAX326_AITC& AITC = MAX326::AITC();
+    return MAX326_AITC::IsInterruptEnabled( Irq_Index );
 }
 
 BOOL  MAX326_AITC_Driver::InterruptState( UINT32 Irq_Index )
 {
-    MAX326_AITC& AITC = MAX326::AITC();
-    return AITC.GetInterruptState( Irq_Index );
+    //MAX326_AITC& AITC = MAX326::AITC();
+    return MAX326_AITC::GetInterruptState( Irq_Index );
 }
 
-MAX326_AITC_Driver::IRQ_VECTORING* MAX326_AITC_Driver::IRQToIRQVector( UINT32 IRQ )
+IRQ_VECTORING* MAX326_AITC_Driver::IRQToIRQVector( UINT32 IRQn )
 {
     IRQ_VECTORING* IsrVector = s_IsrTable;
-    if (IRQ < c_VECTORING_GUARD) { return &IsrVector[IRQ]; }
+    INT32 irq = (INT32)IRQn;
+    irq = irq + MAX326_AITC::c_IRQToIndexOffset;
+    if (irq < c_VECTORING_GUARD) { return &IsrVector[irq]; }
     return NULL;
 }
 
@@ -217,7 +219,7 @@ extern "C"
 	void __irq TAMPER_IRQHandler()
 	{
 
-		MAX326_AITC& AITC = MAX326::AITC();
+		//MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -240,7 +242,7 @@ extern "C"
 	{
 		UINT32 index;
 
-		MAX326_AITC& AITC = MAX326::AITC();
+		//MAX326_AITC& AITC = MAX326::AITC();
 
 		GLOBAL_LOCK(irq);
 		// set before jumping elsewhere or allowing other interrupts
@@ -266,7 +268,7 @@ extern "C"
 	void __irq FLASH_IRQHandler()
 	{
 
-		MAX326_AITC& AITC = MAX326::AITC();
+		//MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -279,7 +281,7 @@ extern "C"
 		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_FLASH];
 
 		// In case the interrupt was forced, remove the flag.
-		AITC.RemoveForcedInterrupt( 0 );
+		MAX326_AITC::RemoveForcedInterrupt( 0 );
 
 		IsrVector->Handler.Execute();
 
@@ -291,7 +293,7 @@ extern "C"
 	void __irq RCC_IRQHandler()
 	{
 
-		MAX326_AITC& AITC = MAX326::AITC();
+		//MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -304,7 +306,7 @@ extern "C"
 		MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[MAX326_AITC::c_IRQ_INDEX_RCC];
 
 		// In case the interrupt was forced, remove the flag.
-		AITC.RemoveForcedInterrupt( 0 );
+		MAX326_AITC::RemoveForcedInterrupt( 0 );
 
 		IsrVector->Handler.Execute();
 
@@ -317,7 +319,7 @@ extern "C"
 	{
 		UINT32 index;
 
-		MAX326_AITC& AITC = MAX326::AITC();
+		//MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		GLOBAL_LOCK(irq);
@@ -343,7 +345,7 @@ extern "C"
 	{
 		UINT32 index;
 
-		MAX326_AITC& AITC = MAX326::AITC();
+		//MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
@@ -366,7 +368,7 @@ extern "C"
 	{
 		UINT32 index;
 
-		MAX326_AITC& AITC = MAX326::AITC();
+		//MAX326_AITC& AITC = MAX326::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );

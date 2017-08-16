@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 //////////////////////////////////////////////////////////////////////
 
-//#include "MAX326_Intc.h"
+#include "MAX326_Intc.h"
 #include <cores\arm\include\cpu.h>
 
 

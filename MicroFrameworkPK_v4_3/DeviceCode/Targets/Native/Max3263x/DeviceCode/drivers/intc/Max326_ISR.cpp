@@ -3,31 +3,38 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
-//#include <mxc_config.h>
 #include <string.h>
-//#include <nvic_table.h>
 #include "Max326_Intc.h"
-#include <DeviceCode/Include/CPU_GPIO_decl.h>
+#include <CPU_GPIO_decl.h>
 
-#define HANDLER_DEFAULT(irq_index) { \
-	UINT32 index; \
-	MAX326_AITC& AITC = MAX326::AITC(); \
-	GLOBAL_LOCK(irq); \
-															\
-	SystemState_SetNoLock( SYSTEM_STATE_ISR              ); \
-	SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); \
-															\
-#ifdef DEBUG_MAX326_ISR \
-	interrupt_count[c_IRQ_INDEX_TIM2]++; \
-#endif \
-	MAX326_AITC_Driver::IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[irq_index]; \
+#ifdef DEBUG_MAX326_ISR
+	extern int* interrupt_count;
+#endif
+
+#ifdef DEBUG_MAX326_ISR
+#define HANDLER_DEFAULT(irqArrayIndex) {\
+	UINT32 index;\
+	GLOBAL_LOCK(irq);\
+	SystemState_SetNoLock(SYSTEM_STATE_ISR); \
+	SystemState_SetNoLock(SYSTEM_STATE_NO_CONTINUATIONS);\
+	interrupt_count[irqArrayIndex]++;\
+	IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[irqArrayIndex]; \
 	IsrVector->Handler.Execute(); \
-															\
+	SystemState_ClearNoLock(SYSTEM_STATE_NO_CONTINUATIONS); \
+	SystemState_ClearNoLock(SYSTEM_STATE_ISR); \
+}
+#else
+#define HANDLER_DEFAULT(irqArrayIndex) { \
+	UINT32 index; \
+	GLOBAL_LOCK(irq); \
+	SystemState_SetNoLock(SYSTEM_STATE_ISR); \
+	SystemState_SetNoLock(SYSTEM_STATE_NO_CONTINUATIONS); \
+	IRQ_VECTORING* IsrVector = &MAX326_AITC_Driver::s_IsrTable[irqArrayIndex]; \
+	IsrVector->Handler.Execute(); \
 	SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); \
 	SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); \
 }
-
-
+#endif
 
 
 extern "C"
@@ -148,13 +155,13 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	bool BKPT      = (_DFSR & (1<<1)) > 0; // Breakpoint instruction is executed, or FPB unit generated breakpoint event.
 	bool HALTED    = (_DFSR & (1<<0)) > 0; // Halt request in NVIC
 
-    pNVIC      = NVIC;
-    pSCB       = SCB;
-    pSysTick   = SysTick;
-    pITM       = ITM;
-    pInterruptType = InterruptType;
-    pMPU       = MPU;
-    pCoreDebug = CoreDebug;
+   // pNVIC      = NVIC;
+    //pSCB       = SCB;
+    //pSysTick   = SysTick;
+    //pITM       = ITM;
+    //pInterruptType = InterruptType;
+    //pMPU       = MPU;
+    //pCoreDebug = CoreDebug;
 #endif // defined(DEBUG)
 
  	// at this point you can read data from the variables with
@@ -180,9 +187,9 @@ void __irq HardFault_Handler()
 	);
 }
 
-void __irq SVC_Handler(){  HANDLER_DEFAULT(MAX326_AITC::c_IRQ_INDEX_SVCall) }
+void __irq SVC_Handler(){  HANDLER_DEFAULT(SVCall_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
 
-void __irq PendSV_Handler(){ HANDLER_DEFAULT(MAX326_AITC::c_IRQ_INDEX_PendSV) }
+void __irq PendSV_Handler(){ HANDLER_DEFAULT(PendSV_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
 
 void __irq SysTick_Handler()
 {
@@ -194,99 +201,58 @@ void __irq Default_Handler()
 	HARD_BREAKPOINT();
 }
 
-void __irq PVD_IRQHandler(){  HANDLER_DEFAULT(MAX326_AITC::c_IRQ_INDEX_PVD)}
-
-void __irq USART1_IRQHandler(){}
-
-void __irq USART2_IRQHandler(){}
-
-void __irq USART3_IRQHandler(){}
-
-void __irq EXTI15_10_IRQHandler(){}
-
-void __irq RTCAlarm_IRQHandler(){}
-
-void __irq USBWakeUp_IRQHandler(){}
-
-void __irq TIM8_BRK_IRQHandler(){}
-	
-void __irq USART4_IRQHandler(){}
-	
-void __irq USART5_IRQHandler(){}
-	
-void __irq TIM8_CC_IRQHandler(){}
-	
-void __irq ADC1_2_IRQHandler(){}
-void __irq ADC3_IRQHandler(){}
-
-void __irq FSMC_IRQHandler(){}
-
-void __irq SDIO_IRQHandler(){}
-
-void __irq SPI1_IRQHandler(){}
-void __irq SPI2_IRQHandler(){}
-void __irq SPI3_IRQHandler(){}
-
-void __irq TIM1_BRK_IRQHandler(){}
-void __irq TIM1_UP_IRQHandler(){}
-void __irq TIM1_TRG_IRQHandler(){}
-void __irq TIM1_TRG_COM_IRQHandler(){}
-void __irq TIM1_CC_IRQHandler(){}
-
-void __irq TIM2_IRQHandler(){}
-void __irq TIM3_IRQHandler(){}
-void __irq TIM4_IRQHandler(){}
-void __irq TIM5_IRQHandler(){}
-void __irq TIM6_IRQHandler(){}
-void __irq TIM7_IRQHandler(){}
-
-void __irq I2C1_EV_IRQHandler(){}
-void __irq I2C1_ER_IRQHandler(){}
-void __irq I2C2_EV_IRQHandler(){}
-void __irq I2C2_ER_IRQHandler(){}
-
-
-void __irq DMA2_Channel1_IRQHandler(){}
-
-void __irq DMA2_Channel2_IRQHandler(){}
-
-void __irq DMA2_Channel3_IRQHandler(){}
-
-void __irq DMA2_Channel4_5_IRQHandler(){}
-
-void __irq DMA1_Channel1_IRQHandler(){}
-void __irq DMA1_Channel2_IRQHandler(){}
-void __irq DMA1_Channel3_IRQHandler(){}
-void __irq DMA1_Channel4_IRQHandler(){}
-void __irq DMA1_Channel5_IRQHandler(){}
-void __irq DMA1_Channel6_IRQHandler(){}
-void __irq DMA1_Channel7_IRQHandler(){}
-
-
-void __irq EXTI0_IRQHandler() {}
-
-void __irq USB_HP_CAN1_TX_IRQHandler() {}
-void __irq USB_LP_CAN1_RX0_IRQHandler() {}
-void __irq CAN1_TX_IRQHandler() {}
-void __irq CAN1_RX1_IRQHandler() {}
-void __irq CAN1_SCE_IRQHandler() {}
-
-
-void __irq TAMPER_IRQHandler(){}
-
-void __irq RTC_IRQHandler(){}
-
-void __irq FLASH_IRQHandler(){}
-
-void __irq RCC_IRQHandler(){}
-
-void __irq EXTI1_IRQHandler(){}
-void __irq EXTI2_IRQHandler(){}
-void __irq EXTI3_IRQHandler(){}
-void __irq EXTI4_IRQHandler(){}
-
-void __irq EXTI9_5_IRQHandler(){}
-
+void __irq  CLKMAN_IRQHandler (){ HANDLER_DEFAULT(CLKMAN_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  PWRMAN_IRQHandler(){ HANDLER_DEFAULT(PWRMAN_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  FLC_IRQHandler(){ HANDLER_DEFAULT(FLC_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  RTC0_IRQHandler(){ HANDLER_DEFAULT(RTC0_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  RTC1_IRQHandler(){ HANDLER_DEFAULT(RTC1_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  RTC2_IRQHandler(){ HANDLER_DEFAULT(RTC2_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  RTC3_IRQHandler(){ HANDLER_DEFAULT(RTC3_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  PMU_IRQHandler(){ HANDLER_DEFAULT(PMU_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  USB_IRQHandler(){ HANDLER_DEFAULT(USB_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  AES_IRQHandler(){ HANDLER_DEFAULT(AES_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  MAA_IRQHandler(){ HANDLER_DEFAULT(MAA_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  WDT0_IRQHandler(){ HANDLER_DEFAULT(WDT0_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  WDT0_P_IRQHandler(){ HANDLER_DEFAULT(WDT0_P_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  WDT1_IRQHandler(){ HANDLER_DEFAULT(WDT1_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  WDT1_P_IRQHandler(){ HANDLER_DEFAULT(WDT1_P_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  GPIO_P0_IRQHandler(){ HANDLER_DEFAULT(GPIO_P0_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  GPIO_P1_IRQHandler(){ HANDLER_DEFAULT(GPIO_P1_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  GPIO_P2_IRQHandler(){ HANDLER_DEFAULT(GPIO_P2_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  GPIO_P3_IRQHandler(){ HANDLER_DEFAULT(GPIO_P3_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  GPIO_P4_IRQHandler(){ HANDLER_DEFAULT(GPIO_P4_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  GPIO_P5_IRQHandler(){ HANDLER_DEFAULT(GPIO_P5_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  GPIO_P6_IRQHandler(){ HANDLER_DEFAULT(GPIO_P6_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  TMR0_0_IRQHandler(){ HANDLER_DEFAULT(TMR0_0_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  TMR0_1_IRQHandler(){ HANDLER_DEFAULT(TMR0_1_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  TMR1_0_IRQHandler(){ HANDLER_DEFAULT(TMR1_0_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  TMR1_1_IRQHandler(){ HANDLER_DEFAULT(TMR1_1_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  TMR2_0_IRQHandler(){ HANDLER_DEFAULT(TMR2_0_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  TMR2_1_IRQHandler(){ HANDLER_DEFAULT(TMR2_1_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  TMR3_0_IRQHandler(){ HANDLER_DEFAULT(TMR3_0_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  TMR3_1_IRQHandler(){ HANDLER_DEFAULT(TMR3_1_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  TMR4_0_IRQHandler(){ HANDLER_DEFAULT(TMR4_0_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  TMR4_1_IRQHandler(){ HANDLER_DEFAULT(TMR4_1_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  TMR5_0_IRQHandler(){ HANDLER_DEFAULT(TMR5_0_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  TMR5_1_IRQHandler(){ HANDLER_DEFAULT(TMR5_1_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  UART0_IRQHandler(){ HANDLER_DEFAULT(UART0_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  UART1_IRQHandler(){ HANDLER_DEFAULT(UART1_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  UART2_IRQHandler(){ HANDLER_DEFAULT(UART2_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  UART3_IRQHandler(){ HANDLER_DEFAULT(UART3_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  PT_IRQHandler(){ HANDLER_DEFAULT(PT_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  I2CM0_IRQHandler(){ HANDLER_DEFAULT(I2CM0_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  I2CM1_IRQHandler(){ HANDLER_DEFAULT(I2CM1_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  I2CM2_IRQHandler(){ HANDLER_DEFAULT(I2CM2_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  I2CS_IRQHandler(){ HANDLER_DEFAULT(I2CS_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  SPIM0_IRQHandler(){ HANDLER_DEFAULT(SPIM0_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  SPIM1_IRQHandler(){ HANDLER_DEFAULT(SPIM1_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  SPIM2_IRQHandler(){ HANDLER_DEFAULT(SPIM2_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  SPIB_IRQHandler(){ HANDLER_DEFAULT(SPIB_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  OWM_IRQHandler(){ HANDLER_DEFAULT(OWM_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  AFE_IRQHandler(){ HANDLER_DEFAULT(AFE_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  SPIS_IRQHandler(){ HANDLER_DEFAULT(SPIS_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  GPIO_P7_IRQHandler(){ HANDLER_DEFAULT(GPIO_P7_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
+void __irq  GPIO_P8_IRQHandler(){ HANDLER_DEFAULT(GPIO_P8_IRQn+MAX326_AITC::c_IRQToIndexOffset) }
 
 } //end of extern C
 

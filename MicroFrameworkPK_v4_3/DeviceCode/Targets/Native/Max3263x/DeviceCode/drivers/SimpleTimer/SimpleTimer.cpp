@@ -5,8 +5,10 @@
 
 //#include "SimpleTimer.h"
 //#include <Time_decl.h>
-#include <stm32f10x.h>
+#include <max3263x.h>
 #include <tinyhal.h>
+#include <CPU_INTC_Decl.h>
+
 
 #define MAX_RELOAD 0x00FFFFFF
 #define TIME_BASE_FACTOR 10 // 10 MHz / 1 MHz
@@ -16,20 +18,26 @@
 static volatile UINT64 bigCounter;
 
 extern "C" {
-void __irq SysTick_Handler(void);
+void SimpleTimer_Handler(void *param);
 }
 
 BOOL HAL_Time_Initialize()
 {
-	NVIC_InitTypeDef NVIC_InitStructure;
+	/*NVIC_InitTypeDef NVIC_InitStructure;
 	//NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
 	NVIC_InitStructure.NVIC_IRQChannel = SysTick_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
+	*/
 
 	//NVIC_SetPriority (SysTick_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
+
+	CPU_INTC_Initialize (  );
+
+	if( !CPU_INTC_ActivateInterrupt(SysTick_IRQn, SimpleTimer_Handler, NULL) )
+			return DS_Fail;
 
 	bigCounter = 0;
 
@@ -43,7 +51,7 @@ BOOL HAL_Time_Initialize()
 
 // Must catch every interrupt before next roll-over, so should be 1st or 2nd highest priority
 extern "C" {
-void __irq SysTick_Handler(void) {
+void SimpleTimer_Handler(void *param) {
 	bigCounter += SysTick->LOAD + (SysTick->LOAD - SysTick->VAL) + SYSTICK_RESET_COMPENSATE_INT;
 	SysTick->LOAD = MAX_RELOAD;
 	SysTick->VAL = 0;

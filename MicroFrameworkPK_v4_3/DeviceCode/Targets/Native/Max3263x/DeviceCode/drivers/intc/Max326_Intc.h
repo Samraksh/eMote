@@ -8,8 +8,10 @@
 #define _MAX326_INTC_HEADER_H_ 1
 
 #include <cores\arm\include\cpu.h>
+#include <max3263x.h>
 #include <core_cm4.h>
-//#include <MAX326f10x.h>
+
+#define DEBUG_MAX326_ISR 1
 
 //#define BASE                  ((UINT32)0x40000000)
 //0x40010400
@@ -51,7 +53,7 @@ extern volatile CoreDebug_Type*     pCoreDebug;
 }
 */
 
-#define ASSERT_IRQ(IRQn) ASSERT(IRQn <= c_MaxInterruptIndex || (IRQn >= 2147483648 && IRQn <= 2147483663))
+#define ASSERT_IRQ(IRQn) ASSERT(IRQn <= c_MaxInterruptIndex || (IRQn >= 2147483648UL && IRQn <= 2147483663UL))
 
 struct IRQ_VECTORING
 {
@@ -61,7 +63,7 @@ struct IRQ_VECTORING
 
 struct MAX326_AITC_Driver
 {
-    static const UINT32 c_VECTORING_GUARD = 62;
+    static const UINT32 c_VECTORING_GUARD = MXC_IRQ_COUNT;
     static IRQ_VECTORING s_IsrTable[];
 
 #if defined(PLATFORM_ARM)
@@ -105,34 +107,35 @@ struct MAX326_AITC
     static const UINT32 c_IRQ_Priority_14 = 14;
     static const UINT32 c_IRQ_Priority_15 = 15;
 
-	static const UINT32 c_MaxInterruptIndex = 51;
+	static const INT32 c_MaxInterruptIndex = 51;
 	static const INT32 c_MinInterruptIndex = -15;
+	static const INT32 c_IRQToIndexOffset = 16;
 
-	void DisableInterrupt( UINT32 Irq_Index )
+	static void DisableInterrupt( UINT32 Irq_Index )
 	{
-		IRQn_Type IRQn= Irq_Index;
+		IRQn_Type IRQn= (IRQn_Type)Irq_Index;
 		ASSERT_IRQ(Irq_Index);
 		NVIC_DisableIRQ(IRQn);
 	}
 
-    void EnableInterrupt( UINT32 Irq_Index )
+	static void EnableInterrupt( UINT32 Irq_Index )
     {
-    	IRQn_Type IRQn= Irq_Index;
+    	IRQn_Type IRQn= (IRQn_Type)Irq_Index;
     	ASSERT_IRQ(Irq_Index);
         NVIC_EnableIRQ(IRQn);
     }
 
-    BOOL SetInterrupt(UINT32 Irq_Index)
+	static BOOL SetInterrupt(UINT32 Irq_Index)
     {
-    	IRQn_Type IRQn= Irq_Index;
+    	IRQn_Type IRQn= (IRQn_Type)Irq_Index;
     	ASSERT_IRQ(Irq_Index);
     	NVIC_SetPendingIRQ(IRQn);
     	return TRUE;
     }
 
-    BOOL ClearInterrupt(UINT32 Irq_Index)
+	static BOOL ClearInterrupt(UINT32 Irq_Index)
     {
-    	IRQn_Type IRQn= Irq_Index;
+    	IRQn_Type IRQn= (IRQn_Type)Irq_Index;
     	ASSERT_IRQ(Irq_Index);
 		NVIC_ClearPendingIRQ(IRQn);
 		return TRUE;
@@ -140,54 +143,54 @@ struct MAX326_AITC
 
 
 	//! Checks if the interrupt has been enabled for the given irq channel by checking the bit value of ISER
-    BOOL IsInterruptEnabled(UINT32 Irq_Index )
+	static  BOOL IsInterruptEnabled(UINT32 Irq_Index )
     {
-    	IRQn_Type IRQn= Irq_Index;
+    	IRQn_Type IRQn= (IRQn_Type)Irq_Index;
     	ASSERT_IRQ(Irq_Index);
         return NVIC_GetActive(IRQn);
     }
 
 	//! Returns the state of the interrupt, is the interrrupt pending?
-    BOOL GetInterruptState( UINT32 Irq_Index )
+	static BOOL GetInterruptState( UINT32 Irq_Index )
     {
 
     	ASSERT_IRQ(Irq_Index);
-    	IRQn_Type IRQn= Irq_Index;
+    	IRQn_Type IRQn= (IRQn_Type)Irq_Index;
 		return NVIC_GetPendingIRQ(IRQn);
     }
 
-    void SetPriority(UINT32 Irq_Index, UINT32 priority )
+	static void SetPriority(UINT32 Irq_Index, UINT32 priority )
 	{
-		IRQn_Type IRQn= Irq_Index;
+		IRQn_Type IRQn= (IRQn_Type)Irq_Index;
 		ASSERT_IRQ(Irq_Index);
 		NVIC_SetPriority(IRQn, priority);
 	}
 
-	UINT32 GetPriority( UINT32 Irq_Index)
+	static UINT32 GetPriority( UINT32 Irq_Index)
 	{
-		IRQn_Type IRQn= Irq_Index;
+		IRQn_Type IRQn= (IRQn_Type)Irq_Index;
 		ASSERT_IRQ(Irq_Index);
 		return NVIC_GetPriority(IRQn);
 	}
 
     //! Stubbed out Cortex - M4 calls the interrupt handlers by itself and there is no concept fo checking the pending interrupts at the software level
-    UINT32 NormalInterruptPending() {  return 0; }
+	static UINT32 NormalInterruptPending() {  return 0; }
 
 	//! Stubbed out Cortex - M4 calls the interrupt handlers by itself and there is no concept fo checking the pending interrupts at the software level
-    UINT32 FastInterruptPending() { return 0; }
+	static UINT32 FastInterruptPending() { return 0; }
 
 	//! Stubbed out Cortex - M3 doesnot require querying of interrupt pending registers
-    BOOL IsInterruptPending() { return FALSE; }
+    static BOOL IsInterruptPending() { return FALSE; }
 
 	//! Stubbed out Cortex - M4 doesnot support Fast and Normal Interrupt Channels, hence there is no need to set the type of the interrupt
-    void SetType(UINT32 Irq_Index, BOOL Fast ) { return; }
+    static void SetType(UINT32 Irq_Index, BOOL Fast ) { return; }
 
-    void ForceInterrupt( UINT32 Irq_Index ) {
+    static void ForceInterrupt( UINT32 Irq_Index ) {
         // TBD
         ASSERT(FALSE);      // Interrupts may not be forced for this processor (at this time?)
     }
 
-    void RemoveForcedInterrupt( UINT32 Irq_Index )
+    static void RemoveForcedInterrupt( UINT32 Irq_Index )
     {
         // TBD
     }
