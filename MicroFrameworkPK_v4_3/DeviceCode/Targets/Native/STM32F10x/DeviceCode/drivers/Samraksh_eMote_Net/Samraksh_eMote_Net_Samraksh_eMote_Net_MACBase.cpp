@@ -276,10 +276,10 @@ void ManagedSendAckCallbackFn(void *msg, UINT16 size, MACSendStatus_t status){
 		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendACKed %u %u \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
 		MAC_ChangeOwnerShipOfElementwIndex(index, BO_MFUser);
 		ManagedCallback(((UINT32)(tx_msg->GetHeader()->dest) << 16) + SendACKed, (((UINT32)index)<<16) + tx_msg->GetHeader()->payloadType);
-	} else if (status == MACSendStatus_SendFailed){
+	} else if (status == MACSendStatus_SendNacked){
 		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendNACKed %u %u  \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
 		ManagedCallback(((UINT32)(tx_msg->GetHeader()->dest) << 16) + SendNACKed, (((UINT32)index)<<16) + tx_msg->GetHeader()->payloadType);
-	} else if (status == MACSendStatus_PacketDeleted){
+	} else if (status == MACSendStatus_SendFailedPermanently){
 		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendFailed %u %u  \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
 		MAC_ChangeOwnerShipOfElementwIndex(index, BO_MFUser);
 		ManagedCallback(((UINT32)(tx_msg->GetHeader()->dest) << 16) + SendFailed,  (((UINT32)index)<<16) + tx_msg->GetHeader()->payloadType);
