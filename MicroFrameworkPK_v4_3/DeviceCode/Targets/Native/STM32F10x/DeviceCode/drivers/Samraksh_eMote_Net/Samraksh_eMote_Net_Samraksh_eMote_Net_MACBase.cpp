@@ -38,7 +38,7 @@ enum CallBackTypes
 };
 
 void ManagedCallback(UINT32 arg1, UINT32 arg2);
-void ManagedSendAckCallbackFn(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus);
+void ManagedSendAckCallbackFn(void *msg, UINT16 size, MACSendStatus_t status);
 
 void NeighborChangedCallbackFn(INT16 numberOfNeighbors);
 void ReceiveDoneCallbackFn(void* msg, UINT16 numberOfPackets);
@@ -264,22 +264,22 @@ void NeighborChangedCallbackFn(INT16 countOfNeighbors)
 	ManagedCallback(NeighborChangedCallback,(UINT16) countOfNeighbors);
 }
 
-void ManagedSendAckCallbackFn(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus){
+void ManagedSendAckCallbackFn(void *msg, UINT16 size, MACSendStatus_t status){
 	Message_15_4_t* tx_msg = (Message_15_4_t*)msg;
 	UINT16 index = MAC_GetMsgIdWithPtr(tx_msg);
 
 	// NetOpStatus needs to be revisted...here we translate from NetOpStatus to the opcodes used in the callback (CallbackTyep in Samraksh_eMote_Net)
-	if (status == NetworkOperations_SendInitiated){
+	if (status == MACSendStatus_SendInitiated){
 		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendInitiated %u %u \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
 		ManagedCallback(((UINT32)(tx_msg->GetHeader()->dest) << 16) + SendInitiated, (((UINT32)index)<<16) + tx_msg->GetHeader()->payloadType);
-	} else if (status == NetworkOperations_Success){
+	} else if (status == MACSendStatus_SendSuccess){
 		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendACKed %u %u \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
 		MAC_ChangeOwnerShipOfElementwIndex(index, BO_MFUser);
 		ManagedCallback(((UINT32)(tx_msg->GetHeader()->dest) << 16) + SendACKed, (((UINT32)index)<<16) + tx_msg->GetHeader()->payloadType);
-	} else if (status == NetworkOperations_SendNACKed){
+	} else if (status == MACSendStatus_SendFailed){
 		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendNACKed %u %u  \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
 		ManagedCallback(((UINT32)(tx_msg->GetHeader()->dest) << 16) + SendNACKed, (((UINT32)index)<<16) + tx_msg->GetHeader()->payloadType);
-	} else if (status == NetworkOperations_Fail){
+	} else if (status == MACSendStatus_PacketDeleted){
 		//hal_printf("ManagedSendAckCallbackFn::NetworkOperations_SendFailed %u %u  \r\n", tx_msg->GetHeader()->payloadType, tx_msg->GetHeader()->dest);
 		MAC_ChangeOwnerShipOfElementwIndex(index, BO_MFUser);
 		ManagedCallback(((UINT32)(tx_msg->GetHeader()->dest) << 16) + SendFailed,  (((UINT32)index)<<16) + tx_msg->GetHeader()->payloadType);
