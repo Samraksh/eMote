@@ -234,7 +234,7 @@ void DataTransmissionHandler::SendACKToUpperLayers(Message_15_4_t* msg, UINT16 S
 			}
 		}
 		else{
-			if(status == MACSendStatus_SendFailed || status == MACSendStatus_SendSuccess){
+			if(status == MACSendStatus_SendFailedPermanently || status == MACSendStatus_SendSuccess){
 				g_NeighborTable.DeletePacket(msg);
 			}
 		}
@@ -254,7 +254,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 
 	Message_15_4_t* msg_carrier = g_NeighborTable.FindStalePacketWithRetryAttemptsGreaterThan(FRAMERETRYMAXATTEMPT, BO_OMAC);
 	while(msg_carrier){
-		SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailed);
+		SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailedPermanently);
 		msg_carrier = g_NeighborTable.FindStalePacketWithRetryAttemptsGreaterThan(FRAMERETRYMAXATTEMPT,  BO_OMAC);
 	}
 
@@ -860,7 +860,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, RadioSendS
 			//Don't retry a TS packet (for now)
 
 			if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
-				SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), MACSendStatus_SendFailed);
+				SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), MACSendStatus_SendNacked);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
 				hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_SendNACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
 #endif
@@ -879,7 +879,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, RadioSendS
 
 
 			if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
-				SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), MACSendStatus_SendFailed);
+				SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), MACSendStatus_SendFailedPermanently);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
 				hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_Busy dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
 #endif
@@ -1144,7 +1144,7 @@ void DataTransmissionHandler::PostExecuteEvent(){
 #endif
 		SelectRetrySlotNumForNeighborBackOff();
 		if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
-			SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), MACSendStatus_SendFailed);
+			SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), MACSendStatus_SendNacked);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
 			hal_printf("DataTransmissionHandler:SOFTWARE_ACKSendACK:NetworkOperations_SendNACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
 #endif

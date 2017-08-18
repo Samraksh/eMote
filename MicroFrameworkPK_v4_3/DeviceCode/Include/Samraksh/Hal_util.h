@@ -28,7 +28,8 @@ NetworkOperations_SendFailed
 enum MACSendStatus_t {
 	MACSendStatus_SendInitiated,			//
 	MACSendStatus_SendSuccess,
-	MACSendStatus_SendFailed
+	MACSendStatus_SendNacked,
+	MACSendStatus_SendFailedPermanently,
 };
 
 

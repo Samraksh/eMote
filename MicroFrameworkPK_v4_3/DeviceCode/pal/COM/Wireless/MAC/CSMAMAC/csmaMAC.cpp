@@ -593,10 +593,10 @@ void csmaMAC::SendAckHandler(void* msg, int Size, RadioSendStatus_t status){
 								(*appHandler)(msg, Size, MACSendStatus_SendSuccess);
 								break;
 							case RadioSendStatus_SendNACKed:
-								(*appHandler)(msg, Size, MACSendStatus_SendFailed);
+								(*appHandler)(msg, Size, MACSendStatus_SendFailedPermanently);
 								break;
 							case RadioSendStatus_ACKTimeout:
-								(*appHandler)(msg, Size, MACSendStatus_SendFailed);
+								(*appHandler)(msg, Size, MACSendStatus_SendFailedPermanently);
 								break;
 							case RadioSendStatus_TXCompleteNoACK:
 								(*appHandler)(msg, Size, MACSendStatus_SendSuccess);

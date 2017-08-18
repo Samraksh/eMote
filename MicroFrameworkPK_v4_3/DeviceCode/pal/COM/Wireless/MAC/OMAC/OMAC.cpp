@@ -1263,12 +1263,12 @@ UINT8 OMACType::UpdateNeighborTable(){
 						//Return Packets for neighbors
 						msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailed);
+							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailedPermanently);
 							msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						}
 						msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailed);
+							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailedPermanently);
 							msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						}
 						//						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); //  BK: New logic enables deleting by the time sync table. We don't need to delete here.
@@ -1293,12 +1293,12 @@ UINT8 OMACType::UpdateNeighborTable(){
 
 						msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailed);
+							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailedPermanently);
 							msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						}
 						msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailed);
+							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailedPermanently);
 							msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
 						}
 
