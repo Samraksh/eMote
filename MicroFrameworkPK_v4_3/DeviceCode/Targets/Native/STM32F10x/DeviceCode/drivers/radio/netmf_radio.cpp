@@ -22,7 +22,7 @@
 #include <tinyhal.h>
 #include "RF231\RF231.h"
 #include "SI4468\si446x.h"
-#include "SX1276\SX1276wrapper.h"
+#include "SX1276\SamrakshSX1276hal.h"
 
 #define ASSERT_NOFAIL(x) {if(x==DS_Fail){ SOFT_BREAKPOINT(); }}
 

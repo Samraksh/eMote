@@ -41,37 +41,37 @@ const FskBandwidth_t SX1276::FskBandwidths[] =
 };
 
 
-SX1276::SX1276( RadioEvents_t *events,
-                PinName mosi, PinName miso, PinName sclk, PinName nss, PinName reset,
-                PinName dio0, PinName dio1, PinName dio2, PinName dio3, PinName dio4, PinName dio5 )
-            :   Radio( events ),
-                spi( mosi, miso, sclk ),
-                nss( nss ),
-                reset( reset ),
-                dio0( dio0 ), dio1( dio1 ), dio2( dio2 ), dio3( dio3 ), dio4( dio4 ), dio5( dio5 ),
-                isRadioActive( false )
-{
-    wait_ms( 10 );
-    this->rxtxBuffer = new uint8_t[RX_BUFFER_SIZE];
-
-    this->RadioEvents = events;
-
-    this->dioIrq = new DioIrqHandler[6];
-
-    this->dioIrq[0] = &SX1276::OnDio0Irq;
-    this->dioIrq[1] = &SX1276::OnDio1Irq;
-    this->dioIrq[2] = &SX1276::OnDio2Irq;
-    this->dioIrq[3] = &SX1276::OnDio3Irq;
-    this->dioIrq[4] = &SX1276::OnDio4Irq;
-    this->dioIrq[5] = NULL;
-
-    this->settings.State = RF_IDLE;
-}
+//SX1276::SX1276( RadioEvents_t *events,
+//                PinName mosi, PinName miso, PinName sclk, PinName nss, PinName reset,
+//                PinName dio0, PinName dio1, PinName dio2, PinName dio3, PinName dio4, PinName dio5 )
+//            :   Radio( events ),
+//                spi( mosi, miso, sclk ),
+//                nss( nss ),
+//                reset( reset ),
+//                dio0( dio0 ), dio1( dio1 ), dio2( dio2 ), dio3( dio3 ), dio4( dio4 ), dio5( dio5 ),
+//                isRadioActive( false )
+//{
+//    wait_ms( 10 );
+//    this->rxtxBuffer = new uint8_t[RX_BUFFER_SIZE];
+//
+//    this->RadioEvents = events;
+//
+//    this->dioIrq = new DioIrqHandler[6];
+//
+//    this->dioIrq[0] = &SX1276::OnDio0Irq;
+//    this->dioIrq[1] = &SX1276::OnDio1Irq;
+//    this->dioIrq[2] = &SX1276::OnDio2Irq;
+//    this->dioIrq[3] = &SX1276::OnDio3Irq;
+//    this->dioIrq[4] = &SX1276::OnDio4Irq;
+//    this->dioIrq[5] = NULL;
+//
+//    this->settings.State = RF_IDLE;
+//}
 
 SX1276::~SX1276( )
 {
     delete this->rxtxBuffer;
-    delete this->dioIrq;
+//    delete this->dioIrq;
 }
 
 void SX1276::Init( RadioEvents_t *events )
@@ -670,8 +670,10 @@ void SX1276::Send( uint8_t *buffer, uint8_t size )
 
 void SX1276::Sleep( void )
 {
-    txTimeoutTimer.detach( );
-    rxTimeoutTimer.detach( );
+    //txTimeoutTimer.detach( );
+ CancelTimeoutTimer(txTimeoutTimer);
+    //rxTimeoutTimer.detach( );
+ CancelTimeoutTimer(rxTimeoutTimer);
 
     SetOpMode( RF_OPMODE_SLEEP );
     this->settings.State = RF_IDLE;
@@ -679,8 +681,10 @@ void SX1276::Sleep( void )
 
 void SX1276::Standby( void )
 {
-    txTimeoutTimer.detach( );
-    rxTimeoutTimer.detach( );
+    //txTimeoutTimer.detach( );
+ CancelTimeoutTimer(txTimeoutTimer);
+    //rxTimeoutTimer.detach( );
+ CancelTimeoutTimer(rxTimeoutTimer);
 
     SetOpMode( RF_OPMODE_STANDBY );
     this->settings.State = RF_IDLE;
@@ -825,7 +829,8 @@ void SX1276::Rx( uint32_t timeout )
     this->settings.State = RF_RX_RUNNING;
     if( timeout != 0 )
     {
-        rxTimeoutTimer.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ), timeout * 1e3 );
+        //rxTimeoutTimer.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ), timeout * 1e3 );
+ SetTimeoutTimer(rxTimeoutTimer, timeout * 1e3 );
     }
 
     if( this->settings.Modem == MODEM_FSK )
@@ -834,8 +839,9 @@ void SX1276::Rx( uint32_t timeout )
 
         if( rxContinuous == false )
         {
-            rxTimeoutSyncWord.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ),
-                                         this->settings.Fsk.RxSingleTimeout * 1e3 );
+            //rxTimeoutSyncWord.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ),
+//                                         this->settings.Fsk.RxSingleTimeout * 1e3 );
+ SetTimeoutTimer(rxTimeoutSyncWord,this->settings.Fsk.RxSingleTimeout * 1e3 );
         }
     }
     else
@@ -909,7 +915,8 @@ void SX1276::Tx( uint32_t timeout )
     }
 
     this->settings.State = RF_TX_RUNNING;
-    txTimeoutTimer.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ), timeout * 1e3 );
+    //txTimeoutTimer.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ), timeout * 1e3 );
+ SetTimeoutTimer(txTimeoutTimer, timeout * 1e3 );
     SetOpMode( RF_OPMODE_TRANSMITTER );
 }
 
@@ -960,7 +967,8 @@ void SX1276::SetTxContinuousWave( uint32_t freq, int8_t power, uint16_t time )
     Write( REG_DIOMAPPING2, RF_DIOMAPPING2_DIO4_10 | RF_DIOMAPPING2_DIO5_10 );
 
     this->settings.State = RF_TX_RUNNING;
-    txTimeoutTimer.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ), timeout );
+    //txTimeoutTimer.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ), timeout );
+ SetTimeoutTimer(txTimeoutTimer, timeout );
     SetOpMode( RF_OPMODE_TRANSMITTER );
 }
 
@@ -1097,13 +1105,16 @@ void SX1276::OnTimeoutIrq( void )
             {
                 // Continuous mode restart Rx chain
                 Write( REG_RXCONFIG, Read( REG_RXCONFIG ) | RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK );
-                rxTimeoutSyncWord.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ),
+                //rxTimeoutSyncWord.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ),
+//                                             this->settings.Fsk.RxSingleTimeout * 1e3 );
+ SetTimeoutTimer(rxTimeoutSyncWord,
                                              this->settings.Fsk.RxSingleTimeout * 1e3 );
             }
             else
             {
                 this->settings.State = RF_IDLE;
-                rxTimeoutSyncWord.detach( );
+                //rxTimeoutSyncWord.detach( );
+ CancelTimeoutTimer(rxTimeoutSyncWord);
             }
         }
         if( ( this->RadioEvents != NULL ) && ( this->RadioEvents->RxTimeout != NULL ) )
@@ -1171,19 +1182,22 @@ void SX1276::OnDio0Irq( void )
                                                     RF_IRQFLAGS1_SYNCADDRESSMATCH );
                         Write( REG_IRQFLAGS2, RF_IRQFLAGS2_FIFOOVERRUN );
 
-                        rxTimeoutTimer.detach( );
+                        //rxTimeoutTimer.detach( );
+ CancelTimeoutTimer(rxTimeoutTimer);
 
                         if( this->settings.Fsk.RxContinuous == false )
                         {
-                            rxTimeoutSyncWord.detach( );
+                            //rxTimeoutSyncWord.detach( );
+ CancelTimeoutTimer(rxTimeoutSyncWord);
                             this->settings.State = RF_IDLE;
                         }
                         else
                         {
                             // Continuous mode restart Rx chain
                             Write( REG_RXCONFIG, Read( REG_RXCONFIG ) | RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK );
-                            rxTimeoutSyncWord.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ),
-                                                         this->settings.Fsk.RxSingleTimeout * 1e3 );
+                            //rxTimeoutSyncWord.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ),
+//                                                         this->settings.Fsk.RxSingleTimeout * 1e3 );
+ SetTimeoutTimer(rxTimeoutSyncWord, this->settings.Fsk.RxSingleTimeout * 1e3 );
                         }
 
                         if( ( this->RadioEvents != NULL ) && ( this->RadioEvents->RxError != NULL ) )
@@ -1218,19 +1232,22 @@ void SX1276::OnDio0Irq( void )
                     this->settings.FskPacketHandler.NbBytes += ( this->settings.FskPacketHandler.Size - this->settings.FskPacketHandler.NbBytes );
                 }
 
-                rxTimeoutTimer.detach( );
+                //rxTimeoutTimer.detach( );
+ CancelTimeoutTimer(rxTimeoutTimer);
 
                 if( this->settings.Fsk.RxContinuous == false )
                 {
                     this->settings.State = RF_IDLE;
-                    rxTimeoutSyncWord.detach( );
+                    //rxTimeoutSyncWord.detach( );
+ CancelTimeoutTimer(rxTimeoutSyncWord);
                 }
                 else
                 {
                     // Continuous mode restart Rx chain
                     Write( REG_RXCONFIG, Read( REG_RXCONFIG ) | RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK );
-                    rxTimeoutSyncWord.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ),
-                                                 this->settings.Fsk.RxSingleTimeout * 1e3 );
+                    //rxTimeoutSyncWord.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ),
+//                                                 this->settings.Fsk.RxSingleTimeout * 1e3 );
+ SetTimeoutTimer(rxTimeoutSyncWord, this->settings.Fsk.RxSingleTimeout * 1e3 );
                 }
 
                 if( ( this->RadioEvents != NULL ) && ( this->RadioEvents->RxDone != NULL ) )
@@ -1259,7 +1276,8 @@ void SX1276::OnDio0Irq( void )
                         {
                             this->settings.State = RF_IDLE;
                         }
-                        rxTimeoutTimer.detach( );
+                        //rxTimeoutTimer.detach( );
+ CancelTimeoutTimer(rxTimeoutTimer);
 
                         if( ( this->RadioEvents != NULL ) && ( this->RadioEvents->RxError != NULL ) )
                         {
@@ -1314,7 +1332,8 @@ void SX1276::OnDio0Irq( void )
                     {
                         this->settings.State = RF_IDLE;
                     }
-                    rxTimeoutTimer.detach( );
+                    //rxTimeoutTimer.detach( );
+ CancelTimeoutTimer(rxTimeoutTimer);
 
                     if( ( this->RadioEvents != NULL ) && ( this->RadioEvents->RxDone != NULL ) )
                     {
@@ -1327,7 +1346,8 @@ void SX1276::OnDio0Irq( void )
             }
             break;
         case RF_TX_RUNNING:
-            txTimeoutTimer.detach( );
+            //txTimeoutTimer.detach( );
+ CancelTimeoutTimer(txTimeoutTimer);
             // TxDone interrupt
             switch( this->settings.Modem )
             {
@@ -1385,7 +1405,8 @@ void SX1276::OnDio1Irq( void )
                 break;
             case MODEM_LORA:
                 // Sync time out
-                rxTimeoutTimer.detach( );
+                //rxTimeoutTimer.detach( );
+ CancelTimeoutTimer(rxTimeoutTimer);
                 // Clear Irq
                 Write( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_RXTIMEOUT );
 
@@ -1443,7 +1464,8 @@ void SX1276::OnDio2Irq( void )
 
                 if( ( this->settings.FskPacketHandler.PreambleDetected == true ) && ( this->settings.FskPacketHandler.SyncWordDetected == false ) )
                 {
-                    rxTimeoutSyncWord.detach( );
+                    //rxTimeoutSyncWord.detach( );
+ CancelTimeoutTimer(rxTimeoutSyncWord);
 
                     this->settings.FskPacketHandler.SyncWordDetected = true;
 

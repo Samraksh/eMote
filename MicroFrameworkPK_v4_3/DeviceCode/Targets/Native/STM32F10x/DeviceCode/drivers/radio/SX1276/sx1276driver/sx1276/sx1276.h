@@ -15,10 +15,10 @@ Maintainers: Miguel Luis, Gregory Cristian and Nicolas Huguenin
 #ifndef __SX1276_H__
 #define __SX1276_H__
 
-#include "radio.h"
-#include "./registers/sx1276Regs-Fsk.h"
-#include "./registers/sx1276Regs-LoRa.h"
-#include "./typedefs/typedefs.h"
+#include "../radio/radio.h"
+#include "../registers/sx1276Regs-Fsk.h"
+#include "../registers/sx1276Regs-LoRa.h"
+#include "../typedefs/typedefs.h"
 
 /*!
  * Radio wake-up time from sleep
@@ -52,32 +52,35 @@ Maintainers: Miguel Luis, Gregory Cristian and Nicolas Huguenin
 
 #define RF_MID_BAND_THRESH                          525000000
 
+
+
+
 /*! 
  * Actual implementation of a SX1276 radio, inherits Radio
  */
-class SX1276 : public Radio
+class SX1276 : public RadioSX1276
 {
 protected:
     /*!
     * SPI Interface
     */
-    SPI spi; // mosi, miso, sclk
-    DigitalOut nss;
-
-    /*!
-     * SX1276 Reset pin
-     */
-    DigitalInOut reset;
+//    SPI spi; // mosi, miso, sclk
+//    DigitalOut nss;
+//
+//    /*!
+//     * SX1276 Reset pin
+//     */
+//    DigitalInOut reset;
 
     /*!
      * SX1276 DIO pins
      */
-    InterruptIn dio0;
-    InterruptIn dio1;
-    InterruptIn dio2; 
-    InterruptIn dio3;
-    InterruptIn dio4;
-    DigitalIn dio5;
+//    InterruptIn dio0;
+//    InterruptIn dio1;
+//    InterruptIn dio2;
+//    InterruptIn dio3;
+//    InterruptIn dio4;
+//    DigitalIn dio5;
 
     bool isRadioActive;
 
@@ -88,14 +91,26 @@ protected:
     /*!
      * Hardware DIO IRQ functions
      */
-    DioIrqHandler *dioIrq;
+//    DioIrqHandler *dioIrq;
+//    DioIrqHandler dioIrq[6];
 
     /*!
      * Tx and Rx timers
      */
-    Timeout txTimeoutTimer;
-    Timeout rxTimeoutTimer;
-    Timeout rxTimeoutSyncWord;
+//    Timeout txTimeoutTimer;
+//    Timeout rxTimeoutTimer;
+//    Timeout rxTimeoutSyncWord;
+//BK: Use SetTimer The regex for find replace
+//    (..TimeoutTimer)(.attach_us[^,]*,[^,]*,)([^)]*)([^;];)      //\1\2\3\4;\R SetTimeoutTimer(\1,\3);
+//    (..Timeout[^;\.]*)(.detach[^;]*;)              //\1\2 \R CancelTimeoutTimer(\1);
+    enum TimeoutName_t{
+    	txTimeoutTimer,
+		rxTimeoutTimer,
+		rxTimeoutSyncWord,
+    };
+    virtual void SetTimeoutTimer(TimeoutName_t ton, float delay) = 0;
+    virtual void CancelTimeoutTimer(TimeoutName_t ton) = 0;
+
 
     RadioSettings_t settings;
 
@@ -110,9 +125,9 @@ protected:
     void RxChainCalibration( void );
 
 public:
-    SX1276( RadioEvents_t *events,
-            PinName mosi, PinName miso, PinName sclk, PinName nss, PinName reset,
-            PinName dio0, PinName dio1, PinName dio2, PinName dio3, PinName dio4, PinName dio5 );
+//    SX1276( RadioEvents_t *events,
+//            PinName mosi, PinName miso, PinName sclk, PinName nss, PinName reset,
+//            PinName dio0, PinName dio1, PinName dio2, PinName dio3, PinName dio4, PinName dio5 );
     SX1276( RadioEvents_t *events );
     virtual ~SX1276( );
     

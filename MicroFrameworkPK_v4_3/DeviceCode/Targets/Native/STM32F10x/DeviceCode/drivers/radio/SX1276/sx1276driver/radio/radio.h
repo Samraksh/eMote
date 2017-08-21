@@ -15,15 +15,15 @@ Maintainers: Miguel Luis, Gregory Cristian and Nicolas Huguenin
 #ifndef __RADIO_H__
 #define __RADIO_H__
 
-#include "mbed.h"
+//#include "mbed.h"
 
-#include "./enums/enums.h"
+#include "../enums/enums.h"
+
 
 /*!
  * @brief Radio driver callback functions
  */
-typedef struct
-{
+struct RadioEvents_t{
 	 void    ( *ValidHeaderDetected )( void );
     /*!
      * @brief  Tx Done callback prototype.
@@ -64,12 +64,12 @@ typedef struct
      * @param [IN] channelDetected    Channel Activity detected during the CAD
      */
     void ( *CadDone ) ( bool channelActivityDetected );
-}RadioEvents_t;
+};
 
 /*!
  *    Interface for the radios, contains the main functions that a radio needs, and 5 callback functions
  */
-class Radio
+class RadioSX1276
 {
 protected:
     RadioEvents_t* RadioEvents;
@@ -83,8 +83,8 @@ public:
      *
      * @param [IN] events Structure containing the driver callback functions
      */
-    Radio( RadioEvents_t *events );
-    virtual ~Radio( ) {};
+    RadioSX1276( RadioEvents_t *events );
+    virtual ~RadioSX1276( ) {};
 
     //-------------------------------------------------------------------------
     //                        Pure virtual functions
