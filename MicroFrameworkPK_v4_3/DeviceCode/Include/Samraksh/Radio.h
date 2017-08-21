@@ -242,7 +242,7 @@ public:
 
 };
 
-class RadioEventHandlerStorage{
+/*class RadioEventHandlerStorage{
 	// Keeps track of all the mac ids that are currently supported
 	UINT8 MacIDs[MAX_MACS_SUPPORTED];
 	UINT8 MacIDIndex;
@@ -308,7 +308,7 @@ public:
 		return false;
 
 	}
-};
+};*/
 
 
 class SamrakshRadio_I{

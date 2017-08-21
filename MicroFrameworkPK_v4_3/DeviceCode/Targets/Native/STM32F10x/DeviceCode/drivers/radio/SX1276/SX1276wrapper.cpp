@@ -5,12 +5,14 @@
  *      Author: Bora
  */
 
+#include "EmoteLoraHat.h"
 #include "SX1276wrapper.h"
 #include "sx1276-hal.h"
 #include <cstdint>
 
 
 const struct InternalRadioProperties_t EMOTE_SX1276_LORA::SX1276_hal_wrapper::SX1276_hal_wrapper_internal_radio_properties = {10, 10};
+
 
 
 EMOTE_SX1276_LORA::SX1276_hal_wrapper grfsx1276Radio;
@@ -72,6 +74,7 @@ EMOTE_SX1276_LORA::SX1276_hal_wrapper::SX1276_hal_wrapper()
 
 EMOTE_SX1276_LORA::SX1276_hal_wrapper::~SX1276_hal_wrapper() {
 }
+
 
 DeviceStatus EMOTE_SX1276_LORA::SX1276_hal_wrapper::Initialize(RadioEvents_t re){
 	if(isRadioInitialized) return DS_Fail;
