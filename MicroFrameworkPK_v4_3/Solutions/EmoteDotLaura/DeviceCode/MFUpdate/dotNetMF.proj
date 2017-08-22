@@ -1,16 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>MFUpdate_EmoteDotNow</AssemblyName>
+    <AssemblyName>MFUpdate_EmoteDotLaura</AssemblyName>
     <Size>
     </Size>
     <ProjectGuid>{5E932096-55AE-423E-A7E4-211A52D0B286}</ProjectGuid>
     <Description>MFUpdate package for EmoteDotNow</Description>
     <Level>HAL</Level>
-    <LibraryFile>MFUpdate_EmoteDotNow.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\Solutions\Samraksh\Samraksh\EmoteDotNow\DeviceCode\MFUpdate\dotnetmf.proj</ProjectPath>
-    <ManifestFile>MFUpdate_EmoteDotNow.$(LIB_EXT).manifest</ManifestFile>
-    <Groups>Solutions\Samraksh\Samraksh\EmoteDotNow</Groups>
+    <LibraryFile>MFUpdate_EmoteDotLaura.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\Solutions\Samraksh\Samraksh\EmoteDotLaura\DeviceCode\MFUpdate\dotnetmf.proj</ProjectPath>
+    <ManifestFile>MFUpdate_EmoteDotLaura.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Solutions\Samraksh\Samraksh\EmoteDotLaura</Groups>
     <Documentation>
     </Documentation>
     <PlatformIndependent>False</PlatformIndependent>
@@ -19,7 +19,7 @@
     <Required>False</Required>
     <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
     <IsStub>False</IsStub>
-    <Directory>Solutions\Samraksh\Samraksh\EmoteDotNow\DeviceCode\MFUpdate</Directory>
+    <Directory>Solutions\Samraksh\Samraksh\EmoteDotLaura\DeviceCode\MFUpdate</Directory>
     <OutputType>Library</OutputType>
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
     <Version>4.0.0.0</Version>
@@ -28,7 +28,7 @@
   <PropertyGroup />
   <ItemGroup>
     <Compile Include="PortableArrayKitUpdateProvider.cpp" />
-    <Compile Include="MFUpdate_config_EmoteDotNow.cpp" />
+    <Compile Include="MFUpdate_config_EmoteDotLaura.cpp" />
   </ItemGroup>
   <ItemGroup>
     <HFiles Include="PortableArrayKitUpdate.h" />

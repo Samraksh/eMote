@@ -1,5 +1,5 @@
 #include <tinyhal.h>
-#include <stm32f10x.h>
+//#include <stm32f10x.h>
 #include <Samraksh/Hal_util.h>
 #include "Samraksh\meanTracker.h"
 

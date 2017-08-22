@@ -146,7 +146,7 @@ BOOL STM32F10x_blDriver::IsBlockErased( void* context, ByteAddress Address, UINT
 	  			return FALSE;
 	}*/
 	return TRUE;
-	  	}
+}
 
 BOOL STM32F10x_blDriver::EraseBlock( void* context, ByteAddress address )
 {

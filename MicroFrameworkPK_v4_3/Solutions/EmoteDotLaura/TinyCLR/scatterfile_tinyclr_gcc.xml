@@ -4,11 +4,11 @@
     <Set Name="Valid" Value="false"/>
 
     <!-- ################################################################################ -->
-    <!-- SAM_$ are defined inside Solutions\EmoteDotNow\EmoteDotNow.settings -->
+    <!-- SAM_$ are defined inside Solutions\EmoteDotLaura\EmoteDotLaura.settings -->
 
 	<!-- These two defines are needed by Maxim drivers -->
-    <Set Name="TARGET"          Value="%TARGET%"/>
-    <Set Name="TARGET_REV"      Value="%TARGET_REV%"/>
+	<!--<Set Name="TARGET"          Value="%TARGET%"/>
+	<Set Name="TARGET_REV"      Value="%TARGET_REV%"/>-->
 
     <Set Name="Heap_Begin"          Value="%SAM_HEAP_BEGIN%"/>
     <Set Name="Heap_End"            Value="%SAM_HEAP_END%"/>
@@ -23,7 +23,7 @@
     <!--Set Name="Data_BaseAddress" Value=... if using malloc and want separate section -->
 
     <If Name="TARGETLOCATION" In="FLASH">
-        <!-- The STM32F10x has 1MB flash divided into the following regions -->
+        <!-- The Max3263x has 1MB flash divided into the following regions -->
         <!-- THIS MUST MATCH THE BLOCK STORAGE DRIVER! -->
         <!-- Regular build: -->
         <Set Name="Config_BaseAddress"  Value="0x000FF000"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
@@ -34,7 +34,7 @@
         <Set Name="Valid"               Value="true"/>
     </If>
 
-    <!-- No Ram Build for the STM32F10x, since we can not fit it into 96K RAM -->
+    <!-- No Ram Build for the Max3263x, since we can not fit it into 96K RAM -->
     <If Name="TARGETLOCATION" In="RAM">
         <Error Message="EmoteDotNow cannot target memory=RAM. Use memory=FLASH instead."/>
         <Set Name="Heap_Begin"          Value="0x08300000"/>

@@ -14,7 +14,7 @@
 #include "SamrakshEmote.h"
 #include "SamrakshEmote_Samraksh_eMote_Algorithm__DecisionFunction.h"
 #include "Samraksh\DecisionFunction.h"
-#include <stm32f10x.h>
+//#include <stm32f10x.h>
 
 using namespace Samraksh::eMote;
 

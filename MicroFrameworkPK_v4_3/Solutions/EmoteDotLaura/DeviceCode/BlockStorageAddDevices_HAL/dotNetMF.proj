@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>BlockStorageAddDevices_HAL_EmoteDotNow</AssemblyName>
+	  <AssemblyName>BlockStorageAddDevices_HAL_EmoteDotLaura</AssemblyName>
     <Size>
     </Size>
     <ProjectGuid>{CF636DCC-4553-4FC1-80B1-6ED1D18E17E4}</ProjectGuid>
-    <Description>Block storage add device EmoteDotNow driver</Description>
+    <Description>Block storage add device EmoteDotLaura driver</Description>
     <Level>HAL</Level>
-    <LibraryFile>BlockStorageAddDevices_HAL_EmoteDotNow.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\Solutions\Samraksh\Samraksh\EmoteDotNow\DeviceCode\BlockStorageAddDevices_HAL\dotNetMF.proj</ProjectPath>
+    <LibraryFile>BlockStorageAddDevices_HAL_EmoteDotLaura.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\Solutions\Samraksh\Samraksh\EmoteDotLaura\DeviceCode\BlockStorageAddDevices_HAL\dotNetMF.proj</ProjectPath>
     <Groups>BlockStorage</Groups>
     <LibraryCategory>
       <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="BlockStorageAddDevices_HAL" Guid="{D1C1D946-18A1-4f12-807A-A182C4059D86}" ProjectPath="" xmlns="">
@@ -29,10 +29,10 @@
     <Required>False</Required>
     <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
     <IsStub>false</IsStub>
-    <ManifestFile>BlockStorageAddDevices_HAL_EmoteDotNow.$(LIB_EXT).manifest</ManifestFile>
+    <ManifestFile>BlockStorageAddDevices_HAL_EmoteDotLaura.$(LIB_EXT).manifest</ManifestFile>
     <CustomFilter>
     </CustomFilter>
-    <Directory>Solutions\Samraksh\Samraksh\EmoteDotNow\DeviceCode\BlockStorageAddDevices_HAL</Directory>
+    <Directory>Solutions\Samraksh\Samraksh\EmoteDotLaura\DeviceCode\BlockStorageAddDevices_HAL</Directory>
     <OutputType>Library</OutputType>
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
     <Version>4.0.0.0</Version>
@@ -40,7 +40,7 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-    <Compile Include="Bl_AddDevices_EmoteDotNow.cpp" />
+    <Compile Include="Bl_AddDevices_EmoteDotLaura.cpp" />
   </ItemGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

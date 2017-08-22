@@ -80,12 +80,12 @@
 	<!--M4 options-->
 	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M4' and ('$(GCC_VER)'=='5.4.1' or '$(GCC_VER)'=='6.3.1')">$(CC_CPP_COMMON_FLAGS) -DSAMRAKSH_CUSTOM_NEWLIB -mslow-flash-data -fdata-sections -ffunction-sections -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m4 -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
 	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M4' and ('$(GCC_VER)'!='5.4.1' or '$(GCC_VER)'!='6.3.1') ">$(CC_CPP_COMMON_FLAGS) -mslow-flash-data -fdata-sections -ffunction-sections -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m4 -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
-    <CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_COMMON_FLAGS) -ffunction-sections -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mfpu=neon-vfpv4 </CC_CPP_COMMON_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='RTM'     and '$(DEVICE_TYPE)'=='Cortex-M4'">$(CC_CPP_TARGETTYPE_FLAGS) -O3 -fno-strict-aliasing </CC_CPP_TARGETTYPE_FLAGS>
 	<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release' and '$(DEVICE_TYPE)'=='Cortex-M4'">$(CC_CPP_TARGETTYPE_FLAGS) -O3 -fno-strict-aliasing </CC_CPP_TARGETTYPE_FLAGS>
     
         
 	<!--A8 options-->
+    <CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_COMMON_FLAGS) -ffunction-sections -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mfpu=neon-vfpv4 </CC_CPP_COMMON_FLAGS>
 	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_COMMON_FLAGS) -ffunction-sections -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mfpu=neon-vfpv4 </CC_CPP_COMMON_FLAGS>
    	<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release' and '$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_TARGETTYPE_FLAGS) -O1 </CC_CPP_TARGETTYPE_FLAGS>
 
@@ -101,7 +101,7 @@
     <CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
 	<CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M4'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-M3'"> -mfloat-abi=soft </FLOATING_POINT_FLAG>
-	<FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-M4'"> -mfloat-abi=softfp </FLOATING_POINT_FLAG>
+	<FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-M4'"> -mfloat-abi=soft </FLOATING_POINT_FLAG>
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-A8'"> -mfloat-abi=softfp </FLOATING_POINT_FLAG>
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'=='true'"> </FLOATING_POINT_FLAG>
 
@@ -246,7 +246,7 @@
 
 	<CC_CPP_INCS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_INCS) -I$(CLRROOT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis -I$(CLRROOT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\stmlib -I$(SPO_SDK)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\fsmc\P30BF65NOR</CC_CPP_INCS>
 
-	<CC_CPP_INCS Condition="'$(CpuName)'=='MAX326xx'">$(CC_CPP_INCS) -I$(CLRROOT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\DeviceCode\MaximLib\CMSIS\Include -I$(CLRROOT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\DeviceCode\MaximLib\CMSIS\Device\Maxim\MAX3263X\Include -I$(CLRROOT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\DeviceCode\MaximLib\MAX3263XPeriphDriver -I$(CLRROOT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers</CC_CPP_INCS>
+	<CC_CPP_INCS Condition="'$(CpuName)'=='MAX3263x'">$(CC_CPP_INCS) -I$(CLRROOT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\DeviceCode\MaximLib\CMSIS\Include -I$(CLRROOT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\DeviceCode\MaximLib\CMSIS\Device\Maxim\MAX3263X\Include -I$(CLRROOT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\DeviceCode\MaximLib\MAX3263XPeriphDriver -I$(CLRROOT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers</CC_CPP_INCS>
 
     <CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) $(AS_CC_CPP_COMMON_FLAGS) $(CC_CPP_TARGETTYPE_FLAGS) $(CC_CPP_INCS) $(ExtraFlags)</CC_CPP_COMMON_FLAGS>
   </PropertyGroup>

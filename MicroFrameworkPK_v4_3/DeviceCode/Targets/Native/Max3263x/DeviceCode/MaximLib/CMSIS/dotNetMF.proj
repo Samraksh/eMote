@@ -1,14 +1,14 @@
 <Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>Max3263x_cmsis</AssemblyName>
+    <AssemblyName>Max3263x</AssemblyName>
     <ProjectGuid>{36101ca5-349a-4471-aeb0-3babba567477}</ProjectGuid>
     <Size>
     </Size>
-    <Description>Max3263x cmsis</Description>
+    <Description>Max3263x</Description>
     <Level>HAL</Level>
-    <LibraryFile>Max3263x_cmsis.$(LIB_EXT)</LibraryFile>
+    <LibraryFile>Max3263x.$(LIB_EXT)</LibraryFile>
     <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\cmsis\dotNetMF.proj</ProjectPath>
-    <ManifestFile>Max3263x_cmsis.$(LIB_EXT).manifest</ManifestFile>
+    <ManifestFile>Max3263x.$(LIB_EXT).manifest</ManifestFile>
     <Groups>Processor\Max3263x</Groups>
     <LibraryCategory>
       <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="cmsis_HAL" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" Conditional="" xmlns="">
@@ -39,8 +39,45 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
+
 	<HFiles Include="Include/core_cm4.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\adc_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\aes_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\clkman_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\crc_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\flc_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\gpio_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\i2cm_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\i2cs_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\icc_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\ioman_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\maa_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\max3263x.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\mxc_device.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\owm_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\pmu_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\prng_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\pt_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\pwrman_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\pwrseq_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\rtc_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\spib_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\spim_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\spis_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\spix_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\sysman_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\system_max3263x.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\tmr_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\tpu_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\trim_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\uart_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\usb_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\wdt_regs.h" />
+	<HFiles Include="Device\Maxim\MAX3263X\Include\wdt2_regs.h" />
+
     <Compile Include="Device/Maxim/MAX3263X/Source/system_max3263x.c" />
+    <Compile Include="Device/Maxim/MAX3263X/Source/heap.c" />
+
     <!--<Compile Include="Device/Maxim/MAX3263X/Source/GCC/startup_max3263x.S" />-->
   </ItemGroup>
   <ItemGroup />

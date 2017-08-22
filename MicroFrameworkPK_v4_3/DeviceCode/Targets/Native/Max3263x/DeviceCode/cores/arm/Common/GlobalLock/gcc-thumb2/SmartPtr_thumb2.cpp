@@ -1,5 +1,5 @@
 #include <tinyhal.h>
-#include <stm32f10x.h>
+#include <max3263x.h>
 
 #if defined(SAMRAKSH_RTOS_EXT)
 #warning "GLOBAL_LOCK may interfere with real time. Need a new version of SmartPtr that utilizes the BASEPRI register to disable all interrupts except realtime."

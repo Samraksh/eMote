@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>MAX326xx_driver_control</AssemblyName>
+    <AssemblyName>Max3263x_driver_control</AssemblyName>
     <ProjectGuid>{36101ca5-349a-4471-aeb0-3babba567477}</ProjectGuid>
     <Size>
     </Size>
-    <Description>MAX326xx drivers </Description>
+    <Description>MAX3263x drivers </Description>
     <Level>HAL</Level>
-    <LibraryFile>MAX326xx_driver_control.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\MAX326xx\DeviceCode\drivers\adc\dotNetMF.proj</ProjectPath>
-    <ManifestFile>MAX326xx_driver_control.$(LIB_EXT).manifest</ManifestFile>
-    <Groups>Processor\MAX326xx</Groups>
+    <LibraryFile>Max3263x_driver_control.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\MAX3263x\DeviceCode\dotNetMF.proj</ProjectPath>
+    <ManifestFile>Max3263x_driver_control.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Processor\MAX3263x</Groups>
     <LibraryCategory>
       <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="adc_HAL" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" Conditional="" xmlns="">
         <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
@@ -32,18 +32,13 @@
     <Required>False</Required>
     <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
     <IsStub>False</IsStub>
-    <Directory>DeviceCode\Targets\Native\MAX326xx\DeviceCode</Directory>
+    <Directory>DeviceCode\Targets\Native\MAX3263x\DeviceCode</Directory>
     <OutputType>Library</OutputType>
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
     <Version>4.0.0.0</Version>
   </PropertyGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
-  <ItemGroup>
-    <SubDirectories Include="DeviceCode/CMSIS"/>
-	<SubDirectories Include="DeviceCode/MAX3263XPeriphDriver"/>
-  </ItemGroup>
-  
   <ItemGroup>
 	<HFiles Include="Shutdown.h" />
 	<Compile Include="Shutdown.cpp" />

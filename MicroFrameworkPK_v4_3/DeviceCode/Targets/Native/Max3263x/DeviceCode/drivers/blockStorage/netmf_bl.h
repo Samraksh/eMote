@@ -4,13 +4,13 @@
 
 //--//
 
-#include <stm32f10x.h>
+#include <max3263x.h>
 
 #define FLASH_BANK1_END_ADDRESS   ((uint32_t)0x807FFFF)
 #define CR_PG_Set                ((uint32_t)0x00000001)
 #define EraseTimeout          ((uint32_t)0x000B0000)
 
-struct STM32F10x_blDriver
+struct Max3263x_blDriver
 {
     static BOOL InitializeDevice( void* context );
     static BOOL UninitializeDevice( void* context );

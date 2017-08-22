@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>Analog_DA_HAL_EmoteDotNow</AssemblyName>
+    <AssemblyName>Analog_DA_HAL_EmoteDotLaura</AssemblyName>
     <ProjectGuid>{CABF3EC2-CB46-4D0B-914B-78C0C155C1EF}</ProjectGuid>
     <Size>
     </Size>
     <Description>Analog TEMPLATE library</Description>
     <Level>HAL</Level>
-    <LibraryFile>Analog_DA_HAL_EmoteDotNow.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\Solutions\Samraksh\Samraksh\EmoteDotNow\DeviceCode\Analog_DA_HAL\dotNetMF.proj</ProjectPath>
-    <ManifestFile>Analog_DA_HAL_EmoteDotNow.$(LIB_EXT).manifest</ManifestFile>
+    <LibraryFile>Analog_DA_HAL_EmoteDotLaura.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\Solutions\Samraksh\Samraksh\EmoteDotLaura\DeviceCode\Analog_DA_HAL\dotNetMF.proj</ProjectPath>
+    <ManifestFile>Analog_DA_HAL_EmoteDotLaura.$(LIB_EXT).manifest</ManifestFile>
     <Groups>Processor\TEMPLATE</Groups>
     <LibraryCategory>
       <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="DA_HAL" Guid="{00E400EA-0018-00CA-B59A-A2B3F9586139}" ProjectPath="" Conditional="" xmlns="">
@@ -32,7 +32,7 @@
     <Required>False</Required>
     <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
     <IsStub>false</IsStub>
-    <Directory>Solutions\Samraksh\Samraksh\EmoteDotNow\DeviceCode\Analog_DA_HAL</Directory>
+    <Directory>Solutions\Samraksh\Samraksh\EmoteDotLaura\DeviceCode\Analog_DA_HAL</Directory>
     <OutputType>Library</OutputType>
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
     <Version>4.0.0.0</Version>

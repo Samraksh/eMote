@@ -30,16 +30,17 @@
 #include <TinySupport.h>     // SUPPORT_ComputeCRC( payload, payloadSize, 0 );
 //#include "../../../CLR/Core/Core.h"
 //#include <TinyCLR_Debugging.h> // need TinyCLR_Debugging.h for "struct Debugging_MFUpdate_* packet definitions that should be moved into a shared header file.  including TinyCLR_Debugging.h drags in even more dependencies that are not explicitly included in TinyCLR_Debugging.h!
+#include <Samraksh/Neighbors.h>
 #include <PAK_decl.h>
 //#include <Samraksh/HALTimer.h>
 #include <Samraksh/Message.h>
-#include <Samraksh/Neighbors.h>
+
 
 // Mac_decl.h is needed for enum MacNames.  Mac_decl.h should be separated into public API / private definitions.
 #include <Samraksh\Mac_decl.h>
 #include <Samraksh\MAC.h>
 // RF231.h is needed for enum RadioID and enum RadioStateEnum.  enums should be pulled into a public API header file.
-#include <Targets\Native\Radios\RF231\RF231.h>
+//#include <Targets\Native\Radios\RF231\RF231.h>
 
 extern NeighborTable g_NeighborTable;
 //////////////////////////////////////////////////////////////////////////////
@@ -57,18 +58,21 @@ void ForwardReplyToCommand( WP_Message* msg, UINT32 flags, void* ptr, int size);
 // DEFINES
 //////////////////////////////////////////////////////////////////////////////
 
-#define DEBUG_EMOTE_UPDATE
-#if defined(DEBUG_EMOTE_UPDATE) && defined(DEBUG)
+//#define DEBUG_EMOTE_UPDATE
+//#if defined(DEBUG_EMOTE_UPDATE) && defined(DEBUG)
 //#define ENABLE_PIN(x,y) CPU_GPIO_EnableOutputPin(x,y)
 //#define SET_PIN(x,y) CPU_GPIO_SetPinState(x,y)
-#define DEBUG_PRINTF_EMOTE_UPDATE(x) hal_printf(x)
-#define ASSERT_UPDATE_PROTOCOL(x) { (!(x)) ? SOFT_BREAKPOINT() : __NOP() ; }
-#else
+//#define DEBUG_PRINTF_EMOTE_UPDATE(x) hal_printf(x)
+//#define ASSERT_UPDATE_PROTOCOL(x) { (!(x)) ? SOFT_BREAKPOINT() : __NOP() ; }
+//#define ASSERT_UPDATE_PROTOCOL(x) { (!(x)) ? SOFT_BREAKPOINT() : SOFT_BREAKPOINT() ; }
+//#else
 //#define ENABLE_PIN(x,y)
 //#define SET_PIN(x,y)
-#define DEBUG_PRINTF_EMOTE_UPDATE(x)       __NOP()
-#define ASSERT_UPDATE_PROTOCOL(x)          __NOP()
-#endif
+//#define DEBUG_PRINTF_EMOTE_UPDATE(x)       __NOP()
+//#define DEBUG_PRINTF_EMOTE_UPDATE(x)       SOFT_BREAKPOINT()
+//#define ASSERT_UPDATE_PROTOCOL(x)          __NOP()
+//#define ASSERT_UPDATE_PROTOCOL(x)          SOFT_BREAKPOINT()
+//#endif
 
 #if !defined(NATIVE_PROFILE_CLR_DEBUGGER)
 #define NATIVE_PROFILE_CLR_DEBUGGER
@@ -79,11 +83,11 @@ void ForwardReplyToCommand( WP_Message* msg, UINT32 flags, void* ptr, int size);
 
 #define MIN(a, b) (((a) < (b))?(a):(b))
 
-#if defined(DEBUG_EMOTE_UPDATE_SEND)
+//#if defined(DEBUG_EMOTE_UPDATE_SEND)
 #define DEBUG_BREAK_SEND_FAIL() SOFT_BREAKPOINT();
-#else
-#define DEBUG_BREAK_SEND_FAIL() {__ASM volatile ("nop");}
-#endif
+//#else
+//#define DEBUG_BREAK_SEND_FAIL() {__ASM volatile ("nop");}
+//#endif
 
 /**
  * MULTIPLEX_PACKETS() break out of command handler if operating as base-station pass through.
@@ -1694,14 +1698,14 @@ bool Samraksh_Emote_Update::Install(WP_Message* msg, void* owner )
 
     if (cmd->m_updateValidationSize > MAX_UPDATE_VALIDATION_SIZE_IN_BYTES) {
         g_Samraksh_Emote_Update.last_error = UPDATE_INSTALL_FAIL_VALIDATION;
-        ASSERT_UPDATE_PROTOCOL(0);
+        //ASSERT_UPDATE_PROTOCOL(0);
         //TODO: record reason in reply message!
         goto Install_out;
     }
 
 	if ( ( passed_validation = MFUpdate_Validate(cmd->m_updateHandle, &cmd->m_updateValidation[0], cmd->m_updateValidationSize) ) != TRUE) {
 		g_Samraksh_Emote_Update.last_error = UPDATE_INSTALL_FAIL_VALIDATION;
-		ASSERT_UPDATE_PROTOCOL(passed_validation);
+		//ASSERT_UPDATE_PROTOCOL(passed_validation);
 		//TODO: record reason in reply message!
 		goto Install_out;
 	}
@@ -1762,7 +1766,7 @@ void Samraksh_Emote_Update::UpdateCompletion(void *arg)
 
 	if (!successfully_installed) {
 		g_Samraksh_Emote_Update.last_error = UPDATE_INSTALL_FAIL_INSTALL;
-        ASSERT_UPDATE_PROTOCOL(successfully_installed);
+        //ASSERT_UPDATE_PROTOCOL(successfully_installed);
 	}
 
 	private_free(arg);
@@ -1772,7 +1776,7 @@ void Samraksh_Emote_Update::UpdateCompletion(void *arg)
     reply.m_success = successfully_installed;
     ///*dbg->m_messaging->*/ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
 
-    DEBUG_PRINTF_EMOTE_UPDATE("update install complete.\r\n");
+    //DEBUG_PRINTF_EMOTE_UPDATE("update install complete.\r\n");
 
     //Force reboot
 	bool port_flushed = DebuggerPort_Flush( HalSystemConfig.DebugTextPort );
