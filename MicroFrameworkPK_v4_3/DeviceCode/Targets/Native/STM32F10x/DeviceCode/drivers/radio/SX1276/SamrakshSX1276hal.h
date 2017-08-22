@@ -22,7 +22,7 @@ class Samraksh_SX1276_hal : public  SamrakshRadio_I {
 public: //Public class definitions
 
 
-private: //SX1276_s internal callbacks as defined in the driver
+public: //SX1276_s internal callbacks as defined in the driver
 	static void ValidHeaderDetected();
 	static void TxDone();
 	static void TxTimeout();
@@ -31,15 +31,44 @@ private: //SX1276_s internal callbacks as defined in the driver
 	static void RxError();
 	static void FhssChangeChannel(uint8_t currentChannel );
 	static void CadDone(bool channelActivityDetected);
+public:
+	void PacketLoadTimerHandler (void* param);
+	void PacketTxTimerHandler (void* param);
 
 private:
 	struct InternalRadioProperties_t {
 		UINT64 RADIO_BUS_SPEED; //Number of bytes written in a second to the radio buffer
 		UINT16 RADIO_TURN_ON_DELAY_TX_MICRO;	//Tx initiation delay
-	};
+		uint32_t MAX_PACKET_TX_DURATION;
 
+		UINT64 TIME_ADVANCE_FOR_SCHEDULING_A_PACKET_MICRO;
+
+
+		RadioModems_t radio_modem;
+	};
 	static const InternalRadioProperties_t SX1276_hal_wrapper_internal_radio_properties;
 	static const UINT16 SX1276_hal_wrapper_max_packetsize = 255;
+
+	static const ClockIdentifier_t low_precision_clock_id = 4; // low precision  clock id used when schedling  time to load
+	static const ClockIdentifier_t high_precision_clock_id = 1; //high precision  clock id used when schedling exact time instant to tx
+	static const UINT8 PacketLoadTimerName = 44;
+	static const UINT8 PacketTxTimerName = 45;
+
+	class msgToBeTransmitted_t{
+		UINT8 msg_payload[SX1276_hal_wrapper_max_packetsize];
+		UINT16 msg_size;
+		UINT64 due_time;
+		ClockIdentifier_t clock_id;
+		bool isUploaded;
+	public:
+		msgToBeTransmitted_t();
+		bool PreparePayload(void* msg, UINT16 size, const UINT64& t, ClockIdentifier_t c);
+		void ClearPaylod();
+		void MarkUploaded();
+		bool IsMsgSaved();
+		bool IsMsgUploaded();
+	};
+	msgToBeTransmitted_t m_packet;
 private:
 	SamrakshRadio_I::RadioEvents_t m_re;
 	bool isCallbackIssued;
@@ -51,8 +80,8 @@ private:
 	RadioProperties_t m_rp;
 	bool isRadioInitialized;
 
-	UINT8 msg[SX1276_hal_wrapper_max_packetsize];
 
+	bool SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, UINT8 hardwareTimerId);
 	bool SanityCheckOnConstants(){
 		//if (SX1276_hal_wrapper_max_packetsize > std::numeric_limits<uint8_t>::max()) return false;
 		if (SX1276_hal_wrapper_max_packetsize > 256) return false;
@@ -61,6 +90,8 @@ private:
 	}
 
 	DeviceStatus AddToTxBuffer(void* msg, UINT16 size);
+private:
+	bool IsPacketTransmittable(void* msg, UINT16 size);
 public:
 	Samraksh_SX1276_hal();
 	virtual ~Samraksh_SX1276_hal();
