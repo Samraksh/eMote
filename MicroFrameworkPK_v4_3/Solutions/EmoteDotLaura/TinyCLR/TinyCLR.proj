@@ -69,6 +69,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\CMSIS\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
+    <DriverLibs Include="Max3263x_PeriphDriver.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\MAX3263XPeriphDriver\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
     <PlatformIndependentLibs Include="Core.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Core\dotNetMF.proj" />
   </ItemGroup>

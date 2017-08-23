@@ -38,9 +38,12 @@
     <ExtraCleanFiles Include="$(OBJ_DIR)\TinyBooter_Compressed.dat" />
   </ItemGroup>
   <ItemGroup>
+    <DriverLibs Include="Max3263x.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\CMSIS\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="Max3263x_PeriphDriver.$(LIB_EXT)" />
-    <DriverLibs Include="Max3263x_cmsis.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\MAX3263XPeriphDriver\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <PlatformIndependentLibs Include="TinybooterLib.$(LIB_EXT)" />
