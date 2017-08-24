@@ -17,16 +17,16 @@ const BlockRange Max3263x_BlockRange_InternalFlash[] =
         // It should be obvious that block ranges are inclusive, and different regions have exclusive ranges.
         // TODO: check if User Storage B region is needed for EWR Extended Weak References to work (eg, for wear-leveling).
 
-	    { BlockRange::BLOCKTYPE_BOOTSTRAP       ,  0, 31 },  // 32 blocks, 256K for Booter,     address 0x0000_0000
-	    { BlockRange::BLOCKTYPE_CODE            , 32,192 },  //161 blocks, 1288K for CLR,        address 0x0004 0000
-	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,193,224 },  // 32 blocks, 256K for Deployment, address 0x0018 2000
+	    { BlockRange::BLOCKTYPE_BOOTSTRAP       ,  0, 15 },  // 32 blocks, 256K for Booter,     address 0x0000_0000
+	    { BlockRange::BLOCKTYPE_CODE            , 16,176 },  //161 blocks, 1288K for CLR,        address 0x0004 0000
+	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,177,226 },  // 50 blocks, 400K for Deployment, address 0x0018 2000
 #if defined(SAMRAKSH_UPDATE_EXT )
-	    { BlockRange::BLOCKTYPE_UPDATE          ,225,251 },  // 27 blocks, 216K for Updates,    address 0x001C 2000
-	    { BlockRange::BLOCKTYPE_STORAGE_A       ,252,253 },  //  2 blocks,   16K for Storage A,  address 0x001F 8000
+	    { BlockRange::BLOCKTYPE_UPDATE          ,227,253 },  // 27 blocks, 216K for Updates,    address 0x001C 2000
+	    { BlockRange::BLOCKTYPE_STORAGE_A       ,254,255 },  //  2 blocks,   16K for Storage A,  address 0x001F 8000
 #else
-	    { BlockRange::BLOCKTYPE_STORAGE_A       ,225,253 },  // 60 blocks, 120K for Storage A,  address 0x001F 8000
+	    { BlockRange::BLOCKTYPE_STORAGE_A       ,227,253 },  // 29 blocks, 232K for Storage A,  address 0x001F 8000
 #endif
-	    { BlockRange::BLOCKTYPE_CONFIG          ,254,255 }   //  2 blocks,   16K for Config,     address 0x001F C000
+	    //{ BlockRange::BLOCKTYPE_CONFIG          ,254,255 }   //  2 blocks,   16K for Config,     address 0x001F C000
 
 
 };
