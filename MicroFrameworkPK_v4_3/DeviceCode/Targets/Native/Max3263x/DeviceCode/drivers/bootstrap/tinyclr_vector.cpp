@@ -17,8 +17,8 @@ extern UINT32 Load$$ER_FLASH$$Base;
 extern "C"
 {
 
-	//void __section(SectionForBootstrapOperations) VectorRelocate()
-	void VectorRelocate()
+	void __section(SectionForBootstrapOperations) VectorRelocate()
+	//void VectorRelocate()
 	{
 #if defined(TARGETLOCATION_RAM)
 		const UINT32 VTABLE_ADDR = (UINT32) &Load$$ER_RAM$$Base;    // TODO: independent loader section for RAM VectorTable

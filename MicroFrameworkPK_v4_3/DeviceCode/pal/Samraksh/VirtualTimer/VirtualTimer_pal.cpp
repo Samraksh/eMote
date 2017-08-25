@@ -52,7 +52,6 @@ namespace VirtTimerHelperFunctions
 	}
 }
 
-
 //BOOL VirtTimer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
 BOOL VirtTimer_Initialize()
 {
@@ -63,6 +62,7 @@ BOOL VirtTimer_Initialize()
 
 	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
 	{
+		gVirtualTimerObject.virtualTimerMapper[i].m_current_timer_cnt_ = 0;
 		if(!gVirtualTimerObject.virtualTimerMapper[i].Initialize(g_HardwareTimerIDs[i]))
 		{
 			ASSERT(0);
