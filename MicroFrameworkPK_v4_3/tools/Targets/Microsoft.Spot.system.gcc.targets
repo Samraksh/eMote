@@ -101,7 +101,7 @@
     <CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
 	<CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M4'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-M3'"> -mfloat-abi=soft </FLOATING_POINT_FLAG>
-	<FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-M4'"> -mfloat-abi=soft </FLOATING_POINT_FLAG>
+	<FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-M4'"> -mfloat-abi=softfp </FLOATING_POINT_FLAG>
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-A8'"> -mfloat-abi=softfp </FLOATING_POINT_FLAG>
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'=='true'"> </FLOATING_POINT_FLAG>
 
@@ -305,8 +305,9 @@
     <ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(ENDIANNESS)'=='be'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.b $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.b</ExtraLibs>
     <ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(ENDIANNESS)'=='le'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.l $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.l</ExtraLibs>
 
-	<GNU_LIB_DIR     Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'!='5.4.1'">$(GNU_TOOLS)\$(GNU_TARGET)\lib\armv7-m</GNU_LIB_DIR>
+	<GNU_LIB_DIR     Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'!='6.3.1' and '$(GCC_VER)'!='5.4.1'">$(GNU_TOOLS)\$(GNU_TARGET)\lib\armv7-m</GNU_LIB_DIR>
 	<GNU_LIB_DIR     Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'=='5.4.1'">$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\newlib\armv7-m</GNU_LIB_DIR>
+	<GNU_LIB_DIR     Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'=='6.3.1'">$(GNU_TOOLS)\$(GNU_TARGET)\lib\thumb\v7e-m</GNU_LIB_DIR>
     <GNU_LIBGCC_DIR  Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(GNU_TOOLS)\lib\gcc\$(GNU_TARGET)\$(GCC_VER)\armv7-m</GNU_LIBGCC_DIR>
 
 	<GNU_LIB_DIR     Condition="'$(DEVICE_TYPE)'=='Cortex-M4' and '$(GCC_VER)'=='5.4.1'">$(GNU_TOOLS)\$(GNU_TARGET)\lib\armv7e-m</GNU_LIB_DIR>
