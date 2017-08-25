@@ -76,7 +76,7 @@ Samraksh_SX1276_hal::~Samraksh_SX1276_hal() {
 }
 
 
-DeviceStatus Samraksh_SX1276_hal::Initialize(RadioEvents_t re){
+DeviceStatus Samraksh_SX1276_hal::Initialize(SamrakshRadio_I::RadioEvents_t re){
 	if(isRadioInitialized) return DS_Fail;
 
 	radio.RadioRegistersInit();

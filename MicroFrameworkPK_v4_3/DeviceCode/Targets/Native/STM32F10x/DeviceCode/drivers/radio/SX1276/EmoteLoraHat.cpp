@@ -40,7 +40,7 @@ static unsigned get_APB2_clock() {
 
 Emote_Lora_Hat::Emote_Lora_Hat() {
 	// TODO Auto-generated constructor stub
-
+	Initialize();
 }
 
 bool Emote_Lora_Hat::SpiInitialize() {
@@ -87,7 +87,7 @@ void Emote_Lora_Hat::radio_comm_WriteData(uint8_t cmd, unsigned pollCts,
             radio_comm_PollCTS();
         }
     }
-	radio_spi_sel_assert();
+	radio_spi_sel_assert(); //cs pin chip select
 	radio_spi_go(cmd);
 	spi_write_bytes(byteCount, pData);
 	radio_spi_sel_no_assert();
@@ -115,23 +115,106 @@ void Emote_Lora_Hat::radio_comm_ReadData(uint8_t cmd, unsigned pollCts,
 } /* namespace LoraHat */
 
 LoraHat::LoraHardwareConfig::LoraHardwareConfig() {
+
+
+
+	SX1276_pin_setup.nirq_port0			= GPIOA;
+	SX1276_pin_setup.nirq_pin0			= GPIO_Pin_1;
+	SX1276_pin_setup.nirq_mf_pin0		= (GPIO_PIN) 1;
+
+	SX1276_pin_setup.nirq_port1			= GPIOA;
+	SX1276_pin_setup.nirq_pin1			= GPIO_Pin_2;
+	SX1276_pin_setup.nirq_mf_pin1		= (GPIO_PIN) 2;
+
+	SX1276_pin_setup.nirq_port2			= GPIOA;
+	SX1276_pin_setup.nirq_pin2			= GPIO_Pin_3;
+	SX1276_pin_setup.nirq_mf_pin2		= (GPIO_PIN) 3;
+
+	SX1276_pin_setup.nirq_port3			= GPIOA;
+	SX1276_pin_setup.nirq_pin3			= GPIO_Pin_8;
+	SX1276_pin_setup.nirq_mf_pin3		= (GPIO_PIN) 8;
+
+	SX1276_pin_setup.nirq_port4			= GPIOA;
+	SX1276_pin_setup.nirq_pin4			= GPIO_Pin_22;
+	SX1276_pin_setup.nirq_mf_pin4		= (GPIO_PIN) 22;
+
+	SX1276_pin_setup.nirq_port5			= GPIOA;
+	SX1276_pin_setup.nirq_pin5			= GPIO_Pin_23;
+	SX1276_pin_setup.nirq_mf_pin5		= (GPIO_PIN) 23;
+
+	SX1276_pin_setup.reset_port			= GPIOA; // ?
+	SX1276_pin_setup.reset_pin			= GPIO_Pin_24;
+	SX1276_pin_setup.reset_mf_pin		= (GPIO_PIN) 24;
+
 	SX1276_pin_setup.spi_base 			= SPI2;
 	SX1276_pin_setup.spi_port 			= GPIOB;
-	SX1276_pin_setup.nirq_port			= GPIOA;
-	SX1276_pin_setup.nirq_pin			= GPIO_Pin_1;
-	SX1276_pin_setup.nirq_mf_pin		= (GPIO_PIN) 1;
-	SX1276_pin_setup.gpio0_port			= GPIOA;
-	SX1276_pin_setup.gpio1_port			= GPIOA;
-	SX1276_pin_setup.gpio0_pin			= GPIO_Pin_3;
-	SX1276_pin_setup.gpio1_pin			= GPIO_Pin_8;
 	SX1276_pin_setup.cs_port			= GPIOA;
 	SX1276_pin_setup.cs_pin				= GPIO_Pin_4;
 	SX1276_pin_setup.sclk_pin			= GPIO_Pin_13;
 	SX1276_pin_setup.miso_pin			= GPIO_Pin_14;
 	SX1276_pin_setup.mosi_pin			= GPIO_Pin_15;
-	SX1276_pin_setup.sdn_port			= GPIOA;
-	SX1276_pin_setup.sdn_pin			= GPIO_Pin_2;
+
 	SX1276_pin_setup.spi_rcc			= RCC_APB1Periph_SPI2;
+
+	Initialize();
+}
+
+void LoraHat::LoraHardwareConfig::reset(){
+	CPU_GPIO_SetPinState(SX1276_pin_setup.reset_mf_pin, TRUE);
+	CPU_GPIO_SetPinState(SX1276_pin_setup.reset_mf_pin, FLASE);
+}
+
+
+void LoraHat::LoraHardwareConfig::init_pins(){
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+	SX1276_pin_setup_t *config = &SX1276_pin_setup;
+
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Pin =  config->reset_pin;
+	GPIO_Init(config->reset_port, &GPIO_InitStructure);
+
+
+
+	// NIRQ
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Pin = config->nirq_pin0;
+	GPIO_Init(config->nirq_port0, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Pin = config->nirq_pin1;
+	GPIO_Init(config->nirq_port1, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Pin = config->nirq_pin2;
+	GPIO_Init(config->nirq_port2, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Pin = config->nirq_pin3;
+	GPIO_Init(config->nirq_port3, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Pin = config->nirq_pin4;
+	GPIO_Init(config->nirq_port4, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Pin = config->nirq_pin5;
+	GPIO_Init(config->nirq_port5, &GPIO_InitStructure);
+
+	// PA4 SPI chip select
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Pin = config->cs_pin;
+	GPIO_WriteBit(config->cs_port, config->cs_pin, Bit_SET); // Set
+	GPIO_Init(config->cs_port, &GPIO_InitStructure);
+}
+
+void LoraHat::LoraHardwareConfig::Initialize(){
+
+	initSPI2();
+	init_pins();
+	reset();
 }
 
 void LoraHat::LoraHardwareConfig::initSPI2() {

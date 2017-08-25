@@ -54,23 +54,40 @@ public:
 //		PinName dio4;
 //		PinName dio5;
 
+
+		GPIO_TypeDef 	*nirq_port0;
+		uint16_t		nirq_pin0;
+		GPIO_PIN		nirq_mf_pin0;
+		GPIO_TypeDef 	*nirq_port1;
+		uint16_t		nirq_pin1;
+		GPIO_PIN		nirq_mf_pin1;
+		GPIO_TypeDef 	*nirq_port2;
+		uint16_t		nirq_pin2;
+		GPIO_PIN		nirq_mf_pin2;
+		GPIO_TypeDef 	*nirq_port3;
+		uint16_t		nirq_pin3;
+		GPIO_PIN		nirq_mf_pin3;
+		GPIO_TypeDef 	*nirq_port4;
+		uint16_t		nirq_pin4;
+		GPIO_PIN		nirq_mf_pin4;
+		GPIO_TypeDef 	*nirq_port5;
+		uint16_t		nirq_pin5;
+		GPIO_PIN		nirq_mf_pin5;
+
+
+		GPIO_TypeDef 	*reset_port;
+		uint16_t		reset_pin;
+		GPIO_PIN		reset_mf_pin;
+
 		SPI_TypeDef 	*spi_base;
 		GPIO_TypeDef 	*spi_port;
 		uint32_t		spi_rcc;
-		GPIO_TypeDef 	*nirq_port;
-		uint16_t		nirq_pin;
-		GPIO_PIN		nirq_mf_pin;
-		GPIO_TypeDef 	*gpio0_port;
-		GPIO_TypeDef 	*gpio1_port;
-		uint16_t		gpio0_pin;
-		uint16_t		gpio1_pin;
 		GPIO_TypeDef 	*cs_port;
 		uint16_t		cs_pin;
 		uint16_t		sclk_pin;
 		uint16_t		miso_pin;
 		uint16_t		mosi_pin;
-		GPIO_TypeDef 	*sdn_port;
-		uint16_t		sdn_pin;
+
 	};
 
 	struct InterruptPins_t{
@@ -89,13 +106,19 @@ private:
 	uint8_t radio_spi_go(uint8_t data);
 	void radio_spi_sel_no_assert();
 
+private:
+	void initSPI2(); //Initialize a SPI structure
+	void init_pins();
+	void reset();
+	void init_interrupts();
 public:
 	static InterruptPins_t SX1276_interupt_pins;
 
 
 
 	LoraHardwareConfig();
-	void initSPI2(); //Initialize a SPI structure
+
+	void Initialize();
 
 	static void spi_write_bytes(unsigned count, const uint8_t *buf);
 

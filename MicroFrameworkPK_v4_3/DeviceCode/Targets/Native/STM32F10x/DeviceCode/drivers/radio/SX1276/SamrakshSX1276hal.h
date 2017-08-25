@@ -19,6 +19,8 @@ namespace EMOTE_SX1276_LORA {
 								which is used by the above layers within Emote like OMAC
  */
 class Samraksh_SX1276_hal : public  SamrakshRadio_I {
+private:
+	SX1276M1BxASWrapper radio;
 public: //Public class definitions
 
 
@@ -75,7 +77,7 @@ private:
 	RadioMode_t m_rm;
 
 	UINT16 preloadedMsgSize;
-	SX1276M1BxASWrapper radio;
+
 
 	RadioProperties_t m_rp;
 	bool isRadioInitialized;
@@ -96,7 +98,7 @@ public:
 	Samraksh_SX1276_hal();
 	virtual ~Samraksh_SX1276_hal();
 
-	DeviceStatus Initialize(RadioEvents_t re);
+	DeviceStatus Initialize(SamrakshRadio_I::RadioEvents_t re);
 	DeviceStatus UnInitialize();
 	DeviceStatus IsInitialized();
 
