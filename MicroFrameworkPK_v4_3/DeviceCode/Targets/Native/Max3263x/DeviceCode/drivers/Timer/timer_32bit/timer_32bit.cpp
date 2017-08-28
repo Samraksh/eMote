@@ -3,13 +3,12 @@
 #include <mxc_sys.h>
 #include <Samraksh/VirtualTimer.h>
 #include <pwr/netmf_pwr.h>
+#include <tmr.h>
 
 Max3263x_timer_32bit g_Timer32Bit_Driver;
-Max3263x_Timer_Configuration g_Max3263x_Timer_Configuration;
 #define Max3263x_TIMER MXC_TMR2
 
-void ISR_TIM2(void* Param);
-void ISR_TIM1(void* Param);
+void ISR_TIM32(void* Param);
 
 const UINT64 TIME_CUSHION = 40;  // 15 us
 const uint16_t TOO_SHORT_TIM1 = 40;
@@ -18,7 +17,7 @@ const UINT64 MAX_ALLOWABLE_WAIT = 0xFFFEFFFF;
 // Returns the current 32 bit value of the hardware counter
 UINT32 Max3263x_timer_32bit::GetCounter()
 {
-	GLOBAL_LOCK(irq);
+	/*GLOBAL_LOCK(irq);
 	UINT16 tim1a = TIM1->CNT;
 	UINT16 tim2a = TIM2->CNT;
 	UINT16 tim1b = TIM1->CNT;
@@ -28,13 +27,13 @@ UINT32 Max3263x_timer_32bit::GetCounter()
 		tim2a = TIM2->CNT;
 	}
 
-	currentCounterValue = ((tim2a << 16) | tim1b);
+	currentCounterValue = ((tim2a << 16) | tim1b);*/
 	return currentCounterValue;
 }
 
 BOOL Max3263x_timer_32bit::AddTicks(UINT64 ticksToAdd)
 {
-	UINT64 originalTime =Get64Counter();
+/*	UINT64 originalTime =Get64Counter();
 
 	UINT16 ticksToAdd_TIM1 = ticksToAdd & 0xffff;
 	UINT16 ticksToAdd_TIM2 = (ticksToAdd & 0xffff0000) >> 16;
@@ -57,7 +56,7 @@ BOOL Max3263x_timer_32bit::AddTicks(UINT64 ticksToAdd)
 		TIM1->CNT = TIM1_new;
 		TIM2->CNT = TIM2_new;
 		g_Timer32Bit_Driver.m_systemTime = (UINT64)(systemTime_new<<32) + (UINT64)(TIM2->CNT<<16) + (UINT64)TIM1->CNT;
-	}
+	}*/
 
 	//hal_printf("%llx %llx %llx %llx\r\n",g_Timer32Bit_Driver.m_systemTime, Get64Counter(), (originalTime ), (g_Timer32Bit_Driver.m_systemTime - (originalTime + ticksToAdd)));
 	return 0;
@@ -65,7 +64,7 @@ BOOL Max3263x_timer_32bit::AddTicks(UINT64 ticksToAdd)
 
 UINT32 Max3263x_timer_32bit::SetCounter(UINT32 counterValue)
 {
-	currentCounterValue = counterValue;
+//	currentCounterValue = counterValue;
 	return currentCounterValue;
 }
 
@@ -73,7 +72,7 @@ UINT32 Max3263x_timer_32bit::SetCounter(UINT32 counterValue)
 UINT64 Max3263x_timer_32bit::Get64Counter()
 {
 	// keeping an interrupt from happening right now causing timer problems where the value can be wrong at times.
-	GLOBAL_LOCK(irq);
+/*	GLOBAL_LOCK(irq);
 	UINT32 currentValue = GetCounter();
 
 	if(TIM_GetITStatus(TIM2, TIM_IT_Update))
@@ -88,13 +87,13 @@ UINT64 Max3263x_timer_32bit::Get64Counter()
 	}
 
 	m_systemTime &= (0xFFFFFFFF00000000ull);
-	m_systemTime |= currentValue;
+	m_systemTime |= currentValue;*/
 
 	return m_systemTime;
 }
 
 
-BOOL Max3263x_timer_32bit::DidTimerOverflow()
+/*BOOL Max3263x_timer_32bit::DidTimerOverflow()
 {
 	//return timerOverflowFlag;
 	return 0;
@@ -103,16 +102,16 @@ BOOL Max3263x_timer_32bit::DidTimerOverflow()
 void Max3263x_timer_32bit::ClearTimerOverflow()
 {
 	//timerOverflowFlag = FALSE;
-}
+}*/
 
 // Initialize the advanced timer system. This involves initializing timer1 as a master timer and tim2 as a slave
 // and using timer1 as a prescaler to timer2.
 DeviceStatus Max3263x_timer_32bit::Initialize(HAL_CALLBACK_FPN ISR, UINT32 ISR_Param)
 {
-
 	int err;
     int tmrNum;
-	mxc_tmr_regs_t *tmr = Max3263x_TIMER;
+
+	tmr = Max3263x_TIMER;
 
 	// Return if already initialized
 	if(Max3263x_timer_32bit::initialized)
@@ -149,90 +148,14 @@ DeviceStatus Max3263x_timer_32bit::Initialize(HAL_CALLBACK_FPN ISR, UINT32 ISR_P
     // Clear interrupt flag
     tmr->intfl = MXC_F_TMR_INTFL_TIMER0 | MXC_F_TMR_INTFL_TIMER1;
 
-
-	/*RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1 , ENABLE);
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 , ENABLE);
-
-	// Reset
-	TIM_DeInit(TIM1);
-	TIM_DeInit(TIM2);
-
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-	RCC_ClocksTypeDef RCC_Clocks;
-	RCC_GetClocksFreq(&RCC_Clocks);
-
-	TIM_TimeBaseStructure.TIM_Period = 0xffff;
-	TIM_TimeBaseStructure.TIM_Prescaler = 0;
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-
-	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
-
-	TIM_SelectSlaveMode(TIM2, TIM_SlaveMode_Gated);
-	TIM_SelectInputTrigger(TIM2, TIM_TS_ITR0);
-
-	TIM_TimeBaseStructure.TIM_Prescaler = 0;
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseStructure.TIM_Period = 0xffff;
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
-
-	// TIM1 timebase
-	if (RCC_Clocks.HCLK_Frequency == RCC_Clocks.PCLK2_Frequency) {
-		// No prescaler, so TIM clock == PCLK2
-		TIM_TimeBaseStructure.TIM_Prescaler = 0;
-	}
-	else {
-	// Prescaler, so TIM clock = PCLK2 x 2
-	// Accounts for default High Speed (64 MHz).
-	// TODO: Make this smarter
-		TIM_TimeBaseStructure.TIM_Prescaler = 7; // TODO make this more general
-	}
-
-	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
-
-    // Master Mode selection 
-	TIM_SelectOutputTrigger(TIM1, TIM_TRGOSource_Update);
-
-   // Select the Master Slave Mode 
-    TIM_SelectMasterSlaveMode(TIM1, TIM_MasterSlaveMode_Enable);
-
-	TIM_TimeBaseStructure.TIM_Period = 0xffff;
-	TIM_TimeBaseStructure.TIM_Prescaler = 0;
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
-
-    // Active timer 1 cc interrupt
-	if( !CPU_INTC_ActivateInterrupt(TIM1_CC_IRQn, ISR_TIM1, NULL) )
+	if( !CPU_INTC_ActivateInterrupt(TMR2_0_IRQn, ISR_TIM32, NULL) )
 		return DS_Fail;
-
-	// Activate TIM2 interrupt
-	if( !CPU_INTC_ActivateInterrupt(TIM2_IRQn, ISR_TIM2, NULL) )
-		return DS_Fail;
-
-	//TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
-	//TIM_ITConfig(TIM1, TIM_IT_CC1, ENABLE);
-
-	// Need the update flag for overflow bookkeeping
-	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
-
-	// Enable both the timers, TIM1 because it the LS two bytes
-    TIM_Cmd(TIM1, ENABLE);
-    TIM_Cmd(TIM2,ENABLE);
-
-    // Initialize the timer parameters
-    // should this be in the beginning of this function or end ?
-    // At this point not sure
-    g_STM32F10x_Timer_Configuration.Initialize();
-*/
-	//===========================================
-
+	
     return DS_Success;
 
 }
 
+/*
 // Assumes IRQs locked
 static inline void clear_tim2(void) {
 	TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
@@ -254,15 +177,15 @@ static inline void clear_timers(void) {
 	TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
 	TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 	__DSB(); __ISB();
-}
+}*/
 
 DeviceStatus Max3263x_timer_32bit::UnInitialize()
 {
-    CPU_INTC_DeactivateInterrupt( TIM1_CC_IRQn );
+    /*CPU_INTC_DeactivateInterrupt( TIM1_CC_IRQn );
     CPU_INTC_DeactivateInterrupt( TIM2_IRQn );
     callBackISR = NULL;
     TIM_DeInit( TIM1 );
-    TIM_DeInit( TIM2 );
+    TIM_DeInit( TIM2 );*/
 
     return DS_Success;
 }
@@ -276,7 +199,24 @@ volatile UINT64 badSetComparesMax = 0;         //!< observed worst-case.
 // the second stage involves lsb on tim1
 DeviceStatus Max3263x_timer_32bit::SetCompare(UINT64 compareValue)
 {
-	uint16_t tar_upper;
+	
+	//stop timer
+    TMR32_Stop(tmr);
+
+    //setup timer configuration register
+    //clear tmr2x16 (32bit mode), mode and polarity bits
+    tmr->ctrl &= ~(MXC_F_TMR_CTRL_TMR2X16 | MXC_F_TMR_CTRL_MODE |
+                   MXC_F_TMR_CTRL_POLARITY);
+
+    //set mode and polarity
+    tmr->ctrl |= ((TMR32_MODE_ONE_SHOT << MXC_F_TMR_CTRL_MODE_POS) |
+                  (TMR_POLARITY_INIT_LOW << MXC_F_TMR_CTRL_POLARITY_POS));
+
+    //setup timer Tick registers
+    tmr->term_cnt32 = compareValue;
+	
+
+/*	uint16_t tar_upper;
 	uint16_t now_upper;
 	UINT64 now;
 #if defined(DEBUG_EMOTE_ADVTIME)
@@ -335,7 +275,7 @@ DeviceStatus Max3263x_timer_32bit::SetCompare(UINT64 compareValue)
 	// because we added on a TIME_CUSHION earlier, there should be enough time to exit and enable interrupts before TIM1 fires
 	tar_lower = compareValue & 0xFFFF;
 	TIM_SetCompare3(TIM1, tar_lower);
-	TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
+	TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);*/
 	return DS_Success;
 }
 
@@ -344,46 +284,15 @@ UINT32 Max3263x_timer_32bit::GetMaxTicks()
 	return (UINT32)0xFFFFFFFF;
 }
 
-void ISR_TIM2(void* Param)
+
+void ISR_TIM32( void* Param )
 {
-	if(TIM_GetITStatus(TIM2, TIM_IT_CC1))
-	{
-		TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
-		TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
-
-		// Unsure how there is an extra pending interrupt at this point. This is causing a bug
-		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
-
-		// here we check to see if we have enough time to set TIM1 and exit
-		volatile UINT64 currentTime = g_Timer32Bit_Driver.Get64Counter();
-		if ( g_Timer32Bit_Driver.currentTarget < (currentTime + TOO_SHORT_TIM1) ){
-			g_Timer32Bit_Driver.setCompareRunning = false; // Reset
-			g_Timer32Bit_Driver.callBackISR(&g_Timer32Bit_Driver.callBackISR_Param);
-		} else {
-			// we shouldn't have to check to see if there is enough time to set TIM1 and exit before the timer compare happens (because of our TOO_SHORT_TIM1 check earlier)
-			// but if there are problems (i.e. TIM1 wrap arounds) then we need to add a check here
-			TIM_SetCompare3(TIM1, g_Timer32Bit_Driver.currentTarget  & 0xFFFF);
-			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
-		}			
-	}
-
-	if(TIM_GetITStatus(TIM2, TIM_IT_Update))
-	{
-		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-
-		// An overflow just happened, updating variable that holds system time
-		g_Timer32Bit_Driver.m_systemTime += (0x1ull <<32);
-	}
-}
-
-void ISR_TIM1( void* Param )
-{
-	if(TIM_GetITStatus(TIM1, TIM_IT_CC3))
+	/*if(TIM_GetITStatus(TIM1, TIM_IT_CC3))
 	{
 		TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 
 		g_Timer32Bit_Driver.setCompareRunning = false; // Reset
 		g_Timer32Bit_Driver.callBackISR(&g_Timer32Bit_Driver.callBackISR_Param);
-	}
+	}*/
 }
