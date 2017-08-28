@@ -17,12 +17,14 @@ Maintainers: Miguel Luis, Gregory Cristian and Nicolas Huguenin
 
 //#include "mbed.h"
 #include "../enums/enums.h"
+
 class SX1276;
 class SX1276MB1xAS;
 /*!
  * Hardware IO IRQ callback function definition
  */
-typedef void ( SX1276::*DioIrqHandler )( void );
+//typedef void ( SX1276_Semtech::SX1276::*DioIrqHandler )( void );
+//typedef void (*DioIrqHandler) (void);
 
 /*!
  * triggers definition

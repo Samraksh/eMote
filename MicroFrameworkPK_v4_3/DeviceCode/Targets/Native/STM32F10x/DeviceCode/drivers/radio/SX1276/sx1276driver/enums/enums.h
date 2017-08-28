@@ -15,6 +15,8 @@ Maintainers: Miguel Luis, Gregory Cristian and Nicolas Huguenin
 #ifndef __ENUMS_H__
 #define __ENUMS_H__
 
+#include <tinyhal.h>
+
 /*!
  * Radio driver internal state machine states definition
  */

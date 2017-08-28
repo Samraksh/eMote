@@ -42,12 +42,12 @@ const FskBandwidth_t SX1276::FskBandwidths[] =
 };
 
 SX1276::SX1276() {
-    this->dioIrq[0] = &SX1276::OnDio0Irq;
-    this->dioIrq[1] = &SX1276::OnDio1Irq;
-    this->dioIrq[2] = &SX1276::OnDio2Irq;
-    this->dioIrq[3] = &SX1276::OnDio3Irq;
-    this->dioIrq[4] = &SX1276::OnDio4Irq;
-    this->dioIrq[5] = &SX1276::OnDio5Irq;
+//    this->dioIrq[0] = &(SX1276::OnDio0Irq);
+//    this->dioIrq[1] = &(SX1276::OnDio1Irq);
+//    this->dioIrq[2] = &(SX1276::OnDio2Irq);
+//    this->dioIrq[3] = &(SX1276::OnDio3Irq);
+//    this->dioIrq[4] = &(SX1276::OnDio4Irq);
+//    this->dioIrq[5] = &(SX1276::OnDio5Irq);
 }
 
 //SX1276::SX1276( RadioEvents_t *events,
@@ -86,12 +86,6 @@ SX1276::~SX1276( )
 
 void SX1276::Init( RadioEvents_t *events )
 {
-    this->dioIrq[0] = &SX1276::OnDio0Irq;
-    this->dioIrq[1] = &SX1276::OnDio1Irq;
-    this->dioIrq[2] = &SX1276::OnDio2Irq;
-    this->dioIrq[3] = &SX1276::OnDio3Irq;
-    this->dioIrq[4] = &SX1276::OnDio4Irq;
-    this->dioIrq[5] = &SX1276::OnDio5Irq;
     this->RadioEvents = events;
 }
 
@@ -1473,7 +1467,7 @@ void SX1276::OnDio2Irq( void )
             {
             case MODEM_FSK:
                 // Checks if DIO4 is connected. If it is not PreambleDtected is set to true.
-                if( this->dioIrq[4] == NULL )
+                if(0)//if( this->dioIrq[4] == NULL )
                 {
                     this->settings.FskPacketHandler.PreambleDetected = true;
                 }

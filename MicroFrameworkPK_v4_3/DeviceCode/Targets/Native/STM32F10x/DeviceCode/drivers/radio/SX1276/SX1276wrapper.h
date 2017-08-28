@@ -30,7 +30,7 @@ private:
 	RadioRegisters_t RadioRegsInit[16];
 public:
 	SX1276M1BxASWrapper();
-	void Initialize();
+	void Initialize(SX1276_Semtech::RadioEvents_t *events);
 //	SX1276M1BxASWrapper(RadioEvents_t *events );
 	virtual ~SX1276M1BxASWrapper();
 
@@ -117,7 +117,7 @@ protected:
      *
      * @param [IN] irqHandlers Array containing the IRQ callback functions
      */
-    virtual void IoIrqInit( DioIrqHandler *irqHandlers );
+    virtual void IoIrqInit( );
 
     /*!
      * @brief De-initializes the radio I/Os pins interface.

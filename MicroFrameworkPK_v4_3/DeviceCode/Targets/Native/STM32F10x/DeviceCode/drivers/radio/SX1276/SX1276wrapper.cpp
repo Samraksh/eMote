@@ -12,7 +12,7 @@
 #include "SX1276wrapper.h"
 
 
-
+SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
 
 //const RadioRegisters_t SX1276MB1xAS::RadioRegsInit[] = RADIO_INIT_REGISTERS_VALUE;
 
@@ -23,9 +23,9 @@ SX1276M1BxASWrapper::SX1276M1BxASWrapper() :  SX1276(){
 
 
 //	RadioRegsInit[0].Modem = RADIO_INIT_REGISTERS_VALUE0;
-	Get_SX1276_RADIO_INIT_REGISTERS_VALUE(RadioRegsInit[0],0);
+	SX1276_Semtech::Get_SX1276_RADIO_INIT_REGISTERS_VALUE(RadioRegsInit[0],0);
 
-	IoIrqInit(SX1276::dioIrq);
+	IoIrqInit();
 
 	InitializeTimers();
 }
@@ -95,8 +95,7 @@ void SX1276M1BxASWrapper::SpiInit(void) {
 }
 
 
-void SX1276M1BxASWrapper::IoIrqInit(
-		DioIrqHandler* irqHandlers) {
+void SX1276M1BxASWrapper::IoIrqInit() {
 	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO0, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler0, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	EXTI_ClearITPendingBit(EXTI_Line1);
 	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO1, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler1, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
@@ -175,34 +174,35 @@ void SX1276M1BxASWrapper::CancelTimeoutTimer(TimeoutName_t ton) {
 
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler0(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	SX1276::OnDio0Irq();
+	g_SX1276M1BxASWrapper.OnDio0Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler1(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	SX1276::OnDio1Irq();
+	g_SX1276M1BxASWrapper.OnDio1Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler2(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	SX1276::OnDio2Irq();
+	g_SX1276M1BxASWrapper.OnDio2Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler3(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	SX1276::OnDio3Irq();
+	g_SX1276M1BxASWrapper.OnDio3Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler4(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	SX1276::OnDio4Irq();
+	g_SX1276M1BxASWrapper.OnDio4Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler5(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	SX1276::OnDio5Irq();
+	g_SX1276M1BxASWrapper.OnDio5Irq();
 }
 
 void SX1276M1BxASWrapper::SX1276_Radio_OnTimeoutIrq(void* param) {
-	SX1276::OnTimeoutIrq();
+	g_SX1276M1BxASWrapper.OnTimeoutIrq();
 }
 
-void SX1276M1BxASWrapper::Initialize() {
+void SX1276M1BxASWrapper::Initialize(SX1276_Semtech::RadioEvents_t *events) {
+	this->SX1276::Init(events);
 	RadioRegistersInit();
 	IoInit();
 	SpiInit();

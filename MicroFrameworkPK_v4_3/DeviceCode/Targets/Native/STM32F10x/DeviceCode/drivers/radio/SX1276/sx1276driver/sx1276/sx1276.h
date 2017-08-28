@@ -21,6 +21,8 @@ Maintainers: Miguel Luis, Gregory Cristian and Nicolas Huguenin
 #include "../typedefs/typedefs.h"
 
 namespace SX1276_Semtech{
+class SX1276;
+typedef void ( SX1276::*DioIrqHandler )( void );
 
 /*!
  * Radio wake-up time from sleep
@@ -94,7 +96,7 @@ protected:
      * Hardware DIO IRQ functions
      */
 //    DioIrqHandler *dioIrq;
-    static DioIrqHandler dioIrq[6];
+//    DioIrqHandler dioIrq[6];
 
     /*!
      * Tx and Rx timers
@@ -142,7 +144,7 @@ public:
      *
      * @param [IN] events Structure containing the driver callback functions
      */
-    virtual void Init( RadioEvents_t *events );
+    virtual void Init( SX1276_Semtech::RadioEvents_t* events );
     /*!
      * Return current radio status
      *
@@ -413,7 +415,7 @@ protected:
      *
      * @param [IN] irqHandlers Array containing the IRQ callback functions
      */
-    virtual void IoIrqInit( DioIrqHandler *irqHandlers ) = 0;
+   // virtual void IoIrqInit( DioIrqHandler *irqHandlers ) = 0;
 
     /*!
      * @brief De-initializes the radio I/Os pins interface. 
@@ -464,6 +466,8 @@ protected:
      * @param [IN] opMode Current radio operating mode
      */
     virtual void SetAntSw( uint8_t opMode ) = 0;
+
+    virtual void wait_ms(UINT32 x){};
 protected:
 
     /*!
@@ -480,37 +484,37 @@ protected:
     /*!
      * @brief DIO 0 IRQ callback
      */
-    static void OnDio0Irq( void );
+    void OnDio0Irq( void );
 
     /*!
      * @brief DIO 1 IRQ callback
      */
-    static void OnDio1Irq( void );
+    void OnDio1Irq( void );
 
     /*!
      * @brief DIO 2 IRQ callback
      */
-    static void OnDio2Irq( void );
+    void OnDio2Irq( void );
 
     /*!
      * @brief DIO 3 IRQ callback
      */
-    static void OnDio3Irq( void );
+    void OnDio3Irq( void );
 
     /*!
      * @brief DIO 4 IRQ callback
      */
-    static void OnDio4Irq( void );
+    void OnDio4Irq( void );
 
     /*!
      * @brief DIO 5 IRQ callback
      */
-    static void OnDio5Irq( void );
+    void OnDio5Irq( void );
 
     /*!
      * @brief Tx & Rx timeout timer callback
      */
-    static void OnTimeoutIrq( void );
+    void OnTimeoutIrq( void );
 
     /*!
      * Returns the known FSK bandwidth registers value
