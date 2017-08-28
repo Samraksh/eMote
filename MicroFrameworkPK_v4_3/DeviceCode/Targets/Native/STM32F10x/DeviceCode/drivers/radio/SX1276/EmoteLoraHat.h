@@ -9,7 +9,9 @@
 #define MICROFRAMEWORKPK_V4_3_DEVICECODE_TARGETS_NATIVE_STM32F10X_DEVICECODE_DRIVERS_RADIO_SX1276_EMOTELORAHAT_H_
 
 // Hardware stuff
+#include <tinyhal.h>
 #include <stm32f10x.h>
+#include <spi\netmf_spi.h>
 
 
 #define SX1276_CMD_ID_READ_RX_FIFO 0x77
@@ -30,9 +32,19 @@ static int LORA_ASSERT(int x, const char *err) {
 
 namespace LoraHat {
 
+enum {
+	NONE00=0,
+	DEBUG01=1,
+	DEBUG02=2,
+	DEBUG03=3,
+	ERR99=99,		// For things that are bad unless you know what you are doing.
+	ERR100=100,
+};
+enum { CTS_TIMEOUT = 262143*2, CTS_VAL_GOOD=0xFF, CTS_WAIT=255 };
+enum { VERB0=0, VERB1=1, ERR0=128, ERR1=256 };
+enum { ROMC2A=6, ROMB1B=3 };
 
-
-
+const unsigned si4468x_debug_level = ERR100; // CHANGE ME.
 
 
 class LoraHardwareConfig{
@@ -99,7 +111,9 @@ public:
 		UINT8 DIO5;
 	};
 
-private:
+protected:
+	// Stores the configuration of the spi
+	SPI_CONFIGURATION config;
 	static SX1276_pin_setup_t SX1276_pin_setup;
 	static unsigned ctsWentHigh;
 
@@ -120,9 +134,9 @@ public:
 
 	void Initialize();
 
-	static void spi_write_bytes(unsigned count, const uint8_t *buf);
+	void spi_write_bytes(unsigned count, const uint8_t *buf);
 
-	static void spi_read_bytes(unsigned count, uint8_t *buf);
+	void spi_read_bytes(unsigned count, uint8_t *buf);
 
 	unsigned int radio_comm_PollCTS();
 
@@ -137,7 +151,7 @@ public:
 
 
 
-class Emote_Lora_Hat : private LoraHardwareConfig {
+class Emote_Lora_Hat : public LoraHardwareConfig {
 private:
 
 

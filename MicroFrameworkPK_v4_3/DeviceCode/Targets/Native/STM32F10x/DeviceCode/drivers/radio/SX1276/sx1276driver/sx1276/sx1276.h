@@ -20,6 +20,8 @@ Maintainers: Miguel Luis, Gregory Cristian and Nicolas Huguenin
 #include "../registers/sx1276Regs-LoRa.h"
 #include "../typedefs/typedefs.h"
 
+namespace SX1276_Semtech{
+
 /*!
  * Radio wake-up time from sleep
  */
@@ -92,7 +94,7 @@ protected:
      * Hardware DIO IRQ functions
      */
 //    DioIrqHandler *dioIrq;
-//    DioIrqHandler dioIrq[6];
+    static DioIrqHandler dioIrq[6];
 
     /*!
      * Tx and Rx timers
@@ -128,7 +130,8 @@ public:
 //    SX1276( RadioEvents_t *events,
 //            PinName mosi, PinName miso, PinName sclk, PinName nss, PinName reset,
 //            PinName dio0, PinName dio1, PinName dio2, PinName dio3, PinName dio4, PinName dio5 );
-    SX1276( RadioEvents_t *events );
+    SX1276();
+//    SX1276( RadioEvents_t *events );
     virtual ~SX1276( );
     
     //-------------------------------------------------------------------------
@@ -477,37 +480,37 @@ protected:
     /*!
      * @brief DIO 0 IRQ callback
      */
-    virtual void OnDio0Irq( void );
+    static void OnDio0Irq( void );
 
     /*!
      * @brief DIO 1 IRQ callback
      */
-    virtual void OnDio1Irq( void );
+    static void OnDio1Irq( void );
 
     /*!
      * @brief DIO 2 IRQ callback
      */
-    virtual void OnDio2Irq( void );
+    static void OnDio2Irq( void );
 
     /*!
      * @brief DIO 3 IRQ callback
      */
-    virtual void OnDio3Irq( void );
+    static void OnDio3Irq( void );
 
     /*!
      * @brief DIO 4 IRQ callback
      */
-    virtual void OnDio4Irq( void );
+    static void OnDio4Irq( void );
 
     /*!
      * @brief DIO 5 IRQ callback
      */
-    virtual void OnDio5Irq( void );
+    static void OnDio5Irq( void );
 
     /*!
      * @brief Tx & Rx timeout timer callback
      */
-    virtual void OnTimeoutIrq( void );
+    static void OnTimeoutIrq( void );
 
     /*!
      * Returns the known FSK bandwidth registers value
@@ -517,5 +520,6 @@ protected:
      */
     static uint8_t GetFskBandwidthRegValue( uint32_t bandwidth );
 };
+}
 
 #endif // __SX1276_H__

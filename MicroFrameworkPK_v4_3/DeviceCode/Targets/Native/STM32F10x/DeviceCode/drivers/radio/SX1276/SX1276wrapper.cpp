@@ -5,25 +5,27 @@
  *      Author: Bora
  */
 
+
+//#include <cstdint>
+#include <Samraksh/VirtualTimer.h>
+
 #include "SX1276wrapper.h"
 
-#include <cstdint>
+
+
+
+//const RadioRegisters_t SX1276MB1xAS::RadioRegsInit[] = RADIO_INIT_REGISTERS_VALUE;
 
 
 
 
+SX1276M1BxASWrapper::SX1276M1BxASWrapper() :  SX1276(){
 
 
-SX1276M1BxASWrapper::SX1276M1BxASWrapper(
-		RadioEvents_t* events) {
-	dioIrq[0] = &SX1276::OnDio0Irq;
-	dioIrq[1] = &SX1276::OnDio1Irq;
-	dioIrq[2] = &SX1276::OnDio2Irq;
-	dioIrq[3] = &SX1276::OnDio3Irq;
-	dioIrq[4] = &SX1276::OnDio4Irq;
-	dioIrq[5] = NULL;
+//	RadioRegsInit[0].Modem = RADIO_INIT_REGISTERS_VALUE0;
+	Get_SX1276_RADIO_INIT_REGISTERS_VALUE(RadioRegsInit[0],0);
 
-	IoIrqInit(dioIrq);
+	IoIrqInit(SX1276::dioIrq);
 
 	InitializeTimers();
 }
@@ -154,7 +156,9 @@ UINT8 SX1276M1BxASWrapper::GetTimerID(TimeoutName_t ton){
 		return VIRT_TIMER_SX1276_rxTimeoutSyncWord;
 		break;
 	default:
-		assert(0);
+		//assert(0);
+		return 0;
+		break;
 	}
 	return 0;
 }
@@ -171,32 +175,35 @@ void SX1276M1BxASWrapper::CancelTimeoutTimer(TimeoutName_t ton) {
 
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler0(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	if(dioIrq[0]) dioIrq[0]();
+	SX1276::OnDio0Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler1(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	if(dioIrq[1]) dioIrq[1]();
+	SX1276::OnDio1Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler2(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	if(dioIrq[2]) dioIrq[2]();
+	SX1276::OnDio2Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler3(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	if(dioIrq[3]) dioIrq[3]();
+	SX1276::OnDio3Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler4(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	if(dioIrq[4]) dioIrq[4]();
+	SX1276::OnDio4Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler5(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	if(dioIrq[5]) dioIrq[5]();
+	SX1276::OnDio5Irq();
 }
 
 void SX1276M1BxASWrapper::SX1276_Radio_OnTimeoutIrq(void* param) {
-	OnTimeoutIrq();
+	SX1276::OnTimeoutIrq();
 }
 
-
-
+void SX1276M1BxASWrapper::Initialize() {
+	RadioRegistersInit();
+	IoInit();
+	SpiInit();
+}

@@ -21,6 +21,7 @@ namespace EMOTE_SX1276_LORA {
 class Samraksh_SX1276_hal : public  SamrakshRadio_I {
 private:
 	SX1276M1BxASWrapper radio;
+	SX1276_Semtech::RadioEvents_t sx1276_re;
 public: //Public class definitions
 
 
@@ -34,8 +35,8 @@ public: //SX1276_s internal callbacks as defined in the driver
 	static void FhssChangeChannel(uint8_t currentChannel );
 	static void CadDone(bool channelActivityDetected);
 public:
-	void PacketLoadTimerHandler (void* param);
-	void PacketTxTimerHandler (void* param);
+	static void PacketLoadTimerHandler (void* param);
+	static void PacketTxTimerHandler (void* param);
 
 private:
 	struct InternalRadioProperties_t {
@@ -47,6 +48,13 @@ private:
 
 
 		RadioModems_t radio_modem;
+		InternalRadioProperties_t(UINT64 i , UINT16 i2, uint32_t i3, UINT64 i4, RadioModems_t i5)
+		: RADIO_BUS_SPEED(i)
+		, RADIO_TURN_ON_DELAY_TX_MICRO(i2)
+		, MAX_PACKET_TX_DURATION(i3)
+		, TIME_ADVANCE_FOR_SCHEDULING_A_PACKET_MICRO(i4)
+		, radio_modem(i5)
+		{}
 	};
 	static const InternalRadioProperties_t SX1276_hal_wrapper_internal_radio_properties;
 	static const UINT16 SX1276_hal_wrapper_max_packetsize = 255;
@@ -65,16 +73,20 @@ private:
 	public:
 		msgToBeTransmitted_t();
 		bool PreparePayload(void* msg, UINT16 size, const UINT64& t, ClockIdentifier_t c);
+		UINT16 GetSize();
+		UINT8* GetPayload();
+		UINT64 GetDueTime();
+		ClockIdentifier_t GetClockId();
 		void ClearPaylod();
 		void MarkUploaded();
 		bool IsMsgSaved();
 		bool IsMsgUploaded();
 	};
-	msgToBeTransmitted_t m_packet;
+	static msgToBeTransmitted_t m_packet;
 private:
-	SamrakshRadio_I::RadioEvents_t m_re;
+	static SamrakshRadio_I::RadioEvents_t m_re;
 	bool isCallbackIssued;
-	RadioMode_t m_rm;
+	static RadioMode_t m_rm;
 
 	UINT16 preloadedMsgSize;
 
@@ -83,7 +95,7 @@ private:
 	bool isRadioInitialized;
 
 
-	bool SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, UINT8 hardwareTimerId);
+	static bool SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, UINT8 hardwareTimerId);
 	bool SanityCheckOnConstants(){
 		//if (SX1276_hal_wrapper_max_packetsize > std::numeric_limits<uint8_t>::max()) return false;
 		if (SX1276_hal_wrapper_max_packetsize > 256) return false;

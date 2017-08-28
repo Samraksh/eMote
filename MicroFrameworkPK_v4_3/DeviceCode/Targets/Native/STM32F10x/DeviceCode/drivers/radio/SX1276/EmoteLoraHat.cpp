@@ -44,31 +44,32 @@ Emote_Lora_Hat::Emote_Lora_Hat() {
 }
 
 bool Emote_Lora_Hat::SpiInitialize() {
+//	initSPI2();
 	// Calling mf spi initialize function
 	//if(TRUE != CPU_SPI_Initialize())
 	//	return FALSE;
 
-	config.DeviceCS               = 10; //TODO - fix me..
-	config.CS_Active              = false;
-	config.CS_Setup_uSecs         = 0;
-	config.CS_Hold_uSecs          = 0;
-	config.MSK_IDLE               = false;
-	config.MSK_SampleEdge         = false;
-	config.Clock_RateKHz          = 16; // THIS IS IGNORED.
-	if(this->GetRadioName() == RF231RADIO)
-	{
-		config.SPI_mod                = RF231_SPI_BUS;
-	}
-	else if(this->GetRadioName() == RF231RADIOLR)
-	{
-		config.SPI_mod 				  = RF231_LR_SPI_BUS;
-	}
-
-	config.MD_16bits = FALSE;
-
-
-	// Enable the SPI depending on the radio who is the user
-	CPU_SPI_Enable(config);
+//	config.DeviceCS               = 10; //TODO - fix me..
+//	config.CS_Active              = false;
+//	config.CS_Setup_uSecs         = 0;
+//	config.CS_Hold_uSecs          = 0;
+//	config.MSK_IDLE               = false;
+//	config.MSK_SampleEdge         = false;
+//	config.Clock_RateKHz          = 16; // THIS IS IGNORED.
+//	if(this->GetRadioName() == RF231RADIO)
+//	{
+//		config.SPI_mod                = RF231_SPI_BUS;
+//	}
+//	else if(this->GetRadioName() == RF231RADIOLR)
+//	{
+//		config.SPI_mod 				  = RF231_LR_SPI_BUS;
+//	}
+//
+//	config.MD_16bits = FALSE;
+//
+//
+//	// Enable the SPI depending on the radio who is the user
+//	CPU_SPI_Enable(config);
 
 	return TRUE;
 
@@ -134,16 +135,17 @@ LoraHat::LoraHardwareConfig::LoraHardwareConfig() {
 	SX1276_pin_setup.nirq_pin3			= GPIO_Pin_8;
 	SX1276_pin_setup.nirq_mf_pin3		= (GPIO_PIN) 8;
 
+
 	SX1276_pin_setup.nirq_port4			= GPIOA;
-	SX1276_pin_setup.nirq_pin4			= GPIO_Pin_22;
+	SX1276_pin_setup.nirq_pin4			= GPIO_Pin_0; //GPIO_Pin_22; // TODO:
 	SX1276_pin_setup.nirq_mf_pin4		= (GPIO_PIN) 22;
 
 	SX1276_pin_setup.nirq_port5			= GPIOA;
-	SX1276_pin_setup.nirq_pin5			= GPIO_Pin_23;
+	SX1276_pin_setup.nirq_pin5			= GPIO_Pin_0; //GPIO_Pin_23;
 	SX1276_pin_setup.nirq_mf_pin5		= (GPIO_PIN) 23;
 
 	SX1276_pin_setup.reset_port			= GPIOA; // ?
-	SX1276_pin_setup.reset_pin			= GPIO_Pin_24;
+	SX1276_pin_setup.reset_pin			= GPIO_Pin_0; // GPIO_Pin_24;
 	SX1276_pin_setup.reset_mf_pin		= (GPIO_PIN) 24;
 
 	SX1276_pin_setup.spi_base 			= SPI2;
@@ -161,7 +163,7 @@ LoraHat::LoraHardwareConfig::LoraHardwareConfig() {
 
 void LoraHat::LoraHardwareConfig::reset(){
 	CPU_GPIO_SetPinState(SX1276_pin_setup.reset_mf_pin, TRUE);
-	CPU_GPIO_SetPinState(SX1276_pin_setup.reset_mf_pin, FLASE);
+	CPU_GPIO_SetPinState(SX1276_pin_setup.reset_mf_pin, FALSE);
 }
 
 

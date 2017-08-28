@@ -19,7 +19,7 @@ Maintainers: Miguel Luis, Gregory Cristian and Nicolas Huguenin
 
 #include "../enums/enums.h"
 
-
+namespace SX1276_Semtech{
 /*!
  * @brief Radio driver callback functions
  */
@@ -83,6 +83,7 @@ public:
      *
      * @param [IN] events Structure containing the driver callback functions
      */
+    RadioSX1276() {};
     RadioSX1276( RadioEvents_t *events );
     virtual ~RadioSX1276( ) {};
 
@@ -334,5 +335,6 @@ public:
      */
     virtual void SetPublicNetwork( bool enable ) = 0;
 };
+}
 
 #endif // __RADIO_H__

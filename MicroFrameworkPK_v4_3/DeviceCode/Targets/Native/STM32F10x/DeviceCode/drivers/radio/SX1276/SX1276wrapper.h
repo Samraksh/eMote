@@ -12,11 +12,10 @@
 #include "EmoteLoraHat.h"
 
 #include "sx1276driver/sx1276/sx1276.h"
+#include "sx1276wrapper_definitions.h"
 
 
-
-
-class SX1276M1BxASWrapper : private SX1276, private LoraHat::Emote_Lora_Hat {
+class SX1276M1BxASWrapper : public SX1276_Semtech::SX1276, private LoraHat::Emote_Lora_Hat {
 public :
 	static void SX1276_Radio_Interrupt_Handler0(GPIO_PIN Pin, BOOL PinState, void* Param);
 	static void SX1276_Radio_Interrupt_Handler1(GPIO_PIN Pin, BOOL PinState, void* Param);
@@ -27,10 +26,15 @@ public :
 
 	static void SX1276_Radio_OnTimeoutIrq(void* param);
 
+private:
+	RadioRegisters_t RadioRegsInit[16];
 public:
-	SX1276M1BxASWrapper(RadioEvents_t *events );
+	SX1276M1BxASWrapper();
+	void Initialize();
+//	SX1276M1BxASWrapper(RadioEvents_t *events );
 	virtual ~SX1276M1BxASWrapper();
 
+	virtual void SetOpMode_public( uint8_t opMode );
 
     /*!
      * @brief Checks if the given RF frequency is supported by the hardware
@@ -87,6 +91,8 @@ public:
      * @brief Resets the SX1276
      */
     virtual void Reset( void );
+
+    friend class Samraksh_SX1276_hal;
 
 protected:
     /*!

@@ -14,6 +14,7 @@ Maintainers: Miguel Luis, Gregory Cristian and Nicolas Huguenin
 */
 #include "sx1276.h"
 
+namespace SX1276_Semtech{
 const FskBandwidth_t SX1276::FskBandwidths[] =
 {
     { 2600  , 0x17 },
@@ -40,6 +41,14 @@ const FskBandwidth_t SX1276::FskBandwidths[] =
     { 300000, 0x00 }, // Invalid Bandwidth
 };
 
+SX1276::SX1276() {
+    this->dioIrq[0] = &SX1276::OnDio0Irq;
+    this->dioIrq[1] = &SX1276::OnDio1Irq;
+    this->dioIrq[2] = &SX1276::OnDio2Irq;
+    this->dioIrq[3] = &SX1276::OnDio3Irq;
+    this->dioIrq[4] = &SX1276::OnDio4Irq;
+    this->dioIrq[5] = &SX1276::OnDio5Irq;
+}
 
 //SX1276::SX1276( RadioEvents_t *events,
 //                PinName mosi, PinName miso, PinName sclk, PinName nss, PinName reset,
@@ -70,12 +79,19 @@ const FskBandwidth_t SX1276::FskBandwidths[] =
 
 SX1276::~SX1276( )
 {
+
     delete this->rxtxBuffer;
 //    delete this->dioIrq;
 }
 
 void SX1276::Init( RadioEvents_t *events )
 {
+    this->dioIrq[0] = &SX1276::OnDio0Irq;
+    this->dioIrq[1] = &SX1276::OnDio1Irq;
+    this->dioIrq[2] = &SX1276::OnDio2Irq;
+    this->dioIrq[3] = &SX1276::OnDio3Irq;
+    this->dioIrq[4] = &SX1276::OnDio4Irq;
+    this->dioIrq[5] = &SX1276::OnDio5Irq;
     this->RadioEvents = events;
 }
 
@@ -1590,4 +1606,6 @@ void SX1276::OnDio5Irq( void )
     default:
         break;
     }
+}
+
 }
