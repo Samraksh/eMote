@@ -100,6 +100,7 @@ extern "C" {
 /**@} end of gpio_pin group */
 /**@} end of gpio_port_pin group */
     
+
 /**
  * Enumeration type for the GPIO Function Type
  */

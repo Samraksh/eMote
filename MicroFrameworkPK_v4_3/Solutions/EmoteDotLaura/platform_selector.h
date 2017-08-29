@@ -222,15 +222,6 @@ const UINT8 g_VirtualTimerPerHardwareTimer = 16;
 const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000, 32768};
 
 
-/*BK: TImer Mapper does not seem to work. We need manually select timers from range 0-8 anyways
-Timers in use :
-VIRT_TIMER_TIME 2
-HAL_SLOT_TIMER 3
-HAL_SLOT_TIMER3 4
-HAL_DISCOVERY_TIMER 5
-HAL_RECEPTION_TIMER 6
-*/
-
 // timers that are run within interrupt context
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1

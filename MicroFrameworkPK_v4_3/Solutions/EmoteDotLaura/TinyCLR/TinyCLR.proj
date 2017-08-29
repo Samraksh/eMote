@@ -295,14 +295,14 @@
     <DriverLibs Include="GlobalLock_hal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\cores\arm\Common\GlobalLock\dotNetMF.proj" />
 	</ItemGroup>
-	<ItemGroup>
+	<!--<ItemGroup>
     <DriverLibs Include="GPIOStubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\gpio\GPIOStubs\dotNetMF.proj" />
-  </ItemGroup>
-  <!--<ItemGroup>
+  </ItemGroup>-->
+  <ItemGroup>
     <DriverLibs Include="Max3263x_gpio.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\gpio\dotNetMF.proj" />
-  </ItemGroup>-->
+  </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Initialization\dotNetMF.proj" />
