@@ -26,7 +26,7 @@ const BlockRange Max3263x_BlockRange_InternalFlash[] =
 #else
 	    { BlockRange::BLOCKTYPE_STORAGE_A       ,227,253 },  // 29 blocks, 232K for Storage A,  address 0x001F 8000
 #endif
-	    //{ BlockRange::BLOCKTYPE_CONFIG          ,254,255 }   //  2 blocks,   16K for Config,     address 0x001F C000
+	    { BlockRange::BLOCKTYPE_CONFIG          ,254,255 }   //  2 blocks,   16K for Config,     address 0x001F C000
 
 
 };

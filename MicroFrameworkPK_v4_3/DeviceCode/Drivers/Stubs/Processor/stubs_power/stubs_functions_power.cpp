@@ -41,4 +41,9 @@ void CPU_Halt()
 {
 }
 
+//Samraksh API??
+BOOL CPU_JTAG_Attached(){
+	//return JTAG_Attached();
+	return false;
+}
 

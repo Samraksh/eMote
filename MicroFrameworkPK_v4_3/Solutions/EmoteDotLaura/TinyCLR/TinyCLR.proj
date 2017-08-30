@@ -72,6 +72,10 @@
     <DriverLibs Include="Max3263x_PeriphDriver.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\MAX3263XPeriphDriver\dotNetMF.proj" />
   </ItemGroup>
+    <ItemGroup>
+    <DriverLibs Include="Max3263x_DevKitBoard.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\DevKitBoard\dotNetMF.proj" />
+  </ItemGroup>
   <ItemGroup>
     <PlatformIndependentLibs Include="Core.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Core\dotNetMF.proj" />
@@ -594,10 +598,8 @@
     <DriverLibs Include="Watchdog_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Watchdog\dotNetMF.proj" />
   </ItemGroup>
-  <!--<ItemGroup> This isn't even our code... NPS
-    <DriverLibs Include="STM32_Flash.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32\DeviceCode\STM32_Flash\dotNetMF.proj" />
-  </ItemGroup>-->
+  
+  <!-- Why is there another blockstorage driver?
   <ItemGroup>
     <DriverLibs Include="BlockStorageAddDevices_HAL_EmoteDotLaura.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotLaura\DeviceCode\BlockStorageAddDevices_HAL\dotNetMF.proj" />
@@ -606,6 +608,7 @@
     <DriverLibs Include="BlockStorageConfig_HAL_EmoteDotLaura.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotLaura\DeviceCode\BlockStorageConfig_HAL\dotNetMF.proj" />
   </ItemGroup>
+  -->
   <!--<ItemGroup>
     <DriverLibs Include="I2C_HAL_EmoteDotLaura.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\Samraksh\EmoteDotLaura\DeviceCode\I2C_HAL\dotNetMF.proj" />

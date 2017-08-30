@@ -287,7 +287,7 @@ __weak void SystemInit(void)
 
 #if !defined (__CC_ARM) // Prevent Keil tools from calling these functions until post scatter load
     SystemCoreClockUpdate();
-    Board_Init();
+    //Board_Init();
 #endif /* ! __CC_ARM */
 
 }
