@@ -39,7 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="Max3263x_PeriphDriver.$(LIB_EXT)" />
-    <DriverLibs Include="Max3263x_cmsis.$(LIB_EXT)" />
+    <DriverLibs Include="Max3263x.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
@@ -108,10 +108,19 @@
   </ItemGroup>
   
      
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\SimpleTimer\dotNetMF.proj" />
     <DriverLibs Include="SimpleTimer.$(LIB_EXT)" />
+  </ItemGroup>-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Timer\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_timer.$(LIB_EXT)" />
   </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\VirtualTimer\dotNetMF.proj" />
+    <DriverLibs Include="VirtualTimer.$(LIB_EXT)" />
+  </ItemGroup>
+  
   <!--<ItemGroup>
     <DriverLibs Include="Max3263x_gpio.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\gpio\dotNetMF.proj" />
