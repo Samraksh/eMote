@@ -16,7 +16,7 @@ namespace EMOTE_SX1276_LORA {
 
 
 
-const Samraksh_SX1276_hal::InternalRadioProperties_t Samraksh_SX1276_hal::SX1276_hal_wrapper_internal_radio_properties(10, 10, 1000, 100, MODEM_LORA);
+//const Samraksh_SX1276_hal::InternalRadioProperties_t Samraksh_SX1276_hal::SX1276_hal_wrapper_internal_radio_properties(10, 10, 1000, 100, MODEM_LORA);
 
 //Samraksh_SX1276_hal grfsx1276Radio;
 
@@ -55,20 +55,6 @@ Samraksh_SX1276_hal::Samraksh_SX1276_hal()
 , isCallbackIssued(false)
 {
 
-
-	sx1276_re.ValidHeaderDetected = Samraksh_SX1276_hal::ValidHeaderDetected;
-	sx1276_re.TxDone = Samraksh_SX1276_hal::TxDone;
-	sx1276_re.TxTimeout = Samraksh_SX1276_hal::TxTimeout;
-	sx1276_re.RxDone = Samraksh_SX1276_hal::RxDone;
-	sx1276_re.RxTimeout = Samraksh_SX1276_hal::RxTimeout;
-	sx1276_re.RxError = Samraksh_SX1276_hal::RxError;
-	sx1276_re.FhssChangeChannel = Samraksh_SX1276_hal::FhssChangeChannel;
-	sx1276_re.CadDone = Samraksh_SX1276_hal::CadDone;
-
-
-
-	SanityCheckOnConstants();
-
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(PacketLoadTimerName, 0, 1000, TRUE, FALSE, Samraksh_SX1276_hal::PacketLoadTimerHandler);
 	rm = VirtTimer_SetTimer(PacketTxTimerName, 0, 1000, TRUE, FALSE, Samraksh_SX1276_hal::PacketTxTimerHandler);
@@ -82,6 +68,10 @@ Samraksh_SX1276_hal::~Samraksh_SX1276_hal() {
 
 DeviceStatus Samraksh_SX1276_hal::Initialize(SamrakshRadio_I::RadioEvents_t re){
 	if(isRadioInitialized) return DS_Fail;
+
+	isCallbackIssued = false;
+
+	SX1276_hal_wrapper_internal_radio_properties.SetDefaults(10, 10, 1000, 100, MODEM_LORA);
 
 	sx1276_re.ValidHeaderDetected = Samraksh_SX1276_hal::ValidHeaderDetected;
 	sx1276_re.TxDone = Samraksh_SX1276_hal::TxDone;
@@ -234,7 +224,7 @@ void Samraksh_SX1276_hal::PacketLoadTimerHandler(void* param) {
 void Samraksh_SX1276_hal::PacketTxTimerHandler(void* param) {
 	if(gsx1276radio.m_packet.IsMsgUploaded()){
 		g_SX1276M1BxASWrapper.Tx(
-				g_SX1276M1BxASWrapper.TimeOnAir(SX1276_hal_wrapper_internal_radio_properties.radio_modem, gsx1276radio.m_packet.GetSize())
+				g_SX1276M1BxASWrapper.TimeOnAir(gsx1276radio.SX1276_hal_wrapper_internal_radio_properties.radio_modem, gsx1276radio.m_packet.GetSize())
 				);
 	}
 }

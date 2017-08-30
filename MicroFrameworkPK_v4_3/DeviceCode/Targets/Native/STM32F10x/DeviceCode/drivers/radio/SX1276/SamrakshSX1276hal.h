@@ -38,7 +38,7 @@ public:
 	static void PacketLoadTimerHandler (void* param);
 	static void PacketTxTimerHandler (void* param);
 
-private:
+
 	struct InternalRadioProperties_t {
 		UINT64 RADIO_BUS_SPEED; //Number of bytes written in a second to the radio buffer
 		UINT16 RADIO_TURN_ON_DELAY_TX_MICRO;	//Tx initiation delay
@@ -48,15 +48,17 @@ private:
 
 
 		RadioModems_t radio_modem;
-		InternalRadioProperties_t(UINT64 i , UINT16 i2, uint32_t i3, UINT64 i4, RadioModems_t i5)
-		: RADIO_BUS_SPEED(i)
-		, RADIO_TURN_ON_DELAY_TX_MICRO(i2)
-		, MAX_PACKET_TX_DURATION(i3)
-		, TIME_ADVANCE_FOR_SCHEDULING_A_PACKET_MICRO(i4)
-		, radio_modem(i5)
-		{}
+		void SetDefaults(UINT64 i , UINT16 i2, uint32_t i3, UINT64 i4, RadioModems_t i5){
+			RADIO_BUS_SPEED = i;
+			RADIO_TURN_ON_DELAY_TX_MICRO = i2;
+			MAX_PACKET_TX_DURATION = i3;
+			TIME_ADVANCE_FOR_SCHEDULING_A_PACKET_MICRO = i4;
+			radio_modem = i5;
+
+		};
 	};
-	static const InternalRadioProperties_t SX1276_hal_wrapper_internal_radio_properties;
+	InternalRadioProperties_t SX1276_hal_wrapper_internal_radio_properties;
+private:
 	static const UINT16 SX1276_hal_wrapper_max_packetsize = 255;
 
 	static const ClockIdentifier_t low_precision_clock_id = 4; // low precision  clock id used when schedling  time to load
