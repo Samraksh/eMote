@@ -3,16 +3,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
-#include <stm32f10x.h>
+#include <max3263x.h>
 #include "netmf_gpio.h"
+#include <gpio.h>
 
 //--//
-
-const char* const c_strGpioBadCallback = "No GPIO callback defined";
-const char* const c_strGpioBadPin = "Pin Number greater than max allowable pins";
-const char* const c_strGpioBadSize = "size greater than max allowable pins";
-
-//#define DEBUG_GPIO_VERBOSE 1
 
 #if defined(DEBUG_GPIO_VERBOSE)
 #define GPIO_DEBUG_PRINT(format, ...) hal_printf("[Native] [GPIO Driver] " format " at %d, %s \n", ##__VA_ARGS__, __LINE__, __FILE__)
@@ -22,42 +17,40 @@ const char* const c_strGpioBadSize = "size greater than max allowable pins";
 #define GPIO_DEBUG_PRINT(format, ...)
 #endif
 
-
-
-
-
 // Not truly static, but passed by function pointers
-static void EXTI0_IRQ_HANDLER(void *args);
+/*static void EXTI0_IRQ_HANDLER(void *args);
 static void EXTI1_IRQ_HANDLER(void *args);
 static void EXTI2_IRQ_HANDLER(void *args);
 static void EXTI3_IRQ_HANDLER(void *args);
 static void EXTI4_IRQ_HANDLER(void *args);
 static void EXTI9_5_IRQ_HANDLER(void *args);
-static void EXTI15_10_IRQ_Handler(void *args);
+static void EXTI15_10_IRQ_Handler(void *args);*/
 
 
-static int GPIO_GetExtrCR(unsigned int line);
-GPIO_TypeDef* GPIO_GetPortPtr(GPIO_PIN Pin);
-uint16_t GPIO_GetPin(GPIO_PIN Pin);
+//static int GPIO_GetExtrCR(unsigned int line);
+uint16_t GPIO_GetPort(GPIO_PIN Pin);
+uint16_t GPIO_GetPin(GPIO_PIN Pin); // this function will return a value of '1' shifted pin number times
+uint16_t GPIO_GetPinNumber(GPIO_PIN Pin); // this function will return the pin number of the port (i.e. pin 3)
 
 #define NUMBER_OF_EXTI_LINES 16
 
-const uint GPIO_PORTS = 7;
-const uint GPIO_PPP = 16;
-const uint GPIO_PINS = 112;
+const uint GPIO_PORTS = 16;
+const uint GPIO_PPP = 8; // pins per port
+const uint GPIO_PINS = 128;
 
 
-GPIO_TypeDef* GPIO_PORT_ARRAY[GPIO_PORTS] = {GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG};
-UINT32 EXTILines[NUMBER_OF_EXTI_LINES] = {EXTI_Line0,EXTI_Line1,EXTI_Line2,EXTI_Line3,EXTI_Line4,EXTI_Line5,EXTI_Line6,EXTI_Line7,
-											EXTI_Line8,EXTI_Line9,EXTI_Line10,EXTI_Line11,EXTI_Line12,EXTI_Line13,EXTI_Line14,EXTI_Line15};
+//GPIO_TypeDef* GPIO_PORT_ARRAY[GPIO_PORTS] = {PORT_0, PORT_1, PORT_2, PORT_3, PORT_4, PORT_5, PORT_6, PORT_7, PORT_8, PORT_9, PORT_10, PORT_11, PORT_12, PORT_13, PORT_14, PORT_15};
+//UINT32 EXTILines[NUMBER_OF_EXTI_LINES] = {EXTI_Line0,EXTI_Line1,EXTI_Line2,EXTI_Line3,EXTI_Line4,EXTI_Line5,EXTI_Line6,EXTI_Line7,
+//											EXTI_Line8,EXTI_Line9,EXTI_Line10,EXTI_Line11,EXTI_Line12,EXTI_Line13,EXTI_Line14,EXTI_Line15};
 
-static GPIO_INTERRUPT_SERVICE_ROUTINE gpio_isr[GPIO_PINS];
-static void* gpio_parm[GPIO_PINS];
-static uint8_t pin_reservations[14]; // 14*8 = 112
+//static void (*callbacks[MXC_GPIO_NUM_PORTS][MXC_GPIO_MAX_PINS_PER_PORT])(void *);
+static void (*callbacks[MXC_GPIO_NUM_PORTS][MXC_GPIO_MAX_PINS_PER_PORT])(GPIO_PIN Pin, BOOL PinState, void* Param );
+static void *cbparam[MXC_GPIO_NUM_PORTS][MXC_GPIO_MAX_PINS_PER_PORT];
+static uint8_t pin_reservations[GPIO_PORTS]; // 14*8 = 112
 
 //Local Functions
 
-static void handle_exti(unsigned int exti)
+/*static void handle_exti(unsigned int exti)
 {
 	if(EXTI_GetITStatus(exti) != RESET)
 	{
@@ -66,7 +59,7 @@ static void handle_exti(unsigned int exti)
 		GPIO_INTERRUPT_SERVICE_ROUTINE my_isr;
 		UINT32 line = GPIO_GetExtrCR(exti);
 		UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7; // Assuming this is right, not double-checked --NPS
-		UINT32 pin = line + port * GPIO_PPP;
+/		UINT32 pin = line + port * GPIO_PPP;
 		void *parm;
 
 		// The C# GPIO ISR will add this interrupt to g_CLR_HW_Hardware.m_interruptData.m_HalQueue via SaveToHALQueue(), which eventually gets added to m_interruptData.m_applicationQueue via CLR_HW_Hardware::TransferAllInterruptsToApplicationQueue() which eventually gets dispatched via CLR_HW_Hardware::SpawnDispatcher()
@@ -86,9 +79,9 @@ static void handle_exti(unsigned int exti)
 		    //ASSERT(my_isr != NULL);
 		//}
 	}
-}
+}*/
 
-static int GPIO_GetExtrCR(unsigned int line)
+/*static int GPIO_GetExtrCR(unsigned int line)
 {
 	if(line > (1 << NUMBER_OF_EXTI_LINES)) { return -1; }
 
@@ -99,60 +92,62 @@ static int GPIO_GetExtrCR(unsigned int line)
 		}
 	}
 	return -1;
-}
+}*/
 
 static BOOL IsOutputPin(GPIO_PIN Pin)
 {
-	GPIO_TypeDef *port;
-	unsigned int p;
-	unsigned int mode;
-	unsigned int mode_mask = 0x03;
+	uint16_t port;
+	uint16_t port_pin_number;
 	BOOL isOutput;
 
 	if (Pin > GPIO_PINS) { return FALSE; }
 
-	port = GPIO_GetPortPtr(Pin);
-	p = GPIO_GetPin(Pin);
+	port = GPIO_GetPort(Pin);
+	port_pin_number = GPIO_GetPinNumber(Pin);
 
-	if (p < 8) { // check mode in CRL
-		mode = port->CRL;
-		mode_mask = mode_mask << (p*4);
-	}
-	else { // check mode in CRH
-		mode = port->CRH;
-		mode_mask = mode_mask << (p*2);
-	}
+	uint32_t out_mode = MXC_GPIO->out_mode[port];
+	uint32_t func_sel = MXC_GPIO->func_sel[port];
 
-	if ( (mode & mode_mask) == 0 ) {
-		isOutput = FALSE;
-	}
-	else {
+	out_mode = (out_mode >> (4 * port_pin_number)) & 0xf;
+	func_sel = (func_sel >> (4 * port_pin_number)) & 0xf;
+
+	isOutput = FALSE;
+	if ((out_mode == GPIO_PAD_NORMAL) | (out_mode == GPIO_PAD_SLOW) | (out_mode == GPIO_PAD_FAST))
 		isOutput = TRUE;
-	}
-	return isOutput;
+	else
+		isOutput = FALSE;
+
+	if ((func_sel == GPIO_FUNC_GPIO) & (isOutput == TRUE ))
+		return TRUE;
+	else
+		return FALSE;
 }
 
 uint16_t GPIO_GetPin(GPIO_PIN Pin) {
 	return (uint16_t)(0x1 << (Pin % GPIO_PPP));
 }
 
-uint8_t GPIO_GetPort(GPIO_PIN Pin) {
-	return (uint8_t)(Pin / GPIO_PPP);
+uint16_t GPIO_GetPinNumber(GPIO_PIN Pin) {
+	return (uint16_t)(Pin % GPIO_PPP);
 }
 
-UINT32 GPIO_GetExtiLine(GPIO_PIN Pin){
+uint16_t GPIO_GetPort(GPIO_PIN Pin) {
+	return (uint16_t)(Pin / GPIO_PPP);
+}
+
+/*uint16_t GPIO_GetExtiLine(GPIO_PIN Pin){
 	return EXTILines[Pin % GPIO_PPP];
-}
+}*/
 
-GPIO_TypeDef* GPIO_GetPortPtr(GPIO_PIN Pin) {
+/*uint16_t GPIO_GetPortPtr(GPIO_PIN Pin) {
 	return GPIO_PORT_ARRAY[GPIO_GetPort(Pin)];
-}
+}*/
 
 /**
  * stupid.
  * TODO: make this a giant macro.
  */
-GPIO_PIN GPIO_GetNumber(GPIO_TypeDef* Port, uint16_t Pin) {
+/*GPIO_PIN GPIO_GetNumber(GPIO_TypeDef* Port, uint16_t Pin) {
     unsigned itr_port;
     for(itr_port=0; itr_port < GPIO_PORTS; ++itr_port) {
         if(GPIO_PORT_ARRAY[itr_port] == Port) {
@@ -169,9 +164,9 @@ GPIO_PIN GPIO_GetNumber(GPIO_TypeDef* Port, uint16_t Pin) {
     }
     ASSERT(itr_pin < GPIO_PPP);
     return ((itr_port * GPIO_PPP) + itr_pin);
-}
+}*/
 
-UINT32 GPIO_GetIRQNumber(GPIO_PIN Pin)
+/*UINT32 GPIO_GetIRQNumber(GPIO_PIN Pin)
 {
 	UINT32 line = Pin % GPIO_PPP;
 	UINT32 irq_number;
@@ -212,9 +207,9 @@ UINT32 GPIO_GetIRQNumber(GPIO_PIN Pin)
 	}
 
 	return irq_number;
-}
+}*/
 
-HAL_CALLBACK_FPN GPIO_GetCallBack(GPIO_PIN Pin)
+/*HAL_CALLBACK_FPN GPIO_GetCallBack(GPIO_PIN Pin)
 {
 	UINT32 line = Pin % GPIO_PPP;
 	HAL_CALLBACK_FPN callback;
@@ -255,7 +250,7 @@ HAL_CALLBACK_FPN GPIO_GetCallBack(GPIO_PIN Pin)
 	}
 
 	return callback;
-}
+}*/
 
 //Exported Functions
 
@@ -263,39 +258,14 @@ HAL_CALLBACK_FPN GPIO_GetCallBack(GPIO_PIN Pin)
 // Initialize the ports GPIOA .... GPIOG of the Emote
 BOOL CPU_GPIO_Initialize()
 {
-	// Configure clock source for all gpio ports
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
-										RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOF | RCC_APB2Periph_GPIOG | RCC_APB2Periph_AFIO, ENABLE);
+	
 
 	return TRUE;
 }
 
 BOOL CPU_GPIO_Uninitialize()
 {
-	//GPIOA
-	RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOA, ENABLE);
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOA, DISABLE);
-	//GPIOB
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOB, ENABLE);
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOB, DISABLE);
-	//GPIOC
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOC, ENABLE);
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOC, DISABLE);
-	//GPIOD
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOD, ENABLE);
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOD, DISABLE);
-	//GPIOE
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOE, ENABLE);
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOE, DISABLE);
-	//GPIOF
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOF, ENABLE);
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOF, DISABLE);
-	//GPIOG
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOG, ENABLE);
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOG, DISABLE);
-	//AFIO
-	RCC_APB2PeriphResetCmd(RCC_APB2Periph_AFIO, ENABLE);
-	RCC_APB2PeriphResetCmd(RCC_APB2Periph_AFIO, DISABLE);
+	
 	return TRUE;
 }
 
@@ -307,9 +277,18 @@ BOOL CPU_GPIO_TogglePinState(GPIO_PIN Pin)
 		return FALSE;
 	}
 
+	uint16_t port;
+	uint16_t port_pin;
+	port = GPIO_GetPort(Pin);
+	port_pin = GPIO_GetPin(Pin);
+
+
+	gpio_cfg_t pin = { port, port_pin, GPIO_FUNC_GPIO, GPIO_PAD_NORMAL };
+
 	BOOL pinState = CPU_GPIO_GetPinState(Pin);
 	pinState = !pinState;
 	CPU_GPIO_SetPinState(Pin, pinState);
+
 	return pinState;
 }
 
@@ -326,19 +305,11 @@ UINT32 CPU_GPIO_Attributes( GPIO_PIN Pin )
 	return (GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT);
 }
 
-//TODO: just call DisablePin...
-void GPIO_ConfigurePinC( GPIO_TypeDef* GPIO_PortSource, uint16_t Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed) {
-    GPIO_ConfigurePin( GPIO_PortSource, Pin, mode, speed);
-}
-
-//TODO: keep track of resources.  Otherwise this function is pointless and clients should use the MSFT CPU_GPIO API.
-void GPIO_ConfigurePin( GPIO_TypeDef* GPIO_PortSource, uint16_t Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
+void GPIO_ConfigurePin( uint16_t port, uint16_t Pin, gpio_func_t function, gpio_pad_t pad)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Pin = Pin;
-	GPIO_InitStructure.GPIO_Mode = mode;
-	GPIO_InitStructure.GPIO_Speed = speed;
-	GPIO_Init(GPIO_PortSource, &GPIO_InitStructure);
+	gpio_cfg_t pin = { port, Pin, function, pad };
+
+	GPIO_Config(&pin);
 }
 
 
@@ -350,14 +321,15 @@ void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Dire
 		return;
 	}
 
-	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
-	uint16_t pinInHex = GPIO_GetPin(Pin);
-	GPIO_ConfigurePin(port, pinInHex);
-	CPU_GPIO_SetPinState(Pin, FALSE);
+	uint32_t port = GPIO_GetPort(Pin);
+	uint32_t port_pin = GPIO_GetPin(Pin);
+	gpio_cfg_t pin = { port, port_pin, GPIO_FUNC_GPIO, GPIO_PAD_OPEN_DRAIN };
+
+	GPIO_Config(&pin);
 
 	// Remove any user interrupts
-	gpio_isr[Pin] = NULL;
-	gpio_parm[Pin] = NULL;
+	//gpio_isr[Pin] = NULL;
+	//gpio_parm[Pin] = NULL;
 }
 
 // Configure the pin as an output pin, strange that this does not have a return type
@@ -370,10 +342,10 @@ void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 		return;
 	}
 
-	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
-	uint16_t pinInHex = GPIO_GetPin(Pin);
+	uint16_t port = GPIO_GetPort(Pin);
+	uint16_t pin = GPIO_GetPin(Pin);
 	CPU_GPIO_SetPinState(Pin, InitialState);
-	GPIO_ConfigurePin(port, pinInHex, GPIO_Mode_Out_PP);
+	GPIO_ConfigurePin(port, pin, GPIO_FUNC_GPIO, GPIO_PAD_NORMAL);
 }
 
 BOOL CPU_GPIO_EnableInputPin( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
@@ -384,12 +356,23 @@ BOOL CPU_GPIO_EnableInputPin( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERR
 		return FALSE;
 	}
 
+	gpio_pad_t mode;
+	if (ResistorState == RESISTOR_DISABLED) {
+		mode = GPIO_PAD_INPUT;
+	} else if(ResistorState == RESISTOR_PULLDOWN) {
+		mode = GPIO_PAD_INPUT_PULLDOWN;
+	} else if(ResistorState == RESISTOR_PULLUP) {
+		mode = GPIO_PAD_INPUT_PULLUP;
+	} else {
+		GPIO_DEBUG_PRINT("Invalid resistor configuration");
+		return FALSE;
+	}
+
 	// Short circuit for simple inputs.
-	if ( PIN_ISR == NULL && IntEdge == GPIO_INT_NONE && ResistorState == RESISTOR_DISABLED && GlitchFilterEnable == false ) {
-		GPIOMode_TypeDef mode = GPIO_Mode_IN_FLOATING;
-		GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
-		uint16_t pinInHex = GPIO_GetPin(Pin);
-		GPIO_ConfigurePin(port, pinInHex, mode);
+	if ( PIN_ISR == NULL && IntEdge == GPIO_INT_NONE && GlitchFilterEnable == false ) {
+		uint16_t port = GPIO_GetPort(Pin);
+		uint16_t pin = GPIO_GetPin(Pin);
+		GPIO_ConfigurePin(port, pin, GPIO_FUNC_GPIO, mode);
 		return TRUE;
 	}
 
@@ -404,24 +387,32 @@ BOOL CPU_GPIO_EnableInputPin3( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_E
 		return FALSE;
 	}
 
-	GPIOMode_TypeDef mode;
+	gpio_pad_t mode;
 
 	if (ResistorState == RESISTOR_DISABLED) {
-		mode = GPIO_Mode_IN_FLOATING;
+		mode = GPIO_PAD_INPUT;
 	} else if(ResistorState == RESISTOR_PULLDOWN) {
-		mode = GPIO_Mode_IPD;
+		mode = GPIO_PAD_INPUT_PULLDOWN;
 	} else if(ResistorState == RESISTOR_PULLUP) {
-		mode = GPIO_Mode_IPU;
+		mode = GPIO_PAD_INPUT_PULLUP;
 	} else {
 		GPIO_DEBUG_PRINT("Invalid resistor configuration");
 		return FALSE;
 	}
 
-	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
-	uint16_t pinInHex = GPIO_GetPin(Pin);
-	GPIO_ConfigurePin(port, pinInHex, mode);
+	uint16_t port = GPIO_GetPort(Pin);
+	uint16_t pin = GPIO_GetPin(Pin);
+	GPIO_ConfigurePin(port, pin, GPIO_FUNC_GPIO, mode);
 	
 	return TRUE;
+}
+
+static void IntConfig(unsigned int port, unsigned int pin, gpio_int_mode_t mode)
+{
+    uint32_t int_mode = MXC_GPIO->int_mode[port];
+    int_mode &= ~(0xF << (pin*4));
+    int_mode |= (mode << (pin*4));
+    MXC_GPIO->int_mode[port] = int_mode;
 }
 
 BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, void* ISR_Param, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
@@ -432,53 +423,56 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 		return FALSE;
 	}
 
-	EXTI_InitTypeDef EXTI_InitStructure;
+	//EXTI_InitTypeDef EXTI_InitStructure;
 
-	GPIOMode_TypeDef mode;
+	gpio_pad_t mode;
+
 	if (ResistorState == RESISTOR_DISABLED) {
-		mode = GPIO_Mode_IN_FLOATING;
+		mode = GPIO_PAD_INPUT;
 	} else if(ResistorState == RESISTOR_PULLDOWN) {
-		mode = GPIO_Mode_IPD;
+		mode = GPIO_PAD_INPUT_PULLDOWN;
 	} else if(ResistorState == RESISTOR_PULLUP) {
-		mode = GPIO_Mode_IPU;
-	} else mode = GPIO_Mode_IN_FLOATING;
-
-	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
-	uint16_t pinInHex = GPIO_GetPin(Pin);
-	GPIO_ConfigurePin(port, pinInHex, mode);
-
-	// Interrupt support for the gpio pins
-	GPIO_EXTILineConfig(GPIO_GetPort(Pin), (Pin % GPIO_PPP));
-
-	if(PIN_ISR)
-	{
-		EXTI_InitStructure.EXTI_Line = GPIO_GetExtiLine(Pin);
-
-		EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-
-		if(GPIO_INT_EDGE_LOW == IntEdge)
-			EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-		else if(GPIO_INT_EDGE_HIGH == IntEdge)
-			EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
-		else if(GPIO_INT_EDGE_BOTH == IntEdge)
-			EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-		// Not supported on the device
-		else if(GPIO_INT_LEVEL_HIGH == IntEdge || GPIO_INT_LEVEL_LOW == IntEdge)
-			return FALSE;
-
-		// Initialize external interrupts
-		EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-		EXTI_Init(&EXTI_InitStructure);
-
-		gpio_isr[Pin] = PIN_ISR;
-		gpio_parm[Pin] = ISR_Param;
-
-		CPU_INTC_ActivateInterrupt(GPIO_GetIRQNumber(Pin), (HAL_CALLBACK_FPN) GPIO_GetCallBack(Pin), NULL);
+		mode = GPIO_PAD_INPUT_PULLUP;
+	} else {
+		GPIO_DEBUG_PRINT("Invalid resistor configuration");
+		return FALSE;
 	}
-	else
+
+	gpio_int_mode_t interruptMode;
+	if (IntEdge == GPIO_INT_NONE) {
+		interruptMode = GPIO_INT_DISABLE;
+	} else if(IntEdge == GPIO_INT_EDGE_LOW) {
+		interruptMode = GPIO_INT_FALLING_EDGE;
+	} else if(IntEdge == GPIO_INT_EDGE_HIGH) {
+		interruptMode = GPIO_INT_RISING_EDGE;
+	} else if(IntEdge == GPIO_INT_EDGE_BOTH) {
+		interruptMode = GPIO_INT_ANY_EDGE;	 
+	} else if(IntEdge == GPIO_INT_LEVEL_HIGH) {
+		interruptMode = GPIO_INT_HIGH_LEVEL;
+	} else if(IntEdge == GPIO_INT_LEVEL_LOW) {
+		interruptMode = GPIO_INT_LOW_LEVEL;
+	} else {
+		GPIO_DEBUG_PRINT("Invalid interruptMode configuration");
+		return FALSE;
+	}
+
+	uint16_t port = GPIO_GetPort(Pin);
+	uint16_t pin = GPIO_GetPin(Pin);
+	uint16_t port_pin_number = GPIO_GetPinNumber(Pin);
+	GPIO_ConfigurePin(port, pin, GPIO_FUNC_GPIO, mode);
+
+	if (PIN_ISR)
 	{
-		gpio_isr[Pin] = NULL;
-		gpio_parm[Pin] = NULL;
+		IntConfig(port, port_pin_number, interruptMode);
+	  	callbacks[port][port_pin_number] = PIN_ISR;
+        cbparam[port][port_pin_number] = ISR_Param;
+		gpio_cfg_t pinCfg = { port, pin, GPIO_FUNC_GPIO, mode };
+		GPIO_IntEnable(&pinCfg);
+		NVIC_EnableIRQ(MXC_GPIO_GET_IRQ(pinCfg.port));
+
+	} else {
+		callbacks[port][port_pin_number] = NULL;
+        cbparam[port][port_pin_number] = NULL;
 	}
 
 	return TRUE;
@@ -489,19 +483,38 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 // If the pin is configured in one of the output modes, read the output data register
 BOOL CPU_GPIO_GetPinState( GPIO_PIN Pin )
 {
-	if(Pin > GPIO_PINS)
-	{
-		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
+	uint16_t port;
+	uint16_t port_pin_number;
+	BOOL pinState = FALSE;
+
+	if (Pin > GPIO_PINS) { return FALSE; }
+
+	port = GPIO_GetPort(Pin);
+	port_pin_number = GPIO_GetPinNumber(Pin);
+
+	uint32_t out_mode = MXC_GPIO->out_mode[port];
+	uint32_t func_sel = MXC_GPIO->func_sel[port];
+	uint32_t port_value;
+
+	out_mode = (out_mode >> (4 * port_pin_number)) & 0xf;
+	func_sel = (func_sel >> (4 * port_pin_number)) & 0xf;
+
+	if (func_sel != GPIO_FUNC_GPIO)
+		return FALSE;
+
+	if ((out_mode == GPIO_PAD_NORMAL) | (out_mode == GPIO_PAD_SLOW) | (out_mode == GPIO_PAD_FAST)){
+		port_value = MXC_GPIO->out_val[port];
+		port_value = (port_value >>  port_pin_number) & 0x1;
+	} else if ((out_mode == GPIO_PAD_INPUT) | (out_mode == GPIO_PAD_INPUT_PULLUP) | (out_mode == GPIO_PAD_INPUT_PULLDOWN)){
+		port_value = MXC_GPIO->in_val[port];
+		port_value = (port_value >> port_pin_number) & 0x1;
+	} else {
 		return FALSE;
 	}
 
-	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
-	uint16_t pinInHex = GPIO_GetPin(Pin);
-	if(IsOutputPin(Pin)){
-		return (BOOL)GPIO_ReadOutputDataBit(port, pinInHex);
-	} else	{
-		return (BOOL)GPIO_ReadInputDataBit(port, pinInHex);
-	}
+	pinState = port_value;
+
+	return pinState;
 }
 
 void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
@@ -512,16 +525,17 @@ void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
 		return;
 	}
 
-	//If it isn't an output pin, then its not valid to Set(). EnableOutputPin() first.
-	//If you call Set() and it isn't an output, nothing will happen.
-	//if (!IsOutputPin(Pin)) { return; }
+	uint16_t port;
+	uint16_t port_pin;
+	port = GPIO_GetPort(Pin);
+	port_pin = GPIO_GetPin(Pin);
 
-	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
-	uint16_t pinInHex = GPIO_GetPin(Pin);
+	gpio_cfg_t pin = { port, port_pin, GPIO_FUNC_GPIO, GPIO_PAD_NORMAL };
+
 	if(PinState) {
-		GPIO_WriteBit(port, pinInHex, Bit_SET);
+		GPIO_OutSet(&pin);
 	} else {
-		GPIO_WriteBit(port, pinInHex, Bit_RESET);
+		GPIO_OutClr(&pin);
 	}
 }
 
@@ -609,7 +623,7 @@ UINT8 CPU_GPIO_GetSupportedInterruptModes( GPIO_PIN pin )
 
 
 
-
+/*
 void EXTI0_IRQ_HANDLER(void *args)
 {
 	handle_exti(EXTI_Line0);
@@ -653,4 +667,4 @@ void EXTI15_10_IRQ_Handler(void *args)
 	handle_exti(EXTI_Line13);
 	handle_exti(EXTI_Line14);
 	handle_exti(EXTI_Line15);
-}
+}*/

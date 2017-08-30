@@ -12,7 +12,7 @@
 #include <tinyhal.h>
 //#include <pwr/netmf_pwr.h>
 //#include "../Timer/timer_16bit/timer_16bit.h"
-//#include "../Timer/timer_32bit/timer_32bit.h"
+#include "timer_32bit/timer_32bit.h"
 //#include "../Timer/timer_rtc/timer_rtc.h"
 //#include <intc/stm32.h>
 
@@ -23,7 +23,7 @@ extern const UINT8 TIMER2_16BIT;
 
 
 //extern Max3263x_timer_16bit g_Timer16Bit_Driver;
-//extern Max3263x_timer_32bit g_Timer32Bit_Driver;
+extern Max3263x_timer_32bit g_Timer32Bit_Driver;
 //extern Max3263x_timer_RTC g_TimerRTC_Driver;
 
 
@@ -36,20 +36,9 @@ extern const UINT8 TIMER2_16BIT;
 //BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
 BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CALLBACK_FPN ISR)
 {
-    // assumptions about clock settings used in optimizations. TODO: use static assert.
-/*    ASSERT(CLOCK_COMMON_FACTOR == CLOCK_COMMON_FACTOR);
-    ASSERT(g_HardwareTimerFrequency[0] == SYSTEM_CLOCK_HZ);
-    ASSERT(ONE_MHZ == 1000000);
-    ASSERT(SLOW_CLOCKS_PER_SECOND == SLOW_CLOCKS_PER_SECOND);
-
-	// Make sure timer input is not 0 in case macro is not defined or the timer is not trying to
-	// re initialize the system  timer
-
 	// Dont allow initializing of timers with NULL as the callback function
 	if(ISR == NULL)
 		return FALSE;
-
-	////VirtualTimerHandlerFPN = ISR;
 
 #ifdef TIMERDEBUG
 		CPU_GPIO_EnableOutputPin((GPIO_PIN) 1, FALSE);
@@ -58,20 +47,19 @@ BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CA
 	// Call timer driver initialize
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
-		//if(!g_Timer16Bit_Driver.Initialize(Timer, IsOneShot, ClkSource, Prescaler, ISR, NULL))
-		if(!g_Timer16Bit_Driver.Initialize(Timer, IsOneShot, Prescaler, ISR, NULL))
+		//if(!g_Timer16Bit_Driver.Initialize(Timer, IsOneShot, Prescaler, ISR, NULL))
 			return FALSE;
 	}
 	else if(Timer == ADVTIMER_32BIT )
 	{
-		if(g_Timer32Bit_Driver.Initialize(Prescaler, ISR, ADVTIMER_32BIT) != DS_Success)
+		if(g_Timer32Bit_Driver.Initialize(ISR, ADVTIMER_32BIT) != DS_Success)
 			return FALSE;
 	}
 	else if(Timer == RTC_32BIT )
 	{
-		if(g_TimerRTC_Driver.Initialize(Prescaler, ISR, RTC_32BIT) != DS_Success)
+		//if(g_TimerRTC_Driver.Initialize(Prescaler, ISR, RTC_32BIT) != DS_Success)
 			return FALSE;
-	}*/
+	}
 
 	return TRUE;
 }

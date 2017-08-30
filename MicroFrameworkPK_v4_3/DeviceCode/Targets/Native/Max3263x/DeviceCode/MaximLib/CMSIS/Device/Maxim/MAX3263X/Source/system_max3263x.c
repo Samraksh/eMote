@@ -203,6 +203,7 @@ __weak void SystemInit(void)
     __enable_irq();                 /* enable interrupts */
 #endif /* __GNUC__ */
 #endif
+	PreInit();
     /* Copy trim information from shadow registers into power manager registers */
     /* NOTE: Checks have been added to prevent bad/missing trim values from being loaded */
     if ((MXC_FLC->ctrl & MXC_F_FLC_CTRL_INFO_BLOCK_VALID) &&

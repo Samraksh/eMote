@@ -64,22 +64,14 @@
   <!--<Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Samraksh_eMote_DSP\Samraksh_eMote_DSP.featureproj" />-->
   <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_ProgramManager\Samraksh_eMote_ProgramManager.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
-  
   <ItemGroup>
-    <DriverLibs Include="Max3263x_PeriphDriver.$(LIB_EXT)" />
-    <DriverLibs Include="Max3263x.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="Max3263x_DevKitBoard.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\DevKitBoard\dotNetMF.proj" />
-  </ItemGroup>
-   
-  <!--<ItemGroup>
     <DriverLibs Include="Max3263x.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\CMSIS\dotNetMF.proj" />
-  </ItemGroup>-->
-  
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="Max3263x_PeriphDriver.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\MAX3263XPeriphDriver\dotNetMF.proj" />
+  </ItemGroup>
   <ItemGroup>
     <PlatformIndependentLibs Include="Core.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Core\dotNetMF.proj" />
@@ -303,14 +295,14 @@
     <DriverLibs Include="GlobalLock_hal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\cores\arm\Common\GlobalLock\dotNetMF.proj" />
 	</ItemGroup>
-	<ItemGroup>
+	<!--<ItemGroup>
     <DriverLibs Include="GPIOStubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\gpio\GPIOStubs\dotNetMF.proj" />
-  </ItemGroup>
-  <!--<ItemGroup>
+  </ItemGroup>-->
+  <ItemGroup>
     <DriverLibs Include="Max3263x_gpio.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\gpio\dotNetMF.proj" />
-  </ItemGroup>-->
+  </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Initialization\dotNetMF.proj" />
@@ -494,10 +486,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Timer\dotNetMF.proj" />
     <DriverLibs Include="Max3263x_timer.$(LIB_EXT)" />
   </ItemGroup>
-  <!--<ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Timer\advancedtimer\dotNetMF.proj" />
-    <DriverLibs Include="Max3263x_adtim.$(LIB_EXT)" />
-  </ItemGroup>-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Timer\timer_32bit\dotNetMF.proj" />
+    <DriverLibs Include="Max3263x_Timer32Bit.$(LIB_EXT)" />
+  </ItemGroup>
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Timer\netmf_rtc\dotNetMF.proj" />
     <DriverLibs Include="Max3263x_rtc.$(LIB_EXT)" />

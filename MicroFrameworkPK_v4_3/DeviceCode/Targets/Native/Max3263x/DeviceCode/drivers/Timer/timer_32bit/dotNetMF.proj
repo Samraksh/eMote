@@ -1,12 +1,12 @@
 <Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>Timer32Bit</AssemblyName>
+    <AssemblyName>Max3263x_Timer32Bit</AssemblyName>
     <ProjectGuid>{36101ca5-349a-4471-aeb0-3babba567477}</ProjectGuid>
     <Size>
     </Size>
     <Description>Max3263x 32 bit timer</Description>
     <Level>HAL</Level>
-    <LibraryFile>Timer32Bit.$(LIB_EXT)</LibraryFile>
+    <LibraryFile>Max3263x_Timer32Bit.$(LIB_EXT)</LibraryFile>
     <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Timer\timer_32bit\dotNetMF.proj</ProjectPath>
     <ManifestFile>Timer32Bit.$(LIB_EXT).manifest</ManifestFile>
     <Groups>Processor\Max3263x</Groups>
