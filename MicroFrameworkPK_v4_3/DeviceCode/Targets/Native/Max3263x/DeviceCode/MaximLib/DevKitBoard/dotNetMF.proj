@@ -1,0 +1,58 @@
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AssemblyName>Max3263x_DevKitBoard</AssemblyName>
+    <ProjectGuid>{36101ca5-349a-4471-aeb0-3babba567477}</ProjectGuid>
+    <Size>
+    </Size>
+    <Description>Max3263x_DevKitBoard</Description>
+    <Level>HAL</Level>
+    <LibraryFile>Max3263x_DevKitBoard.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\DevKitBoard\dotNetMF.proj</ProjectPath>
+    <ManifestFile>Max3263x_DevKitBoard.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Processor\Max3263x</Groups>
+    <LibraryCategory>
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="DevKitBoard_HAL" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" Conditional="" xmlns="">
+        <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
+          <Major>4</Major>
+          <Minor>3</Minor>
+          <Revision>0</Revision>
+          <Build>0</Build>
+          <Extra />
+          <Date>2010-07-01</Date>
+        </VersionDependency>
+        <ComponentType xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">LibraryCategory</ComponentType>
+      </MFComponent>
+    </LibraryCategory>
+    <Documentation>
+    </Documentation>
+    <PlatformIndependent>False</PlatformIndependent>
+    <CustomFilter>
+    </CustomFilter>
+    <Required>False</Required>
+    <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
+    <IsStub>False</IsStub>
+    <Directory>DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\DevKitBoard</Directory>
+    <OutputType>Library</OutputType>
+    <PlatformIndependentBuild>false</PlatformIndependentBuild>
+    <Version>4.0.0.0</Version>
+  </PropertyGroup>
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <PropertyGroup />
+  <ItemGroup>
+  
+	<HFiles Include="pb.h" />
+	<HFiles Include="max14690.h" />
+	<HFiles Include="board.h" />
+	<HFiles Include="led.h" />
+	<HFiles Include="nhd12832.h" />
+	
+	<Compile Include="pb.c" />
+	<Compile Include="max14690.c" />
+    <Compile Include="nhd12832.c" />
+    <Compile Include="led.c" />
+    <Compile Include="board.c" />
+    
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+</Project>

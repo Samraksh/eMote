@@ -5,11 +5,15 @@
 #include <tinyhal.h>
 #include "netmf_bl.h"
 
+#include "mxc_config.h"
+#include "flc.h"
+
 //--//
 #define CR_PER_Reset             ((uint32_t)0x00001FFD)
 
 BOOL Max3263x_blDriver::InitializeDevice( void* context )
 {
+	FLC_Init();
     return TRUE;
 }
 
@@ -24,6 +28,7 @@ const BlockDeviceInfo* Max3263x_blDriver::GetDeviceInfo( void* context )
     return config->BlockDeviceInformation;
 }
 
+
 BOOL Max3263x_blDriver::Read( void* context, ByteAddress Address, UINT32 NumBytes, BYTE * pSectorBuff )
 {
     pSectorBuff = (BYTE *)Address;			// Just move the buffer pointer
@@ -32,7 +37,8 @@ BOOL Max3263x_blDriver::Read( void* context, ByteAddress Address, UINT32 NumByte
 
 BOOL Max3263x_blDriver::Write( void* context, ByteAddress address, UINT32 numBytes, BYTE * pSectorBuff, BOOL ReadModifyWrite )
 {
-	return FALSE;
+	if (FLC_Write((uint32_t)address, (const void *)pSectorBuff, numBytes, MXC_V_FLC_FLSH_UNLOCK_KEY)==E_NO_ERROR) return TRUE;
+	else return FALSE;
 	/*FLASH_Status status;
 	UINT8 pages 	= (numBytes / 0x800) + 1;
 	UINT8 startPage = address / 0x800;
@@ -90,11 +96,12 @@ BOOL Max3263x_blDriver::Write( void* context, ByteAddress address, UINT32 numByt
 		FLASH->CR2 = FLASH_CR_LOCK;
 	}
 	// @todo check programming
-	return TRUE;*/
+	return TRUE; */
 }
 
 BOOL Max3263x_blDriver::Memset(void* context, ByteAddress address, UINT8 Data, UINT32 numBytes)
 {
+	return FALSE;
 /*	UINT8 pages 	= (numBytes / 0x800) + 1;
 	UINT8 startPage = address / 0x800;
 	UINT8 ii;
@@ -112,7 +119,6 @@ BOOL Max3263x_blDriver::Memset(void* context, ByteAddress address, UINT8 Data, U
 	}
 	// @todo check programming
 	return TRUE;*/
-	return FALSE;
 }
 
 BOOL Max3263x_blDriver::GetSectorMetadata(void* context, ByteAddress SectorStart, SectorMetadata* pSectorMetadata)
@@ -127,33 +133,28 @@ BOOL Max3263x_blDriver::SetSectorMetadata(void* context, ByteAddress SectorStart
 
 BOOL Max3263x_blDriver::IsBlockErased( void* context, ByteAddress Address, UINT32 BlockLength )
 {
-	/*UINT16* addressPtr    = (UINT16* )Address;	// 16-bit writing
+	UINT16* addressPtr    = (UINT16* )Address;	// 16-bit writing
 	if(*addressPtr ==  0xFFFF) {
 		return TRUE;
 	} else {
 	  			return FALSE;
-	}*/
+	}
 	return TRUE;
 }
 
-// I don't know why this code was made so painful. I'll probably rediscover.
-// But you definitely can't do a global lock on a flash erase...
-// --NPS 2014-06-26
+
 BOOL Max3263x_blDriver::EraseBlock( void* context, ByteAddress address )
 {
+	if(FLC_PageErase((uint32_t) address, MXC_V_FLC_ERASE_CODE_PAGE_ERASE, MXC_V_FLC_FLSH_UNLOCK_KEY)==E_NO_ERROR) return TRUE;
+	else return FALSE;
+
 	/*FLASH_Status stat;
-
 	FLASH_Unlock();
-
 	stat = FLASH_ErasePage(address);
-
 	while(stat != FLASH_COMPLETE) {
 		stat = FLASH_ErasePage(address);
 	}
-
 	return TRUE;*/
-
-	return FALSE;
 }
 
 

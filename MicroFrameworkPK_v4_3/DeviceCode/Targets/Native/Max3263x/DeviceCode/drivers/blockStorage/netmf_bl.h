@@ -6,7 +6,10 @@
 
 #include <max3263x.h>
 
-#define FLASH_BANK1_END_ADDRESS   ((uint32_t)0x807FFFF)
+#define FLASH_START_ADDRESS	MXC_FLASH_MEM_BASE
+#define FLASH_FULL_SIZE MXC_FLASH_FULL_MEM_SIZE
+#define FLASH_END_ADDRESS   ((uint32_t)FLASH_START_ADDRESS+FLASH_FULL_SIZE)
+
 #define CR_PG_Set                ((uint32_t)0x00000001)
 #define EraseTimeout          ((uint32_t)0x000B0000)
 

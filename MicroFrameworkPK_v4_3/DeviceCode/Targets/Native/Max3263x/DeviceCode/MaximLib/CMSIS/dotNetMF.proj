@@ -7,7 +7,7 @@
     <Description>Max3263x</Description>
     <Level>HAL</Level>
     <LibraryFile>Max3263x.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\cmsis\dotNetMF.proj</ProjectPath>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\MaximLib\CMSIS\dotNetMF.proj</ProjectPath>
     <ManifestFile>Max3263x.$(LIB_EXT).manifest</ManifestFile>
     <Groups>Processor\Max3263x</Groups>
     <LibraryCategory>
