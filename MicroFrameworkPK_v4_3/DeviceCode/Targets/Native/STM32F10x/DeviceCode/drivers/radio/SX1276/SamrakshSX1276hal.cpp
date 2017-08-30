@@ -10,9 +10,12 @@
 
 EMOTE_SX1276_LORA::Samraksh_SX1276_hal gsx1276radio;
 
-extern SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
+//extern SX1276_Semtech::SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
+
+extern SX1276_Semtech::SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
 
 namespace EMOTE_SX1276_LORA {
+
 
 
 
@@ -55,10 +58,6 @@ Samraksh_SX1276_hal::Samraksh_SX1276_hal()
 , isCallbackIssued(false)
 {
 
-	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(PacketLoadTimerName, 0, 1000, TRUE, FALSE, Samraksh_SX1276_hal::PacketLoadTimerHandler);
-	rm = VirtTimer_SetTimer(PacketTxTimerName, 0, 1000, TRUE, FALSE, Samraksh_SX1276_hal::PacketTxTimerHandler);
-
 }
 
 
@@ -71,7 +70,7 @@ DeviceStatus Samraksh_SX1276_hal::Initialize(SamrakshRadio_I::RadioEvents_t re){
 
 	isCallbackIssued = false;
 
-	SX1276_hal_wrapper_internal_radio_properties.SetDefaults(10, 10, 1000, 100, MODEM_LORA);
+	SX1276_hal_wrapper_internal_radio_properties.SetDefaults(10, 10, 1000, 1000, MODEM_LORA);
 
 	sx1276_re.ValidHeaderDetected = Samraksh_SX1276_hal::ValidHeaderDetected;
 	sx1276_re.TxDone = Samraksh_SX1276_hal::TxDone;
@@ -214,10 +213,18 @@ void Samraksh_SX1276_hal::ChannelActivityDetection(){
 }
 
 void Samraksh_SX1276_hal::PacketLoadTimerHandler(void* param) {
+	UINT64 delay;
+	UINT64 curtime = VirtTimer_GetTicks(gsx1276radio.m_packet.GetClockId());
 	g_SX1276M1BxASWrapper.WriteFifo(gsx1276radio.m_packet.GetPayload(),gsx1276radio.m_packet.GetSize());
 	gsx1276radio.m_packet.MarkUploaded();
-	UINT64 curtime = VirtTimer_GetTicks(gsx1276radio.m_packet.GetClockId());
-	UINT64 delay = VirtTimer_TicksToTime(gsx1276radio.m_packet.GetClockId(), gsx1276radio.m_packet.GetDueTime() - curtime);
+	if(curtime >= gsx1276radio.m_packet.GetDueTime()){ //Failed to load and send correctly
+//		gsx1276radio.m_re.DataStatusCallback(false, gsx1276radio.m_packet.GetSize());
+//		return;
+		delay = 10000;
+	}
+	else{
+		delay = VirtTimer_TicksToTime(gsx1276radio.m_packet.GetClockId(), gsx1276radio.m_packet.GetDueTime() - curtime);
+	}
 	SetTimer(PacketTxTimerName, 0 , delay, TRUE, high_precision_clock_id ); //Schedule PacketTxTimerHandler
 }
 

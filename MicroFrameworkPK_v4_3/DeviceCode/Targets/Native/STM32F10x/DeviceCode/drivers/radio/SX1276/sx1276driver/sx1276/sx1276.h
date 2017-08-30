@@ -126,7 +126,7 @@ protected:
     * \remark Must be called just after the reset so all registers are at their
     *         default values
     */
-    void RxChainCalibration( void );
+    void RxChainCalibration( );
 
 public:
 //    SX1276( RadioEvents_t *events,
@@ -150,7 +150,7 @@ public:
      *
      * @param status Radio status. [RF_IDLE, RX_RUNNING, TX_RUNNING]
      */
-    virtual RadioState GetStatus( void ); 
+    virtual RadioState GetStatus( );
     /*!
      * @brief Configures the SX1276 with the given modem
      *
@@ -183,7 +183,7 @@ public:
      *
      * @retval randomValue    32 bits random value
      */
-    virtual uint32_t Random( void );
+    virtual uint32_t Random(  );
     /*!
      * @brief Sets the reception parameters
      *
@@ -289,15 +289,15 @@ public:
     /*!
      * @brief Sets the radio in sleep mode
      */
-    virtual void Sleep( void );
+    virtual void Sleep(  );
     /*!
      * @brief Sets the radio in standby mode
      */
-    virtual void Standby( void );
+    virtual void Standby(  );
     /*!
      * @brief Sets the radio in CAD mode
      */
-    virtual void StartCad( void );
+    virtual void StartCad(  );
     /*!
      * @brief Sets the radio in reception mode for the given time
      * @param [IN] timeout Reception timeout [ms]
@@ -398,7 +398,7 @@ protected:
     /*!
      * @brief Initializes the radio I/Os pins interface
      */
-    virtual void IoInit( void ) = 0;
+    virtual void IoInit(  ) = 0;
     
     /*!
      *    @brief Initializes the radio registers
@@ -408,7 +408,7 @@ protected:
     /*!
      * @brief Initializes the radio SPI
      */
-    virtual void SpiInit( void ) = 0;
+    virtual void SpiInit(  ) = 0;
 
     /*!
      * @brief Initializes DIO IRQ handlers
@@ -422,7 +422,7 @@ protected:
      *
      * \remark Useful when going in MCU lowpower modes
      */
-    virtual void IoDeInit( void ) = 0;
+    virtual void IoDeInit(  ) = 0;
 
     /*!
      * @brief Sets the radio output power.
@@ -449,14 +449,14 @@ protected:
     /*!
      * @brief Initializes the RF Switch I/Os pins interface
      */
-    virtual void AntSwInit( void ) = 0;
+    virtual void AntSwInit(  ) = 0;
 
     /*!
      * @brief De-initializes the RF Switch I/Os pins interface 
      *
      * \remark Needed to decrease the power consumption in MCU lowpower modes
      */
-    virtual void AntSwDeInit( void ) = 0;
+    virtual void AntSwDeInit(  ) = 0;
 
     /*!
      * @brief Controls the antenna switch if necessary.
@@ -484,37 +484,37 @@ protected:
     /*!
      * @brief DIO 0 IRQ callback
      */
-    void OnDio0Irq( void );
+    void OnDio0Irq(  );
 
     /*!
      * @brief DIO 1 IRQ callback
      */
-    void OnDio1Irq( void );
+    void OnDio1Irq(  );
 
     /*!
      * @brief DIO 2 IRQ callback
      */
-    void OnDio2Irq( void );
+    void OnDio2Irq(  );
 
     /*!
      * @brief DIO 3 IRQ callback
      */
-    void OnDio3Irq( void );
+    void OnDio3Irq(  );
 
     /*!
      * @brief DIO 4 IRQ callback
      */
-    void OnDio4Irq( void );
+    void OnDio4Irq(  );
 
     /*!
      * @brief DIO 5 IRQ callback
      */
-    void OnDio5Irq( void );
+    void OnDio5Irq(  );
 
     /*!
      * @brief Tx & Rx timeout timer callback
      */
-    void OnTimeoutIrq( void );
+    void OnTimeoutIrq(  );
 
     /*!
      * Returns the known FSK bandwidth registers value

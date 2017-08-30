@@ -89,7 +89,7 @@ void SX1276::Init( RadioEvents_t *events )
     this->RadioEvents = events;
 }
 
-RadioState SX1276::GetStatus( void )
+RadioState SX1276::GetStatus(  )
 {
     return this->settings.State;
 }
@@ -126,7 +126,7 @@ bool SX1276::IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThre
     return true;
 }
 
-uint32_t SX1276::Random( void )
+uint32_t SX1276::Random(  )
 {
     uint8_t i;
     uint32_t rnd = 0;
@@ -167,13 +167,22 @@ uint32_t SX1276::Random( void )
  * \remark Must be called just after the reset so all registers are at their
  *         default values
  */
-void SX1276::RxChainCalibration( void )
+void SX1276::RxChainCalibration( )
 {
     uint8_t regPaConfigInitVal;
     uint32_t initialFreq;
 
+	CPU_GPIO_SetPinState( (GPIO_PIN)25 , FALSE);
+	CPU_GPIO_SetPinState( (GPIO_PIN)25 , TRUE);
+
+
     // Save context
     regPaConfigInitVal = this->Read( REG_PACONFIG );
+
+	CPU_GPIO_SetPinState( (GPIO_PIN)25 , FALSE);
+	CPU_GPIO_SetPinState( (GPIO_PIN)25 , TRUE);
+
+
     initialFreq = ( double )( ( ( uint32_t )this->Read( REG_FRFMSB ) << 16 ) |
                               ( ( uint32_t )this->Read( REG_FRFMID ) << 8 ) |
                               ( ( uint32_t )this->Read( REG_FRFLSB ) ) ) * ( double )FREQ_STEP;
@@ -678,7 +687,7 @@ void SX1276::Send( uint8_t *buffer, uint8_t size )
     Tx( txTimeout );
 }
 
-void SX1276::Sleep( void )
+void SX1276::Sleep(  )
 {
     //txTimeoutTimer.detach( );
  CancelTimeoutTimer(txTimeoutTimer);
@@ -689,7 +698,7 @@ void SX1276::Sleep( void )
     this->settings.State = RF_IDLE;
 }
 
-void SX1276::Standby( void )
+void SX1276::Standby(  )
 {
     //txTimeoutTimer.detach( );
  CancelTimeoutTimer(txTimeoutTimer);
@@ -930,7 +939,7 @@ void SX1276::Tx( uint32_t timeout )
     SetOpMode( RF_OPMODE_TRANSMITTER );
 }
 
-void SX1276::StartCad( void )
+void SX1276::StartCad(  )
 {
     switch( this->settings.Modem )
     {
@@ -1093,7 +1102,7 @@ void SX1276::SetPublicNetwork( bool enable )
     }
 }
 
-void SX1276::OnTimeoutIrq( void )
+void SX1276::OnTimeoutIrq(  )
 {
     switch( this->settings.State )
     {
@@ -1169,7 +1178,7 @@ void SX1276::OnTimeoutIrq( void )
     }
 }
 
-void SX1276::OnDio0Irq( void )
+void SX1276::OnDio0Irq(  )
 {
     volatile uint8_t irqFlags = 0;
 
@@ -1380,7 +1389,7 @@ void SX1276::OnDio0Irq( void )
     }
 }
 
-void SX1276::OnDio1Irq( void )
+void SX1276::OnDio1Irq(  )
 {
     switch( this->settings.State )
     {
@@ -1458,7 +1467,7 @@ void SX1276::OnDio1Irq( void )
     }
 }
 
-void SX1276::OnDio2Irq( void )
+void SX1276::OnDio2Irq(  )
 {
     switch( this->settings.State )
     {
@@ -1529,7 +1538,7 @@ void SX1276::OnDio2Irq( void )
     }
 }
 
-void SX1276::OnDio3Irq( void )
+void SX1276::OnDio3Irq(  )
 {
     switch( this->settings.Modem )
     {
@@ -1570,7 +1579,7 @@ void SX1276::OnDio3Irq( void )
     }
 }
 
-void SX1276::OnDio4Irq( void )
+void SX1276::OnDio4Irq(  )
 {
     switch( this->settings.Modem )
     {
@@ -1589,7 +1598,7 @@ void SX1276::OnDio4Irq( void )
     }
 }
 
-void SX1276::OnDio5Irq( void )
+void SX1276::OnDio5Irq(  )
 {
     switch( this->settings.Modem )
     {

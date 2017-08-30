@@ -13,9 +13,9 @@
 
 #include "sx1276driver/sx1276/sx1276.h"
 #include "sx1276wrapper_definitions.h"
+namespace SX1276_Semtech {
 
-
-class SX1276M1BxASWrapper : public SX1276_Semtech::SX1276, private LoraHat::Emote_Lora_Hat {
+class SX1276M1BxASWrapper : public SX1276_Semtech::SX1276, private SX1276_Semtech::Emote_Lora_Hat {
 public :
 	static void SX1276_Radio_Interrupt_Handler0(GPIO_PIN Pin, BOOL PinState, void* Param);
 	static void SX1276_Radio_Interrupt_Handler1(GPIO_PIN Pin, BOOL PinState, void* Param);
@@ -26,9 +26,12 @@ public :
 
 	static void SX1276_Radio_OnTimeoutIrq(void* param);
 
+	static void SX1276_Reset_Pin_Interrupt_Handler(GPIO_PIN Pin, BOOL PinState, void* Param);
+
 private:
 	RadioRegisters_t RadioRegsInit[16];
 public:
+	bool reset_intiated;
 	SX1276M1BxASWrapper();
 	void Initialize(SX1276_Semtech::RadioEvents_t *events);
 //	SX1276M1BxASWrapper(RadioEvents_t *events );
@@ -90,7 +93,7 @@ public:
     /*!
      * @brief Resets the SX1276
      */
-    virtual void Reset( void );
+    virtual void Reset(  );
 
     friend class Samraksh_SX1276_hal;
 
@@ -98,7 +101,7 @@ protected:
     /*!
      * @brief Initializes the radio I/Os pins interface
      */
-    virtual void IoInit( void );
+    virtual void IoInit( );
 
     virtual void InitializeTimers();
 
@@ -110,7 +113,7 @@ protected:
     /*!
      * @brief Initializes the radio SPI
      */
-    virtual void SpiInit( void );
+    virtual void SpiInit(  );
 
     /*!
      * @brief Initializes DIO IRQ handlers
@@ -124,7 +127,7 @@ protected:
      *
      * \remark Useful when going in MCU lowpower modes
      */
-    virtual void IoDeInit( void );
+    virtual void IoDeInit(  );
 
     /*!
      * @brief Sets the radio output power.
@@ -151,14 +154,14 @@ protected:
     /*!
      * @brief Initializes the RF Switch I/Os pins interface
      */
-    virtual void AntSwInit( void );
+    virtual void AntSwInit(  );
 
     /*!
      * @brief De-initializes the RF Switch I/Os pins interface
      *
      * \remark Needed to decrease the power consumption in MCU lowpower modes
      */
-    virtual void AntSwDeInit( void );
+    virtual void AntSwDeInit(  );
 
     /*!
      * @brief Controls the antenna switch if necessary.
@@ -179,7 +182,7 @@ private:
 
 };
 
-
+}
 
 
 #endif /* MICROFRAMEWORKPK_V4_3_DEVICECODE_TARGETS_NATIVE_STM32F10X_DEVICECODE_DRIVERS_RADIO_SX1276_SX1276WRAPPER_H_ */

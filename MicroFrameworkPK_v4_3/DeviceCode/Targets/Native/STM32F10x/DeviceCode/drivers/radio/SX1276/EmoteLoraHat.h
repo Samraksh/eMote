@@ -30,7 +30,7 @@ static int LORA_ASSERT(int x, const char *err) {
 }
 
 
-namespace LoraHat {
+namespace SX1276_Semtech {
 
 enum {
 	NONE00=0,
