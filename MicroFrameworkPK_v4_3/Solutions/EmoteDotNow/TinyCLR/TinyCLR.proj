@@ -33,6 +33,9 @@
     <EXEScatterFileDefinition>$(SRC_DIR)\scatterfile_tinyclr_$(COMPILER_TOOL).$(SCATTER_EXT)</EXEScatterFileDefinition>
   </PropertyGroup>
   <ItemGroup>
+    <HFiles Include="RequestSendAtTimeInstantTest.h" />	
+    <Compile Include="RequestSendAtTimeInstantTest.cpp" />
+	
     <Compile Include="allocator.cpp" />
     <Compile Include="tinyclr.cpp" />
     <HFiles Include="$(SPOCLIENT)\clr\include\tinyclr_application.h" />
@@ -40,6 +43,7 @@
     <ScatterFileReferences Include="$(SRC_DIR)\scatterfile_ram_functions.$(SCATTER_EXT)" />
     <ScatterFileReferences Include="$(SRC_DIR)\scatterfile_tinyclr_$(COMPILER_TOOL).$(SCATTER_EXT)" />
     <ScatterFileReferences Include="$(SRC_DIR)\scatterfile_tinyclr_ram_functions.$(SCATTER_EXT)" />
+
   </ItemGroup>
   <!-- #TestSystem: All project information below this line will automatically be used to update the native project files in the TestSuite -->
   <Import Project="$(SPOCLIENT)\Framework\Features\core.featureproj" />
