@@ -243,7 +243,7 @@ public:
 
 public:
 //	Emote_Lora_Hat();
-//	virtual ~Emote_Lora_Hat();
+//	~Emote_Lora_Hat();
 ////
 //	void write_tx_fifo(uint8_t numBytes, uint8_t* pTxData) {
 //	  radio_comm_WriteData( SX1276_CMD_ID_WRITE_TX_FIFO, 0, numBytes, pTxData );
@@ -334,25 +334,25 @@ public:
      *
      * @param [IN] events Structure containing the driver callback functions
      */
-    virtual void Init( SX1276RadioEvents_t* events );
+    void Init( SX1276RadioEvents_t* events );
     /*!
      * Return current radio status
      *
      * @param status Radio status. [RF_IDLE, RX_RUNNING, TX_RUNNING]
      */
-    virtual RadioState GetStatus( );
+    RadioState GetStatus( );
     /*!
      * @brief Configures the SX1276 with the given modem
      *
      * @param [IN] modem Modem to be used [0: FSK, 1: LoRa]
      */
-    virtual void SetModem( RadioModems_t modem );
+    void SetModem( RadioModems_t modem );
     /*!
      * @brief Sets the channel frequency
      *
      * @param [IN] freq         Channel RF frequency
      */
-    virtual void SetChannel( uint32_t freq );
+    void SetChannel( uint32_t freq );
     /*!
      * @brief Sets the channels configuration
      *
@@ -362,7 +362,7 @@ public:
      *
      * @retval isFree         [true: Channel is free, false: Channel is not free]
      */
-    virtual bool IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh );
+    bool IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh );
     /*!
      * @brief Generates a 32 bits random value based on the RSSI readings
      *
@@ -373,7 +373,7 @@ public:
      *
      * @retval randomValue    32 bits random value
      */
-    virtual uint32_t Random(  );
+    uint32_t Random(  );
     /*!
      * @brief Sets the reception parameters
      *
@@ -409,7 +409,7 @@ public:
      * @param [IN] rxContinuous Sets the reception in continuous mode
      *                          [false: single mode, true: continuous mode]
      */
-    virtual void SetRxConfig ( RadioModems_t modem, uint32_t bandwidth,
+    void SetRxConfig ( RadioModems_t modem, uint32_t bandwidth,
                                uint32_t datarate, uint8_t coderate,
                                uint32_t bandwidthAfc, uint16_t preambleLen,
                                uint16_t symbTimeout, bool fixLen,
@@ -445,7 +445,7 @@ public:
      *                          LoRa: [0: not inverted, 1: inverted]
      * @param [IN] timeout      Transmission timeout [ms]
      */
-    virtual void SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
+    void SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
                               uint32_t bandwidth, uint32_t datarate,
                               uint8_t coderate, uint16_t preambleLen,
                               bool fixLen, bool crcOn, bool freqHopOn,
@@ -460,7 +460,7 @@ public:
      *
      * @retval airTime        Computed airTime for the given packet payload length
      */
-    virtual uint32_t TimeOnAir ( RadioModems_t modem, uint8_t pktLen );
+    uint32_t TimeOnAir ( RadioModems_t modem, uint8_t pktLen );
     /*!
      * @brief Sends the buffer of size. Prepares the packet to be sent and sets
      *        the radio in transmission
@@ -468,31 +468,31 @@ public:
      * @param [IN]: buffer     Buffer pointer
      * @param [IN]: size       Buffer size
      */
-    virtual void Send( uint8_t *buffer, uint8_t size );
+    void Send( uint8_t *buffer, uint8_t size );
     /*!
      * @brief Sets the radio in sleep mode
      */
-    virtual void Sleep(  );
+    void Sleep(  );
     /*!
      * @brief Sets the radio in standby mode
      */
-    virtual void Standby(  );
+    void Standby(  );
     /*!
      * @brief Sets the radio in CAD mode
      */
-    virtual void StartCad(  );
+    void StartCad(  );
     /*!
      * @brief Sets the radio in reception mode for the given time
      * @param [IN] timeout Reception timeout [ms]
      *                     [0: continuous, others timeout]
      */
-    virtual void Rx( uint32_t timeout );
+    void Rx( uint32_t timeout );
     /*!
      * @brief Sets the radio in transmission mode for the given time
      * @param [IN] timeout Transmission timeout [ms]
      *                     [0: continuous, others timeout]
      */
-    virtual void Tx( uint32_t timeout );
+    void Tx( uint32_t timeout );
     /*!
      * @brief Sets the radio in continuous wave transmission mode
      *
@@ -500,13 +500,13 @@ public:
      * @param [IN]: power      Sets the output power [dBm]
      * @param [IN]: time       Transmission mode timeout [s]
      */
-    virtual void SetTxContinuousWave( uint32_t freq, int8_t power, uint16_t time );
+    void SetTxContinuousWave( uint32_t freq, int8_t power, uint16_t time );
     /*!
      * @brief Reads the current RSSI value
      *
      * @retval rssiValue Current RSSI value in [dBm]
      */
-    virtual int16_t GetRssi ( RadioModems_t modem );
+    int16_t GetRssi ( RadioModems_t modem );
 
     /*!
      * @brief Sets the maximum payload length.
@@ -514,7 +514,7 @@ public:
      * @param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
      * @param [IN] max        Maximum payload length in bytes
      */
-    virtual void SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
+    void SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
 
     /*!
      * \brief Sets the network to public or //private. Updates the sync byte.
@@ -523,7 +523,7 @@ public:
      *
      * \param [IN] enable if true, it enables a public network
      */
-    virtual void SetPublicNetwork( bool enable );
+    void SetPublicNetwork( bool enable );
 
     //-------------------------------------------------------------------------
     //                        Board relative functions
@@ -531,7 +531,7 @@ public:
 
 //protected:
 
-    virtual void wait_ms(UINT32 x){};
+    void wait_ms(UINT32 x){};
 //protected:
 
     /*!
@@ -539,7 +539,7 @@ public:
      *
      * @param [IN] opMode New operating mode
      */
-    virtual void SetOpMode( uint8_t opMode );
+    void SetOpMode( uint8_t opMode );
 
     /*
      * SX1276 DIO IRQ callback functions prototype
@@ -607,9 +607,9 @@ public:
 	SX1276M1BxASWrapper();
 	void Initialize(SX1276RadioEvents_t *events);
 //	SX1276M1BxASWrapper(SX1276RadioEvents_t *events );
-	virtual ~SX1276M1BxASWrapper();
+	~SX1276M1BxASWrapper();
 
-	virtual void SetOpMode_public( uint8_t opMode );
+	void SetOpMode_public( uint8_t opMode );
 
     /*!
      * @brief Checks if the given RF frequency is supported by the hardware
@@ -617,21 +617,21 @@ public:
      * @param [IN] frequency RF frequency to be checked
      * @retval isSupported [true: supported, false: unsupported]
      */
-	virtual bool CheckRfFrequency( uint32_t frequency );
+	bool CheckRfFrequency( uint32_t frequency );
     /*!
      * @brief Writes the radio register at the specified address
      *
      * @param [IN]: addr Register address
      * @param [IN]: data New register value
      */
-    virtual void Write ( uint8_t addr, uint8_t data );
+    void Write ( uint8_t addr, uint8_t data );
     /*!
      * @brief Reads the radio register at the specified address
      *
      * @param [IN]: addr Register address
      * @retval data Register value
      */
-    virtual uint8_t Read ( uint8_t addr );
+    uint8_t Read ( uint8_t addr );
     /*!
      * @brief Writes multiple radio registers starting at address
      *
@@ -639,7 +639,7 @@ public:
      * @param [IN] buffer Buffer containing the new register's values
      * @param [IN] size   Number of registers to be written
      */
-    virtual void Write( uint8_t addr, uint8_t *buffer, uint8_t size );
+    void Write( uint8_t addr, uint8_t *buffer, uint8_t size );
     /*!
      * @brief Reads multiple radio registers starting at address
      *
@@ -647,25 +647,25 @@ public:
      * @param [OUT] buffer Buffer where to copy the registers data
      * @param [IN] size Number of registers to be read
      */
-    virtual void Read ( uint8_t addr, uint8_t *buffer, uint8_t size );
+    void Read ( uint8_t addr, uint8_t *buffer, uint8_t size );
     /*!
      * @brief Writes the buffer contents to the SX1276 FIFO
      *
      * @param [IN] buffer Buffer containing data to be put on the FIFO.
      * @param [IN] size Number of bytes to be written to the FIFO
      */
-    virtual void WriteFifo( uint8_t *buffer, uint8_t size );
+    void WriteFifo( uint8_t *buffer, uint8_t size );
     /*!
      * @brief Reads the contents of the SX1276 FIFO
      *
      * @param [OUT] buffer Buffer where to copy the FIFO read data.
      * @param [IN] size Number of bytes to be read from the FIFO
      */
-    virtual void ReadFifo( uint8_t *buffer, uint8_t size );
+    void ReadFifo( uint8_t *buffer, uint8_t size );
     /*!
      * @brief Resets the SX1276
      */
-    virtual void Reset(  );
+    void Reset(  );
 
     friend class Samraksh_SX1276_hal;
 
@@ -673,40 +673,40 @@ public:
     /*!
      * @brief Initializes the radio I/Os pins interface
      */
-    virtual void IoInit( );
+    void IoInit( );
 
-    virtual void InitializeTimers();
+    void InitializeTimers();
 
     /*!
      *    @brief Initializes the radio registers
      */
-    virtual void RadioRegistersInit( );
+    void RadioRegistersInit( );
 
     /*!
      * @brief Initializes the radio SPI
      */
-    virtual void SpiInit(  );
+    void SpiInit(  );
 
     /*!
      * @brief Initializes DIO IRQ handlers
      *
      * @param [IN] irqHandlers Array containing the IRQ callback functions
      */
-    virtual void IoIrqInit( );
+    void IoIrqInit( );
 
     /*!
      * @brief De-initializes the radio I/Os pins interface.
      *
      * \remark Useful when going in MCU lowpower modes
      */
-    virtual void IoDeInit(  );
+    void IoDeInit(  );
 
     /*!
      * @brief Sets the radio output power.
      *
      * @param [IN] power Sets the RF output power
      */
-    virtual void SetRfTxPower( int8_t power );
+    void SetRfTxPower( int8_t power );
 
     /*!
      * @brief Gets the board PA selection configuration
@@ -714,26 +714,26 @@ public:
      * @param [IN] channel Channel frequency in Hz
      * @retval PaSelect RegPaConfig PaSelect value
      */
-    virtual uint8_t GetPaSelect( uint32_t channel );
+    uint8_t GetPaSelect( uint32_t channel );
 
     /*!
      * @brief Set the RF Switch I/Os pins in Low Power mode
      *
      * @param [IN] status enable or disable
      */
-    virtual void SetAntSwLowPower( bool status );
+    void SetAntSwLowPower( bool status );
 
     /*!
      * @brief Initializes the RF Switch I/Os pins interface
      */
-    virtual void AntSwInit(  );
+    void AntSwInit(  );
 
     /*!
      * @brief De-initializes the RF Switch I/Os pins interface
      *
      * \remark Needed to decrease the power consumption in MCU lowpower modes
      */
-    virtual void AntSwDeInit(  );
+    void AntSwDeInit(  );
 
     /*!
      * @brief Controls the antenna switch if necessary.
@@ -742,15 +742,15 @@ public:
      *
      * @param [IN] opMode Current radio operating mode
      */
-    virtual void SetAntSw( uint8_t opMode );
+    void SetAntSw( uint8_t opMode );
 
 
-    virtual void SetTimeoutTimer(TimeoutName_t ton, float delay) ;
-    virtual void CancelTimeoutTimer(TimeoutName_t ton);
+    void SetTimeoutTimer(TimeoutName_t ton, float delay) ;
+    void CancelTimeoutTimer(TimeoutName_t ton);
 
 
 //private:
-    virtual uint8_t GetTimerID(TimeoutName_t ton) ;
+    uint8_t GetTimerID(TimeoutName_t ton) ;
 
 
 
