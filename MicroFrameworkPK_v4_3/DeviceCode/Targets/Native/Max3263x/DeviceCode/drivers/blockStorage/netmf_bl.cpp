@@ -28,11 +28,13 @@ const BlockDeviceInfo* Max3263x_blDriver::GetDeviceInfo( void* context )
     return config->BlockDeviceInformation;
 }
 
-
+//This device supports execute in place, since its internal flash. Hence its usually not read using this API.
+//The below implementation is not needed.
 BOOL Max3263x_blDriver::Read( void* context, ByteAddress Address, UINT32 NumBytes, BYTE * pSectorBuff )
 {
-    pSectorBuff = (BYTE *)Address;			// Just move the buffer pointer
-	return TRUE;
+    //pSectorBuff = (BYTE *)Address;			// Just move the buffer pointer
+	//return TRUE;
+	return FALSE;
 }
 
 BOOL Max3263x_blDriver::Write( void* context, ByteAddress address, UINT32 numBytes, BYTE * pSectorBuff, BOOL ReadModifyWrite )

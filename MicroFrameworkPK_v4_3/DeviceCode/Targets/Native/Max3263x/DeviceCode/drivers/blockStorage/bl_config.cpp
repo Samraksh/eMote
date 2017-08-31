@@ -17,7 +17,7 @@ const BlockRange Max3263x_BlockRange_InternalFlash[] =
         // It should be obvious that block ranges are inclusive, and different regions have exclusive ranges.
         // TODO: check if User Storage B region is needed for EWR Extended Weak References to work (eg, for wear-leveling).
 
-	    { BlockRange::BLOCKTYPE_BOOTSTRAP       ,  0, 15 },  // 32 blocks, 256K for Booter,     address 0x0000_0000
+	    { BlockRange::BLOCKTYPE_BOOTSTRAP       ,  0, 15 },  // 16 blocks, 128K for Booter,     address 0x0000_0000
 	    { BlockRange::BLOCKTYPE_CODE            , 16,176 },  //161 blocks, 1288K for CLR,        address 0x0004 0000
 	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,177,226 },  // 50 blocks, 400K for Deployment, address 0x0018 2000
 #if defined(SAMRAKSH_UPDATE_EXT )
@@ -57,8 +57,8 @@ BlockDeviceInfo Max3263x_BlockDeviceInfo_InternalFlash =
     },
     140,										// MaxSectorWrite_uSec (70us * 2)
     40000,										// MaxBlockErase_uSec (40ms)
-    0x4,										// BytesPerSector
-    0x80000,									// Size;
+    0x2000,										// BytesPerSector
+    0x200000,									// Size;
     1,											// NumRegions;
     Max3263x_BlockRegionInfo_InternalFlash,	// pointer to an array (NumRegions long) of region information
 };
