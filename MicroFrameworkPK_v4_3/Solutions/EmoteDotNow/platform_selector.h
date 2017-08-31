@@ -266,6 +266,8 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_SX1276_txTimeout 45
 #define VIRT_TIMER_SX1276_rxTimeout 46
 #define VIRT_TIMER_SX1276_rxTimeoutSyncWord 47
+#define VIRT_TIMER_SX1276_PacketLoadTimerName 48
+#define VIRT_TIMER_SX1276_PacketTxTimerName 49
 
 const uint OMAC_DISCO_SEQ_NUMBER = 27;
 //const uint OMAC_HW_ACK_DELAY_MICRO = 100;

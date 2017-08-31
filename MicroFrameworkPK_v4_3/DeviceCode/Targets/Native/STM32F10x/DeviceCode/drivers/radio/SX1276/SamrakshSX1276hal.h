@@ -63,8 +63,8 @@ private:
 
 	static const ClockIdentifier_t low_precision_clock_id = 4; // low precision  clock id used when schedling  time to load
 	static const ClockIdentifier_t high_precision_clock_id = 1; //high precision  clock id used when schedling exact time instant to tx
-	static const UINT8 PacketLoadTimerName = 44;
-	static const UINT8 PacketTxTimerName = 45;
+	static const UINT8 PacketLoadTimerName = VIRT_TIMER_SX1276_PacketLoadTimerName;
+	static const UINT8 PacketTxTimerName = VIRT_TIMER_SX1276_PacketTxTimerName;
 
 	class msgToBeTransmitted_t{
 		UINT8 msg_payload[SX1276_hal_wrapper_max_packetsize];
