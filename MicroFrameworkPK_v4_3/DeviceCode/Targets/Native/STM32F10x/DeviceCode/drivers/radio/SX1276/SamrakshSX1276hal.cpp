@@ -12,7 +12,7 @@ EMOTE_SX1276_LORA::Samraksh_SX1276_hal gsx1276radio;
 
 //extern SX1276_Semtech::SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
 
-extern SX1276_Semtech::SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
+extern SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
 
 namespace EMOTE_SX1276_LORA {
 
@@ -71,6 +71,7 @@ DeviceStatus Samraksh_SX1276_hal::Initialize(SamrakshRadio_I::RadioEvents_t re){
 	isCallbackIssued = false;
 
 	SX1276_hal_wrapper_internal_radio_properties.SetDefaults(10, 10, 1000, 1000, MODEM_LORA);
+
 
 	sx1276_re.ValidHeaderDetected = Samraksh_SX1276_hal::ValidHeaderDetected;
 	sx1276_re.TxDone = Samraksh_SX1276_hal::TxDone;

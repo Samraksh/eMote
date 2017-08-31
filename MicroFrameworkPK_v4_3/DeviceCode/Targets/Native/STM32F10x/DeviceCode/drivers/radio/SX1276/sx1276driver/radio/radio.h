@@ -19,11 +19,11 @@ Maintainers: Miguel Luis, Gregory Cristian and Nicolas Huguenin
 
 #include "../enums/enums.h"
 
-namespace SX1276_Semtech{
+//namespace SX1276_Semtech{
 /*!
  * @brief Radio driver callback functions
  */
-struct RadioEvents_t{
+struct SX1276RadioEvents_t{
 	 void    ( *ValidHeaderDetected )( void );
     /*!
      * @brief  Tx Done callback prototype.
@@ -72,7 +72,7 @@ struct RadioEvents_t{
 class RadioSX1276
 {
 protected:
-    RadioEvents_t* RadioEvents;
+	SX1276RadioEvents_t* RadioEvents;
 
 public:
     //-------------------------------------------------------------------------
@@ -84,7 +84,7 @@ public:
      * @param [IN] events Structure containing the driver callback functions
      */
     RadioSX1276() {};
-    RadioSX1276( RadioEvents_t *events );
+    RadioSX1276( SX1276RadioEvents_t *events );
     virtual ~RadioSX1276( ) {};
 
     //-------------------------------------------------------------------------
@@ -95,7 +95,7 @@ public:
      *
      * @param [IN] events Structure containing the driver callback functions
      */
-    virtual void Init( RadioEvents_t *events ) = 0;
+    virtual void Init( SX1276RadioEvents_t *events ) = 0;
     /*!
      * @brief Return current radio status
      *
@@ -335,6 +335,7 @@ public:
      */
     virtual void SetPublicNetwork( bool enable ) = 0;
 };
-}
+
+//}//SX1276_Semtech
 
 #endif // __RADIO_H__

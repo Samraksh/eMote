@@ -20,7 +20,7 @@ namespace EMOTE_SX1276_LORA {
  */
 class Samraksh_SX1276_hal : public  SamrakshRadio_I {
 private:
-	SX1276_Semtech::RadioEvents_t sx1276_re;
+	SX1276RadioEvents_t sx1276_re;
 public: //Public class definitions
 //	SX1276M1BxASWrapper radio;
 

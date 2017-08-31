@@ -30,7 +30,7 @@ static int LORA_ASSERT(int x, const char *err) {
 }
 
 
-namespace SX1276_Semtech {
+//namespace SX1276_Semtech {
 
 enum {
 	NONE00=0,
@@ -176,6 +176,6 @@ public:
 
 };
 
-} /* namespace LoraHat */
+//} /* namespace LoraHat */
 
 #endif /* MICROFRAMEWORKPK_V4_3_DEVICECODE_TARGETS_NATIVE_STM32F10X_DEVICECODE_DRIVERS_RADIO_SX1276_EMOTELORAHAT_H_ */

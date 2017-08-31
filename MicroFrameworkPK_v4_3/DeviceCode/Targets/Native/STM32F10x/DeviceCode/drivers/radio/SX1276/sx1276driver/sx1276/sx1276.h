@@ -144,7 +144,7 @@ public:
      *
      * @param [IN] events Structure containing the driver callback functions
      */
-    virtual void Init( SX1276_Semtech::RadioEvents_t* events );
+    virtual void Init( SX1276RadioEvents_t* events );
     /*!
      * Return current radio status
      *

@@ -84,7 +84,7 @@ SX1276::~SX1276( )
 //    delete this->dioIrq;
 }
 
-void SX1276::Init( RadioEvents_t *events )
+void SX1276::Init( SX1276RadioEvents_t *events )
 {
     this->RadioEvents = events;
 }

@@ -6,7 +6,7 @@
  */
 
 #include "EmoteLoraHat.h"
-namespace SX1276_Semtech {
+//namespace SX1276_Semtech {
 
 #ifndef SX1276_NO_DEBUG_PRINT
 static void SX1276_debug_print(int priority, const char *fmt, ...) {
@@ -366,4 +366,4 @@ uint8_t LoraHardwareConfig::radio_comm_GetResp(uint8_t byteCount,
 	return ctsVal;
 }
 
-} /* namespace LoraHat */
+//} /* namespace LoraHat */
