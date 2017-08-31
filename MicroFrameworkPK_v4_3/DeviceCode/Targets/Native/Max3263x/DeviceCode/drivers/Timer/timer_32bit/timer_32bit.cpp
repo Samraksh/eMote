@@ -6,29 +6,21 @@
 #include <tmr.h>
 
 Max3263x_timer_32bit g_Timer32Bit_Driver;
-#define Max3263x_TIMER MXC_TMR2
+#define Max3263x_SYSTEM_TIME MXC_TMR1
+#define Max3263x_ONE_SHOT MXC_TMR2
 
-void ISR_TIM32(void* Param);
+void ISR_TIM32_SYSTEM_TIME(void* Param);
+void ISR_TIM32_ONE_SHOT(void* Param);
 
-const UINT64 TIME_CUSHION = 40;  // 15 us
-const uint16_t TOO_SHORT_TIM1 = 40;
-const UINT64 MAX_ALLOWABLE_WAIT = 0xFFFEFFFF;
+const UINT64 TIME_CUSHION = 2000;  // 15 us
+const UINT64 MAX_ALLOWABLE_WAIT = 0xFFFFFFFF;
+
+int debugCnt = 0;
 
 // Returns the current 32 bit value of the hardware counter
 UINT32 Max3263x_timer_32bit::GetCounter()
 {
-	/*GLOBAL_LOCK(irq);
-	UINT16 tim1a = TIM1->CNT;
-	UINT16 tim2a = TIM2->CNT;
-	UINT16 tim1b = TIM1->CNT;
-
-	if(tim1b < tim1a)
-	{
-		tim2a = TIM2->CNT;
-	}
-
-	currentCounterValue = ((tim2a << 16) | tim1b);*/
-	return currentCounterValue;
+	return tmrSystemTime->count32;
 }
 
 BOOL Max3263x_timer_32bit::AddTicks(UINT64 ticksToAdd)
@@ -64,60 +56,77 @@ BOOL Max3263x_timer_32bit::AddTicks(UINT64 ticksToAdd)
 
 UINT32 Max3263x_timer_32bit::SetCounter(UINT32 counterValue)
 {
-//	currentCounterValue = counterValue;
-	return currentCounterValue;
+	tmrSystemTime->count32 = counterValue;
+	return tmrSystemTime->count32;
 }
 
 
 UINT64 Max3263x_timer_32bit::Get64Counter()
 {
 	// keeping an interrupt from happening right now causing timer problems where the value can be wrong at times.
-/*	GLOBAL_LOCK(irq);
-	UINT32 currentValue = GetCounter();
+	GLOBAL_LOCK(irq);
 
-	if(TIM_GetITStatus(TIM2, TIM_IT_Update))
-	{
-		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-
-		// An overflow just happened, updating variable that holds system time
+	UINT32 currentValue = tmrSystemTime->count32;
+	if (TMR32_GetFlag(Max3263x_SYSTEM_TIME) != 0){
 		g_Timer32Bit_Driver.m_systemTime += (0x1ull <<32);
-		// if the timer wrapped and caused an overflow which calls for an increment to systemTime then we need to pull
-		// the current counter value again because the counter could be WAY off right now
-		currentValue = GetCounter();
+		TMR32_ClearFlag(Max3263x_SYSTEM_TIME);	
+		currentValue = tmrSystemTime->count32;
 	}
 
 	m_systemTime &= (0xFFFFFFFF00000000ull);
-	m_systemTime |= currentValue;*/
+	m_systemTime |= currentValue;
 
 	return m_systemTime;
 }
 
+DeviceStatus Max3263x_timer_32bit::InitializeSystemTime(){
+	int error = 0;
+	tmr32_cfg_t cont_cfg;
+	tmrSystemTime = Max3263x_SYSTEM_TIME;
 
-/*BOOL Max3263x_timer_32bit::DidTimerOverflow()
-{
-	//return timerOverflowFlag;
-	return 0;
+	m_systemTime = 0;
+	tmrSystemTime->count32 = 0;
+
+	// configuring the system timer
+	
+    //enable timer interrupt
+	CPU_INTC_ActivateInterrupt(TMR1_0_IRQn, ISR_TIM32_SYSTEM_TIME, NULL);
+	tmrSystemTime->inten |= MXC_F_TMR_INTEN_TIMER0;
+
+    //initialize timer and GPIO
+	tmr_prescale_t prescale = TMR_PRESCALE_DIV_2_0;
+    error = TMR_Init(Max3263x_SYSTEM_TIME, prescale, NULL);
+
+    cont_cfg.mode = TMR32_MODE_CONTINUOUS;
+    cont_cfg.polarity = TMR_POLARITY_INIT_LOW;	//start GPIO low
+
+	// all we do is load the max value, interrupt on that, increment m_systemTime and have it auto-reload the max value
+	cont_cfg.compareCount = MAX_ALLOWABLE_WAIT;
+    //configure and start the timer
+    TMR32_Config(Max3263x_SYSTEM_TIME, &cont_cfg);
+    
+	uint32_t ctrl = tmrSystemTime->ctrl;
+    ctrl &= ~(MXC_F_TMR_CTRL_PRESCALE); //clear prescaler bits
+    ctrl |= TMR_PRESCALE_DIV_2_0 << MXC_F_TMR_CTRL_PRESCALE_POS;        //set prescaler
+    ctrl |= MXC_F_TMR_CTRL_ENABLE0;     //set enable to start the timer
+
+    tmrSystemTime->ctrl = ctrl;
+
+	return DS_Success;
 }
 
-void Max3263x_timer_32bit::ClearTimerOverflow()
+DeviceStatus Max3263x_timer_32bit::InitializeOneShot(HAL_CALLBACK_FPN ISR, UINT32 ISR_Param)
 {
-	//timerOverflowFlag = FALSE;
-}*/
-
-// Initialize the advanced timer system. This involves initializing timer1 as a master timer and tim2 as a slave
-// and using timer1 as a prescaler to timer2.
-DeviceStatus Max3263x_timer_32bit::Initialize(HAL_CALLBACK_FPN ISR, UINT32 ISR_Param)
-{
-	int err;
-    int tmrNum;
-
-	tmr = Max3263x_TIMER;
+	int error = 0;
+	tmr32_cfg_t oneshot_cfg;
+    uint32_t timeOut = 1; 
+	tmrOneShot = Max3263x_ONE_SHOT;
+	
+	// configuring the one shot compare timer
 
 	// Return if already initialized
 	if(Max3263x_timer_32bit::initialized)
 		return DS_Success;
-
-	m_systemTime = 0;
 
 	Max3263x_timer_32bit::initialized = TRUE;
 
@@ -127,57 +136,23 @@ DeviceStatus Max3263x_timer_32bit::Initialize(HAL_CALLBACK_FPN ISR, UINT32 ISR_P
 	callBackISR = ISR;
 	callBackISR_Param = ISR_Param;
 
-	//get the timer number
-    tmrNum = MXC_TMR_GET_IDX(tmr);
+	CPU_INTC_ActivateInterrupt(TMR2_0_IRQn, ISR_TIM32_ONE_SHOT, NULL);
+    TMR32_EnableINT(Max3263x_ONE_SHOT);
+    
+    //initialize timer
+    tmr_prescale_t prescale = TMR_PRESCALE_DIV_2_0;
+    error = TMR_Init(Max3263x_ONE_SHOT, prescale, NULL);
 
-    //check for valid pointer
-    ASSERT(tmrNum >= 0);
+    oneshot_cfg.mode = TMR32_MODE_ONE_SHOT;
+    error = TMR32_TimeToTicks(Max3263x_ONE_SHOT, 500, TMR_UNIT_MILLISEC, &(oneshot_cfg.compareCount));
+    oneshot_cfg.polarity = TMR_POLARITY_INIT_LOW;
 
-    //steup system GPIO config
-    //if((err = SYS_TMR_Init(tmr, sysCfg)) != E_NO_ERROR)
-    //    return err;
-
-    //Disable timer and clear settings
-    tmr->ctrl = 0;
-
-    //reset all counts to 0
-    tmr->count32 = 0;
-    tmr->count16_0 = 0;
-    tmr->count16_1 = 0;
-
-    // Clear interrupt flag
-    tmr->intfl = MXC_F_TMR_INTFL_TIMER0 | MXC_F_TMR_INTFL_TIMER1;
-
-	if( !CPU_INTC_ActivateInterrupt(TMR2_0_IRQn, ISR_TIM32, NULL) )
-		return DS_Fail;
+    //configure and start the timer
+    TMR32_Config(Max3263x_ONE_SHOT, &oneshot_cfg);
+    TMR32_Start(Max3263x_ONE_SHOT);
 	
     return DS_Success;
-
 }
-
-/*
-// Assumes IRQs locked
-static inline void clear_tim2(void) {
-	TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
-	TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
-	__DSB(); __ISB();
-}
-
-// Assumes IRQs locked
-static inline void clear_tim1(void) {
-	TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
-	TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
-	__DSB(); __ISB();
-}
-
-// Assumes IRQs locked
-static inline void clear_timers(void) {
-	TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
-	TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
-	TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
-	TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
-	__DSB(); __ISB();
-}*/
 
 DeviceStatus Max3263x_timer_32bit::UnInitialize()
 {
@@ -199,83 +174,43 @@ volatile UINT64 badSetComparesMax = 0;         //!< observed worst-case.
 // the second stage involves lsb on tim1
 DeviceStatus Max3263x_timer_32bit::SetCompare(UINT64 compareValue)
 {
-	
-	//stop timer
-    TMR32_Stop(tmr);
+	debugCnt++;
+	int error = 0;
+	tmr32_cfg_t oneshot_cfg;
 
-    //setup timer configuration register
-    //clear tmr2x16 (32bit mode), mode and polarity bits
-    tmr->ctrl &= ~(MXC_F_TMR_CTRL_TMR2X16 | MXC_F_TMR_CTRL_MODE |
-                   MXC_F_TMR_CTRL_POLARITY);
-
-    //set mode and polarity
-    tmr->ctrl |= ((TMR32_MODE_ONE_SHOT << MXC_F_TMR_CTRL_MODE_POS) |
-                  (TMR_POLARITY_INIT_LOW << MXC_F_TMR_CTRL_POLARITY_POS));
-
-    //setup timer Tick registers
-    tmr->term_cnt32 = compareValue;
-	
-
-/*	uint16_t tar_upper;
-	uint16_t now_upper;
-	UINT64 now;
-#if defined(DEBUG_EMOTE_ADVTIME)
-	// if two timers need to fire at (or very close to) the same time, then the second timer will be passed to this function with a compare value of the current (at the time of setting it) time
-	// So by the time we get to this portion of code NowTicks will be greater than compareValue. 
-	// we then add on a TIME_CUSHION below and the second timer will fire at the current time plus the TIME_CUSHION
-	volatile UINT64 NowTicks = g_Timer32Bit_Driver.Get64Counter();
-	if(NowTicks > compareValue) {
-		UINT64 delta = NowTicks - compareValue;
-		++badSetComparesCount;
-		if(badSetComparesMax < delta) {
-			badSetComparesMax = delta;
-		}
-		badSetComparesAvg = (badSetComparesAvg * (badSetComparesCount - 1) + (delta)) / badSetComparesCount;
-	}
-#endif
 	GLOBAL_LOCK(irq);
-	now = Get64Counter();
+	volatile UINT64 now = Get64Counter();
 
-	// Clear old timers if already an active request
-	if (setCompareRunning == true) {
-		clear_timers();
-	}
 	// making sure we have enough time before the timer fires to exit SetCompare, the VT callback and the timer interrupt
 	if (compareValue < (now + TIME_CUSHION)){
 		compareValue = (now + TIME_CUSHION);
 	}  
+
 	if ( (compareValue - now) > MAX_ALLOWABLE_WAIT ){ // checking to see if our wait time maxes out our upper 16-bit timer		
 		// we are to trigger at a value that maxes out our upper 16-bit timer so in order to wait as long as possible and not
 		// incorrectly trigger the miss condition below we set the timer for the longest possible value that won't trigger the miss condition
-		compareValue = (UINT64)(GetCounter() - 0x00010000); 
+		compareValue = MAX_ALLOWABLE_WAIT; 
 	} 
-	currentTarget = compareValue;
 
+	uint32_t totalWait = compareValue - Get64Counter();
+
+	if (setCompareRunning == true){
+		//stop timer
+	    TMR32_Stop(Max3263x_ONE_SHOT);
+		Max3263x_ONE_SHOT->ctrl = 0;
+		Max3263x_ONE_SHOT->count32 = 0;
+		Max3263x_ONE_SHOT->count16_0 = 0;
+		Max3263x_ONE_SHOT->count16_1 = 0;
+		Max3263x_ONE_SHOT->intfl = MXC_F_TMR_INTFL_TIMER0 | MXC_F_TMR_INTFL_TIMER1;
+	}
 	setCompareRunning = true;
 
-	tar_upper = (compareValue >> 16) & 0xFFFF;
-	now_upper = (now >> 16) & 0xFFFF;
+	oneshot_cfg.mode = TMR32_MODE_ONE_SHOT;
+	oneshot_cfg.compareCount = totalWait & 0xFFFFFFFF;
 
-	// if the upper 16-bit counter already matches we don't bother setting it and just set the lower 16-bit below
-	if (tar_upper != now_upper){
-		TIM_SetCompare1(TIM2, tar_upper);
-		TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
+	TMR32_Config(Max3263x_ONE_SHOT, &oneshot_cfg);
+    TMR32_Start(Max3263x_ONE_SHOT);
 
-		// Check for miss
-		// This catches cases where upper 16 were set to be for example, 0x0005xxxx at a time of 0x0004 ffff. We roll-over and catch that here
-		if (TIM2->CNT != tar_upper || TIM_GetITStatus(TIM2,TIM_IT_CC1) == SET ) {
-			// Didn't miss, done for now
-			return DS_Success;
-		}
-		else { // We missed. Back-off.
-			clear_tim2();
-		}
-	}
-
-	// because we added on a TIME_CUSHION earlier, there should be enough time to exit and enable interrupts before TIM1 fires
-	tar_lower = compareValue & 0xFFFF;
-	TIM_SetCompare3(TIM1, tar_lower);
-	TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);*/
 	return DS_Success;
 }
 
@@ -285,14 +220,16 @@ UINT32 Max3263x_timer_32bit::GetMaxTicks()
 }
 
 
-void ISR_TIM32( void* Param )
+void ISR_TIM32_SYSTEM_TIME( void* Param )
 {
-	/*if(TIM_GetITStatus(TIM1, TIM_IT_CC3))
-	{
-		TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
-		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
+	g_Timer32Bit_Driver.m_systemTime += (0x1ull <<32);
+	TMR32_ClearFlag(Max3263x_SYSTEM_TIME);	
+}
 
-		g_Timer32Bit_Driver.setCompareRunning = false; // Reset
-		g_Timer32Bit_Driver.callBackISR(&g_Timer32Bit_Driver.callBackISR_Param);
-	}*/
+void ISR_TIM32_ONE_SHOT( void* Param )
+{
+	TMR32_ClearFlag(Max3263x_ONE_SHOT);
+
+	g_Timer32Bit_Driver.setCompareRunning = false; 
+	g_Timer32Bit_Driver.callBackISR(&g_Timer32Bit_Driver.callBackISR_Param);
 }

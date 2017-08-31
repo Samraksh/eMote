@@ -52,7 +52,9 @@ BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CA
 	}
 	else if(Timer == ADVTIMER_32BIT )
 	{
-		if(g_Timer32Bit_Driver.Initialize(ISR, ADVTIMER_32BIT) != DS_Success)
+		if(g_Timer32Bit_Driver.InitializeOneShot(ISR, ADVTIMER_32BIT) != DS_Success)
+			return FALSE;
+		if(g_Timer32Bit_Driver.InitializeSystemTime() != DS_Success)
 			return FALSE;
 	}
 	else if(Timer == RTC_32BIT )
@@ -67,9 +69,9 @@ BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CA
 
 BOOL CPU_Timer_UnInitialize(UINT16 Timer)
 {
-/*	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
-		if(!g_Timer16Bit_Driver.Uninitialize(Timer))
+		//if(!g_Timer16Bit_Driver.Uninitialize(Timer))
 			return FALSE;
 	}
 	else if(Timer == ADVTIMER_32BIT )
@@ -79,9 +81,9 @@ BOOL CPU_Timer_UnInitialize(UINT16 Timer)
 	}
 	else if(Timer == RTC_32BIT )
 	{
-		if(g_TimerRTC_Driver.UnInitialize() != DS_Success)
+		//if(g_TimerRTC_Driver.UnInitialize() != DS_Success)
 			return FALSE;
-	}*/
+	}
 
 	return TRUE;
 }
@@ -92,9 +94,9 @@ BOOL CPU_Timer_UnInitialize(UINT16 Timer)
 // Calls the timer driver set compare function.
 BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue)
 {
-/*	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
-		//AnanthAtSamraksh -- added below
+		/*//AnanthAtSamraksh -- added below
 		GLOBAL_LOCK(irq);
 		//g_Time_Driver.m_nextCompare = CompareValue;
 		bool fForceInterrupt = false;
@@ -124,7 +126,7 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue)
 		{
 			// Force interrupt to process this.
 			g_Timer16Bit_Driver.ForceInterrupt( g_Timer16Bit_Driver.c_SystemTimer );
-		}
+		}*/
 
 	}
 	else if(Timer == ADVTIMER_32BIT)
@@ -133,9 +135,9 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue)
 	}
 	else if(Timer == RTC_32BIT)
 	{
-		g_TimerRTC_Driver.SetCompare(CompareValue);
+		//g_TimerRTC_Driver.SetCompare(CompareValue);
 	}
-*/
+
 	return TRUE;
 }
 
@@ -145,20 +147,10 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue)
 //TODO: not used?
 UINT32 CPU_Timer_GetCounter(UINT16 Timer)
 {
-	// Check to make sure timer is a legal timer
-	// Typically should assert here, but returning 0
-	////if(Timer < 0 || Timer > g_Timer16Bit_Driver.c_MaxTimers)
-	//TODO: AnanthAtSamraksh - not checking if timer is greater than total timers configured.
-	//This can be done in the if...else loop
-	////if(Timer < 0 || Timer > NUM_VIRTUALTIMER_TIMERS)
-	/*if(Timer < 0)
-		return 0;*/
-
-	////TODO: AnanthAtSamraksh - change comparison based on hardware timerIDs supported
 	UINT32 counterValue = 0;
-/*	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
-		counterValue = (UINT32)g_Timer16Bit_Driver.GetCounter(Timer);
+		//counterValue = (UINT32)g_Timer16Bit_Driver.GetCounter(Timer);
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
@@ -166,9 +158,9 @@ UINT32 CPU_Timer_GetCounter(UINT16 Timer)
 	}
 	else if(Timer == RTC_32BIT)
 	{
-		counterValue = g_TimerRTC_Driver.GetCounter();
+		//counterValue = g_TimerRTC_Driver.GetCounter();
 	}
-*/
+
 	return counterValue;
 }
 
@@ -176,10 +168,10 @@ UINT32 CPU_Timer_GetCounter(UINT16 Timer)
 UINT32 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count)
 {
 	UINT16 counterValue = 0;
-/*	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
 		//counterValue = g_Timer16Bit_Driver.SetCounter(Timer, Count);
-		g_Timer16Bit_Driver.SetCounter(Timer, Count);
+		//g_Timer16Bit_Driver.SetCounter(Timer, Count);
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
@@ -187,19 +179,18 @@ UINT32 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count)
 	}
 	else if(Timer == RTC_32BIT)
 	{
-		counterValue = g_TimerRTC_Driver.SetCounter(Count);
+		//counterValue = g_TimerRTC_Driver.SetCounter(Count);
 	}
-*/
+
 	return counterValue;
 }
 
 UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 {
 	UINT64 currentTicksValue = 0;
-/*	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
-		//AnanthAtSamraksh -- added below from
-		UINT16 value;
+		/*UINT16 value;
 		UINT32 m_lastRead = 0;
 		GLOBAL_LOCK(irq);
 		value = g_Timer16Bit_Driver.GetCounter(g_Timer16Bit_Driver.c_SystemTimer);
@@ -219,7 +210,8 @@ UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 		//Or else the value gets added simply
 		m_lastRead += value;
 
-		return m_lastRead;
+		return m_lastRead;*/
+		return 0;
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
@@ -227,16 +219,16 @@ UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 	}
 	else if(Timer == RTC_32BIT)
 	{
-		currentTicksValue = g_TimerRTC_Driver.Get64Counter();
+		//currentTicksValue = g_TimerRTC_Driver.Get64Counter();
 	}
-*/
+
 	return currentTicksValue;
 }
 
 // This function is tuned for 8MHz of the emote in Release mode
 void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer)
 {
-/*	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
 
 	}
@@ -266,15 +258,15 @@ void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer)
 	else
 	{
 		ASSERT(0);
-	}*/
+	}
 }
 
 UINT32 CPU_Timer_GetMaxTicks(UINT8 Timer)
 {
 	UINT32 maxTicks = 0;
-/*	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
-		maxTicks = g_Timer16Bit_Driver.GetMaxTicks();
+		//maxTicks = g_Timer16Bit_Driver.GetMaxTicks();
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
@@ -282,8 +274,8 @@ UINT32 CPU_Timer_GetMaxTicks(UINT8 Timer)
 	}
 	else if(Timer == RTC_32BIT)
 	{
-		maxTicks = g_TimerRTC_Driver.GetMaxTicks();
-	}*/
+		//maxTicks = g_TimerRTC_Driver.GetMaxTicks();
+	}
 	return maxTicks;
 }
 
@@ -305,7 +297,7 @@ UINT32 CPU_SystemClock(UINT16 Timer)
 {
 	UINT32 retVal = 0;
 	UINT8 i;
-/*	for (i=0; i<g_CountOfHardwareTimers; i++){
+	for (i=0; i<g_CountOfHardwareTimers; i++){
 		if (Timer == g_HardwareTimerIDs[i]){
 			return g_HardwareTimerFrequency[i];
 		}
@@ -313,7 +305,7 @@ UINT32 CPU_SystemClock(UINT16 Timer)
 
 	ASSERT(0);
 	retVal = SYSTEM_CLOCK_HZ;
-*/
+
 	return retVal;
 }
 
@@ -324,7 +316,7 @@ UINT32 CPU_TicksPerSecond(UINT16 Timer)
 {
 	UINT32 retVal = 0;
 	UINT8 i;
-/*	for (i=0; i<g_CountOfHardwareTimers; i++){
+	for (i=0; i<g_CountOfHardwareTimers; i++){
 		if (Timer == g_HardwareTimerIDs[i]){
 			return g_HardwareTimerFrequency[i];
 		}
@@ -332,18 +324,16 @@ UINT32 CPU_TicksPerSecond(UINT16 Timer)
 	
 	ASSERT(0);
 	retVal = SLOW_CLOCKS_PER_SECOND;
-*/
+
 	return retVal;
 }
 
-// OK, so the DriftParameters *should* correct this in the PAL layer
-// But that begs the question of what this function is really for...
 UINT64 CPU_TicksToTime( UINT64 Ticks, UINT16 Timer )
 {
 	UINT8 i;
 	UINT32 timerFrequency = SYSTEM_CLOCK_HZ;
 
-/*	for (i=0; i<g_CountOfHardwareTimers; i++){
+	for (i=0; i<g_CountOfHardwareTimers; i++){
 		if (Timer == g_HardwareTimerIDs[i]){
 			timerFrequency = g_HardwareTimerFrequency[i];
 		}
@@ -368,19 +358,16 @@ UINT64 CPU_TicksToTime( UINT64 Ticks, UINT16 Timer )
 	else {
 		ASSERT(0);
 	}
-	ASSERT(Ticks != 0);*/
+	ASSERT(Ticks != 0);
 	return Ticks;
 }
 
-// OK, so the DriftParameters *should* correct this in the PAL layer
-// But that begs the question of what this function is really for...
-//TODO: not used?
 UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 {
 	UINT32 timerFrequency = SYSTEM_CLOCK_HZ;
 	UINT8 i;
 
-/*	for (i=0; i<g_CountOfHardwareTimers; i++){
+	for (i=0; i<g_CountOfHardwareTimers; i++){
 		if (Timer == g_HardwareTimerIDs[i]){
 			timerFrequency = g_HardwareTimerFrequency[i];
 		}
@@ -420,7 +407,7 @@ UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 	{
 		ASSERT(0);
 		return 0;
-	}*/
+	}
 	return 0;
 }
 
@@ -429,7 +416,7 @@ UINT64 CPU_MillisecondsToTicks( UINT64 mSec, UINT16 Timer )
 	UINT32 timerFrequency = SYSTEM_CLOCK_HZ;
 	UINT8 i;
 
-/*	for (i=0; i<g_CountOfHardwareTimers; i++){
+	for (i=0; i<g_CountOfHardwareTimers; i++){
 		if (Timer == g_HardwareTimerIDs[i]){
 			timerFrequency = g_HardwareTimerFrequency[i];
 		}
@@ -453,7 +440,7 @@ UINT64 CPU_MillisecondsToTicks( UINT64 mSec, UINT16 Timer )
 	{
 		ASSERT(0);
 		return 0;
-	}*/
+	}
 	return 0;
 }
 
@@ -463,7 +450,7 @@ UINT64 CPU_MillisecondsToTicks( UINT32 mSec, UINT16 Timer )
 	UINT32 timerFrequency = SYSTEM_CLOCK_HZ;
 	UINT8 i;
 
-/*	for (i=0; i<g_CountOfHardwareTimers; i++){
+	for (i=0; i<g_CountOfHardwareTimers; i++){
 		if (Timer == g_HardwareTimerIDs[i]){
 			timerFrequency = g_HardwareTimerFrequency[i];
 		}
@@ -488,7 +475,7 @@ UINT64 CPU_MillisecondsToTicks( UINT32 mSec, UINT16 Timer )
 		ASSERT(0);
 		return 0;
 	}
-*/
+
 	return 0;
 }
 
@@ -499,7 +486,7 @@ UINT64 CPU_TicksToMicroseconds( UINT64 ticks, UINT16 Timer )
 	UINT32 timerFrequency = SYSTEM_CLOCK_HZ;
 	UINT8 i;
 
-/*	for (i=0; i<g_CountOfHardwareTimers; i++){
+	for (i=0; i<g_CountOfHardwareTimers; i++){
 		if (Timer == g_HardwareTimerIDs[i]){
 			timerFrequency = g_HardwareTimerFrequency[i];
 		}
@@ -529,7 +516,7 @@ UINT64 CPU_TicksToMicroseconds( UINT64 ticks, UINT16 Timer )
 	{
 		ASSERT(0);
 		return 0;
-	}*/
+	}
 	return 0;
 }
 
@@ -539,7 +526,7 @@ UINT32 CPU_TicksToMicroseconds( UINT32 ticks, UINT16 Timer )
 	UINT32 timerFrequency = SYSTEM_CLOCK_HZ;
 	UINT8 i;
 
-/*	for (i=0; i<g_CountOfHardwareTimers; i++){
+	for (i=0; i<g_CountOfHardwareTimers; i++){
 		if (Timer == g_HardwareTimerIDs[i]){
 			timerFrequency = g_HardwareTimerFrequency[i];
 		}
@@ -566,7 +553,7 @@ UINT32 CPU_TicksToMicroseconds( UINT32 ticks, UINT16 Timer )
 	default:
 		ASSERT(FALSE);
 		ret = 0;
-	}*/
+	}
 	return ret;
 }
 
@@ -575,7 +562,7 @@ UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer )
 	UINT32 timerFrequency = SYSTEM_CLOCK_HZ;
 	UINT8 i;
 
-/*	for (i=0; i<g_CountOfHardwareTimers; i++){
+	for (i=0; i<g_CountOfHardwareTimers; i++){
 		if (Timer == g_HardwareTimerIDs[i]){
 			timerFrequency = g_HardwareTimerFrequency[i];
 		}
@@ -583,17 +570,8 @@ UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer )
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
 #if ONE_MHZ < SLOW_CLOCKS_PER_SECOND
-#ifdef DEBUG_PRINT
-	UINT64 value;
-	debug_printf("CPU_MicrosecondsToTicks, Ticks %lld\n", uSec);
-	value = uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
-	debug_printf("Return Value is, %lld\n", value);
-#endif
 	return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
 #else
-#ifdef DEBUG_PRINT
-	debug_printf("In CPU_MicrosecondsToTicks(UINT64/#else), Ticks %u\n", uSec);
-#endif
 	return uSec * 48;
 #endif
 	}
@@ -604,7 +582,7 @@ UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer )
 	else if(Timer == RTC_32BIT)
 	{
 		return (UINT32)( (UINT64)uSec * (UINT64)timerFrequency / (UINT64)CLOCK_COMMON_FACTOR );
-	}*/
+	}
 
 	return 0;
 }
@@ -615,7 +593,7 @@ UINT32 CPU_MicrosecondsToTicks( UINT32 uSec, UINT16 Timer )
 	UINT32 timerFrequency = SYSTEM_CLOCK_HZ;
 	UINT8 i;
 
-/*	for (i=0; i<g_CountOfHardwareTimers; i++){
+	for (i=0; i<g_CountOfHardwareTimers; i++){
 		if (Timer == g_HardwareTimerIDs[i]){
 			timerFrequency = g_HardwareTimerFrequency[i];
 		}
@@ -649,7 +627,6 @@ UINT32 CPU_MicrosecondsToTicks( UINT32 uSec, UINT16 Timer )
 		//UINT32 answer1b = (UINT32)(answer / (UINT64)CLOCK_COMMON_FACTOR);
 		return (UINT32)( (UINT64)uSec * (UINT64)timerFrequency / (UINT64)CLOCK_COMMON_FACTOR );
 	}
-	*/
 
 	return 0;
 }
@@ -684,7 +661,7 @@ void CPU_AddClockTime(UINT16 Timer, UINT64 timeToAdd)
 	UINT64 ticksToAdd = 0;
 	UINT8 i;
 
-/*	for (i=0; i<g_CountOfHardwareTimers; i++){
+	for (i=0; i<g_CountOfHardwareTimers; i++){
 		if (Timer == g_HardwareTimerIDs[i]){
 			timerFrequency = g_HardwareTimerFrequency[i];
 		}
@@ -704,5 +681,5 @@ void CPU_AddClockTime(UINT16 Timer, UINT64 timeToAdd)
 	else
 	{
 		ASSERT(0);
-	}*/
+	}
 }

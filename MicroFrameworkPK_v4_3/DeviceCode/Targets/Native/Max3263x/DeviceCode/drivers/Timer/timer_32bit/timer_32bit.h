@@ -14,13 +14,15 @@ class Max3263x_timer_32bit
 		UINT32 currentCounterValue;
 		HAL_CALLBACK_FPN callBackISR;
 		UINT32 callBackISR_Param;
-		mxc_tmr_regs_t* tmr;
+		mxc_tmr_regs_t* tmrSystemTime;
+		mxc_tmr_regs_t* tmrOneShot;
 		// Stores the current active compare value in the system
 	bool setCompareRunning;
 
 		// Not exposing the ability to modify the timers involved because it involved knowledge of internal workings
 	// The advanced timer combination will always be TIM1 -> TIM2.
-	DeviceStatus Initialize(HAL_CALLBACK_FPN ISR, UINT32 ISR_Param);
+	DeviceStatus InitializeOneShot(HAL_CALLBACK_FPN ISR, UINT32 ISR_Param);
+	DeviceStatus InitializeSystemTime();
 
 	DeviceStatus SetCompare(UINT64 compareValue);
 
@@ -38,18 +40,9 @@ class Max3263x_timer_32bit
 
 public:
 	
-	static BOOL initialized;
-	
 	UINT16 tar_lower;
 	volatile UINT64 currentTarget;
 	tmr_prescale_t prescale = TMR_PRESCALE_DIV_2_12;
-
-	
-
-	
-	
-
-	
 
 	void TriggerSoftwareInterrupt()
 	{
@@ -61,10 +54,6 @@ public:
 	BOOL DidTimerOverflow();
 	void ClearTimerOverflow();
 	BOOL ResetCompareHit();
-	
-
-
-	
 
 */
 };
