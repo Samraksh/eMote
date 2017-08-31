@@ -615,7 +615,7 @@ void SX1276M1BxASWrapper::Initialize(SX1276RadioEvents_t *events) {
 
 	this->SX1276M1BxASWrapper::IoInit( );
 
-	SX1276M1BxASWrapper::RxChainCalibration();
+	RxChainCalibration();
 	CPU_GPIO_SetPinState( (GPIO_PIN)25 , FALSE);
 	CPU_GPIO_SetPinState( (GPIO_PIN)25 , TRUE);
 
