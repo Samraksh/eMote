@@ -628,6 +628,7 @@ void SX1276M1BxASWrapper::Initialize(SX1276RadioEvents_t *events) {
 
     SetModem( MODEM_FSK );
 
+
     this->settings.State = RF_IDLE ;
 
 }
@@ -726,7 +727,7 @@ void SX1276M1BxASWrapper::RxChainCalibration( )
 
 
     // Save context
-    regPaConfigInitVal = this->Read( 12 );
+    regPaConfigInitVal = this->Read( REG_PACONFIG );
 
 	CPU_GPIO_SetPinState( (GPIO_PIN)25 , FALSE);
 	CPU_GPIO_SetPinState( (GPIO_PIN)25 , TRUE);

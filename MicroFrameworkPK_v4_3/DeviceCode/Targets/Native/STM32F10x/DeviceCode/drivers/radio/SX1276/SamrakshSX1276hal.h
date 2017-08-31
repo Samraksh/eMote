@@ -111,6 +111,7 @@ private:
 	DeviceStatus AddToTxBuffer(void* msg, UINT16 size);
 private:
 	bool IsPacketTransmittable(void* msg, UINT16 size);
+	void ChooseRadioConfig();
 public:
 	Samraksh_SX1276_hal();
 	virtual ~Samraksh_SX1276_hal();
