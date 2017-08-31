@@ -566,14 +566,14 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\usb_config\dotNetMF.proj" />
   </ItemGroup>
   -->
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="usartStubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\usart\usartStubs\dotNetMF.proj" />
-  </ItemGroup>
-  <!--<ItemGroup>
+  </ItemGroup>-->
+  <ItemGroup>
     <DriverLibs Include="Max3263x_usart.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\usart\dotNetMF.proj" />
-  </ItemGroup>-->
+  </ItemGroup>
   <!--<ItemGroup> No longer seems to exist NPS
     <DriverLibs Include="Max3263x_NOR.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\fsmc\dotNetMF.proj" />

@@ -29,6 +29,7 @@
     <IncludePaths Include="DeviceCode\Targets\Native\MAX3263x" />
     <IncludePaths Include="DeviceCode\Targets\Native\MAX3263x\DeviceCode\MaximLib\CMSIS\Device\Maxim\MAX3263X\Include" />
     <IncludePaths Include="DeviceCode\Targets\Native\MAX3263x\DeviceCode\MaximLib\CMSIS\Include" />
+    <IncludePaths Include="DeviceCode\Targets\Native\MAX3263x\DeviceCode\MaximLib\MAX3263XPeriphDriver\Include" />
   </ItemGroup>
   <PropertyGroup>
     <TARGET>MAX3263X</TARGET>

@@ -3,32 +3,256 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
-#include <stm32f10x.h>
-#include <netmf_usart.h>
+#include <max3263x.h>
+//#include <netmf_usart.h>
+#include <uart.h>
+#include <ioman.h>
 #include "sam_usart.h"
+
+#define MAX_BAUDRATE 115200
+#define MIN_BAUDRATE 0
+
+#define BUFF_SIZE 32
+
+void USART0_Handler(void *args);
+void USART1_Handler(void *args);
+static int PORTS_IN_USE_MASK = 0;
+//Max326_USART_Driver g_max326_usart_Driver;
+
+uint8_t txdata_com0[BUFF_SIZE];
+uint8_t rxdata_com0[BUFF_SIZE];
+uint8_t txdata_com1[BUFF_SIZE];
+uint8_t rxdata_com1[BUFF_SIZE];
+uart_req_t read_req0,read_req1;
+uart_req_t write_req0,write_req1;
 
 //ComHandle != ComPort.  COM1 is a handle with port=0. COM1=0x101 means port 0 on USART transport.  See platform_selector.h and tinyhal.h.
 
-void USART2_Handler(void *args);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-static USART_InitTypeDef USART1_InitStructure;
-static USART_InitTypeDef USART2_InitStructure;
-static int PORTS_IN_USE_MASK = 0;
+void read_cb(uart_req_t* req, int error, int comPort){
+	if(error!=E_NO_ERROR){
+		return;
+	}
+	if(req->num > 0){
+		for (int i=0 ; i< req->num; i++){
+			USART_AddCharToRxBuffer(ConvertCOM_ComPort(comPort), req->data[i]);
+		}
+	}
+}
 
-/*TODO 
-	Add error handling
-	Define the APIs completely
-	#define the comPort
-	Check how physical ports are mapped to logical ports
-	Send data is non-blocking, skips data if continuously transmitted
-*/
+void write_cb(uart_req_t* req, int error, int comPort){
+	if(error!=E_NO_ERROR){
+		return;
+	}
+
+	bool charPending=true;
+	int i=0;
+	while (charPending && i < BUFF_SIZE){
+		char c;
+		charPending=USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(comPort), c);
+		if(charPending) {
+			i++;
+			if(comPort==0)  rxdata_com0[i]=c;
+			else if(comPort==1) rxdata_com1[i]=c;
+		}
+
+
+	}
+
+	if(i>0){
+		req->num=i;
+		if(comPort==0) UART_WriteAsync(MXC_UART0, &write_req0);
+		if(comPort==1) UART_WriteAsync(MXC_UART1, &write_req1);
+	}
+
+}
+
+
+void read_cb0(uart_req_t* req, int error){read_cb(req,error,0);}
+void read_cb1(uart_req_t* req, int error){read_cb(req,error,1);}
+
+void write_cb0(uart_req_t* req, int error){write_cb(req,error,0);}
+void write_cb1(uart_req_t* req, int error){write_cb(req,error,1);}
+
+
+
+//void Max326_USART_Driver::InitBuffers(int comPort){
+void InitBuffers(int comPort){
+	int error;
+	if(comPort==0){
+		 read_req0.data = rxdata_com0;
+		 read_req0.len = BUFF_SIZE;
+		 //read_req0.callback = read_cb;
+
+		 write_req0.data = txdata_com0;
+		 write_req0.len = BUFF_SIZE;
+		 //write_req0.callback = write_cb;
+
+		 error = UART_ReadAsync(MXC_UART0, &read_req0);
+		if(error != E_NO_ERROR) {
+			debug_printf("Error starting async read %d\n", error);
+		}
+
+		error = UART_WriteAsync(MXC_UART0, &write_req0);
+		if(error != E_NO_ERROR) {
+			debug_printf("Error starting async write %d\n", error);
+		}
+	}
+	if(comPort==1){
+		 read_req1.data = rxdata_com1;
+		 read_req1.len = BUFF_SIZE;
+		 //read_req1.callback = read_cb;
+
+		 write_req1.data = txdata_com1;
+		 write_req1.len = BUFF_SIZE;
+		 //write_req1.callback = write_cb;
+
+		 error = UART_ReadAsync(MXC_UART1, &read_req1);
+		if(error != E_NO_ERROR) {
+			debug_printf("Error starting async read %d\n", error);
+		}
+
+		error = UART_WriteAsync(MXC_UART1, &write_req1);
+		if(error != E_NO_ERROR) {
+			debug_printf("Error starting async write %d\n", error);
+		}
+	}
+}
+static BOOL do_com0_attached(GPIO_PIN Pin, BOOL PinState, void* Param) {
+	CPU_GPIO_DisablePin( (GPIO_PIN) 10, (GPIO_RESISTOR)0, 0, (GPIO_ALT_MODE)0 ); // Only first arg used, rest dummy.
+	 return init_com0();
+}
+
+void USART0_Handler() {
+	GLOBAL_LOCK(irq);
+	SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+	SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+	UART_Handler(MXC_UART0);
+	irq.Acquire();
+	SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+	SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
+	//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
+	return;
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+void USART1_Handler(void *args)
+{
+	UART_Handler(MXC_UART1);
+}
+
+
+	//////////////////////Non extern C functions ///////////////
+
+
+// Note that once this goes up, it stays up.
+static BOOL init_com0(void) {
+	if(!CPU_GPIO_ReservePin(9, TRUE))  { return FALSE; }
+	if(!CPU_GPIO_ReservePin(10, TRUE)) { return FALSE; }
+
+	InitBuffers(0);
+
+	PORTS_IN_USE_MASK |= 1;
+
+	UINT32 interruptIndex = 0;
+	HAL_CALLBACK_FPN callback = NULL;
+
+	interruptIndex = UART0_IRQn;
+	callback = USART0_Handler;
+	if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
+
+	//UINT32 my_baudrate = BaudRate;
+	//CPU_USART_IsBaudrateSupported( 1, my_baudrate );
+
+
+	// Setup the interrupt
+	//NVIC_ClearPendingIRQ(MXC_UART_GET_IRQ(1));
+	//NVIC_DisableIRQ(MXC_UART_GET_IRQ(1));
+	//NVIC_SetPriority(MXC_UART_GET_IRQ(1), 1);
+	//NVIC_EnableIRQ(MXC_UART_GET_IRQ(1));
+
+	// Initialize the UART
+	uart_cfg_t cfg;
+	cfg.parity = UART_PARITY_DISABLE; // no parity
+	cfg.size = UART_DATA_SIZE_8_BITS; //8 data bits
+	cfg.extra_stop = 0; //no stop bits
+	cfg.cts = 0;  //No hardware flow control
+	cfg.rts = 0;
+	cfg.baud = 115200; // Default baud for MFDeploy and Visual Studio
+
+	sys_cfg_uart_t sys_cfg;
+	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
+	sys_cfg.io_cfg = (ioman_cfg_t)IOMAN_UART(0, IOMAN_MAP_A, IOMAN_MAP_A, IOMAN_MAP_A, 1, 1, 1);
+
+	int error = UART_Init(MXC_UART0, &cfg, &sys_cfg);
+	if(error != E_NO_ERROR) {
+		debug_printf("Error initializing UART 0: Error no %d\n", error);
+		return FALSE;
+	} else {
+		debug_printf("UART Initialized\n");
+	}
+
+	// Configure USART Tx as alternate function push-pull
+	//GPIO_ConfigurePin(GPIOA, GPIO_Pin_9, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
+
+	// Configure USART Rx as input floating // Actually make it a pull-up for noise immunity. See #250.
+	//GPIO_ConfigurePin(GPIOA, GPIO_Pin_10, GPIO_Mode_IPU, GPIO_Speed_10MHz);
+	return TRUE;
+}
+
+static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue) {
+	if(!CPU_GPIO_ReservePin(2, TRUE)) { return FALSE; }
+	if(!CPU_GPIO_ReservePin(3, TRUE)) { return FALSE; }
+
+	PORTS_IN_USE_MASK |= 2;
+	InitBuffers(1);
+
+	UINT32 interruptIndex = 0;
+	HAL_CALLBACK_FPN callback = NULL;
+
+	interruptIndex = UART1_IRQn;
+	callback = USART1_Handler;
+	if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
+
+	// Initialize the UART
+	uart_cfg_t cfg;
+	cfg.parity = UART_PARITY_DISABLE; // no parity
+	cfg.size = UART_DATA_SIZE_8_BITS; //8 data bits
+	cfg.extra_stop = 0; //no stop bits
+	cfg.cts = 0;  //No hardware flow control
+	cfg.rts = 0;
+	cfg.baud = 115200; // Default baud for MFDeploy and Visual Studio
+
+	sys_cfg_uart_t sys_cfg;
+	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
+	//sys_cfg.io_cfg = (ioman_cfg_t) IOMAN_UART(1, IOMAN_MAP_A, IOMAN_MAP_A, IOMAN_MAP_A, 1, 1, 1);
+
+	int error = UART_Init(MXC_UART1, &cfg, &sys_cfg);
+	if(error != E_NO_ERROR) {
+		debug_printf("Error initializing UART 1: Error no %d\n", error);
+		return FALSE;
+	} else {
+		debug_printf("UART Initialized\n");
+	}
+
+	return TRUE;
+}
+
+
 
 void USART_pause(void) {
 	if (PORTS_IN_USE_MASK & 0x1) {
 		CPU_USART_TxBufferEmptyInterruptEnable(0, false);
 		while( CPU_USART_TxShiftRegisterEmpty(0) == FALSE );
 	}
-	
+
 	if (PORTS_IN_USE_MASK & 0x2) {
 		CPU_USART_TxBufferEmptyInterruptEnable(1, false);
 		while( CPU_USART_TxShiftRegisterEmpty(1) == FALSE );
@@ -39,111 +263,18 @@ void USART_pause(void) {
 // Necessary when changing power levels, for example.
 void USART_reinit(void) {
 	if (PORTS_IN_USE_MASK & 0x1) {
-		
-		// Do the reset
-		USART_DeInit(USART1);
-		USART_Init(USART1, &USART1_InitStructure);
-		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
-		USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
-		USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
-		USART_ITConfig(USART1, USART_IT_TXE, ENABLE); // Will cause bytes to start moving again.
-		USART_Cmd(USART1, ENABLE);
+		UART_Shutdown(MXC_UART_GET_UART(0));
+		UART_Enable(MXC_UART_GET_UART(0));
 	}
 
 	if (PORTS_IN_USE_MASK & 0x2) {
-		USART_DeInit(USART2);
-		USART_Init(USART2, &USART2_InitStructure);
-		USART_ClearITPendingBit(USART2, USART_IT_RXNE);
-		USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
-		USART_ITConfig(USART2, USART_IT_TXE, ENABLE); // Will cause bytes to start moving again.
-		USART_Cmd(USART2, ENABLE);
+		UART_Shutdown(MXC_UART_GET_UART(1));
+		UART_Enable(MXC_UART_GET_UART(1));
 	}
 }
 
-// Note that once this goes up, it stays up.
-static void init_com0(void) {
-	if(!CPU_GPIO_ReservePin(9, TRUE))  { return; }
-	if(!CPU_GPIO_ReservePin(10, TRUE)) { return; }
 
-	PORTS_IN_USE_MASK |= 1;
 
-	NVIC_InitTypeDef NVIC_InitStructure;
-	//NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
-	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
-
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO | RCC_APB2Periph_USART1, ENABLE);
-	USART_DeInit(USART1);
-	USART_StructInit(&USART1_InitStructure);
-
-	USART1_InitStructure.USART_BaudRate 			= 115200; // Default baud for MFDeploy and Visual Studio
-	USART1_InitStructure.USART_WordLength 			= USART_WordLength_8b;
-	USART1_InitStructure.USART_StopBits 			= USART_StopBits_1;
-	USART1_InitStructure.USART_Parity 				= USART_Parity_No;
-	USART1_InitStructure.USART_HardwareFlowControl 	= USART_HardwareFlowControl_None;
-	USART1_InitStructure.USART_Mode				 	= USART_Mode_Rx | USART_Mode_Tx;
-
-	// Configure USART Tx as alternate function push-pull
-	GPIO_ConfigurePin(GPIOA, GPIO_Pin_9, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
-
-	// Configure USART Rx as input floating // Actually make it a pull-up for noise immunity. See #250.
-	GPIO_ConfigurePin(GPIOA, GPIO_Pin_10, GPIO_Mode_IPU, GPIO_Speed_10MHz);
-
-	USART_Init(USART1, &USART1_InitStructure);
-	USART_ClearITPendingBit(USART1, USART_IT_RXNE);
-	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
-	USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
-	USART_Cmd(USART1, ENABLE);
-}
-
-static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue) {
-	if(!CPU_GPIO_ReservePin(2, TRUE)) { return FALSE; }
-	if(!CPU_GPIO_ReservePin(3, TRUE)) { return FALSE; }
-
-	PORTS_IN_USE_MASK |= 2;
-
-	UINT32 interruptIndex = 0;
-	HAL_CALLBACK_FPN callback = NULL;
-
-	interruptIndex = STM32_AITC::c_IRQ_INDEX_USART2;
-	callback = USART2_Handler;
-	if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
-
-	UINT32 my_baudrate = BaudRate;
-	CPU_USART_IsBaudrateSupported( 1, my_baudrate );
-
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE); // Assume this is already on from COM1
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-	USART_DeInit(USART2);
-	USART_StructInit(&USART2_InitStructure);
-
-	USART2_InitStructure.USART_BaudRate 			= my_baudrate;
-	USART2_InitStructure.USART_WordLength 			= USART_WordLength_8b;
-	USART2_InitStructure.USART_StopBits 			= USART_StopBits_1;
-	USART2_InitStructure.USART_Parity 				= USART_Parity_No;
-	USART2_InitStructure.USART_HardwareFlowControl 	= USART_HardwareFlowControl_None;
-	USART2_InitStructure.USART_Mode 				= USART_Mode_Rx | USART_Mode_Tx;
-
-	// Configure USART Tx as alternate function push-pull
-	GPIO_ConfigurePin(GPIOA, GPIO_Pin_2, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
-
-	// Configure USART Rx as input floating // Actually make it a pull-up for noise immunity. See #250.
-	GPIO_ConfigurePin(GPIOA, GPIO_Pin_3, GPIO_Mode_IPU, GPIO_Speed_10MHz);
-
-	USART_Init(USART2, &USART2_InitStructure);
-	USART_ClearITPendingBit(USART2, USART_IT_RXNE);
-	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
-	USART_Cmd(USART2, ENABLE);
-	return TRUE;
-}
-
-static void do_com0_attached(GPIO_PIN Pin, BOOL PinState, void* Param) {
-	CPU_GPIO_DisablePin( (GPIO_PIN) 10, (GPIO_RESISTOR)0, 0, (GPIO_ALT_MODE)0 ); // Only first arg used, rest dummy.
-	init_com0();
-}
 
 BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
 {
@@ -154,14 +285,10 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	// If COM0, don't initialize until we see something connected (i.e. usb-serial attached)
 	if (ComPortNum == 0) {
 
-		if(1) {
-		//if (CPU_GPIO_GetPinState((GPIO_PIN)10) == TRUE) {
-			do_com0_attached(0, FALSE, NULL);
-			return TRUE;
-		}
+		return	do_com0_attached(0, FALSE, NULL);
 
-		CPU_GPIO_EnableInputPin( (GPIO_PIN) 10, FALSE, do_com0_attached, GPIO_INT_EDGE_HIGH, RESISTOR_PULLDOWN );
-		return TRUE;
+		//CPU_GPIO_EnableInputPin( (GPIO_PIN) 10, FALSE, do_com0_attached, GPIO_INT_EDGE_HIGH, RESISTOR_PULLDOWN );
+		//return TRUE;
 	}
 
 	if (ComPortNum == 1) {
@@ -174,158 +301,69 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 // Not sure of a scenario where this fails
 BOOL CPU_USART_Uninitialize( int ComPortNum )
 {
-	USART_TypeDef* activeUsart;
 	switch(ComPortNum)
 	{
 	case 0:
-		activeUsart = USART1;
 		CPU_GPIO_ReservePin(9, FALSE);
 		CPU_GPIO_ReservePin(10, FALSE);
 		PORTS_IN_USE_MASK &= ~(0x1);
 		break;
 	case 1:
 	default:
-		activeUsart = USART2;
 		CPU_GPIO_ReservePin(2, FALSE);
 		CPU_GPIO_ReservePin(3, FALSE);
 		PORTS_IN_USE_MASK &= ~(0x2);
 		break;
 	}
 	
-	USART_DeInit(activeUsart);
-
+	UART_Shutdown(MXC_UART_GET_UART(ComPortNum));
 	return TRUE;
 }
 
 // check if tx buffer is empty
 BOOL CPU_USART_TxBufferEmpty( int ComPortNum )
 {
-	USART_TypeDef* activeUsart;
-	switch(ComPortNum)
-	{
-	case 0:
-		activeUsart = USART1;
-		break;
-	case 1:
-	default:
-		activeUsart = USART2;
-		break;
-	}
-
-	if (USART_GetFlagStatus(activeUsart, USART_FLAG_TXE) == SET)
-		return TRUE;
-	else
-		return FALSE;
+	return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum))==0) ;
 }
 
 // if transmission is complete the Shift Register is empty
 BOOL CPU_USART_TxShiftRegisterEmpty( int ComPortNum )
 {
-	USART_TypeDef* activeUsart;
-	switch(ComPortNum)
-	{
-	case 0:
-		activeUsart = USART1;
-		break;
-	case 1:
-	default:
-		activeUsart = USART2;
-		break;
-	}
-
-	if (USART_GetFlagStatus(activeUsart, USART_FLAG_TC) == SET)
-		return TRUE;
-	else
-		return FALSE;
+	return FALSE;
+	//return (UART_GetFlags(MXC_UART_GET_UART(ComPortNum) & MXC_F_UART_INTFL_TX_DONE);
 }
+
 
 // Write char into the data register
 void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 {
-	USART_TypeDef* activeUsart;
-	switch(ComPortNum)
-	{
-	case 0:
-		activeUsart = USART1;
-		break;
-	case 1:
-	default:
-		activeUsart = USART2;
-		break;
-	}
+	uart_req_t *req;
+	if(ComPortNum==0){ req= &write_req0;}
+	if(ComPortNum==1){ req= &write_req1;}
 
-	USART_SendData(activeUsart, c);
+	req->num=1;
+	req->data[0]=c;
+	UART_WriteAsync(MXC_UART_GET_UART(ComPortNum) , req);
 }
 
 
 void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 {
-	USART_TypeDef* activeUsart;
-	switch(ComPortNum)
-	{
-	case 0:
-		activeUsart = USART1;
-		break;
-	case 1:
-	default:
-		activeUsart = USART2;
-		break;
-	}
-
-	USART_ITConfig(activeUsart, USART_IT_TXE, (FunctionalState) Enable);
 }
 
 // Returns TRUE if interrupt is enabled, NOT their current state.
 BOOL CPU_USART_TxBufferEmptyInterruptState( int ComPortNum )
 {
-	USART_TypeDef* activeUsart;
-	switch(ComPortNum)
-	{
-	case 0:
-		activeUsart = USART1;
-		break;
-	case 1:
-	default:
-		activeUsart = USART2;
-		break;
-	}
-
-	return (activeUsart->CR1 & 0x80);
+	return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum))==0) ;
 }
 
 void CPU_USART_RxBufferFullInterruptEnable( int ComPortNum, BOOL Enable )
 {
-	USART_TypeDef* activeUsart;
-	switch(ComPortNum)
-	{
-	case 0:
-		activeUsart = USART1;
-		break;
-	case 1:
-	default:
-		activeUsart = USART2;
-		break;
-	}
-
-	USART_ITConfig(activeUsart, USART_IT_RXNE, (FunctionalState) Enable);
 }
 
 BOOL CPU_USART_RxBufferFullInterruptState( int ComPortNum )
 {
-	USART_TypeDef* activeUsart;
-	switch(ComPortNum)
-	{
-	case 0:
-		activeUsart = USART1;
-		break;
-	case 1:
-	default:
-		activeUsart = USART2;
-		break;
-	}
-
-	return (activeUsart->CR1 & 0x20);
-
+	return (UART_NumReadAvail(MXC_UART_GET_UART(ComPortNum))==BUFF_SIZE) ;
 }
 
 BOOL CPU_USART_TxHandshakeEnabledState( int comPort )
@@ -378,101 +416,4 @@ BOOL CPU_USART_IsBaudrateSupported( int ComPortNum, UINT32& BaudrateHz )
   }
 }
 
-#define RX_HAL_BUF_SIZE 8  // Input buffer will flush after this size or IDLE interrupt
 
-extern "C" {
-void __irq USART1_IRQHandler() {
-	static char buf[RX_HAL_BUF_SIZE];
-	static int idx;
-	unsigned int status;
-	volatile unsigned int dummy __attribute__ ((unused));
-
-	//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-	GLOBAL_LOCK(irq);
-	SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-	SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-
-	
-	status = USART1->SR; // check status reg
-	
-	if (status & (USART_FLAG_FE|USART_FLAG_PE|USART_FLAG_NE)) {
-		// clearing interrupt flag
-		dummy = USART1->DR;
-	} else if (status & USART_FLAG_RXNE){
-		// we got data
-		char c = USART_ReceiveData(USART1)&0xFF; // Also clears status
-
-		if (idx < RX_HAL_BUF_SIZE) {
-			// temporarily storing data into batches of RX_HAL_BUF_SIZE
-			buf[idx++] = c;
-		}
-		if (idx >= RX_HAL_BUF_SIZE) {
-			// we have enough data so we do the time intesive task of putting it into software receive buffer
-			USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, idx <= RX_HAL_BUF_SIZE ? idx : RX_HAL_BUF_SIZE);
-			idx = 0;
-		}
-		if (status & USART_FLAG_ORE){
-			c = USART_ReceiveData(USART1)&0xFF; // Also clears status
-
-			if (idx < RX_HAL_BUF_SIZE) {
-				buf[idx++] = c;
-			}
-			if (idx >= RX_HAL_BUF_SIZE) {
-				USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, idx <= RX_HAL_BUF_SIZE ? idx : RX_HAL_BUF_SIZE);
-				idx = 0;
-			}
-		}
-	} else if (status & USART_FLAG_IDLE){
-		dummy = USART1->DR;
-		if (idx > 0) {
-			USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, idx <= RX_HAL_BUF_SIZE ? idx : RX_HAL_BUF_SIZE);
-			idx=0;
-		}
-	}
-	irq.Release();
-
-	// MF signals if there is TX work by toggling the interrupt enable
-	// So we check it and don't do anything if it isn't set
-	if (USART1->CR1 & 0x80) {
-		if (USART_GetITStatus(USART1, USART_IT_TXE)  == SET) {
-			char c;
-			// USART_IT_TXE pending bit only cleared by write
-			if ( USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM1), c) ) {
-				USART_SendData(USART1, c);
-			}
-			else {
-				USART_ITConfig(USART1, USART_IT_TXE,  DISABLE);
-			}
-		}
-	}
-	
-	irq.Acquire();
-	SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-	SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
-	//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-	return;
-}
-} // extern C
-
-void USART2_Handler(void *args)
-{
-	int err __attribute__ ((unused));
-	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
-	{
-		  char c = (char) USART_ReceiveData(USART2); // read RX data
-		  USART_AddCharToRxBuffer(ConvertCOM_ComPort(COM2), c);
-	}
-	if(USART_GetITStatus(USART2, USART_IT_TXE) != RESET)
-	{
-		 char c;
-		    if (USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM2), c)) {
-		    	USART_SendData(USART2, c);
-		    } else {
-		    	USART_ITConfig(USART2, USART_IT_TXE, (FunctionalState) FALSE);
-		    }
-		return;
-		    ////Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
-	}
-	err = USART2->SR;
-	err = USART2->DR;
-}
