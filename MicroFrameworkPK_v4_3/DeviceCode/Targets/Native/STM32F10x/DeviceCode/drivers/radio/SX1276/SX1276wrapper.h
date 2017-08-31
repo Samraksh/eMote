@@ -207,7 +207,7 @@ public:
 		UINT8 DIO5;
 	};
 
-protected:
+//protected:
 	// Stores the configuration of the spi
 	SPI_CONFIGURATION config;
 	SX1276_pin_setup_t SX1276_pin_setup;
@@ -216,7 +216,7 @@ protected:
 	uint8_t radio_spi_go(uint8_t data);
 	void radio_spi_sel_no_assert();
 
-private:
+//private:
 	void initSPI2(); //Initialize a SPI structure
 	void init_pins();
 	void reset();
@@ -260,10 +260,10 @@ public:
 
 
 
-protected:
+//protected:
     SX1276RadioEvents_t* RadioEvents;
 
-protected:
+//protected:
     /*!
     * SPI Interface
     */
@@ -315,7 +315,7 @@ protected:
     RadioSettings_t settings;
 
     static const FskBandwidth_t FskBandwidths[];
-protected:
+//protected:
 
     /*!
     * Performs the Rx chain calibration for LF and HF bands
@@ -517,7 +517,7 @@ public:
     virtual void SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
 
     /*!
-     * \brief Sets the network to public or private. Updates the sync byte.
+     * \brief Sets the network to public or //private. Updates the sync byte.
      *
      * \remark Applies to LoRa modem only
      *
@@ -529,10 +529,10 @@ public:
     //                        Board relative functions
     //-------------------------------------------------------------------------
 
-protected:
+//protected:
 
     virtual void wait_ms(UINT32 x){};
-protected:
+//protected:
 
     /*!
      * @brief Sets the SX1276 operating mode
@@ -600,7 +600,7 @@ public :
 
 	static void SX1276_Reset_Pin_Interrupt_Handler(GPIO_PIN Pin, BOOL PinState, void* Param);
 
-private:
+//private:
 	RadioRegisters_t RadioRegsInit[16];
 public:
 	bool reset_intiated;
@@ -669,7 +669,7 @@ public:
 
     friend class Samraksh_SX1276_hal;
 
-protected:
+//protected:
     /*!
      * @brief Initializes the radio I/Os pins interface
      */
@@ -749,7 +749,7 @@ protected:
     virtual void CancelTimeoutTimer(TimeoutName_t ton);
 
 
-private:
+//private:
     virtual uint8_t GetTimerID(TimeoutName_t ton) ;
 
 

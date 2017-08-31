@@ -726,7 +726,7 @@ void SX1276M1BxASWrapper::RxChainCalibration( )
 
 
     // Save context
-    regPaConfigInitVal = this->Read( REG_PACONFIG );
+    regPaConfigInitVal = this->Read( 12 );
 
 	CPU_GPIO_SetPinState( (GPIO_PIN)25 , FALSE);
 	CPU_GPIO_SetPinState( (GPIO_PIN)25 , TRUE);
