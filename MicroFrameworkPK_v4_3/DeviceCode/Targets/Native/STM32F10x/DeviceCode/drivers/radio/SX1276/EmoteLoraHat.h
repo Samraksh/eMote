@@ -126,7 +126,7 @@ private:
 	void reset();
 	void init_interrupts();
 public:
-	static InterruptPins_t SX1276_interupt_pins;
+	InterruptPins_t SX1276_interupt_pins;
 
 
 
