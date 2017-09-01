@@ -32,6 +32,7 @@ void Samraksh_SX1276_hal::TxDone(){
 	if(gsx1276radio.m_re.TxDone) gsx1276radio.m_re.TxDone(true);
 }
 void Samraksh_SX1276_hal::TxTimeout(){
+	gsx1276radio.m_packet.ClearPaylod();
 	if(gsx1276radio.m_re.TxDone) gsx1276radio.m_re.TxDone(false);
 };
 void Samraksh_SX1276_hal::RxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr){
