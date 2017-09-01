@@ -99,10 +99,7 @@ DeviceStatus Samraksh_SX1276_hal::Initialize(SamrakshRadio_I::RadioEvents_t re){
 
 	g_SX1276M1BxASWrapper.Initialize(&sx1276_re);
 
-	g_SX1276M1BxASWrapper.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
-            LORA_SPREADING_FACTOR, LORA_CODINGRATE,
-            LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
-            true, 0, 0, LORA_IQ_INVERSION_ON, 3000 );
+	ChooseRadioConfig();
 
 	isRadioInitialized = true;
 	return DS_Success;
