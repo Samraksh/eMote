@@ -127,9 +127,9 @@ typedef uint16_t ushort;
 #define TOTAL_SOCK_PORT        0
 
 #define TOTAL_DEBUG_PORT       1
-#define COM_DEBUG              ConvertCOM_DebugHandle(0)
+#define COM_DEBUG              ConvertCOM_DebugHandle(1)
 
-#define COM_MESSAGING          ConvertCOM_MessagingHandle(0)
+#define COM_MESSAGING          ConvertCOM_MessagingHandle(1)
 
 #define USART_TX_IRQ_INDEX(x)       ( (x) ? 0 : 0 )     /* TODO set right indexes */
 #define USART_DEFAULT_PORT          COM1
@@ -144,10 +144,10 @@ typedef uint16_t ushort;
 #define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    256  // there is one RX for each usart port
 #define PLATFORM_DEPENDENT_USB_QUEUE_PACKET_COUNT  2    // there is one queue for each pipe of each endpoint and the size of a single packet is sizeof(USB_PACKET64) == 68 bytes
 
-#define DEBUG_TEXT_PORT    COM1
-#define STDIO              COM1
-#define DEBUGGER_PORT      COM1
-#define MESSAGING_PORT     COM1
+#define DEBUG_TEXT_PORT    COM2
+#define STDIO              COM2
+#define DEBUGGER_PORT      COM2
+#define MESSAGING_PORT     COM2
 
 
 //Setting the upper and lower thresholds for the GC to kick in
