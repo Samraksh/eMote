@@ -35,7 +35,7 @@ void TestObject_t:: TxDone( bool success){
 		hal_printf("TestObject_t::TxDone success %d number_of_bytes_in_buffer = %d  \r\n" , success);
 	}
 	else{
-		hal_printf("TestObject_t::TxDone success %d number_of_bytes_in_buffer = %d  \r\n" , success);
+		hal_printf("TestObject_t::TxDone fail %d number_of_bytes_in_buffer = %d  \r\n" , success);
 	}
 //	g_TestObject_t.StartTest();
 }
