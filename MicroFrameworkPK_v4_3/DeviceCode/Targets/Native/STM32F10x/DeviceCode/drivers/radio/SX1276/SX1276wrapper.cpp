@@ -608,6 +608,8 @@ void SX1276M1BxASWrapper::SX1276_Reset_Pin_Interrupt_Handler(GPIO_PIN Pin, BOOL 
 }
 
 void SX1276M1BxASWrapper::Initialize(SX1276RadioEvents_t *events) {
+	InitializeTimers();
+
 	SX1276M1BxASWrapper::LoraHardwareConfigInitialize();
 	//this->SX1276M1BxASWrapper::Reset();
 	CPU_GPIO_SetPinState( (GPIO_PIN)25 , FALSE);
@@ -619,13 +621,15 @@ void SX1276M1BxASWrapper::Initialize(SX1276RadioEvents_t *events) {
 	CPU_GPIO_SetPinState( (GPIO_PIN)25 , FALSE);
 	CPU_GPIO_SetPinState( (GPIO_PIN)25 , TRUE);
 
+
+
+
 	SX1276M1BxASWrapper::SetOpMode( RF_OPMODE_SLEEP );
 	SX1276M1BxASWrapper::IoIrqInit();
 	SX1276M1BxASWrapper::RadioRegistersInit();
 
-	InitializeTimers();
-	Init(events);
 
+	Init(events);
     SetModem( MODEM_FSK );
 
 
