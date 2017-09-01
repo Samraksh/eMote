@@ -132,7 +132,7 @@ typedef uint16_t ushort;
 #define COM_MESSAGING          ConvertCOM_MessagingHandle(1)
 
 #define USART_TX_IRQ_INDEX(x)       ( (x) ? 0 : 0 )     /* TODO set right indexes */
-#define USART_DEFAULT_PORT          COM1
+#define USART_DEFAULT_PORT          COM2
 #define USART_DEFAULT_BAUDRATE      115200
 
 #define USB_IRQ_INDEX               0  // TODO set right index

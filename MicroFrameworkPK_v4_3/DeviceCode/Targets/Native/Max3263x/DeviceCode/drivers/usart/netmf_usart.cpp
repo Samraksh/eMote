@@ -99,13 +99,13 @@ void InitBuffers(int comPort){
 	if(comPort==0){
 		 read_req0.data = rxdata_com0;
 		 read_req0.len = BUFF_SIZE;
-		 //read_req0.callback = read_cb;
+		 read_req0.callback = read_cb0;
 
 		 write_req0.data = txdata_com0;
 		 write_req0.len = BUFF_SIZE;
-		 //write_req0.callback = write_cb;
+		 write_req0.callback = write_cb0;
 
-		 error = UART_ReadAsync(MXC_UART0, &read_req0);
+		error = UART_ReadAsync(MXC_UART0, &read_req0);
 		if(error != E_NO_ERROR) {
 			debug_printf("Error starting async read %d\n", error);
 		}
@@ -118,11 +118,11 @@ void InitBuffers(int comPort){
 	if(comPort==1){
 		 read_req1.data = rxdata_com1;
 		 read_req1.len = BUFF_SIZE;
-		 //read_req1.callback = read_cb;
+		 read_req1.callback = read_cb1;
 
 		 write_req1.data = txdata_com1;
 		 write_req1.len = BUFF_SIZE;
-		 //write_req1.callback = write_cb;
+		 write_req1.callback = write_cb1;
 
 		 error = UART_ReadAsync(MXC_UART1, &read_req1);
 		if(error != E_NO_ERROR) {
@@ -167,7 +167,8 @@ static BOOL init_com0(void) {
 	//if(!CPU_GPIO_ReservePin(9, TRUE))  { return FALSE; }
 	//if(!CPU_GPIO_ReservePin(10, TRUE)) { return FALSE; }
 
-	InitBuffers(0);
+	CPU_GPIO_EnableOutputPin(24, TRUE);
+
 
 	PORTS_IN_USE_MASK |= 1;
 
@@ -183,10 +184,10 @@ static BOOL init_com0(void) {
 
 
 	// Setup the interrupt
-	//NVIC_ClearPendingIRQ(MXC_UART_GET_IRQ(1));
-	//NVIC_DisableIRQ(MXC_UART_GET_IRQ(1));
-	//NVIC_SetPriority(MXC_UART_GET_IRQ(1), 1);
-	//NVIC_EnableIRQ(MXC_UART_GET_IRQ(1));
+	//NVIC_ClearPendingIRQ(MXC_UART_GET_IRQ(0));
+	//NVIC_DisableIRQ(MXC_UART_GET_IRQ(0));
+	//NVIC_SetPriority(MXC_UART_GET_IRQ(0), 1);
+	//NVIC_EnableIRQ(MXC_UART_GET_IRQ(0));
 
 	// Initialize the UART
 	uart_cfg_t cfg;
@@ -198,19 +199,19 @@ static BOOL init_com0(void) {
 	cfg.baud = 115200; // Default baud for MFDeploy and Visual Studio
 
 	sys_cfg_uart_t sys_cfg;
-	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
+	sys_cfg.clk_scale = CLKMAN_SCALE_DIV_4; //CLKMAN_SCALE_AUTO;
 	//sys_cfg.io_cfg = (ioman_cfg_t)IOMAN_UART(0, IOMAN_MAP_A, IOMAN_MAP_UNUSED, IOMAN_MAP_UNUSED, 1, 0, 0);
-	IOMAN_UART_FUNC(sys_cfg.io_cfg, 0, IOMAN_MAP_A, IOMAN_MAP_UNUSED, IOMAN_MAP_UNUSED, 1, 0, 0);
+	IOMAN_UART_FUNC(sys_cfg.io_cfg, 0, IOMAN_MAP_A, IOMAN_MAP_UNUSED, IOMAN_MAP_UNUSED, 1, 1, 1);
 
 	const gpio_cfg_t console_uart_rx = { PORT_0, PIN_0, GPIO_FUNC_GPIO, GPIO_PAD_INPUT };       /**< GPIO configuration object for the UART Receive (RX) Pin for Console I/O. */
 	const gpio_cfg_t console_uart_tx = { PORT_0, PIN_1, GPIO_FUNC_GPIO, GPIO_PAD_INPUT };       /**< GPIO configuration object for the UART Transmit (TX) Pin for Console I/O. */
 	const gpio_cfg_t console_uart_cts = { PORT_0, PIN_2, GPIO_FUNC_GPIO, GPIO_PAD_INPUT };      /**< GPIO configuration object for the UART CTS Pin for Console I/O if hardware flow control is used. */
 	const gpio_cfg_t console_uart_rts = { PORT_0, PIN_3, GPIO_FUNC_GPIO, GPIO_PAD_INPUT };      /**< GPIO configuration object for the UART RTS Pin for Console I/O if hardware flow control is used. */
 
-	if(!CPU_GPIO_ReservePin(0, TRUE)) { return FALSE; }
-	if(!CPU_GPIO_ReservePin(1, TRUE)) { return FALSE; }
-	if(!CPU_GPIO_ReservePin(2, TRUE)) { return FALSE; }
-	if(!CPU_GPIO_ReservePin(3, TRUE)) { return FALSE; }
+	//if(!CPU_GPIO_ReservePin(0, TRUE)) { return FALSE; }
+	//if(!CPU_GPIO_ReservePin(1, TRUE)) { return FALSE; }
+	//if(!CPU_GPIO_ReservePin(2, TRUE)) { return FALSE; }
+	//if(!CPU_GPIO_ReservePin(3, TRUE)) { return FALSE; }
 
 
 	//GPIO_ConfigurePin(PORT_0, PIN_0, GPIO_FUNC_GPIO, GPIO_PAD_INPUT);
@@ -218,13 +219,18 @@ static BOOL init_com0(void) {
 	//GPIO_ConfigurePin(PORT_0, PIN_2, GPIO_FUNC_GPIO, GPIO_PAD_INPUT);
 	//GPIO_ConfigurePin(PORT_0, PIN_3, GPIO_FUNC_GPIO, GPIO_PAD_INPUT);
 
-	while(UART_Busy(MXC_UART_GET_UART(0))) {}
+
+	while(UART_Busy(MXC_UART_GET_UART(0)) != E_NO_ERROR ) {
+		CPU_GPIO_SetPinState(24, FALSE);
+	}
+	CPU_GPIO_SetPinState(24, TRUE);
 
 	int error = UART_Init(MXC_UART_GET_UART(0), &cfg, &sys_cfg);
 	if(error != E_NO_ERROR) {
 		//debug_printf("Error initializing UART 0: Error no %d\n", error);
 		return FALSE;
 	} else {
+		InitBuffers(0);
 		debug_printf("UART Initialized\n");
 	}
 
@@ -237,9 +243,9 @@ static BOOL init_com0(void) {
 }
 
 static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue) {
+	CPU_GPIO_EnableOutputPin(24, TRUE);
 
 	PORTS_IN_USE_MASK |= 2;
-	InitBuffers(1);
 
 	UINT32 interruptIndex = 0;
 	HAL_CALLBACK_FPN callback = NULL;
@@ -252,27 +258,34 @@ static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int 
 	uart_cfg_t cfg;
 	cfg.parity = UART_PARITY_DISABLE; // no parity
 	cfg.size = UART_DATA_SIZE_8_BITS; //8 data bits
-	cfg.extra_stop = 0; //no stop bits
+	cfg.extra_stop = 1; //no stop bits
 	cfg.cts = 0;  //No hardware flow control
 	cfg.rts = 0;
 	cfg.baud = 115200; // Default baud for MFDeploy and Visual Studio
 
 	sys_cfg_uart_t sys_cfg;
 	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
-	IOMAN_UART_FUNC(sys_cfg.io_cfg,1, IOMAN_MAP_A, IOMAN_MAP_A, IOMAN_MAP_A, 1, 1, 1);
+	IOMAN_UART_FUNC(sys_cfg.io_cfg,1, IOMAN_MAP_A,  IOMAN_MAP_A, IOMAN_MAP_A, 1, 1, 1);
 
-	if(!CPU_GPIO_ReservePin(16, TRUE)) { return FALSE; } //P2.0
+	/*if(!CPU_GPIO_ReservePin(16, TRUE)) { return FALSE; } //P2.0
 	if(!CPU_GPIO_ReservePin(17, TRUE)) { return FALSE; } //P2.1
 	if(!CPU_GPIO_ReservePin(18, TRUE)) { return FALSE; } //P2.2
 	if(!CPU_GPIO_ReservePin(19, TRUE)) { return FALSE; } //P2.3
 
-
+	// Setup the interrupt
+	NVIC_ClearPendingIRQ(MXC_UART_GET_IRQ(1));
+	NVIC_DisableIRQ(MXC_UART_GET_IRQ(1));
+	NVIC_SetPriority(MXC_UART_GET_IRQ(1), 1);
+	NVIC_EnableIRQ(MXC_UART_GET_IRQ(1));
+	*/
 
 	int error = UART_Init(MXC_UART1, &cfg, &sys_cfg);
 	if(error != E_NO_ERROR) {
 		debug_printf("Error initializing UART 1: Error no %d\n", error);
+		CPU_GPIO_SetPinState(24, FALSE);
 		return FALSE;
 	} else {
+		InitBuffers(1);
 		debug_printf("UART Initialized\n");
 	}
 
@@ -379,7 +392,8 @@ void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 	if(ComPortNum==0){ req= &write_req0;}
 	if(ComPortNum==1){ req= &write_req1;}
 
-	req->num=1;
+	req->len=1;
+	req->num=0;
 	req->data[0]=c;
 	UART_WriteAsync(MXC_UART_GET_UART(ComPortNum) , req);
 }
