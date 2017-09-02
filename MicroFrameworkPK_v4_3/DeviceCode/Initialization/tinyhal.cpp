@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
-
+#include "gpio.h"
 #if defined( SAM_APP_TINYCLR )
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/MAC_decl.h>
@@ -513,7 +513,21 @@ void HAL_Uninitialize()
 
 extern "C"
 {
-
+void TestHandler1(GPIO_PIN Pin, BOOL PinState, void* Param)
+{	
+	CPU_GPIO_TogglePinState(8);
+	CPU_GPIO_SetPinState(24, PinState);
+}
+void TestHandler2(GPIO_PIN Pin, BOOL PinState, void* Param)
+{	
+	CPU_GPIO_TogglePinState(9);
+	CPU_GPIO_SetPinState(25, PinState);
+}
+void TestHandler3(GPIO_PIN Pin, BOOL PinState, void* Param)
+{	
+	CPU_GPIO_TogglePinState(10);
+	CPU_GPIO_SetPinState(26, PinState);
+}
 void BootEntry()
 {
 #if defined(PLATFORM_ARM_SOC_ADAPT)
@@ -581,6 +595,42 @@ mipi_dsi_shutdown();
     CPU_Initialize();
 
 #if defined( SAM_APP_TINYCLR ) // TinyBooter, (and future MicroBooter) use SimpleTimer. SimpleTimer needs HAL_Time_Initialize().
+	BOOL test_val = FALSE;
+
+
+	CPU_GPIO_EnableOutputPin(24, FALSE);
+	CPU_GPIO_EnableOutputPin(25, FALSE);
+	CPU_GPIO_EnableOutputPin(26, FALSE);
+	CPU_GPIO_EnableOutputPin(27, FALSE);
+	CPU_GPIO_SetPinState(27, TRUE);
+
+	test_val = CPU_GPIO_GetPinState(27);
+	CPU_GPIO_SetPinState(26, test_val);
+
+	CPU_GPIO_TogglePinState(27);
+	CPU_GPIO_TogglePinState(27);
+	CPU_GPIO_TogglePinState(27);
+	
+	CPU_GPIO_EnableOutputPin(8, FALSE);
+	CPU_GPIO_EnableOutputPin(9, FALSE);
+	CPU_GPIO_EnableOutputPin(10, FALSE);
+	CPU_GPIO_EnableOutputPin(11, FALSE);
+	CPU_GPIO_EnableOutputPin(12, FALSE);
+	CPU_GPIO_EnableOutputPin(13, FALSE);
+	CPU_GPIO_EnableOutputPin(14, FALSE);
+	CPU_GPIO_EnableOutputPin(15, FALSE);
+	
+	//CPU_GPIO_EnableInputPin(44, FALSE, TestHandler1, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP);
+	//CPU_GPIO_EnableInputPin(45, FALSE, TestHandler2, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP);
+	//CPU_GPIO_EnableInputPin(48, FALSE, TestHandler3, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP);
+	/*bool readState;
+	while (1){
+		readState =CPU_GPIO_GetPinState(48);
+		if (readState == TRUE)
+			CPU_GPIO_SetPinState(27, TRUE);
+		else
+			CPU_GPIO_SetPinState(27, FALSE);
+	}*/
     VirtTimer_Initialize();
 #endif
     HAL_Time_Initialize();
@@ -641,6 +691,8 @@ mipi_dsi_shutdown();
 		}
 	}
 #endif
+	
+
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

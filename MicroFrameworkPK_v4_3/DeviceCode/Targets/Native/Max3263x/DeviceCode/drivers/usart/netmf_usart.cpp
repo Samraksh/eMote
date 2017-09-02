@@ -201,7 +201,7 @@ static BOOL init_com0(void) {
 	sys_cfg_uart_t sys_cfg;
 	sys_cfg.clk_scale = CLKMAN_SCALE_DIV_4; //CLKMAN_SCALE_AUTO;
 	//sys_cfg.io_cfg = (ioman_cfg_t)IOMAN_UART(0, IOMAN_MAP_A, IOMAN_MAP_UNUSED, IOMAN_MAP_UNUSED, 1, 0, 0);
-	IOMAN_UART_FUNC(sys_cfg.io_cfg, 0, IOMAN_MAP_A, IOMAN_MAP_UNUSED, IOMAN_MAP_UNUSED, 1, 1, 1);
+	IOMAN_UART_FUNC(sys_cfg.io_cfg, 0, IOMAN_MAP_A, IOMAN_MAP_A, IOMAN_MAP_A, 1, 1, 1);
 
 	const gpio_cfg_t console_uart_rx = { PORT_0, PIN_0, GPIO_FUNC_GPIO, GPIO_PAD_INPUT };       /**< GPIO configuration object for the UART Receive (RX) Pin for Console I/O. */
 	const gpio_cfg_t console_uart_tx = { PORT_0, PIN_1, GPIO_FUNC_GPIO, GPIO_PAD_INPUT };       /**< GPIO configuration object for the UART Transmit (TX) Pin for Console I/O. */
@@ -224,6 +224,7 @@ static BOOL init_com0(void) {
 		CPU_GPIO_SetPinState(24, FALSE);
 	}
 	CPU_GPIO_SetPinState(24, TRUE);
+
 
 	int error = UART_Init(MXC_UART_GET_UART(0), &cfg, &sys_cfg);
 	if(error != E_NO_ERROR) {
@@ -250,9 +251,6 @@ static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int 
 	UINT32 interruptIndex = 0;
 	HAL_CALLBACK_FPN callback = NULL;
 
-	interruptIndex = UART1_IRQn;
-	callback = USART1_Handler;
-	if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
 
 	// Initialize the UART
 	uart_cfg_t cfg;
@@ -267,17 +265,8 @@ static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int 
 	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
 	IOMAN_UART_FUNC(sys_cfg.io_cfg,1, IOMAN_MAP_A,  IOMAN_MAP_A, IOMAN_MAP_A, 1, 1, 1);
 
-	/*if(!CPU_GPIO_ReservePin(16, TRUE)) { return FALSE; } //P2.0
-	if(!CPU_GPIO_ReservePin(17, TRUE)) { return FALSE; } //P2.1
-	if(!CPU_GPIO_ReservePin(18, TRUE)) { return FALSE; } //P2.2
-	if(!CPU_GPIO_ReservePin(19, TRUE)) { return FALSE; } //P2.3
-
-	// Setup the interrupt
-	NVIC_ClearPendingIRQ(MXC_UART_GET_IRQ(1));
-	NVIC_DisableIRQ(MXC_UART_GET_IRQ(1));
-	NVIC_SetPriority(MXC_UART_GET_IRQ(1), 1);
-	NVIC_EnableIRQ(MXC_UART_GET_IRQ(1));
-	*/
+	while(UART_Busy(MXC_UART0)){}
+	while(UART_Busy(MXC_UART1)){}
 
 	int error = UART_Init(MXC_UART1, &cfg, &sys_cfg);
 	if(error != E_NO_ERROR) {
@@ -289,6 +278,9 @@ static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int 
 		debug_printf("UART Initialized\n");
 	}
 
+	interruptIndex = UART1_IRQn;
+	callback = USART1_Handler;
+	if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
 	return TRUE;
 }
 
@@ -330,23 +322,23 @@ void USART_reinit(void) {
 BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
 {
 	// Check to make sure not already up.
-	if (ComPortNum == 0 && (PORTS_IN_USE_MASK&1)) return TRUE;
-	if (ComPortNum == 1 && (PORTS_IN_USE_MASK&2)) return TRUE;
+	//if (ComPortNum == 0 && (PORTS_IN_USE_MASK&1)) return TRUE;
+	//if (ComPortNum == 1 && (PORTS_IN_USE_MASK&2)) return TRUE;
 
 	// If COM0, don't initialize until we see something connected (i.e. usb-serial attached)
-	if (ComPortNum == 0) {
+	/*if (ComPortNum == 0) {
 
 		return	do_com0_attached(0, FALSE, NULL);
 
 		//CPU_GPIO_EnableInputPin( (GPIO_PIN) 10, FALSE, do_com0_attached, GPIO_INT_EDGE_HIGH, RESISTOR_PULLDOWN );
 		//return TRUE;
-	}
+	}*/
 
-	if (ComPortNum == 1) {
+	//if (ComPortNum == 1) {
 		return init_com1(BaudRate, Parity, DataBits, StopBits, FlowValue);
-	}
+	//}
 
-	return FALSE;
+	//return FALSE;
 }
 
 // Not sure of a scenario where this fails
