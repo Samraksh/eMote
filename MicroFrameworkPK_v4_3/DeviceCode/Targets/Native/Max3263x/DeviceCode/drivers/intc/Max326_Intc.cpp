@@ -75,8 +75,8 @@ IRQ_VECTORING __section(rwdata) MAX326_AITC_Driver::s_IsrTable[MXC_IRQ_COUNT] =
 	DEFINE_IRQ(	    TMR4_1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 4 (16-bit #1)
 	DEFINE_IRQ(	    TMR5_0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 5 (32-bit, 16-bit #0)
 	DEFINE_IRQ(	    TMR5_1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 5 (16-bit #1)
-	DEFINE_IRQ(	    UART0_IRQn, MAX326_AITC::c_IRQ_Priority_0  ),                   //< UART 0
-	DEFINE_IRQ(	    UART1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< UART 1
+	DEFINE_IRQ(	    UART0_IRQn, MAX326_AITC::c_IRQ_Priority_1  ),                   //< UART 0
+	DEFINE_IRQ(	    UART1_IRQn, MAX326_AITC::c_IRQ_Priority_1  ),                   //< UART 1
 	DEFINE_IRQ(	    UART2_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< UART 2
 	DEFINE_IRQ(	    UART3_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< UART 3
 	DEFINE_IRQ(	    PT_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                      //< Pulse Trains

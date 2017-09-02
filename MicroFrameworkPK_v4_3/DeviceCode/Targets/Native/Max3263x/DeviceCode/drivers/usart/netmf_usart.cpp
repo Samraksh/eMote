@@ -58,30 +58,35 @@ void read_cb(uart_req_t* req, int error, int comPort){
 }
 
 void write_cb(uart_req_t* req, int error, int comPort){
-	if(error!=E_NO_ERROR){
+
+	/*if(error!=E_NO_ERROR){
 		return;
+	}*/
+	bool preWriteIncomplete=false;
+	if(req->num < req->len){
+		preWriteIncomplete=true;
+		CPU_GPIO_TogglePinState(24);
 	}
 
-	bool charPending=true;
+	//read bytes from transmit buffer -> FALSE, true means rx buffer
+/*	int charPending=USART_BytesInBuffer(comPort,FALSE);
+
 	int i=0;
-	while (charPending && i < BUFF_SIZE){
+	for (i=0; i < charPending && i < BUFF_SIZE; i++){
 		char c;
-		charPending=USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(comPort), c);
-		if(charPending) {
-			i++;
-			if(comPort==0)  rxdata_com0[i]=c;
-			else if(comPort==1) rxdata_com1[i]=c;
+		if(!USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(comPort), c)){
+			break;
 		}
-
-
+		if(comPort==0)  rxdata_com0[i]=c;
+		else if(comPort==1) rxdata_com1[i]=c;
 	}
 
 	if(i>0){
-		req->num=i;
+		req->len=charPending; req->num=0;
 		if(comPort==0) UART_WriteAsync(MXC_UART0, &write_req0);
 		if(comPort==1) UART_WriteAsync(MXC_UART1, &write_req1);
 	}
-
+*/
 }
 
 
@@ -117,14 +122,14 @@ void InitBuffers(int comPort){
 	}
 	if(comPort==1){
 		 read_req1.data = rxdata_com1;
-		 read_req1.len = BUFF_SIZE;
+		 //read_req1.len = BUFF_SIZE;
 		 read_req1.callback = read_cb1;
 
 		 write_req1.data = txdata_com1;
-		 write_req1.len = BUFF_SIZE;
+		 //write_req1.len = BUFF_SIZE;
 		 write_req1.callback = write_cb1;
 
-		 error = UART_ReadAsync(MXC_UART1, &read_req1);
+		/*error = UART_ReadAsync(MXC_UART1, &read_req1);
 		if(error != E_NO_ERROR) {
 			debug_printf("Error starting async read %d\n", error);
 		}
@@ -132,7 +137,7 @@ void InitBuffers(int comPort){
 		error = UART_WriteAsync(MXC_UART1, &write_req1);
 		if(error != E_NO_ERROR) {
 			debug_printf("Error starting async write %d\n", error);
-		}
+		}*/
 	}
 }
 
@@ -259,7 +264,7 @@ static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int 
 	cfg.extra_stop = 1; //no stop bits
 	cfg.cts = 0;  //No hardware flow control
 	cfg.rts = 0;
-	cfg.baud = 115200; // Default baud for MFDeploy and Visual Studio
+	cfg.baud = 57600; // Default baud for MFDeploy and Visual Studio
 
 	sys_cfg_uart_t sys_cfg;
 	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
@@ -393,11 +398,17 @@ void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 
 void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 {
+	mxc_uart_regs_t *uart = MXC_UART_GET_UART(ComPortNum);
+	// Enable almost empty interrupt
+	uart->inten |= (MXC_F_UART_INTEN_TX_FIFO_AE);
 }
 
 // Returns TRUE if interrupt is enabled, NOT their current state.
 BOOL CPU_USART_TxBufferEmptyInterruptState( int ComPortNum )
 {
+	//mxc_uart_regs_t *uart = MXC_UART_GET_UART(ComPortNum);
+	// Enable almost empty interrupt
+	//return uart->inten & MXC_F_UART_INTEN_TX_FIFO_AE;
 	return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum))==0) ;
 }
 
