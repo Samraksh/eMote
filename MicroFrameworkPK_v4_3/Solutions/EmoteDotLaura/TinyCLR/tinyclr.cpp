@@ -63,6 +63,10 @@ void DevKitLCD_Display(){
 	NHD12832_PrintScreen();
 	TMR_Delay(MXC_TMR5, MSEC(5000));*/
 	//NHD12832_Clear(0,0);
+	/*while (1){
+		TMR_Delay(MXC_TMR5, MSEC(5));
+		debug_printf("a");
+	}*/
 }
 
 

@@ -521,8 +521,7 @@ int USART_Driver::ManagedRead( int ComPortNum, char* Data, size_t size ){
 }
 
 // Optimised UART PAL for dotNOW board. --NPS
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_EmoteDotLaura) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
-//#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+/*#if defined(PLATFORM_ARM_EmoteDotLaura)
 BOOL USART_Driver::Flush( int ComPortNum ) {
 
 	if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) {
@@ -535,7 +534,7 @@ BOOL USART_Driver::Flush( int ComPortNum ) {
 	//	return TRUE;
 
 	// Interrupts are off, but sending a byte will turn them on until buffer empty
-	if (!CPU_USART_TxBufferEmptyInterruptState(ComPortNum)) {
+	while (CPU_USART_TxBufferRoomAvailable(ComPortNum)) {
 		char c;
 
 		{
@@ -554,6 +553,44 @@ BOOL USART_Driver::Flush( int ComPortNum ) {
 	// At this point, interrupts are ON and any remaining buffer should empty itself.
 	// TXE Interrupt will be disabled when the buffer is empty, so we wait for that.
 	while( CPU_USART_TxBufferEmptyInterruptState(ComPortNum) == TRUE ) { ; }
+}
+#elif defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)*/
+#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2) || defined(PLATFORM_ARM_EmoteDotLaura)
+BOOL USART_Driver::Flush( int ComPortNum ) {
+
+	if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) {
+		return FALSE;
+	}
+
+	HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
+
+	//if ( !IS_USART_INITIALIZED(State))
+	//	return TRUE;
+
+	// Interrupts are off, but sending a byte will turn them on until buffer empty
+	//
+	// TODO: revert this back to original and uncomment the Flush function above
+	while (CPU_USART_TxBufferEmptyInterruptState(ComPortNum)) {	
+		char c;
+
+		{
+			GLOBAL_LOCK(irq);
+			if (State.TxQueue.IsEmpty() == TRUE) {
+				return TRUE; // Nothing to send, we're good.
+			}
+		}
+
+		if (RemoveCharFromTxBuffer( ComPortNum, c )) {
+			CPU_USART_WriteCharToTxBuffer( ComPortNum, c );
+			CPU_USART_TxBufferEmptyInterruptEnable( ComPortNum, TRUE );
+		}
+	}
+
+	// At this point, interrupts are ON and any remaining buffer should empty itself.
+	// TXE Interrupt will be disabled when the buffer is empty, so we wait for that.
+	
+	// TODO: uncomment below after dotlaura uses above flush function
+	//while( CPU_USART_TxBufferEmptyInterruptState(ComPortNum) == TRUE ) { ; }
 }
 #else
 

@@ -62,31 +62,45 @@ void write_cb(uart_req_t* req, int error, int comPort){
 	/*if(error!=E_NO_ERROR){
 		return;
 	}*/
-	bool preWriteIncomplete=false;
+	/*bool preWriteIncomplete=false;
 	if(req->num < req->len){
 		preWriteIncomplete=true;
 		CPU_GPIO_TogglePinState(24);
-	}
+	}*/
 
 	//read bytes from transmit buffer -> FALSE, true means rx buffer
-/*	int charPending=USART_BytesInBuffer(comPort,FALSE);
+	/*int charPending=UART_NumWriteAvail(MXC_UART_GET_UART(comPort));
 
-	int i=0;
-	for (i=0; i < charPending && i < BUFF_SIZE; i++){
-		char c;
-		if(!USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(comPort), c)){
-			break;
+	if (charPending > 0){
+		write_req0.len=charPending; 
+		write_req0.num=0;
+		UART_WriteAsync(MXC_UART0, &write_req0);
+	} else {*/
+		int i=0;
+		for (i=0; i < BUFF_SIZE; i++){
+			char c;
+			if(!USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(comPort), c)){
+				break;
+			}
+			if(comPort==0)  
+				txdata_com0[i]=c;
+			else if(comPort==1) 
+				txdata_com1[i]=c;
 		}
-		if(comPort==0)  rxdata_com0[i]=c;
-		else if(comPort==1) rxdata_com1[i]=c;
-	}
 
-	if(i>0){
-		req->len=charPending; req->num=0;
-		if(comPort==0) UART_WriteAsync(MXC_UART0, &write_req0);
-		if(comPort==1) UART_WriteAsync(MXC_UART1, &write_req1);
-	}
-*/
+		if (i>0){
+			if(comPort==0) {
+				write_req0.len=i; 
+				write_req0.num=0;
+				UART_WriteAsync(MXC_UART0, &write_req0);
+			}
+			if(comPort==1) {
+				write_req1.len=i; 
+				write_req1.num=0;
+				UART_WriteAsync(MXC_UART1, &write_req1);
+			}
+		}
+//	}
 }
 
 
@@ -103,41 +117,21 @@ void InitBuffers(int comPort){
 	int error;
 	if(comPort==0){
 		 read_req0.data = rxdata_com0;
-		 read_req0.len = BUFF_SIZE;
+		 read_req0.len = 0;
 		 read_req0.callback = read_cb0;
 
 		 write_req0.data = txdata_com0;
-		 write_req0.len = BUFF_SIZE;
+		 write_req0.len = 0;
 		 write_req0.callback = write_cb0;
-
-		error = UART_ReadAsync(MXC_UART0, &read_req0);
-		if(error != E_NO_ERROR) {
-			debug_printf("Error starting async read %d\n", error);
-		}
-
-		error = UART_WriteAsync(MXC_UART0, &write_req0);
-		if(error != E_NO_ERROR) {
-			debug_printf("Error starting async write %d\n", error);
-		}
 	}
 	if(comPort==1){
 		 read_req1.data = rxdata_com1;
-		 //read_req1.len = BUFF_SIZE;
+		 read_req1.len = 0;
 		 read_req1.callback = read_cb1;
 
 		 write_req1.data = txdata_com1;
-		 //write_req1.len = BUFF_SIZE;
+		 write_req1.len = 0;
 		 write_req1.callback = write_cb1;
-
-		/*error = UART_ReadAsync(MXC_UART1, &read_req1);
-		if(error != E_NO_ERROR) {
-			debug_printf("Error starting async read %d\n", error);
-		}
-
-		error = UART_WriteAsync(MXC_UART1, &write_req1);
-		if(error != E_NO_ERROR) {
-			debug_printf("Error starting async write %d\n", error);
-		}*/
 	}
 }
 
@@ -215,6 +209,15 @@ CPU_USART_WriteCharToTxBuffer(0, 'f');
 debug_printf("T");
 debug_printf("Works?");*/
 
+/*	for (int i=0; i<30; i++){
+		txdata_com0[i] = (uint8_t)('0' + i);
+	}
+	txdata_com0[28]='\r';
+	txdata_com0[29]='\n';
+	
+	write_req0.len=30;
+	write_req0.num=0;
+	UART_WriteAsync(MXC_UART0 , &write_req0);*/
 	return TRUE;
 }
 
@@ -329,10 +332,15 @@ BOOL CPU_USART_Uninitialize( int ComPortNum )
 	return TRUE;
 }
 
+// TODO:  uncomment this and have it used by usart.cpp: Flush()
+/*BOOL CPU_USART_TxBufferRoomAvailable(int ComPortNum)
+{
+	return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum)) > 0);
+}*/
 // check if tx buffer is empty
 BOOL CPU_USART_TxBufferEmpty( int ComPortNum )
 {
-	return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum))==0) ;
+	return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum))==BUFF_SIZE) ;
 }
 
 // if transmission is complete the Shift Register is empty
@@ -345,14 +353,19 @@ BOOL CPU_USART_TxShiftRegisterEmpty( int ComPortNum )
 // Write char into the data register
 void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 {
-	uart_req_t *req;
-	if(ComPortNum==0){ req= &write_req0;}
-	if(ComPortNum==1){ req= &write_req1;}
+	if(ComPortNum==0){ 
+		write_req0.len=1;
+		write_req0.num=0;
+		txdata_com0[0]=c;
+		UART_WriteAsync(MXC_UART_GET_UART(ComPortNum) , &write_req0);
+	} else if(ComPortNum==1){ 
+		write_req1.len=1;
+		write_req1.num=0;
+		txdata_com1[0]=c;
+		UART_WriteAsync(MXC_UART_GET_UART(ComPortNum) , &write_req1);
+	}
 
-	req->len=1;
-	req->num=0;
-	req->data[0]=c;
-	UART_WriteAsync(MXC_UART_GET_UART(ComPortNum) , req);
+	
 }
 
 
@@ -366,10 +379,11 @@ void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 // Returns TRUE if interrupt is enabled, NOT their current state.
 BOOL CPU_USART_TxBufferEmptyInterruptState( int ComPortNum )
 {
-	//mxc_uart_regs_t *uart = MXC_UART_GET_UART(ComPortNum);
-	// Enable almost empty interrupt
-	//return uart->inten & MXC_F_UART_INTEN_TX_FIFO_AE;
-	return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum))==0) ;
+
+	//return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum))==0) ;
+
+	// TODO: this is hacked and needs to be reverted to the above eventually
+	return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum)) > 0);
 }
 
 void CPU_USART_RxBufferFullInterruptEnable( int ComPortNum, BOOL Enable )
