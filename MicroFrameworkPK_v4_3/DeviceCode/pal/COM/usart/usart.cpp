@@ -521,7 +521,7 @@ int USART_Driver::ManagedRead( int ComPortNum, char* Data, size_t size ){
 }
 
 // Optimised UART PAL for dotNOW board. --NPS
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_EmoteDotLaura) || defined(PLATFORM_ARM_EmoteDotLaura) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_EmoteDotLaura) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
 //#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
 BOOL USART_Driver::Flush( int ComPortNum ) {
 
@@ -531,8 +531,8 @@ BOOL USART_Driver::Flush( int ComPortNum ) {
 
 	HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
 
-	if ( !IS_USART_INITIALIZED(State))
-		return TRUE;
+	//if ( !IS_USART_INITIALIZED(State))
+	//	return TRUE;
 
 	// Interrupts are off, but sending a byte will turn them on until buffer empty
 	if (!CPU_USART_TxBufferEmptyInterruptState(ComPortNum)) {

@@ -56,13 +56,13 @@ void DevKitLCD_Display(){
 	NHD12832_Init();
 	NHD12832_ShowString((uint8_t*)"Samraksh MAX C# Demo", 0, 4);
 	// Display the splash screen for  3 seconds, uses timer 5
-	TMR_Delay(MXC_TMR5, MSEC(5000));
+	/*TMR_Delay(MXC_TMR5, MSEC(5000));
 	NHD12832_Clear(0,0);
 	TMR_Delay(MXC_TMR5, MSEC(1500));
 	NHD12832_LoadImage(&samraksh_logo);
 	NHD12832_PrintScreen();
-	TMR_Delay(MXC_TMR5, MSEC(5000));
-	NHD12832_Clear(0,0);
+	TMR_Delay(MXC_TMR5, MSEC(5000));*/
+	//NHD12832_Clear(0,0);
 }
 
 

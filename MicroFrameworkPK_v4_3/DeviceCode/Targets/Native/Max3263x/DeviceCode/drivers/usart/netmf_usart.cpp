@@ -168,31 +168,11 @@ void USART1_Handler(void *args)
 
 
 // Note that once this goes up, it stays up.
-static BOOL init_com0(void) {
-	//if(!CPU_GPIO_ReservePin(9, TRUE))  { return FALSE; }
-	//if(!CPU_GPIO_ReservePin(10, TRUE)) { return FALSE; }
-
-	CPU_GPIO_EnableOutputPin(24, TRUE);
-
-
+static BOOL init_com0(int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue) {
 	PORTS_IN_USE_MASK |= 1;
 
 	UINT32 interruptIndex = UART0_IRQn;
 	HAL_CALLBACK_FPN callback = NULL;
-
-	;
-	callback = USART0_Handler;
-	if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
-
-	//UINT32 my_baudrate = BaudRate;
-	//CPU_USART_IsBaudrateSupported( 1, my_baudrate );
-
-
-	// Setup the interrupt
-	//NVIC_ClearPendingIRQ(MXC_UART_GET_IRQ(0));
-	//NVIC_DisableIRQ(MXC_UART_GET_IRQ(0));
-	//NVIC_SetPriority(MXC_UART_GET_IRQ(0), 1);
-	//NVIC_EnableIRQ(MXC_UART_GET_IRQ(0));
 
 	// Initialize the UART
 	uart_cfg_t cfg;
@@ -201,59 +181,47 @@ static BOOL init_com0(void) {
 	cfg.extra_stop = 1; //no stop bits
 	cfg.cts = 0;  //No hardware flow control
 	cfg.rts = 0;
-	cfg.baud = 115200; // Default baud for MFDeploy and Visual Studio
+	cfg.baud = 57600; // Default baud for MFDeploy and Visual Studio
 
 	sys_cfg_uart_t sys_cfg;
-	sys_cfg.clk_scale = CLKMAN_SCALE_DIV_4; //CLKMAN_SCALE_AUTO;
-	//sys_cfg.io_cfg = (ioman_cfg_t)IOMAN_UART(0, IOMAN_MAP_A, IOMAN_MAP_UNUSED, IOMAN_MAP_UNUSED, 1, 0, 0);
+	//sys_cfg.clk_scale = CLKMAN_SCALE_DIV_4; //CLKMAN_SCALE_AUTO;
+	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
 	IOMAN_UART_FUNC(sys_cfg.io_cfg, 0, IOMAN_MAP_A, IOMAN_MAP_A, IOMAN_MAP_A, 1, 1, 1);
 
-	const gpio_cfg_t console_uart_rx = { PORT_0, PIN_0, GPIO_FUNC_GPIO, GPIO_PAD_INPUT };       /**< GPIO configuration object for the UART Receive (RX) Pin for Console I/O. */
-	const gpio_cfg_t console_uart_tx = { PORT_0, PIN_1, GPIO_FUNC_GPIO, GPIO_PAD_INPUT };       /**< GPIO configuration object for the UART Transmit (TX) Pin for Console I/O. */
-	const gpio_cfg_t console_uart_cts = { PORT_0, PIN_2, GPIO_FUNC_GPIO, GPIO_PAD_INPUT };      /**< GPIO configuration object for the UART CTS Pin for Console I/O if hardware flow control is used. */
-	const gpio_cfg_t console_uart_rts = { PORT_0, PIN_3, GPIO_FUNC_GPIO, GPIO_PAD_INPUT };      /**< GPIO configuration object for the UART RTS Pin for Console I/O if hardware flow control is used. */
+	while(UART_Busy(MXC_UART0)){}
+	while(UART_Busy(MXC_UART1)){}
 
-	//if(!CPU_GPIO_ReservePin(0, TRUE)) { return FALSE; }
-	//if(!CPU_GPIO_ReservePin(1, TRUE)) { return FALSE; }
-	//if(!CPU_GPIO_ReservePin(2, TRUE)) { return FALSE; }
-	//if(!CPU_GPIO_ReservePin(3, TRUE)) { return FALSE; }
-
-
-	//GPIO_ConfigurePin(PORT_0, PIN_0, GPIO_FUNC_GPIO, GPIO_PAD_INPUT);
-	//GPIO_ConfigurePin(PORT_0, PIN_1, GPIO_FUNC_GPIO, GPIO_PAD_INPUT);
-	//GPIO_ConfigurePin(PORT_0, PIN_2, GPIO_FUNC_GPIO, GPIO_PAD_INPUT);
-	//GPIO_ConfigurePin(PORT_0, PIN_3, GPIO_FUNC_GPIO, GPIO_PAD_INPUT);
-
-
-	while(UART_Busy(MXC_UART_GET_UART(0)) != E_NO_ERROR ) {
-		CPU_GPIO_SetPinState(24, FALSE);
-	}
-	CPU_GPIO_SetPinState(24, TRUE);
-
-
-	int error = UART_Init(MXC_UART_GET_UART(0), &cfg, &sys_cfg);
+	int error = UART_Init(MXC_UART0, &cfg, &sys_cfg);
 	if(error != E_NO_ERROR) {
-		//debug_printf("Error initializing UART 0: Error no %d\n", error);
 		return FALSE;
 	} else {
 		InitBuffers(0);
-		debug_printf("UART Initialized\n");
 	}
 
-	// Configure USART Tx as alternate function push-pull
-	//GPIO_ConfigurePin(GPIOA, GPIO_Pin_9, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
+	interruptIndex = UART0_IRQn;
+	callback = USART0_Handler;
+	if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
 
-	// Configure USART Rx as input floating // Actually make it a pull-up for noise immunity. See #250.
-	//GPIO_ConfigurePin(GPIOA, GPIO_Pin_10, GPIO_Mode_IPU, GPIO_Speed_10MHz);
+/*mxc_uart_fifo_regs_t *fifo;
+fifo = MXC_UART0_FIFO;
+fifo->tx = 'a';
+fifo->tx = 'b';
+fifo->tx = 'c';
+CPU_GPIO_TogglePinState(8);
+CPU_GPIO_TogglePinState(8);
+CPU_USART_WriteCharToTxBuffer(0, 'd');
+CPU_USART_WriteCharToTxBuffer(0, 'e');
+CPU_USART_WriteCharToTxBuffer(0, 'f');
+debug_printf("T");
+debug_printf("Works?");*/
+
 	return TRUE;
 }
 
 static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue) {
-	CPU_GPIO_EnableOutputPin(24, TRUE);
-
 	PORTS_IN_USE_MASK |= 2;
 
-	UINT32 interruptIndex = 0;
+	UINT32 interruptIndex = UART1_IRQn;
 	HAL_CALLBACK_FPN callback = NULL;
 
 
@@ -275,25 +243,26 @@ static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int 
 
 	int error = UART_Init(MXC_UART1, &cfg, &sys_cfg);
 	if(error != E_NO_ERROR) {
-		debug_printf("Error initializing UART 1: Error no %d\n", error);
-		CPU_GPIO_SetPinState(24, FALSE);
 		return FALSE;
 	} else {
 		InitBuffers(1);
-		debug_printf("UART Initialized\n");
 	}
 
 	interruptIndex = UART1_IRQn;
 	callback = USART1_Handler;
 	if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
+
+/*mxc_uart_fifo_regs_t *fifo;
+fifo = MXC_UART1_FIFO;
+fifo->tx = 'a';
+fifo->tx = 'b';
+fifo->tx = 'c';
+CPU_GPIO_TogglePinState(8);
+CPU_GPIO_TogglePinState(8);*/
+
+
 	return TRUE;
 }
-
-static BOOL do_com0_attached(GPIO_PIN Pin, BOOL PinState, void* Param) {
-	//CPU_GPIO_DisablePin( (GPIO_PIN) 10, (GPIO_RESISTOR)0, 0, (GPIO_ALT_MODE)0 ); // Only first arg used, rest dummy.
-	return init_com0();
-}
-
 
 void USART_pause(void) {
 	if (PORTS_IN_USE_MASK & 0x1) {
@@ -331,19 +300,15 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	//if (ComPortNum == 1 && (PORTS_IN_USE_MASK&2)) return TRUE;
 
 	// If COM0, don't initialize until we see something connected (i.e. usb-serial attached)
-	/*if (ComPortNum == 0) {
+	//if (ComPortNum == 0) {
+		return init_com0(BaudRate, Parity, DataBits, StopBits, FlowValue);
+	/*}
 
-		return	do_com0_attached(0, FALSE, NULL);
-
-		//CPU_GPIO_EnableInputPin( (GPIO_PIN) 10, FALSE, do_com0_attached, GPIO_INT_EDGE_HIGH, RESISTOR_PULLDOWN );
-		//return TRUE;
-	}*/
-
-	//if (ComPortNum == 1) {
+	if (ComPortNum == 1) {
 		return init_com1(BaudRate, Parity, DataBits, StopBits, FlowValue);
-	//}
+	}
 
-	//return FALSE;
+	return FALSE;*/
 }
 
 // Not sure of a scenario where this fails
@@ -352,14 +317,10 @@ BOOL CPU_USART_Uninitialize( int ComPortNum )
 	switch(ComPortNum)
 	{
 	case 0:
-		//CPU_GPIO_ReservePin(9, FALSE);
-		//CPU_GPIO_ReservePin(10, FALSE);
 		PORTS_IN_USE_MASK &= ~(0x1);
 		break;
 	case 1:
 	default:
-		//CPU_GPIO_ReservePin(2, FALSE);
-		//CPU_GPIO_ReservePin(3, FALSE);
 		PORTS_IN_USE_MASK &= ~(0x2);
 		break;
 	}
@@ -378,7 +339,6 @@ BOOL CPU_USART_TxBufferEmpty( int ComPortNum )
 BOOL CPU_USART_TxShiftRegisterEmpty( int ComPortNum )
 {
 	return FALSE;
-	//return (UART_GetFlags(MXC_UART_GET_UART(ComPortNum) & MXC_F_UART_INTFL_TX_DONE);
 }
 
 
@@ -423,11 +383,6 @@ BOOL CPU_USART_RxBufferFullInterruptState( int ComPortNum )
 
 BOOL CPU_USART_TxHandshakeEnabledState( int comPort )
 {
-	/*
-	Check for the value of CTS Pin and return the result. 
-	Need to determine if HandShakeMode is enabled or not
-	*/
-
 	// No handshake
     return FALSE;
 }
@@ -444,7 +399,6 @@ UINT32 CPU_USART_PortsCount()
 
 void CPU_USART_GetPins( int ComPortNum, GPIO_PIN& rxPin, GPIO_PIN& txPin,GPIO_PIN& ctsPin, GPIO_PIN& rtsPin )
 {   
-    //TODO Return appropriate pins.
 }
 
 BOOL CPU_USART_SupportNonStandardBaudRate (int ComPortNum )
