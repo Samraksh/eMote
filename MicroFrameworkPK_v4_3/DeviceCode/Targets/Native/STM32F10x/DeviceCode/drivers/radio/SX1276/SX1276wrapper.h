@@ -209,7 +209,8 @@ public:
 
 //protected:
 	// Stores the configuration of the spi
-	SPI_CONFIGURATION config;
+//	SPI_CONFIGURATION config;
+	SPI_CONFIGURATION m_spi_config;
 	SX1276_pin_setup_t SX1276_pin_setup;
 	static unsigned ctsWentHigh;
 
@@ -221,6 +222,7 @@ public:
 	void init_pins();
 	void reset();
 	void init_interrupts();
+	SPI_XACTION_8 PrepareAddrSPI_XACTION(const SPI_CONFIGURATION& config, UINT8* addr_ptr);
 public:
 	InterruptPins_t SX1276_interupt_pins;
 
@@ -252,6 +254,8 @@ public:
 //	void read_rx_fifo(uint8_t numBytes, uint8_t* pRxData) {
 //	  radio_comm_ReadData( SX1276_CMD_ID_READ_RX_FIFO, 0, numBytes, pRxData );
 //	}
+
+
 
 	bool SpiInitialize();
 
