@@ -190,7 +190,7 @@ static BOOL init_com0(int BaudRate, int Parity, int DataBits, int StopBits, int 
 
 	if(!CPU_INTC_ActivateInterrupt(UART0_IRQn, USART0_Handler, NULL) ) return FALSE;
 
-mxc_uart_fifo_regs_t *fifo;
+/*mxc_uart_fifo_regs_t *fifo;
 fifo = MXC_UART0_FIFO;
 fifo->tx = 'a';
 fifo->tx = 'b';
@@ -202,7 +202,7 @@ CPU_USART_WriteCharToTxBuffer(0, 'e');
 CPU_USART_WriteCharToTxBuffer(0, 'f');
 debug_printf("T");
 debug_printf("Works?");
-hal_printf("\r\nhal_printf\r\n");
+hal_printf("\r\nhal_printf\r\n");*/
 
 	PORTS_IN_USE_MASK |= 1;
 /*	for (int i=0; i<30; i++){

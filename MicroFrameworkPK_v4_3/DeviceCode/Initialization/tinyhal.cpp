@@ -595,7 +595,7 @@ mipi_dsi_shutdown();
     CPU_Initialize();
 
 #if defined( SAM_APP_TINYCLR ) // TinyBooter, (and future MicroBooter) use SimpleTimer. SimpleTimer needs HAL_Time_Initialize().
-	BOOL test_val = FALSE;
+	/*BOOL test_val = FALSE;
 
 
 	CPU_GPIO_EnableOutputPin(24, FALSE);
@@ -622,7 +622,7 @@ mipi_dsi_shutdown();
 	
 	//CPU_GPIO_EnableInputPin(44, FALSE, TestHandler1, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP);
 	//CPU_GPIO_EnableInputPin(45, FALSE, TestHandler2, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP);
-	//CPU_GPIO_EnableInputPin(48, FALSE, TestHandler3, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP);
+	//CPU_GPIO_EnableInputPin(48, FALSE, TestHandler3, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP);*/
 	/*bool readState;
 	while (1){
 		readState =CPU_GPIO_GetPinState(48);
