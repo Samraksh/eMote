@@ -521,7 +521,7 @@ int USART_Driver::ManagedRead( int ComPortNum, char* Data, size_t size ){
 }
 
 // Optimised UART PAL for dotNOW board. --NPS
-/*#if defined(PLATFORM_ARM_EmoteDotLaura)
+#if defined(PLATFORM_ARM_EmoteDotLaura)
 BOOL USART_Driver::Flush( int ComPortNum ) {
 
 	if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) {
@@ -554,8 +554,8 @@ BOOL USART_Driver::Flush( int ComPortNum ) {
 	// TXE Interrupt will be disabled when the buffer is empty, so we wait for that.
 	while( CPU_USART_TxBufferEmptyInterruptState(ComPortNum) == TRUE ) { ; }
 }
-#elif defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)*/
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2) || defined(PLATFORM_ARM_EmoteDotLaura)
+#elif defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+//#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2) || defined(PLATFORM_ARM_EmoteDotLaura)
 BOOL USART_Driver::Flush( int ComPortNum ) {
 
 	if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) {

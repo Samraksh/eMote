@@ -202,6 +202,7 @@ CPU_USART_WriteCharToTxBuffer(0, 'e');
 CPU_USART_WriteCharToTxBuffer(0, 'f');
 debug_printf("T");
 debug_printf("Works?");
+hal_printf("\r\nhal_printf\r\n");
 
 	PORTS_IN_USE_MASK |= 1;
 /*	for (int i=0; i<30; i++){
@@ -309,14 +310,14 @@ BOOL CPU_USART_Uninitialize( int ComPortNum )
 	{
 	case 0:
 		PORTS_IN_USE_MASK &= ~(0x1);
-		UART_Shutdown(MXC_UART_GET_UART(ComPortNum));
 		CPU_INTC_DeactivateInterrupt(UART0_IRQn);
+		UART_Shutdown(MXC_UART_GET_UART(ComPortNum));
 		break;
 	case 1:
 	default:
 		PORTS_IN_USE_MASK &= ~(0x2);
-		UART_Shutdown(MXC_UART_GET_UART(ComPortNum));
 		CPU_INTC_DeactivateInterrupt(UART1_IRQn);
+		UART_Shutdown(MXC_UART_GET_UART(ComPortNum));
 		break;
 	}
 	
@@ -338,9 +339,8 @@ BOOL CPU_USART_TxBufferEmpty( int ComPortNum )
 // if transmission is complete the Shift Register is empty
 BOOL CPU_USART_TxShiftRegisterEmpty( int ComPortNum )
 {
-	return FALSE;
+	return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum))==BUFF_SIZE) ;
 }
-
 
 // Write char into the data register
 void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
@@ -356,16 +356,21 @@ void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 		txdata_com1[0]=c;
 		UART_WriteAsync(MXC_UART_GET_UART(ComPortNum) , &write_req1);
 	}
-
-	
 }
 
 
 void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 {
-	mxc_uart_regs_t *uart = MXC_UART_GET_UART(ComPortNum);
-	// Enable almost empty interrupt
-	uart->inten |= (MXC_F_UART_INTEN_TX_FIFO_AE);
+	mxc_uart_regs_t *uart;
+	if(ComPortNum==0){ 
+		uart = MXC_UART_GET_UART(ComPortNum);
+		// Enable almost empty interrupt
+		uart->inten |= (MXC_F_UART_INTEN_TX_FIFO_AE);
+	} else if(ComPortNum==1){ 
+		uart = MXC_UART_GET_UART(ComPortNum);
+		// Enable almost empty interrupt
+		uart->inten |= (MXC_F_UART_INTEN_TX_FIFO_AE);
+	}
 }
 
 // Returns TRUE if interrupt is enabled, NOT their current state.
