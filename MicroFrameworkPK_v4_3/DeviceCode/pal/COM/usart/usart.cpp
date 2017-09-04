@@ -544,10 +544,10 @@ BOOL USART_Driver::Flush( int ComPortNum ) {
 			}
 		}
 
-		if (RemoveCharFromTxBuffer( ComPortNum, c )) {
-			CPU_USART_WriteCharToTxBuffer( ComPortNum, c );
+		//if (RemoveCharFromTxBuffer( ComPortNum, c )) {
+		//	CPU_USART_WriteCharToTxBuffer( ComPortNum, c );
 			CPU_USART_TxBufferEmptyInterruptEnable( ComPortNum, TRUE );
-		}
+		//}
 	}
 
 	// At this point, interrupts are ON and any remaining buffer should empty itself.

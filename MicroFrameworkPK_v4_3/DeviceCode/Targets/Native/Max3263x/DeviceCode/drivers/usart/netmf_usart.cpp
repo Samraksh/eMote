@@ -357,7 +357,21 @@ void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 
 void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 {
-	mxc_uart_regs_t *uart;
+	if (Enable){
+		// this function basically is having us check to see if there is data to be sent out
+		while (CPU_USART_TxBufferRoomAvailable(ComPortNum)) {
+			char c;
+			GLOBAL_LOCK(irq);
+			if (USART_RemoveCharFromTxBuffer( ComPortNum, c )) {
+				CPU_USART_WriteCharToTxBuffer( ComPortNum, c );				
+			} else {
+				return;
+			}
+		}
+	}
+
+
+	/*mxc_uart_regs_t *uart;
 	if(ComPortNum==0){ 
 		uart = MXC_UART_GET_UART(ComPortNum);
 		// Enable almost empty interrupt
@@ -366,7 +380,7 @@ void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 		uart = MXC_UART_GET_UART(ComPortNum);
 		// Enable almost empty interrupt
 		uart->inten |= (MXC_F_UART_INTEN_TX_FIFO_AE);
-	}
+	}*/
 }
 
 BOOL CPU_USART_TxBufferRoomAvailable(int ComPortNum)
