@@ -638,16 +638,22 @@ static void UART_ReadHandler(mxc_uart_regs_t *uart, uart_req_t *req, int uart_nu
         return;
     }
 
-    if(flags & (MXC_F_UART_INTFL_RX_FRAMING_ERR |
-                MXC_F_UART_INTFL_RX_PARITY_ERR)) {
+    int error=0;
+    //if(flags & (MXC_F_UART_INTFL_RX_FRAMING_ERR | MXC_F_UART_INTFL_RX_PARITY_ERR)) {
+   	if(flags & MXC_F_UART_INTFL_RX_FRAMING_ERR){
+   		error=E_COMM_ERR;
+   	}
+   	if(flags & MXC_F_UART_INTFL_RX_PARITY_ERR) {
+   		error=E_COMM_ERR;
+   	}
 
+    if(error!=0) {
         // Unlock this UART to read
         mxc_free_lock((uint32_t*)&rx_states[uart_num]);
 
-        if(req->callback != NULL)         {
+        if(req->callback != NULL) {
             req->callback(req, E_COMM_ERR);
         }
-
         return;
     }
 
@@ -666,6 +672,9 @@ static void UART_ReadHandler(mxc_uart_regs_t *uart, uart_req_t *req, int uart_nu
 
     if(remain == 1) {
         uart->inten |= (MXC_F_UART_INTEN_RX_FIFO_NOT_EMPTY | UART_ERRORS);
+        if(req->callback != NULL) {
+        	req->callback(req, E_NO_ERROR);
+        }
 
     } else {
         // Set the RX FIFO AF threshold
