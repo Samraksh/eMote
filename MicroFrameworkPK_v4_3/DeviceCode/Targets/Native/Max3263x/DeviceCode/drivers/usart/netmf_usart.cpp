@@ -163,11 +163,6 @@ void USART1_Handler(void *args)
 
 // Note that once this goes up, it stays up.
 static BOOL init_com0(int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue) {
-	PORTS_IN_USE_MASK |= 1;
-
-	UINT32 interruptIndex = UART0_IRQn;
-	HAL_CALLBACK_FPN callback = NULL;
-
 	// Initialize the UART
 	uart_cfg_t cfg;
 	cfg.parity = UART_PARITY_DISABLE; // no parity
@@ -185,18 +180,17 @@ static BOOL init_com0(int BaudRate, int Parity, int DataBits, int StopBits, int 
 	while(UART_Busy(MXC_UART0)){}
 	while(UART_Busy(MXC_UART1)){}
 
-	int error = UART_Init(MXC_UART0, &cfg, &sys_cfg);
+	uint32_t error = UART_Init(MXC_UART0, &cfg, &sys_cfg);
+	
 	if(error != E_NO_ERROR) {
 		return FALSE;
 	} else {
 		InitBuffers(0);
 	}
 
-	interruptIndex = UART0_IRQn;
-	callback = USART0_Handler;
-	if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
+	if(!CPU_INTC_ActivateInterrupt(UART0_IRQn, USART0_Handler, NULL) ) return FALSE;
 
-/*mxc_uart_fifo_regs_t *fifo;
+mxc_uart_fifo_regs_t *fifo;
 fifo = MXC_UART0_FIFO;
 fifo->tx = 'a';
 fifo->tx = 'b';
@@ -207,8 +201,9 @@ CPU_USART_WriteCharToTxBuffer(0, 'd');
 CPU_USART_WriteCharToTxBuffer(0, 'e');
 CPU_USART_WriteCharToTxBuffer(0, 'f');
 debug_printf("T");
-debug_printf("Works?");*/
+debug_printf("Works?");
 
+	PORTS_IN_USE_MASK |= 1;
 /*	for (int i=0; i<30; i++){
 		txdata_com0[i] = (uint8_t)('0' + i);
 	}
@@ -222,12 +217,6 @@ debug_printf("Works?");*/
 }
 
 static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue) {
-	PORTS_IN_USE_MASK |= 2;
-
-	UINT32 interruptIndex = UART1_IRQn;
-	HAL_CALLBACK_FPN callback = NULL;
-
-
 	// Initialize the UART
 	uart_cfg_t cfg;
 	cfg.parity = UART_PARITY_DISABLE; // no parity
@@ -239,7 +228,7 @@ static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int 
 
 	sys_cfg_uart_t sys_cfg;
 	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
-	IOMAN_UART_FUNC(sys_cfg.io_cfg,1, IOMAN_MAP_A,  IOMAN_MAP_A, IOMAN_MAP_A, 1, 1, 1);
+	IOMAN_UART_FUNC(sys_cfg.io_cfg, 1, IOMAN_MAP_A,  IOMAN_MAP_A, IOMAN_MAP_A, 1, 1, 1);
 
 	while(UART_Busy(MXC_UART0)){}
 	while(UART_Busy(MXC_UART1)){}
@@ -251,9 +240,9 @@ static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int 
 		InitBuffers(1);
 	}
 
-	interruptIndex = UART1_IRQn;
-	callback = USART1_Handler;
-	if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
+	if(!CPU_INTC_ActivateInterrupt(UART1_IRQn, USART1_Handler, NULL) ) return FALSE;
+
+	PORTS_IN_USE_MASK |= 2;
 
 /*mxc_uart_fifo_regs_t *fifo;
 fifo = MXC_UART1_FIFO;
@@ -262,7 +251,6 @@ fifo->tx = 'b';
 fifo->tx = 'c';
 CPU_GPIO_TogglePinState(8);
 CPU_GPIO_TogglePinState(8);*/
-
 
 	return TRUE;
 }
@@ -321,14 +309,18 @@ BOOL CPU_USART_Uninitialize( int ComPortNum )
 	{
 	case 0:
 		PORTS_IN_USE_MASK &= ~(0x1);
+		UART_Shutdown(MXC_UART_GET_UART(ComPortNum));
+		CPU_INTC_DeactivateInterrupt(UART0_IRQn);
 		break;
 	case 1:
 	default:
 		PORTS_IN_USE_MASK &= ~(0x2);
+		UART_Shutdown(MXC_UART_GET_UART(ComPortNum));
+		CPU_INTC_DeactivateInterrupt(UART1_IRQn);
 		break;
 	}
 	
-	UART_Shutdown(MXC_UART_GET_UART(ComPortNum));
+	
 	return TRUE;
 }
 
