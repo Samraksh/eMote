@@ -4,6 +4,7 @@
 
 #include <tinyclr_application.h>
 #include <tinyhal.h>
+#include "RequestSendAtTimeInstantTest.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 void ApplicationEntryPoint()
@@ -16,6 +17,7 @@ void ApplicationEntryPoint()
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
 
+    Test_InitializeAndRun();
     ClrStartup( clrSettings );
 
 #if !defined(BUILD_RTM)

@@ -214,8 +214,8 @@ UINT64 DataTransmissionHandler::CalculateNextRXOpp(UINT16 dest){
 
 }
 
-void DataTransmissionHandler::SendACKToUpperLayers(Message_15_4_t* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus){
-	SendAckFuncPtrType m_txAckHandler = NULL;
+void DataTransmissionHandler::SendACKToUpperLayers(Message_15_4_t* msg, UINT16 Size, MACSendStatus_t status){
+	MACSendAckFuncPtrType m_txAckHandler = NULL;
 	MACEventHandler* mac_event_handler_ptr = NULL;
 
 	if (msg != NULL && msg->GetHeader()){
@@ -230,11 +230,11 @@ void DataTransmissionHandler::SendACKToUpperLayers(Message_15_4_t* msg, UINT16 S
 				m_txAckHandler = g_OMAC.m_txAckHandler;
 			}
 			if(m_txAckHandler != NULL){
-				(m_txAckHandler)(msg, Size, status, radioAckStatus);
+				(m_txAckHandler)(msg, Size, status);
 			}
 		}
 		else{
-			if(status == NetworkOperations_Fail || status == NetworkOperations_Success){
+			if(status == MACSendStatus_SendFailedPermanently || status == MACSendStatus_SendSuccess){
 				g_NeighborTable.DeletePacket(msg);
 			}
 		}
@@ -254,7 +254,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 
 	Message_15_4_t* msg_carrier = g_NeighborTable.FindStalePacketWithRetryAttemptsGreaterThan(FRAMERETRYMAXATTEMPT, BO_OMAC);
 	while(msg_carrier){
-		SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+		SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), MACSendStatus_SendFailedPermanently);
 		msg_carrier = g_NeighborTable.FindStalePacketWithRetryAttemptsGreaterThan(FRAMERETRYMAXATTEMPT,  BO_OMAC);
 	}
 
@@ -379,7 +379,7 @@ void DataTransmissionHandler::DropPacket(){
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
 				hal_printf("DropPacket:NetworkOperations_Success dest = %u \r\r\n", m_outgoingEntryPtr->GetHeader()->dest);
 #endif
-				SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
+				SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), MACSendStatus_SendSuccess );
 			}
 
 
@@ -777,7 +777,7 @@ void DataTransmissionHandler::SelectRetrySlotNumForNeighborBackOff(){
 	}
 }
 
-void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus){
+void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, RadioSendStatus_t status){
 
 
 #if OMAC_DTH_DEBUG_SendACKHandler //Mark 7
@@ -797,20 +797,18 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, TRUE);
 		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
 #endif
-		if(radioAckStatus == TRAC_STATUS_SUCCESS || radioAckStatus == TRAC_STATUS_SUCCESS_DATA_PENDING){
+		if(status == RadioSendStatus_SendACKed){
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 #endif
 
-			if(true){ //if(g_OMAC.m_txAckHandler != NULL){
-				if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
-					SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_SendACKed, radioAckStatus);
+			if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
+				SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), MACSendStatus_SendSuccess);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
-					hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_SendACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
+				hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_SendACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
 #endif
 
-				}
 			}
 
 			//Drop data packets only if send was successful
@@ -856,60 +854,37 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 				PostExecuteEvent();
 			}
 		}
-		else if(radioAckStatus == TRAC_STATUS_NO_ACK || radioAckStatus == TRAC_STATUS_FAIL_TO_SEND){
+		else if(status == RadioSendStatus_SendNACKed || status == RadioSendStatus_ACKTimeout || status == RadioSendStatus_SendFail || status == RadioSendStatus_Busy || status == RadioSendStatus_PacketRejected) {
+
 			//Drop timesync packets irrespective of whether send was successful or not.
 			//Don't retry a TS packet (for now)
-			/*if(rcv_msg->GetHeader()->payloadType == MFM_TIMESYNCREQ){
-				m_currentSlotRetryAttempt = 0;
-				m_currentFrameRetryAttempt = 0;
-				//isDataPacketScheduled = false;
-				//m_outgoingEntryPtr = NULL;
-				g_send_buffer.DropOldest(1);
-			}
-			else if(m_outgoingEntryPtr->GetHeader()->payloadType == MFM_DATA){
-				m_currentSlotRetryAttempt++;
-			}*/
 
-			if(radioAckStatus == TRAC_STATUS_NO_ACK){
-
-				if(true){//if(g_OMAC.m_txAckHandler != NULL){
-					if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
-						SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_SendNACKed, radioAckStatus);
+			if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
+				SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), MACSendStatus_SendNacked);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
-						hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_SendNACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
-#endif
-					}
-				}
-
-				if(FAST_RECOVERY2){
-					g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.UnsuccessfulTransmission(m_outgoingEntryPtr_dest);
-				}
-#ifdef OMAC_DEBUG_GPIO
-				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
-				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
-				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
-				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
-#endif
-			}
-			else if(radioAckStatus == TRAC_STATUS_FAIL_TO_SEND){
-#ifdef OMAC_DEBUG_GPIO
-				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
-				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
-				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
-				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
-				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
-				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+				hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_SendNACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
 #endif
 			}
 
-			if(true){//if(g_OMAC.m_txAckHandler != NULL){
-				if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
-					SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_Busy, radioAckStatus);
+
+			if(FAST_RECOVERY2){
+				g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.UnsuccessfulTransmission(m_outgoingEntryPtr_dest);
+			}
+#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+#endif
+
+
+			if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
+				SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), MACSendStatus_SendFailedPermanently);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
-					hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_Busy dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
+				hal_printf("DataTransmissionHandler:HARDWARE_ACKSendACK:NetworkOperations_Busy dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
 #endif
-				}
 			}
+
 
 			txhandler_state = DTS_WAITING_FOR_ACKS;
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER); 
@@ -947,6 +922,9 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 				PostExecuteEvent();
 			}
 		}*/
+		else if (status == RadioSendStatus_PacketAccepted || status == RadioSendStatus_SendInitiated ){
+
+		}
 		else{
 #ifdef OMAC_DEBUG_PRINTF
 			OMAC_HAL_PRINTF("radioAckStatus: %d\r\n", radioAckStatus);
@@ -979,7 +957,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 		}
 		if(true){ //if(g_OMAC.m_txAckHandler != NULL){
 			if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
-				SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), NetworkOperations_SendInitiated, radioAckStatus);
+				SendACKToUpperLayers(rcv_msg, sizeof(Message_15_4_t), MACSendStatus_SendInitiated);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
 				hal_printf("DataTransmissionHandler:SOFTWARE_ACKSendACK:NetworkOperations_SendInitiated dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
 #endif
@@ -1044,7 +1022,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 
 		if(m_outgoingEntryPtr != NULL){ //if(g_OMAC.m_txAckHandler != NULL && m_outgoingEntryPtr != NULL){
 			if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
-				SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_SendACKed, TRAC_STATUS_SUCCESS);
+				SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), MACSendStatus_SendSuccess);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
 				hal_printf("ReceiveDATAACK:NetworkOperations_SendACKed dest = %u \r\r\n", m_outgoingEntryPtr->GetHeader()->dest);
 #endif
@@ -1166,7 +1144,7 @@ void DataTransmissionHandler::PostExecuteEvent(){
 #endif
 		SelectRetrySlotNumForNeighborBackOff();
 		if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
-			SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_SendNACKed, 0);
+			SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), MACSendStatus_SendNacked);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
 			hal_printf("DataTransmissionHandler:SOFTWARE_ACKSendACK:NetworkOperations_SendNACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
 #endif

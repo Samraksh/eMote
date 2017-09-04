@@ -41,6 +41,7 @@
 #include <Samraksh\MAC.h>
 // RF231.h is needed for enum RadioID and enum RadioStateEnum.  enums should be pulled into a public API header file.
 //#include <Targets\Native\Radios\RF231\RF231.h>
+#include <gpio\netmf_gpio.h>
 
 extern NeighborTable g_NeighborTable;
 //////////////////////////////////////////////////////////////////////////////
@@ -790,8 +791,8 @@ void Samraksh_Emote_Update::Receive(void *buffer, UINT16 sz_buf) {
  * FIXME: cut out the middle man.
  * BK: SendAck is not doing anything either. I am not sure what behaviour is expected. However, I am implemenmting what is expected by the MAC
  */
-void SendAckHandler (void* msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus){
-	g_Samraksh_Emote_Update.SendAck(msg,size,status);
+void SendAckHandler (void* msg, UINT16 size, MACSendStatus_t status){
+	g_Samraksh_Emote_Update.SendAck(msg,status);
 	Message_15_4_t* packet_ptr = static_cast<Message_15_4_t*>(msg);
 	g_NeighborTable.DeletePacket(packet_ptr);
 	return;
@@ -799,13 +800,8 @@ void SendAckHandler (void* msg, UINT16 size, NetOpStatus status, UINT8 radioAckS
 }
 
 
-void Samraksh_Emote_Update::SendAck(void *msg, UINT16 size, NetOpStatus status){
-    if(status==NetworkOperations_Success) {
+void Samraksh_Emote_Update::SendAck(void *msg, MACSendStatus_t status){
 
-    }
-    else {
-
-    }
 }
 
 

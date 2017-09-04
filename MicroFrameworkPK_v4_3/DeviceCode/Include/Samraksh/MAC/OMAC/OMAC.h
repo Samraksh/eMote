@@ -183,7 +183,7 @@ private:
 	Message_15_4_t tx_msg;
 	volatile bool isSendDone;
 	MACReceiveFuncPtrType m_rxAckHandler;
-	SendAckFuncPtrType m_txAckHandler;
+	MACSendAckFuncPtrType m_txAckHandler;
 
 	// Legitimate Public
 

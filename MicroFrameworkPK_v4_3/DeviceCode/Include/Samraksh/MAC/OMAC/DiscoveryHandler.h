@@ -73,7 +73,7 @@ class DiscoveryHandler: public EventHandler {
 	DeviceStatus Beacon(RadioAddress_t, Message_15_4_t *);
  // public:
 	void Initialize(UINT8 radioID, UINT8 macID);
-	void BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success);
+	void BeaconAckHandler(Message_15_4_t* msg, UINT8 len);
 	void HandleRadioInterrupt();
 	void BeaconNTimerHandler();
 
