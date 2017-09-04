@@ -241,13 +241,13 @@ void CPU_SPI_GetPins (UINT32 spi_mod, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& m
 
 	switch (spi_mod)
 	{
-	case 0:
+	case SPIBUS1:
 		msk = GPIO_Pin_7;
 		miso = GPIO_Pin_6;
 		mosi = GPIO_Pin_5;
 		break;
 
-	case 1:
+	case SPIBUS2:
 		msk = GPIO_Pin_15;
 		miso = GPIO_Pin_14;
 		mosi = GPIO_Pin_13;
@@ -495,10 +495,10 @@ BOOL CPU_SPI_Xaction_Start( const SPI_CONFIGURATION& Configuration )
 	//Initialize the SPI 1
 	switch(Configuration.SPI_mod)
 	{
-	case 0:
+	case SPIBUS1:
 		SPI_mod = SPIx;		
 		break;
-	case 1:
+	case SPIBUS2:
 		SPI_mod = SPIy;		
 		break;
 	default:
@@ -815,13 +815,13 @@ void GPIO_Config(const SPI_CONFIGURATION& Configuration)
 
   switch(Configuration.SPI_mod)
   {
-	  case 0:
+	  case SPIBUS1:
 		  /* Configure SPIx pins: SCK, MISO and MOSI */
 		  GPIO_InitStructure.GPIO_Pin = SPIx_PIN_SCK | SPIx_PIN_MISO | SPIx_PIN_MOSI;          		  
           GPIO_Init(SPIx_GPIO, &GPIO_InitStructure);
 		  break;
 
-	  case 1:
+	  case SPIBUS2:
 		  /* Configure SPIy pins: SCK, MISO and MOSI */
 		  GPIO_InitStructure.GPIO_Pin = SPIy_NSS | SPIy_PIN_SCK | SPIy_PIN_MISO | SPIy_PIN_MOSI;
           GPIO_Init(SPIy_GPIO, &GPIO_InitStructure); 
