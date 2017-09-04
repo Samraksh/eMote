@@ -158,7 +158,7 @@ void SX1276M1BxASWrapper::init_pins(){
 
 	SX1276_pin_setup_t *config = &SX1276_pin_setup;
 
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
 
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_InitStructure.GPIO_Pin =  config->reset_pin;
@@ -235,7 +235,7 @@ void SX1276M1BxASWrapper::LoraHardwareConfigInitialize(){
 	SX1276_pin_setup.spi_base 			= SPI2;
 	SX1276_pin_setup.spi_port 			= GPIOB;
 	SX1276_pin_setup.cs_port			= GPIOA;
-	SX1276_pin_setup.cs_pin				= GPIO_Pin_12;
+	SX1276_pin_setup.cs_pin				= GPIO_Pin_4;
 	SX1276_pin_setup.sclk_pin			= GPIO_Pin_13; //15 BK: I think the default values are as commented. But SI radio was using a different pin setup
 	SX1276_pin_setup.miso_pin			= GPIO_Pin_14; //14
 	SX1276_pin_setup.mosi_pin			= GPIO_Pin_15; //13
@@ -285,7 +285,7 @@ void SX1276M1BxASWrapper::initSPI2() {
 	SPI_InitStruct.SPI_CPOL = SPI_CPOL_Low;
 	SPI_InitStruct.SPI_CPHA = SPI_CPHA_1Edge;
 	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft;
-	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
+	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
 	SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB;
 	SPI_InitStruct.SPI_CRCPolynomial = 7;
 
@@ -552,7 +552,7 @@ void SX1276M1BxASWrapper::Reset() { //TODO: B
 	CPU_GPIO_EnableInputPin(SX1276_pin_setup.reset_mf_pin, FALSE, SX1276M1BxASWrapper::SX1276_Reset_Pin_Interrupt_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 1000 );
 
-	while(reset_intiated){};
+	//while(reset_intiated){};
 
 }
 
