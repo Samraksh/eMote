@@ -25,12 +25,12 @@ extern EMOTE_SX1276_LORA::Samraksh_SX1276_hal gsx1276radio;
 #define TEST_0A_TIMER1	7
 #define TEST_0A_TIMER2	11
 #define TIMER2_PERIOD 	20*ONESEC_IN_MSEC*ONEMSEC_IN_USEC
-#define Test_0A_Timer_Pin (GPIO_PIN)25 //2
+#define Test_0A_Timer_Pin (GPIO_PIN)120 //(GPIO_PIN)25 //2
 
 
 
 void TestObject_t:: TxDone( bool success){
-
+	g_TestObject_t.msg_scheduled = false;
 	if(success){
 		hal_printf("TestObject_t::TxDone success %d number_of_bytes_in_buffer = %d  \r\n" , success);
 	}
@@ -54,7 +54,8 @@ void TestObject_t:: DataStatusCallback( bool success, UINT16 number_of_bytes_in_
 
 	}
 	else{
-		g_TestObject_t.delay = g_TestObject_t.delay*2;
+		g_TestObject_t.msg_scheduled = false;
+//		g_TestObject_t.delay = g_TestObject_t.delay*2;
 //		g_TestObject_t.StartTest();
 	}
 }
@@ -68,7 +69,7 @@ void Test_0A_Timer1_Handler(void * arg){
 
 void TestObject_t::ScheduleSendPacket()
 {
-	StartTest();
+	if(!msg_scheduled) StartTest();
 }
 
 /*
@@ -77,11 +78,12 @@ void TestObject_t::ScheduleSendPacket()
 BOOL TestObject_t::StartTest()
 {
 	SamrakshRadio_I::ClockIdentifier_t ClockIdentifier = 4;
-	SamrakshRadio_I::TimeVariable_t PacketTransmissionTime = HAL_Time_CurrentTicks() + delay;
+	SamrakshRadio_I::TimeVariable_t PacketTransmissionTime = VirtTimer_GetTicks(ClockIdentifier) + delay;
 
 	CPU_GPIO_SetPinState(Test_0A_Timer_Pin, FALSE);
 	CPU_GPIO_SetPinState(Test_0A_Timer_Pin, TRUE);
 
+	msg_scheduled = true;
 	gsx1276radio.RequestSendAtTimeInstanst(static_cast<void*>(&msg), sizeof(Payload_t), PacketTransmissionTime, ClockIdentifier);
 
 	return TRUE;
@@ -89,6 +91,7 @@ BOOL TestObject_t::StartTest()
 
 BOOL TestObject_t::Initialize()
 {
+	msg_scheduled = false;
 	CPU_GPIO_EnableOutputPin(Test_0A_Timer_Pin, TRUE);
 	CPU_GPIO_SetPinState(Test_0A_Timer_Pin, FALSE);
 	CPU_GPIO_SetPinState(Test_0A_Timer_Pin, TRUE);

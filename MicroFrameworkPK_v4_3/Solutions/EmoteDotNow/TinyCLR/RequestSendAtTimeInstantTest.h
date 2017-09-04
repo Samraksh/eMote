@@ -19,6 +19,7 @@ struct Payload_t {
 
 class TestObject_t	{
 public:
+	bool msg_scheduled;
 	UINT64 delay;
 	static void TxDone( bool success);
 	static void PacketDetected();
