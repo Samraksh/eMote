@@ -12,12 +12,12 @@
 #include <stdarg.h>
 
 #if !defined(PLATFORM_EMULATED_FLOATINGPOINT)
-#include <math.h>
-#if !defined(__RENESAS__)
-#include <locale.h>
+	#include <math.h>
+	#if !defined(__RENESAS__)
+		#include <locale.h>
+	#endif
 #endif
-
-#else 
+#if defined(PLATFORM_EMULATED_FLOATINGPOINT)
 
 /***************************************************/
 // Keep in sync with the tinycr_runtime__heapblock.h
