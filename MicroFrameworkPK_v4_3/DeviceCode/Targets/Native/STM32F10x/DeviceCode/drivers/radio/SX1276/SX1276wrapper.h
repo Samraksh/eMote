@@ -293,6 +293,8 @@ public:
 
     uint8_t boardConnected; //1 = SX1276MB1LAS; 0 = SX1276MB1MAS
 
+    const uint8_t rxtxBufferSize = 256;
+    uint8_t rxtxBufferstorage[256];
     uint8_t *rxtxBuffer;
 
     /*!

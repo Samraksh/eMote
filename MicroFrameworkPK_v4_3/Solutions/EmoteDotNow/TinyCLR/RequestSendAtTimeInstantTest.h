@@ -42,6 +42,7 @@ public:
 	BOOL Initialize();
 	BOOL StartTest();
 	void ScheduleSendPacket();
+	void StartListening();
 
 };
 

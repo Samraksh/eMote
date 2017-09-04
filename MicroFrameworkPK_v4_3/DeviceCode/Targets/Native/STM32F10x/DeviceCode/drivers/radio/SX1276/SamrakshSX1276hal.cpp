@@ -265,23 +265,23 @@ bool Samraksh_SX1276_hal::IsPacketTransmittable(void* msg, UINT16 size) {
 
 
 SamrakshRadio_I::RadioMode_t Samraksh_SX1276_hal::StartListenning(){
-	if(m_packet.IsMsgUploaded()) return GetRadioState();
+	if(m_packet.IsMsgUploaded()) return Samraksh_SX1276_hal::GetRadioState();
 	g_SX1276M1BxASWrapper.Rx(0);
 	m_rm = RX;
-	return GetRadioState();
+	return Samraksh_SX1276_hal::GetRadioState();
 }
 
 SamrakshRadio_I::RadioMode_t Samraksh_SX1276_hal::Sleep(){
-	if(m_packet.IsMsgUploaded()) return GetRadioState();
+	if(m_packet.IsMsgUploaded()) return Samraksh_SX1276_hal::GetRadioState();
 	m_rm = SLEEP;
 	g_SX1276M1BxASWrapper.Sleep();
-	return GetRadioState();
+	return Samraksh_SX1276_hal::GetRadioState();
 }
 
 SamrakshRadio_I::RadioMode_t Samraksh_SX1276_hal::Standby(){
 	m_rm = STANDBY;
 	g_SX1276M1BxASWrapper.Standby();
-	return GetRadioState();
+	return Samraksh_SX1276_hal::GetRadioState();
 }
 
 void Samraksh_SX1276_hal::ChooseRadioConfig() {

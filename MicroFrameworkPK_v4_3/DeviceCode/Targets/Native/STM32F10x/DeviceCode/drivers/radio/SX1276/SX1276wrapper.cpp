@@ -692,6 +692,7 @@ void SX1276M1BxASWrapper::SX1276_Reset_Pin_Interrupt_Handler(GPIO_PIN Pin, BOOL 
 }
 
 void SX1276M1BxASWrapper::Initialize(SX1276RadioEvents_t *events) {
+	rxtxBuffer = &(rxtxBufferstorage[0]);
 	InitializeTimers();
 
 	SX1276M1BxASWrapper::LoraHardwareConfigInitialize();
@@ -1277,7 +1278,10 @@ void SX1276M1BxASWrapper::Send( uint8_t *buffer, uint8_t size )
             }
             else
             {
-                memcpy( rxtxBuffer, buffer, size );
+                for(uint8_t i = 0; i < size; ++i){
+                	rxtxBufferstorage[i] = *(buffer + i);
+                };
+//                memcpy( rxtxBuffer, buffer, size );
                 this->settings.FskPacketHandler.ChunkSize = 32;
             }
 
@@ -1481,7 +1485,10 @@ void SX1276M1BxASWrapper::Rx( uint32_t timeout )
         break;
     }
 
-    memset( rxtxBuffer, 0, ( size_t )RX_BUFFER_SIZE );
+    for(uint8_t i = 0; i < rxtxBufferSize; ++i){
+    	rxtxBufferstorage[i] = 0;
+    };
+//    memset( rxtxBuffer, 0, ( size_t )RX_BUFFER_SIZE );
 
     this->settings.State = RF_RX_RUNNING;
     if( timeout != 0 )
