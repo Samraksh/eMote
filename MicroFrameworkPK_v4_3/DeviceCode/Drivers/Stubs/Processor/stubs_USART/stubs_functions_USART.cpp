@@ -38,6 +38,11 @@ BOOL CPU_USART_TxBufferEmptyInterruptState( int ComPortNum )
     return TRUE;
 }
 
+BOOL CPU_USART_TxBufferRoomAvailable(int ComPortNum)
+{
+	return TRUE;
+}
+
 void CPU_USART_RxBufferFullInterruptEnable( int ComPortNum, BOOL Enable )
 {
 }

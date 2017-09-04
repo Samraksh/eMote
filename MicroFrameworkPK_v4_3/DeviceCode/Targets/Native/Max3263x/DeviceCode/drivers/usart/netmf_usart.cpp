@@ -325,11 +325,7 @@ BOOL CPU_USART_Uninitialize( int ComPortNum )
 	return TRUE;
 }
 
-// TODO:  uncomment this and have it used by usart.cpp: Flush()
-/*BOOL CPU_USART_TxBufferRoomAvailable(int ComPortNum)
-{
-	return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum)) > 0);
-}*/
+
 // check if tx buffer is empty
 BOOL CPU_USART_TxBufferEmpty( int ComPortNum )
 {
@@ -373,14 +369,16 @@ void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 	}
 }
 
+BOOL CPU_USART_TxBufferRoomAvailable(int ComPortNum)
+{
+	return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum)) > 0);
+}
+
 // Returns TRUE if interrupt is enabled, NOT their current state.
 BOOL CPU_USART_TxBufferEmptyInterruptState( int ComPortNum )
 {
 
-	//return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum))==0) ;
-
-	// TODO: this is hacked and needs to be reverted to the above eventually
-	return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum)) > 0);
+	return (UART_NumWriteAvail(MXC_UART_GET_UART(ComPortNum))==0) ;
 }
 
 void CPU_USART_RxBufferFullInterruptEnable( int ComPortNum, BOOL Enable )
