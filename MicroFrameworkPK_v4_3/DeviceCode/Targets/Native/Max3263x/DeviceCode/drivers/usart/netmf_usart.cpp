@@ -231,7 +231,7 @@ static BOOL init_com0(int BaudRate, int Parity, int DataBits, int StopBits, int 
 
 	if(!CPU_INTC_ActivateInterrupt(UART0_IRQn, USART0_Handler, NULL) ) return FALSE;
 
-mxc_uart_fifo_regs_t *fifo;
+/*mxc_uart_fifo_regs_t *fifo;
 fifo = MXC_UART0_FIFO;
 fifo->tx = 'a';
 fifo->tx = 'b';
@@ -243,7 +243,7 @@ CPU_USART_WriteCharToTxBuffer(0, 'e');
 CPU_USART_WriteCharToTxBuffer(0, 'f');
 debug_printf("T");
 debug_printf("Works?");
-hal_printf("\r\nhal_printf\r\n");
+hal_printf("\r\nhal_printf\r\n");*/
 
 	PORTS_IN_USE_MASK |= 1;
 /*	for (int i=0; i<30; i++){
@@ -409,7 +409,21 @@ void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 
 void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 {
-	mxc_uart_regs_t *uart;
+	if (Enable){
+		// this function basically is having us check to see if there is data to be sent out
+		while (CPU_USART_TxBufferRoomAvailable(ComPortNum)) {
+			char c;
+			GLOBAL_LOCK(irq);
+			if (USART_RemoveCharFromTxBuffer( ComPortNum, c )) {
+				CPU_USART_WriteCharToTxBuffer( ComPortNum, c );				
+			} else {
+				return;
+			}
+		}
+	}
+
+
+	/*mxc_uart_regs_t *uart;
 	if(ComPortNum==0){ 
 		uart = MXC_UART_GET_UART(ComPortNum);
 		// Enable almost empty interrupt
@@ -418,7 +432,7 @@ void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 		uart = MXC_UART_GET_UART(ComPortNum);
 		// Enable almost empty interrupt
 		uart->inten |= (MXC_F_UART_INTEN_TX_FIFO_AE);
-	}
+	}*/
 }
 
 BOOL CPU_USART_TxBufferRoomAvailable(int ComPortNum)
