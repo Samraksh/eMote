@@ -483,6 +483,11 @@ namespace Samraksh.eMote.DotNow
             return true;
         }
 
+        public void WriteString(byte* sendString)
+        {
+
+        }
+
         // ReSharper restore InconsistentNaming
     }
 }

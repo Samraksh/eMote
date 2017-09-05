@@ -42,18 +42,45 @@ uart_req_t write_req0,write_req1;
 
 //ComHandle != ComPort.  COM1 is a handle with port=0. COM1=0x101 means port 0 on USART transport.  See platform_selector.h and tinyhal.h.
 
+#define UART_ERRORS             (MXC_F_UART_INTEN_RX_FIFO_OVERFLOW  | \
+                                MXC_F_UART_INTEN_RX_FRAMING_ERR | \
+                                MXC_F_UART_INTEN_RX_PARITY_ERR)
+
+#define UART_READ_INTS          (MXC_F_UART_INTEN_RX_FIFO_AF |  \
+                                MXC_F_UART_INTEN_RX_FIFO_NOT_EMPTY | \
+                                MXC_F_UART_INTEN_RX_STALLED | \
+                                UART_ERRORS)
+
+#define UART_WRITE_INTS         (MXC_F_UART_INTEN_TX_UNSTALLED | \
+                                MXC_F_UART_INTEN_TX_FIFO_AE)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+
+void EnableReadInterrupt(int comPort){
+	 // enable interrupts
+	MXC_UART_GET_UART(0)->inten |= UART_READ_INTS;
+}
+
 void read_cb(uart_req_t* req, int error, int comPort){
-	if(error!=E_NO_ERROR){
-		return;
-	}
-	if(req->num > 0){
-		for (int i=0 ; i< req->num; i++){
-			USART_AddCharToRxBuffer(ConvertCOM_ComPort(comPort), req->data[i]);
+	if(error==E_NO_ERROR){
+		if(req->num > 0){
+			for (int i=0 ; i< req->num; i++){
+				USART_AddCharToRxBuffer(ConvertCOM_ComPort(comPort), req->data[i]);
+			}
 		}
+		if(comPort==0){
+			read_req0.len = BUFF_SIZE-1;
+			UART_ReadAsync(MXC_UART0 , &read_req0);
+		}
+		if(comPort==1){
+			read_req1.len = BUFF_SIZE-1;
+			UART_ReadAsync(MXC_UART1 , &read_req1);
+		}
+	}else {
+		EnableReadInterrupt(comPort);
 	}
 }
 
@@ -101,6 +128,16 @@ void write_cb(uart_req_t* req, int error, int comPort){
 			}
 		}
 //	}
+
+	//check if there is anything to read
+	if(comPort==0) {
+		read_req0.len = BUFF_SIZE-1;
+		UART_ReadAsync(MXC_UART0 , &read_req0);
+	}
+	if(comPort==1) {
+		read_req1.len = BUFF_SIZE-1;
+		UART_ReadAsync(MXC_UART1 , &read_req1);
+	}
 }
 
 
@@ -117,7 +154,7 @@ void InitBuffers(int comPort){
 	int error;
 	if(comPort==0){
 		 read_req0.data = rxdata_com0;
-		 read_req0.len = 0;
+		 read_req0.len = BUFF_SIZE;
 		 read_req0.callback = read_cb0;
 
 		 write_req0.data = txdata_com0;
@@ -126,7 +163,7 @@ void InitBuffers(int comPort){
 	}
 	if(comPort==1){
 		 read_req1.data = rxdata_com1;
-		 read_req1.len = 0;
+		 read_req1.len = BUFF_SIZE;
 		 read_req1.callback = read_cb1;
 
 		 write_req1.data = txdata_com1;
@@ -170,12 +207,12 @@ static BOOL init_com0(int BaudRate, int Parity, int DataBits, int StopBits, int 
 	cfg.extra_stop = 1; //no stop bits
 	cfg.cts = 0;  //No hardware flow control
 	cfg.rts = 0;
-	cfg.baud = 57600; // Default baud for MFDeploy and Visual Studio
+	cfg.baud = 115200; // Default baud for MFDeploy and Visual Studio
 
 	sys_cfg_uart_t sys_cfg;
 	//sys_cfg.clk_scale = CLKMAN_SCALE_DIV_4; //CLKMAN_SCALE_AUTO;
 	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
-	IOMAN_UART_FUNC(sys_cfg.io_cfg, 0, IOMAN_MAP_A, IOMAN_MAP_A, IOMAN_MAP_A, 1, 1, 1);
+	IOMAN_UART_FUNC(sys_cfg.io_cfg, 0, IOMAN_MAP_A, IOMAN_MAP_UNUSED, IOMAN_MAP_UNUSED, 1, 0, 0);
 
 	while(UART_Busy(MXC_UART0)){}
 	while(UART_Busy(MXC_UART1)){}
@@ -187,6 +224,10 @@ static BOOL init_com0(int BaudRate, int Parity, int DataBits, int StopBits, int 
 	} else {
 		InitBuffers(0);
 	}
+
+	//< GPIO configuration object for the UART Receive (RX) Pin for Console I/O.
+	//const gpio_cfg_t console_uart_rx = { PORT_0, PIN_0, GPIO_FUNC_GPIO, GPIO_PAD_INPUT };
+	GPIO_ConfigurePin(PORT_0, PIN_0, GPIO_FUNC_GPIO, GPIO_PAD_INPUT);
 
 	if(!CPU_INTC_ActivateInterrupt(UART0_IRQn, USART0_Handler, NULL) ) return FALSE;
 
@@ -214,6 +255,13 @@ hal_printf("\r\nhal_printf\r\n");*/
 	write_req0.len=30;
 	write_req0.num=0;
 	UART_WriteAsync(MXC_UART0 , &write_req0);*/
+
+	UART_DrainRX(MXC_UART0);
+	UART_DrainTX(MXC_UART0);
+	UART_Enable(MXC_UART0);
+
+	read_req0.len = BUFF_SIZE-1;
+	UART_ReadAsync(MXC_UART0 , &read_req0);
 	return TRUE;
 }
 
@@ -252,6 +300,10 @@ fifo->tx = 'b';
 fifo->tx = 'c';
 CPU_GPIO_TogglePinState(8);
 CPU_GPIO_TogglePinState(8);*/
+
+	//Start reading
+	read_req1.len = BUFF_SIZE;
+	UART_ReadAsync(MXC_UART1 , &read_req1);
 
 	return TRUE;
 }
