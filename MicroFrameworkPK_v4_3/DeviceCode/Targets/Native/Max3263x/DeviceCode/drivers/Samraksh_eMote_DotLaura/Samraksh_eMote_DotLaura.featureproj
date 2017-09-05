@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FeatureName>Samraksh_eMote_DotLaura</FeatureName>
+    <Guid>{ec02e2e2-fcd3-4e45-ae0a-7317891410b4}</Guid>
+    <Description>&lt;Add Feature Description Here&gt;</Description>
+    <Groups />
+    <SAMRAKSH_EMOTE_DOTLAURA_FEATUREPROJ>True</SAMRAKSH_EMOTE_DOTLAURA_FEATUREPROJ>
+  </PropertyGroup>
+  <ItemGroup>
+    <DriverLibs Include="Samraksh_eMote_DotLaura.$(LIB_EXT)" />
+    <InteropFeature Include="Samraksh_eMote_DotLaura" />
+	<!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_eMote_DotLaura.pe" />-->
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Samraksh_eMote_DotLaura\dotnetmf.proj" />
+  </ItemGroup>
+</Project>

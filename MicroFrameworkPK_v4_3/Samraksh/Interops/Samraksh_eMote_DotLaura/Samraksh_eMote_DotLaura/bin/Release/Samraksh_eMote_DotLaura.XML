@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Samraksh_eMote_DotLaura</name>
+    </assembly>
+    <members>
+        <member name="T:Samraksh.eMote.WLN.DeviceStatus">
+            <summary>
+            Status return codes for drivers
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.WLN.DeviceStatus.Success">
+            <summary>
+            Success
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.WLN.DeviceStatus.Fail">
+            <summary>
+            Fail
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.WLN.DeviceStatus.Ready">
+            <summary>
+            Ready
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.WLN.DeviceStatus.Busy">
+            <summary>
+            Busy 
+            </summary>
+        </member>
+    </members>
+</doc>
