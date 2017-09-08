@@ -503,6 +503,7 @@ void UART_Handler(mxc_uart_regs_t *uart)
 {
     int uart_num;
     uint32_t flags;
+	volatile uint32_t enableBits = uart->inten;
 
     uart_num = MXC_UART_GET_IDX(uart);
     MXC_ASSERT(uart_num >= 0);

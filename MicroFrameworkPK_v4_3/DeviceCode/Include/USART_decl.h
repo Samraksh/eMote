@@ -79,7 +79,7 @@ int  USART_Managed_Read( int ComPortNum, char* Data, size_t size );
 BOOL USART_Flush( int ComPortNum );
 BOOL USART_AddCharToRxBuffer( int ComPortNum, char c );
 
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_EmoteDotLaura) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
 BOOL USART_AddToRxBuffer( int ComPortNum, char *data, size_t size );
 #endif
 
