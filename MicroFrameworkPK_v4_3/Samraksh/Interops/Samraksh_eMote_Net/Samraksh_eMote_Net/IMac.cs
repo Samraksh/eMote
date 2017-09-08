@@ -202,7 +202,7 @@ namespace Samraksh.eMote.Net
 			MACType MACType { get; }
 
 			/// <summary>The radio object the MAC is using</summary>
-			Radio_802_15_4_Base MACRadioObj { get; }
+			//Radio_802_15_4_Base MACRadioObj { get; }
 
 			/// <summary>Raised when a packet has been received</summary>
             event MACBase.IMACReceiveEventHandler OnReceive;
