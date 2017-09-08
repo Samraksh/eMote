@@ -1,0 +1,3 @@
+[submodule "MicroFrameworkPK_v4_3/DeviceCode/pal/Samraksh/Tuscarora"]
+	path = MicroFrameworkPK_v4_3/DeviceCode/pal/Samraksh/Tuscarora
+	url = git@github.com:Samraksh/TuscaroraPrivate.git
