@@ -5,6 +5,7 @@
 #include <Tinyhal_types.h>
 #include <tinyhal.h>
 #include "Radio_decl.h"
+#include "Clock.h"
 
 //////////////////////////// Radio Errors/////////////////////////////////////////
 
@@ -22,20 +23,20 @@
 
 extern "C"
 {
-	void* DefaultReceiveHandler(void *msg, UINT16 Size)
-	{
-		return NULL;
-	}
+void* DefaultReceiveHandler(void *msg, UINT16 Size)
+{
+	return NULL;
+}
 
-	void DefaultSendAckHandler(void *msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus)
-	{
+void DefaultSendAckHandler(void* msg, UINT16 Size, RadioSendStatus_t status)
+{
 
-	}
+}
 
-	BOOL DefaultRadioInterruptHandler(RadioInterrupt Interrupt, void *param)
-	{
-		return FALSE;
-	}
+BOOL DefaultRadioInterruptHandler(RadioInterrupt Interrupt, void *param)
+{
+	return FALSE;
+}
 }
 
 
@@ -138,30 +139,30 @@ public:
 	//virtual DeviceStatus UnInitialize()
 	DeviceStatus UnInitialize(UINT8 mac_id)
 	{
-	    DeviceStatus ret = DS_Fail;
-	    // remove from list of IDs. what a PITA.
-	    for(int itr=0; itr < MAX_MACS_SUPPORTED; ++itr) {
-	        if(Radio<T>::MacIDs[itr] == mac_id) {
+		DeviceStatus ret = DS_Fail;
+		// remove from list of IDs. what a PITA.
+		for(int itr=0; itr < MAX_MACS_SUPPORTED; ++itr) {
+			if(Radio<T>::MacIDs[itr] == mac_id) {
 
-	            Radio<T>::MacIDs[itr] = 0;
-	            for(int itr_inner=itr; itr_inner < MAX_MACS_SUPPORTED; ++itr_inner) {
-	                Radio<T>::MacIDs[itr_inner] = Radio<T>::MacIDs[itr_inner + 1];
-	            }
-	            Radio<T>::MacIDs[MAX_MACS_SUPPORTED - 1] = 0;
+				Radio<T>::MacIDs[itr] = 0;
+				for(int itr_inner=itr; itr_inner < MAX_MACS_SUPPORTED; ++itr_inner) {
+					Radio<T>::MacIDs[itr_inner] = Radio<T>::MacIDs[itr_inner + 1];
+				}
+				Radio<T>::MacIDs[MAX_MACS_SUPPORTED - 1] = 0;
 
-	            MacHandlers[itr] = NULL;
-	            for(int itr_inner=itr; itr_inner < MAX_MACS_SUPPORTED; ++itr_inner) {
-	                MacHandlers[itr_inner] = MacHandlers[itr_inner + 1];
-	            }
-	            MacHandlers[MAX_MACS_SUPPORTED - 1] = NULL;
+				MacHandlers[itr] = NULL;
+				for(int itr_inner=itr; itr_inner < MAX_MACS_SUPPORTED; ++itr_inner) {
+					MacHandlers[itr_inner] = MacHandlers[itr_inner + 1];
+				}
+				MacHandlers[MAX_MACS_SUPPORTED - 1] = NULL;
 
-	            MacIDIndex--;
+				MacIDIndex--;
 
-	            ret = DS_Success;
-	            break;
-	        }
-	    }
-	    return ret;
+				ret = DS_Success;
+				break;
+			}
+		}
+		return ret;
 	}
 
 
@@ -241,6 +242,236 @@ public:
 	}
 
 };
+
+/*class RadioEventHandlerStorage{
+	// Keeps track of all the mac ids that are currently supported
+	UINT8 MacIDs[MAX_MACS_SUPPORTED];
+	UINT8 MacIDIndex;
+	RadioEventHandler* MacHandlers[MAX_MACS_SUPPORTED];
+	RadioEventHandler defaultHandler;
+	void SetDefaultHandlers() {
+		defaultHandler.SetReceiveHandler(DefaultReceiveHandler);
+		defaultHandler.SetSendAckHandler(DefaultSendAckHandler);
+		defaultHandler.SetRadioInterruptHandler(DefaultRadioInterruptHandler);
+	}
+	bool InsertasNew(RadioEventHandler *event_handler, UINT8 mac_id){
+
+		if(!event_handler){
+			MacHandlers[MacIDIndex] = &defaultHandler;
+		}
+		else{
+			MacHandlers[MacIDIndex] = event_handler;
+		}
+
+		MacIDs[MacIDIndex] = mac_id;
+		MacIDIndex++;
+	}
+public:
+	RadioEventHandlerStorage() : MacIDIndex(0){
+		SetDefaultHandlers();
+	}
+	virtual ~RadioEventHandlerStorage(){
+
+	}
+	UINT8 GetNumberOfMacs(){
+		return MacIDIndex;
+	}
+	bool Insert(UINT8 mac_id, RadioEventHandler *event_handler){
+		RadioEventHandler* p = Find(mac_id);
+		if(p == NULL){
+			return InsertasNew(event_handler, mac_id);
+		}
+		else{
+			p = event_handler;
+			return true;
+		}
+
+	}
+	RadioEventHandler*& Find(UINT8 mac_id){
+		for(UINT8 i = 0; i < MacIDIndex; ++i){
+			if(MacIDs[i] == mac_id){
+				return mac_id;
+			}
+		}
+		return NULL;
+	}
+	bool Remove(UINT8 mac_id){
+
+		for(UINT8 i = 0 ; i < MacIDIndex; ++i){
+			if(MacIDs[i] == mac_id){
+				--MacIDIndex;
+				for(int itr_inner=i; itr_inner < MacIDIndex ; ++i) {
+					MacIDs[itr_inner] = MacIDs[itr_inner + 1];
+					MacHandlers[itr_inner] = MacHandlers[itr_inner + 1];
+				}
+			}
+		}
+		return false;
+
+	}
+};*/
+
+
+class SamrakshRadio_I{
+public:
+	SamrakshRadio_I();
+	virtual ~SamrakshRadio_I();
+	/*!
+	 * @brief Radio modes
+	 */
+	enum RadioMode_t{
+		Uninitialized,
+		SLEEP, 		//Low-power mode
+		STANDBY,	//both Crystal oscillator and Lora baseband blocks are turned on.RF part and PLLs are disabled
+		TX,			// TX
+		RX,			// Listenning. When activated the SX1276/77/78/79 powers all remaining blocks required for reception, processing all received data until a new user request is made to change operating mode.
+	};
+
+
+
+	/*!
+	 * @brief RadioProperties
+	 */
+	struct RadioProperties_t{
+		UINT16 CUR_PHY_MODE; 			//A set of PHY layer settings forms a transmission mode. A number of such modes are defined at the radio driver and is settable by the above layer
+		UINT16 NUMBER_OF_PHY_MODE;		//
+
+		UINT16 RadioAddress; 				//Radio address. Defaults to some address during initialization. Can be settable via upper layers
+
+		BOOL IS_HARDWARE_ACKS_SUPPORTED;	//Indicates whether or not radio supports hardware ACKS
+
+		UINT16 MAXPacketSize; //Maximum packet size
+
+
+
+		UINT16 RADIO_TURN_ON_DELAY_RX_MICRO;	//Delay transitioning into the RX from SLEEP mode
+
+		UINT16 DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX; //Delay in detecting a packet in microseconds. Preamble + Header + Checking the address
+		UINT16 DELAY_FROM_DTH_TX_TO_RADIO_DRIVER_TX; //Delay in transmitting a packet when tx is issued
+
+
+
+
+		UINT8 TX_TIME_PER_BIT_IN_MICROSEC;
+		UINT16 DELAY_IN_RECEIVING_HW_ACK;
+		UINT16 CAD_DURATION_MICRO;
+	};
+
+	/*!
+	 * @brief Radio driver callback functions
+	 */
+	struct RadioEvents_t
+	{
+	    /*!
+	     * @brief  Tx Done callback prototype. for Send and InitiateTXPreloadedMsg
+	     *
+	     * @param [IN] success Whether tx was successfull
+	     */
+	    void    ( *TxDone )( bool success);
+	    /*!
+	     * @brief Packet detection callback prototype. A packet is detected with a valid preamble and a valid header.
+	     */
+	    void    ( *PacketDetected )( void );
+	    /*!
+	     * @brief Rx Done callback prototype. In case of rx error payload is null and the size is zero
+	     *
+	     * @param [IN] payload Received buffer pointer
+	     * @param [IN] size    Received buffer size
+	     */
+	    void    ( *RxDone )( uint8_t *payload, uint16_t size );
+
+	    /*!
+	     * @brief CAD Done callback prototype.
+	     *
+	     * @param [IN] channelDetected    Whether Channel Activity detected during the CAD
+	     */
+	    void 	( *CadDone ) ( bool channelActivityDetected );
+
+
+	    /*!
+	     * @brief Callback prototype for sending. This is generated when the data gets accepted to be sent
+	     *
+	     * @param [IN] success	Wheter
+	     * @param [IN] number_of_bytes_in_buffer
+	     *
+	     */
+	    void    ( *DataStatusCallback )( bool success, UINT16 number_of_bytes_in_buffer );
+//	    /*!
+//	     * @brief Callback prototype for StartListenning, Sleep , Standby and GetRadioState
+//	     *
+//	     * @param [IN] cur_mode	Current radio mode
+//	     *
+//	     */
+//		void    ( *RadioStateCallback )( RadioMode_t cur_mode );
+//	    /*!
+//	     * @brief Callback prototype for returning radio properties
+//	     *
+//	     * @param [IN] _rp	Radio properties
+//	     *
+//	     */
+//		void  	( *RadioPropertiesCallback) (RadioProperties_t _rp);
+	};
+
+    /*!
+     * @brief Initialization controls both chip initialization and the radio event handler.
+     *
+     */
+	virtual DeviceStatus Initialize(RadioEvents_t re) = 0;
+	virtual DeviceStatus UnInitialize() = 0;
+    /*!
+     * @brief Returns the status of the initialization
+     *
+     */
+	virtual DeviceStatus IsInitialized();
+
+	/*!
+     * @brief Sets the radio address. Triggers a RadioPropertiesCallback.
+     * 		If successful, returned value has the new address
+     * 		otherwise, returned RadioProperties_t has the old address
+     */
+	virtual DeviceStatus SetAddress() = 0;
+	/*!
+     * @brief Request for
+     */
+	virtual RadioProperties_t GetRadioProperties() = 0;
+
+
+    /*!
+     * @brief Request Sending data as soon as possible
+     *
+     */
+	virtual void Send(void* msg, UINT16 size, bool request_ack = false);
+    /*!
+     * @brief Request Sending data at a specified time instance
+     *
+     */
+	//typedef UINT64 TimeVariable_t; //BK: These should be defined in the clock module
+	//typedef UINT8 ClockIdentifier_t;
+	virtual void RequestSendAtTimeInstanst(void* msg, UINT16 size, UINT64 PacketTransmissionTick, Clock_I *clkModule);
+    /*!
+     * @brief Cancels previous send request
+     *
+     */
+	virtual void RequestCancelSend() = 0;
+
+
+	/*!
+     * @brief Performs a clear channel assesment
+     */
+	virtual void ChannelActivityDetection() = 0;
+
+	/*!
+     * @brief State change request
+     */
+	virtual RadioMode_t StartListenning() = 0;
+	virtual RadioMode_t Sleep() = 0;
+	virtual RadioMode_t Standby()= 0;
+	virtual RadioMode_t GetRadioState()= 0;
+
+};
+
+
+
 
 template<class T>
 UINT8 Radio<T>::MacIDIndex = 0;

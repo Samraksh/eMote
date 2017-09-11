@@ -22,17 +22,16 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
     static const int FIELD___neighborListTemp = 5;
     static const int FIELD___byteNeighbor = 6;
     static const int FIELD___marshalBuffer = 7;
-    static const int FIELD__OnReceiveAll = 8;
-    static const int FIELD__OnReceive = 9;
-    static const int FIELD__OnNeighborChange = 10;
-    static const int FIELD__OnSendStatus = 11;
-    static const int FIELD___cca = 12;
-    static const int FIELD___numberOfRetries = 13;
-    static const int FIELD___ccaSenseTime = 14;
-    static const int FIELD___bufferSize = 15;
-    static const int FIELD___neighborLivenessDelay = 16;
-    static const int FIELD__<MACType>k__BackingField = 17;
-    static const int FIELD__<MACRadioObj>k__BackingField = 18;
+    static const int FIELD__<MACType>k__BackingField = 8;
+    static const int FIELD__OnReceiveAll = 9;
+    static const int FIELD__OnReceive = 10;
+    static const int FIELD__OnNeighborChange = 11;
+    static const int FIELD__OnSendStatus = 12;
+    static const int FIELD___cca = 13;
+    static const int FIELD___numberOfRetries = 14;
+    static const int FIELD___ccaSenseTime = 15;
+    static const int FIELD___bufferSize = 16;
+    static const int FIELD___neighborLivenessDelay = 17;
 
     TINYCLR_NATIVE_DECLARE(RemovePacket___SamraksheMoteNetDeviceStatus);
     TINYCLR_NATIVE_DECLARE(PendingReceivePacketCount___U1);
@@ -134,62 +133,6 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_RF231RadioConfigurati
     static const int FIELD__<TxPower>k__BackingField = 1;
     static const int FIELD__<Channel>k__BackingField = 2;
     static const int FIELD__<RadioName>k__BackingField = 3;
-
-
-    //--//
-
-};
-
-struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
-{
-    static const int FIELD_STATIC__CurrUser = 5;
-
-    static const int FIELD___radioAddress = 1;
-    static const int FIELD___txPower = 2;
-    static const int FIELD___channel = 3;
-    static const int FIELD___radioName = 4;
-
-    TINYCLR_NATIVE_DECLARE(TurnOnRx___SamraksheMoteNetDeviceStatus__U1);
-    TINYCLR_NATIVE_DECLARE(Sleep___SamraksheMoteNetDeviceStatus__U1__U1);
-    TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN__U1);
-    TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN__U1__U2);
-    TINYCLR_NATIVE_DECLARE(PreLoad___SamraksheMoteNetNetOpStatus__SZARRAY_U1__U2);
-    TINYCLR_NATIVE_DECLARE(SendStrobe___SamraksheMoteNetNetOpStatus__U1__U2);
-    TINYCLR_NATIVE_DECLARE(Send___SamraksheMoteNetNetOpStatus__U1__SZARRAY_U1__U2);
-    TINYCLR_NATIVE_DECLARE(SendTimeStamped___SamraksheMoteNetNetOpStatus__U1__SZARRAY_U1__U2__U4);
-    TINYCLR_NATIVE_DECLARE(SetRadioName___SamraksheMoteNetDeviceStatus__U1);
-    TINYCLR_NATIVE_DECLARE(SetTxPower___SamraksheMoteNetDeviceStatus__U1__I4);
-    TINYCLR_NATIVE_DECLARE(SetChannel___SamraksheMoteNetDeviceStatus__U1__I4);
-    TINYCLR_NATIVE_DECLARE(GetRadioAddress___U2__U1);
-    TINYCLR_NATIVE_DECLARE(SetRadioAddress___BOOLEAN__U1__U2);
-    TINYCLR_NATIVE_DECLARE(UnInitialize___SamraksheMoteNetDeviceStatus__U1);
-    TINYCLR_NATIVE_DECLARE(TurnOffRx___SamraksheMoteNetDeviceStatus__U1);
-
-    //--//
-
-};
-
-struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_RF231
-{
-    static const int FIELD_STATIC___genericRadioInstanceSet = 6;
-
-
-    //--//
-
-};
-
-struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_RF231_LR
-{
-    static const int FIELD_STATIC___lrRadioInstanceSet = 7;
-
-
-    //--//
-
-};
-
-struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_SI4468
-{
-    static const int FIELD_STATIC___si4468RadioInstanceSet = 8;
 
 
     //--//

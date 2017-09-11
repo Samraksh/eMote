@@ -29,6 +29,8 @@ namespace Samraksh
 
                 static UNSUPPORTED_TYPE& Get__marshalBuffer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD___marshalBuffer ); }
 
+                static INT32& Get_<MACType>k__BackingField( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__<MACType>k__BackingField ); }
+
                 static UNSUPPORTED_TYPE& Get_OnReceiveAll( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__OnReceiveAll ); }
 
                 static UNSUPPORTED_TYPE& Get_OnReceive( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__OnReceive ); }
@@ -46,10 +48,6 @@ namespace Samraksh
                 static UINT8& Get__bufferSize( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT8( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD___bufferSize ); }
 
                 static UINT32& Get__neighborLivenessDelay( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT32( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD___neighborLivenessDelay ); }
-
-                static INT32& Get_<MACType>k__BackingField( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__<MACType>k__BackingField ); }
-
-                static UNSUPPORTED_TYPE& Get_<MACRadioObj>k__BackingField( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__<MACRadioObj>k__BackingField ); }
 
                 // Declaration of stubs. These functions are implemented by Interop code developers
                 static INT32 RemovePacket( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );

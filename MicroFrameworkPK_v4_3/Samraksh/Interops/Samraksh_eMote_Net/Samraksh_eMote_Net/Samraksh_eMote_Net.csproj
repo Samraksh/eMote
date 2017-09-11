@@ -32,13 +32,16 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
+    <Compile Include="Callbacks.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Exception.cs" />
     <Compile Include="IMAC.cs" />
     <Compile Include="IRadio.cs" />
     <Compile Include="MACBase.cs" />
+    <Compile Include="Mux.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResourceManager.cs" />
     <Compile Include="TuscaroraFramework.cs" />
   </ItemGroup>
   <ItemGroup>
