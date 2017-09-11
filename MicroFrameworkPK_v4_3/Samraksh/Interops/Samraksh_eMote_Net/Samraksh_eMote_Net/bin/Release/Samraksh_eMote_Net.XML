@@ -127,415 +127,6 @@
         <member name="F:Samraksh.eMote.Net.SendPacketStatus.TestMe">
             <summary>Test Condition</summary>
         </member>
-        <member name="T:Samraksh.eMote.Net.MAC.CSMA">
-            <summary>CSMA class</summary>
-        </member>
-        <member name="T:Samraksh.eMote.Net.MACBase">
-            <summary>Base class for wireless protocols</summary>
-            <seealso cref="T:Samraksh.eMote.Net.MAC.CSMA" cat="Inherited by">CSMA Class</seealso>
-            <seealso cref="T:Samraksh.eMote.Net.MAC.OMAC" cat="Inherited by">OMAC Class</seealso>
-        </member>
-        <member name="T:Samraksh.eMote.Net.MAC.IMAC">
-            <summary>
-            MAC interface
-            </summary>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MAC.IMAC.NeighborList(System.UInt16[])">
-            <summary>
-            	Get the list of neighbors from the MAC
-            </summary>
-            <param name="neighborListArray">
-            	Array is filled with the addresses of active neighbors, padded with zeroes at the end.
-            </param>
-            <returns>
-            	Result status
-            </returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MAC.IMAC.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
-            <summary>Send packet</summary>
-            <param name="address">Address of recipient</param>
-            <param name="payload">Payload (in byte array) to send</param>
-            <param name="offset">Offset into array</param>
-            <param name="size">Size of payload</param>
-            <returns>Result status</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MAC.IMAC.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16,System.DateTime)">
-            <summary>Send packet with time value</summary>
-            <param name="address">Address of recipient</param>
-            <param name="payload">Payload (in byte array) to send</param>
-            <param name="offset">Offset into array</param>
-            <param name="size">Size of message</param>
-            <param name="eventTime">Time value to add to packet</param>
-            <returns>Result status</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MAC.IMAC.NeighborStatus(System.UInt16)">
-            <summary>
-            Get neighbor status
-            </summary>
-            <param name="macAddress">MAC address of neighbor</param>
-            <returns>Neighbor status</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MAC.IMAC.PendingSendPacketCount">
-            <summary>
-            Get pending packet count of MAC instance
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MAC.IMAC.PendingReceivePacketCount">
-            <summary>
-            Get pending packet count of MAC instance
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MAC.IMAC.RemovePacket">
-            <summary>
-            Remove packet from pending
-            </summary>
-            <returns>Status of result</returns>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MAC.IMAC.MACType">
-            <summary>The type of MAC (OMAC, CSMA)</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MAC.IMAC.MACRadioObj">
-            <summary>The radio object the MAC is using</summary>
-        </member>
-        <member name="E:Samraksh.eMote.Net.MAC.IMAC.OnReceive">
-            <summary>Raised when a packet has been received</summary>
-        </member>
-        <member name="E:Samraksh.eMote.Net.MAC.IMAC.OnNeighborChange">
-            <summary>Raised when neighborhood changes</summary>
-        </member>
-        <member name="E:Samraksh.eMote.Net.MAC.IMAC.OnSendStatus">
-            <summary>Raised when we get an ACK for a transmitted packet</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MAC.IMAC.CCA">
-            <summary>True iff MAC CCA (clear channel assessment) is enabled</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MAC.IMAC.NumberOfRetries">
-            <summary>Number of times to try sending before MAC gives up</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MAC.IMAC.CCASenseTime">
-            <summary>Amount of time (in milliseconds) to assess whether channel is clear (CCA)</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MAC.IMAC.BufferSize">
-            <summary>Size of send buffer</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MAC.IMAC.NeighborLivenessDelay">
-            <summary>Delay (in milliseconds) before a Neighbor is deemed dead</summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.MACBase.MarshalBufferSize">
-            <summary>
-            Specifies the marshalling buffer size, used by the config to pass data to native code 
-            </summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.MACBase.NeighborSize">
-            <summary>Specifies the Neighbor size</summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.MACBase.NeighborListSize">
-            <summary>Specifies maximum neighbors that can be held in Neighbor table</summary>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.#ctor(Samraksh.eMote.Net.MACType,Samraksh.eMote.Net.Radio.IRadioConfiguration,System.UInt32,System.Byte,System.Byte,System.Boolean,System.Byte)">
-            <summary>Constructor to create MAC object</summary>
-            <param name="macType">CSMA, OMAC or other MAC</param>
-            <param name="cca"></param>
-            <param name="radioConfiguration"></param>
-            <param name="numberOfRetries"></param>
-            <param name="ccaSenseTime"></param>
-            <param name="bufferSize"></param>
-            <param name="neighborLivenessDelay"></param>
-            <exception caption="MacNotConfigured Exception" cref="T:Samraksh.eMote.Net.MACNotConfiguredException"></exception>
-            <exception caption="System Exception" cref="T:System.SystemException"></exception>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.Initialize(System.Boolean,System.Byte,System.Byte,System.Byte,System.UInt32,Samraksh.eMote.Net.MACType,Samraksh.eMote.Net.Radio.RadioName)">
-            <summary>Native initialization of mac</summary>
-            <param name="cca"></param>
-            <param name="numberOfRetries"></param>
-            <param name="ccaSenseTime"></param>
-            <param name="bufferSize"></param>
-            <param name="neighborLivenessDelay"></param>
-            <param name="mactype"></param>
-            <param name="radioName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.Configure">
-            <summary>Reconfigure MAC</summary>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.ReceiveFunction(System.UInt32,System.UInt32,System.DateTime)">
-            <summary>
-            Invoked when payload type is data.
-            </summary>
-            <param name="data1"></param>
-            <param name="data2"></param>
-            <param name="time"></param>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.RegisterOnReceiveGlobal(Samraksh.eMote.Net.MACPipe)">
-            <summary>
-            Registers callbacks for payload types.
-            </summary>
-            <param name="macPipe"></param>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.UnRegisterOnReceiveGlobal(Samraksh.eMote.Net.MACPipe)">
-            <summary>
-            Unregisters callbacks for payload types.
-            </summary>
-            <param name="macPipe"></param>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.NextPacket">
-            <summary>
-            Get the next packet from the MAC buffer
-            </summary>
-            <returns>True if success, false otherwise</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.NeighborListArray">
-            <summary>
-            Create a NeighborList array for the user
-            </summary>
-            <remarks>
-            The NeighborList array must be exactly NeighborListSize. 
-            To relieve the user of having to know the size, this method can be used to create one.
-            </remarks>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.NeighborList(System.UInt16[])">
-            <summary>
-            	Get the list of neighbors from the MAC
-            </summary>
-            <param name="neighborListArray">
-            	Array is filled with the addresses of active neighbors, padded with zeroes at the end.
-            </param>
-            <returns>
-            	Result status
-            </returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.MACNeighborList(System.UInt16[])">
-            <summary>
-            	Get the the internal list of neighbors from the MAC including unreachable destinations
-            </summary>
-            <param name="neighborListArray">
-            	Array is filled with the addresses of active neighbors, padded with zeroes at the end.
-            </param>
-            <returns>
-            	Result status
-            </returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.NeighborStatus(System.UInt16)">
-            <summary>Get the details for a Neighbor</summary>
-            <param name="macAddress">Address of the Neighbor</param>
-            <returns>Neighbor</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.RemovePacket">
-            <summary>Remove a _packet from the buffer</summary>
-            <returns>Status of operation</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.PendingReceivePacketCount">
-            <summary>Get a count of unprocessed packets in the buffer</summary>
-            <returns>The number of packets in the buffer not yet delivered to the program</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.PendingSendPacketCount">
-            <summary>Get a count of unprocessed packets in the buffer</summary>
-            <returns>The number of packets in the buffer not yet delivered to the program</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.UnInitialize">
-            <summary>Uninitialize radio</summary>
-            <returns>Status of operation</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.InternalInitialize(System.Byte[],System.Byte)">
-            <summary>Initialize native MAC, radio and interop drivers</summary>
-            <param name="marshalBuffer"></param>
-            <param name="mactype"></param>
-            <returns>The driver status after initialization: Success, Fail, Ready, Busy</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.InternalReConfigure(System.Byte[])">
-            <summary></summary>
-            <param name="marshalBuffer"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetNextPacket(System.Byte[])">
-            <summary></summary>
-            <param name="nativeBuffer"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetNeighborInternal(System.UInt16,System.Byte[])">
-            <summary></summary>
-            <param name="macAddress"></param>
-            <param name="neighborlist"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetNeighborListInternal(System.UInt16[])">
-            <summary></summary>
-            <param name="neighborlist"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetMACNeighborListInternal(System.UInt16[])">
-            <summary></summary>
-            <param name="neighborlist"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
-            <summary>Send packet</summary>
-            <param name="address">Address of recipient</param>
-            <param name="payload">Payload (in byte array) to send</param>
-            <param name="offset">Offset into array</param>
-            <param name="size">Size of payload</param>
-            <returns>Result status</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetMsgWithMsgID(System.Byte[]@,System.UInt16)">
-            <summary></summary>
-            <param name="nativeBuffer"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.DeleteMsgWithMsgID(System.UInt16)">
-            <summary></summary>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.DeletePacketWithIndexInternal(System.UInt16)">
-            <summary></summary>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetPacketWithIndex(System.Byte[],System.Byte,System.UInt16)">
-            <summary></summary>
-            <param name="nativeBuffer"></param>
-            <param name="size"></param>
-            <param name="index"></param>
-            <returns>Result status</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetPacketSizeWithIndex(System.Byte@,System.UInt16)">
-            <summary></summary>
-            <param name="nativeBuffer"></param>
-            <param name="size"></param>
-            <param name="index"></param>
-            <returns>Result status</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.IsMsgIDValid(System.UInt16)">
-            <summary>IsPacketIDValid</summary>
-            <param name="address">Address of recipient</param>
-            <param name="payload">Payload (in byte array) to send</param>
-            <param name="offset">Offset into array</param>
-            <param name="size">Size of payload</param>
-            <returns>Result status</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.EnqueueToSend(System.UInt16,Samraksh.eMote.Net.PayloadType,System.Byte[],System.UInt16,System.UInt16)">
-            <summary>Send packet</summary>
-            <param name="address">Address of recipient</param>
-            <param name="payload">Payload (in byte array) to send</param>
-            <param name="offset">Offset into array</param>
-            <param name="size">Size of payload</param>
-            <returns>Result status</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.EnqueueToSend(System.UInt16,Samraksh.eMote.Net.PayloadType,System.Byte[],System.UInt16,System.UInt16,System.DateTime)">
-            <summary>Send packet</summary>
-            <param name="address">Address of recipient</param>
-            <param name="payload">Payload (in byte array) to send</param>
-            <param name="offset">Offset into array</param>
-            <param name="size">Size of payload</param>
-            <returns>Result status</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16,System.DateTime)">
-            <summary>Send a _packet</summary>
-            <param name="address">The address of the receiver. Use <code>Addresses.BROADCAST</code> for broadcast</param>
-            <param name="payload">Byte array containing the payload to be sent</param>
-            <param name="offset">The first byte in the array to send. Normally 0</param>
-            <param name="size">The number of bytes to send</param>
-            <param name="eventTime">Time at which event occurred</param>
-            <returns>Status of operation</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,Samraksh.eMote.Net.PayloadType,System.Byte[],System.UInt16,System.UInt16)">
-            <summary>Send a _packet</summary>
-            <param name="address">The address of the receiver. Use <code>Addresses.BROADCAST</code> for broadcast</param>
-            <param name="payloadType">PayloadType to be sent</param>
-            <param name="payload">Byte array containing the payload to be sent</param>
-            <param name="offset">The first byte in the array to send. Normally 0</param>
-            <param name="size">The number of bytes to send</param>
-            <returns>Status of operation</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,Samraksh.eMote.Net.PayloadType,System.Byte[],System.UInt16,System.UInt16,System.DateTime)">
-            <summary>Send a time stamped _packet. Time stamp is specified as a parameter</summary>
-            <param name="address">Address of receiver</param>
-            <param name="payloadType">PayloadType to be sent</param>
-            <param name="payload">payload to be sent</param>
-            <param name="offset">offset if any in the byte array</param>
-            <param name="size">size of the _packet</param>
-            <param name="eventTime">Time to use for timestamp</param>
-            <returns>Status of operation</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.Dispose">
-            <summary>Uninitialize MAC instance</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MACBase.MACType">
-            <summary>The type of MAC (OMAC, CSMA)</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MACBase.MACRadioObj">
-            <summary>The radio object the MAC is using</summary>
-        </member>
-        <member name="E:Samraksh.eMote.Net.MACBase.OnReceiveAll">
-            <summary>Raised when any packet is received (promiscuous mode)</summary>
-        </member>
-        <member name="E:Samraksh.eMote.Net.MACBase.OnReceive">
-            <summary>Raised when a packet has been received</summary>
-        </member>
-        <member name="E:Samraksh.eMote.Net.MACBase.OnNeighborChange">
-            <summary>Raised when neighborhood changes</summary>
-        </member>
-        <member name="E:Samraksh.eMote.Net.MACBase.OnSendStatus">
-            <summary>Raised when a transmited packet is ACKed</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MACBase.CCA">
-            <summary>True iff MAC CCA (clear channel assessment) is enabled</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MACBase.NumberOfRetries">
-            <summary>Number of times to try sending before MAC gives up</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MACBase.CCASenseTime">
-            <summary>Amount of time (in milliseconds) to assess whether channel is clear (CCA)</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MACBase.BufferSize">
-            <summary>Size of send buffer</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MACBase.NeighborLivenessDelay">
-            <summary>Delay (in milliseconds) before a Neighbor is deemed dead</summary>
-        </member>
-        <member name="T:Samraksh.eMote.Net.MACBase.IMACReceiveEventHandler">
-            <summary>Event handler for classes implementing IMAC's on receive event</summary>
-            <param name="macInstance">
-            	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
-            	When used by MACPipe class, will be MACPipe class.
-            </param>
-            <param name="time"></param>
-            <param name="receivedPacket">Packet object to be filled in with received packet details</param>
-        </member>
-        <member name="T:Samraksh.eMote.Net.MACBase.IMACNeighborChangeEventHandler">
-            <summary>Event handler for classes implementing IMAC's neighbor change event</summary>
-            <param name="macInstance">
-            	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
-            	When used by MACPipe class, will be MACPipe class.
-            </param>
-            <param name="time"></param>
-        </member>
-        <member name="T:Samraksh.eMote.Net.MACBase.IMACTransmitACKEventHandler">
-            <summary>Event handler for classes implementing IMAC's transmit ACK event</summary>
-            <param name="macInstance">
-            	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
-            	When used by MACPipe class, will be MACPipe class.
-            	</param>
-            <param name="ACKStatus">
-                Status
-                </param>
-            <param name="transmitDestination">
-            	The destination ID
-            </param>
-            <param name="time"></param>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MAC.CSMA.#ctor(Samraksh.eMote.Net.Radio.IRadioConfiguration,System.UInt32,System.Byte,System.Byte,System.Boolean,System.Byte)">
-            <summary>Constructor</summary>
-            <param name="radioConfiguration">Radio configuratin to use</param>
-            <param name="cca">Use Clear Channel Assessment (CCA)</param>
-            <param name="numberOfRetries">Number of times to try resending packet</param>
-            <param name="ccaSenseTime">Time (in milliseconds) to check for clear channel</param>
-            <param name="bufferSize">Send buffer size</param>
-            <param name="neighborLivenessDelay">Timeout (in milliseconds) to declare neighbor dead</param>
-        </member>
         <member name="T:Samraksh.eMote.Net.UnknownRadioTypeException">
             <summary>
             Radio type is unknown
@@ -722,6 +313,91 @@
         </member>
         <member name="M:Samraksh.eMote.Net.MAC.Neighbor.#ctor">
             <summary> Constructs a dummy neighbor object </summary>
+        </member>
+        <member name="T:Samraksh.eMote.Net.MAC.IMAC">
+            <summary>
+            MAC interface
+            </summary>
+        </member>
+        <member name="P:Samraksh.eMote.Net.MAC.IMAC.MACType">
+            <summary>The type of MAC (OMAC, CSMA)</summary>
+        </member>
+        <member name="E:Samraksh.eMote.Net.MAC.IMAC.OnReceive">
+            <summary>Raised when a packet has been received</summary>
+        </member>
+        <member name="E:Samraksh.eMote.Net.MAC.IMAC.OnNeighborChange">
+            <summary>Raised when neighborhood changes</summary>
+        </member>
+        <member name="E:Samraksh.eMote.Net.MAC.IMAC.OnSendStatus">
+            <summary>Raised when we get an ACK for a transmitted packet</summary>
+        </member>
+        <member name="P:Samraksh.eMote.Net.MAC.IMAC.CCA">
+            <summary>True iff MAC CCA (clear channel assessment) is enabled</summary>
+        </member>
+        <member name="P:Samraksh.eMote.Net.MAC.IMAC.NumberOfRetries">
+            <summary>Number of times to try sending before MAC gives up</summary>
+        </member>
+        <member name="P:Samraksh.eMote.Net.MAC.IMAC.CCASenseTime">
+            <summary>Amount of time (in milliseconds) to assess whether channel is clear (CCA)</summary>
+        </member>
+        <member name="P:Samraksh.eMote.Net.MAC.IMAC.BufferSize">
+            <summary>Size of send buffer</summary>
+        </member>
+        <member name="P:Samraksh.eMote.Net.MAC.IMAC.NeighborLivenessDelay">
+            <summary>Delay (in milliseconds) before a Neighbor is deemed dead</summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.NeighborList(System.UInt16[])">
+            <summary>
+            	Get the list of neighbors from the MAC
+            </summary>
+            <param name="neighborListArray">
+            	Array is filled with the addresses of active neighbors, padded with zeroes at the end.
+            </param>
+            <returns>
+            	Result status
+            </returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
+            <summary>Send packet</summary>
+            <param name="address">Address of recipient</param>
+            <param name="payload">Payload (in byte array) to send</param>
+            <param name="offset">Offset into array</param>
+            <param name="size">Size of payload</param>
+            <returns>Result status</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16,System.DateTime)">
+            <summary>Send packet with time value</summary>
+            <param name="address">Address of recipient</param>
+            <param name="payload">Payload (in byte array) to send</param>
+            <param name="offset">Offset into array</param>
+            <param name="size">Size of message</param>
+            <param name="eventTime">Time value to add to packet</param>
+            <returns>Result status</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.NeighborStatus(System.UInt16)">
+            <summary>
+            Get neighbor status
+            </summary>
+            <param name="macAddress">MAC address of neighbor</param>
+            <returns>Neighbor status</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.PendingSendPacketCount">
+            <summary>
+            Get pending packet count of MAC instance
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.PendingReceivePacketCount">
+            <summary>
+            Get pending packet count of MAC instance
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.RemovePacket">
+            <summary>
+            Remove packet from pending
+            </summary>
+            <returns>Status of result</returns>
         </member>
         <member name="T:Samraksh.eMote.Net.Radio.RadioUser">
             <summary>
@@ -1333,11 +1009,6 @@
             RF231 Radio configuration
             </summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.RF231RadioConfiguration.#ctor(Samraksh.eMote.Net.Radio.RF231TxPower,Samraksh.eMote.Net.Radio.RF231Channel)">
-            <summary>Radio configuration constructor</summary>
-            <param name="power">Transmission power</param>
-            <param name="channel">Channel</param>
-        </member>
         <member name="P:Samraksh.eMote.Net.Radio.RF231RadioConfiguration.TxPower">
             <summary>Transmission power of the radio</summary>
         </member>
@@ -1347,15 +1018,15 @@
         <member name="P:Samraksh.eMote.Net.Radio.RF231RadioConfiguration.RadioName">
             <summary>Type of radio</summary>
         </member>
+        <member name="M:Samraksh.eMote.Net.Radio.RF231RadioConfiguration.#ctor(Samraksh.eMote.Net.Radio.RF231TxPower,Samraksh.eMote.Net.Radio.RF231Channel)">
+            <summary>Radio configuration constructor</summary>
+            <param name="power">Transmission power</param>
+            <param name="channel">Channel</param>
+        </member>
         <member name="T:Samraksh.eMote.Net.Radio.RF231LRRadioConfiguration">
             <summary>
             RF231 Radio configuration
             </summary>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.RF231LRRadioConfiguration.#ctor(Samraksh.eMote.Net.Radio.RF231TxPower,Samraksh.eMote.Net.Radio.RF231Channel)">
-            <summary>Radio configuration constructor</summary>
-            <param name="power">Transmission power</param>
-            <param name="channel">Channel</param>
         </member>
         <member name="P:Samraksh.eMote.Net.Radio.RF231LRRadioConfiguration.TxPower">
             <summary>Transmission power of the radio</summary>
@@ -1366,13 +1037,13 @@
         <member name="P:Samraksh.eMote.Net.Radio.RF231LRRadioConfiguration.RadioName">
             <summary>Type of radio</summary>
         </member>
-        <member name="T:Samraksh.eMote.Net.Radio.SI4468RadioConfiguration">
-            <summary>SI4468 Radio configuration</summary>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.SI4468RadioConfiguration.#ctor(Samraksh.eMote.Net.Radio.SI4468TxPower,Samraksh.eMote.Net.Radio.SI4468Channel)">
+        <member name="M:Samraksh.eMote.Net.Radio.RF231LRRadioConfiguration.#ctor(Samraksh.eMote.Net.Radio.RF231TxPower,Samraksh.eMote.Net.Radio.RF231Channel)">
             <summary>Radio configuration constructor</summary>
             <param name="power">Transmission power</param>
             <param name="channel">Channel</param>
+        </member>
+        <member name="T:Samraksh.eMote.Net.Radio.SI4468RadioConfiguration">
+            <summary>SI4468 Radio configuration</summary>
         </member>
         <member name="P:Samraksh.eMote.Net.Radio.SI4468RadioConfiguration.TxPower">
             <summary>Transmission power of the radio</summary>
@@ -1382,6 +1053,11 @@
         </member>
         <member name="P:Samraksh.eMote.Net.Radio.SI4468RadioConfiguration.RadioName">
             <summary>Type of radio</summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.Radio.SI4468RadioConfiguration.#ctor(Samraksh.eMote.Net.Radio.SI4468TxPower,Samraksh.eMote.Net.Radio.SI4468Channel)">
+            <summary>Radio configuration constructor</summary>
+            <param name="power">Transmission power</param>
+            <param name="channel">Channel</param>
         </member>
         <member name="T:Samraksh.eMote.Net.Radio.IRadio">
             <summary>
@@ -1482,6 +1158,15 @@
             The subscribed payload type for the this pipe
             </summary>
         </member>
+        <member name="E:Samraksh.eMote.Net.MACPipe.OnReceive">
+            <summary>Raised when a packet has been received</summary>
+        </member>
+        <member name="E:Samraksh.eMote.Net.MACPipe.OnNeighborChange">
+            <summary>Raised when neighborhood changes</summary>
+        </member>
+        <member name="E:Samraksh.eMote.Net.MACPipe.OnSendStatus">
+            <summary>Raised when we get an ACK for a transmitted packet</summary>
+        </member>
         <member name="M:Samraksh.eMote.Net.MACPipe.IsMsgIDValid(System.UInt16)">
             <summary>IsPacketIDValid</summary>
             <param name="msgid">msgid</param>
@@ -1530,6 +1215,24 @@
             <param name="eventTime">Packet time. Used for calculating the time it spends at the buffer on the sending side. </param>
             <returns>MsgID</returns>
         </member>
+        <member name="P:Samraksh.eMote.Net.MACPipe.BufferSize">
+            <summary>Size of send buffer</summary>
+        </member>
+        <member name="P:Samraksh.eMote.Net.MACPipe.CCA">
+            <summary>True iff MAC CCA (clear channel assessment) is enabled</summary>
+        </member>
+        <member name="P:Samraksh.eMote.Net.MACPipe.CCASenseTime">
+            <summary>Amount of time (in milliseconds) to assess whether channel is clear (CCA)</summary>
+        </member>
+        <member name="P:Samraksh.eMote.Net.MACPipe.NeighborLivenessDelay">
+            <summary>Delay (in milliseconds) before a Neighbor is deemed dead</summary>
+        </member>
+        <member name="P:Samraksh.eMote.Net.MACPipe.NumberOfRetries">
+            <summary>Number of times to try sending before MAC gives up</summary>
+        </member>
+        <member name="P:Samraksh.eMote.Net.MACPipe.MACType">
+            <summary>The type of MAC (OMAC, CSMA)</summary>
+        </member>
         <member name="M:Samraksh.eMote.Net.MACPipe.NeighborList(System.UInt16[])">
             <summary>
             	Get the list of neighbors from the MAC
@@ -1571,35 +1274,311 @@
             Uninitialize MACPipe instance
             </summary>
         </member>
-        <member name="E:Samraksh.eMote.Net.MACPipe.OnReceive">
+        <member name="T:Samraksh.eMote.Net.MACBase">
+            <summary>Base class for wireless protocols</summary>
+            <seealso cref="!:MAC.CSMA" cat="Inherited by">CSMA Class</seealso>
+            <seealso cref="!:MAC.OMAC" cat="Inherited by">OMAC Class</seealso>
+        </member>
+        <member name="F:Samraksh.eMote.Net.MACBase.MarshalBufferSize">
+            <summary>
+            Specifies the marshalling buffer size, used by the config to pass data to native code 
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.MACBase.NeighborSize">
+            <summary>Specifies the Neighbor size</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.MACBase.NeighborListSize">
+            <summary>Specifies maximum neighbors that can be held in Neighbor table</summary>
+        </member>
+        <member name="P:Samraksh.eMote.Net.MACBase.MACType">
+            <summary>The type of MAC (OMAC, CSMA)</summary>
+        </member>
+        <member name="T:Samraksh.eMote.Net.MACBase.IMACReceiveEventHandler">
+            <summary>Event handler for classes implementing IMAC's on receive event</summary>
+            <param name="macInstance">
+            	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
+            	When used by MACPipe class, will be MACPipe class.
+            </param>
+            <param name="time"></param>
+            <param name="receivedPacket">Packet object to be filled in with received packet details</param>
+        </member>
+        <member name="T:Samraksh.eMote.Net.MACBase.IMACNeighborChangeEventHandler">
+            <summary>Event handler for classes implementing IMAC's neighbor change event</summary>
+            <param name="macInstance">
+            	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
+            	When used by MACPipe class, will be MACPipe class.
+            </param>
+            <param name="time"></param>
+        </member>
+        <member name="E:Samraksh.eMote.Net.MACBase.OnReceiveAll">
+            <summary>Raised when any packet is received (promiscuous mode)</summary>
+        </member>
+        <member name="E:Samraksh.eMote.Net.MACBase.OnReceive">
             <summary>Raised when a packet has been received</summary>
         </member>
-        <member name="E:Samraksh.eMote.Net.MACPipe.OnNeighborChange">
+        <member name="E:Samraksh.eMote.Net.MACBase.OnNeighborChange">
             <summary>Raised when neighborhood changes</summary>
         </member>
-        <member name="E:Samraksh.eMote.Net.MACPipe.OnSendStatus">
-            <summary>Raised when we get an ACK for a transmitted packet</summary>
+        <member name="T:Samraksh.eMote.Net.MACBase.IMACTransmitACKEventHandler">
+            <summary>Event handler for classes implementing IMAC's transmit ACK event</summary>
+            <param name="macInstance">
+            	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
+            	When used by MACPipe class, will be MACPipe class.
+            	</param>
+            <param name="ACKStatus">
+                Status
+                </param>
+            <param name="transmitDestination">
+            	The destination ID
+            </param>
+            <param name="time"></param>
         </member>
-        <member name="P:Samraksh.eMote.Net.MACPipe.BufferSize">
-            <summary>Size of send buffer</summary>
+        <member name="E:Samraksh.eMote.Net.MACBase.OnSendStatus">
+            <summary>Raised when a transmited packet is ACKed</summary>
         </member>
-        <member name="P:Samraksh.eMote.Net.MACPipe.CCA">
+        <member name="P:Samraksh.eMote.Net.MACBase.CCA">
             <summary>True iff MAC CCA (clear channel assessment) is enabled</summary>
         </member>
-        <member name="P:Samraksh.eMote.Net.MACPipe.CCASenseTime">
-            <summary>Amount of time (in milliseconds) to assess whether channel is clear (CCA)</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MACPipe.NeighborLivenessDelay">
-            <summary>Delay (in milliseconds) before a Neighbor is deemed dead</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.MACPipe.NumberOfRetries">
+        <member name="P:Samraksh.eMote.Net.MACBase.NumberOfRetries">
             <summary>Number of times to try sending before MAC gives up</summary>
         </member>
-        <member name="P:Samraksh.eMote.Net.MACPipe.MACRadioObj">
-            <summary>The radio object the MAC is using</summary>
+        <member name="P:Samraksh.eMote.Net.MACBase.CCASenseTime">
+            <summary>Amount of time (in milliseconds) to assess whether channel is clear (CCA)</summary>
         </member>
-        <member name="P:Samraksh.eMote.Net.MACPipe.MACType">
-            <summary>The type of MAC (OMAC, CSMA)</summary>
+        <member name="P:Samraksh.eMote.Net.MACBase.BufferSize">
+            <summary>Size of send buffer</summary>
+        </member>
+        <member name="P:Samraksh.eMote.Net.MACBase.NeighborLivenessDelay">
+            <summary>Delay (in milliseconds) before a Neighbor is deemed dead</summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.#ctor(Samraksh.eMote.Net.MACType,Samraksh.eMote.Net.Radio.IRadioConfiguration,System.UInt32,System.Byte,System.Byte,System.Boolean,System.Byte)">
+            <summary>Constructor to create MAC object</summary>
+            <param name="macType">CSMA, OMAC or other MAC</param>
+            <param name="cca"></param>
+            <param name="radioConfiguration"></param>
+            <param name="numberOfRetries"></param>
+            <param name="ccaSenseTime"></param>
+            <param name="bufferSize"></param>
+            <param name="neighborLivenessDelay"></param>
+            <exception caption="MacNotConfigured Exception" cref="T:Samraksh.eMote.Net.MACNotConfiguredException"></exception>
+            <exception caption="System Exception" cref="T:System.SystemException"></exception>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.Initialize(System.Boolean,System.Byte,System.Byte,System.Byte,System.UInt32,Samraksh.eMote.Net.MACType,Samraksh.eMote.Net.Radio.RadioName)">
+            <summary>Native initialization of mac</summary>
+            <param name="cca"></param>
+            <param name="numberOfRetries"></param>
+            <param name="ccaSenseTime"></param>
+            <param name="bufferSize"></param>
+            <param name="neighborLivenessDelay"></param>
+            <param name="mactype"></param>
+            <param name="radioName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.Configure">
+            <summary>Reconfigure MAC</summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.ReceiveFunction(System.UInt32,System.UInt32,System.DateTime)">
+            <summary>
+            Invoked when payload type is data.
+            </summary>
+            <param name="data1"></param>
+            <param name="data2"></param>
+            <param name="time"></param>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.RegisterOnReceiveGlobal(Samraksh.eMote.Net.MACPipe)">
+            <summary>
+            Registers callbacks for payload types.
+            </summary>
+            <param name="macPipe"></param>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.UnRegisterOnReceiveGlobal(Samraksh.eMote.Net.MACPipe)">
+            <summary>
+            Unregisters callbacks for payload types.
+            </summary>
+            <param name="macPipe"></param>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.NextPacket">
+            <summary>
+            Get the next packet from the MAC buffer
+            </summary>
+            <returns>True if success, false otherwise</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.NeighborListArray">
+            <summary>
+            Create a NeighborList array for the user
+            </summary>
+            <remarks>
+            The NeighborList array must be exactly NeighborListSize. 
+            To relieve the user of having to know the size, this method can be used to create one.
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.NeighborList(System.UInt16[])">
+            <summary>
+            	Get the list of neighbors from the MAC
+            </summary>
+            <param name="neighborListArray">
+            	Array is filled with the addresses of active neighbors, padded with zeroes at the end.
+            </param>
+            <returns>
+            	Result status
+            </returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.MACNeighborList(System.UInt16[])">
+            <summary>
+            	Get the the internal list of neighbors from the MAC including unreachable destinations
+            </summary>
+            <param name="neighborListArray">
+            	Array is filled with the addresses of active neighbors, padded with zeroes at the end.
+            </param>
+            <returns>
+            	Result status
+            </returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.NeighborStatus(System.UInt16)">
+            <summary>Get the details for a Neighbor</summary>
+            <param name="macAddress">Address of the Neighbor</param>
+            <returns>Neighbor</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.RemovePacket">
+            <summary>Remove a _packet from the buffer</summary>
+            <returns>Status of operation</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.PendingReceivePacketCount">
+            <summary>Get a count of unprocessed packets in the buffer</summary>
+            <returns>The number of packets in the buffer not yet delivered to the program</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.PendingSendPacketCount">
+            <summary>Get a count of unprocessed packets in the buffer</summary>
+            <returns>The number of packets in the buffer not yet delivered to the program</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.UnInitialize">
+            <summary>Uninitialize radio</summary>
+            <returns>Status of operation</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.InternalInitialize(System.Byte[],System.Byte)">
+            <summary>Initialize native MAC, radio and interop drivers</summary>
+            <param name="marshalBuffer"></param>
+            <param name="mactype"></param>
+            <returns>The driver status after initialization: Success, Fail, Ready, Busy</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.InternalReConfigure(System.Byte[])">
+            <summary></summary>
+            <param name="marshalBuffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.GetNextPacket(System.Byte[])">
+            <summary></summary>
+            <param name="nativeBuffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.GetNeighborInternal(System.UInt16,System.Byte[])">
+            <summary></summary>
+            <param name="macAddress"></param>
+            <param name="neighborlist"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.GetNeighborListInternal(System.UInt16[])">
+            <summary></summary>
+            <param name="neighborlist"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.GetMACNeighborListInternal(System.UInt16[])">
+            <summary></summary>
+            <param name="neighborlist"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
+            <summary>Send packet</summary>
+            <param name="address">Address of recipient</param>
+            <param name="payload">Payload (in byte array) to send</param>
+            <param name="offset">Offset into array</param>
+            <param name="size">Size of payload</param>
+            <returns>Result status</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.GetMsgWithMsgID(System.Byte[]@,System.UInt16)">
+            <summary></summary>
+            <param name="nativeBuffer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.DeleteMsgWithMsgID(System.UInt16)">
+            <summary></summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.DeletePacketWithIndexInternal(System.UInt16)">
+            <summary></summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.GetPacketWithIndex(System.Byte[],System.Byte,System.UInt16)">
+            <summary></summary>
+            <param name="nativeBuffer"></param>
+            <param name="size"></param>
+            <param name="index"></param>
+            <returns>Result status</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.GetPacketSizeWithIndex(System.Byte@,System.UInt16)">
+            <summary></summary>
+            <param name="nativeBuffer"></param>
+            <param name="size"></param>
+            <param name="index"></param>
+            <returns>Result status</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.IsMsgIDValid(System.UInt16)">
+            <summary>IsPacketIDValid</summary>
+            <param name="address">Address of recipient</param>
+            <param name="payload">Payload (in byte array) to send</param>
+            <param name="offset">Offset into array</param>
+            <param name="size">Size of payload</param>
+            <returns>Result status</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.EnqueueToSend(System.UInt16,Samraksh.eMote.Net.PayloadType,System.Byte[],System.UInt16,System.UInt16)">
+            <summary>Send packet</summary>
+            <param name="address">Address of recipient</param>
+            <param name="payload">Payload (in byte array) to send</param>
+            <param name="offset">Offset into array</param>
+            <param name="size">Size of payload</param>
+            <returns>Result status</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.EnqueueToSend(System.UInt16,Samraksh.eMote.Net.PayloadType,System.Byte[],System.UInt16,System.UInt16,System.DateTime)">
+            <summary>Send packet</summary>
+            <param name="address">Address of recipient</param>
+            <param name="payload">Payload (in byte array) to send</param>
+            <param name="offset">Offset into array</param>
+            <param name="size">Size of payload</param>
+            <returns>Result status</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16,System.DateTime)">
+            <summary>Send a _packet</summary>
+            <param name="address">The address of the receiver. Use <code>Addresses.BROADCAST</code> for broadcast</param>
+            <param name="payload">Byte array containing the payload to be sent</param>
+            <param name="offset">The first byte in the array to send. Normally 0</param>
+            <param name="size">The number of bytes to send</param>
+            <param name="eventTime">Time at which event occurred</param>
+            <returns>Status of operation</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,Samraksh.eMote.Net.PayloadType,System.Byte[],System.UInt16,System.UInt16)">
+            <summary>Send a _packet</summary>
+            <param name="address">The address of the receiver. Use <code>Addresses.BROADCAST</code> for broadcast</param>
+            <param name="payloadType">PayloadType to be sent</param>
+            <param name="payload">Byte array containing the payload to be sent</param>
+            <param name="offset">The first byte in the array to send. Normally 0</param>
+            <param name="size">The number of bytes to send</param>
+            <returns>Status of operation</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,Samraksh.eMote.Net.PayloadType,System.Byte[],System.UInt16,System.UInt16,System.DateTime)">
+            <summary>Send a time stamped _packet. Time stamp is specified as a parameter</summary>
+            <param name="address">Address of receiver</param>
+            <param name="payloadType">PayloadType to be sent</param>
+            <param name="payload">payload to be sent</param>
+            <param name="offset">offset if any in the byte array</param>
+            <param name="size">size of the _packet</param>
+            <param name="eventTime">Time to use for timestamp</param>
+            <returns>Status of operation</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.Dispose">
+            <summary>Uninitialize MAC instance</summary>
         </member>
         <member name="T:Samraksh.eMote.Net.PayloadType">
             <summary>
@@ -1822,183 +1801,6 @@
             <param name="lqi">LQI value</param>
             <param name="size">size of the payload buffer</param>
             <param name="isPacketTimeStamped">Is packet timestamped?</param>
-        </member>
-        <member name="T:Samraksh.eMote.Net.MAC.OMAC">
-            <summary>OMAC class</summary>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MAC.OMAC.#ctor(Samraksh.eMote.Net.Radio.IRadioConfiguration,System.UInt32,System.Byte,System.Byte,System.Boolean,System.Byte)">
-            <summary>OMAC constructor</summary>
-            <param name="radioConfiguration">Radio configuration to use</param>
-            <param name="cca">Use clear channel assessment</param>
-            <param name="numberOfRetries">Number of times to retry sending a packet</param>
-            <param name="ccaSenseTime">cca sense time</param>
-            <param name="bufferSize">Size of send buffer</param>
-            <param name="neighborLivenessDelay">Time to wait (in milliseconds) before declaring a neighbor dead</param>
-        </member>
-        <member name="T:Samraksh.eMote.Net.Radio.Radio_802_15_4_SI4468">
-            <summary>Generic radio object</summary>
-        </member>
-        <member name="T:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base">
-            <summary>
-            802.15.4 radio configuration
-            </summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.CurrUser">
-            <summary>
-            Current user of the radio (C# or MAC objects)
-            </summary>
-            <value>Current user</value>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetRadioName(System.Byte)">
-            <summary>Set radio name</summary>
-            <param name="radioName">Radio type</param>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetTxPower(System.Byte,System.Int32)">
-            <summary>Set the transmit power of the radio</summary>
-            <param name="radioName">Radio name</param>
-            <param name="txPower">Transmission power to use</param>
-            <returns>Status of operation</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetChannel(System.Byte,System.Int32)">
-            <summary>Set the radio _channel</summary>
-            <param name="radioName">Radio name</param>
-            <param name="channel">channel to use</param>
-            <returns>Status of operation</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetRadioAddress(System.Byte)">
-            <summary>Get the address of the device</summary>
-            <remarks>This is the address by which the device is known to the rest of the world.</remarks>
-            <param name="radioName">Radio type</param>
-            <returns>Address of the device</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetRadioAddress(System.Byte,System.UInt16)">
-            <summary>Set the address of the device</summary>
-            <param name="radioName">Radio type</param>
-            <param name="address">Address of the device</param>
-            <remarks>This is the address by which the device is known to the rest of the world. 
-                A return value of false can occur if another layer locks the address and prevents changes.
-            </remarks>
-            <returns>Success / failure</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.UnInitialize(System.Byte)">
-            <summary>Uninitialize native MAC, radio and interop drivers</summary>
-            <param name="radioName">Radio type</param>
-            <returns>Status of operation.</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.TurnOnRx(System.Byte)">
-            <summary>Turn radio on</summary>
-            <param name="radioName">Radio name</param>
-            <returns>Status of operation</returns>
-            <seealso cref="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Sleep(System.Byte)">Sleep Method</seealso>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.TurnOffRx(System.Byte)">
-            <summary>Turn radio off</summary>
-            <param name="radioName">Radio name</param>
-            <returns>Status of operation</returns>
-            <seealso cref="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Sleep(System.Byte)">Sleep Method</seealso>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Sleep(System.Byte,System.Byte)">
-            <summary>Put the radio to sleep</summary>
-            <param name="radioName">Radio name</param>
-            <param name="level">Sleep level</param>
-            <returns>Status of operation</returns>
-            <seealso cref="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.TurnOn">TurnOn Method</seealso>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.ClearChannelAssesment(System.Byte)">
-            <summary>Assess _channel activity</summary>
-            <remarks>Default is 140 microseconds.</remarks>
-            <param name="radioName">Radio name</param>
-            <returns>True iff _channel is free</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.ClearChannelAssesment(System.Byte,System.UInt16)">
-            <summary>Assess _channel activity</summary>
-            <param name="radioName">Radio name</param>
-            <param name="numberOfMicroSecond">Number of microseconds to check</param>
-            <returns>True iff _channel is free</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.PreLoad(System.Byte[],System.UInt16)">
-            <summary>Load the packet into the transmit buffer of the radio</summary>
-            <param name="packet">Packet to load</param>
-            <param name="size">Size of packet</param>
-            <returns>The result of the method: E_RadioInit, E_RadioSync, E_RadioConfig, E_MacInit, E_MacConfig, E_MacSendError, E_MacBufferFull, S_Success</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SendStrobe(System.Byte,System.UInt16)">
-            <summary>Send the packet in the transmit buffer</summary>
-            <returns>Result of operation</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Send(System.Byte,System.Byte[],System.UInt16)">
-            <summary>Load and send a packet</summary>
-            <param name="radioName">Radio name</param>
-            <param name="packet">Packet to be sent</param>
-            <param name="size">Size of packet</param>
-            <returns>Result of operation</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SendTimeStamped(System.Byte,System.Byte[],System.UInt16,System.UInt32)">
-            <summary>Load and send a time-stamped packet, with specified time stamp</summary>
-            <param name="radioName">Radio name</param>
-            <param name="packet">Packet to be sent</param>
-            <param name="size">Size of packet</param>
-            <param name="eventTime">The time stamp.</param>
-            <remarks>The offset for the timestamp in the packet is specified by TimeStampOffset  member of the RadioConfiguration structure passed as parameter during radio module initialization.</remarks>
-            <returns>The result of the method: E_RadioInit, E_RadioSync, E_RadioConfig, E_MacInit, E_MacConfig, E_MacSendError, E_MacBufferFull, S_Success</returns>
-        </member>
-        <member name="P:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.RadioAddress">
-            <summary>Radop address</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.TxPower">
-            <summary>Transmission power of the radio</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Channel">
-            <summary>channel the radio will transmit on</summary>
-        </member>
-        <member name="P:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.RadioName">
-            <summary>Type of radio</summary>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_SI4468.#ctor">
-            <summary>Constructor</summary>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_SI4468.#ctor(Samraksh.eMote.Net.Radio.RadioUser)">
-            <summary>Constructor</summary>
-            <param name="user">Radio user</param>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_SI4468.Radio_802_15_4_SI4468_UnInitialize">
-            <summary>
-            
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="T:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231">
-            <summary>Generic radio object</summary>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231.#ctor">
-            <summary>Constructor</summary>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231.#ctor(Samraksh.eMote.Net.Radio.RadioUser)">
-            <summary>Constructor</summary>
-            <param name="user"></param>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231.Radio_802_15_4_RF231_UnInitialize">
-            <summary>
-            
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="T:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231_LR">
-            <summary>Long range radio</summary>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231_LR.#ctor">
-            <summary>Constructor</summary>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231_LR.#ctor(Samraksh.eMote.Net.Radio.RadioUser)">
-            <summary>Constructor</summary>
-            <param name="user"></param>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231_LR.Radio_802_15_4_RF231_LR_UnInitialize">
-            <summary>
-            
-            </summary>
-            <returns></returns>
         </member>
     </members>
 </doc>

@@ -53,6 +53,7 @@ enum RadioName
 	RF231RADIO,
 	RF231RADIOLR,
 	SI4468_SPI2,
+	SX1276Radio,
 };
 
 enum RadioAckType
@@ -71,10 +72,10 @@ typedef UINT8 ErrorType;
 
 // Typedef defining the signature of the receive function
 
-typedef  void* (*ReceiveFuncPtrType) (void *msg, UINT16 Size);
+typedef  void* (*RadioReceiveFuncPtrType) (void *msg, UINT16 Size);
 
-// Typedef defining the signature of the send function
-typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus);
+// Typedef defining the signature of the sendAck function
+typedef void (*RadioSendAckFuncPtrType) (void* msg, UINT16 Size, RadioSendStatus_t status);
 
 // Typedef defining the signature of the RadioInterruptFuncPtr function
 typedef BOOL (*RadioInterruptFuncPtrType) (RadioInterrupt Interrupt, void *param);
@@ -98,11 +99,18 @@ typedef  class RadioEventHandler{
 
 public:
 	UINT32 RadioInterruptMask;
-	ReceiveFuncPtrType ReceiveHandler;
-	SendAckFuncPtrType SendAckHandler;
+	RadioReceiveFuncPtrType ReceiveHandler;
+	RadioSendAckFuncPtrType SendAckHandler;
 	RadioInterruptFuncPtrType RadioInterruptHandler;
 
-	/*RadioEventHandler(ReceiveFuncPtrType recieve_handler, SendAckFuncPtrType send_ack_handler,RadioInterruptFuncPtrType  radio_interrupt_handler, UINT32 radio_interrupt_mask )
+	RadioEventHandler(){
+		RadioInterruptMask = 0;
+		ReceiveHandler = NULL;
+		SendAckHandler = NULL;
+		RadioInterruptHandler = NULL;
+	}
+
+	/*RadioEventHandler(RadioReceiveFuncPtrType recieve_handler, SendAckFuncPtrType send_ack_handler,RadioInterruptFuncPtrType  radio_interrupt_handler, UINT32 radio_interrupt_mask )
 	{
 		this->RecieveHandler = recieve_handler;
 		this->SendAckHandler = send_ack_handler;
@@ -110,12 +118,12 @@ public:
 		this->RadioInterruptMask = radio_interrupt_mask;
 	}*/
 
-	void SetReceiveHandler(ReceiveFuncPtrType receive_handler)
+	void SetReceiveHandler(RadioReceiveFuncPtrType receive_handler)
 	{
 		this->ReceiveHandler = receive_handler;
 	}
 
-	void SetSendAckHandler(SendAckFuncPtrType send_ack_handler)
+	void SetSendAckHandler(RadioSendAckFuncPtrType send_ack_handler)
 	{
 		this->SendAckHandler = send_ack_handler;
 	}
@@ -125,12 +133,12 @@ public:
 		this->RadioInterruptHandler = radio_interrupt_handler;
 	}
 
-	ReceiveFuncPtrType GetReceiveHandler()
+	RadioReceiveFuncPtrType GetReceiveHandler()
 	{
 		return this->ReceiveHandler;
 	}
 
-	SendAckFuncPtrType GetSendAckHandler()
+	RadioSendAckFuncPtrType GetSendAckHandler()
 	{
 		return this->SendAckHandler;
 	}

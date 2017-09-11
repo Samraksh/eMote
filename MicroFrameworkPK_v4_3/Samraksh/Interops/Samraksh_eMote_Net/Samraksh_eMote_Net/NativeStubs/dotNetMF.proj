@@ -13,9 +13,6 @@
 <Compile Include="Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase_mshl.cpp" />
 <HFile Include="Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase.h" />
 <Compile Include="Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase.cpp" />
-<Compile Include="Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base_mshl.cpp" />
-<HFile Include="Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base.h" />
-<Compile Include="Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base.cpp" />
 </ItemGroup>
 <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>
