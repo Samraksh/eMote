@@ -490,12 +490,14 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 			}
 			else
 			{
-				//g_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), rcv_meta->GetRssi(), rcv_meta->GetLqi());
+
 				neighborTableCommonParameters_One_t.MACAddress = rcv_msg_hdr->src;
 				neighborTableCommonParameters_One_t.status = Alive;
 				neighborTableCommonParameters_One_t.lastHeardTime = HAL_Time_CurrentTicks();
 				neighborTableCommonParameters_One_t.linkQualityMetrics.LinkQuality = rcv_meta->GetLqi();
 				neighborTableCommonParameters_One_t.linkQualityMetrics.AvgRSSI = rcv_meta->GetRssi();
+
+				g_NeighborTable.Neighbor[index].IsAvailableForUpperLayers= TRUE;
 				g_NeighborTable.UpdateNeighbor(&neighborTableCommonParameters_One_t);
 			}
 			return msg;
