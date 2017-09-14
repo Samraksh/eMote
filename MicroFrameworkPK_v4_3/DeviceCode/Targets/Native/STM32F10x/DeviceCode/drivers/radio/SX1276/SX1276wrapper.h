@@ -15,7 +15,9 @@
 #include "sx1276wrapper_definitions.h"
 namespace SX1276_Semtech {
 
-class SX1276M1BxASWrapper : public SX1276_Semtech::SX1276, private SX1276_Semtech::Emote_Lora_Hat {
+#define SX1276M1BxASWrapper_debug_PIN (GPIO_PIN)120
+
+class SX1276M1BxASWrapper : public SX1276_Semtech::SX1276, public SX1276_Semtech::Emote_Lora_Hat {
 public :
 	static void SX1276_Radio_Interrupt_Handler0(GPIO_PIN Pin, BOOL PinState, void* Param);
 	static void SX1276_Radio_Interrupt_Handler1(GPIO_PIN Pin, BOOL PinState, void* Param);
@@ -30,6 +32,10 @@ public :
 
 private:
 	RadioRegisters_t RadioRegsInit[16];
+
+    const uint16_t rxtxBufferSize = 256;
+    uint8_t rxtxBufferstorage[256];
+
 public:
 	bool reset_intiated;
 	SX1276M1BxASWrapper();
@@ -176,6 +182,7 @@ protected:
     void SetTimeoutTimer(TimeoutName_t ton, float delay) ;
     void CancelTimeoutTimer(TimeoutName_t ton);
 
+    void AddToTxBuffer(uint8_t *buffer, uint8_t size );
 
 private:
     uint8_t GetTimerID(TimeoutName_t ton) ;

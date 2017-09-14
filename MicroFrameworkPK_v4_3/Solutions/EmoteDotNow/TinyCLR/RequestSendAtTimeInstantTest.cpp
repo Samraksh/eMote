@@ -17,7 +17,7 @@ const UINT16 ONESEC_IN_MSEC = 1000;
 const UINT16 ONEMSEC_IN_USEC = 1000;
 
 TestObject_t g_TestObject_t;
-extern EMOTE_SX1276_LORA::Samraksh_SX1276_hal gsx1276radio;
+extern EMOTE_SX1276_LORA::Samraksh_SX1276_hal* gsx1276radio_ptr;
 //extern EMOTE_SX1276_LORA::Samraksh_SX1276_hal gsx1276radio;
 
 
@@ -82,7 +82,7 @@ BOOL TestObject_t::StartTest()
 	CPU_GPIO_SetPinState(Test_0A_Timer_Pin, FALSE);
 	CPU_GPIO_SetPinState(Test_0A_Timer_Pin, TRUE);
 
-	gsx1276radio.RequestSendAtTimeInstanst(static_cast<void*>(&msg), sizeof(Payload_t), PacketTransmissionTime, ClockIdentifier);
+	gsx1276radio_ptr->RequestSendAtTimeInstanst(static_cast<void*>(&msg), sizeof(Payload_t), PacketTransmissionTime, ClockIdentifier);
 
 	return TRUE;
 }
@@ -106,7 +106,9 @@ BOOL TestObject_t::Initialize()
 	//	radio = dynamic_cast<SamrakshRadio_I*> (&gsx1276radio);
 	//	DeviceStatus ds = radio->Initialize(radio_events);
 
-	DeviceStatus ds = gsx1276radio.Initialize(radio_events);
+
+	EMOTE_SX1276_LORA::Samraksh_SX1276_hal_Init();
+	DeviceStatus ds = gsx1276radio_ptr->Initialize(radio_events);
 
 
 

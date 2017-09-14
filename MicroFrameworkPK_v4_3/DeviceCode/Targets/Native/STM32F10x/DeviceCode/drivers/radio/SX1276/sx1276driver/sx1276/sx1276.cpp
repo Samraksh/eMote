@@ -172,16 +172,8 @@ void SX1276::RxChainCalibration( )
     uint8_t regPaConfigInitVal;
     uint32_t initialFreq;
 
-	CPU_GPIO_SetPinState( (GPIO_PIN)25 , FALSE);
-	CPU_GPIO_SetPinState( (GPIO_PIN)25 , TRUE);
-
-
     // Save context
     regPaConfigInitVal = this->Read( REG_PACONFIG );
-
-	CPU_GPIO_SetPinState( (GPIO_PIN)25 , FALSE);
-	CPU_GPIO_SetPinState( (GPIO_PIN)25 , TRUE);
-
 
     initialFreq = ( double )( ( ( uint32_t )this->Read( REG_FRFMSB ) << 16 ) |
                               ( ( uint32_t )this->Read( REG_FRFMID ) << 8 ) |
@@ -613,6 +605,7 @@ uint32_t SX1276::TimeOnAir( RadioModems_t modem, uint8_t pktLen )
     return airTime;
 }
 
+
 void SX1276::Send( uint8_t *buffer, uint8_t size )
 {
     uint32_t txTimeout = 0;
@@ -639,6 +632,9 @@ void SX1276::Send( uint8_t *buffer, uint8_t size )
             }
             else
             {
+//                for(uint8_t i = 0; i < size; ++i){
+//                	rxtxBufferstorage[i] = *(buffer + i);
+//                };
                 memcpy( rxtxBuffer, buffer, size );
                 this->settings.FskPacketHandler.ChunkSize = 32;
             }
@@ -843,6 +839,9 @@ void SX1276::Rx( uint32_t timeout )
         break;
     }
 
+//    for(uint16_t i = 0; i < rxtxBufferSize; ++i){
+//    	rxtxBufferstorage[i] = 0;
+//    };
     memset( rxtxBuffer, 0, ( size_t )RX_BUFFER_SIZE );
 
     this->settings.State = RF_RX_RUNNING;

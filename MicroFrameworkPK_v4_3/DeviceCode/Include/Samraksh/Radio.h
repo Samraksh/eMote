@@ -313,8 +313,8 @@ public:
 
 class SamrakshRadio_I{
 public:
-	SamrakshRadio_I();
-	virtual ~SamrakshRadio_I();
+	SamrakshRadio_I() {};
+	virtual ~SamrakshRadio_I() {};
 	/*!
 	 * @brief Radio modes
 	 */

@@ -7,6 +7,8 @@
 
 #include "SamrakshSX1276hal.h"
 #include <Samraksh/VirtualTimer.h>
+#include "SamrakshSX1276Parameters.h"
+
 
 EMOTE_SX1276_LORA::Samraksh_SX1276_hal* gsx1276radio_ptr;
 
@@ -30,6 +32,8 @@ void Samraksh_SX1276_hal::TxDone(){
 	if(gsx1276radio_ptr->m_re.TxDone) gsx1276radio_ptr->m_re.TxDone(true);
 }
 void Samraksh_SX1276_hal::TxTimeout(){
+	gsx1276radio_ptr->m_packet.ClearPaylod();
+	gsx1276radio_ptr->ChooseRadioConfig();
 	if(gsx1276radio_ptr->m_re.TxDone) gsx1276radio_ptr->m_re.TxDone(false);
 };
 void Samraksh_SX1276_hal::RxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr){
@@ -50,6 +54,42 @@ void Samraksh_SX1276_hal::CadDone(bool channelActivityDetected){
 }
 
 
+
+void Samraksh_SX1276_hal::ChooseRadioConfig() {
+
+
+
+	g_SX1276M1BxASWrapper_ptr->SetChannel( RF_FREQUENCY );
+
+#if defined( USE_MODEM_LORA )
+
+	g_SX1276M1BxASWrapper_ptr->SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
+                                   LORA_SPREADING_FACTOR, LORA_CODINGRATE,
+                                   LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
+                                   true, 0, 0, LORA_IQ_INVERSION_ON, 3000 );
+
+    g_SX1276M1BxASWrapper_ptr->SetRxConfig( MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
+                                   LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
+                                   LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
+                                   0, true, 0, 0, LORA_IQ_INVERSION_ON, true );
+
+#elif defined( USE_MODEM_FSK )
+
+    g_SX1276M1BxASWrapper_ptr->SetTxConfig( MODEM_FSK, TX_OUTPUT_POWER, FSK_FDEV, 0,
+                                  FSK_DATARATE, 0,
+                                  FSK_PREAMBLE_LENGTH, FSK_FIX_LENGTH_PAYLOAD_ON,
+                                  true, 0, 0, 0, 3000 );
+
+    g_SX1276M1BxASWrapper_ptr->SetRxConfig( MODEM_FSK, FSK_BANDWIDTH, FSK_DATARATE,
+                                  0, FSK_AFC_BANDWIDTH, FSK_PREAMBLE_LENGTH,
+                                  0, FSK_FIX_LENGTH_PAYLOAD_ON, 0, true,
+                                  0, 0,false, true );
+
+#else
+    #error "Please define a frequency band in the compiler options."
+#endif
+
+}
 
 Samraksh_SX1276_hal::Samraksh_SX1276_hal()
 : isRadioInitialized(false)

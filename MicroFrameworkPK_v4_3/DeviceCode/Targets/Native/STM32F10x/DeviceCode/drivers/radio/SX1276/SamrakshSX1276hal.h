@@ -119,6 +119,8 @@ public:
 	DeviceStatus UnInitialize();
 	DeviceStatus IsInitialized();
 
+	void ChooseRadioConfig();
+
 	DeviceStatus SetAddress();
 	RadioProperties_t GetRadioProperties();
 

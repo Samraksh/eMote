@@ -116,6 +116,12 @@ void KEEP_THE_LINKER_HAPPY_SINCE_KEEP_IS_NOT_WORKING()
     EntryPoint();
 }
 //--//
+extern "C" void __cxa_pure_virtual() { while (true); }
+//void* __dso_handle;
+void operator delete(void *, unsigned int)
+{
+	while (true);
+}
 
 #pragma arm section code = "SectionForBootstrapOperations"
 
