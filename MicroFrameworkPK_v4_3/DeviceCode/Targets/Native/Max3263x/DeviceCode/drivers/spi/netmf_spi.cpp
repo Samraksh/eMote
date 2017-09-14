@@ -1,88 +1,65 @@
-/*
-<License information here>
-
-TODO - 
-        Map the whole thing to .NET MF GPIO APIS, right now using lower level APIs directly
-		Concurrent SPI access, accessing all peripherals
-		Extend it for SPI3, currently its only for SPI1 and SPI2
-		Put the pins to reset state when we do an XAction_Stop
-*/
-
-/*--------- Includes ----------- */
-
+#include "mxc_config.h"
+#include "clkman.h"
+#include "ioman.h"
 #include "netmf_spi.h"
-#include <stm32f10x.h>
 
-/*--------- Macros ----------- */
+//--------- Macros -----------
 
 #undef DEBUG_SPI
 #undef FIRST_BIT_LSB 
 #undef NSS_SOFTWARE_MODE 
 
-#define MAX_SPI_PORTS 3
+/*#define MX25_BAUD           48000000    // 48 MHz maximum, 20 kHz minimum
+#define MX25_ADDR           0x0
+#define MX25_SPIM_WIDTH     SPIM_WIDTH_4
+#define MX25_EXP_ID         0xc22538
+*/
+
+bool spiDriverInit=false;
 
 
-/* SPI peripheral Configuration */
-#define SPIx             SPI1
-#define SPIx_CLK         RCC_APB2Periph_SPI1
-#define SPIx_GPIO        GPIOA  
-#define SPIx_GPIO_CLK    RCC_APB2Periph_GPIOA 
+inline BOOL CheckSlaves(GPIO_PIN pin){
+	BOOL ret=FALSE;
+	for (uint i=0 ; i<SPI_SLAVE_COUNT; i++) {
+		if(SPI_SLAVES[i]==pin){
+			return TRUE;
+		}
+	}
 
-#define SPIx_NSS	     GPIO_Pin_4 //nss
-#define SPIx_PIN_SCK     GPIO_Pin_5 //sck  //purple
-#define SPIx_PIN_MISO	 GPIO_Pin_6  //miso //green
-#define SPIx_PIN_MOSI    GPIO_Pin_7 //mosi //blue
+	return ret;
+}
 
-#define SPIy             SPI2
-#define SPIy_CLK         RCC_APB1Periph_SPI2
-#define SPIy_GPIO        GPIOB
-#define SPIy_GPIO_CLK    RCC_APB2Periph_GPIOB 
+inline mxc_spim_regs_t* GetSPIReg (SPI_MASTER _mport){
+	mxc_spim_regs_t* ret;
+	switch(_mport){
+		case SPIPort_M0: ret= MXC_SPIM0; break;
+		case SPIPort_M1: ret= MXC_SPIM1; break;
+		case SPIPort_M2: ret= MXC_SPIM2; break;
+		case SPIPort_B: ret= MXC_SPIB; break;
+		default:
+	}
+	return ret;
+}
 
-#define SPIy_NSS	     GPIO_Pin_12 //nss
-#define SPIy_PIN_SCK     GPIO_Pin_13 //sck
-#define SPIy_PIN_MISO	 GPIO_Pin_14 //miso
-#define SPIy_PIN_MOSI    GPIO_Pin_15 //mosi
+inline uint32_t GetSSel(uint32_t slaveNo, bool high){
+	uint32_t ret;
+	if(high){
+		if(slaveNo==0) ret=SPIM_SSEL0_HIGH;
+		if(slaveNo==1) ret=SPIM_SSEL1_HIGH;
+		if(slaveNo==2) ret=SPIM_SSEL2_HIGH;
+		if(slaveNo==3) ret=SPIM_SSEL3_HIGH;
+		if(slaveNo==4) ret=SPIM_SSEL4_HIGH;
+	}else {
+		if(slaveNo==0) ret=SPIM_SSEL0_LOW;
+		if(slaveNo==1) ret=SPIM_SSEL1_LOW;
+		if(slaveNo==2) ret=SPIM_SSEL2_LOW;
+		if(slaveNo==3) ret=SPIM_SSEL3_LOW;
+		if(slaveNo==4) ret=SPIM_SSEL4_LOW;
+	}
+	return ret;
+}
 
-/*--------- Global Variables ----------- */
-SPI_InitTypeDef SPI_InitStructure;
-SPI_TypeDef* SPI_mod;
-
-//indicates the SPI peripheral initialized
-int SPI_Initialized[] = {0};
-
-const UINT32 TIMEOUT = 2000; \
-
-#if defined(DEBUG_SAM_SPI)
-volatile UINT64 spiSpinWaitCount = 0;
-volatile UINT64 spiSpinWaitAvg = 0;
-volatile UINT64 spiSpinWaitMax = 0;
-volatile UINT64 spiSpinWaitFailureCount = 0;
-
-#define TIMEOUT_WAIT(x) { \
-    volatile UINT32 itr_time = 0; \
-    while((x) && ++itr_time < TIMEOUT ) {__NOP();}; \
-    if(itr_time >= TIMEOUT) { ++spiSpinWaitFailureCount; ASSERT(0); } \
-    ++spiSpinWaitCount; \
-    if(spiSpinWaitMax < itr_time) { spiSpinWaitMax = itr_time;}; \
-    spiSpinWaitAvg = (spiSpinWaitAvg * (spiSpinWaitCount - 1) + itr_time) / spiSpinWaitCount; \
-    { \
-        static volatile UINT64 localCount = 0; \
-        static volatile UINT64 localAvg = 0; \
-        static volatile UINT64 localMax = 0; \
-        localCount++; \
-        if(localMax < itr_time) { localMax = itr_time; }; \
-        localAvg = (localAvg * (localCount - 1) + itr_time) / localCount; \
-    } \
- }
-
-#else
-
-#define TIMEOUT_WAIT(x) { \
-                            volatile int itr_time = 0; \
-                            while( (x) && ++itr_time < TIMEOUT ) { __NOP(); } \
-                            if( itr_time >= TIMEOUT ) { ASSERT(0); } \
-                        }
-#endif
+inline
 
 
 /*--------- Internal fucntion prototypes ----------- */
@@ -91,28 +68,13 @@ BOOL CPU_SPI_Initialize ()
 {
 	
 
-	//Set the GPIO pins for the SPI	
-	//TODO: Right now we have no way to know if the pins are stolen by any other device
-	//before we are restting it. Handle tht in future.
-
 #if defined(DEBUG_SPI)
 	hal_printf("SPI Initialize\n");
 #endif
 
 	NATIVE_PROFILE_HAL_PROCESSOR_SPI();
 	
-	//Initialize Clocks for SPI and GPIO
-	RCC_Config();
-		
-	//Initialize NVIC
-	NVIC_Config();
-		
-	//TODO Make sure the GPIO pins are available and if they are put them in safe state	
-	//Loop through all the spi peripherals and put there pin in known state and set the value
-	//initialized array to 1
-	SPI_Initialized[0]= 1; //SPIx
-	SPI_Initialized[1]= 1; //SPIy
-    
+	spiDriverInit=TRUE;
 }
 
 void CPU_SPI_Uninitialize()
@@ -121,117 +83,93 @@ void CPU_SPI_Uninitialize()
 #if defined(DEBUG_SPI)
 	hal_printf("SPI Uninitialize\n");
 #endif
-
-	//Enable and Disable Reset States for all the SPI peripherals
 	
-	//SPI1
-	RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, ENABLE);    
-    RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, DISABLE);
+	//shutdown all SPI masters
+	SPIM_Shutdown(MXC_SPIM0);
+	SPIM_Shutdown(MXC_SPIM1);
+	SPIM_Shutdown(MXC_SPIM2);
+	SPIM_Shutdown(MXC_SPIB);
 
-	//SPI2
-	RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, ENABLE);
-	RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, DISABLE);
-
-	//SPI3
-	RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI3, ENABLE);
-	RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI3, DISABLE);
-	
+	spiDriverInit=FALSE;
 }
 
-
-void CPU_SPI_Uninitialize(SPI_CONFIGURATION config)
+void CPU_SPI_Uninitialize(SPI_CONFIGURATION config, uint8_t  _mport)
 {
 #if defined(DEBUG_SPI)
-    hal_printf("SPI Uninitialize #\n");
+			hal_printf("SPI_Uninitialize: \n");
 #endif
-
-    if(config.SPI_mod == SPIBUS1)
-    {
-        //SPI1
-        RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, ENABLE);
-        RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, DISABLE);
-    }
-    else if(config.SPI_mod == SPIBUS2)
-    {
-        //SPI2
-        RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, ENABLE);
-        RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, DISABLE);
-    }
+	mxc_spim_regs_t spi_reg=GetSPIReg(_mport);
+	if(spi_reg)SPIM_Shutdown(spi_reg);
 }
 
-
-void CPU_SPI_Enable(SPI_CONFIGURATION config)
+BOOL CPU_SPI_Enable(SPI_CONFIGURATION config, uint8_t _mport)
 {
+	if(!spiDriverInit) CPU_SPI_Initialize();
 
-	if(config.SPI_mod == SPIBUS1)
-	{
+	//Initialize the SPIM
+	spim_cfg_t cfg;
+	cfg.mode =config.SPI_mod;
+	cfg.ssel_pol = GetSSel(0,config.CS_Active) ;	//We will always use slave 0 on a master for now.
+	cfg.baud = config.Clock_RateKHz * 1000;
 
-		//RCC_PCLK2Config(RCC_HCLK_Div2);
-		RCC_APB2PeriphClockCmd(SPIx_GPIO_CLK | SPIx_CLK, ENABLE);
+	sys_cfg_spim_t sys_cfg;
 
-		GPIO_InitTypeDef GPIO_InitStructure;
+	// MX25 IO Config                  core I/O, ss0, ss1, ss2, quad, fast I/O
 
+	//set clock to auto
+	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
 
-		/* Configure SPIx pins: SCK, MISO and MOSI */
-		GPIO_InitStructure.GPIO_Pin = SPIx_PIN_SCK | SPIx_PIN_MISO | SPIx_PIN_MOSI | SPIx_NSS;
-		GPIO_ConfigurePin(SPIx_GPIO, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+	mxc_spim_regs_t *spi_reg;
+	//Write the below IOMAN_SPI carefully based on how many slaves are connected to each spi master
+	//right now we simply request the slave 0, assuming atleast one slave is connected
 
-
-		SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-		SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-		SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
-		SPI_InitStructure.SPI_CPOL = 0;
-		SPI_InitStructure.SPI_CPHA = 0;
-		SPI_InitStructure.SPI_NSS = SPI_NSS_Hard;
-		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
-		SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-		SPI_InitStructure.SPI_CRCPolynomial = 7;
-
-		SPI_Init(SPIx, &SPI_InitStructure);
-		SPI_SSOutputCmd(SPIx, ENABLE);
-		SPI_Cmd(SPIx, ENABLE);
-	}
-	else if(config.SPI_mod == SPIBUS2)
-	{
-
-		//RCC_PCLK1Config(RCC_HCLK_Div2);
-		//RCC_PCLK2Config(RCC_HCLK_Div2);
-		RCC_APB2PeriphClockCmd(SPIy_GPIO_CLK, ENABLE);
-		RCC_APB1PeriphClockCmd(SPIy_CLK, ENABLE);
-
-		GPIO_InitTypeDef GPIO_InitStructure;
-
-
-		/* Configure SPIy pins: SCK, MOSI */
-		GPIO_InitStructure.GPIO_Pin = SPIy_PIN_SCK | SPIy_PIN_MOSI | SPIy_NSS;
-		GPIO_ConfigurePin(SPIy_GPIO, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
-
-		// SPI MISO pin
-		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
-		GPIO_ConfigurePin(GPIOB, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_IN_FLOATING, GPIO_Speed_50MHz);
-
-		SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-		SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-		SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
-		SPI_InitStructure.SPI_CPOL = 0;
-		SPI_InitStructure.SPI_CPHA = 0;
-		SPI_InitStructure.SPI_NSS = SPI_NSS_Hard;
-		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
-		SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-		SPI_InitStructure.SPI_CRCPolynomial = 7;
-
-		SPI_Init(SPIy, &SPI_InitStructure);
-		SPI_SSOutputCmd(SPIy, ENABLE);
-		SPI_Cmd(SPIy, ENABLE);
-
+	switch (_mport) {
+		case SPIPort_M0:
+		{
+			spi_reg= MXC_SPIM0;
+													//io, ss0, ss1, ss2, ss3, ss4, q, f
+			sys_cfg.io_cfg = (ioman_cfg_t)IOMAN_SPIM0(1,   1,  	0,  0,   0,    0,  0, 0);
+			break;
+		}
+		case SPIPort_M1:
+		{
+			spi_reg= MXC_SPIM1;
+													//io, ss0, ss1, ss2, q, f
+			sys_cfg.io_cfg = (ioman_cfg_t)IOMAN_SPIM1(1,   1,  	0,  0,   0, 0);
+			break;
+		}
+		case SPIPort_M2:
+		{
+			spi_reg= MXC_SPIM2;
+													//io, ss0, ss1, ss2, sr0, sr1, q, f
+			sys_cfg.io_cfg = (ioman_cfg_t)IOMAN_SPIM2(1,   1,  	0,  0,   0,    0,  0, 0);
+			break;
+		}
+		case SPIPort_B:
+		{
+			spi_reg= MXC_SPIB;
+													//io,  q, f
+			sys_cfg.io_cfg = (ioman_cfg_t)IOMAN_SPIMB(1,   0, 0);
+			break;
+		}
+		default:
+#if defined(DEBUG_SPI)
+			hal_printf("SPI_Enable: Unknown SPI Port/Master #\n");
+#endif
+			return FALSE;
 	}
 
+	if((error = SPIM_Init(spi_reg, &cfg, &sys_cfg)) != E_NO_ERROR) {
+		hal_printf("Error initializing SPIM %d\n", error);
+		return FALSE;
+	}
+
+	hal_printf("SPIM Initialized\n");
+	return TRUE;
 }
 
 
-
-
-void CPU_SPI_GetPins (UINT32 spi_mod, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& mosi)
+void CPU_SPI_GetPins (UINT32 _mport, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& mosi)
 {
 	/* Return the GPIO pin for selected SPI */
 
@@ -239,22 +177,29 @@ void CPU_SPI_GetPins (UINT32 spi_mod, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& m
 	hal_printf("SPI GetPins\n");
 #endif
 
-	switch (spi_mod)
-	{
-	case 0:
-		msk = GPIO_Pin_7;
-		miso = GPIO_Pin_6;
-		mosi = GPIO_Pin_5;
-		break;
-
-	case 1:
-		msk = GPIO_Pin_15;
-		miso = GPIO_Pin_14;
-		mosi = GPIO_Pin_13;
-		break;
-	
-	default:
-		break;
+	switch (_mport) {
+		case SPIPort_M0:
+			msk = GPIO_Pin_7;
+			miso = GPIO_Pin_6;
+			mosi = GPIO_Pin_5;
+			break;
+		case SPIPort_M1:
+			msk = GPIO_Pin_15;
+			miso = GPIO_Pin_14;
+			mosi = GPIO_Pin_13;
+			break;
+		case SPIPort_M2:
+			msk = GPIO_Pin_15;
+			miso = GPIO_Pin_14;
+			mosi = GPIO_Pin_13;
+			break;
+		case SPIPort_B:
+			msk = GPIO_Pin_15;
+			miso = GPIO_Pin_14;
+			mosi = GPIO_Pin_13;
+			break;
+		default:
+			break;
 
 	}
 }
@@ -266,31 +211,14 @@ UINT32 CPU_SPI_PortsCount()
 	hal_printf("SPI PortsCount\n");
 #endif
 
-	return (UINT32)MAX_SPI_PORTS;
+	return (UINT32)SPI_MAX_PORTS;
 }
 
 
 // Nived.Sivadas - Scenarios where you want to just write a single byte and leave the reading part out
 BOOL CPU_SPI_WriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 {
-	switch(Configuration.SPI_mod)
-	{
-		case SPIBUS1:
-			SPI_mod	= SPIx;
-			break;
-		case SPIBUS2:
-			SPI_mod = SPIy;
-			break;
-		default:
-			// Die Here
-			HARD_BREAKPOINT();
-			break;
-	}
-
-
-	TIMEOUT_WAIT( SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_TXE) == RESET ); // Spin until TX ready
-
-	SPI_I2S_SendData(SPI_mod, data);
+	ASSERT(CheckSlaves(Configuration.DeviceCS));
 
 	return TRUE;
 
@@ -298,44 +226,16 @@ BOOL CPU_SPI_WriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 
 UINT8 CPU_SPI_ReadByte(const SPI_CONFIGURATION&  Configuration)
 {
+	ASSERT(CheckSlaves(Configuration.DeviceCS));
 
-	switch(Configuration.SPI_mod)
-	{
-		case SPIBUS1:
-			SPI_mod = SPIx;
-			break;
-		case SPIBUS2:
-			SPI_mod = SPIy;
-			break;
-		default:
-			// Die Here
-			HARD_BREAKPOINT();
-			break;
-	}
-	TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, (uint16_t )SPI_I2S_FLAG_RXNE) == RESET);
-	return SPI_I2S_ReceiveData(SPI_mod);
+	return TRUE;
 }
 
 UINT8 CPU_SPI_WriteReadByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 {
-	switch(Configuration.SPI_mod)
-		{
-				case SPIBUS1:
-					SPI_mod = SPIx;
-					break;
-				case SPIBUS2:
-					SPI_mod = SPIy;
-					break;
-				default:
-					// Die Here
-					HARD_BREAKPOINT();
-					break;
-		}
+	ASSERT(CheckSlaves(Configuration.DeviceCS));
 
-	SPI_I2S_SendData(SPI_mod, data);
-	TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
-	return SPI_I2S_ReceiveData(SPI_mod);
-
+	return TRUE;
 }
 
 UINT8 CPU_SPI_ReadWriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
@@ -356,10 +256,7 @@ UINT8 CPU_SPI_ReadWriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 				break;
 	}
 
-	TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
-	read_data = SPI_I2S_ReceiveData(SPI_mod);
-	//TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
-	SPI_I2S_SendData(SPI_mod, data);
+	ASSERT(CheckSlaves(Configuration.DeviceCS));
 
 	return read_data;
 }
@@ -738,75 +635,10 @@ BOOL CPU_SPI_Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
 
 void SPI_StructInit(const SPI_CONFIGURATION& Configuration)
 {
-  /* Initialize the SPI_Direction member */
-  SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex; //this is not specified by the framework, we need it to initialize
-  /* initialize the SPI_Mode member */
-  SPI_InitStructure.SPI_Mode = SPI_Mode_Master; //this is not specified by the framework, we need it to initialize
-  /* initialize the SPI_DataSize member */
-  /* Initialize the SPI_CPOL member */
-  SPI_InitStructure.SPI_CPOL = Configuration.MSK_IDLE; //SPI_CPOL_Low;
-  /* Initialize the SPI_CPHA member */
-  SPI_InitStructure.SPI_CPHA = Configuration.MSK_SampleEdge; //SPI_CPHA_2Edge;
-  /* Initialize the SPI_NSS member */
-  if(Configuration.MD_16bits == false)
-  {
-	  SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b; 
-  }
-  else
-  {
-	  SPI_InitStructure.SPI_DataSize = SPI_DataSize_16b;
-  }
-#if defined(NSS_SOFTWARE_MODE)
-  SPI_InitStructure.SPI_NSS = SPI_NSS_Soft; 
-#else 
-  SPI_InitStructure.SPI_NSS = SPI_NSS_Hard; 
-#endif
-  
-  /* Initialize the SPI_BaudRatePrescaler member */
-  //FIXME: Right now we are pre-scaling map it to configuration clock
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
-  /*
-  switch (Configuration.Clock_RateKHz)
-  {
-  case 2:
-	  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
-	  break;
-  case 4:
-	  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
-	  break;
-  case 8:
-	  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8;
-	  break;
-  case 16:
-	  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
-	  break;
-  case 32:
-	  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;
-	  break;
-  case 64:
-	  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;
-	  break;
-  case 128:
-	  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_128;
-	  break;
-  case 256:
-	  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_256;
-	  break;
-  default:
-	  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
-	  break;
-  }
-  */
-  /* Initialize the SPI_FirstBit member */
-#if defined(FIRST_BIT_LSB)
-  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_LSB;
-#else
-  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-#endif
-  /* Initialize the SPI_CRCPolynomial member */
-  SPI_InitStructure.SPI_CRCPolynomial = 7;	
+
 }
 
+/*
 void GPIO_Config(const SPI_CONFIGURATION& Configuration)
 {
   GPIO_InitTypeDef GPIO_InitStructure;   
@@ -816,13 +648,13 @@ void GPIO_Config(const SPI_CONFIGURATION& Configuration)
   switch(Configuration.SPI_mod)
   {
 	  case 0:
-		  /* Configure SPIx pins: SCK, MISO and MOSI */
+		  // Configure SPIx pins: SCK, MISO and MOSI
 		  GPIO_InitStructure.GPIO_Pin = SPIx_PIN_SCK | SPIx_PIN_MISO | SPIx_PIN_MOSI;          		  
           GPIO_Init(SPIx_GPIO, &GPIO_InitStructure);
 		  break;
 
 	  case 1:
-		  /* Configure SPIy pins: SCK, MISO and MOSI */
+		  // Configure SPIy pins: SCK, MISO and MOSI
 		  GPIO_InitStructure.GPIO_Pin = SPIy_NSS | SPIy_PIN_SCK | SPIy_PIN_MISO | SPIy_PIN_MOSI;
           GPIO_Init(SPIy_GPIO, &GPIO_InitStructure); 
 		  SPI_SSOutputCmd(SPIy, DISABLE);
@@ -836,19 +668,18 @@ void GPIO_Config(const SPI_CONFIGURATION& Configuration)
   }
 
 }
-
 void RCC_Config()
 {
-  /* PCLK2 = HCLK/2 */
+  // PCLK2 = HCLK/2
   //RCC_PCLK2Config(RCC_HCLK_Div2);
   
-  /* Enable SPIx clock and GPIO clock for SPIx and SPIy */
+  // Enable SPIx clock and GPIO clock for SPIx and SPIy
   RCC_APB2PeriphClockCmd(SPIx_GPIO_CLK | SPIy_GPIO_CLK | SPIx_CLK, ENABLE);
 
-  /* Enable SPIx Periph clock */
+  // Enable SPIx Periph clock
   RCC_APB1PeriphClockCmd(SPIy_CLK, ENABLE);
-  
 }
+*/
 
 void NVIC_Config()
 {

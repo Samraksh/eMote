@@ -543,15 +543,15 @@
   <!--<ItemGroup>
     <DriverLibs Include="Max3263x_math.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\math\dotNetMF.proj" />
-  </ItemGroup>-->
-	<ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="SpiStubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\spi\SpiStubs\dotNetMF.proj" />
-  </ItemGroup>
-  <!--<ItemGroup>
+  </ItemGroup>-->
+  <ItemGroup>
     <DriverLibs Include="Max3263x_spi.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\spi\dotNetMF.proj" />
-  </ItemGroup>-->
+  </ItemGroup>
   
   <!--ItemGroup>
     <DriverLibs Include="Max3263x_misc.$(LIB_EXT)" />

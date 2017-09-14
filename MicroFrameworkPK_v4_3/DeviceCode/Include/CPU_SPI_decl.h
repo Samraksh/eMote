@@ -45,6 +45,7 @@ struct SPI_XACTION_8
     GPIO_FLAG BusyPin;
 };
 
+
 //--//
 
 BOOL   CPU_SPI_Initialize      ();
@@ -63,8 +64,9 @@ BOOL CPU_SPI_WriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data);
 UINT8 CPU_SPI_ReadByte(const SPI_CONFIGURATION& Configuration);
 UINT8 CPU_SPI_ReadWriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data);
 UINT8 CPU_SPI_WriteReadByte(const SPI_CONFIGURATION& Configuration, UINT8 data);
-void CPU_SPI_Enable(SPI_CONFIGURATION config);
-void CPU_SPI_Uninitialize(SPI_CONFIGURATION config);
+
+BOOL CPU_SPI_Enable(SPI_CONFIGURATION config, uint8_t spiMasterPort);
+void CPU_SPI_Uninitialize(SPI_CONFIGURATION config, uint8_t spiMasterPort);
 //--//
 
 #endif // _DRIVERS_SPI_DECL_H_
