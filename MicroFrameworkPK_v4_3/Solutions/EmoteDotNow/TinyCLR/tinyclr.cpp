@@ -4,7 +4,7 @@
 
 #include <tinyclr_application.h>
 #include <tinyhal.h>
-#include "RequestSendAtTimeInstantTest.h"
+#include "InheritanceTestObjectt.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 void ApplicationEntryPoint()
@@ -17,7 +17,8 @@ void ApplicationEntryPoint()
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
 
-    Test_InitializeAndRun();
+//    Test_InitializeAndRun();
+    InheritanceTest::InheritanceTestTest_InitializeAndRun();
     ClrStartup( clrSettings );
 
 #if !defined(BUILD_RTM)

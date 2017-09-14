@@ -115,7 +115,6 @@ void KEEP_THE_LINKER_HAPPY_SINCE_KEEP_IS_NOT_WORKING()
 {
     EntryPoint();
 }
-
 //--//
 
 #pragma arm section code = "SectionForBootstrapOperations"
@@ -513,7 +512,9 @@ void HAL_Uninitialize()
 
 extern "C"
 {
-
+#if defined( __GNUC__ )
+extern void __libc_init_array();
+#endif
 void BootEntry()
 {
 #if defined(PLATFORM_ARM_SOC_ADAPT)
@@ -641,6 +642,8 @@ mipi_dsi_shutdown();
 		}
 	}
 #endif
+
+//	__libc_init_array();
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 
