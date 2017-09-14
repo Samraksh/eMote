@@ -12,7 +12,7 @@
 #include "SX1276wrapper.h"
 
 
-SX1276_Semtech::SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
+SX1276_Semtech::SX1276M1BxASWrapper* g_SX1276M1BxASWrapper_ptr;
 
 namespace SX1276_Semtech {
 
@@ -192,36 +192,36 @@ void SX1276M1BxASWrapper::CancelTimeoutTimer(TimeoutName_t ton) {
 
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler0(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	g_SX1276M1BxASWrapper.OnDio0Irq();
+	g_SX1276M1BxASWrapper_ptr->OnDio0Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler1(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	g_SX1276M1BxASWrapper.OnDio1Irq();
+	g_SX1276M1BxASWrapper_ptr->OnDio1Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler2(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	g_SX1276M1BxASWrapper.OnDio2Irq();
+	g_SX1276M1BxASWrapper_ptr->OnDio2Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler3(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	g_SX1276M1BxASWrapper.OnDio3Irq();
+	g_SX1276M1BxASWrapper_ptr->OnDio3Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler4(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	g_SX1276M1BxASWrapper.OnDio4Irq();
+	g_SX1276M1BxASWrapper_ptr->OnDio4Irq();
 }
 void SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler5(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	g_SX1276M1BxASWrapper.OnDio5Irq();
+	g_SX1276M1BxASWrapper_ptr->OnDio5Irq();
 }
 
 void SX1276M1BxASWrapper::SX1276_Radio_OnTimeoutIrq(void* param) {
-	g_SX1276M1BxASWrapper.OnTimeoutIrq();
+	g_SX1276M1BxASWrapper_ptr->OnTimeoutIrq();
 }
 
 void SX1276M1BxASWrapper::SX1276_Reset_Pin_Interrupt_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	g_SX1276M1BxASWrapper.reset_intiated = false;
+	g_SX1276M1BxASWrapper_ptr->reset_intiated = false;
 }
 
 void SX1276M1BxASWrapper::Initialize(SX1276_Semtech::RadioEvents_t *events) {
@@ -247,6 +247,11 @@ void SX1276M1BxASWrapper::Initialize(SX1276_Semtech::RadioEvents_t *events) {
 
     this->settings.State = RF_IDLE ;
 
+}
+
+void Samraksh_SX1276M1BxASWrapper_Init(){
+	static SX1276_Semtech::SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
+	g_SX1276M1BxASWrapper_ptr = &g_SX1276M1BxASWrapper;
 }
 
 }

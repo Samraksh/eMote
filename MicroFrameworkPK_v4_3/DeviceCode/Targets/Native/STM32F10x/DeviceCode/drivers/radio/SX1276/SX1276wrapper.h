@@ -182,6 +182,7 @@ private:
 
 };
 
+void Samraksh_SX1276M1BxASWrapper_Init();
 }
 
 
