@@ -65,8 +65,8 @@ UINT8 CPU_SPI_ReadByte(const SPI_CONFIGURATION& Configuration);
 UINT8 CPU_SPI_ReadWriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data);
 UINT8 CPU_SPI_WriteReadByte(const SPI_CONFIGURATION& Configuration, UINT8 data);
 
-BOOL CPU_SPI_Enable(SPI_CONFIGURATION config, uint8_t spiMasterPort);
-void CPU_SPI_Uninitialize(SPI_CONFIGURATION config, uint8_t spiMasterPort);
+BOOL CPU_SPI_Enable(SPI_CONFIGURATION config);
+void CPU_SPI_Uninitialize(SPI_CONFIGURATION config);
 //--//
 
 #endif // _DRIVERS_SPI_DECL_H_

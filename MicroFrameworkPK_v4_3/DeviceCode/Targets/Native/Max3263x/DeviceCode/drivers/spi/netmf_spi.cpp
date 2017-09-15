@@ -3,7 +3,8 @@
 #include "ioman.h"
 #include "netmf_spi.h"
 
-//--------- Macros -----------
+#include "platform_selector.h"
+
 
 #undef DEBUG_SPI
 #undef FIRST_BIT_LSB 
@@ -15,13 +16,57 @@
 #define MX25_EXP_ID         0xc22538
 */
 
-bool spiDriverInit=false;
+//--------- Macros -----------
 
+#define IOMAN_F_SPIM0(cfg,io, ss0, ss1, ss2, ss3, ss4, q, f) {                            \
+        cfg.req_reg = &MXC_IOMAN->spim0_req;                                           \
+        cfg.ack_reg = &MXC_IOMAN->spim0_ack;                                           \
+        cfg.req_val.spim0.core_io_req = io;                                       \
+        cfg.req_val.spim0.ss0_io_req = ss0;                                       \
+        cfg.req_val.spim0.ss1_io_req = ss1;		\
+        cfg.req_val.spim0.ss2_io_req = ss2;		\
+        cfg.req_val.spim0.ss3_io_req = ss3;		\
+        cfg.req_val.spim0.ss4_io_req = ss4;      \
+        cfg.req_val.spim0.quad_io_req = q;       \
+        cfg.req_val.spim0.fast_mode = f; 	\
+}
+
+#define IOMAN_F_SPIM1(cfg,io, ss0, ss1, ss2, q, f) {                                      \
+        cfg.req_reg = &MXC_IOMAN->spim1_req;	\
+        cfg.ack_reg = &MXC_IOMAN->spim1_ack;	\
+        cfg.req_val.spim1.core_io_req = io;	\
+        cfg.req_val.spim1.ss0_io_req = ss0;	\
+        cfg.req_val.spim1.ss1_io_req = ss1;	\
+        cfg.req_val.spim1.ss2_io_req = ss2;	\
+        cfg.req_val.spim1.quad_io_req = q;	\
+        cfg.req_val.spim1.fast_mode = f;	\
+	}
+
+#define IOMAN_F_SPIM2(cfg,m, io, ss0, ss1, ss2, sr0, sr1, q, f) {                         \
+        cfg.req_reg = &MXC_IOMAN->spim2_req;	\
+        cfg.ack_reg = &MXC_IOMAN->spim2_ack;	\
+        cfg.req_val.spim2.mapping_req = m;	\
+        cfg.req_val.spim2.core_io_req = io;	\
+        cfg.req_val.spim2.ss0_io_req = ss0;	\
+        cfg.req_val.spim2.ss1_io_req = ss1;	\
+		cfg.req_val.spim2.ss2_io_req = ss2;	\
+		cfg.req_val.spim2.sr0_io_req = sr0;	\
+		cfg.req_val.spim2.sr1_io_req = sr1;	\
+		cfg.req_val.spim2.quad_io_req = q;	\
+		cfg.req_val.spim2.fast_mode = f;	\
+	}
+
+//-----------------------------------------------------//
+
+
+bool spiDriverInit=false;
+bool SPI_Initialized[SPI_MAX_PORTS];
+UINT32 SPI_SLAVES_GPIO[SPI_SLAVE_COUNT];
 
 inline BOOL CheckSlaves(GPIO_PIN pin){
 	BOOL ret=FALSE;
 	for (uint i=0 ; i<SPI_SLAVE_COUNT; i++) {
-		if(SPI_SLAVES[i]==pin){
+		if(SPI_SLAVES_GPIO[i]==pin){
 			return TRUE;
 		}
 	}
@@ -29,14 +74,14 @@ inline BOOL CheckSlaves(GPIO_PIN pin){
 	return ret;
 }
 
-inline mxc_spim_regs_t* GetSPIReg (SPI_MASTER _mport){
+inline mxc_spim_regs_t* GetSPIReg (uint8_t _mport){
 	mxc_spim_regs_t* ret;
 	switch(_mport){
 		case SPIPort_M0: ret= MXC_SPIM0; break;
 		case SPIPort_M1: ret= MXC_SPIM1; break;
 		case SPIPort_M2: ret= MXC_SPIM2; break;
-		case SPIPort_B: ret= MXC_SPIB; break;
-		default:
+		//case SPIPort_B: ret= MXC_SPIB; break;
+		default:break;
 	}
 	return ret;
 }
@@ -59,27 +104,50 @@ inline uint32_t GetSSel(uint32_t slaveNo, bool high){
 	return ret;
 }
 
-inline
+inline int8_t GetSPIPortForSlave(uint32_t chipsel){
+	if (chipsel==GPIO_SLAVE0_CHIPSELECT){
+		return SPI_PORT_SLAVE0;
+	}
+	if (chipsel==GPIO_SLAVE1_CHIPSELECT){
+		//return SPI_PORT_SLAVE0;
+	}
+	if (chipsel==GPIO_SLAVE2_CHIPSELECT){
+			//return SPI_PORT_SLAVE0;
+	}
+	if (chipsel==GPIO_SLAVE3_CHIPSELECT){
+			//return SPI_PORT_SLAVE0;
+	}
+	return -1;
+}
+
+mxc_spim_regs_t* GetSPIRegForSlave (uint32_t chipsel){
+	int8_t port=GetSPIPortForSlave(chipsel);
+	if(port) return GetSPIReg(port);
+}
 
 
 /*--------- Internal fucntion prototypes ----------- */
 
 BOOL CPU_SPI_Initialize ()
 {
-	
-
 #if defined(DEBUG_SPI)
 	hal_printf("SPI Initialize\n");
 #endif
 
 	NATIVE_PROFILE_HAL_PROCESSOR_SPI();
-	
+
+	switch(SPI_SLAVE_COUNT){
+		case 4: SPI_SLAVES_GPIO[3]=GPIO_SLAVE3_CHIPSELECT;
+		case 3: SPI_SLAVES_GPIO[2]=GPIO_SLAVE2_CHIPSELECT;
+		case 2: SPI_SLAVES_GPIO[1]=GPIO_SLAVE1_CHIPSELECT;
+		case 1: SPI_SLAVES_GPIO[0]=GPIO_SLAVE0_CHIPSELECT;
+		default: break;
+	}
 	spiDriverInit=TRUE;
 }
 
 void CPU_SPI_Uninitialize()
 {
-	/* Reset the SPI peripherals */
 #if defined(DEBUG_SPI)
 	hal_printf("SPI Uninitialize\n");
 #endif
@@ -88,24 +156,26 @@ void CPU_SPI_Uninitialize()
 	SPIM_Shutdown(MXC_SPIM0);
 	SPIM_Shutdown(MXC_SPIM1);
 	SPIM_Shutdown(MXC_SPIM2);
-	SPIM_Shutdown(MXC_SPIB);
+	//SPIM_Shutdown(MXC_SPIB);
 
 	spiDriverInit=FALSE;
 }
 
-void CPU_SPI_Uninitialize(SPI_CONFIGURATION config, uint8_t  _mport)
+void CPU_SPI_Uninitialize(SPI_CONFIGURATION config)
 {
 #if defined(DEBUG_SPI)
 			hal_printf("SPI_Uninitialize: \n");
 #endif
-	mxc_spim_regs_t spi_reg=GetSPIReg(_mport);
+	mxc_spim_regs_t *spi_reg=GetSPIRegForSlave(config.DeviceCS);
 	if(spi_reg)SPIM_Shutdown(spi_reg);
+	SPI_Initialized[GetSPIPortForSlave(config.DeviceCS)]=FALSE;
 }
 
-BOOL CPU_SPI_Enable(SPI_CONFIGURATION config, uint8_t _mport)
+BOOL CPU_SPI_Enable(SPI_CONFIGURATION config)
 {
 	if(!spiDriverInit) CPU_SPI_Initialize();
 
+	uint8_t _mport= GetSPIPortForSlave(config.DeviceCS);
 	//Initialize the SPIM
 	spim_cfg_t cfg;
 	cfg.mode =config.SPI_mod;
@@ -124,47 +194,43 @@ BOOL CPU_SPI_Enable(SPI_CONFIGURATION config, uint8_t _mport)
 	//right now we simply request the slave 0, assuming atleast one slave is connected
 
 	switch (_mport) {
-		case SPIPort_M0:
-		{
+		case SPIPort_M0:{
 			spi_reg= MXC_SPIM0;
 													//io, ss0, ss1, ss2, ss3, ss4, q, f
-			sys_cfg.io_cfg = (ioman_cfg_t)IOMAN_SPIM0(1,   1,  	0,  0,   0,    0,  0, 0);
+			//sys_cfg.io_cfg = (ioman_cfg_t)IOMAN_SPIM0(1,   1,  	0,  0,   0,    0,  0, 0);
+			IOMAN_F_SPIM0(sys_cfg.io_cfg, 1,   1,  	0,  0,   0,    0,  0, 0);
+
 			break;
 		}
-		case SPIPort_M1:
-		{
+		case SPIPort_M1: {
 			spi_reg= MXC_SPIM1;
 													//io, ss0, ss1, ss2, q, f
-			sys_cfg.io_cfg = (ioman_cfg_t)IOMAN_SPIM1(1,   1,  	0,  0,   0, 0);
+			//sys_cfg.io_cfg = (ioman_cfg_t)IOMAN_SPIM1(1,   1,  	0,  0,   0, 0);
+			IOMAN_F_SPIM1(sys_cfg.io_cfg, 1,   1,  	0,  0,   0, 0);
 			break;
 		}
-		case SPIPort_M2:
-		{
+		case SPIPort_M2:{
 			spi_reg= MXC_SPIM2;
-													//io, ss0, ss1, ss2, sr0, sr1, q, f
-			sys_cfg.io_cfg = (ioman_cfg_t)IOMAN_SPIM2(1,   1,  	0,  0,   0,    0,  0, 0);
+					//m, 			io, ss0, ss1, ss2, sr0, sr1, q, f
+			IOMAN_F_SPIM2(sys_cfg.io_cfg, IOMAN_MAP_A, 1, 1, 0, 0, 0, 0, 0, 0)
 			break;
 		}
-		case SPIPort_B:
-		{
-			spi_reg= MXC_SPIB;
-													//io,  q, f
-			sys_cfg.io_cfg = (ioman_cfg_t)IOMAN_SPIMB(1,   0, 0);
-			break;
-		}
-		default:
+		default:{
 #if defined(DEBUG_SPI)
 			hal_printf("SPI_Enable: Unknown SPI Port/Master #\n");
 #endif
 			return FALSE;
+		}
 	}
 
+	int error;
 	if((error = SPIM_Init(spi_reg, &cfg, &sys_cfg)) != E_NO_ERROR) {
 		hal_printf("Error initializing SPIM %d\n", error);
 		return FALSE;
 	}
 
 	hal_printf("SPIM Initialized\n");
+	SPI_Initialized[_mport]=TRUE;
 	return TRUE;
 }
 
@@ -179,24 +245,19 @@ void CPU_SPI_GetPins (UINT32 _mport, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& mo
 
 	switch (_mport) {
 		case SPIPort_M0:
-			msk = GPIO_Pin_7;
-			miso = GPIO_Pin_6;
-			mosi = GPIO_Pin_5;
+			msk = 7;
+			miso = 6;
+			mosi = 5;
 			break;
 		case SPIPort_M1:
-			msk = GPIO_Pin_15;
-			miso = GPIO_Pin_14;
-			mosi = GPIO_Pin_13;
+			msk = 15;
+			miso = 14;
+			mosi = 13;
 			break;
 		case SPIPort_M2:
-			msk = GPIO_Pin_15;
-			miso = GPIO_Pin_14;
-			mosi = GPIO_Pin_13;
-			break;
-		case SPIPort_B:
-			msk = GPIO_Pin_15;
-			miso = GPIO_Pin_14;
-			mosi = GPIO_Pin_13;
+			msk = 15;
+			miso = 14;
+			mosi = 13;
 			break;
 		default:
 			break;
@@ -241,13 +302,13 @@ UINT8 CPU_SPI_WriteReadByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 UINT8 CPU_SPI_ReadWriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 {
 	UINT8 read_data = 0;
-
+	/*
 	switch(Configuration.SPI_mod)
 	{
-			case SPIBUS1:
+		case SPIBUS1:
 				SPI_mod = SPIx;
 				break;
-			case SPIBUS2:
+		case SPIBUS2:
 				SPI_mod = SPIy;
 				break;
 			default:
@@ -255,7 +316,7 @@ UINT8 CPU_SPI_ReadWriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 				HARD_BREAKPOINT();
 				break;
 	}
-
+	*/
 	ASSERT(CheckSlaves(Configuration.DeviceCS));
 
 	return read_data;
@@ -263,13 +324,12 @@ UINT8 CPU_SPI_ReadWriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 
 BOOL CPU_SPI_nWrite16_nRead16( const SPI_CONFIGURATION& Configuration, UINT16* Write16, INT32 WriteCount, UINT16* Read16, INT32 ReadCount, INT32 ReadStartOffset )
 {
-
-	/* Performs a read/write operation on 16-bit word data.  */
+	//Performs a read/write operation on 16-bit word data.
 	
 #if defined(DEBUG_SPI)
 	hal_printf("SPI nWrite16_nRead16\n");
 #endif
-
+	/*
 	if(SPI_Initialized[Configuration.SPI_mod] == 0)
 	{
 #if defined(DEBUG_SPI)
@@ -314,30 +374,23 @@ BOOL CPU_SPI_nWrite16_nRead16( const SPI_CONFIGURATION& Configuration, UINT16* W
 	}	
 
 	return CPU_SPI_Xaction_Stop(Configuration);
-	
+	*/
+	return FALSE;
 }
 
 BOOL CPU_SPI_nWrite8_nRead8( const SPI_CONFIGURATION& Configuration, UINT8* Write8, INT32 WriteCount, UINT8* Read8, INT32 ReadCount, INT32 ReadStartOffset )
 {
-
-	/* Performs a read/write operation on 8-bit word data.  */
+	// Performs a read/write operation on 8-bit word data.
 	
 #if defined(DEBUG_SPI)
 	hal_printf("SPI nWrite8_nRead8\n");
 #endif
 
-	if(SPI_Initialized[Configuration.SPI_mod] == 0)
+	uint8_t port= GetSPIPortForSlave(Configuration.DeviceCS);
+	if(SPI_Initialized[port] == 0)
 	{
 #if defined(DEBUG_SPI)
 		hal_printf("SPI peripheral uninitialized\n");
-#endif
-		return false;
-	}
-
-	if(Configuration.SPI_mod > MAX_SPI_PORTS)
-	{
-#if defined(DEBUG_SPI)
-		hal_printf("Ports specified exceeds total number of ports\n");
 #endif
 		return false;
 	}
@@ -362,75 +415,30 @@ BOOL CPU_SPI_nWrite8_nRead8( const SPI_CONFIGURATION& Configuration, UINT8* Writ
         Transaction.SPI_mod = Configuration.SPI_mod;
         Transaction.BusyPin = Configuration.BusyPin;
 
-		if(!CPU_SPI_Xaction_nWrite8_nRead8(Transaction))
-		{
-			return FALSE;
-		}		
-		
+		if(!CPU_SPI_Xaction_nWrite8_nRead8(Transaction)) { return FALSE; }
 	}	
-
 	return CPU_SPI_Xaction_Stop(Configuration);
-	
 	
 }
 
 BOOL CPU_SPI_Xaction_Start( const SPI_CONFIGURATION& Configuration )
 {
-	/*
-
-	Sets up and starts a read/write operation using the specified configuration. 
-
-
-	*/
-
-	//Set pins to correct state	
-	GPIO_Config(Configuration);
+	//Sets up and starts a read/write operation using the specified configuration.
 	
-	//Initialize default SPI Struct, this configures SPIx as Master
-	SPI_StructInit(Configuration);
+	//first make sure, it is one of the devices we know and support
+	ASSERT(CheckSlaves(Configuration.DeviceCS));
 
-	//Initialize the SPI 1
-	switch(Configuration.SPI_mod)
-	{
-	case 0:
-		SPI_mod = SPIx;		
-		break;
-	case 1:
-		SPI_mod = SPIy;		
-		break;
-	default:
-#if defined(DEBUG_SPI)
-		hal_printf("Should not be here");
-#endif
-		break;
-	}
-
-	SPI_Init(SPI_mod, &SPI_InitStructure);	
-	SPI_SSOutputCmd(SPI_mod, ENABLE);
-	SPI_Cmd(SPI_mod, ENABLE); 
-	
-	if(Configuration.DeviceCS != GPIO_PIN_NONE && Configuration.DeviceCS != SPIx_NSS && Configuration.DeviceCS != SPIy_NSS )	// Use GPIO for the function of CS pin to keep it always active during the whole read/write access operation
-	{
-		CPU_GPIO_EnableOutputPin(Configuration.DeviceCS, Configuration.CS_Active);
-    }
-
-	if(Configuration.CS_Setup_uSecs)
-	{
-		HAL_Time_Sleep_MicroSeconds_InterruptEnabled(Configuration.CS_Setup_uSecs);
-	}
+	//Initialize corresponding port
+	CPU_SPI_Enable(Configuration);
 
 	return true;
-	
 }
 
 BOOL CPU_SPI_Xaction_Stop( const SPI_CONFIGURATION& Configuration )
 {
-	/*
-	
-	Completes a read/write operation using the specified configuration. 
-	
-	*/
 
+	//Completes a read/write operation using the specified configuration.
+	/*
 	if(Configuration.CS_Hold_uSecs)
     {
 		HAL_Time_Sleep_MicroSeconds_InterruptEnabled(Configuration.CS_Hold_uSecs);
@@ -444,6 +452,7 @@ BOOL CPU_SPI_Xaction_Stop( const SPI_CONFIGURATION& Configuration )
 	//FIXME Reset the state of pins here
 
 	SPI_I2S_DeInit(SPI_mod);
+	*/
 	return true;
 }
 
@@ -503,7 +512,7 @@ BOOL CPU_SPI_Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction )
 
 	while(i--)
     {
-		TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_TXE) == RESET);
+		/*TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_TXE) == RESET);
 		if (WriteCount != 0)
 		{
 		    SPI_I2S_SendData(SPI_mod, Write16[0]);
@@ -516,7 +525,7 @@ BOOL CPU_SPI_Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction )
 		//wait till we are ready to recieve		
 		TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
 		Data16 = SPI_I2S_ReceiveData(SPI_mod);		
-		
+		*/
 	    // repeat last write word for all subsequent reads
         if(WriteCount)
         {
@@ -541,9 +550,8 @@ BOOL CPU_SPI_Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction )
 
 BOOL CPU_SPI_Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
 {
-	/*
-	Performs a low-level read/write operation on 8-bit word data
-	*/
+	//	Performs a low-level read/write operation on 8-bit word data
+
 	INT32 i;
     INT32 d;
     UINT8 Data8;	
@@ -592,22 +600,13 @@ BOOL CPU_SPI_Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
     // Start transmission 
     while(i--)
     {		
-		TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_TXE) == RESET);
-		SPI_I2S_SendData(SPI_mod, Write8[0]);
+		//TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_TXE) == RESET);
+		//SPI_I2S_SendData(SPI_mod, Write8[0]);
 				
-		//if(WriteCount != 0)
-		//{
-		//	//SPI_I2S_SendData(SPI_mod, (UINT16)Write8[0]); //TODO:	Need to check on the cast, just casting as of now
-		//	SPI_I2S_SendData(SPI_mod, Write8[0]); //TODO:	Need to check on the cast, just casting as of now
-		//}
-		//else
-		//{						
-		//	SPI_I2S_SendData(SPI_mod, (UINT16)0);				
-		//}
 
 		// wait for data reception
-		TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
-		Data8 = (UINT8) SPI_I2S_ReceiveData(SPI_mod);	
+		//TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
+		//Data8 = (UINT8) SPI_I2S_ReceiveData(SPI_mod);
 
 		
 		// repeat last write word for all subsequent reads
@@ -636,54 +635,4 @@ BOOL CPU_SPI_Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
 void SPI_StructInit(const SPI_CONFIGURATION& Configuration)
 {
 
-}
-
-/*
-void GPIO_Config(const SPI_CONFIGURATION& Configuration)
-{
-  GPIO_InitTypeDef GPIO_InitStructure;   
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-
-  switch(Configuration.SPI_mod)
-  {
-	  case 0:
-		  // Configure SPIx pins: SCK, MISO and MOSI
-		  GPIO_InitStructure.GPIO_Pin = SPIx_PIN_SCK | SPIx_PIN_MISO | SPIx_PIN_MOSI;          		  
-          GPIO_Init(SPIx_GPIO, &GPIO_InitStructure);
-		  break;
-
-	  case 1:
-		  // Configure SPIy pins: SCK, MISO and MOSI
-		  GPIO_InitStructure.GPIO_Pin = SPIy_NSS | SPIy_PIN_SCK | SPIy_PIN_MISO | SPIy_PIN_MOSI;
-          GPIO_Init(SPIy_GPIO, &GPIO_InitStructure); 
-		  SPI_SSOutputCmd(SPIy, DISABLE);
-		  break;
-
-	  default:
-#if defined(SPI_DEBUG)
-		  hal_printf("Should not be here");
-#endif
-		  break;
-  }
-
-}
-void RCC_Config()
-{
-  // PCLK2 = HCLK/2
-  //RCC_PCLK2Config(RCC_HCLK_Div2);
-  
-  // Enable SPIx clock and GPIO clock for SPIx and SPIy
-  RCC_APB2PeriphClockCmd(SPIx_GPIO_CLK | SPIy_GPIO_CLK | SPIx_CLK, ENABLE);
-
-  // Enable SPIx Periph clock
-  RCC_APB1PeriphClockCmd(SPIy_CLK, ENABLE);
-}
-*/
-
-void NVIC_Config()
-{
-	/*
-	TODO yet
-	*/	
 }
