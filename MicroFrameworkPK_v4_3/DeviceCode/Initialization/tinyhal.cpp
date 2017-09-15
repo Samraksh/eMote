@@ -115,8 +115,13 @@ void KEEP_THE_LINKER_HAPPY_SINCE_KEEP_IS_NOT_WORKING()
 {
     EntryPoint();
 }
-
 //--//
+extern "C" void __cxa_pure_virtual() { while (true); }
+//void* __dso_handle;
+void operator delete(void *, unsigned int)
+{
+	while (true);
+}
 
 #pragma arm section code = "SectionForBootstrapOperations"
 
@@ -513,6 +518,9 @@ void HAL_Uninitialize()
 
 extern "C"
 {
+#if defined( __GNUC__ )
+extern void __libc_init_array();
+#endif
 void TestHandler1(GPIO_PIN Pin, BOOL PinState, void* Param)
 {	
 	CPU_GPIO_TogglePinState(8);

@@ -121,6 +121,8 @@ public:
 	DeviceStatus UnInitialize();
 	DeviceStatus IsInitialized();
 
+	void ChooseRadioConfig();
+
 	DeviceStatus SetAddress();
 	RadioProperties_t GetRadioProperties();
 
@@ -136,6 +138,7 @@ public:
 	RadioMode_t GetRadioState();
 };
 
+void Samraksh_SX1276_hal_Init();
 } /* namespace Samraksh_SX1276 */
 
 #endif /* MICROFRAMEWORKPK_V4_3_DEVICECODE_TARGETS_NATIVE_STM32F10X_DEVICECODE_DRIVERS_RADIO_SX1276_SAMRAKSHSX1276HAL_H_ */

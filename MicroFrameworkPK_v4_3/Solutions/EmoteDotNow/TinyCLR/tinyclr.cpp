@@ -17,6 +17,7 @@ void ApplicationEntryPoint()
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
 
+//    Test_InitializeAndRun();
     Test_InitializeAndRun();
     ClrStartup( clrSettings );
 

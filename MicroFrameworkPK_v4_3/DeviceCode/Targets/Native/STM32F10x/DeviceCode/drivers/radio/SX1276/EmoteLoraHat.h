@@ -114,8 +114,8 @@ public:
 protected:
 	// Stores the configuration of the spi
 	SPI_CONFIGURATION config;
-	static SX1276_pin_setup_t SX1276_pin_setup;
-	static unsigned ctsWentHigh;
+	SX1276_pin_setup_t SX1276_pin_setup;
+	unsigned ctsWentHigh;
 
 	uint8_t radio_spi_go(uint8_t data);
 	void radio_spi_sel_no_assert();
@@ -126,7 +126,7 @@ private:
 	void reset();
 	void init_interrupts();
 public:
-	static InterruptPins_t SX1276_interupt_pins;
+	InterruptPins_t SX1276_interupt_pins;
 
 
 

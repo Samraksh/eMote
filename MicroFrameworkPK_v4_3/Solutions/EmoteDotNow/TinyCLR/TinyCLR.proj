@@ -35,6 +35,8 @@
   <ItemGroup>
     <HFiles Include="RequestSendAtTimeInstantTest.h" />	
     <Compile Include="RequestSendAtTimeInstantTest.cpp" />
+	<HFiles Include="InheritanceTestObjectt.h" />	
+    <Compile Include="InheritanceTestObjectt.cpp" />
 	
     <Compile Include="allocator.cpp" />
     <Compile Include="tinyclr.cpp" />

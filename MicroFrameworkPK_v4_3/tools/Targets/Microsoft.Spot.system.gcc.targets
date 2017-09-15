@@ -72,8 +72,8 @@
 
 	<!-- <CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) -mabi=aapcs -ffunction-sections -fomit-frame-pointer -mlong-calls -fdollars-in-identifiers -fshort-wchar -fno-exceptions  -funsigned-char -mstructure-size-boundary=8</CC_CPP_COMMON_FLAGS> -->
 	<POS_INDEPENDENT>-mapcs -mabi=aapcs -fPIC -mno-apcs-stack-check </POS_INDEPENDENT>
-	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'=='5.4.1'">$(CC_CPP_COMMON_FLAGS) -DSAMRAKSH_CUSTOM_NEWLIB -mslow-flash-data -fdata-sections -ffunction-sections -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m3 -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
-	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'!='5.4.1'">$(CC_CPP_COMMON_FLAGS) -mslow-flash-data -fdata-sections -ffunction-sections -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m3 -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
+	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'=='5.4.1'">$(CC_CPP_COMMON_FLAGS) -DSAMRAKSH_CUSTOM_NEWLIB -mslow-flash-data -fdata-sections -ffunction-sections -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m3 -funsigned-char -mstructure-size-boundary=8 -fno-rtti -fno-use-cxa-atexit</CC_CPP_COMMON_FLAGS>
+	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'!='5.4.1'">$(CC_CPP_COMMON_FLAGS) -mslow-flash-data -fdata-sections -ffunction-sections -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m3 -funsigned-char -mstructure-size-boundary=8 -fno-rtti -fno-use-cxa-atexit</CC_CPP_COMMON_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='RTM'     and '$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_TARGETTYPE_FLAGS) -O3 -fno-strict-aliasing </CC_CPP_TARGETTYPE_FLAGS>
 	<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release' and '$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_TARGETTYPE_FLAGS) -O3 -fno-strict-aliasing </CC_CPP_TARGETTYPE_FLAGS>
 	
