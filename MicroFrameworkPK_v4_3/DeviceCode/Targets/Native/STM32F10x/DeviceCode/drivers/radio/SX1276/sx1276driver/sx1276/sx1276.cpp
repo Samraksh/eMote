@@ -80,7 +80,7 @@ SX1276::SX1276() {
 SX1276::~SX1276( )
 {
 
-    delete this->rxtxBuffer;
+	rxtxBuffer = NULL; //    delete this->rxtxBuffer; // BK: Do not delete the buffer just change the pointer. The memory owner (wrapper) deals with destruction
 //    delete this->dioIrq;
 }
 
