@@ -58,7 +58,7 @@
 
 //-----------------------------------------------------//
 
-
+/*--------- Internal Functions ----------- */
 bool spiDriverInit=false;
 bool SPI_Initialized[SPI_MAX_PORTS];
 UINT32 SPI_SLAVES_GPIO[SPI_SLAVE_COUNT];
@@ -126,7 +126,20 @@ mxc_spim_regs_t* GetSPIRegForSlave (uint32_t chipsel){
 }
 
 
-/*--------- Internal fucntion prototypes ----------- */
+inline spim_width_t GetSPIWidthForSlave(uint32_t chipsel){
+	int8_t port=GetSPIPortForSlave(chipsel);
+	spim_width_t ret=SPIM_WIDTH_1;
+	switch(port){
+			case SPIPort_M0: ret= (spim_width_t)PortM0_Width; break;
+			case SPIPort_M1: ret= (spim_width_t)PortM1_Width; break;
+			case SPIPort_M2: ret= (spim_width_t)PortM2_Width; break;
+			//case SPIPort_B: ret= MXC_SPIB; break;
+			default:break;
+		}
+	return ret;
+}
+
+/*--------- SPI Interface Implementations ----------- */
 
 BOOL CPU_SPI_Initialize ()
 {
@@ -267,11 +280,11 @@ void CPU_SPI_GetPins (UINT32 _mport, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& mo
 
 UINT32 CPU_SPI_PortsCount()
 {
-	/* Returns the total no. of SPI peripherals */
+
 #if defined(DEBUG_SPI)
 	hal_printf("SPI PortsCount\n");
 #endif
-
+	// Returns the total no. of SPI peripherals
 	return (UINT32)SPI_MAX_PORTS;
 }
 
@@ -280,45 +293,26 @@ UINT32 CPU_SPI_PortsCount()
 BOOL CPU_SPI_WriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 {
 	ASSERT(CheckSlaves(Configuration.DeviceCS));
-
-	return TRUE;
+	return false;
 
 }
 
 UINT8 CPU_SPI_ReadByte(const SPI_CONFIGURATION&  Configuration)
 {
 	ASSERT(CheckSlaves(Configuration.DeviceCS));
-
-	return TRUE;
+	return false;
 }
 
 UINT8 CPU_SPI_WriteReadByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 {
 	ASSERT(CheckSlaves(Configuration.DeviceCS));
-
-	return TRUE;
+	return false;
 }
 
 UINT8 CPU_SPI_ReadWriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 {
 	UINT8 read_data = 0;
-	/*
-	switch(Configuration.SPI_mod)
-	{
-		case SPIBUS1:
-				SPI_mod = SPIx;
-				break;
-		case SPIBUS2:
-				SPI_mod = SPIy;
-				break;
-			default:
-				// Die Here
-				HARD_BREAKPOINT();
-				break;
-	}
-	*/
 	ASSERT(CheckSlaves(Configuration.DeviceCS));
-
 	return read_data;
 }
 
@@ -329,64 +323,19 @@ BOOL CPU_SPI_nWrite16_nRead16( const SPI_CONFIGURATION& Configuration, UINT16* W
 #if defined(DEBUG_SPI)
 	hal_printf("SPI nWrite16_nRead16\n");
 #endif
-	/*
-	if(SPI_Initialized[Configuration.SPI_mod] == 0)
-	{
-#if defined(DEBUG_SPI)
-		hal_printf("SPI peripheral uninitialized\n");
-#endif
-		return false;
-	}
-
-	if(Configuration.SPI_mod > MAX_SPI_PORTS)
-	{
-#if defined(DEBUG_SPI)
-		hal_printf("Ports specified exceeds total number of ports\n");
-#endif
-		return false;
-	}
-
-	if(!CPU_SPI_Xaction_Start(Configuration))
-	{
-#if defined(DEBUG_SPI)
-		hal_printf("Could not start X\n");
-#endif
-		return false;
-	}
-
-	else
-	{
-		SPI_XACTION_16 Transaction;
-
-		Transaction.Read16 = Read16;
-		Transaction.ReadCount = ReadCount;
-		Transaction.ReadStartOffset = ReadStartOffset;
-		Transaction.Write16 = Write16;
-        Transaction.WriteCount = WriteCount;
-        Transaction.SPI_mod = Configuration.SPI_mod;
-        Transaction.BusyPin = Configuration.BusyPin;
-
-		if(!CPU_SPI_Xaction_nWrite16_nRead16(Transaction))
-		{
-			return FALSE;
-		}		
-		
-	}	
-
-	return CPU_SPI_Xaction_Stop(Configuration);
-	*/
 	return FALSE;
 }
 
 BOOL CPU_SPI_nWrite8_nRead8( const SPI_CONFIGURATION& Configuration, UINT8* Write8, INT32 WriteCount, UINT8* Read8, INT32 ReadCount, INT32 ReadStartOffset )
 {
-	// Performs a read/write operation on 8-bit word data.
-	
 #if defined(DEBUG_SPI)
 	hal_printf("SPI nWrite8_nRead8\n");
 #endif
 
 	uint8_t port= GetSPIPortForSlave(Configuration.DeviceCS);
+	//Initialize corresponding port
+	CPU_SPI_Enable(Configuration);
+
 	if(SPI_Initialized[port] == 0)
 	{
 #if defined(DEBUG_SPI)
@@ -395,30 +344,37 @@ BOOL CPU_SPI_nWrite8_nRead8( const SPI_CONFIGURATION& Configuration, UINT8* Writ
 		return false;
 	}
 
-	if(!CPU_SPI_Xaction_Start(Configuration))
-	{
-#if defined(DEBUG_SPI)
-		hal_printf("Could not start X\n");
-#endif
+	spim_req_t req;
+	req.callback=NULL;
+	req.deass= 1;
+	req.ssel= Configuration.DeviceCS;
+	req.read_num=0;
+	req.write_num = 0;
+	req.width=GetSPIWidthForSlave(Configuration.DeviceCS);
+
+	if(WriteCount>0) { //this is write operation
+		req.len=WriteCount;
+		req.rx_data = NULL;
+		req.tx_data = Write8;
+	}
+	else{
+		req.len=ReadCount;
+		req.rx_data = &Read8[ReadStartOffset];
+		req.tx_data = NULL;
+	}
+
+	//call transaction
+	int xactionResult = SPIM_Trans(GetSPIRegForSlave(Configuration.DeviceCS), &req);
+	if(xactionResult < E_NO_ERROR){
 		return false;
 	}
 
-	else
-	{
-		SPI_XACTION_8 Transaction;
-
-		Transaction.Read8 = Read8;
-		Transaction.ReadCount = ReadCount;
-		Transaction.ReadStartOffset = ReadStartOffset;
-		Transaction.Write8 = Write8;
-        Transaction.WriteCount = WriteCount;
-        Transaction.SPI_mod = Configuration.SPI_mod;
-        Transaction.BusyPin = Configuration.BusyPin;
-
-		if(!CPU_SPI_Xaction_nWrite8_nRead8(Transaction)) { return FALSE; }
-	}	
-	return CPU_SPI_Xaction_Stop(Configuration);
-	
+	//Read or wrote something, but not the whole thing
+	if(xactionResult == WriteCount || xactionResult == ReadCount){
+		return true;
+	}else {
+		return false;
+	}
 }
 
 BOOL CPU_SPI_Xaction_Start( const SPI_CONFIGURATION& Configuration )
@@ -431,208 +387,21 @@ BOOL CPU_SPI_Xaction_Start( const SPI_CONFIGURATION& Configuration )
 	//Initialize corresponding port
 	CPU_SPI_Enable(Configuration);
 
-	return true;
+	return false;
 }
 
 BOOL CPU_SPI_Xaction_Stop( const SPI_CONFIGURATION& Configuration )
 {
-
-	//Completes a read/write operation using the specified configuration.
-	/*
-	if(Configuration.CS_Hold_uSecs)
-    {
-		HAL_Time_Sleep_MicroSeconds_InterruptEnabled(Configuration.CS_Hold_uSecs);
-    }
-
-	if(Configuration.DeviceCS != GPIO_PIN_NONE && Configuration.DeviceCS != SPIx_NSS && Configuration.DeviceCS != SPIy_NSS )	// Use GPIO for the function of CS pin to keep it always active during the whole read/write access operation
-	{
-		CPU_GPIO_SetPinState(Configuration.DeviceCS, !Configuration.CS_Active);	
-	}	
-
-	//FIXME Reset the state of pins here
-
-	SPI_I2S_DeInit(SPI_mod);
-	*/
-	return true;
+	ASSERT(CheckSlaves(Configuration.DeviceCS));
+	return false;
 }
 
 BOOL CPU_SPI_Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction )
 {
-	/*
-	Performs a low-level read/write operation on 16-bit word data
-	*/
-	UINT16 Data16;
-    INT32 i;
-    INT32 d;	
-
-	UINT16 *Write16 = Transaction.Write16;
-    INT32 WriteCount = Transaction.WriteCount;
-    UINT16 *Read16 = Transaction.Read16;
-    INT32 ReadCount = Transaction.ReadCount;
-    INT32 ReadStartOffset = Transaction.ReadStartOffset;
-
-	// check for boudary error conditions
-
-    if(WriteCount <= 0)
-    {
-        //ASSERT(FALSE); commenting for now as I am not sure of the handling
-        return FALSE;
-    }
-
-    if(Write16 == NULL)
-    {
-        //ASSERT(FALSE);
-        return FALSE;
-    }
-
-	if((ReadCount > 0) && (Read16 == NULL))
-    {
-        //ASSERT(FALSE);
-        return FALSE;
-    }
-
-    if(ReadCount)
-    {
-        i = ReadCount + ReadStartOffset; // we need to read as many bytes as the buffer is long, plus the offset at which we start
-        d = ReadCount; // 
-    }
-    else
-    {
-        i = WriteCount;
-        d =  - 1;
-    }
-	
-    // we will use WriteCount to move in the Write16 array
-    // so we do no want to go past the end when we will check for 
-    // WriteCount to be bigger than zero
-    
-	if(WriteCount != 1)
-		WriteCount -= 1; //FIXME Check this..
-
-
-	while(i--)
-    {
-		/*TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_TXE) == RESET);
-		if (WriteCount != 0)
-		{
-		    SPI_I2S_SendData(SPI_mod, Write16[0]);
-		}
-		else
-		{			
-			SPI_I2S_SendData(SPI_mod, 0);
-		}
-
-		//wait till we are ready to recieve		
-		TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
-		Data16 = SPI_I2S_ReceiveData(SPI_mod);		
-		*/
-	    // repeat last write word for all subsequent reads
-        if(WriteCount)
-        {
-            WriteCount--;
-			Write16++;
-            
-        }
-
-        // only save data once we have reached ReadCount-1 portion of words
-        if(i < d)
-        {
-			if(Read16 != NULL)
-			{
-				Read16[0] = Data16;
-				Read16++;
-			}            
-        }
-    }
-
-	return true;
+	return false;
 }
 
 BOOL CPU_SPI_Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
 {
-	//	Performs a low-level read/write operation on 8-bit word data
-
-	INT32 i;
-    INT32 d;
-    UINT8 Data8;	
-	
-	UINT8 *Write8 = Transaction.Write8;
-    INT32 WriteCount = Transaction.WriteCount;
-    UINT8 *Read8 = Transaction.Read8;
-    INT32 ReadCount = Transaction.ReadCount;
-    INT32 ReadStartOffset = Transaction.ReadStartOffset;	
-
-	if(WriteCount <= 0)
-    {		
-        //ASSERT(FALSE);
-        return FALSE;
-    }
-    if(Write8 == NULL)
-    {		
-        //ASSERT(FALSE);
-        return FALSE;
-    }
-    if((ReadCount > 0) && (Read8 == NULL))
-    {			
-        //ASSERT(FALSE);
-        return FALSE;
-    }
-
-    if(ReadCount)
-    {
-        i = ReadCount + ReadStartOffset; // we need to read as many bytes as the buffer is long, plus the offset at which we start
-        d = ReadCount; // 
-    }
-    else
-    {
-        i = WriteCount;
-        d =  - 1;
-    }
-
-    // we will use WriteCount to move in the Write8 array
-    // so we do no want to go past the end when we will check for 
-    // WriteCount to be bigger than zero
-
-	if(WriteCount != 1)
-		WriteCount -= 1; //FIXME Check this..
-
-
-    // Start transmission 
-    while(i--)
-    {		
-		//TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_TXE) == RESET);
-		//SPI_I2S_SendData(SPI_mod, Write8[0]);
-				
-
-		// wait for data reception
-		//TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
-		//Data8 = (UINT8) SPI_I2S_ReceiveData(SPI_mod);
-
-		
-		// repeat last write word for all subsequent reads
-        if(WriteCount)
-        {
-            WriteCount--;
-			Write8++;		
-        }
-
-        // only save data once we have reached ReadCount-1 portion of words
-        if(i < d)
-        {
-			if(Read8 != NULL)
-			{
-				Read8[0] = Data8;
-				//if(Read8[0])
-					//LED_BLUE();
-				Read8++;
-			}
-        }
-    }
-
-	return true;
-}
-
-void SPI_StructInit(const SPI_CONFIGURATION& Configuration)
-{
-
+	return false;
 }

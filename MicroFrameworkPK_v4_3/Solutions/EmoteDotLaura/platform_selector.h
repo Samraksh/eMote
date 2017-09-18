@@ -152,8 +152,10 @@ typedef uint16_t ushort;
 
 //SPI Devices
 //first define the chip select for all slave devices and then initialize the SPI_SLAVES array
+
+//Slave 0 gpio config; P0.4->sck, P0.5->mosi, p0.6->miso, p0.7->ssel
 #define GPIO_LORA_CHIPSELECT 7 //P0.7
-#define GPIO_SLAVE0_CHIPSELECT 7
+#define GPIO_SLAVE0_CHIPSELECT GPIO_LORA_CHIPSELECT
 #define SPI_PORT_SLAVE0 0
 
 //define new slaves  pins when you add them to platform

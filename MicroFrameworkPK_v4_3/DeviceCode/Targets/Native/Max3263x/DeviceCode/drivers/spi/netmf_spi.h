@@ -15,6 +15,12 @@ enum SPIPort
 	SPI_MAX_PORTS=3
 };
 
+enum SPIPortWidth {
+	PortM0_Width= SPIM_WIDTH_1,
+	PortM1_Width= SPIM_WIDTH_1,
+	PortM2_Width= SPIM_WIDTH_1,
+};
+
 
 //This driver will suport a number of slave devices and this will be determined by their GPIO pins
 //allocated by platform designer. Platform designer needs to specify the list of supported slave devices.
