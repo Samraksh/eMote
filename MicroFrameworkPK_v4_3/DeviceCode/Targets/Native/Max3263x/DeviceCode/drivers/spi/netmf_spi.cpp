@@ -79,8 +79,8 @@ inline mxc_spim_regs_t* GetSPIReg (uint8_t _mport){
 	switch(_mport){
 		case SPIPort_M0: ret= MXC_SPIM0; break;
 		case SPIPort_M1: ret= MXC_SPIM1; break;
-		case SPIPort_M2: ret= MXC_SPIM2; break;
-		//case SPIPort_B: ret= MXC_SPIB; break;
+		case SPIPort_M2A: ret= MXC_SPIM2; break;
+		case SPIPort_M2B: ret= MXC_SPIM2; break;
 		default:break;
 	}
 	return ret;
@@ -132,7 +132,8 @@ inline spim_width_t GetSPIWidthForSlave(uint32_t chipsel){
 	switch(port){
 			case SPIPort_M0: ret= (spim_width_t)PortM0_Width; break;
 			case SPIPort_M1: ret= (spim_width_t)PortM1_Width; break;
-			case SPIPort_M2: ret= (spim_width_t)PortM2_Width; break;
+			case SPIPort_M2A: ret= (spim_width_t)PortM2_Width; break;
+			case SPIPort_M2B: ret= (spim_width_t)PortM2_Width; break;
 			//case SPIPort_B: ret= MXC_SPIB; break;
 			default:break;
 		}
@@ -196,9 +197,6 @@ BOOL CPU_SPI_Enable(SPI_CONFIGURATION config)
 	cfg.baud = config.Clock_RateKHz * 1000;
 
 	sys_cfg_spim_t sys_cfg;
-
-	// MX25 IO Config                  core I/O, ss0, ss1, ss2, quad, fast I/O
-
 	//set clock to auto
 	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
 
@@ -222,10 +220,16 @@ BOOL CPU_SPI_Enable(SPI_CONFIGURATION config)
 			IOMAN_F_SPIM1(sys_cfg.io_cfg, 1,   1,  	0,  0,   0, 0);
 			break;
 		}
-		case SPIPort_M2:{
+		case SPIPort_M2A:{
 			spi_reg= MXC_SPIM2;
 					//m, 			io, ss0, ss1, ss2, sr0, sr1, q, f
 			IOMAN_F_SPIM2(sys_cfg.io_cfg, IOMAN_MAP_A, 1, 1, 0, 0, 0, 0, 0, 0)
+			break;
+		}
+		case SPIPort_M2B:{
+			spi_reg= MXC_SPIM2;
+					//m, 			io, ss0, ss1, ss2, sr0, sr1, q, f
+			IOMAN_F_SPIM2(sys_cfg.io_cfg, IOMAN_MAP_B, 1, 1, 0, 0, 0, 0, 0, 0)
 			break;
 		}
 		default:{
@@ -258,19 +262,24 @@ void CPU_SPI_GetPins (UINT32 _mport, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& mo
 
 	switch (_mport) {
 		case SPIPort_M0:
-			msk = 7;
+			msk = 4;
 			miso = 6;
 			mosi = 5;
 			break;
 		case SPIPort_M1:
-			msk = 15;
-			miso = 14;
-			mosi = 13;
+			msk = 8;
+			miso = 10;
+			mosi = 9;
 			break;
-		case SPIPort_M2:
-			msk = 15;
-			miso = 14;
-			mosi = 13;
+		case SPIPort_M2A:
+			msk = 20;
+			miso = 22;
+			mosi = 21;
+			break;
+		case SPIPort_M2B:
+			msk = 40;
+			miso = 42;
+			mosi = 41;
 			break;
 		default:
 			break;
