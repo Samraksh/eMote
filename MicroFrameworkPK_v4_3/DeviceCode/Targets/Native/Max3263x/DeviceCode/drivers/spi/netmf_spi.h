@@ -5,14 +5,16 @@
 #include <spim.h>
 #include <gpio\netmf_gpio.h>
 
+#define SPI_MAX_PORTS 3
 
 enum SPIPort
 {
 	SPIPort_M0=0,
 	SPIPort_M1=1,
-	SPIPort_M2=2,
+	SPIPort_M2A=2, //M2 port Map_A pin mappings
+	SPIPort_M2B=3, //M2 port Map_B pin mappings
 	//SPIPort_B=3,
-	SPI_MAX_PORTS=3
+
 };
 
 enum SPIPortWidth {

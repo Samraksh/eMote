@@ -137,8 +137,6 @@ typedef uint16_t ushort;
 
 #define USB_IRQ_INDEX               0  // TODO set right index
 
-#define RF231_SPI_BUS 1					// MUST BE CONSISTENT WITH: netmf_spi.h
-#define RF231_LR_SPI_BUS 2
 
 #define PLATFORM_DEPENDENT_TX_USART_BUFFER_SIZE    1400  // there is one TX for each usart port
 #define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    256  // there is one RX for each usart port
@@ -153,15 +151,20 @@ typedef uint16_t ushort;
 //SPI Devices
 //first define the chip select for all slave devices and then initialize the SPI_SLAVES array
 
-//Slave 0 gpio config; P0.4->sck, P0.5->mosi, p0.6->miso, p0.7->ssel
-#define GPIO_LORA_CHIPSELECT 7 //P0.7
+//Slave 0 gpio config; P5.0->sck, P5.1->mosi, p5.2->miso, p5.3->ssel
+
+#define GPIO_LORA_CHIPSELECT 43 //P5.3
 #define GPIO_SLAVE0_CHIPSELECT GPIO_LORA_CHIPSELECT
-#define SPI_PORT_SLAVE0 0
+#define SPI_PORT_SLAVE0 3 //Maps to SPIPort_M2B
 
 //define new slaves  pins when you add them to platform
 #define GPIO_SLAVE1_CHIPSELECT 0
 #define GPIO_SLAVE2_CHIPSELECT 0
 #define GPIO_SLAVE3_CHIPSELECT 0
+
+//RF231 SPI config, we dont support this on maxim yet
+//#define RF231_SPI_BUS 1					// MUST BE CONSISTENT WITH: netmf_spi.h
+//#define RF231_LR_SPI_BUS 2
 
 #define SPI_SLAVE_COUNT 1
 
