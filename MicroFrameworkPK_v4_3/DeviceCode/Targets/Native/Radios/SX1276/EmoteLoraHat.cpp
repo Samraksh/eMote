@@ -31,31 +31,21 @@ Emote_Lora_Hat::Emote_Lora_Hat() {
 
 bool LoraHardwareConfig::SpiInitialize() {
 //	initSPI2();
-	// Calling mf spi initialize function
-	//if(TRUE != CPU_SPI_Initialize())
-	//	return FALSE;
+//	 Calling mf spi initialize function
 
-//	config.DeviceCS               = 10; //TODO - fix me..
-//	config.CS_Active              = false;
-//	config.CS_Setup_uSecs         = 0;
-//	config.CS_Hold_uSecs          = 0;
-//	config.MSK_IDLE               = false;
-//	config.MSK_SampleEdge         = false;
-//	config.Clock_RateKHz          = 16; // THIS IS IGNORED.
-//	if(this->GetRadioName() == RF231RADIO)
-//	{
-//		config.SPI_mod                = RF231_SPI_BUS;
-//	}
-//	else if(this->GetRadioName() == RF231RADIOLR)
-//	{
-//		config.SPI_mod 				  = RF231_LR_SPI_BUS;
-//	}
-//
-//	config.MD_16bits = FALSE;
-//
-//
-//	// Enable the SPI depending on the radio who is the user
-//	CPU_SPI_Enable(config);
+	m_spi_config.DeviceCS               = GPIO_LORA_CHIPSELECT ; //TODO - fix me..
+	m_spi_config.CS_Active              = false;
+	m_spi_config.CS_Setup_uSecs         = 0;
+	m_spi_config.CS_Hold_uSecs          = 0;
+	m_spi_config.MSK_IDLE               = false;
+	m_spi_config.MSK_SampleEdge         = false;
+	m_spi_config.Clock_RateKHz          = 16; // THIS IS IGNORED.
+	m_spi_config.SPI_mod                = 0;\
+	m_spi_config.MD_16bits = FALSE;
+
+	// Enable the SPI depending on the radio who is the user
+	CPU_SPI_Enable(m_spi_config);
+
 
 
 	return TRUE;
@@ -100,62 +90,70 @@ Emote_Lora_Hat::~Emote_Lora_Hat() {
 //	ctsWentHigh = 0;
 //}
 
-void Emote_Lora_Hat::radio_comm_WriteData(uint8_t addr, uint8_t size, uint8_t* buffer) {
-	//	INT32 readsize = 0;
-	//	INT32 writesize = (INT32)size;
-	//
-	//	if(!CPU_SPI_Xaction_Start(m_spi_config)){
-	//		return;
-	//	}
-	//
-	//	SPI_XACTION_8 t;
-	//	{
-	//	t.Write8 = &addr;
-	//	t.WriteCount = 1;
-	//	t.Read8 = NULL;
-	//	t.ReadCount = 0;
-	//	t.ReadStartOffset = 0;
-	//	t.SPI_mod = m_spi_config.SPI_mod;
-	//	t.BusyPin = m_spi_config.BusyPin;
-	//	}
-	//	CPU_SPI_Xaction_nWrite8_nRead8(t);
-	//	{
-	//	t.Write8 = &addr;
-	//	t.WriteCount = size;
-	//	t.Read8 = NULL;
-	//	t.ReadCount = 0;
-	//	t.ReadStartOffset = 0;
-	//	t.SPI_mod = m_spi_config.SPI_mod;
-	//	t.BusyPin = m_spi_config.BusyPin;
-	//	}
-	//	CPU_SPI_Xaction_nWrite8_nRead8(t);
-	//	CPU_SPI_Xaction_Stop(m_spi_config);
-}
+//void Emote_Lora_Hat::radio_comm_WriteData(uint8_t* buffer, size ) {
+//
+//	CPU_SPI_nWrite8_nRead8(m_spi_config, &addr, 1, buffer, size, 1 );
+//
+//
+////		INT32 readsize = 0;
+////		INT32 writesize = (INT32)size;
+////
+////		if(!CPU_SPI_Xaction_Start(m_spi_config)){
+////			return;
+////		}
+////
+////		SPI_XACTION_8 t;
+////		{
+////		t.Write8 = &addr;
+////		t.WriteCount = 1;
+////		t.Read8 = NULL;
+////		t.ReadCount = 0;
+////		t.ReadStartOffset = 0;
+////		t.SPI_mod = m_spi_config.SPI_mod;
+////		t.BusyPin = m_spi_config.BusyPin;
+////		}
+////		CPU_SPI_Xaction_nWrite8_nRead8(t);
+////		{
+////		t.Write8 = &addr;
+////		t.WriteCount = size;
+////		t.Read8 = NULL;
+////		t.ReadCount = 0;
+////		t.ReadStartOffset = 0;
+////		t.SPI_mod = m_spi_config.SPI_mod;
+////		t.BusyPin = m_spi_config.BusyPin;
+////		}
+////		CPU_SPI_Xaction_nWrite8_nRead8(t);
+////		CPU_SPI_Xaction_Stop(m_spi_config);
+//}
 
-void Emote_Lora_Hat::radio_comm_ReadData(uint8_t addr, uint8_t size, uint8_t* buffer) {
-	//	addr = addr & 0x7F;
-	//	INT32 readsize = 0;
-	//	INT32 writesize = (INT32)size;
-	//
-	//	if(!CPU_SPI_Xaction_Start(m_spi_config)){
-	//		return;
-	//	}
-	//
-	//	SPI_XACTION_8 t;
-	//	{
-	//	t.Write8 = &addr;
-	//	t.WriteCount = 1;
-	//	t.Read8 = buffer;
-	//	t.ReadCount = size;
-	//	t.ReadStartOffset = 1;
-	//	t.SPI_mod = m_spi_config.SPI_mod;
-	//	t.BusyPin = m_spi_config.BusyPin;
-	//	}
-	//	if(!CPU_SPI_Xaction_nWrite8_nRead8(t)) return;
-	//
-	//	CPU_SPI_Xaction_Stop(m_spi_config);
-
-}
+//void Emote_Lora_Hat::radio_comm_ReadData(uint8_t addr, uint8_t size, uint8_t* buffer) {
+//
+//	CPU_SPI_nWrite8_nRead8(m_spi_config, &addr, 1, buffer, size, 1 );
+//
+//
+//	//	addr = addr & 0x7F;
+//	//	INT32 readsize = 0;
+//	//	INT32 writesize = (INT32)size;
+//	//
+//	//	if(!CPU_SPI_Xaction_Start(m_spi_config)){
+//	//		return;
+//	//	}
+//	//
+//	//	SPI_XACTION_8 t;
+//	//	{
+//	//	t.Write8 = &addr;
+//	//	t.WriteCount = 1;
+//	//	t.Read8 = buffer;
+//	//	t.ReadCount = size;
+//	//	t.ReadStartOffset = 1;
+//	//	t.SPI_mod = m_spi_config.SPI_mod;
+//	//	t.BusyPin = m_spi_config.BusyPin;
+//	//	}
+//	//	if(!CPU_SPI_Xaction_nWrite8_nRead8(t)) return;
+//	//
+//	//	CPU_SPI_Xaction_Stop(m_spi_config);
+//
+//}
 
 
 

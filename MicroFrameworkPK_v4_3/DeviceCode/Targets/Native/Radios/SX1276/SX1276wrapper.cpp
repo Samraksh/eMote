@@ -42,18 +42,24 @@ bool SX1276M1BxASWrapper::CheckRfFrequency(
 }
 
 void SX1276M1BxASWrapper::Write(uint8_t addr, uint8_t data) {
-	 Write( addr, &data, 1 );
+	uint8_t buffer[2];
+	buffer[0] = addr;
+	buffer[1] = data;
+	CPU_SPI_nWrite8_nRead8(m_spi_config, buffer, 2, NULL, 0, 0 );
 }
 
 uint8_t SX1276M1BxASWrapper::Read(uint8_t addr) {
     uint8_t data;
-    Read( addr, &data, 1 );
+    CPU_SPI_nWrite8_nRead8(m_spi_config, &addr, 1, &data, 1, 1 );
+//    Read( addr, &data, 1 );
     return data;
 }
 
 void SX1276M1BxASWrapper::Write(uint8_t addr,
 		uint8_t* buffer, uint8_t size) {
-	radio_comm_WriteData(addr | 0x80, size, buffer);
+
+	while(true){} ; //BK: This is not essential and not used by the underlying driver although it is enforced.
+//	radio_comm_WriteData(addr | 0x80, size, buffer);
 
 //	addr = addr | 0x80;
 //	INT32 readsize = 0;
@@ -87,12 +93,12 @@ void SX1276M1BxASWrapper::Write(uint8_t addr,
 //	CPU_SPI_Xaction_Stop(m_spi_config);
 }
 
-
-
 void SX1276M1BxASWrapper::Read(uint8_t addr, uint8_t* buffer,
 		uint8_t size) {
 
-	radio_comm_ReadData(addr & 0x7F, size, buffer);
+	while(true){} ; //BK: This is not essential and not used by the underlying driver although it is enforced.
+
+//	radio_comm_ReadData(addr & 0x7F, size, buffer);
 
 //	addr = addr & 0x7F;
 //	INT32 readsize = 0;
@@ -120,12 +126,16 @@ void SX1276M1BxASWrapper::Read(uint8_t addr, uint8_t* buffer,
 
 void SX1276M1BxASWrapper::WriteFifo(uint8_t* buffer,
 		uint8_t size) {
-	Write( 0, buffer, size );
+//	Write( 0, buffer, size );
+//	uint8_t addr = 0;
+	*(buffer-1) = 0x80; //addr | 0x80;; //BK: HACK!!! Make sure this is called with a buffer allocatation starting one byte before where the pointer points to
+	CPU_SPI_nWrite8_nRead8(m_spi_config, buffer-1, size+1, NULL, 0, 0 );
 }
 
 void SX1276M1BxASWrapper::ReadFifo(uint8_t* buffer,
 		uint8_t size) {
-	Read( 0, buffer, size );
+	uint8_t addr = 0;
+	CPU_SPI_nWrite8_nRead8(m_spi_config, &addr, 1, buffer, size, 1 );
 }
 
 
@@ -280,7 +290,7 @@ void SX1276M1BxASWrapper::SX1276_Reset_Pin_Interrupt_Handler(GPIO_PIN Pin, BOOL 
 }
 
 void SX1276M1BxASWrapper::Initialize(SX1276_Semtech::SX1276RadioEvents_t *events) {
-	rxtxBuffer = &(rxtxBufferstorage[0]);
+	rxtxBuffer = &(rxtxBufferstorage[1]);
 	InitializeTimers();
 
 	LoraHardwareConfig::Initialize();

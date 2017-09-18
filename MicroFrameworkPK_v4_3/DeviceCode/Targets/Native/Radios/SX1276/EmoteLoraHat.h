@@ -48,6 +48,12 @@ const unsigned si4468x_debug_level = ERR100; // CHANGE ME.
 
 class LoraHardwareConfig{
 public:
+    const uint16_t SPIReadBufferSize = 256;
+    uint8_t SPIReadBufferStorage[256];
+
+    const uint16_t SPIWriteBufferSize = 256;
+    uint8_t SPIWriteBufferStorgae[256];
+
 	enum LoraDaugterBoards{
 		LORA_GPS_HAT,
 	};
@@ -112,7 +118,7 @@ public:
 
 protected:
 	// Stores the configuration of the spi
-	SPI_CONFIGURATION config;
+	SPI_CONFIGURATION m_spi_config;
 	SX1276_pin_setup_t SX1276_pin_setup;
 //	unsigned ctsWentHigh;
 
@@ -170,8 +176,8 @@ public:
 
 
 
-	void radio_comm_WriteData(uint8_t cmd, uint8_t byteCount, uint8_t* pData);
-	void radio_comm_ReadData(uint8_t cmd, uint8_t byteCount, uint8_t* pData);
+//	void radio_comm_WriteData(uint8_t cmd, uint8_t byteCount, uint8_t* pData);
+//	void radio_comm_ReadData(uint8_t cmd, uint8_t byteCount, uint8_t* pData);
 
 
 

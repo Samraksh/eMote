@@ -176,7 +176,9 @@ void Samraksh_SX1276_hal::Send(void* msg, UINT16 size, bool request_ack) {
 		return;
 	}
 	m_re.DataStatusCallback(true,size);
-	g_SX1276M1BxASWrapper_ptr->Send(static_cast<uint8_t *>(msg), size);
+	m_packet.PreparePayload(msg, size, 0, 0);
+
+	g_SX1276M1BxASWrapper_ptr->Send(m_packet.GetPayload(), m_packet.GetSize());
 }
 
 
@@ -328,7 +330,8 @@ bool Samraksh_SX1276_hal::msgToBeTransmitted_t::PreparePayload(void* msg,
 	if(IsMsgSaved()) return false;
 	ClearPaylod();
 	msg_size = size;
-	memcpy(msg_payload, msg, msg_size );
+	msg_payload[0] = 0;
+	memcpy(msg_payload+1, msg, msg_size ); //BK: one byte is reserved for addr transaction with SPI
 	due_time = t;
 	clock_id = c;
 	return true;
@@ -363,7 +366,7 @@ UINT16 Samraksh_SX1276_hal::msgToBeTransmitted_t::GetSize() {
 }
 
 UINT8* Samraksh_SX1276_hal::msgToBeTransmitted_t::GetPayload() {
-	return msg_payload;
+	return &(msg_payload[1]);
 }
 
 UINT64 Samraksh_SX1276_hal::msgToBeTransmitted_t::GetDueTime() {
