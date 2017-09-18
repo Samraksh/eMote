@@ -9,6 +9,22 @@
 #define EV_KIT_GPIO_LED2 26 // Port 3, pin 2
 #define EV_KIT_GPIO_LED3 27 // Port 3, pin 3
 
+enum GPIO_DIRECTION
+{
+    GPIO_DIRECTION_OUT = 0,
+    GPIO_DIRECTION_IN = 1
+};
+typedef struct
+{
+  uint32_t CRL;
+  uint32_t CRH;
+  uint32_t IDR;
+  uint32_t ODR;
+  uint32_t BSRR;
+  uint32_t BRR;
+  uint32_t LCKR;
+} GPIO_TypeDef;
+
 void GPIO_ConfigurePin( uint16_t port, uint16_t Pin, gpio_func_t function, gpio_pad_t pad);
 
 

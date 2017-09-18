@@ -6,114 +6,163 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C) 2014 Semtech
 
-Description: Interface for the radios, contains the main functions that a radio needs, and 5 callback functions
+Description: Actual implementation of a SX1276 radio, inherits Radio
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainers: Miguel Luis, Gregory Cristian and Nicolas Huguenin
 */
-#ifndef __RADIO_H__
-#define __RADIO_H__
+#ifndef __SX1276_H__
+#define __SX1276_H__
 
-//#include "mbed.h"
+#include "../radio/radio.h"
+#include "../registers/sx1276Regs-Fsk.h"
+#include "../registers/sx1276Regs-LoRa.h"
+#include "../typedefs/typedefs.h"
 
-#include "../enums/enums.h"
-
-//namespace SX1276_Semtech{
-/*!
- * @brief Radio driver callback functions
- */
-struct SX1276RadioEvents_t{
-	 void    ( *ValidHeaderDetected )( void );
-    /*!
-     * @brief  Tx Done callback prototype.
-     */
-    void    ( *TxDone )( void );
-    /*!
-     * @brief  Tx Timeout callback prototype.
-     */
-    void    ( *TxTimeout )( void );
-    /*!
-     * @brief Rx Done callback prototype.
-     *
-     * @param [IN] payload Received buffer pointer
-     * @param [IN] size    Received buffer size
-     * @param [IN] rssi    RSSI value computed while receiving the frame [dBm]
-     * @param [IN] snr     Raw SNR value given by the radio hardware
-     *                     FSK : N/A ( set to 0 )
-     *                     LoRa: SNR value in dB
-     */
-    void    ( *RxDone )( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
-    /*!
-     * @brief  Rx Timeout callback prototype.
-     */
-    void    ( *RxTimeout )( void );
-    /*!
-     * @brief Rx Error callback prototype.
-     */
-    void    ( *RxError )( void );
-    /*!
-     * \brief  FHSS Change Channel callback prototype.
-     *
-     * \param [IN] currentChannel   Index number of the current channel
-     */
-    void ( *FhssChangeChannel )( uint8_t currentChannel );
-    /*!
-     * @brief CAD Done callback prototype.
-     *
-     * @param [IN] channelDetected    Channel Activity detected during the CAD
-     */
-    void ( *CadDone ) ( bool channelActivityDetected );
-};
+namespace SX1276_Semtech{
+class SX1276;
+typedef void ( SX1276::*DioIrqHandler )( void );
 
 /*!
- *    Interface for the radios, contains the main functions that a radio needs, and 5 callback functions
+ * Radio wake-up time from sleep
  */
-class RadioSX1276
+#define RADIO_WAKEUP_TIME                           1 // [ms]
+
+/*!
+ * Sync word for Private LoRa networks
+ */
+#define LORA_MAC_PRIVATE_SYNCWORD                   0x12
+
+/*!
+ * Sync word for Public LoRa networks
+ */
+#define LORA_MAC_PUBLIC_SYNCWORD                    0x34
+
+
+/*!
+ * SX1276 definitions
+ */
+#define XTAL_FREQ                                   32000000
+#define FREQ_STEP                                   61.03515625
+
+#define RX_BUFFER_SIZE                              256
+
+/*!
+ * Constant values need to compute the RSSI value
+ */
+#define RSSI_OFFSET_LF                              -164.0
+#define RSSI_OFFSET_HF                              -157.0
+
+#define RF_MID_BAND_THRESH                          525000000
+
+
+
+
+/*! 
+ * Actual implementation of a SX1276 radio, inherits Radio
+ */
+class SX1276 : public RadioSX1276
 {
 protected:
-	SX1276RadioEvents_t* RadioEvents;
+    /*!
+    * SPI Interface
+    */
+//    SPI spi; // mosi, miso, sclk
+//    DigitalOut nss;
+//
+//    /*!
+//     * SX1276 Reset pin
+//     */
+//    DigitalInOut reset;
+
+    /*!
+     * SX1276 DIO pins
+     */
+//    InterruptIn dio0;
+//    InterruptIn dio1;
+//    InterruptIn dio2;
+//    InterruptIn dio3;
+//    InterruptIn dio4;
+//    DigitalIn dio5;
+
+    bool isRadioActive;
+
+    uint8_t boardConnected; //1 = SX1276MB1LAS; 0 = SX1276MB1MAS
+
+    uint8_t *rxtxBuffer;
+
+    /*!
+     * Hardware DIO IRQ functions
+     */
+//    DioIrqHandler *dioIrq;
+//    DioIrqHandler dioIrq[6];
+
+    /*!
+     * Tx and Rx timers
+     */
+//    Timeout txTimeoutTimer;
+//    Timeout rxTimeoutTimer;
+//    Timeout rxTimeoutSyncWord;
+//BK: Use SetTimer The regex for find replace
+//    (..TimeoutTimer)(.attach_us[^,]*,[^,]*,)([^)]*)([^;];)      //\1\2\3\4;\R SetTimeoutTimer(\1,\3);
+//    (..Timeout[^;\.]*)(.detach[^;]*;)              //\1\2 \R CancelTimeoutTimer(\1);
+    enum TimeoutName_t{
+    	txTimeoutTimer,
+		rxTimeoutTimer,
+		rxTimeoutSyncWord,
+    };
+    virtual void SetTimeoutTimer(TimeoutName_t ton, float delay) = 0;
+    virtual void CancelTimeoutTimer(TimeoutName_t ton) = 0;
+
+
+    RadioSettings_t settings;
+
+    static const FskBandwidth_t FskBandwidths[];
+protected:
+
+    /*!
+    * Performs the Rx chain calibration for LF and HF bands
+    * \remark Must be called just after the reset so all registers are at their
+    *         default values
+    */
+    void RxChainCalibration( );
 
 public:
+//    SX1276( RadioEvents_t *events,
+//            PinName mosi, PinName miso, PinName sclk, PinName nss, PinName reset,
+//            PinName dio0, PinName dio1, PinName dio2, PinName dio3, PinName dio4, PinName dio5 );
+    SX1276();
+//    SX1276( RadioEvents_t *events );
+    virtual ~SX1276( );
+    
     //-------------------------------------------------------------------------
-    //                        Constructor
-    //-------------------------------------------------------------------------
-    /*!
-     * @brief Constructor of the radio object, the parameters are the callback functions described in the header.
-     *
-     * @param [IN] events Structure containing the driver callback functions
-     */
-    RadioSX1276() {};
-    RadioSX1276( SX1276RadioEvents_t *events );
-    virtual ~RadioSX1276( ) {};
-
-    //-------------------------------------------------------------------------
-    //                        Pure virtual functions
+    //                        Redefined Radio functions
     //-------------------------------------------------------------------------
     /*!
      * @brief Initializes the radio
      *
      * @param [IN] events Structure containing the driver callback functions
      */
-    virtual void Init( SX1276RadioEvents_t *events ) = 0;
+    virtual void Init( SX1276_Semtech::RadioEvents_t* events );
     /*!
-     * @brief Return current radio status
+     * Return current radio status
      *
-     * @param status Radio status.[RF_IDLE, RF_RX_RUNNING, RF_TX_RUNNING]
+     * @param status Radio status. [RF_IDLE, RX_RUNNING, TX_RUNNING]
      */
-    virtual RadioState GetStatus( void ) = 0; 
+    virtual RadioState GetStatus( );
     /*!
-     * @brief Configures the radio with the given modem
+     * @brief Configures the SX1276 with the given modem
      *
      * @param [IN] modem Modem to be used [0: FSK, 1: LoRa] 
      */
-    virtual void SetModem( RadioModems_t modem ) = 0;
+    virtual void SetModem( RadioModems_t modem );
     /*!
      * @brief Sets the channel frequency
      *
      * @param [IN] freq         Channel RF frequency
      */
-    virtual void SetChannel( uint32_t freq ) = 0;
+    virtual void SetChannel( uint32_t freq );
     /*!
      * @brief Sets the channels configuration
      *
@@ -123,7 +172,7 @@ public:
      *
      * @retval isFree         [true: Channel is free, false: Channel is not free]
      */
-    virtual bool IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh ) = 0;
+    virtual bool IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh );
     /*!
      * @brief Generates a 32 bits random value based on the RSSI readings
      *
@@ -134,7 +183,7 @@ public:
      *
      * @retval randomValue    32 bits random value
      */
-    virtual uint32_t Random( void )= 0;
+    virtual uint32_t Random(  );
     /*!
      * @brief Sets the reception parameters
      *
@@ -176,7 +225,7 @@ public:
                                uint16_t symbTimeout, bool fixLen,
                                uint8_t payloadLen,
                                bool crcOn, bool freqHopOn, uint8_t hopPeriod,
-                               bool iqInverted, bool rxContinuous ) = 0;
+                               bool iqInverted, bool rxContinuous );
     /*!
      * @brief Sets the transmission parameters
      *
@@ -204,13 +253,13 @@ public:
      * @param [IN] iqInverted   Inverts IQ signals ( LoRa only )
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: [0: not inverted, 1: inverted]
-     * @param [IN] timeout      Transmission timeout [us]
+     * @param [IN] timeout      Transmission timeout [ms]
      */
     virtual void SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
                               uint32_t bandwidth, uint32_t datarate,
                               uint8_t coderate, uint16_t preambleLen,
                               bool fixLen, bool crcOn, bool freqHopOn,
-                              uint8_t hopPeriod, bool iqInverted, uint32_t timeout ) = 0;
+                              uint8_t hopPeriod, bool iqInverted, uint32_t timeout );
     /*!
      * @brief Checks if the given RF frequency is supported by the hardware
      *
@@ -228,7 +277,7 @@ public:
      *
      * @retval airTime        Computed airTime for the given packet payload length
      */
-    virtual uint32_t TimeOnAir ( RadioModems_t modem, uint8_t pktLen ) = 0;
+    virtual uint32_t TimeOnAir ( RadioModems_t modem, uint8_t pktLen );
     /*!
      * @brief Sends the buffer of size. Prepares the packet to be sent and sets
      *        the radio in transmission
@@ -236,31 +285,31 @@ public:
      * @param [IN]: buffer     Buffer pointer
      * @param [IN]: size       Buffer size
      */
-    virtual void Send( uint8_t *buffer, uint8_t size ) = 0;
+    virtual void Send( uint8_t *buffer, uint8_t size );
     /*!
      * @brief Sets the radio in sleep mode
      */
-    virtual void Sleep( void ) = 0;
+    virtual void Sleep(  );
     /*!
      * @brief Sets the radio in standby mode
      */
-    virtual void Standby( void ) = 0;
+    virtual void Standby(  );
     /*!
      * @brief Sets the radio in CAD mode
      */
-    virtual void StartCad( void ) = 0;
+    virtual void StartCad(  );
     /*!
      * @brief Sets the radio in reception mode for the given time
-     * @param [IN] timeout Reception timeout [us]
+     * @param [IN] timeout Reception timeout [ms]
      *                     [0: continuous, others timeout]
      */
-    virtual void Rx( uint32_t timeout ) = 0;
+    virtual void Rx( uint32_t timeout );
     /*!
      * @brief Sets the radio in transmission mode for the given time
-     * @param [IN] timeout Transmission timeout [us]
+     * @param [IN] timeout Transmission timeout [ms]
      *                     [0: continuous, others timeout]
      */
-    virtual void Tx( uint32_t timeout ) = 0;
+    virtual void Tx( uint32_t timeout );
     /*!
      * @brief Sets the radio in continuous wave transmission mode
      *
@@ -268,13 +317,13 @@ public:
      * @param [IN]: power      Sets the output power [dBm]
      * @param [IN]: time       Transmission mode timeout [s]
      */
-    virtual void SetTxContinuousWave( uint32_t freq, int8_t power, uint16_t time ) = 0;
+    virtual void SetTxContinuousWave( uint32_t freq, int8_t power, uint16_t time );
     /*!
      * @brief Reads the current RSSI value
      *
      * @retval rssiValue Current RSSI value in [dBm]
      */
-    virtual int16_t GetRssi ( RadioModems_t modem ) = 0;
+    virtual int16_t GetRssi ( RadioModems_t modem );
     /*!
      * @brief Writes the radio register at the specified address
      *
@@ -306,36 +355,175 @@ public:
      */
     virtual void Read ( uint8_t addr, uint8_t *buffer, uint8_t size ) = 0;
     /*!
-     * @brief Writes the buffer contents to the Radio FIFO
+     * @brief Writes the buffer contents to the SX1276 FIFO
      *
      * @param [IN] buffer Buffer containing data to be put on the FIFO.
      * @param [IN] size Number of bytes to be written to the FIFO
      */
     virtual void WriteFifo( uint8_t *buffer, uint8_t size ) = 0;
     /*!
-     * @brief Reads the contents of the Radio FIFO
+     * @brief Reads the contents of the SX1276 FIFO
      *
      * @param [OUT] buffer Buffer where to copy the FIFO read data.
      * @param [IN] size Number of bytes to be read from the FIFO
      */
     virtual void ReadFifo( uint8_t *buffer, uint8_t size ) = 0;
     /*!
+     * @brief Resets the SX1276
+     */
+    virtual void Reset( void ) = 0;
+
+    /*!
      * @brief Sets the maximum payload length.
      *
      * @param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
      * @param [IN] max        Maximum payload length in bytes
      */
-    virtual void SetMaxPayloadLength( RadioModems_t modem, uint8_t max ) = 0;
+    virtual void SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
+
     /*!
-     * @brief Sets the network to public or private. Updates the sync byte.
+     * \brief Sets the network to public or private. Updates the sync byte.
      *
-     * @remark Applies to LoRa modem only
+     * \remark Applies to LoRa modem only
      *
-     * @param [IN] enable if true, it enables a public network
+     * \param [IN] enable if true, it enables a public network
      */
-    virtual void SetPublicNetwork( bool enable ) = 0;
+    virtual void SetPublicNetwork( bool enable );
+
+    //-------------------------------------------------------------------------
+    //                        Board relative functions
+    //-------------------------------------------------------------------------
+
+protected:
+    /*!
+     * @brief Initializes the radio I/Os pins interface
+     */
+    virtual void IoInit(  ) = 0;
+    
+    /*!
+     *    @brief Initializes the radio registers
+     */
+    virtual void RadioRegistersInit( ) = 0;
+    
+    /*!
+     * @brief Initializes the radio SPI
+     */
+    virtual void SpiInit(  ) = 0;
+
+    /*!
+     * @brief Initializes DIO IRQ handlers
+     *
+     * @param [IN] irqHandlers Array containing the IRQ callback functions
+     */
+   // virtual void IoIrqInit( DioIrqHandler *irqHandlers ) = 0;
+
+    /*!
+     * @brief De-initializes the radio I/Os pins interface. 
+     *
+     * \remark Useful when going in MCU lowpower modes
+     */
+    virtual void IoDeInit(  ) = 0;
+
+    /*!
+     * @brief Sets the radio output power.
+     *
+     * @param [IN] power Sets the RF output power
+     */
+    virtual void SetRfTxPower( int8_t power ) = 0;
+
+    /*!
+     * @brief Gets the board PA selection configuration
+     *
+     * @param [IN] channel Channel frequency in Hz
+     * @retval PaSelect RegPaConfig PaSelect value
+     */
+    virtual uint8_t GetPaSelect( uint32_t channel ) = 0;
+
+    /*!
+     * @brief Set the RF Switch I/Os pins in Low Power mode
+     *
+     * @param [IN] status enable or disable
+     */
+    virtual void SetAntSwLowPower( bool status ) = 0;
+
+    /*!
+     * @brief Initializes the RF Switch I/Os pins interface
+     */
+    virtual void AntSwInit(  ) = 0;
+
+    /*!
+     * @brief De-initializes the RF Switch I/Os pins interface 
+     *
+     * \remark Needed to decrease the power consumption in MCU lowpower modes
+     */
+    virtual void AntSwDeInit(  ) = 0;
+
+    /*!
+     * @brief Controls the antenna switch if necessary.
+     *
+     * \remark see errata note
+     *
+     * @param [IN] opMode Current radio operating mode
+     */
+    virtual void SetAntSw( uint8_t opMode ) = 0;
+
+    virtual void wait_ms(UINT32 x){};
+protected:
+
+    /*!
+     * @brief Sets the SX1276 operating mode
+     *
+     * @param [IN] opMode New operating mode
+     */
+    virtual void SetOpMode( uint8_t opMode );
+
+    /*
+     * SX1276 DIO IRQ callback functions prototype
+     */
+
+    /*!
+     * @brief DIO 0 IRQ callback
+     */
+    void OnDio0Irq(  );
+
+    /*!
+     * @brief DIO 1 IRQ callback
+     */
+    void OnDio1Irq(  );
+
+    /*!
+     * @brief DIO 2 IRQ callback
+     */
+    void OnDio2Irq(  );
+
+    /*!
+     * @brief DIO 3 IRQ callback
+     */
+    void OnDio3Irq(  );
+
+    /*!
+     * @brief DIO 4 IRQ callback
+     */
+    void OnDio4Irq(  );
+
+    /*!
+     * @brief DIO 5 IRQ callback
+     */
+    void OnDio5Irq(  );
+
+    /*!
+     * @brief Tx & Rx timeout timer callback
+     */
+    void OnTimeoutIrq(  );
+
+    /*!
+     * Returns the known FSK bandwidth registers value
+     *
+     * \param [IN] bandwidth Bandwidth value in Hz
+     * \retval regValue Bandwidth register value.
+     */
+    static uint8_t GetFskBandwidthRegValue( uint32_t bandwidth );
 };
+}
 
-//}//SX1276_Semtech
-
-#endif // __RADIO_H__
+#endif // __SX1276_H__

@@ -259,6 +259,15 @@ const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {96000000};
 #define VIRT_TIMER_OMAC_POST_EXEC	22
 //#define VIRT_TIMER_OMAC_TRANSMITTER_POST_EXEC	23
 
+/********SX1276 SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
+#define VIRT_TIMER_SX1276  44
+#define VIRT_TIMER_SX1276_txTimeout 45
+#define VIRT_TIMER_SX1276_rxTimeout 46
+#define VIRT_TIMER_SX1276_rxTimeoutSyncWord 47
+#define VIRT_TIMER_SX1276_PacketLoadTimerName 48
+#define VIRT_TIMER_SX1276_PacketTxTimerName 49
+
+
 const uint OMAC_DISCO_SEQ_NUMBER = 27;
 //const uint OMAC_HW_ACK_DELAY_MICRO = 100;
 //const uint HARDWARE_ACKS = 0;

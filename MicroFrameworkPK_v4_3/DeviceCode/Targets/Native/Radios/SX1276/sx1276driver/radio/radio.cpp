@@ -13,11 +13,11 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 Maintainers: Miguel Luis, Gregory Cristian and Nicolas Huguenin
 */
 #include "radio.h"
-//namespace SX1276_Semtech{
+namespace SX1276_Semtech{
 
 RadioSX1276::RadioSX1276( SX1276RadioEvents_t *events )
 {
     this->RadioEvents = events;
 }
-//} //namespace SX1276_Semtech
+} //namespace SX1276_Semtech
 

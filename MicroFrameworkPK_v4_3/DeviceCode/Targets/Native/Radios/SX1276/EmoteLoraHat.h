@@ -10,7 +10,6 @@
 
 // Hardware stuff
 #include <tinyhal.h>
-#include <stm32f10x.h>
 #include <spi\netmf_spi.h>
 
 
@@ -30,7 +29,7 @@ static int LORA_ASSERT(int x, const char *err) {
 }
 
 
-//namespace SX1276_Semtech {
+namespace LoraHat {
 
 enum {
 	NONE00=0,
@@ -91,14 +90,14 @@ public:
 		uint16_t		reset_pin;
 		GPIO_PIN		reset_mf_pin;
 
-		SPI_TypeDef 	*spi_base;
-		GPIO_TypeDef 	*spi_port;
-		uint32_t		spi_rcc;
-		GPIO_TypeDef 	*cs_port;
-		uint16_t		cs_pin;
-		uint16_t		sclk_pin;
-		uint16_t		miso_pin;
-		uint16_t		mosi_pin;
+//		SPI_TypeDef 	*spi_base;
+//		GPIO_TypeDef 	*spi_port;
+//		uint32_t		spi_rcc;
+//		GPIO_TypeDef 	*cs_port;
+//		uint16_t		cs_pin;
+//		uint16_t		sclk_pin;
+//		uint16_t		miso_pin;
+//		uint16_t		mosi_pin;
 
 	};
 
@@ -115,13 +114,14 @@ protected:
 	// Stores the configuration of the spi
 	SPI_CONFIGURATION config;
 	SX1276_pin_setup_t SX1276_pin_setup;
-	unsigned ctsWentHigh;
+//	unsigned ctsWentHigh;
 
-	uint8_t radio_spi_go(uint8_t data);
-	void radio_spi_sel_no_assert();
+//	uint8_t radio_spi_go(uint8_t data);
+//	void radio_spi_sel_no_assert();
 
 private:
-	void initSPI2(); //Initialize a SPI structure
+	bool SpiInitialize();
+//	void initSPI2(); //Initialize a SPI structure
 	void init_pins();
 	void reset();
 	void init_interrupts();
@@ -134,15 +134,16 @@ public:
 
 	void Initialize();
 
-	void spi_write_bytes(unsigned count, const uint8_t *buf);
 
-	void spi_read_bytes(unsigned count, uint8_t *buf);
-
-	unsigned int radio_comm_PollCTS();
-
-	void radio_spi_sel_assert();
-
-	uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData);
+//	void spi_write_bytes(unsigned count, const uint8_t *buf);
+//
+//	void spi_read_bytes(unsigned count, uint8_t *buf);
+//
+//	unsigned int radio_comm_PollCTS();
+//
+//	void radio_spi_sel_assert();
+//
+//	uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData);
 
 };
 
@@ -167,15 +168,15 @@ public:
 //	  radio_comm_ReadData( SX1276_CMD_ID_READ_RX_FIFO, 0, numBytes, pRxData );
 //	}
 
-	bool SpiInitialize();
 
-	void radio_comm_WriteData(uint8_t cmd, unsigned pollCts, uint8_t byteCount, uint8_t* pData);
-	void radio_comm_ReadData(uint8_t cmd, unsigned pollCts, uint8_t byteCount, uint8_t* pData);
+
+	void radio_comm_WriteData(uint8_t cmd, uint8_t byteCount, uint8_t* pData);
+	void radio_comm_ReadData(uint8_t cmd, uint8_t byteCount, uint8_t* pData);
 
 
 
 };
 
-//} /* namespace LoraHat */
+} /* namespace LoraHat */
 
 #endif /* MICROFRAMEWORKPK_V4_3_DEVICECODE_TARGETS_NATIVE_STM32F10X_DEVICECODE_DRIVERS_RADIO_SX1276_EMOTELORAHAT_H_ */

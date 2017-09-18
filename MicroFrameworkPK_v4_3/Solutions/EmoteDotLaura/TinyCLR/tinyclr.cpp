@@ -9,7 +9,7 @@
 #include <DeviceCode\MaximLib\DevKitBoard\board.h>
 #include <tmr_utils.h>
 
-
+#include "RequestSendAtTimeInstantTest.h"
 ///////////////////////////////////////////////////////////////////////////////
 
 /* Monochrome logo for OLED display */
@@ -80,9 +80,12 @@ void ApplicationEntryPoint()
 
     memset(&clrSettings, 0, sizeof(CLR_SETTINGS));
 
+
     clrSettings.MaxContextSwitches         = 50;
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
+
+    Test_InitializeAndRun();
 
     ClrStartup( clrSettings );
 

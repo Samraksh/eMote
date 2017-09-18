@@ -11,7 +11,7 @@ REVISION LOG
 */
 
 #include <tinyhal.h>
-#include <stm32f10x.h>
+//#include <stm32f10x.h>
 #include <gpio\netmf_gpio.h>
 
 

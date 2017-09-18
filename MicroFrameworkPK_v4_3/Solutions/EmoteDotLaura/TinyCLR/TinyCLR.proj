@@ -33,6 +33,8 @@
     <EXEScatterFileDefinition>$(SRC_DIR)\scatterfile_tinyclr_$(COMPILER_TOOL).$(SCATTER_EXT)</EXEScatterFileDefinition>
   </PropertyGroup>
   <ItemGroup>
+	    <HFiles Include="RequestSendAtTimeInstantTest.h" />	
+		<Compile Include="RequestSendAtTimeInstantTest.cpp" />													
     <Compile Include="allocator.cpp" />
     <Compile Include="tinyclr.cpp" />
     <HFiles Include="$(SPOCLIENT)\clr\include\tinyclr_application.h" />
@@ -724,19 +726,22 @@
     <DriverLibs Include="simpletimesync_pal.$(LIB_EXT)" />
   </ItemGroup>
   -->
-<ItemGroup>
+<!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Radios\RadiosStubs\dotNetMF.proj" />
     <DriverLibs Include="RadioStubs.$(LIB_EXT)" />
+</ItemGroup>-->
+<ItemGroup>
+<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Radios\dotNetMF.proj" />
 </ItemGroup>
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Radios\dotNetMF.proj" />
     <DriverLibs Include="Max3263x_radio_rf231.$(LIB_EXT)" />
 	<DriverLibs Include="Max3263x_radio_si446x.$(LIB_EXT)" />
   </ItemGroup>-->
-  <!--ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Radios\dotNetMF.proj" />
-    <DriverLibs Include="Max3263x_radio_si446x.$(LIB_EXT)" />
-  </ItemGroup-->
+    <DriverLibs Include="Generic_radio_sx1276x.$(LIB_EXT)" />
+  </ItemGroup>
 
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\dotNetMF.proj" />

@@ -13,7 +13,7 @@
 EMOTE_SX1276_LORA::Samraksh_SX1276_hal* gsx1276radio_ptr;
 
 //extern SX1276_Semtech::SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
-extern SX1276_Semtech::SX1276M1BxASWrapper* g_SX1276M1BxASWrapper_ptr;
+extern Samraksh_SX1276Wrapper::SX1276M1BxASWrapper* g_SX1276M1BxASWrapper_ptr;
 
 namespace EMOTE_SX1276_LORA {
 
@@ -136,7 +136,7 @@ DeviceStatus Samraksh_SX1276_hal::Initialize(SamrakshRadio_I::RadioEvents_t re){
 	rm = VirtTimer_SetTimer(PacketLoadTimerName, 0, 1000, TRUE, FALSE, Samraksh_SX1276_hal::PacketLoadTimerHandler);
 	rm = VirtTimer_SetTimer(PacketTxTimerName, 0, 1000, TRUE, FALSE, Samraksh_SX1276_hal::PacketTxTimerHandler);
 
-	SX1276_Semtech::Samraksh_SX1276M1BxASWrapper_Init();
+	Samraksh_SX1276Wrapper::Samraksh_SX1276M1BxASWrapper_Init();
 	g_SX1276M1BxASWrapper_ptr->Initialize(&sx1276_re);
 
 	isRadioInitialized = true;
