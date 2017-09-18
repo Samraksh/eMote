@@ -64,7 +64,7 @@
   <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime.featureproj" />
   <!--<Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Samraksh_eMote_Net\Samraksh_eMote_Net.featureproj" />-->
   <!--<Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Samraksh_eMote_DSP\Samraksh_eMote_DSP.featureproj" />-->
-  <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_ProgramManager\Samraksh_eMote_ProgramManager.featureproj" />
+  <!-- <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_ProgramManager\Samraksh_eMote_ProgramManager.featureproj" /> -->
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   <ItemGroup>
     <DriverLibs Include="Max3263x.$(LIB_EXT)" />
@@ -408,10 +408,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotLaura\DeviceCode\MFUpdate\dotnetmf.proj" />
   </ItemGroup>
  <!--  Add custom update controller that translates COM commands to MFUpdate actions, normally implemented in debugger. -->
- <ItemGroup>
+ <!-- <ItemGroup>
     <DriverLibs Include="update_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\PAK\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup> -->
   <!-- Add Interop for accessing update manager -->
   <!--<ItemGroup>
     <DriverLibs Include="Samraksh_eMote_ProgramManager.$(LIB_EXT)" />

@@ -346,12 +346,12 @@ void csmaMAC::UpdateNeighborTable(){
 	//g_NeighborTable.DegradeLinks();
 }
 
-// Called by the mac for retrying in case of failed packets 
+// Called by the mac for retrying in case of failed packets
 BOOL csmaMAC::Resend(void* msg, int Size){
 	// Try and push the packet back into the buffer
 	if(!g_send_buffer.Store(msg, Size))
 		return FALSE;
-		
+
 	return TRUE;
 }
 
@@ -400,14 +400,14 @@ void csmaMAC::SendToRadio(){
 
 		//Message_15_4_t** temp = g_send_buffer.GetOldestPtr();
 		//Message_15_4_t* msg = *temp;
-		
+
 		Message_15_4_t txMsg;
 		Message_15_4_t* txMsgPtr = &txMsg;
 		Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
 		Message_15_4_t* msgPtr = *tempPtr;
 		memset(txMsgPtr, 0, msgPtr->GetMessageSize());
 		memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
-		
+
 
 		UINT8* snd_payload = txMsgPtr->GetPayload();
 
@@ -624,12 +624,12 @@ void csmaMAC::SendAckHandler(void* msg, int Size, RadioSendStatus_t status){
 			VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
 			flushTimerRunning = true;
 			break;
-			
+
 		default:
 			DEBUG_PRINTF_CSMA("Error #%d\r\n",((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 			break;
 	}
-	
+
 	RadioAckPending=FALSE;
 	RadioLockUp=0;
 }

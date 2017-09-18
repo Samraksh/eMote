@@ -12,6 +12,14 @@
 #include "RequestSendAtTimeInstantTest.h"
 ///////////////////////////////////////////////////////////////////////////////
 
+//
+extern "C" void __cxa_pure_virtual() { while (true); }
+void* __dso_handle;
+//void* __dso_handle;
+void operator delete(void *, unsigned int){
+	while (true);
+}
+
 /* Monochrome logo for OLED display */
 nhd12832_bitmap_t samraksh_logo = {
     128,   32,    0,

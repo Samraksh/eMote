@@ -26,7 +26,7 @@ typedef uint16_t ushort;
 
 // Samraksh eMote Wireless Reprogrammer Updater Portable Array Kit PAK
 // To enable, define SAMRAKSH_UPDATE_EXT, uncomment MFUpdate section of TinyCLR.proj, swap commented addresses in scatterfile_tinyclr_gcc.xml
-#define SAMRAKSH_UPDATE_EXT
+//#define SAMRAKSH_UPDATE_EXT
 
 
 // #define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.

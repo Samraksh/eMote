@@ -61,7 +61,9 @@ static HRESULT Initialize_UpdateManager_Driver( CLR_RT_HeapBlock_NativeEventDisp
 {
 	g_UpdateManagerContext  = pContext;
     g_UpdateManagerUserData = userData;
+#ifdef SAMRAKSH_UPDATE_EXT
     Samraksh_Emote_Update::s_UpdaterProgressHandler = &NativeToManagedUpdaterProgressHandler;
+#endif
     g_UpdateManager_Driver_Initialized = TRUE;
     return S_OK;
 }
