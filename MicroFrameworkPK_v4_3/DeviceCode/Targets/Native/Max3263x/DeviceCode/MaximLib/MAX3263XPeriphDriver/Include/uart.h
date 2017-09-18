@@ -307,7 +307,7 @@ __STATIC_INLINE unsigned UART_NumWriteAvail(mxc_uart_regs_t *uart)
  */
 __STATIC_INLINE unsigned UART_NumReadAvail(mxc_uart_regs_t *uart)
 {
-    return (uart->rx_fifo_ctrl & MXC_F_UART_RX_FIFO_CTRL_FIFO_ENTRY);
+    return (uart->rx_fifo_ctrl & 0x1f);
 }
 
 /**

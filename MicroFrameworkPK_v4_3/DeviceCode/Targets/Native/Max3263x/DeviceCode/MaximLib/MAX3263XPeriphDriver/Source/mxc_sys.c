@@ -134,7 +134,7 @@ int SYS_UART_Init(mxc_uart_regs_t *uart, const uart_cfg_t *uart_cfg, const sys_c
          * hasn't already been configured. UART_Init() will check for validity
          * for this baudrate.
          */
-        subsequent_call = 1;
+        //subsequent_call = 1;
 
         /* Setup the clock divider for the given baud rate */
         clk_scale = CLKMAN_SCALE_DISABLED;

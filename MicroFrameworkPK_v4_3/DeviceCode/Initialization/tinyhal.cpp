@@ -4,6 +4,10 @@
 
 #include <tinyhal.h>
 #include "gpio.h"
+#include <max3263x.h>
+//#include <netmf_usart.h>
+#include <uart.h>
+#include <ioman.h>
 #if defined( SAM_APP_TINYCLR )
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/MAC_decl.h>
@@ -410,6 +414,7 @@ void HAL_Initialize()
     CPU_InitializeCommunication();
 //#endif
 
+
     //I2C_Initialize(); // FIXME: Is commenting this out a Samraksh policy decision? if so, need soft reboot handler for I2C re-init
 
     Buttons_Initialize();
@@ -598,9 +603,16 @@ mipi_dsi_shutdown();
 #endif
 
     // FIXME: Why does Samraksh initialize the interrupt controller here (nonstandard) instead of inside CPU_Initialize() (standard)?
+	volatile uint32_t readVal = SystemCoreClock;
+	readVal = SYS_UART_GetFreq(MXC_UART_GET_UART(0));
+	readVal = SYS_GetFreq(CLKMAN_SCALE_AUTO);
+
     CPU_INTC_Initialize();
 
     CPU_Initialize();
+	readVal = SystemCoreClock;
+	readVal = SYS_UART_GetFreq(MXC_UART_GET_UART(0));
+	readVal = SYS_GetFreq(CLKMAN_SCALE_AUTO);
 
 #if defined( SAM_APP_TINYCLR ) // TinyBooter, (and future MicroBooter) use SimpleTimer. SimpleTimer needs HAL_Time_Initialize().
 	/*BOOL test_val = FALSE;
@@ -641,9 +653,18 @@ mipi_dsi_shutdown();
 	}*/
     VirtTimer_Initialize();
 #endif
+	readVal = SystemCoreClock;
+	readVal = SYS_UART_GetFreq(MXC_UART_GET_UART(0));
+	readVal = SYS_GetFreq(CLKMAN_SCALE_AUTO);
     HAL_Time_Initialize();
+	readVal = SystemCoreClock;
+	readVal = SYS_UART_GetFreq(MXC_UART_GET_UART(0));
+	readVal = SYS_GetFreq(CLKMAN_SCALE_AUTO);
 
     HAL_Initialize();
+	readVal = SystemCoreClock;
+	readVal = SYS_UART_GetFreq(MXC_UART_GET_UART(0));
+	readVal = SYS_GetFreq(CLKMAN_SCALE_AUTO);
 
 #if !defined(BUILD_RTM)
 #ifdef TINYHAL_BOOTUP_DISPLAY_BUILD_INFO

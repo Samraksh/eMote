@@ -4,7 +4,6 @@
 
 #include <tinyhal.h>
 #include <max3263x.h>
-//#include <netmf_usart.h>
 #include <uart.h>
 #include <ioman.h>
 #include "sam_usart.h"
@@ -34,11 +33,14 @@ static int PORTS_IN_USE_MASK = 0;
 //Max326_USART_Driver g_max326_usart_Driver;
 
 uint8_t txdata_com0[BUFF_SIZE];
-uint8_t rxdata_com0[BUFF_SIZE];
 uint8_t txdata_com1[BUFF_SIZE];
-uint8_t rxdata_com1[BUFF_SIZE];
-uart_req_t read_req0,read_req1;
 uart_req_t write_req0,write_req1;
+
+uint32_t com0_current_baud, com1_current_baud;
+uint32_t com0_current_parity, com1_current_parity;
+uint32_t com0_current_databits, com1_current_databits;
+uint32_t com0_current_stopbits, com1_current_stopbits;
+uint32_t com0_current_flowcontrol, com1_current_flowcontrol;
 
 //ComHandle != ComPort.  COM1 is a handle with port=0. COM1=0x101 means port 0 on USART transport.  See platform_selector.h and tinyhal.h.
 
@@ -54,144 +56,183 @@ uart_req_t write_req0,write_req1;
 #define UART_WRITE_INTS         (MXC_F_UART_INTEN_TX_UNSTALLED | \
                                 MXC_F_UART_INTEN_TX_FIFO_AE)
 
-#ifdef __cplusplus
-extern "C" {
+void USART0_Handler(void *args) {
+	char buf[BUFF_SIZE];
+	int bufIndex;
+	int uart_num = 0;
+	int bufSize = 0;
+    uint32_t flags;
+	mxc_uart_fifo_regs_t *fifo = MXC_UART0_FIFO;
+	int avail;
+
+	GLOBAL_LOCK(irq);
+
+    flags = MXC_UART0->intfl;
+    MXC_UART0->intfl = flags;
+
+    if(flags & UART_READ_INTS) {
+		// Disable interrupts
+    	MXC_UART0->inten &= ~UART_READ_INTS;
+		
+    	avail = UART_NumReadAvail(MXC_UART0);
+		bufSize = avail;
+		if (avail < BUFF_SIZE) {
+			bufIndex = 0;
+			while(avail) {
+				buf[bufIndex] = fifo->rx; 
+				bufIndex++;
+    	    	avail--;
+    		}
+			USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, bufSize);
+    	    	
+		} else if (avail >= BUFF_SIZE) {
+			for (int i = 0; i < BUFF_SIZE; i++) {
+				buf[i] = fifo->rx; 
+				bufIndex++;
+			}
+			USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, BUFF_SIZE);
+		}
+		MXC_UART0->inten |= UART_READ_INTS;
+    }
+
+    // Figure out if this UART has an active Write request
+    if((flags & (MXC_F_UART_INTEN_TX_UNSTALLED | MXC_F_UART_INTEN_TX_FIFO_AE))) {
+        int avail, remain;
+
+    	// Disable write interrupts
+    	MXC_UART0->inten &= ~(UART_WRITE_INTS);
+
+    	// Refill the TX FIFO
+    	avail = UART_NumWriteAvail(MXC_UART0);
+    	remain = write_req0.len - write_req0.num;
+
+    	while(avail && remain) {
+
+        	// Write the data to the FIFO
+#if(MXC_UART_REV == 0)
+        	MXC_UART0->intfl = MXC_F_UART_INTFL_TX_DONE;
 #endif
+        	fifo->tx = write_req0.data[write_req0.num++];
+        	remain--;
+        	avail--;
+    	}
 
+    	// All of the bytes have been written to the FIFO
+    	if(!remain) {
 
-void EnableReadInterrupt(int comPort){
-	 // enable interrupts
-	MXC_UART_GET_UART(0)->inten |= UART_READ_INTS;
-}
-
-void read_cb(uart_req_t* req, int error, int comPort){
-	if(error==E_NO_ERROR){
-		if(req->num > 0){
-			for (int i=0 ; i< req->num; i++){
-				USART_AddCharToRxBuffer(ConvertCOM_ComPort(comPort), req->data[i]);
-			}
-		}
-		if(comPort==0){
-			read_req0.len = BUFF_SIZE-1;
-			UART_ReadAsync(MXC_UART0 , &read_req0);
-		}
-		if(comPort==1){
-			read_req1.len = BUFF_SIZE-1;
-			UART_ReadAsync(MXC_UART1 , &read_req1);
-		}
-	}else {
-		EnableReadInterrupt(comPort);
-	}
-}
-
-void write_cb(uart_req_t* req, int error, int comPort){
-
-	/*if(error!=E_NO_ERROR){
-		return;
-	}*/
-	/*bool preWriteIncomplete=false;
-	if(req->num < req->len){
-		preWriteIncomplete=true;
-		CPU_GPIO_TogglePinState(24);
-	}*/
-
-	//read bytes from transmit buffer -> FALSE, true means rx buffer
-	/*int charPending=UART_NumWriteAvail(MXC_UART_GET_UART(comPort));
-
-	if (charPending > 0){
-		write_req0.len=charPending; 
-		write_req0.num=0;
-		UART_WriteAsync(MXC_UART0, &write_req0);
-	} else {*/
-		int i=0;
-		for (i=0; i < BUFF_SIZE; i++){
-			char c;
-			if(!USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(comPort), c)){
-				break;
-			}
-			if(comPort==0)  
+        	int i=0;
+			for (i=0; i < BUFF_SIZE; i++){
+				char c;
+				if(!USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM1), c)){
+					break;
+				}
 				txdata_com0[i]=c;
-			else if(comPort==1) 
-				txdata_com1[i]=c;
-		}
+			}
 
-		if (i>0){
-			if(comPort==0) {
+			if (i>0){
 				write_req0.len=i; 
 				write_req0.num=0;
 				UART_WriteAsync(MXC_UART0, &write_req0);
 			}
-			if(comPort==1) {
-				write_req1.len=i; 
-				write_req1.num=0;
-				UART_WriteAsync(MXC_UART1, &write_req1);
-			}
-		}
-//	}
+	    } else {
 
-	//check if there is anything to read
-	if(comPort==0) {
-		read_req0.len = BUFF_SIZE-1;
-		UART_ReadAsync(MXC_UART0 , &read_req0);
-	}
-	if(comPort==1) {
-		read_req1.len = BUFF_SIZE-1;
-		UART_ReadAsync(MXC_UART1 , &read_req1);
-	}
-}
+	        // Interrupt when there is one byte left in the TXFIFO
+	        MXC_UART0->tx_fifo_ctrl = ((MXC_UART_FIFO_DEPTH - 1) << MXC_F_UART_TX_FIFO_CTRL_FIFO_AE_LVL_POS);
 
-
-void read_cb0(uart_req_t* req, int error){read_cb(req,error,0);}
-void read_cb1(uart_req_t* req, int error){read_cb(req,error,1);}
-
-void write_cb0(uart_req_t* req, int error){write_cb(req,error,0);}
-void write_cb1(uart_req_t* req, int error){write_cb(req,error,1);}
-
-
-
-//void Max326_USART_Driver::InitBuffers(int comPort){
-void InitBuffers(int comPort){
-	int error;
-	if(comPort==0){
-		 read_req0.data = rxdata_com0;
-		 read_req0.len = BUFF_SIZE;
-		 read_req0.callback = read_cb0;
-
-		 write_req0.data = txdata_com0;
-		 write_req0.len = 0;
-		 write_req0.callback = write_cb0;
-	}
-	if(comPort==1){
-		 read_req1.data = rxdata_com1;
-		 read_req1.len = BUFF_SIZE;
-		 read_req1.callback = read_cb1;
-
-		 write_req1.data = txdata_com1;
-		 write_req1.len = 0;
-		 write_req1.callback = write_cb1;
-	}
-}
-
-#ifdef __cplusplus
-}
-#endif
-
-void USART0_Handler(void *args) {
-	/*GLOBAL_LOCK(irq);
-	SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-	SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-*/
-	UART_Handler(MXC_UART0);
-	/*irq.Acquire();
-	SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-	SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
-	//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-	return;*/
+	        // Enable almost empty interrupt	
+	        MXC_UART0->inten |= (UART_WRITE_INTS);
+    	}
+    }
 }
 
 void USART1_Handler(void *args)
 {
-	UART_Handler(MXC_UART1);
+	char buf[BUFF_SIZE];
+	int bufIndex;
+	int uart_num = 1;
+	int bufSize = 0;
+    uint32_t flags;
+	mxc_uart_fifo_regs_t *fifo = MXC_UART1_FIFO;
+	int avail;
+
+	GLOBAL_LOCK(irq);
+
+    flags = MXC_UART1->intfl;
+    MXC_UART1->intfl = flags;
+
+    if(flags & UART_READ_INTS) {
+		// Disable interrupts
+    	MXC_UART1->inten &= ~UART_READ_INTS;
+		
+    	avail = UART_NumReadAvail(MXC_UART1);
+		bufSize = avail;
+		if (avail < BUFF_SIZE) {
+			bufIndex = 0;
+			while(avail) {
+				buf[bufIndex] = fifo->rx; 
+				bufIndex++;
+    	    	avail--;
+    		}
+			USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, bufSize);
+    	    	
+		} else if (avail >= BUFF_SIZE) {
+			for (int i = 0; i < BUFF_SIZE; i++) {
+				buf[i] = fifo->rx; 
+				bufIndex++;
+			}
+			USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, BUFF_SIZE);
+		}
+		MXC_UART1->inten |= UART_READ_INTS;
+    }
+
+	// Figure out if this UART has an active Write request
+    if((flags & (MXC_F_UART_INTEN_TX_UNSTALLED | MXC_F_UART_INTEN_TX_FIFO_AE))) {
+        int avail, remain;
+
+    	// Disable write interrupts
+    	MXC_UART1->inten &= ~(UART_WRITE_INTS);
+
+    	// Refill the TX FIFO
+    	avail = UART_NumWriteAvail(MXC_UART1);
+    	remain = write_req1.len - write_req1.num;
+
+    	while(avail && remain) {
+
+        	// Write the data to the FIFO
+#if(MXC_UART_REV == 0)
+        	MXC_UART1->intfl = MXC_F_UART_INTFL_TX_DONE;
+#endif
+        	fifo->tx = write_req1.data[write_req1.num++];
+        	remain--;
+        	avail--;
+    	}
+
+    	// All of the bytes have been written to the FIFO
+    	if(!remain) {
+
+        	int i=0;
+			for (i=0; i < BUFF_SIZE; i++){
+				char c;
+				if(!USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM1), c)){
+					break;
+				}
+				txdata_com0[i]=c;
+			}
+
+			if (i>0){
+				write_req1.len=i; 
+				write_req1.num=0;
+				UART_WriteAsync(MXC_UART1, &write_req1);
+			}
+	    } else {
+
+	        // Interrupt when there is one byte left in the TXFIFO
+	        MXC_UART1->tx_fifo_ctrl = ((MXC_UART_FIFO_DEPTH - 1) << MXC_F_UART_TX_FIFO_CTRL_FIFO_AE_LVL_POS);
+
+	        // Enable almost empty interrupt	
+	        MXC_UART1->inten |= (UART_WRITE_INTS);
+    	}
+    }
 }
 
 
@@ -204,13 +245,12 @@ static BOOL init_com0(int BaudRate, int Parity, int DataBits, int StopBits, int 
 	uart_cfg_t cfg;
 	cfg.parity = UART_PARITY_DISABLE; // no parity
 	cfg.size = UART_DATA_SIZE_8_BITS; //8 data bits
-	cfg.extra_stop = 1; //no stop bits
+	cfg.extra_stop = 0; 
 	cfg.cts = 0;  //No hardware flow control
 	cfg.rts = 0;
-	cfg.baud = 115200; // Default baud for MFDeploy and Visual Studio
+	cfg.baud = BaudRate; 
 
 	sys_cfg_uart_t sys_cfg;
-	//sys_cfg.clk_scale = CLKMAN_SCALE_DIV_4; //CLKMAN_SCALE_AUTO;
 	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
 	IOMAN_UART_FUNC(sys_cfg.io_cfg, 0, IOMAN_MAP_A, IOMAN_MAP_UNUSED, IOMAN_MAP_UNUSED, 1, 0, 0);
 
@@ -221,47 +261,24 @@ static BOOL init_com0(int BaudRate, int Parity, int DataBits, int StopBits, int 
 	
 	if(error != E_NO_ERROR) {
 		return FALSE;
-	} else {
-		InitBuffers(0);
 	}
 
-	//< GPIO configuration object for the UART Receive (RX) Pin for Console I/O.
-	//const gpio_cfg_t console_uart_rx = { PORT_0, PIN_0, GPIO_FUNC_GPIO, GPIO_PAD_INPUT };
-	GPIO_ConfigurePin(PORT_0, PIN_0, GPIO_FUNC_GPIO, GPIO_PAD_INPUT);
+	write_req0.data = txdata_com0;
+	write_req0.len = 0;
 
 	if(!CPU_INTC_ActivateInterrupt(UART0_IRQn, USART0_Handler, NULL) ) return FALSE;
 
-/*mxc_uart_fifo_regs_t *fifo;
-fifo = MXC_UART0_FIFO;
-fifo->tx = 'a';
-fifo->tx = 'b';
-fifo->tx = 'c';
-CPU_GPIO_TogglePinState(8);
-CPU_GPIO_TogglePinState(8);
-CPU_USART_WriteCharToTxBuffer(0, 'd');
-CPU_USART_WriteCharToTxBuffer(0, 'e');
-CPU_USART_WriteCharToTxBuffer(0, 'f');
-debug_printf("T");
-debug_printf("Works?");
-hal_printf("\r\nhal_printf\r\n");*/
-
 	PORTS_IN_USE_MASK |= 1;
-/*	for (int i=0; i<30; i++){
-		txdata_com0[i] = (uint8_t)('0' + i);
-	}
-	txdata_com0[28]='\r';
-	txdata_com0[29]='\n';
-	
-	write_req0.len=30;
-	write_req0.num=0;
-	UART_WriteAsync(MXC_UART0 , &write_req0);*/
 
-	UART_DrainRX(MXC_UART0);
-	UART_DrainTX(MXC_UART0);
-	UART_Enable(MXC_UART0);
+	com0_current_baud = BaudRate;
+	com0_current_parity = Parity;
+	com0_current_databits = DataBits;
+	com0_current_stopbits = StopBits;
+	com0_current_flowcontrol = FlowValue;
 
-	read_req0.len = BUFF_SIZE-1;
-	UART_ReadAsync(MXC_UART0 , &read_req0);
+	// enabling read interrupts
+	MXC_UART0->inten |= UART_READ_INTS;
+
 	return TRUE;
 }
 
@@ -270,10 +287,10 @@ static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int 
 	uart_cfg_t cfg;
 	cfg.parity = UART_PARITY_DISABLE; // no parity
 	cfg.size = UART_DATA_SIZE_8_BITS; //8 data bits
-	cfg.extra_stop = 1; //no stop bits
+	cfg.extra_stop = 0; 
 	cfg.cts = 0;  //No hardware flow control
 	cfg.rts = 0;
-	cfg.baud = 57600; // Default baud for MFDeploy and Visual Studio
+	cfg.baud = BaudRate; 
 
 	sys_cfg_uart_t sys_cfg;
 	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
@@ -282,28 +299,22 @@ static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int 
 	while(UART_Busy(MXC_UART0)){}
 	while(UART_Busy(MXC_UART1)){}
 
-	int error = UART_Init(MXC_UART1, &cfg, &sys_cfg);
+	uint32_t error = UART_Init(MXC_UART1, &cfg, &sys_cfg);
 	if(error != E_NO_ERROR) {
 		return FALSE;
-	} else {
-		InitBuffers(1);
 	}
+	write_req1.data = txdata_com1;
+	write_req1.len = 0;
 
 	if(!CPU_INTC_ActivateInterrupt(UART1_IRQn, USART1_Handler, NULL) ) return FALSE;
 
 	PORTS_IN_USE_MASK |= 2;
 
-/*mxc_uart_fifo_regs_t *fifo;
-fifo = MXC_UART1_FIFO;
-fifo->tx = 'a';
-fifo->tx = 'b';
-fifo->tx = 'c';
-CPU_GPIO_TogglePinState(8);
-CPU_GPIO_TogglePinState(8);*/
-
-	//Start reading
-	read_req1.len = BUFF_SIZE;
-	UART_ReadAsync(MXC_UART1 , &read_req1);
+	com1_current_baud = BaudRate;
+	com1_current_parity = Parity;
+	com1_current_databits = DataBits;
+	com1_current_stopbits = StopBits;
+	com1_current_flowcontrol = FlowValue;
 
 	return TRUE;
 }
@@ -324,13 +335,13 @@ void USART_pause(void) {
 // Necessary when changing power levels, for example.
 void USART_reinit(void) {
 	if (PORTS_IN_USE_MASK & 0x1) {
-		UART_Shutdown(MXC_UART_GET_UART(0));
-		UART_Enable(MXC_UART_GET_UART(0));
+		CPU_USART_Uninitialize(0);
+		init_com0(com0_current_baud, com0_current_parity, com0_current_databits, com0_current_stopbits, com0_current_flowcontrol);
 	}
 
 	if (PORTS_IN_USE_MASK & 0x2) {
-		UART_Shutdown(MXC_UART_GET_UART(1));
-		UART_Enable(MXC_UART_GET_UART(1));
+		CPU_USART_Uninitialize(1);
+		init_com1(com1_current_baud, com1_current_parity, com1_current_databits, com1_current_stopbits, com1_current_flowcontrol);
 	}
 }
 
@@ -340,19 +351,20 @@ void USART_reinit(void) {
 BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
 {
 	// Check to make sure not already up.
-	//if (ComPortNum == 0 && (PORTS_IN_USE_MASK&1)) return TRUE;
-	//if (ComPortNum == 1 && (PORTS_IN_USE_MASK&2)) return TRUE;
+	if (ComPortNum == 0 && (PORTS_IN_USE_MASK&1)) return TRUE;
+	if (ComPortNum == 1 && (PORTS_IN_USE_MASK&2)) return TRUE;
 
 	// If COM0, don't initialize until we see something connected (i.e. usb-serial attached)
-	//if (ComPortNum == 0) {
+	if (ComPortNum == 0) {
 		return init_com0(BaudRate, Parity, DataBits, StopBits, FlowValue);
-	/*}
+
+	}
 
 	if (ComPortNum == 1) {
 		return init_com1(BaudRate, Parity, DataBits, StopBits, FlowValue);
 	}
 
-	return FALSE;*/
+	return FALSE;
 }
 
 // Not sure of a scenario where this fails

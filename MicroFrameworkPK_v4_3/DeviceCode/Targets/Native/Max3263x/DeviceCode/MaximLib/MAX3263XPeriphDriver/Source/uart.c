@@ -146,7 +146,7 @@ int UART_Init(mxc_uart_regs_t *uart, const uart_cfg_t *cfg, const sys_cfg_uart_t
     MXC_ASSERT(uart_clk > 0);
 
     baud_shift = 2;
-    baud_div = (uart_clk / (cfg->baud * 4));
+    baud_div = (uart_clk / (cfg->baud * baud_shift));
 
     // Can not support higher frequencies
     if(!baud_div) {
@@ -159,7 +159,7 @@ int UART_Init(mxc_uart_regs_t *uart, const uart_cfg_t *cfg, const sys_cfg_uart_t
             return E_NOT_SUPPORTED;
         }
         baud_shift--;
-        baud_div = (uart_clk / (cfg->baud * (16 >> baud_shift)));
+        baud_div = (uart_clk / (cfg->baud * baud_shift));
     }
 
     // Adjust baud_div so we don't overflow with the calculations below
@@ -171,8 +171,8 @@ int UART_Init(mxc_uart_regs_t *uart, const uart_cfg_t *cfg, const sys_cfg_uart_t
     }
 
     // Figure out if the truncation increased the error
-    baud = (uart_clk / (baud_div * (16 >> baud_shift)));
-    baud_1 = (uart_clk / ((baud_div+1) * (16 >> baud_shift)));
+    baud = (uart_clk / (baud_div * baud_shift));
+    baud_1 = (uart_clk / ((baud_div+1) * baud_shift));
 
     if(cfg->baud > baud) {
         diff_baud = cfg->baud - baud;
@@ -503,6 +503,7 @@ void UART_Handler(mxc_uart_regs_t *uart)
 {
     int uart_num;
     uint32_t flags;
+	volatile uint32_t enableBits = uart->inten;
 
     uart_num = MXC_UART_GET_IDX(uart);
     MXC_ASSERT(uart_num >= 0);

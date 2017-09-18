@@ -150,6 +150,21 @@ typedef uint16_t ushort;
 #define MESSAGING_PORT     COM1
 
 
+//SPI Devices
+//first define the chip select for all slave devices and then initialize the SPI_SLAVES array
+
+//Slave 0 gpio config; P0.4->sck, P0.5->mosi, p0.6->miso, p0.7->ssel
+#define GPIO_LORA_CHIPSELECT 7 //P0.7
+#define GPIO_SLAVE0_CHIPSELECT GPIO_LORA_CHIPSELECT
+#define SPI_PORT_SLAVE0 0
+
+//define new slaves  pins when you add them to platform
+#define GPIO_SLAVE1_CHIPSELECT 0
+#define GPIO_SLAVE2_CHIPSELECT 0
+#define GPIO_SLAVE3_CHIPSELECT 0
+
+#define SPI_SLAVE_COUNT 1
+
 //Setting the upper and lower thresholds for the GC to kick in
 //Our total heap is 48 K bytes
 #define PLATFORM_DEPENDENT_HEAP_SIZE_THRESHOLD  16 * 1024

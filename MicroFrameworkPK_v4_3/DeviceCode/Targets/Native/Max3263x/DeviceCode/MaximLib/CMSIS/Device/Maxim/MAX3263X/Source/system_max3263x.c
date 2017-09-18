@@ -56,7 +56,7 @@
 #endif
 
 extern void (* const __isr_vector[])(void);
-uint32_t SystemCoreClock = RO_FREQ/2;
+uint32_t SystemCoreClock = RO_FREQ / 2;
 
 void SystemCoreClockUpdate(void)
 {
