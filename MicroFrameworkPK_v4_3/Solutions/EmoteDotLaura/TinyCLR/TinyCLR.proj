@@ -732,6 +732,7 @@
 </ItemGroup>-->
 <ItemGroup>
 <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Radios\dotNetMF.proj" />
+ <DriverLibs Include="Netmf_Radio.$(LIB_EXT)" />
 </ItemGroup>
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Radios\dotNetMF.proj" />
