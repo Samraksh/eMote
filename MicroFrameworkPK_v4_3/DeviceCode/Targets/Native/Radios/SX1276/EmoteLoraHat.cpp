@@ -10,25 +10,6 @@
 namespace LoraHat {
 
 
-
-// Temporary hack.
-//static unsigned get_APB1_clock() {
-//	RCC_ClocksTypeDef RCC_Clocks;
-//	RCC_GetClocksFreq(&RCC_Clocks);
-//	return RCC_Clocks.PCLK1_Frequency;
-//}
-
-//static unsigned get_APB2_clock() {
-//	RCC_ClocksTypeDef RCC_Clocks;
-//	RCC_GetClocksFreq(&RCC_Clocks);
-//	return RCC_Clocks.PCLK2_Frequency;
-//}
-
-Emote_Lora_Hat::Emote_Lora_Hat() {
-	// TODO Auto-generated constructor stub
-	Initialize();
-}
-
 bool LoraHardwareConfig::SpiInitialize() {
 //	initSPI2();
 //	 Calling mf spi initialize function
@@ -52,209 +33,30 @@ bool LoraHardwareConfig::SpiInitialize() {
 
 }
 
-Emote_Lora_Hat::~Emote_Lora_Hat() {
-	// TODO Auto-generated destructor stub
-}
-
-//void Emote_Lora_Hat::radio_comm_WriteData(uint8_t cmd, unsigned pollCts,
-//		uint8_t byteCount, uint8_t* pData) {
-//    if(pollCts)
-//    {
-//        while(!ctsWentHigh)
-//        {
-//            radio_comm_PollCTS();
-//        }
-//    }
-//	radio_spi_sel_assert(); //cs pin chip select
-//	radio_spi_go(cmd);
-//	spi_write_bytes(byteCount, pData);
-//	radio_spi_sel_no_assert();
-//
-//    //radio_hal_ClearNsel();
-//    //radio_hal_SpiWriteByte(cmd);
-//    //radio_hal_SpiWriteData(byteCount, pData);
-//    //radio_hal_SetNsel();
-//
-//    ctsWentHigh = 0;
-//}
-//
-//void Emote_Lora_Hat::radio_comm_ReadData(uint8_t cmd, unsigned pollCts,
-//		uint8_t byteCount, uint8_t* pData) {
-//	if (pollCts) { // Not sure of case where you wouldn't want to do this
-//		radio_comm_PollCTS();
-//	}
-//	radio_spi_sel_assert();
-//	radio_spi_go(cmd);
-//	spi_read_bytes(byteCount, pData);
-//	radio_spi_sel_no_assert();
-//	ctsWentHigh = 0;
-//}
-
-//void Emote_Lora_Hat::radio_comm_WriteData(uint8_t* buffer, size ) {
-//
-//	CPU_SPI_nWrite8_nRead8(m_spi_config, &addr, 1, buffer, size, 1 );
-//
-//
-////		INT32 readsize = 0;
-////		INT32 writesize = (INT32)size;
-////
-////		if(!CPU_SPI_Xaction_Start(m_spi_config)){
-////			return;
-////		}
-////
-////		SPI_XACTION_8 t;
-////		{
-////		t.Write8 = &addr;
-////		t.WriteCount = 1;
-////		t.Read8 = NULL;
-////		t.ReadCount = 0;
-////		t.ReadStartOffset = 0;
-////		t.SPI_mod = m_spi_config.SPI_mod;
-////		t.BusyPin = m_spi_config.BusyPin;
-////		}
-////		CPU_SPI_Xaction_nWrite8_nRead8(t);
-////		{
-////		t.Write8 = &addr;
-////		t.WriteCount = size;
-////		t.Read8 = NULL;
-////		t.ReadCount = 0;
-////		t.ReadStartOffset = 0;
-////		t.SPI_mod = m_spi_config.SPI_mod;
-////		t.BusyPin = m_spi_config.BusyPin;
-////		}
-////		CPU_SPI_Xaction_nWrite8_nRead8(t);
-////		CPU_SPI_Xaction_Stop(m_spi_config);
-//}
-
-//void Emote_Lora_Hat::radio_comm_ReadData(uint8_t addr, uint8_t size, uint8_t* buffer) {
-//
-//	CPU_SPI_nWrite8_nRead8(m_spi_config, &addr, 1, buffer, size, 1 );
-//
-//
-//	//	addr = addr & 0x7F;
-//	//	INT32 readsize = 0;
-//	//	INT32 writesize = (INT32)size;
-//	//
-//	//	if(!CPU_SPI_Xaction_Start(m_spi_config)){
-//	//		return;
-//	//	}
-//	//
-//	//	SPI_XACTION_8 t;
-//	//	{
-//	//	t.Write8 = &addr;
-//	//	t.WriteCount = 1;
-//	//	t.Read8 = buffer;
-//	//	t.ReadCount = size;
-//	//	t.ReadStartOffset = 1;
-//	//	t.SPI_mod = m_spi_config.SPI_mod;
-//	//	t.BusyPin = m_spi_config.BusyPin;
-//	//	}
-//	//	if(!CPU_SPI_Xaction_nWrite8_nRead8(t)) return;
-//	//
-//	//	CPU_SPI_Xaction_Stop(m_spi_config);
-//
-//}
-
 
 
 LoraHardwareConfig::LoraHardwareConfig() {
-//	SX1276_pin_setup.nirq_port0			= GPIOA;
-//	SX1276_pin_setup.nirq_pin0			= GPIO_Pin_1;
-//	SX1276_pin_setup.nirq_mf_pin0		= (GPIO_PIN) 1;
-//
-//	SX1276_pin_setup.nirq_port1			= GPIOA;
-//	SX1276_pin_setup.nirq_pin1			= GPIO_Pin_2;
-//	SX1276_pin_setup.nirq_mf_pin1		= (GPIO_PIN) 2;
-//
-//	SX1276_pin_setup.nirq_port2			= GPIOA;
-//	SX1276_pin_setup.nirq_pin2			= GPIO_Pin_3;
-//	SX1276_pin_setup.nirq_mf_pin2		= (GPIO_PIN) 3;
-//
-//	SX1276_pin_setup.nirq_port3			= GPIOA;
-//	SX1276_pin_setup.nirq_pin3			= GPIO_Pin_8;
-//	SX1276_pin_setup.nirq_mf_pin3		= (GPIO_PIN) 8;
-//
-//
-//	SX1276_pin_setup.nirq_port4			= GPIOA;
-//	SX1276_pin_setup.nirq_pin4			= GPIO_Pin_0; //GPIO_Pin_22; // TODO:
-//	SX1276_pin_setup.nirq_mf_pin4		= (GPIO_PIN) 22;
-//
-//	SX1276_pin_setup.nirq_port5			= GPIOA;
-//	SX1276_pin_setup.nirq_pin5			= GPIO_Pin_0; //GPIO_Pin_23;
-//	SX1276_pin_setup.nirq_mf_pin5		= (GPIO_PIN) 23;
-//
-//	SX1276_pin_setup.reset_port			= GPIOA; // ?
-//	SX1276_pin_setup.reset_pin			= GPIO_Pin_0; // GPIO_Pin_24;
-//	SX1276_pin_setup.reset_mf_pin		= (GPIO_PIN) 24;
-
-//	SX1276_pin_setup.spi_base 			= SPI2;
-//	SX1276_pin_setup.spi_port 			= GPIOB;
-//	SX1276_pin_setup.cs_port			= GPIOA;
-//	SX1276_pin_setup.cs_pin				= GPIO_Pin_4;
-//	SX1276_pin_setup.sclk_pin			= GPIO_Pin_13;
-//	SX1276_pin_setup.miso_pin			= GPIO_Pin_14;
-//	SX1276_pin_setup.mosi_pin			= GPIO_Pin_15;
-
-//	SX1276_pin_setup.spi_rcc			= RCC_APB1Periph_SPI2;
 
 	Initialize();
 }
 
-void LoraHardwareConfig::init_interrupts(){
 
-}
 
 void LoraHardwareConfig::reset(){
-	CPU_GPIO_SetPinState(SX1276_pin_setup.reset_mf_pin, TRUE);
-	CPU_GPIO_SetPinState(SX1276_pin_setup.reset_mf_pin, FALSE);
+//	CPU_GPIO_SetPinState(SX1276_pin_setup.reset_mf_pin, TRUE);
+//	CPU_GPIO_SetPinState(SX1276_pin_setup.reset_mf_pin, FALSE);
 }
 
 
 void LoraHardwareConfig::init_pins(){
-	/*
-	GPIO_InitTypeDef GPIO_InitStructure;
+	SX1276_pin_setup.SX1276_interupt_pins.DIO0			= (GPIO_PIN)46; //P5_6
+	SX1276_pin_setup.SX1276_interupt_pins.DIO1			= (GPIO_PIN)45;	//P5_5
+	SX1276_pin_setup.SX1276_interupt_pins.DIO2			= (GPIO_PIN)26; //P3_2
+	SX1276_pin_setup.SX1276_interupt_pins.DIO3			= (GPIO_PIN)44; //P5_4
+	SX1276_pin_setup.SX1276_interupt_pins.DIO4			= (GPIO_PIN)43; //P5_3
+	SX1276_pin_setup.SX1276_interupt_pins.DIO5			= (GPIO_PIN)27; //P3_3
 
-	SX1276_pin_setup_t *config = &SX1276_pin_setup;
-
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Pin =  config->reset_pin;
-	GPIO_Init(config->reset_port, &GPIO_InitStructure);
-
-
-
-	// NIRQ
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Pin = config->nirq_pin0;
-	GPIO_Init(config->nirq_port0, &GPIO_InitStructure);
-
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Pin = config->nirq_pin1;
-	GPIO_Init(config->nirq_port1, &GPIO_InitStructure);
-
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Pin = config->nirq_pin2;
-	GPIO_Init(config->nirq_port2, &GPIO_InitStructure);
-
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Pin = config->nirq_pin3;
-	GPIO_Init(config->nirq_port3, &GPIO_InitStructure);
-
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Pin = config->nirq_pin4;
-	GPIO_Init(config->nirq_port4, &GPIO_InitStructure);
-
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Pin = config->nirq_pin5;
-	GPIO_Init(config->nirq_port5, &GPIO_InitStructure);
-
-	// PA4 SPI chip select
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Pin = config->cs_pin;
-	GPIO_WriteBit(config->cs_port, config->cs_pin, Bit_SET); // Set
-	GPIO_Init(config->cs_port, &GPIO_InitStructure);
-	*/
+	SX1276_pin_setup.reset_mf_pin		= (GPIO_PIN)120; //
 }
 
 void LoraHardwareConfig::Initialize(){

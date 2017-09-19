@@ -446,7 +446,7 @@ public:
      */
 	typedef UINT64 TimeVariable_t; //BK: These should be defined in the clock module
 	typedef UINT8 ClockIdentifier_t;
-	virtual void RequestSendAtTimeInstanst(void* msg, UINT16 size, TimeVariable_t PacketTransmissionTime, ClockIdentifier_t ClockIdentifier);
+	virtual void RequestSendAtTimeInstanst(void* msg, UINT16 size, TimeVariable_t PacketTransmissionTime, ClockIdentifier_t ClockIdentifier, bool request_ack = false);
     /*!
      * @brief Cancels previous send request
      *

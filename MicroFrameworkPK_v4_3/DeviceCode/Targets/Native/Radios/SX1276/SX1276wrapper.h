@@ -18,7 +18,7 @@ namespace Samraksh_SX1276Wrapper {
 
 #define SX1276M1BxASWrapper_debug_PIN (GPIO_PIN)120
 
-class SX1276M1BxASWrapper : public SX1276_Semtech::SX1276, public LoraHat::Emote_Lora_Hat {
+class SX1276M1BxASWrapper : public SX1276_Semtech::SX1276, public LoraHat::LoraHardwareConfig {
 public :
 	static void SX1276_Radio_Interrupt_Handler0(GPIO_PIN Pin, BOOL PinState, void* Param);
 	static void SX1276_Radio_Interrupt_Handler1(GPIO_PIN Pin, BOOL PinState, void* Param);
@@ -183,10 +183,11 @@ protected:
     void SetTimeoutTimer(TimeoutName_t ton, float delay) ;
     void CancelTimeoutTimer(TimeoutName_t ton);
 
-    void AddToTxBuffer(uint8_t *buffer, uint8_t size );
-
 private:
     uint8_t GetTimerID(TimeoutName_t ton) ;
+
+public:
+    void AddToTxBuffer(uint8_t *buffer, uint8_t size );
 
 };
 

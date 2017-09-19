@@ -10,7 +10,7 @@
 #include "SamrakshSX1276Parameters.h"
 
 
-EMOTE_SX1276_LORA::Samraksh_SX1276_hal* gsx1276radio_ptr;
+SamrakshRadio_I* gsx1276radio_ptr;
 
 //extern SX1276_Semtech::SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
 extern Samraksh_SX1276Wrapper::SX1276M1BxASWrapper* g_SX1276M1BxASWrapper_ptr;
@@ -25,32 +25,39 @@ namespace EMOTE_SX1276_LORA {
 //Samraksh_SX1276_hal grfsx1276Radio;
 
 void Samraksh_SX1276_hal::ValidHeaderDetected(){
-	if(gsx1276radio_ptr->m_re.PacketDetected) gsx1276radio_ptr->m_re.PacketDetected();
+	if(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.PacketDetected)
+		static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.PacketDetected();
 }
 void Samraksh_SX1276_hal::TxDone(){
-	gsx1276radio_ptr->m_packet.ClearPaylod();
-	if(gsx1276radio_ptr->m_re.TxDone) gsx1276radio_ptr->m_re.TxDone(true);
+	static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.ClearPaylod();
+	if(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.TxDone)
+		static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.TxDone(true);
 }
 void Samraksh_SX1276_hal::TxTimeout(){
-	gsx1276radio_ptr->m_packet.ClearPaylod();
-	gsx1276radio_ptr->ChooseRadioConfig();
-	if(gsx1276radio_ptr->m_re.TxDone) gsx1276radio_ptr->m_re.TxDone(false);
+	static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.ClearPaylod();
+	static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->ChooseRadioConfig();
+	if(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.TxDone)
+		static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.TxDone(false);
 };
 void Samraksh_SX1276_hal::RxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr){
-	if(gsx1276radio_ptr->m_re.RxDone) gsx1276radio_ptr->m_re.RxDone(payload, size);
+	if(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.RxDone)
+		static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.RxDone(payload, size);
 }
 void Samraksh_SX1276_hal::RxTimeout(){
-	if(gsx1276radio_ptr->m_re.RxDone) gsx1276radio_ptr->m_re.RxDone(NULL, 0);
+	if(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.RxDone)
+		static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.RxDone(NULL, 0);
 }
 void Samraksh_SX1276_hal::RxError(){
-	if(gsx1276radio_ptr->m_re.RxDone) gsx1276radio_ptr->m_re.RxDone(NULL, 0);
+	if(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.RxDone)
+		static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.RxDone(NULL, 0);
 }
 void Samraksh_SX1276_hal::FhssChangeChannel(uint8_t currentChannel ){
 
 }
 void Samraksh_SX1276_hal::CadDone(bool channelActivityDetected){
-	gsx1276radio_ptr->m_rm = SLEEP;
-	if(gsx1276radio_ptr->m_re.CadDone) gsx1276radio_ptr->m_re.CadDone(channelActivityDetected);
+	static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_rm = SLEEP;
+	if(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.CadDone)
+		static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.CadDone(channelActivityDetected);
 }
 
 
@@ -138,6 +145,7 @@ DeviceStatus Samraksh_SX1276_hal::Initialize(SamrakshRadio_I::RadioEvents_t re){
 
 	Samraksh_SX1276Wrapper::Samraksh_SX1276M1BxASWrapper_Init();
 	g_SX1276M1BxASWrapper_ptr->Initialize(&sx1276_re);
+	ChooseRadioConfig();
 
 	isRadioInitialized = true;
 	return DS_Success;
@@ -171,6 +179,10 @@ SamrakshRadio_I::RadioProperties_t Samraksh_SX1276_hal::GetRadioProperties(){
 }
 
 void Samraksh_SX1276_hal::Send(void* msg, UINT16 size, bool request_ack) {
+	if(request_ack) { //Currently ACK request is not supported
+		m_re.DataStatusCallback(false,size);
+		return;
+	}
 	if(!IsPacketTransmittable(msg, size)) {
 		m_re.DataStatusCallback(false,size);
 		return;
@@ -182,19 +194,19 @@ void Samraksh_SX1276_hal::Send(void* msg, UINT16 size, bool request_ack) {
 }
 
 
-void Samraksh_SX1276_hal::RequestSendAtTimeInstanst(void* msg, UINT16 size, TimeVariable_t PacketTransmissionTime, ClockIdentifier_t ClockIdentifier){ //TODO:
+void Samraksh_SX1276_hal::RequestSendAtTimeInstanst(void* msg, UINT16 size, TimeVariable_t PacketTransmissionTime, ClockIdentifier_t ClockIdentifier,  bool request_ack){ //TODO:
 	//	m_re.DataStatusCallback(false, 0); //
 
 	if(!IsPacketTransmittable(msg, size)) { //Reject if the incoming packet is not transferrable
 		m_re.DataStatusCallback(false, size);
 		return;
 	}
-	UINT64 curtime = VirtTimer_GetTicks(ClockIdentifier);
+	UINT64 curtime = CPU_Timer_CurrentTicks(ClockIdentifier);
 	if(PacketTransmissionTime < curtime){
 		m_re.DataStatusCallback(false, size);
 		return;
 	}
-	UINT64 delay = VirtTimer_TicksToTime(ClockIdentifier, PacketTransmissionTime - curtime);
+	UINT64 delay = CPU_TicksToMicroseconds(PacketTransmissionTime - curtime, ClockIdentifier);
 
 	if(delay < SX1276_hal_wrapper_internal_radio_properties.TIME_ADVANCE_FOR_SCHEDULING_A_PACKET_MICRO){
 		m_re.DataStatusCallback(false, size);
@@ -232,23 +244,23 @@ void Samraksh_SX1276_hal::RequestCancelSend(){
 	m_re.DataStatusCallback(true, 0);
 }
 
-DeviceStatus Samraksh_SX1276_hal::AddToTxBuffer(void* msg, UINT16 size){
-	// FIFO operations can not take place in Sleep mode
-	if(size + preloadedMsgSize > SX1276_hal_wrapper_max_packetsize) return DS_Fail;
-
-	if( ( g_SX1276M1BxASWrapper_ptr->Read( REG_OPMODE ) & ~RF_OPMODE_MASK ) == RF_OPMODE_SLEEP )
-	{
-		g_SX1276M1BxASWrapper_ptr->Standby( );
-		return DS_Fail;
-	}
-	preloadedMsgSize += size;
-	g_SX1276M1BxASWrapper_ptr->WriteFifo(static_cast<uint8_t*>(msg),size);
-
-//	g_SX1276M1BxASWrapper_ptr->SetOpMode( RFLR_OPMODE_SYNTHESIZER_TX );
-	g_SX1276M1BxASWrapper_ptr->Tx(g_SX1276M1BxASWrapper_ptr->TimeOnAir(SX1276_hal_wrapper_internal_radio_properties.radio_modem, m_packet.GetSize()));
-
-	return DS_Success;
-}
+//DeviceStatus Samraksh_SX1276_hal::AddToTxBuffer(void* msg, UINT16 size){
+//	// FIFO operations can not take place in Sleep mode
+//	if(size + preloadedMsgSize > SX1276_hal_wrapper_max_packetsize) return DS_Fail;
+//
+//	if( ( g_SX1276M1BxASWrapper_ptr->Read( REG_OPMODE ) & ~RF_OPMODE_MASK ) == RF_OPMODE_SLEEP )
+//	{
+//		g_SX1276M1BxASWrapper_ptr->Standby( );
+//		return DS_Fail;
+//	}
+//	preloadedMsgSize += size;
+//	g_SX1276M1BxASWrapper_ptr->WriteFifo(static_cast<uint8_t*>(msg),size);
+//
+////	g_SX1276M1BxASWrapper_ptr->SetOpMode( RFLR_OPMODE_SYNTHESIZER_TX );
+//	g_SX1276M1BxASWrapper_ptr->Tx(g_SX1276M1BxASWrapper_ptr->TimeOnAir(SX1276_hal_wrapper_internal_radio_properties.radio_modem, m_packet.GetSize()));
+//
+//	return DS_Success;
+//}
 
 
 void Samraksh_SX1276_hal::ChannelActivityDetection(){
@@ -258,24 +270,25 @@ void Samraksh_SX1276_hal::ChannelActivityDetection(){
 
 void Samraksh_SX1276_hal::PacketLoadTimerHandler(void* param) {
 	UINT64 delay;
-	UINT64 curtime = VirtTimer_GetTicks(gsx1276radio_ptr->m_packet.GetClockId());
-	g_SX1276M1BxASWrapper_ptr->WriteFifo(gsx1276radio_ptr->m_packet.GetPayload(),gsx1276radio_ptr->m_packet.GetSize());
-	gsx1276radio_ptr->m_packet.MarkUploaded();
-	if(curtime >= gsx1276radio_ptr->m_packet.GetDueTime()){ //Failed to load and send correctly
+	UINT64 curtime = CPU_Timer_CurrentTicks(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.GetClockId());
+//	g_SX1276M1BxASWrapper_ptr->WriteFifo(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.GetPayload(),static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.GetSize());
+	g_SX1276M1BxASWrapper_ptr->AddToTxBuffer(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.GetPayload(),static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.GetSize());
+	static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.MarkUploaded();
+	if(curtime >= static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.GetDueTime()){ //Failed to load and send correctly
 //		gsx1276radio_ptr->m_re.DataStatusCallback(false, gsx1276radio_ptr->m_packet.GetSize());
 //		return;
 		delay = 10000;
 	}
 	else{
-		delay = VirtTimer_TicksToTime(gsx1276radio_ptr->m_packet.GetClockId(), gsx1276radio_ptr->m_packet.GetDueTime() - curtime);
+		delay = CPU_TicksToMicroseconds( static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.GetDueTime() - curtime, static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.GetClockId());
 	}
 	SetTimer(PacketTxTimerName, 0 , delay, TRUE, high_precision_clock_id ); //Schedule PacketTxTimerHandler
 }
 
 void Samraksh_SX1276_hal::PacketTxTimerHandler(void* param) {
-	if(gsx1276radio_ptr->m_packet.IsMsgUploaded()){
+	if(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.IsMsgUploaded()){
 		g_SX1276M1BxASWrapper_ptr->Tx(
-				g_SX1276M1BxASWrapper_ptr->TimeOnAir(gsx1276radio_ptr->SX1276_hal_wrapper_internal_radio_properties.radio_modem, gsx1276radio_ptr->m_packet.GetSize())
+				g_SX1276M1BxASWrapper_ptr->TimeOnAir(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->SX1276_hal_wrapper_internal_radio_properties.radio_modem, static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.GetSize())
 				);
 	}
 }

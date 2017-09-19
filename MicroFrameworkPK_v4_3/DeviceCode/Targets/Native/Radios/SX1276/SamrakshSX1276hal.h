@@ -110,7 +110,7 @@ private:
 		return true;
 	}
 
-	DeviceStatus AddToTxBuffer(void* msg, UINT16 size);
+//	DeviceStatus AddToTxBuffer(void* msg, UINT16 size);
 private:
 	bool IsPacketTransmittable(void* msg, UINT16 size);
 public:
@@ -126,7 +126,7 @@ public:
 	RadioProperties_t GetRadioProperties();
 
 	void Send(void* msg, UINT16 size, bool request_ack = false);
-	void RequestSendAtTimeInstanst(void* msg, UINT16 size, TimeVariable_t PacketTransmissionTime, ClockIdentifier_t ClockIdentifier);
+	void RequestSendAtTimeInstanst(void* msg, UINT16 size, TimeVariable_t PacketTransmissionTime, ClockIdentifier_t ClockIdentifier,  bool request_ack = false);
 	void RequestCancelSend();
 
 	void ChannelActivityDetection();
