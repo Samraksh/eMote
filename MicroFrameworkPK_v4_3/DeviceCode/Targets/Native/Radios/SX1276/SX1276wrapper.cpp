@@ -134,8 +134,8 @@ void SX1276M1BxASWrapper::WriteFifo(uint8_t* buffer,
 
 void SX1276M1BxASWrapper::ReadFifo(uint8_t* buffer,
 		uint8_t size) {
-	uint8_t addr = 0;
-	CPU_SPI_nWrite8_nRead8(m_spi_config, &addr, 1, buffer, size, 1 );
+	uint8_t cmd = 0;
+	CPU_SPI_nWrite8_nRead8(m_spi_config, &cmd, 1, buffer, size, 1 );
 }
 
 
@@ -388,6 +388,78 @@ void SX1276M1BxASWrapper::AddToTxBuffer(uint8_t *buffer, uint8_t size ){
             // Write payload buffer
             WriteFifo( buffer, size );
             txTimeout = this->settings.LoRa.TxTimeout;
+        }
+        break;
+    }
+}
+
+void SX1276M1BxASWrapper::ReadFromTxBuffer(uint8_t *buffer, uint8_t size ){
+    // FIFO operations can not take place in Sleep mode
+    if( ( Read( REG_OPMODE ) & ~RF_OPMODE_MASK ) == RF_OPMODE_SLEEP )
+    {
+//        Standby( );
+    	return;
+    }
+
+    switch( this->settings.Modem )
+    {
+    case MODEM_FSK:
+        {
+//            this->settings.FskPacketHandler.NbBytes = 0;
+//            this->settings.FskPacketHandler.Size = size;
+//
+//            if( this->settings.Fsk.FixLen == false )
+//            {
+//                WriteFifo( ( uint8_t* )&size, 1 );
+//            }
+//            else
+//            {
+//                Write( REG_PAYLOADLENGTH, size );
+//            }
+//
+//            if( ( size > 0 ) && ( size <= 64 ) )
+//            {
+//                this->settings.FskPacketHandler.ChunkSize = size;
+//            }
+//            else
+//            {
+//                for(uint8_t i = 0; i < size; ++i){
+//                	rxtxBufferstorage[i] = *(buffer + i);
+//                };
+////                memcpy( rxtxBuffer, buffer, size );
+//                this->settings.FskPacketHandler.ChunkSize = 32;
+//            }
+//
+//            // Write payload buffer
+//            WriteFifo( buffer, this->settings.FskPacketHandler.ChunkSize );
+//            this->settings.FskPacketHandler.NbBytes += this->settings.FskPacketHandler.ChunkSize;
+//            txTimeout = this->settings.Fsk.TxTimeout;
+        }
+        break;
+    case MODEM_LORA:
+        {
+//            if( this->settings.LoRa.IqInverted == true )
+//            {
+//                Write( REG_LR_INVERTIQ, ( ( Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_ON ) );
+//                Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_ON );
+//            }
+//            else
+//            {
+//                Write( REG_LR_INVERTIQ, ( ( Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_OFF ) );
+//                Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF );
+//            }
+//
+//            this->settings.LoRaPacketHandler.Size = size;
+
+            // Initializes the payload size
+//            Write( REG_LR_PAYLOADLENGTH, size );
+
+            // Full buffer used for Rx
+//            Write( REG_LR_FIFOTXBASEADDR, 0 );
+            Write( REG_LR_FIFOADDRPTR, 0 );
+
+            // Write payload buffer
+            ReadFifo( buffer, size );
         }
         break;
     }

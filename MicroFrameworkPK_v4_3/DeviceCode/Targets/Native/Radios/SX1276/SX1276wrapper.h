@@ -88,6 +88,8 @@ public:
      *
      * @param [IN] buffer Buffer containing data to be put on the FIFO.
      * @param [IN] size Number of bytes to be written to the FIFO
+     * //BK: HACK!!! Make sure this is called with a buffer allocatation starting one byte before where the pointer points to
+     *
      */
     void WriteFifo( uint8_t *buffer, uint8_t size );
     /*!
@@ -188,6 +190,7 @@ private:
 
 public:
     void AddToTxBuffer(uint8_t *buffer, uint8_t size );
+    void ReadFromTxBuffer(uint8_t *buffer, uint8_t size );
 
 };
 
