@@ -5,7 +5,7 @@
 #include <spim.h>
 #include <gpio\netmf_gpio.h>
 
-#define SPI_MAX_PORTS 3
+#define SPI_MAX_PORTS 4
 
 enum SPIPort
 {

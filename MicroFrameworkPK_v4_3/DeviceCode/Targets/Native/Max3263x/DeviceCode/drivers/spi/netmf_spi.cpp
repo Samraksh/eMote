@@ -182,7 +182,7 @@ void CPU_SPI_Uninitialize(SPI_CONFIGURATION config)
 #endif
 	mxc_spim_regs_t *spi_reg=GetSPIRegForSlave(config.DeviceCS);
 	if(spi_reg)SPIM_Shutdown(spi_reg);
-	SPI_Initialized[GetSPIPortForSlave(config.DeviceCS)]=FALSE;
+	SPI_Initialized[GetSPIPortForSlave(config.DeviceCS) -1 ]=FALSE;
 }
 
 BOOL CPU_SPI_Enable(SPI_CONFIGURATION config)
@@ -247,7 +247,7 @@ BOOL CPU_SPI_Enable(SPI_CONFIGURATION config)
 	}
 
 	hal_printf("SPIM Initialized\n");
-	SPI_Initialized[_mport]=TRUE;
+	SPI_Initialized[_mport -1 ]=TRUE;
 	return TRUE;
 }
 
@@ -345,7 +345,7 @@ BOOL CPU_SPI_nWrite8_nRead8( const SPI_CONFIGURATION& Configuration, UINT8* Writ
 	//Initialize corresponding port
 	CPU_SPI_Enable(Configuration);
 
-	if(SPI_Initialized[port] == 0)
+	if(SPI_Initialized[port -1 ] == 0)
 	{
 #if defined(DEBUG_SPI)
 		hal_printf("SPI peripheral uninitialized\n");
@@ -361,25 +361,35 @@ BOOL CPU_SPI_nWrite8_nRead8( const SPI_CONFIGURATION& Configuration, UINT8* Writ
 	req.write_num = 0;
 	req.width=GetSPIWidthForSlave(Configuration.DeviceCS);
 
-	if(WriteCount>0) { //this is write operation
+
+	uint8_t readarray[256];
+	req.tx_data = Write8;
+	req.rx_data = readarray;
+
+	if(WriteCount>ReadCount+ReadStartOffset) { //this is write operation
 		req.len=WriteCount;
-		req.rx_data = NULL;
-		req.tx_data = Write8;
 	}
-	else{
-		req.len=ReadCount;
-		req.rx_data = &Read8[ReadStartOffset];
-		req.tx_data = NULL;
+	else {
+		req.len=ReadCount+ReadStartOffset;
 	}
 
 	//call transaction
-	int xactionResult = SPIM_Trans(GetSPIRegForSlave(Configuration.DeviceCS), &req);
+	CPU_GPIO_EnableOutputPin(Configuration.DeviceCS, Configuration.CS_Active);
+	CPU_GPIO_SetPinState(Configuration.DeviceCS, Configuration.CS_Active);
+	mxc_spim_regs_t* spim = GetSPIRegForSlave(Configuration.DeviceCS);
+	int xactionResult = SPIM_Trans(spim, &req);
+	while(SPIM_Busy(spim) != E_NO_ERROR) {}
+	CPU_GPIO_SetPinState(Configuration.DeviceCS, !Configuration.CS_Active);
+
+	memcpy(Read8, &readarray[ReadStartOffset],ReadCount );
+
 	if(xactionResult < E_NO_ERROR){
 		return false;
 	}
 
+
 	//Read or wrote something, but not the whole thing
-	if(xactionResult == WriteCount || xactionResult == ReadCount){
+	if(xactionResult == WriteCount || xactionResult == req.len){
 		return true;
 	}else {
 		return false;

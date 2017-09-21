@@ -153,7 +153,7 @@ typedef uint16_t ushort;
 
 //Slave 0 gpio config; P5.0->sck, P5.1->mosi, p5.2->miso, p5.3->ssel
 
-#define GPIO_LORA_CHIPSELECT 43 //P5.3
+#define GPIO_LORA_CHIPSELECT 32 //p4.0 //43 //P5.3
 #define GPIO_SLAVE0_CHIPSELECT GPIO_LORA_CHIPSELECT
 #define SPI_PORT_SLAVE0 3 //Maps to SPIPort_M2B
 
