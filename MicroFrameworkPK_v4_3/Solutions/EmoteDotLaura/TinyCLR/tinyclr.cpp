@@ -15,7 +15,6 @@
 //
 extern "C" void __cxa_pure_virtual() { while (true); }
 void* __dso_handle;
-//void* __dso_handle;
 void operator delete(void *, unsigned int){
 	while (true);
 }

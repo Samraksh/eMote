@@ -66,6 +66,7 @@ private:
 	static const UINT8 PacketLoadTimerName = VIRT_TIMER_SX1276_PacketLoadTimerName;
 	static const UINT8 PacketTxTimerName = VIRT_TIMER_SX1276_PacketTxTimerName;
 
+protected:
 	class msgToBeTransmitted_t{
 		UINT8 msg_payload[SX1276_hal_wrapper_max_packetsize + 1]; //BK: one byte is reserved for addr transaction with SPI
 		UINT16 msg_size;
@@ -84,8 +85,8 @@ private:
 		bool IsMsgSaved();
 		bool IsMsgUploaded();
 	};
-public:
 	msgToBeTransmitted_t m_packet;
+public:
 	SamrakshRadio_I::RadioEvents_t m_re;
 	RadioMode_t m_rm;
 private:
