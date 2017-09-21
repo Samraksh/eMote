@@ -182,7 +182,7 @@ void CPU_SPI_Uninitialize(SPI_CONFIGURATION config)
 #endif
 	mxc_spim_regs_t *spi_reg=GetSPIRegForSlave(config.DeviceCS);
 	if(spi_reg)SPIM_Shutdown(spi_reg);
-	SPI_Initialized[GetSPIPortForSlave(config.DeviceCS) -1 ]=FALSE;
+	SPI_Initialized[GetSPIPortForSlave(config.DeviceCS) ]=FALSE;
 }
 
 BOOL CPU_SPI_Enable(SPI_CONFIGURATION config)
@@ -247,7 +247,7 @@ BOOL CPU_SPI_Enable(SPI_CONFIGURATION config)
 	}
 
 	hal_printf("SPIM Initialized\n");
-	SPI_Initialized[_mport -1 ]=TRUE;
+	SPI_Initialized[_mport ]=TRUE;
 	return TRUE;
 }
 
@@ -345,7 +345,7 @@ BOOL CPU_SPI_nWrite8_nRead8( const SPI_CONFIGURATION& Configuration, UINT8* Writ
 	//Initialize corresponding port
 	CPU_SPI_Enable(Configuration);
 
-	if(SPI_Initialized[port -1 ] == 0)
+	if(SPI_Initialized[port ] == 0)
 	{
 #if defined(DEBUG_SPI)
 		hal_printf("SPI peripheral uninitialized\n");
