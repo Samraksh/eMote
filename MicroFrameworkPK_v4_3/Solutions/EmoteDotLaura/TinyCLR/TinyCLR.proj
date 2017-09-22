@@ -494,10 +494,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Timer\timer_32bit\dotNetMF.proj" />
     <DriverLibs Include="Max3263x_Timer32Bit.$(LIB_EXT)" />
   </ItemGroup>
-  <!--<ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Timer\netmf_rtc\dotNetMF.proj" />
-    <DriverLibs Include="Max3263x_rtc.$(LIB_EXT)" />
-  </ItemGroup>-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Timer\timer_rtc\dotNetMF.proj" />
+    <DriverLibs Include="TimerRTC.$(LIB_EXT)" />
+  </ItemGroup>
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Max3263x\DeviceCode\drivers\Timer\Timer16Bit\dotNetMF.proj" />
     <DriverLibs Include="Timer16Bit.$(LIB_EXT)" />
