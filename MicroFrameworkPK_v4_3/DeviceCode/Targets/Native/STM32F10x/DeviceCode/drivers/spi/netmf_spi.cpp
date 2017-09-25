@@ -160,7 +160,7 @@ void CPU_SPI_Uninitialize(SPI_CONFIGURATION config)
 }
 
 
-void CPU_SPI_Enable(SPI_CONFIGURATION config)
+BOOL CPU_SPI_Enable(SPI_CONFIGURATION config)
 {
 
 	if(config.SPI_mod == SPIBUS1)
@@ -225,6 +225,7 @@ void CPU_SPI_Enable(SPI_CONFIGURATION config)
 		SPI_Cmd(SPIy, ENABLE);
 
 	}
+	return true;
 
 }
 
