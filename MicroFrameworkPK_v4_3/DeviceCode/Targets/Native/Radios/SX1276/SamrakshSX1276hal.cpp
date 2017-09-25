@@ -192,6 +192,9 @@ void Samraksh_SX1276_hal::Send(void* msg, UINT16 size, bool request_ack) {
 	m_re.DataStatusCallback(true,size);
 	m_packet.PreparePayload(msg, size, 0, 0);
 
+	m_rm = SamrakshRadio_I::RadioMode_t::TX;
+
+
 	g_SX1276M1BxASWrapper_ptr->Send(m_packet.GetPayload(), m_packet.GetSize());
 }
 
