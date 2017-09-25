@@ -186,8 +186,33 @@ void Samraksh_SX1276_hal::Send(void* msg, UINT16 size, bool request_ack) {
 		return;
 	}
 	if(!IsPacketTransmittable(msg, size)) {
-		m_re.DataStatusCallback(false,size);
-		return;
+		 // BEGIN WORKAROUND
+
+		        // Reset the radio
+				g_SX1276M1BxASWrapper_ptr->Reset( );
+
+		        // Calibrate Rx chain
+//		        RxChainCalibration( );
+
+		        // Initialize radio default values
+				Sleep(); //SetOpMode( RF_OPMODE_SLEEP );
+
+//		        RadioRegistersInit( );
+
+//		        SetModem( MODEM_FSK );
+
+		        // Restore previous network type setting.
+//		        SetPublicNetwork( this->settings.LoRa.PublicNetwork );
+		        // END WORKAROUND
+
+//		        this->settings.State = RF_IDLE;
+//		        if( ( this->RadioEvents != NULL ) && ( this->RadioEvents->TxTimeout != NULL ) )
+//		        {
+//		            this->RadioEvents->TxTimeout( );
+//		        }
+
+				TxTimeout();
+//		m_re.DataStatusCallback(false,size);
 	}
 	m_re.DataStatusCallback(true,size);
 	m_packet.PreparePayload(msg, size, 0, 0);
@@ -310,8 +335,12 @@ bool Samraksh_SX1276_hal::SetTimer(UINT8 timer_id, UINT32 start_delay,
 
 bool Samraksh_SX1276_hal::IsPacketTransmittable(void* msg, UINT16 size) {
 
+	if(g_SX1276M1BxASWrapper_ptr->GetStatus() ==  RF_TX_RUNNING){
+		return false;
+	}
 	if(m_packet.GetSize() > 0){ //Reject the request if there is a packet scheduled
 		return false;
+//		m_packet.ClearPaylod();
 	}
 	return (size <= SX1276_hal_wrapper_max_packetsize);
 }
@@ -341,6 +370,30 @@ SamrakshRadio_I::RadioMode_t Samraksh_SX1276_hal::Standby(){
 
 SamrakshRadio_I::RadioMode_t Samraksh_SX1276_hal::GetRadioState() {
 	return m_rm;
+
+//	Uninitialized,
+//	SLEEP, 		//Low-power mode
+//	STANDBY,	//both Crystal oscillator and Lora baseband blocks are turned on.RF part and PLLs are disabled
+//	TX,			// TX
+//	RX,
+//	SamrakshRadio_I::RadioMode_t cur_radio_mode;
+//	switch(g_SX1276M1BxASWrapper_ptr->GetStatus()){
+//	case RF_IDLE :
+//		cur_radio_mode = SamrakshRadio_I::RadioMode_t::STANDBY;
+//		break;
+//	case RF_RX_RUNNING :
+//		cur_radio_mode = SamrakshRadio_I::RadioMode_t::RX;
+//		break;
+//	case RF_TX_RUNNING :
+//		cur_radio_mode = SamrakshRadio_I::RadioMode_t::RX;
+//		break;
+//	case RF_CAD :
+//		cur_radio_mode = SamrakshRadio_I::RadioMode_t::RX;
+//		break;
+//	default:
+//		break;
+//	}
+//	return m_rm;
 }
 
 

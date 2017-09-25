@@ -675,7 +675,7 @@ void SX1276::Send( uint8_t *buffer, uint8_t size )
             }
             // Write payload buffer
             WriteFifo( buffer, size );
-            txTimeout = this->settings.LoRa.TxTimeout;
+            txTimeout = this->settings.LoRa.TxTimeout + 10000;
         }
         break;
     }
