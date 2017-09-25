@@ -934,8 +934,8 @@ void SX1276::Tx( uint32_t timeout )
 
     this->settings.State = RF_TX_RUNNING;
     //txTimeoutTimer.attach_us( mbed::callback( this, &SX1276::OnTimeoutIrq ), timeout * 1e3 );
- SetTimeoutTimer(txTimeoutTimer, timeout * 1e3 );
     SetOpMode( RF_OPMODE_TRANSMITTER );
+    SetTimeoutTimer(txTimeoutTimer, timeout * 1e3 );
 }
 
 void SX1276::StartCad(  )

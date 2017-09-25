@@ -179,18 +179,18 @@ void SX1276M1BxASWrapper::SpiInit(void) {
 
 
 void SX1276M1BxASWrapper::IoIrqInit() {
-//	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO0, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler0, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-//	EXTI_ClearITPendingBit(EXTI_Line1);
-//	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO1, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler1, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-//	EXTI_ClearITPendingBit(EXTI_Line1);
-//	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO2, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler2, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-//	EXTI_ClearITPendingBit(EXTI_Line1);
-//	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO3, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler3, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-//	EXTI_ClearITPendingBit(EXTI_Line1);
-//	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO4, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler4, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-//	EXTI_ClearITPendingBit(EXTI_Line1);
-//	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO5, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler5, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-//	EXTI_ClearITPendingBit(EXTI_Line1);
+	while(!CPU_GPIO_EnableInputPin(SX1276_pin_setup.SX1276_interupt_pins.DIO0, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler0, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED)){}
+
+	while(!CPU_GPIO_EnableInputPin(SX1276_pin_setup.SX1276_interupt_pins.DIO1, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler1, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED)){}
+
+	while(!CPU_GPIO_EnableInputPin(SX1276_pin_setup.SX1276_interupt_pins.DIO2, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler2, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED)){}
+
+	while(!CPU_GPIO_EnableInputPin(SX1276_pin_setup.SX1276_interupt_pins.DIO3, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler3, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED)){}
+//
+//	while(!CPU_GPIO_EnableInputPin(SX1276_pin_setup.SX1276_interupt_pins.DIO4, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler4, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED)){}
+//
+//	while(!CPU_GPIO_EnableInputPin(SX1276_pin_setup.SX1276_interupt_pins.DIO5, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler5, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED)){}
+
 }
 
 void SX1276M1BxASWrapper::IoDeInit() {
@@ -295,14 +295,11 @@ void SX1276M1BxASWrapper::Initialize(SX1276_Semtech::SX1276RadioEvents_t *events
 
 	LoraHardwareConfig::Initialize();
 	//this->SX1276M1BxASWrapper::Reset();
-	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , FALSE);
-	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , TRUE);
+
 
 	this->SX1276M1BxASWrapper::IoInit( );
 
 	RxChainCalibration();
-	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , FALSE);
-	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , TRUE);
 
 
 

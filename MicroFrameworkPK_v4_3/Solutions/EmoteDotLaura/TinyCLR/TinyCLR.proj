@@ -32,9 +32,7 @@
     <MMP_DAT_CreateDatabaseFile>$(BIN_DIR)\tinyclr.dat</MMP_DAT_CreateDatabaseFile>
     <EXEScatterFileDefinition>$(SRC_DIR)\scatterfile_tinyclr_$(COMPILER_TOOL).$(SCATTER_EXT)</EXEScatterFileDefinition>
   </PropertyGroup>
-  <ItemGroup>
-	    <HFiles Include="RequestSendAtTimeInstantTest.h" />	
-		<Compile Include="RequestSendAtTimeInstantTest.cpp" />													
+  <ItemGroup>													
     <Compile Include="allocator.cpp" />
     <Compile Include="tinyclr.cpp" />
     <HFiles Include="$(SPOCLIENT)\clr\include\tinyclr_application.h" />

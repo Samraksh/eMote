@@ -8,8 +8,6 @@
 #include <DeviceCode\MaximLib\DevKitBoard\nhd12832.h>
 #include <DeviceCode\MaximLib\DevKitBoard\board.h>
 #include <tmr_utils.h>
-
-#include "RequestSendAtTimeInstantTest.h"
 ///////////////////////////////////////////////////////////////////////////////
 
 //
@@ -92,7 +90,7 @@ void ApplicationEntryPoint()
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
 
-    Test_InitializeAndRun();
+//    Test_InitializeAndRun();
 
     ClrStartup( clrSettings );
 

@@ -29,11 +29,13 @@ void Samraksh_SX1276_hal::ValidHeaderDetected(){
 		static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.PacketDetected();
 }
 void Samraksh_SX1276_hal::TxDone(){
+	static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_rm = SamrakshRadio_I::RadioMode_t::STANDBY;
 	static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.ClearPaylod();
 	if(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.TxDone)
 		static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.TxDone(true);
 }
 void Samraksh_SX1276_hal::TxTimeout(){
+	static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_rm = SamrakshRadio_I::RadioMode_t::STANDBY;
 	static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.ClearPaylod();
 	static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->ChooseRadioConfig();
 	if(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.TxDone)
@@ -55,7 +57,7 @@ void Samraksh_SX1276_hal::FhssChangeChannel(uint8_t currentChannel ){
 
 }
 void Samraksh_SX1276_hal::CadDone(bool channelActivityDetected){
-	static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_rm = SLEEP;
+	static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_rm = SamrakshRadio_I::RadioMode_t::SLEEP;
 	if(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.CadDone)
 		static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_re.CadDone(channelActivityDetected);
 }
@@ -287,6 +289,7 @@ void Samraksh_SX1276_hal::PacketLoadTimerHandler(void* param) {
 
 void Samraksh_SX1276_hal::PacketTxTimerHandler(void* param) {
 	if(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.IsMsgUploaded()){
+		static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_rm = SamrakshRadio_I::RadioMode_t::TX;
 		g_SX1276M1BxASWrapper_ptr->Tx(
 				g_SX1276M1BxASWrapper_ptr->TimeOnAir(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->SX1276_hal_wrapper_internal_radio_properties.radio_modem, static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.GetSize())
 				);
