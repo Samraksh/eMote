@@ -153,15 +153,6 @@ typedef uint16_t ushort;
 // communication facilities
 /////////////////////////////////////////////////////////
 
-#define GPIO_LORA_CHIPSELECT 32 //p4.0 //43 //P5.3
-#define GPIO_SLAVE0_CHIPSELECT GPIO_LORA_CHIPSELECT
-#define SPI_PORT_SLAVE0 3 //Maps to SPIPort_M2B
-
-//define new slaves  pins when you add them to platform
-#define GPIO_SLAVE1_CHIPSELECT 0
-#define GPIO_SLAVE2_CHIPSELECT 0
-#define GPIO_SLAVE3_CHIPSELECT 0
-
 ///////////////////////////////////////SAMRAKSH's CLR and Network Stack Definitions/////////////////////
 //#define BUILD_RTM
 
