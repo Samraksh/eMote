@@ -318,7 +318,7 @@ void Samraksh_SX1276_hal::PacketLoadTimerHandler(void* param) {
 void Samraksh_SX1276_hal::PacketTxTimerHandler(void* param) {
 	if(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.IsMsgUploaded()){
 		static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_rm = SamrakshRadio_I::RadioMode_t::TX;
-		g_SX1276M1BxASWrapper_ptr->Tx(
+		g_SX1276M1BxASWrapper_ptr->Tx(10000+
 				g_SX1276M1BxASWrapper_ptr->TimeOnAir(static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->SX1276_hal_wrapper_internal_radio_properties.radio_modem, static_cast<EMOTE_SX1276_LORA::Samraksh_SX1276_hal*>(gsx1276radio_ptr)->m_packet.GetSize())
 				);
 	}
