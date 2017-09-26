@@ -207,6 +207,7 @@ void SX1276M1BxASWrapper::SetAntSwLowPower(bool status) {
 }
 
 void SX1276M1BxASWrapper::AntSwInit() {
+
 }
 
 void SX1276M1BxASWrapper::AntSwDeInit() {
@@ -318,7 +319,7 @@ void SX1276M1BxASWrapper::Initialize(SX1276_Semtech::SX1276RadioEvents_t *events
 
 }
 
-void SX1276M1BxASWrapper::AddToTxBuffer(uint8_t *buffer, uint8_t size ){
+void SX1276M1BxASWrapper::WriteToTxBuffer(uint8_t *buffer, uint8_t size ){
     uint32_t txTimeout = 0;
 
     switch( this->settings.Modem )
@@ -436,24 +437,7 @@ void SX1276M1BxASWrapper::ReadFromTxBuffer(uint8_t *buffer, uint8_t size ){
         break;
     case MODEM_LORA:
         {
-            if( this->settings.LoRa.IqInverted == true )
-            {
-                Write( REG_LR_INVERTIQ, ( ( Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_ON ) );
-                Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_ON );
-            }
-            else
-            {
-                Write( REG_LR_INVERTIQ, ( ( Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_OFF ) );
-                Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF );
-            }
-
-            this->settings.LoRaPacketHandler.Size = size;
-
-            // Initializes the payload size
-            Write( REG_LR_PAYLOADLENGTH, size );
-
             // Full buffer used for Tx
-            Write( REG_LR_FIFOTXBASEADDR, 0 );
             Write( REG_LR_FIFOADDRPTR, 0 );
 
             // FIFO operations can not take place in Sleep mode

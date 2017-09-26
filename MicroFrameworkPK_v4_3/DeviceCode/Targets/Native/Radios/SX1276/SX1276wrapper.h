@@ -189,7 +189,7 @@ private:
     uint8_t GetTimerID(TimeoutName_t ton) ;
 
 public:
-    void AddToTxBuffer(uint8_t *buffer, uint8_t size );
+    void WriteToTxBuffer(uint8_t *buffer, uint8_t size );
     void ReadFromTxBuffer(uint8_t *buffer, uint8_t size );
 
 };
