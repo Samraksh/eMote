@@ -43,13 +43,14 @@ bool SX1276M1BxASWrapper::CheckRfFrequency(
 
 void SX1276M1BxASWrapper::Write(uint8_t addr, uint8_t data) {
 	uint8_t buffer[2];
-	buffer[0] = addr;
+	buffer[0] = addr | 0x80;
 	buffer[1] = data;
 	CPU_SPI_nWrite8_nRead8(m_spi_config, buffer, 2, NULL, 0, 0 );
 }
 
 uint8_t SX1276M1BxASWrapper::Read(uint8_t addr) {
     uint8_t data;
+    addr = addr & 0x7F;
     CPU_SPI_nWrite8_nRead8(m_spi_config, &addr, 1, &data, 1, 1 );
 //    Read( addr, &data, 1 );
     return data;
@@ -435,28 +436,34 @@ void SX1276M1BxASWrapper::ReadFromTxBuffer(uint8_t *buffer, uint8_t size ){
         break;
     case MODEM_LORA:
         {
-//            if( this->settings.LoRa.IqInverted == true )
-//            {
-//                Write( REG_LR_INVERTIQ, ( ( Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_ON ) );
-//                Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_ON );
-//            }
-//            else
-//            {
-//                Write( REG_LR_INVERTIQ, ( ( Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_OFF ) );
-//                Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF );
-//            }
-//
-//            this->settings.LoRaPacketHandler.Size = size;
+            if( this->settings.LoRa.IqInverted == true )
+            {
+                Write( REG_LR_INVERTIQ, ( ( Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_ON ) );
+                Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_ON );
+            }
+            else
+            {
+                Write( REG_LR_INVERTIQ, ( ( Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_OFF ) );
+                Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF );
+            }
+
+            this->settings.LoRaPacketHandler.Size = size;
 
             // Initializes the payload size
-//            Write( REG_LR_PAYLOADLENGTH, size );
+            Write( REG_LR_PAYLOADLENGTH, size );
 
-            // Full buffer used for Rx
-//            Write( REG_LR_FIFOTXBASEADDR, 0 );
+            // Full buffer used for Tx
+            Write( REG_LR_FIFOTXBASEADDR, 0 );
             Write( REG_LR_FIFOADDRPTR, 0 );
 
+            // FIFO operations can not take place in Sleep mode
+            if( ( Read( REG_OPMODE ) & ~RF_OPMODE_MASK ) == RF_OPMODE_SLEEP )
+            {
+                Standby( );
+            }
             // Write payload buffer
             ReadFifo( buffer, size );
+//            txTimeout = this->settings.LoRa.TxTimeout;
         }
         break;
     }
