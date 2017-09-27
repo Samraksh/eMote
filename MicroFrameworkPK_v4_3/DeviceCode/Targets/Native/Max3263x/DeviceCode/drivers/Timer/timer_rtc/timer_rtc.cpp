@@ -5,6 +5,7 @@
 
 Max3263x_RTC g_Max3263x_RTC;
 #define SNOOZE_SEC 5
+#define COMPARE_INDEX 0
 
 void ISR_RTC_ALARM(void* Param);
 
@@ -14,7 +15,7 @@ const UINT64 TIME_CUSHION = 7;
 UINT32 Max3263x_RTC::SetCounter(UINT32 counterValue)
 {
 	currentCounterValue = counterValue;
-	RTC_SetCounter(currentCounterValue);
+	RTC_SetCompare(COMPARE_INDEX,currentCounterValue);
 	return currentCounterValue;
 }
 
@@ -28,7 +29,7 @@ UINT64 Max3263x_RTC::Get64Counter()
 	GLOBAL_LOCK(irq);
 	UINT32 currentValue = RTC_GetCount();
 
-	if(RTC_GetFlags(MXC_F_RTC_CTRL_ROLLOVER_CLR_ACTIVE))
+	if(RTC_GetFlags() & MXC_F_RTC_CTRL_ROLLOVER_CLR_ACTIVE)
 	{
 		RTC_ClearFlags(MXC_F_RTC_CTRL_ROLLOVER_CLR_ACTIVE);
 
