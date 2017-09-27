@@ -55,9 +55,9 @@ typedef uint16_t ushort;
 #define SYSTEM_CLOCK_HZ                 96000000
 #define SYSTEM_CYCLE_CLOCK_HZ           SYSTEM_CLOCK_HZ
 #define CLOCK_COMMON_FACTOR             1000000
-#define SLOW_CLOCKS_PER_SECOND          96000000
-#define SLOW_CLOCKS_TEN_MHZ_GCD         2000000
-#define SLOW_CLOCKS_MILLISECOND_GCD     1000
+#define SLOW_CLOCKS_PER_SECOND          32768
+#define SLOW_CLOCKS_TEN_MHZ_GCD         128
+#define SLOW_CLOCKS_MILLISECOND_GCD     8
 
 #define SRAM1_MEMORY_Base   0x20000000
 #define SRAM1_MEMORY_Size   0x00018000

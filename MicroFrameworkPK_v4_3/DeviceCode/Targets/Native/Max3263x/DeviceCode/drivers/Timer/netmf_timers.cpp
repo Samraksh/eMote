@@ -13,7 +13,7 @@
 //#include <pwr/netmf_pwr.h>
 //#include "../Timer/timer_16bit/timer_16bit.h"
 #include "timer_32bit/timer_32bit.h"
-//#include "../Timer/timer_rtc/timer_rtc.h"
+#include "../Timer/timer_rtc/timer_rtc.h"
 //#include <intc/stm32.h>
 
 
@@ -24,7 +24,7 @@ extern const UINT8 TIMER2_16BIT;
 
 //extern Max3263x_timer_16bit g_Timer16Bit_Driver;
 extern Max3263x_timer_32bit g_Timer32Bit_Driver;
-//extern Max3263x_timer_RTC g_TimerRTC_Driver;
+extern Max3263x_timer_RTC g_TimerRTC_Driver;
 
 
 //#define HALTIMERDEBUG
@@ -59,7 +59,7 @@ BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CA
 	}
 	else if(Timer == RTC_32BIT )
 	{
-		//if(g_TimerRTC_Driver.Initialize(Prescaler, ISR, RTC_32BIT) != DS_Success)
+		if(!g_TimerRTC_Driver.Initialize(Prescaler, ISR))
 			return FALSE;
 	}
 
@@ -81,7 +81,7 @@ BOOL CPU_Timer_UnInitialize(UINT16 Timer)
 	}
 	else if(Timer == RTC_32BIT )
 	{
-		//if(g_TimerRTC_Driver.UnInitialize() != DS_Success)
+		if(!g_TimerRTC_Driver.UnInitialize())
 			return FALSE;
 	}
 
@@ -135,7 +135,7 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue)
 	}
 	else if(Timer == RTC_32BIT)
 	{
-		//g_TimerRTC_Driver.SetCompare(CompareValue);
+		g_TimerRTC_Driver.SetCompare(CompareValue);
 	}
 
 	return TRUE;
@@ -158,7 +158,7 @@ UINT32 CPU_Timer_GetCounter(UINT16 Timer)
 	}
 	else if(Timer == RTC_32BIT)
 	{
-		//counterValue = g_TimerRTC_Driver.GetCounter();
+		counterValue = g_TimerRTC_Driver.GetCounter();
 	}
 
 	return counterValue;
@@ -179,7 +179,7 @@ UINT32 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count)
 	}
 	else if(Timer == RTC_32BIT)
 	{
-		//counterValue = g_TimerRTC_Driver.SetCounter(Count);
+		counterValue = g_TimerRTC_Driver.SetCounter(Count);
 	}
 
 	return counterValue;
@@ -219,7 +219,7 @@ UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 	}
 	else if(Timer == RTC_32BIT)
 	{
-		//currentTicksValue = g_TimerRTC_Driver.Get64Counter();
+		currentTicksValue = g_TimerRTC_Driver.Get64Counter();
 	}
 
 	return currentTicksValue;
@@ -274,7 +274,7 @@ UINT32 CPU_Timer_GetMaxTicks(UINT8 Timer)
 	}
 	else if(Timer == RTC_32BIT)
 	{
-		//maxTicks = g_TimerRTC_Driver.GetMaxTicks();
+		maxTicks = g_TimerRTC_Driver.GetMaxTicks();
 	}
 	return maxTicks;
 }

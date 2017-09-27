@@ -7,7 +7,7 @@
 #include <Samraksh/Clock.h>
 #include <rtc.h>
 
-class Max3263x_RTC : public HWClock_I
+class Max3263x_timer_RTC : public HWClock_I
 {
 	UINT16 m_clockRate;
 	UINT16 m_prescalar;
@@ -26,7 +26,7 @@ public:
 
 	// Not exposing the ability to modify the timers involved because it involved knowledge of internal workings
 	// The advanced timer combination will always be TIM1 -> TIM2.
-	bool Initialize(HAL_CALLBACK_FPN ISR, UINT32 ISR_Param=0, UINT32 Prescaler = 0);
+	bool Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, UINT32 ISR_Param=0);
 
 	UINT32 GetCompare();
 	UINT32 GetCounter();
@@ -47,6 +47,6 @@ public:
 	void GetDriftParameters(INT32* a, INT32* b, INT64* c, UINT32 *maxDrift );
 };
 
-BOOL Max3263x_RTC::initialized = FALSE;
+BOOL Max3263x_timer_RTC::initialized = FALSE;
 
 #endif

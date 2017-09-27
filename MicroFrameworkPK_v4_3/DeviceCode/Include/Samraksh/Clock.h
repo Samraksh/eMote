@@ -44,7 +44,7 @@ struct ClockAttributes {
 class HWClock_I {
 
 public:
-	virtual bool Initialize (HAL_CALLBACK_FPN ISR, UINT32 ISR_Param=NULL, UINT32 Prescaler = 0)=0;
+	virtual bool Initialize (UINT32 Prescaler, HAL_CALLBACK_FPN ISR, UINT32 ISR_Para )=0;
 	virtual bool UnInitialize ()=0;
 	virtual ClockAttributes GetAttributes ()=0;
 	virtual UINT64 CurrentTicks ()=0;

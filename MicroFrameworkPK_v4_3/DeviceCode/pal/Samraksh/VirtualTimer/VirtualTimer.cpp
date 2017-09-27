@@ -10,6 +10,8 @@
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/Hal_util.h>
 
+#define DEBUG_VT 1
+
 #if defined(DEBUG_VT)
 #define DEBUG_VT_ASSERT_ANAL(x) ASSERT(x)
 #else
