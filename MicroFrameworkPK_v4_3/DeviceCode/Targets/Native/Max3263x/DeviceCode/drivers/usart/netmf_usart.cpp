@@ -25,23 +25,60 @@
         obj.req_val.uart.rts_io_req = ren;		\
 }
 
+#define IOMAN_UART_FUNC1(obj, i, im, cm, rm, ien, cen, ren) {                                                   \
+        obj.req_reg = (uint32_t*)((unsigned int)(&MXC_IOMAN->uart1_req) + (i * 2*sizeof(uint32_t)));    \
+        obj.ack_reg = (uint32_t*)((unsigned int)(&MXC_IOMAN->uart1_ack) + (i * 2*sizeof(uint32_t)));    \
+        obj.req_val.uart.io_map = im;                                                              \
+        obj.req_val.uart.cts_map = cm;                                                             \
+        obj.req_val.uart.rts_map = rm;                                                             \
+        obj.req_val.uart.io_req = ien;                                                             \
+        obj.req_val.uart.cts_io_req = cen;                                                         \
+        obj.req_val.uart.rts_io_req = ren;		\
+}
+
+#define IOMAN_UART_FUNC2(obj, i, im, cm, rm, ien, cen, ren) {                                                   \
+        obj.req_reg = (uint32_t*)((unsigned int)(&MXC_IOMAN->uart2_req) + (i * 2*sizeof(uint32_t)));    \
+        obj.ack_reg = (uint32_t*)((unsigned int)(&MXC_IOMAN->uart2_ack) + (i * 2*sizeof(uint32_t)));    \
+        obj.req_val.uart.io_map = im;                                                              \
+        obj.req_val.uart.cts_map = cm;                                                             \
+        obj.req_val.uart.rts_map = rm;                                                             \
+        obj.req_val.uart.io_req = ien;                                                             \
+        obj.req_val.uart.cts_io_req = cen;                                                         \
+        obj.req_val.uart.rts_io_req = ren;		\
+}
+
+#define IOMAN_UART_FUNC3(obj, i, im, cm, rm, ien, cen, ren) {                                                   \
+        obj.req_reg = (uint32_t*)((unsigned int)(&MXC_IOMAN->uart3_req) + (i * 2*sizeof(uint32_t)));    \
+        obj.ack_reg = (uint32_t*)((unsigned int)(&MXC_IOMAN->uart3_ack) + (i * 2*sizeof(uint32_t)));    \
+        obj.req_val.uart.io_map = im;                                                              \
+        obj.req_val.uart.cts_map = cm;                                                             \
+        obj.req_val.uart.rts_map = rm;                                                             \
+        obj.req_val.uart.io_req = ien;                                                             \
+        obj.req_val.uart.cts_io_req = cen;                                                         \
+        obj.req_val.uart.rts_io_req = ren;		\
+}
+
 
 
 void USART0_Handler(void *args);
 void USART1_Handler(void *args);
+void USART2_Handler(void *args);
+void USART3_Handler(void *args);
+
 static int PORTS_IN_USE_MASK = 0;
 //Max326_USART_Driver g_max326_usart_Driver;
 
 uint8_t txdata_com0[BUFF_SIZE];
 uint8_t txdata_com1[BUFF_SIZE];
 uint8_t txdata_com2[BUFF_SIZE];
-uart_req_t write_req0,write_req1, write_req2;
+uint8_t txdata_com3[BUFF_SIZE];
+uart_req_t write_req0,write_req1, write_req2, write_req3;
 
-uint32_t com0_current_baud, com1_current_baud, com2_current_baud;
-uint32_t com0_current_parity, com1_current_parity, com2_current_parity;
-uint32_t com0_current_databits, com1_current_databits, com2_current_databits;
-uint32_t com0_current_stopbits, com1_current_stopbits, com2_current_stopbits;
-uint32_t com0_current_flowcontrol, com1_current_flowcontrol, com2_current_flowcontrol;
+uint32_t com0_current_baud, com1_current_baud, com2_current_baud, com3_current_baud;
+uint32_t com0_current_parity, com1_current_parity, com2_current_parity, com3_current_parity;
+uint32_t com0_current_databits, com1_current_databits, com2_current_databits, com3_current_databits;
+uint32_t com0_current_stopbits, com1_current_stopbits, com2_current_stopbits, com3_current_stopbits;
+uint32_t com0_current_flowcontrol, com1_current_flowcontrol, com2_current_flowcontrol, com4_current_flowcontrol;
 
 
 //ComHandle != ComPort.  COM1 is a handle with port=0. COM1=0x101 means port 0 on USART transport.  See platform_selector.h and tinyhal.h.
@@ -426,7 +463,7 @@ static BOOL init_com2(int BaudRate, int Parity, int DataBits, int StopBits, int 
 
 	sys_cfg_uart_t sys_cfg;
 	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
-	IOMAN_UART_FUNC(sys_cfg.io_cfg, 2, IOMAN_MAP_A, IOMAN_MAP_A, IOMAN_MAP_A, 1,0, 0);
+	IOMAN_UART_FUNC2(sys_cfg.io_cfg, 2, IOMAN_MAP_A, IOMAN_MAP_A, IOMAN_MAP_A, 1,0, 0);
 
 	while(UART_Busy(MXC_UART0)){}
 	while(UART_Busy(MXC_UART1)){}
