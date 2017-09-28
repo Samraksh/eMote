@@ -117,9 +117,10 @@ typedef uint16_t ushort;
 //
 
 // Port definitions
-#define TOTAL_USART_PORT       1
+#define TOTAL_USART_PORT       3
 #define COM1                   ConvertCOM_ComHandle(0)
 #define COM2                   ConvertCOM_ComHandle(1)
+#define COM3                   ConvertCOM_ComHandle(2)
 
 #define TOTAL_USB_CONTROLLER   1
 #define USB1                   ConvertCOM_UsbHandle(0)
@@ -132,7 +133,7 @@ typedef uint16_t ushort;
 #define COM_MESSAGING          ConvertCOM_MessagingHandle(1)
 
 #define USART_TX_IRQ_INDEX(x)       ( (x) ? 0 : 0 )     /* TODO set right indexes */
-#define USART_DEFAULT_PORT          COM1
+#define USART_DEFAULT_PORT          COM3
 #define USART_DEFAULT_BAUDRATE      115200
 
 #define USB_IRQ_INDEX               0  // TODO set right index
@@ -144,10 +145,10 @@ typedef uint16_t ushort;
 #define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    256  // there is one RX for each usart port
 #define PLATFORM_DEPENDENT_USB_QUEUE_PACKET_COUNT  2    // there is one queue for each pipe of each endpoint and the size of a single packet is sizeof(USB_PACKET64) == 68 bytes
 
-#define DEBUG_TEXT_PORT    COM1
-#define STDIO              COM1
-#define DEBUGGER_PORT      COM1
-#define MESSAGING_PORT     COM1
+#define DEBUG_TEXT_PORT    COM3
+#define STDIO              COM3
+#define DEBUGGER_PORT      COM3
+#define MESSAGING_PORT     COM3
 
 
 //Setting the upper and lower thresholds for the GC to kick in
