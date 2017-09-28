@@ -432,12 +432,12 @@ static BOOL init_com2(int BaudRate, int Parity, int DataBits, int StopBits, int 
 	while(UART_Busy(MXC_UART1)){}
 	while(UART_Busy(MXC_UART2)){}
 
-	uint32_t error = UART_Init(MXC_UART1, &cfg, &sys_cfg);
+	uint32_t error = UART_Init(MXC_UART2, &cfg, &sys_cfg);
 	if(error != E_NO_ERROR) {
 		return FALSE;
 	}
-	write_req1.data = txdata_com1;
-	write_req1.len = 0;
+	write_req2.data = txdata_com2;
+	write_req2.len = 0;
 
 	if(!CPU_INTC_ActivateInterrupt(UART2_IRQn, USART2_Handler, NULL) ) return FALSE;
 

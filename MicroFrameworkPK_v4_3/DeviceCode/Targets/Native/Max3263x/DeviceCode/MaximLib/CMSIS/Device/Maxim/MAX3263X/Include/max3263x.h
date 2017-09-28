@@ -746,8 +746,8 @@ typedef enum {
 #define MXC_BASE_UART1                   ((uint32_t)0x40013000UL)                             /**< UART0 Base Address */
 #define MXC_UART1                        ((mxc_uart_regs_t *)MXC_BASE_UART1)                  /**< Pointer to the UART0 register structure */
 #define MXC_BASE_UART2                   ((uint32_t)0x40014000UL)                             /**< UART2 Base Address */
-#define MXC_UART2                        ((mxc_uart_regs_t *)MXC_BASE_UART2)                  /**< Pointer to the UART0 register structure */
 #define MXC_BASE_UART3                   ((uint32_t)0x40015000UL)                             /**< UART3 Base Address */
+#define MXC_UART2                        ((mxc_uart_regs_t *)MXC_BASE_UART2)                  /**< Pointer to the UART0 register structure */
 #define MXC_UART3                        ((mxc_uart_regs_t *)MXC_BASE_UART3)                  /**< Pointer to the UART0 register structure */
 #define MXC_BASE_UART0_FIFO              ((uint32_t)0x40103000UL)                             /**< UART0 FIFO Base Address */
 #define MXC_UART0_FIFO                   ((mxc_uart_fifo_regs_t *)MXC_BASE_UART0_FIFO)        /**< Pointer to the UART0 FIFO register structure */
