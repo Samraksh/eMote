@@ -218,7 +218,7 @@ void USART1_Handler(void *args)
 				if(!USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM1), c)){
 					break;
 				}
-				txdata_com0[i]=c;
+				txdata_com1[i]=c;
 			}
 
 			if (i>0){
