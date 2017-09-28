@@ -84,6 +84,10 @@ void ApplicationEntryPoint()
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
 
+    hal_printf("hal printf1 \r\n");
+    hal_printf("hal printf2 \n");
+    debug_printf("debug_printf \r\n");
+
     ClrStartup( clrSettings );
 
 #if !defined(BUILD_RTM)
