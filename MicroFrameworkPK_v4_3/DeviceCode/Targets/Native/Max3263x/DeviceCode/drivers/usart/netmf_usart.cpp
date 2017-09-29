@@ -600,6 +600,18 @@ void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 		txdata_com1[0]=c;
 		UART_WriteAsync(MXC_UART_GET_UART(ComPortNum) , &write_req1);
 	}
+	else if(ComPortNum==2){
+			write_req2.len=1;
+			write_req2.num=0;
+			txdata_com2[0]=c;
+			UART_WriteAsync(MXC_UART_GET_UART(ComPortNum) , &write_req2);
+	}
+	else { //if(ComPortNum==3){
+			write_req3.len=1;
+			write_req3.num=0;
+			txdata_com3[0]=c;
+			UART_WriteAsync(MXC_UART_GET_UART(ComPortNum) , &write_req3);
+	}
 }
 
 
