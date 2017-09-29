@@ -11,13 +11,16 @@ class Max3263x_timer_RTC : public HWClock_I
 {
 	UINT16 m_clockRate;
 	UINT16 m_prescalar;
-	UINT64 m_systemTime;
+
 	static BOOL initialized;
-	UINT32 currentCounterValue; 	// Stores the last read value of the counter
+
 	UINT16 tar_lower;
 	rtc_cfg_t RTCconfig;
 
 public:
+	UINT32 currentCounterValue; 	// Stores the last read value of the counter
+	UINT64 m_systemTime;
+
 	// Stores the current active compare value in the system
 	bool setCompareRunning;
 

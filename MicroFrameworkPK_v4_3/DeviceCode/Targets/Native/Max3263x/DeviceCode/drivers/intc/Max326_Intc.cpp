@@ -44,9 +44,9 @@ IRQ_VECTORING __section(rwdata) MAX326_AITC_Driver::s_IsrTable[MXC_IRQ_COUNT] =
 	DEFINE_IRQ(CLKMAN_IRQn , MAX326_AITC::c_IRQ_Priority_5  ),          //< CLKMAN
 	DEFINE_IRQ(	    PWRMAN_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< PWRMAN
 	DEFINE_IRQ(	    FLC_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                     //< Flash Controller
-	DEFINE_IRQ(	    RTC0_IRQn, MAX326_AITC::c_IRQ_Priority_0  ),                    //< RTC Counter match with Compare 0
-	DEFINE_IRQ(	    RTC1_IRQn, MAX326_AITC::c_IRQ_Priority_0  ),                    //< RTC Counter match with Compare 1
-	DEFINE_IRQ(	    RTC2_IRQn, MAX326_AITC::c_IRQ_Priority_0  ),                    //< RTC Prescaler interval compare match
+	DEFINE_IRQ(	    RTC0_IRQn, MAX326_AITC::c_IRQ_Priority_1  ),                    //< RTC Counter match with Compare 0
+	DEFINE_IRQ(	    RTC1_IRQn, MAX326_AITC::c_IRQ_Priority_1  ),                    //< RTC Counter match with Compare 1
+	DEFINE_IRQ(	    RTC2_IRQn, MAX326_AITC::c_IRQ_Priority_1  ),                    //< RTC Prescaler interval compare match
 	DEFINE_IRQ(	    RTC3_IRQn, MAX326_AITC::c_IRQ_Priority_0  ),                    //< RTC Overflow
 	DEFINE_IRQ(	    PMU_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                     //< Peripheral Management Unit (PMU/DMA)
 	DEFINE_IRQ(	    USB_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                     //< USB
@@ -75,9 +75,9 @@ IRQ_VECTORING __section(rwdata) MAX326_AITC_Driver::s_IsrTable[MXC_IRQ_COUNT] =
 	DEFINE_IRQ(	    TMR4_1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 4 (16-bit #1)
 	DEFINE_IRQ(	    TMR5_0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 5 (32-bit, 16-bit #0)
 	DEFINE_IRQ(	    TMR5_1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< Timer 5 (16-bit #1)
-	DEFINE_IRQ(	    UART0_IRQn, MAX326_AITC::c_IRQ_Priority_1  ),                   //< UART 0
-	DEFINE_IRQ(	    UART1_IRQn, MAX326_AITC::c_IRQ_Priority_1  ),                   //< UART 1
-	DEFINE_IRQ(	    UART2_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< UART 2
+	DEFINE_IRQ(	    UART0_IRQn, MAX326_AITC::c_IRQ_Priority_2  ),                   //< UART 0
+	DEFINE_IRQ(	    UART1_IRQn, MAX326_AITC::c_IRQ_Priority_2  ),                   //< UART 1
+	DEFINE_IRQ(	    UART2_IRQn, MAX326_AITC::c_IRQ_Priority_2  ),                   //< UART 2
 	DEFINE_IRQ(	    UART3_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< UART 3
 	DEFINE_IRQ(	    PT_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                      //< Pulse Trains
 	DEFINE_IRQ(	    I2CM0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                   //< I2C Master 0

@@ -133,7 +133,7 @@ typedef uint16_t ushort;
 #define COM_MESSAGING          ConvertCOM_MessagingHandle(1)
 
 #define USART_TX_IRQ_INDEX(x)       ( (x) ? 0 : 0 )     /* TODO set right indexes */
-#define USART_DEFAULT_PORT          COM3
+#define USART_DEFAULT_PORT          COM1
 #define USART_DEFAULT_BAUDRATE      115200
 
 #define USB_IRQ_INDEX               0  // TODO set right index
@@ -143,10 +143,10 @@ typedef uint16_t ushort;
 #define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    256  // there is one RX for each usart port
 #define PLATFORM_DEPENDENT_USB_QUEUE_PACKET_COUNT  2    // there is one queue for each pipe of each endpoint and the size of a single packet is sizeof(USB_PACKET64) == 68 bytes
 
-#define DEBUG_TEXT_PORT    COM3
-#define STDIO              COM3
-#define DEBUGGER_PORT      COM3
-#define MESSAGING_PORT     COM3
+#define DEBUG_TEXT_PORT    COM1
+#define STDIO              COM1
+#define DEBUGGER_PORT      COM1
+#define MESSAGING_PORT     COM1
 
 
 //SPI Devices
@@ -240,7 +240,7 @@ const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {DEFAULT_TIMER, LOW_DR
 //const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {DEFAULT_TIMER};
 const UINT8 g_VirtualTimerPerHardwareTimer = 16;
 //const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {96000000, 32768};
-//While the rtc crystal runs at 32788
+//While the rtc crystal runs at 32768, the prescaler only allows a min tick time of 1/4096 hz
 const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {96000000, 4096};
 //const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {96000000};
 

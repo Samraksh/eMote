@@ -8,6 +8,7 @@ Max3263x_timer_RTC g_TimerRTC_Driver;
 #define COMPARE_INDEX 0
 
 void ISR_RTC_ALARM(void* Param);
+void ISR_RTC_OVERFLOW(void* Param);
 
 //const uint16_t TIME_CUSHION = (uint16_t)(0.000015 * g_HardwareTimerFrequency[0]); // 15us @ 8 MHz
 const UINT64 TIME_CUSHION = 5;
@@ -30,17 +31,6 @@ UINT64 Max3263x_timer_RTC::Get64Counter()
 	GLOBAL_LOCK(irq);
 	currentCounterValue = RTC_GetCount();
 
-	if(RTC_GetFlags() & MXC_F_RTC_CTRL_ROLLOVER_CLR_ACTIVE)
-	{
-		RTC_ClearFlags(MXC_F_RTC_CTRL_ROLLOVER_CLR_ACTIVE);
-
-		// An overflow just happened, updating variable that holds system time
-		g_TimerRTC_Driver.m_systemTime += (0x1ull <<32);
-		//RTC_WaitForLastTask();
-		//RTC_WaitForSynchro();
-		currentCounterValue = RTC_GetCount();
-	}
-
 	m_systemTime &= (0xFFFFFFFF00000000ull);
 	m_systemTime |= currentCounterValue;
 
@@ -52,11 +42,6 @@ UINT64 Max3263x_timer_RTC::Get64Counter()
 // and using timer1 as a prescaler to timer2.
 bool Max3263x_timer_RTC::Initialize(HAL_CALLBACK_FPN ISR, UINT32 ISR_Param)
 {
-	CPU_GPIO_EnableOutputPin(TEST_PIN4, TRUE);
-	CPU_GPIO_EnableOutputPin(TEST_PIN5, TRUE);
-	CPU_GPIO_EnableOutputPin(TEST_PIN6, TRUE);
-	CPU_GPIO_EnableOutputPin(TEST_PIN7, TRUE);
-
 	// Return if already initialized
 	if(Max3263x_timer_RTC::initialized)
 		return TRUE;
@@ -73,28 +58,26 @@ bool Max3263x_timer_RTC::Initialize(HAL_CALLBACK_FPN ISR, UINT32 ISR_Param)
 	int err  = 0;
 
 	//set RTC configuration
-	RTCconfig.compareCount[COMPARE_INDEX] = ONE_SEC; //alarm0 time in seconds
-	//RTCconfig.compareCount[1] = ONE_SEC; //alarm1 time in seconds
-	RTCconfig.prescaler = RTC_PRESCALE_DIV_2_0; //4KHz clock
-	//RTCconfig.prescalerMask = RTC_PRESCALE_DIV_2_0;//4KHz prescaler compare
-	//RTCconfig.snoozeCount = ONE_SEC * 60;//snooze time in seconds
-	//RTCconfig.snoozeMode = RTC_SNOOZE_MODE_B;
+	 RTCconfig.compareCount[0] = 0;
+	 RTCconfig.compareCount[1] = 0;
+	 RTCconfig.prescaler = RTC_PRESCALE_DIV_2_0;     //4kHz clock
+	 RTCconfig.prescalerMask = RTC_PRESCALE_DIV_2_0;
+	 RTCconfig.snoozeCount = 0;
+	 RTCconfig.snoozeMode = RTC_SNOOZE_DISABLE;
 
 	if(RTC_Init(&RTCconfig)!=E_NO_ERROR){
 		return false;
 	}
 
-	//SetCounter(0);
+	//RTC_EnableINT(MXC_F_RTC_INTEN_COMP0 | MXC_F_RTC_INTEN_OVERFLOW);
+	RTC_EnableINT(MXC_F_RTC_INTEN_OVERFLOW);
 
-	//setup interrupt callbacks and enable
-	//NVIC_SetVector(RTC0_IRQn, RTC0_handler_Compare0);
-	//NVIC_SetVector(RTC2_IRQn, RTC2_handler_PrescalerCMP);
-
-	//RTC_EnableINT(MXC_F_RTC_INTEN_COMP0 | MXC_F_RTC_INTEN_PRESCALE_COMP);
-	RTC_EnableINT(MXC_F_RTC_INTEN_COMP0 );
+	if( !CPU_INTC_ActivateInterrupt(RTC3_IRQn, ISR_RTC_OVERFLOW, NULL) )
+		return false;
 
 	if( !CPU_INTC_ActivateInterrupt(RTC0_IRQn, ISR_RTC_ALARM, NULL) )
 		return false;
+
 	//if( !CPU_INTC_ActivateInterrupt(RTC2_IRQn, ISR_RTC_PRESCALER_CMP, NULL) )
 	//		return false;
 
@@ -122,36 +105,21 @@ bool Max3263x_timer_RTC::SetCompare ( UINT64 compareValue, bool callback)
 	//uint16_t now_upper;
 	//uint16_t now_lower;
 
-	volatile UINT64 now;
+	volatile UINT64 now=0;
 
 	GLOBAL_LOCK(irq);
 
 	while (RTC_GetActiveTrans()){}
 
-	RTC_Stop(); //stop counting for a bit
+	//RTC_Stop(); //stop counting for a bit
+
+	now = Get64Counter();
 	//clear flag
 	COMPARE_INDEX == 0 ? RTC_ClearFlags(MXC_F_RTC_FLAGS_COMP0) : RTC_ClearFlags(MXC_F_RTC_FLAGS_COMP1);
 
 	if (compareValue < (now + TIME_CUSHION)){
 		compareValue = (now + TIME_CUSHION);
-
-		//fire rightway?
-		//COMPARE_INDEX == 0 ? RTC_ClearFlags(MXC_F_RTC_FLAGS_COMP0) : RTC_ClearFlags(MXC_F_RTC_FLAGS_COMP1);
-		//ISR_RTC_ALARM(NULL);
-		//return TRUE;
 	}
-
-	// RTC hardware needs to wait for synchronization at times.
-	//PWR_BackupAccessCmd(ENABLE);
-	/*RTC_WaitForLastTask();
-	RTC_WaitForSynchro();
-	RTC_ClearFlag(RTC_FLAG_ALR);
-	RTC_SetAlarm(compareValue);
-	//PWR_BackupAccessCmd(DISABLE);
-	RTC_WaitForLastTask();
-	*/
-	//Wait for no RTC transactions
-
 
 	volatile uint32_t cval = compareValue & 0x00000000FFFFFFFFull;
 	if(RTC_SetCompare(COMPARE_INDEX, cval)!=E_NO_ERROR){
@@ -162,7 +130,8 @@ bool Max3263x_timer_RTC::SetCompare ( UINT64 compareValue, bool callback)
 	//now = Get64Counter();
 
 	//start RTC, needs to be restarted each time after compare is set
-	RTC_Start();
+	//RTC_Start();
+	while (RTC_GetActiveTrans()){}
 	setCompareRunning = true;
 	return TRUE;
 }
@@ -173,20 +142,30 @@ UINT32 Max3263x_timer_RTC::GetMaxTicks()
 }
 
 void ISR_RTC_ALARM(void* Param){
-	// TODO: check for overflow
-	//clear flag
-	CPU_GPIO_TogglePinState(TEST_PIN4);
 	RTC_DisableINT(MXC_F_RTC_INTEN_COMP0);
 	RTC_ClearFlags(MXC_F_RTC_FLAGS_COMP0);
-	//PWR_BackupAccessCmd(ENABLE);
-	//RTC_WaitForLastTask();
 
-	//PWR_BackupAccessCmd(DISABLE);
 	g_TimerRTC_Driver.setCompareRunning = false; // Reset
 	g_TimerRTC_Driver.callBackISR(&g_TimerRTC_Driver.callBackISR_Param);
 }
 
+void ISR_RTC_OVERFLOW(void* Param){
+	RTC_DisableINT(MXC_F_RTC_INTEN_OVERFLOW);
+	//Do we really need to check if OVERFLOW flag is set this? An interrupt just happened. so why check?
+	//if(RTC_GetFlags() & MXC_F_RTC_FLAGS_OVERFLOW)
+	{
+		RTC_ClearFlags(MXC_F_RTC_FLAGS_OVERFLOW );
 
+		// An overflow just happened, updating variable that holds system time
+		g_TimerRTC_Driver.m_systemTime += (0x1ull <<32);
+
+		while (RTC_GetActiveTrans()){}
+		g_TimerRTC_Driver.currentCounterValue = RTC_GetCount();
+	}
+	RTC_EnableINT(MXC_F_RTC_INTEN_OVERFLOW);
+}
+
+//below not used
 void ISR_RTC_PRESCALAR_CMP(void* Param){
 	//clear flag
 	RTC_ClearFlags(MXC_F_RTC_FLAGS_PRESCALE_COMP);
