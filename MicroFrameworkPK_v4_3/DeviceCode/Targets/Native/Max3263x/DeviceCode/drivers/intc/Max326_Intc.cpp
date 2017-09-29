@@ -44,10 +44,10 @@ IRQ_VECTORING __section(rwdata) MAX326_AITC_Driver::s_IsrTable[MXC_IRQ_COUNT] =
 	DEFINE_IRQ(CLKMAN_IRQn , MAX326_AITC::c_IRQ_Priority_5  ),          //< CLKMAN
 	DEFINE_IRQ(	    PWRMAN_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                  //< PWRMAN
 	DEFINE_IRQ(	    FLC_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                     //< Flash Controller
-	DEFINE_IRQ(	    RTC0_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                    //< RTC Counter match with Compare 0
-	DEFINE_IRQ(	    RTC1_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                    //< RTC Counter match with Compare 1
-	DEFINE_IRQ(	    RTC2_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                    //< RTC Prescaler interval compare match
-	DEFINE_IRQ(	    RTC3_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                    //< RTC Overflow
+	DEFINE_IRQ(	    RTC0_IRQn, MAX326_AITC::c_IRQ_Priority_0  ),                    //< RTC Counter match with Compare 0
+	DEFINE_IRQ(	    RTC1_IRQn, MAX326_AITC::c_IRQ_Priority_0  ),                    //< RTC Counter match with Compare 1
+	DEFINE_IRQ(	    RTC2_IRQn, MAX326_AITC::c_IRQ_Priority_0  ),                    //< RTC Prescaler interval compare match
+	DEFINE_IRQ(	    RTC3_IRQn, MAX326_AITC::c_IRQ_Priority_0  ),                    //< RTC Overflow
 	DEFINE_IRQ(	    PMU_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                     //< Peripheral Management Unit (PMU/DMA)
 	DEFINE_IRQ(	    USB_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                     //< USB
 	DEFINE_IRQ(	    AES_IRQn, MAX326_AITC::c_IRQ_Priority_5  ),                     //< AES

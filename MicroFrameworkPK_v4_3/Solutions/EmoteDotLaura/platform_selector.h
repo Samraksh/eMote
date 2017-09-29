@@ -55,7 +55,7 @@ typedef uint16_t ushort;
 #define SYSTEM_CLOCK_HZ                 96000000
 #define SYSTEM_CYCLE_CLOCK_HZ           SYSTEM_CLOCK_HZ
 #define CLOCK_COMMON_FACTOR             1000000
-#define SLOW_CLOCKS_PER_SECOND          32768
+#define SLOW_CLOCKS_PER_SECOND          4096
 #define SLOW_CLOCKS_TEN_MHZ_GCD         128
 #define SLOW_CLOCKS_MILLISECOND_GCD     8
 
@@ -238,7 +238,9 @@ const UINT8 g_CountOfHardwareTimers = 2;
 const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {DEFAULT_TIMER, LOW_DRIFT_TIMER};
 //const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {DEFAULT_TIMER};
 const UINT8 g_VirtualTimerPerHardwareTimer = 16;
-const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {96000000, 32768};
+//const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {96000000, 32768};
+//While the rtc crystal runs at 32788
+const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {96000000, 4096};
 //const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {96000000};
 
 

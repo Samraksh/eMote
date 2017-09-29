@@ -26,7 +26,7 @@ public:
 
 	// Not exposing the ability to modify the timers involved because it involved knowledge of internal workings
 	// The advanced timer combination will always be TIM1 -> TIM2.
-	bool Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, UINT32 ISR_Param=0);
+	bool Initialize(HAL_CALLBACK_FPN ISR, UINT32 ISR_Param=0);
 
 	UINT32 GetCompare();
 	UINT32 GetCounter();

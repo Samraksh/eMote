@@ -269,8 +269,18 @@ __weak void SystemInit(void)
         (MXC_PWRSEQ->reg3 & ~(MXC_F_PWRSEQ_REG3_PWR_ROSEL |
 	       MXC_F_PWRSEQ_REG3_PWR_FLTRROSEL));
     
+
+    ////////Added by Mukundan
     /* Enable RTOS Mode: Enable 32kHz clock synchronizer to SysTick external clock input */
-    MXC_CLKMAN->clk_ctrl |= MXC_F_CLKMAN_CLK_CTRL_RTOS_MODE;
+    //MXC_CLKMAN->clk_ctrl |= MXC_F_CLKMAN_CLK_CTRL_RTOS_MODE;
+
+    //Enable syncing the interrupt flags between RTC block and CPU-accessible registers.
+    MXC_CLKMAN->sys_clk_ctrl_1_sync |= MXC_F_CLKMAN_SYS_CLK_CTRL_1_SYNC_SYNC_CLK_SCALE;
+
+    //enable RTC osc output on pin P1.7 set PWRSEQ_REG4.pwr_pseq_32k_en to 1.
+    MXC_PWRSEQ->reg4 |= MXC_F_PWRSEQ_REG4_PWR_PSEQ_32K_EN;
+
+    //////////////////////////////////
 
     /* Set this so all bits of PWR_MSK_FLAGS are active low to mask the corresponding flags */
     MXC_PWRSEQ->pwr_misc |= MXC_F_PWRSEQ_PWR_MISC_INVERT_4_MASK_BITS;

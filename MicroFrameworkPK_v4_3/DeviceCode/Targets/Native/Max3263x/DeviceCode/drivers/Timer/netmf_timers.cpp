@@ -59,7 +59,7 @@ BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CA
 	}
 	else if(Timer == RTC_32BIT )
 	{
-		if(!g_TimerRTC_Driver.Initialize(Prescaler, ISR))
+		if(!g_TimerRTC_Driver.Initialize(ISR, RTC_32BIT))
 			return FALSE;
 	}
 

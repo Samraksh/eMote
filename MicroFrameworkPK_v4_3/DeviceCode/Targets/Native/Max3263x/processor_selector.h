@@ -15,4 +15,11 @@
 #define TARGET_REV 0x4132
 #endif
 
+#define GLOBAL_LOCK(x)             SmartPtr_IRQ x
+#define DISABLE_INTERRUPTS()       SmartPtr_IRQ::ForceDisabled()
+#define ENABLE_INTERRUPTS()        SmartPtr_IRQ::ForceEnabled()
+#define INTERRUPTS_ENABLED_STATE() SmartPtr_IRQ::GetState()
+#define GLOBAL_LOCK_SOCKETS(x)     SmartPtr_IRQ x
+
+
 #endif
