@@ -563,11 +563,11 @@ BOOL USART_Driver::Flush( int ComPortNum ) {
 
 	HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
 
-	//if ( !IS_USART_INITIALIZED(State))
-	//	return TRUE;
+	if ( !IS_USART_INITIALIZED(State))
+		return TRUE;
 
 	// Interrupts are off, but sending a byte will turn them on until buffer empty
-	while (CPU_USART_TxBufferEmptyInterruptState(ComPortNum)) {	
+	if (!CPU_USART_TxBufferEmptyInterruptState(ComPortNum)) {
 		char c;
 
 		{
@@ -585,7 +585,6 @@ BOOL USART_Driver::Flush( int ComPortNum ) {
 
 	// At this point, interrupts are ON and any remaining buffer should empty itself.
 	// TXE Interrupt will be disabled when the buffer is empty, so we wait for that.
-	
 	while( CPU_USART_TxBufferEmptyInterruptState(ComPortNum) == TRUE ) { ; }
 }
 #else

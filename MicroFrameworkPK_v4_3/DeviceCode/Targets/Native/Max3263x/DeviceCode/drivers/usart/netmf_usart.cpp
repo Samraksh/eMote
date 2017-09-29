@@ -34,13 +34,15 @@ static int PORTS_IN_USE_MASK = 0;
 
 uint8_t txdata_com0[BUFF_SIZE];
 uint8_t txdata_com1[BUFF_SIZE];
-uart_req_t write_req0,write_req1;
+uint8_t txdata_com2[BUFF_SIZE];
+uart_req_t write_req0,write_req1, write_req2;
 
-uint32_t com0_current_baud, com1_current_baud;
-uint32_t com0_current_parity, com1_current_parity;
-uint32_t com0_current_databits, com1_current_databits;
-uint32_t com0_current_stopbits, com1_current_stopbits;
-uint32_t com0_current_flowcontrol, com1_current_flowcontrol;
+uint32_t com0_current_baud, com1_current_baud, com2_current_baud;
+uint32_t com0_current_parity, com1_current_parity, com2_current_parity;
+uint32_t com0_current_databits, com1_current_databits, com2_current_databits;
+uint32_t com0_current_stopbits, com1_current_stopbits, com2_current_stopbits;
+uint32_t com0_current_flowcontrol, com1_current_flowcontrol, com2_current_flowcontrol;
+
 
 //ComHandle != ComPort.  COM1 is a handle with port=0. COM1=0x101 means port 0 on USART transport.  See platform_selector.h and tinyhal.h.
 
@@ -216,7 +218,7 @@ void USART1_Handler(void *args)
 				if(!USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM1), c)){
 					break;
 				}
-				txdata_com0[i]=c;
+				txdata_com1[i]=c;
 			}
 
 			if (i>0){
@@ -234,6 +236,98 @@ void USART1_Handler(void *args)
     	}
     }
 }
+
+
+void USART2_Handler(void *args)
+{
+	char buf[BUFF_SIZE];
+	int bufIndex;
+	int uart_num = 1;
+	int bufSize = 0;
+    uint32_t flags;
+	mxc_uart_fifo_regs_t *fifo = MXC_UART1_FIFO;
+	int avail;
+
+	GLOBAL_LOCK(irq);
+
+    flags = MXC_UART2->intfl;
+    MXC_UART2->intfl = flags;
+
+    if(flags & UART_READ_INTS) {
+		// Disable interrupts
+    	MXC_UART2->inten &= ~UART_READ_INTS;
+
+    	avail = UART_NumReadAvail(MXC_UART2);
+		bufSize = avail;
+		if (avail < BUFF_SIZE) {
+			bufIndex = 0;
+			while(avail) {
+				buf[bufIndex] = fifo->rx;
+				bufIndex++;
+    	    	avail--;
+    		}
+			USART_AddToRxBuffer( ConvertCOM_ComPort(COM3), buf, bufSize);
+
+		} else if (avail >= BUFF_SIZE) {
+			for (int i = 0; i < BUFF_SIZE; i++) {
+				buf[i] = fifo->rx;
+				bufIndex++;
+			}
+			USART_AddToRxBuffer( ConvertCOM_ComPort(COM3), buf, BUFF_SIZE);
+		}
+		MXC_UART2->inten |= UART_READ_INTS;
+    }
+
+	// Figure out if this UART has an active Write request
+    if((flags & (MXC_F_UART_INTEN_TX_UNSTALLED | MXC_F_UART_INTEN_TX_FIFO_AE))) {
+        int avail, remain;
+
+    	// Disable write interrupts
+    	MXC_UART2->inten &= ~(UART_WRITE_INTS);
+
+    	// Refill the TX FIFO
+    	avail = UART_NumWriteAvail(MXC_UART2);
+    	remain = write_req2.len - write_req2.num;
+
+    	while(avail && remain) {
+
+        	// Write the data to the FIFO
+#if(MXC_UART_REV == 0)
+        	MXC_UART2->intfl = MXC_F_UART_INTFL_TX_DONE;
+#endif
+        	fifo->tx = write_req2.data[write_req2.num++];
+        	remain--;
+        	avail--;
+    	}
+
+    	// All of the bytes have been written to the FIFO
+    	if(!remain) {
+
+        	int i=0;
+			for (i=0; i < BUFF_SIZE; i++){
+				char c;
+				if(!USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM3), c)){
+					break;
+				}
+				txdata_com2[i]=c;
+			}
+
+			if (i>0){
+				write_req2.len=i;
+				write_req2.num=0;
+				UART_WriteAsync(MXC_UART2, &write_req2);
+			}
+	    } else {
+
+	        // Interrupt when there is one byte left in the TXFIFO
+	        MXC_UART2->tx_fifo_ctrl = ((MXC_UART_FIFO_DEPTH - 1) << MXC_F_UART_TX_FIFO_CTRL_FIFO_AE_LVL_POS);
+
+	        // Enable almost empty interrupt
+	        MXC_UART2->inten |= (UART_WRITE_INTS);
+    	}
+    }
+}
+
 
 
 	//////////////////////Non extern C functions ///////////////
@@ -256,6 +350,7 @@ static BOOL init_com0(int BaudRate, int Parity, int DataBits, int StopBits, int 
 
 	while(UART_Busy(MXC_UART0)){}
 	while(UART_Busy(MXC_UART1)){}
+	while(UART_Busy(MXC_UART2)){}
 
 	uint32_t error = UART_Init(MXC_UART0, &cfg, &sys_cfg);
 	
@@ -319,6 +414,46 @@ static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int 
 	return TRUE;
 }
 
+static BOOL init_com2(int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue) {
+	// Initialize the UART
+	uart_cfg_t cfg;
+	cfg.parity = UART_PARITY_DISABLE; // no parity
+	cfg.size = UART_DATA_SIZE_8_BITS; //8 data bits
+	cfg.extra_stop = 0;
+	cfg.cts = 0;  //No hardware flow control
+	cfg.rts = 0;
+	cfg.baud = BaudRate;
+
+	sys_cfg_uart_t sys_cfg;
+	sys_cfg.clk_scale = CLKMAN_SCALE_AUTO;
+	IOMAN_UART_FUNC(sys_cfg.io_cfg, 2, IOMAN_MAP_A, IOMAN_MAP_A, IOMAN_MAP_A, 1,0, 0);
+
+	while(UART_Busy(MXC_UART0)){}
+	while(UART_Busy(MXC_UART1)){}
+	while(UART_Busy(MXC_UART2)){}
+
+	uint32_t error = UART_Init(MXC_UART2, &cfg, &sys_cfg);
+	if(error != E_NO_ERROR) {
+		return FALSE;
+	}
+	write_req2.data = txdata_com2;
+	write_req2.len = 0;
+
+	if(!CPU_INTC_ActivateInterrupt(UART2_IRQn, USART2_Handler, NULL) ) return FALSE;
+
+	PORTS_IN_USE_MASK |= 3;
+
+	com2_current_baud = BaudRate;
+	com2_current_parity = Parity;
+	com2_current_databits = DataBits;
+	com2_current_stopbits = StopBits;
+	com2_current_flowcontrol = FlowValue;
+
+	return TRUE;
+}
+
+
+
 void USART_pause(void) {
 	if (PORTS_IN_USE_MASK & 0x1) {
 		CPU_USART_TxBufferEmptyInterruptEnable(0, false);
@@ -343,6 +478,10 @@ void USART_reinit(void) {
 		CPU_USART_Uninitialize(1);
 		init_com1(com1_current_baud, com1_current_parity, com1_current_databits, com1_current_stopbits, com1_current_flowcontrol);
 	}
+	if (PORTS_IN_USE_MASK & 0x2) {
+		CPU_USART_Uninitialize(2);
+		init_com2(com2_current_baud, com2_current_parity, com2_current_databits, com2_current_stopbits, com2_current_flowcontrol);
+	}
 }
 
 
@@ -353,15 +492,19 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	// Check to make sure not already up.
 	if (ComPortNum == 0 && (PORTS_IN_USE_MASK&1)) return TRUE;
 	if (ComPortNum == 1 && (PORTS_IN_USE_MASK&2)) return TRUE;
+	if (ComPortNum == 2 && (PORTS_IN_USE_MASK&3)) return TRUE;
 
 	// If COM0, don't initialize until we see something connected (i.e. usb-serial attached)
 	if (ComPortNum == 0) {
 		return init_com0(BaudRate, Parity, DataBits, StopBits, FlowValue);
-
 	}
 
 	if (ComPortNum == 1) {
 		return init_com1(BaudRate, Parity, DataBits, StopBits, FlowValue);
+	}
+
+	if (ComPortNum == 2) {
+		return init_com2(BaudRate, Parity, DataBits, StopBits, FlowValue);
 	}
 
 	return FALSE;
@@ -378,9 +521,13 @@ BOOL CPU_USART_Uninitialize( int ComPortNum )
 		UART_Shutdown(MXC_UART_GET_UART(ComPortNum));
 		break;
 	case 1:
-	default:
 		PORTS_IN_USE_MASK &= ~(0x2);
 		CPU_INTC_DeactivateInterrupt(UART1_IRQn);
+		UART_Shutdown(MXC_UART_GET_UART(ComPortNum));
+	case 2:
+	default:
+		PORTS_IN_USE_MASK &= ~(0x3);
+		CPU_INTC_DeactivateInterrupt(UART2_IRQn);
 		UART_Shutdown(MXC_UART_GET_UART(ComPortNum));
 		break;
 	}
