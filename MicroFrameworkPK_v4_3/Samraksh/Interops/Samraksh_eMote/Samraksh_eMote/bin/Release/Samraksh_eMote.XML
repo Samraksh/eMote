@@ -938,6 +938,21 @@
             </summary>
             <returns>The platform type is returned.</returns>
         </member>
+        <member name="T:Samraksh.eMote.RadarCallBack">
+            <summary>
+            Delegate for Radar callback method
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.RadarInterface._radarInternal">
+            <summary>
+            ADC internal class 
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.RadarInterface._myCallback">
+            <summary>
+            Callback method
+            </summary>
+        </member>
         <member name="M:Samraksh.eMote.RadarInterface.#ctor">
             <summary>
             
@@ -947,6 +962,14 @@
             <summary>
             
             </summary>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInterface.InternalCallback(System.UInt32,System.UInt32,System.DateTime)">
+            <summary>
+            Native Radar driver callback
+            </summary>
+            <param name="data1">Parameter passed from native</param>
+            <param name="data2">Parameter passed from native</param>
+            <param name="time">Time of callback</param>
         </member>
         <member name="M:Samraksh.eMote.RadarInterface.TurnOn">
             <summary>
@@ -965,6 +988,43 @@
             Blinds the Radar
             </summary>
             <returns>The result of blinding the radar: Success, Fail</returns>
+        </member>
+        <member name="T:Samraksh.eMote.RadarInternal">
+            <summary>
+            ADCInternal interface to the native driver
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInternal.#ctor(System.String,System.UInt64,System.Int32)">
+            <summary>
+            Specify the driver name for matching with the native eventdispatcher
+            </summary>
+            <param name="strDrvName"></param>
+            <param name="drvData"></param>
+            <param name="callbackCount"></param>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInternal.Init(System.Int32)">
+            <summary>
+            Initialize the Radar native driver
+            </summary>
+            <param name="channel">Specify the channel to be sampled</param>
+            <returns>Returns the result of the init function</returns>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInternal.Uninit">
+            <summary>
+            Uninitialize the Radar native driver
+            </summary>
+            <returns>Returns the result of the uninit function</returns>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInternal.ConfigureFPGADetectionPrivate(System.UInt16[],System.UInt16[],System.UInt32)">
+            <summary>
+            Turns on the Radar
+            </summary>
+            <param name="sampleBuffI">Buffer for samples</param>
+            <param name="sampleBuff1">Buffer for samples</param>
+            <param name="numSamples">Number of samples</param>
+            <param name="callback">Method to call when numSamples collected</param>
+            <returns>True if operation success</returns>
+            <returns>The result of turning on the radar: Success, Fail</returns>
         </member>
     </members>
 </doc>

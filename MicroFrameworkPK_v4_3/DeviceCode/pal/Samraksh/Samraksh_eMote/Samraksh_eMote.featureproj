@@ -10,6 +10,7 @@
   <ItemGroup>
     <DriverLibs Include="Samraksh_eMote.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_eMote" />
+	<InteropFeature Include="Radar" />
     <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_eMote.pe" />-->
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote\dotnetmf.proj" />
   </ItemGroup>
