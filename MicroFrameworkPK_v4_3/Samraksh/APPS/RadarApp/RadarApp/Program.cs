@@ -18,6 +18,7 @@ using Microsoft.SPOT.Hardware;
 using System.IO.Ports;
 using Samraksh.eMote.NonVolatileMemory;
 using AnalogInput = Samraksh.eMote.DotNow.AnalogInput;
+using Samraksh.eMote;
 
 namespace Samraksh.AppNote.Scarecrow.Radar
 {
@@ -67,7 +68,15 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         // The maximum number of buffers used. Reported at the end.
         private static int _maxBuffersEnqueued;
 
-
+        private static void TestCallback(long threshhold)
+        {
+            Debug.Print("Callback");
+            //for (int i = 0; i < ADCBufferSize; i++)
+            {
+                Debug.Print(ADCBufferI[0].ToString() + " " + ADCBufferI[1].ToString() + " " + ADCBufferQ[0].ToString() + " " + ADCBufferQ[1].ToString());
+                //Debug.Print(ADCBufferI[i].ToString() + " " + ADCBufferQ[i].ToString());
+            }
+        }
         /// <summary>
         /// The main program
         /// </summary>
@@ -99,7 +108,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                 // Pre-allocate an array of sample buffers
                 SetupBuffers();
                 // Initialize the ADC and the channels
-                AnalogInput.InitializeADC();
+                //AnalogInput.InitializeADC();
 
                 // initializing the COM2 port. radar data will be streamed out COM2 for debugging purposes
                 /*serialPort2 = new SerialPort("COM2");
@@ -116,11 +125,14 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                 //  On callback, ADCBufferI and ADCBufferQ contain the data
 
                 //Debug.Print("Attempting to initialize ADC in C#");
-                if (!AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec, ADCCallback))
+                /*if (!AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec, ADCCallback))
                 {
                     //EnhancedLcd.Display(LCDMessages.Error);
                     throw new InvalidOperationException("Could not initialize ADC");
-                }
+                }*/
+                Debug.Print("App setup");
+                Samraksh.eMote.RadarInterface radar = new RadarInterface();
+                radar.ConfigureFPGADetection(ADCBufferI, ADCBufferQ, ADCBufferSize, TestCallback);
 
                 // Wait till we're finished sampling
                 //  When the user enagles the EndCollect pin, bufferThread will terminate
@@ -132,6 +144,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                     throw new IOException("Buffer queue is full");
                 }
 
+                
                 //finalMsg = "Finished";
                 //EnhancedLcd.Display(LCDMessages.Done);
             }
@@ -140,7 +153,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                 //EnhancedLcd.Display(LCDMessages.Error);
             }
             finally {
-
+                
             }
         }
     }

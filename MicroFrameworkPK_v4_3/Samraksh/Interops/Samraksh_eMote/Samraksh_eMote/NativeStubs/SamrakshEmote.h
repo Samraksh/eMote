@@ -121,9 +121,22 @@ struct Library_SamrakshEmote_Samraksh_eMote_Platform
 
 struct Library_SamrakshEmote_Samraksh_eMote_RadarInterface
 {
+    static const int FIELD_STATIC___radarInternal = 3;
+    static const int FIELD_STATIC___myCallback = 4;
+
     TINYCLR_NATIVE_DECLARE(TurnOn___BOOLEAN);
     TINYCLR_NATIVE_DECLARE(TurnOff___BOOLEAN);
     TINYCLR_NATIVE_DECLARE(Blind___BOOLEAN);
+
+    //--//
+
+};
+
+struct Library_SamrakshEmote_Samraksh_eMote_RadarInternal
+{
+    TINYCLR_NATIVE_DECLARE(ConfigureFPGADetectionPrivate___BOOLEAN__SZARRAY_U2__SZARRAY_U2__U4);
+    TINYCLR_NATIVE_DECLARE(Init___STATIC__I4__I4);
+    TINYCLR_NATIVE_DECLARE(Uninit___STATIC__BOOLEAN);
 
     //--//
 
