@@ -71,10 +71,10 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         private static void TestCallback(long threshhold)
         {
             Debug.Print("Callback");
-            //for (int i = 0; i < ADCBufferSize; i++)
+            for (int i = 0; i < ADCBufferSize; i++)
             {
-                Debug.Print(ADCBufferI[0].ToString() + " " + ADCBufferI[1].ToString() + " " + ADCBufferQ[0].ToString() + " " + ADCBufferQ[1].ToString());
-                //Debug.Print(ADCBufferI[i].ToString() + " " + ADCBufferQ[i].ToString());
+                //Debug.Print(ADCBufferI[0].ToString() + " " + ADCBufferI[1].ToString() + " " + ADCBufferQ[0].ToString() + " " + ADCBufferQ[1].ToString());
+                Debug.Print(i.ToString() + " " + ADCBufferI[i].ToString("X") + " " + ADCBufferQ[i].ToString("X"));
             }
         }
         /// <summary>
@@ -132,7 +132,8 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                 }*/
                 Debug.Print("App setup");
                 Samraksh.eMote.RadarInterface radar = new RadarInterface();
-                radar.ConfigureFPGADetection(ADCBufferI, ADCBufferQ, ADCBufferSize, TestCallback);
+                //radar.ConfigureFPGADetection(ADCBufferI, ADCBufferQ, ADCBufferSize, TestCallback);
+                radar.ConfigureFPGADetection(ADCBufferI, ADCBufferQ, ADCBufferSize, ADCCallback);
 
                 // Wait till we're finished sampling
                 //  When the user enagles the EndCollect pin, bufferThread will terminate
