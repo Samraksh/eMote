@@ -25,7 +25,7 @@ static BOOL g_Radar_Driver_Initialized = FALSE;
 
 using namespace Samraksh::eMote;
 
-static BOOL radarGarbagePurged = false;
+static int radarGarbagePurged = 0;
 SPI_CONFIGURATION config;
 
 #define SPIy             SPI2
@@ -44,18 +44,12 @@ UINT32 g_radarBufferSize = 0;
 
 void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 	{
-		int cnt = 0;
 		FlagStatus status;
 		int bytesToRead = 768;
 		UINT8 rxData[bytesToRead];
-		if (CPU_GPIO_GetPinState(0) == true)
-				hal_printf("alert\r\n");
-			else
-				hal_printf("no alert\r\n");
 
-		if (radarGarbagePurged == false){
-			radarGarbagePurged = true;
-			
+		if (radarGarbagePurged == 0){
+			radarGarbagePurged = 1;			
 			// read three garbage bytes
 			CPU_GPIO_SetPinState(25, TRUE);
 			HAL_Time_Sleep_MicroSeconds(10);
@@ -66,41 +60,52 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 			CPU_SPI_WriteByte(config, 0x5a);
 			HAL_Time_Sleep_MicroSeconds(10);
 			CPU_GPIO_SetPinState(25, FALSE);
-		} 
+		} else 	if (radarGarbagePurged == 1){
+			radarGarbagePurged = 2;			
+			// read two garbage bytes
+			CPU_GPIO_SetPinState(25, TRUE);
+			HAL_Time_Sleep_MicroSeconds(10);
+			CPU_SPI_WriteByte(config, 0x5a);
+			HAL_Time_Sleep_MicroSeconds(10);
+			CPU_SPI_WriteByte(config, 0x5a);
+			HAL_Time_Sleep_MicroSeconds(10);
+			CPU_GPIO_SetPinState(25, FALSE);
+		}
 
 		CPU_GPIO_SetPinState(25, TRUE);
 		HAL_Time_Sleep_MicroSeconds(10);
-		for (int i=0;i<bytesToRead;i++){
+		int i;
+		for (i=0;i<bytesToRead;i++){
 			CPU_SPI_WriteByte(config, 0x5a);
 			status = SPI_I2S_GetFlagStatus(SPIy, SPI_I2S_FLAG_RXNE);
 			while (status != SET){
 				status = SPI_I2S_GetFlagStatus(SPIy, SPI_I2S_FLAG_RXNE);
 			}
-			rxData[cnt] = SPI_I2S_ReceiveData(SPI2);
-			cnt++;
-			if ((cnt % 6) == 0){
-				int tmpPos = cnt/6;
-				int dbgCnt = 0;
-				g_radarUserBufferChannel1Ptr[tmpPos] = (UINT16)(((UINT16)(rxData[(i)+2]) << 4) | (((UINT16)(rxData[(i)+1])&0xf0) >> 4));
-g_radarUserBufferChannel2Ptr[tmpPos] = (UINT16)(((UINT16)(rxData[i+4] << 8 | rxData[i+3])));
-				//g_radarUserBufferChannel2Ptr[tmpPos] = (UINT16)((((UINT16)(rxData[(i)+1])&0x0f) << 8) | ((UINT16)(rxData[(i)])));
-				//dbgCnt = (UINT16)((((UINT16)(rxData[(i)+4])&0x0f) << 8) | ((UINT16)(rxData[(i)+3])));
-				hal_printf("%d %d %d\r\n",tmpPos, g_radarUserBufferChannel1Ptr[tmpPos], g_radarUserBufferChannel2Ptr[tmpPos]);
-			}
+			rxData[i] = SPI_I2S_ReceiveData(SPI2);
 		}
+		
 		CPU_GPIO_SetPinState(25, FALSE);
+		int tmpPos;
+		for (i=0;i<bytesToRead/6;i++){
+			tmpPos = i*6;
+			g_radarUserBufferChannel1Ptr[i] = (UINT16)(((UINT16)(rxData[tmpPos+2]) << 4) | (((UINT16)(rxData[tmpPos+1])&0xf0) >> 4));
+			g_radarUserBufferChannel2Ptr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+1])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)])));
 
-		g_radarUserBufferChannel1Ptr[0] = 99;
-		g_radarUserBufferChannel1Ptr[1] = 501;
-		g_radarUserBufferChannel2Ptr[0] = 87;
-		g_radarUserBufferChannel2Ptr[1] = 123;
-		hal_printf("Radar_Handler.\r\n");
+			// debug count
+			//g_radarUserBufferChannel2Ptr[i] = (UINT16)(((UINT16)((rxData[tmpPos+4]) << 8 | rxData[tmpPos+3])));
+		}
+		if ((rxData[5] & 0x80) != 0) {
+			hal_printf("--- fpga detection ---\r\n");
+		}
+		/*for (i=0; i<bytesToRead;i=i+6){
+			hal_printf("%03d %03x %03x %03x %03x %03x %03x\r\n", i/6, rxData[i], rxData[i+1], rxData[i+2], rxData[i+3], rxData[i+4], rxData[i+5]);
+		}*/
+
 		GLOBAL_LOCK(irq);
 
 		g_radarUserData = HAL_Time_CurrentTicks();
 
 		SaveNativeEventToHALQueue( g_radarContext, UINT32(g_radarUserData >> 32), UINT32(g_radarUserData & 0xFFFFFFFF) );
-		//RadarInteropCallback(&g_timeStamp);
 	}
 
 INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, HRESULT &hr )
@@ -111,7 +116,6 @@ INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CL
 
 	g_radarUserBufferChannel1Ptr = param0.GetBuffer();
 	g_radarUserBufferChannel2Ptr = param1.GetBuffer();
-	hal_printf("sample size: %d\r\n", param2);
 	g_radarBufferSize = param2;
 
 	CPU_SPI_Initialize();
@@ -146,7 +150,6 @@ INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CL
 
 	config.SPI_mod				 = SPIBUS2;
 
-	hal_printf("Configure FPGA.\r\n");
 	CPU_GPIO_EnableInputPin(0, FALSE, Radar_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	// setup chip select pin
 	CPU_GPIO_EnableOutputPin(25,FALSE);
