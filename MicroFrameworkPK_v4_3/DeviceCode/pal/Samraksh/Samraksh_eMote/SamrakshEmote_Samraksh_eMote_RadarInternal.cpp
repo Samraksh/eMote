@@ -24,6 +24,7 @@ static BOOL g_radarInterruptEnabled = TRUE;
 static BOOL g_Radar_Driver_Initialized = FALSE;
 static bool windowOverThreshold = false;
 static bool detectionFinished = false;
+static int continueToSendCount = 0;
 static UINT16 unwrap = 0;
 static UINT16 countOverTarget = 0;
 static int displacementFirstHalf = 0;
@@ -122,13 +123,22 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 		}*/
 		UINT32 FPGAIQRejection;
 		
-		
+		// we'll send a few more frames to close out the human detector logic
 		if ((rxData[5])&0xf0 != 0) {
+			continueToSendCount = 6;
 			windowOverThreshold = true;
-			detectionFinished = false;
-			if ((rxData[5] & 0x80) != 0) {
-				//hal_printf("--- fpga detection ---\r\n");
-			}
+			detectionFinished = false;	
+		} else {
+			if (continueToSendCount > 0)
+				continueToSendCount--;
+			windowOverThreshold = false;
+			detectionFinished = true;
+		}
+		if (((rxData[5])&0xf0 != 0) | (continueToSendCount > 0)) {
+				
+			/*if ((rxData[5] & 0x80) != 0) {
+				hal_printf("--- fpga detection ---\r\n");
+			}*/
 			int tmpPos;
 			displacementFirstHalf = 0;
  			displacementSecondHalf = 0;
@@ -145,6 +155,7 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 			maxDisplacementSecondHalf = 0;
 			maxDisplacementEntire = 0;
 
+			//hal_printf("Radar_Handler\r\n");
 			for (i=0;i<bytesToRead/6;i++){
 				tmpPos = i*6;
 				g_radarUserBufferChannel1Ptr[i] = (UINT16)(((UINT16)(rxData[tmpPos+2]) << 4) | (((UINT16)(rxData[tmpPos+1])&0xf0) >> 4));
@@ -168,20 +179,18 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 						maxDisplacementSecondHalf = unwrap;
 				}
 				// calculating data for entire window
-				absoluteDisplEntire += abs(unwrap);
+				absoluteDisplEntire = abs(unwrap);
 				if (unwrap < minDisplacementEntire)
 					minDisplacementEntire = unwrap;
 				if (unwrap > maxDisplacementEntire)
 					maxDisplacementEntire = unwrap;
 			}
 			FPGAIQRejection = (UINT32)((((UINT16)(rxData[4])&0x0f) << 8) | ((UINT16)(rxData[3])));
+			hal_printf("cot: %d\r\n", countOverTarget);
 			GLOBAL_LOCK(irq);
 
 			g_radarUserData = HAL_Time_CurrentTicks();
 			SaveNativeEventToHALQueue( g_radarContext, 0, UINT32(FPGAIQRejection & 0xFFFFFFFF) );
-		} else {
-			windowOverThreshold = false;
-			detectionFinished = true;
 		}
 		/*for (i=0; i<bytesToRead;i=i+6){
 			hal_printf("%03d %02x %02x %02x %02x %02x %02x\r\n", i/6, rxData[i], rxData[i+1], rxData[i+2], rxData[i+3], rxData[i+4], rxData[i+5]);
@@ -275,7 +284,7 @@ INT8 RadarInternal::CurrentDetectionFinished( CLR_RT_HeapBlock* pMngObj, HRESULT
     return detectionFinished;
 }
 
-INT32 RadarInternal::GetNetDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+INT32 RadarInternal::GetNetDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr )
 {
     if (portion == SAMPLE_WINDOW_FULL){
 		return (unwrap);
@@ -287,7 +296,7 @@ INT32 RadarInternal::GetNetDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 param0
 	}
 }
 
-INT32 RadarInternal::GetAbsoluteDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+INT32 RadarInternal::GetAbsoluteDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr )
 {
     if (portion == SAMPLE_WINDOW_FULL){
 		return absoluteDisplEntire;
@@ -299,7 +308,7 @@ INT32 RadarInternal::GetAbsoluteDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 p
 	}
 }
 
-INT32 RadarInternal::GetDisplacementRange( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+INT32 RadarInternal::GetDisplacementRange( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr )
 {
     if (portion == SAMPLE_WINDOW_FULL){
 		return (maxDisplacementEntire - minDisplacementEntire);

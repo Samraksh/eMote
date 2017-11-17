@@ -101,7 +101,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         //Countdown do decision
         private static int remStepsToDecision = 0;
 
-        private static HumanCarClassifier _humanCarClassifier;
+        private static HumanCarClassifier _humanCarClassifier = new HumanCarClassifier();
         public static Samraksh.eMote.Algorithm.DecisionFunction decisionFunc = new Samraksh.eMote.Algorithm.DecisionFunction();
         private static Timer _aggregateTimer = new Timer(Send_Decision, null, Timeout.Infinite, Timeout.Infinite);
         private static DecisionSendState decState = DecisionSendState.TEMP_DEC;
@@ -351,6 +351,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             if (!newDisplacement)
             {
                 newDisplacement = true;
+                Debug.Print("new");
             }
             if (!ongoingTimer)
             {
@@ -364,6 +365,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             if (ongoingDisp == DetectionStatus.FALSE && windowOverThresh)
             {
                 // Speculative walk; to be confirmed in N-1 steps
+                Debug.Print("Spec");
                 ongoingDisp = DetectionStatus.SPECULATIVE;
                 remStepsToDecision = 2; // N-1 for us
             }
@@ -371,6 +373,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             {
                 if (--remStepsToDecision == 0)
                 {
+                    Debug.Print("false");
                     //M out of N failed, this was a false alarm. Clear features computed so far
                     ongoingDisp = DetectionStatus.FALSE;
                     _humanCarClassifier.ClearAll();
@@ -382,6 +385,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             {
                 //Legitimate walk
                 ongoingDisp = DetectionStatus.TRUE;
+                Debug.Print("ongoing");
                 // Test -- send detection to base -- PEASE COMMENT LATER
                 //routing.Send_Data('D');
             }
@@ -414,13 +418,13 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                         //Routing Send stuff goes here
                         if (dec < 0)
                         {
-                            //Debug.Print("Non-human, decision=" + dec);
+                            Debug.Print("Non-human, decision=" + dec);
                             //routing.Send_Data('N');
                             num_nonhumans++;
                         }
                         else if (dec < 999) // Added to avoid no-classify case
                         {
-                            //Debug.Print("Human, decision=" + dec);
+                            Debug.Print("Human, decision=" + dec);
                             //routing.Send_Data('H');
                             num_humans++;
                         }
@@ -471,9 +475,10 @@ namespace Samraksh.AppNote.Scarecrow.Radar
 
             if (ongoingDisp != DetectionStatus.FALSE)
             {
-
                 distance += radar.GetAbsoluteDisplacement(eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_FULL);
+                Debug.Print("distance: " + distance.ToString());
                 numCountAboveTarget += radar.GetCountOverTarget();
+                Debug.Print("count over target: " + numCountAboveTarget.ToString());
                 _humanCarClassifier.ComputePhaseFeaturesLongBuffers(iBuff, qBuff);
             }
             radar.SetProcessingInProgress(false);

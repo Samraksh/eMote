@@ -79,11 +79,14 @@ namespace Samraksh.eMote
 
             public void SetProcessingInProgress(bool status)
             {
-
+                _radarInternal.SetProcessingInProgress(status);
             }
 
 
-            public extern int GetCountOverTarget();
+            public int GetCountOverTarget()
+            {
+                return _radarInternal.GetCountOverTarget();
+            }
 
             /// <summary>
             /// Native Radar driver callback
