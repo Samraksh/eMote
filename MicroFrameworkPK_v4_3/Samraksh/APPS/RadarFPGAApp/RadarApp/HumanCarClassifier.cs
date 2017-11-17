@@ -389,12 +389,13 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         {
 
             //////////////////// update and rotate the sample array
-            Array.Copy(channelIBuffer, step, channelIBuffer, 0, fftWindowSize - step);
-            Array.Copy(channelQBuffer, step, channelQBuffer, 0, fftWindowSize - step);
-
+            //Debug.Print("d1 " + step.ToString() + " " + (fftWindowSize - step).ToString());
+            //Array.Copy(channelIBuffer, step, channelIBuffer, 0, fftWindowSize - step);
+            //Array.Copy(channelQBuffer, step, channelQBuffer, 0, fftWindowSize - step);
+            Debug.Print("d2");
             sampleBuffer1.CopyTo(channelIBuffer, fftWindowSize - step);
             sampleBuffer2.CopyTo(channelQBuffer, fftWindowSize - step);
-
+            Debug.Print("d3");
             if (detectionStepIndex < nStepMax - 1) { detectionStepIndex++; }
             ///////////////////// rotate and unwrap the phase
             //TODO: Replace phase calculation with lower layer stuff
