@@ -38,6 +38,128 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::ConfigureFPGADetecti
     TINYCLR_NOCLEANUP();
 }
 
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetWindowOverThreshold___BOOLEAN( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT8 retVal = RadarInternal::GetWindowOverThreshold( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::CurrentDetectionFinished___BOOLEAN( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT8 retVal = RadarInternal::CurrentDetectionFinished( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetNetDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT32 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
+
+        INT32 retVal = RadarInternal::GetNetDisplacement( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetAbsoluteDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT32 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
+
+        INT32 retVal = RadarInternal::GetAbsoluteDisplacement( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetDisplacementRange___I4__SamraksheMoteSAMPLEWINDOWPORTION( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT32 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
+
+        INT32 retVal = RadarInternal::GetDisplacementRange( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetCountOverTarget___I4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT32 retVal = RadarInternal::GetCountOverTarget( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::SetProcessingInProgress___VOID__BOOLEAN( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT8 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT8( stack, 1, param0 ) );
+
+        RadarInternal::SetProcessingInProgress( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+    }
+    TINYCLR_NOCLEANUP();
+}
+
 HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::Init___STATIC__I4__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;

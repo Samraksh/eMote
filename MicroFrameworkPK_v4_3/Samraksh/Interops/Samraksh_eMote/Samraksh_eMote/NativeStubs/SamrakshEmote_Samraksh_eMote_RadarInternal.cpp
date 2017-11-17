@@ -22,6 +22,46 @@ INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CL
     return retVal;
 }
 
+INT8 RadarInternal::GetWindowOverThreshold( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
+INT8 RadarInternal::CurrentDetectionFinished( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
+INT32 RadarInternal::GetNetDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 RadarInternal::GetAbsoluteDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 RadarInternal::GetDisplacementRange( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 RadarInternal::GetCountOverTarget( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr )
+{
+}
+
 INT32 RadarInternal::Init( INT32 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 
