@@ -135,6 +135,13 @@ struct Library_SamrakshEmote_Samraksh_eMote_RadarInterface
 struct Library_SamrakshEmote_Samraksh_eMote_RadarInternal
 {
     TINYCLR_NATIVE_DECLARE(ConfigureFPGADetectionPrivate___BOOLEAN__SZARRAY_U2__SZARRAY_U2__U4);
+    TINYCLR_NATIVE_DECLARE(GetWindowOverThreshold___BOOLEAN);
+    TINYCLR_NATIVE_DECLARE(CurrentDetectionFinished___BOOLEAN);
+    TINYCLR_NATIVE_DECLARE(GetNetDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION);
+    TINYCLR_NATIVE_DECLARE(GetAbsoluteDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION);
+    TINYCLR_NATIVE_DECLARE(GetDisplacementRange___I4__SamraksheMoteSAMPLEWINDOWPORTION);
+    TINYCLR_NATIVE_DECLARE(GetCountOverTarget___I4);
+    TINYCLR_NATIVE_DECLARE(SetProcessingInProgress___VOID__BOOLEAN);
     TINYCLR_NATIVE_DECLARE(Init___STATIC__I4__I4);
     TINYCLR_NATIVE_DECLARE(Uninit___STATIC__BOOLEAN);
 

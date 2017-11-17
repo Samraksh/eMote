@@ -22,6 +22,24 @@ CLR_RT_HeapBlock_NativeEventDispatcher *g_radarContext = NULL;
 static UINT64 g_radarUserData = 0;
 static BOOL g_radarInterruptEnabled = TRUE;
 static BOOL g_Radar_Driver_Initialized = FALSE;
+static bool windowOverThreshold = false;
+static bool detectionFinished = false;
+static UINT16 unwrap = 0;
+static UINT16 countOverTarget = 0;
+static int displacementFirstHalf = 0;
+static int displacementSecondHalf = 0;
+
+static int absoluteDisplFirstHalf = 0;
+static int absoluteDisplSecondHalf = 0;
+static int absoluteDisplEntire = 0;
+
+static int minDisplacementFirstHalf = 0;
+static int minDisplacementSecondHalf = 0;
+static int minDisplacementEntire = 0;
+
+static int maxDisplacementFirstHalf = 0;
+static int maxDisplacementSecondHalf = 0;
+static int maxDisplacementEntire = 0;
 
 using namespace Samraksh::eMote;
 
@@ -37,6 +55,13 @@ SPI_CONFIGURATION config;
 #define SPIy_PIN_SCK     GPIO_Pin_13 //sck
 #define SPIy_PIN_MISO	 GPIO_Pin_14 //miso
 #define SPIy_PIN_MOSI    GPIO_Pin_15 //mosi
+
+enum SAMPLE_WINDOW_PORTION
+    {
+        SAMPLE_WINDOW_FULL,
+        SAMPLE_WINDOW_FIRST_HALF,
+        SAMPLE_WINDOW_SECOND_HALF
+    };
 
 UINT16 *g_radarUserBufferChannel1Ptr = NULL;
 UINT16 *g_radarUserBufferChannel2Ptr = NULL;
@@ -85,7 +110,8 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 		}
 		
 		CPU_GPIO_SetPinState(25, FALSE);
-		int tmpPos;
+
+		/*int tmpPos;
 		for (i=0;i<bytesToRead/6;i++){
 			tmpPos = i*6;
 			g_radarUserBufferChannel1Ptr[i] = (UINT16)(((UINT16)(rxData[tmpPos+2]) << 4) | (((UINT16)(rxData[tmpPos+1])&0xf0) >> 4));
@@ -93,19 +119,97 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 
 			// debug count
 			//g_radarUserBufferChannel2Ptr[i] = (UINT16)(((UINT16)((rxData[tmpPos+4]) << 8 | rxData[tmpPos+3])));
-		}
-		if ((rxData[5] & 0x80) != 0) {
-			hal_printf("--- fpga detection ---\r\n");
+		}*/
+		UINT32 FPGAIQRejection;
+		
+		
+		if ((rxData[5])&0xf0 != 0) {
+			windowOverThreshold = true;
+			detectionFinished = false;
+			if ((rxData[5] & 0x80) != 0) {
+				//hal_printf("--- fpga detection ---\r\n");
+			}
+			int tmpPos;
+			displacementFirstHalf = 0;
+ 			displacementSecondHalf = 0;
+	
+			absoluteDisplFirstHalf = 0;
+			absoluteDisplSecondHalf = 0;
+			absoluteDisplEntire = 0;
+
+			minDisplacementFirstHalf = 0;
+			minDisplacementSecondHalf = 0;
+			minDisplacementEntire = 0;
+
+			maxDisplacementFirstHalf = 0;
+			maxDisplacementSecondHalf = 0;
+			maxDisplacementEntire = 0;
+
+			for (i=0;i<bytesToRead/6;i++){
+				tmpPos = i*6;
+				g_radarUserBufferChannel1Ptr[i] = (UINT16)(((UINT16)(rxData[tmpPos+2]) << 4) | (((UINT16)(rxData[tmpPos+1])&0xf0) >> 4));
+				g_radarUserBufferChannel2Ptr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+1])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)])));
+				unwrap = (UINT16)((((UINT16)(rxData[(tmpPos)+5])&0x0f) << 4) | (((UINT16)(rxData[(tmpPos)+4])&0xf0)>>4));
+				countOverTarget = (UINT16)((((UINT16)(rxData[(tmpPos)+4])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)+3])));
+				if (i < bytesToRead/12){
+					displacementFirstHalf = unwrap;
+					absoluteDisplFirstHalf = abs(unwrap);
+					if (unwrap < minDisplacementFirstHalf)
+						minDisplacementFirstHalf = unwrap;
+					if (unwrap > maxDisplacementFirstHalf)
+						maxDisplacementFirstHalf = unwrap;
+				}
+				if (i >= bytesToRead/12){
+					displacementSecondHalf = unwrap;
+					absoluteDisplSecondHalf = abs(unwrap);
+					if (unwrap < minDisplacementFirstHalf)
+						minDisplacementSecondHalf = unwrap;
+					if (unwrap > maxDisplacementFirstHalf)
+						maxDisplacementSecondHalf = unwrap;
+				}
+				// calculating data for entire window
+				absoluteDisplEntire += abs(unwrap);
+				if (unwrap < minDisplacementEntire)
+					minDisplacementEntire = unwrap;
+				if (unwrap > maxDisplacementEntire)
+					maxDisplacementEntire = unwrap;
+			}
+			FPGAIQRejection = (UINT32)((((UINT16)(rxData[4])&0x0f) << 8) | ((UINT16)(rxData[3])));
+			GLOBAL_LOCK(irq);
+
+			g_radarUserData = HAL_Time_CurrentTicks();
+			SaveNativeEventToHALQueue( g_radarContext, 0, UINT32(FPGAIQRejection & 0xFFFFFFFF) );
+		} else {
+			windowOverThreshold = false;
+			detectionFinished = true;
 		}
 		/*for (i=0; i<bytesToRead;i=i+6){
-			hal_printf("%03d %03x %03x %03x %03x %03x %03x\r\n", i/6, rxData[i], rxData[i+1], rxData[i+2], rxData[i+3], rxData[i+4], rxData[i+5]);
-		}*/
+			hal_printf("%03d %02x %02x %02x %02x %02x %02x\r\n", i/6, rxData[i], rxData[i+1], rxData[i+2], rxData[i+3], rxData[i+4], rxData[i+5]);
+		}	*/
 
-		GLOBAL_LOCK(irq);
+		/*UINT16 adc1, adc2,median,detection,unwrap;
+		static UINT16 markerPrimary = 0xa5a5;
+		static UINT16 bogus = 0x2031;
+		static UINT16 bogus2 = 0x3339;
+		static UINT16 end = 0x0a0d;
+		USART_Write( 0, (char *)&markerPrimary, 2 );
+		for (i=0;i<bytesToRead;i=i+6){
+			adc1 = (UINT16)(((UINT16)(rxData[(i)+2]) << 4) | (((UINT16)(rxData[(i)+1])&0xf0) >> 4));
+			adc2 = (UINT16)((((UINT16)(rxData[(i)+1])&0x0f) << 8) | ((UINT16)(rxData[(i)])));
+			median = (UINT16)((((UINT16)(rxData[(i)+4])&0x0f) << 8) | ((UINT16)(rxData[(i)+3])));
+			detection = (UINT16)(((UINT16)(rxData[(i)+5])&0xf0) >> 4);
+			unwrap = (UINT16)((((UINT16)(rxData[(i)+5])&0x0f) << 8) | (((UINT16)(rxData[(i)+4])&0xf0)>>4));
+					
+			USART_Write( 0, (char *)&adc1, 2 );
+			USART_Write( 0, (char *)&adc2, 2 );
+		}
 
-		g_radarUserData = HAL_Time_CurrentTicks();
-
-		SaveNativeEventToHALQueue( g_radarContext, UINT32(g_radarUserData >> 32), UINT32(g_radarUserData & 0xFFFFFFFF) );
+		USART_Write( 0, (char *)&bogus, 2 );
+		USART_Write( 0, (char *)&bogus, 2 );
+		USART_Write( 0, (char *)&bogus, 2 );
+		USART_Write( 0, (char *)&bogus, 2 );
+		USART_Write( 0, (char *)&bogus2, 2 );
+		USART_Write( 0, (char *)&end, 2 );	*/
 	}
 
 INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, HRESULT &hr )
@@ -161,9 +265,66 @@ INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CL
     return retVal;
 }
 
+INT8 RadarInternal::GetWindowOverThreshold( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    return windowOverThreshold;
+}
+
+INT8 RadarInternal::CurrentDetectionFinished( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    return detectionFinished;
+}
+
+INT32 RadarInternal::GetNetDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+{
+    if (portion == SAMPLE_WINDOW_FULL){
+		return (unwrap);
+	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
+		return (displacementFirstHalf);
+	} else {
+		// SAMPLE_WINDOW_SECOND_HALF
+		return (displacementSecondHalf);
+	}
+}
+
+INT32 RadarInternal::GetAbsoluteDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+{
+    if (portion == SAMPLE_WINDOW_FULL){
+		return absoluteDisplEntire;
+	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
+		return absoluteDisplFirstHalf;
+	} else {
+		// SAMPLE_WINDOW_SECOND_HALF
+		return absoluteDisplSecondHalf;
+	}
+}
+
+INT32 RadarInternal::GetDisplacementRange( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+{
+    if (portion == SAMPLE_WINDOW_FULL){
+		return (maxDisplacementEntire - minDisplacementEntire);
+	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
+		return (maxDisplacementFirstHalf - minDisplacementFirstHalf);
+	} else {
+		// SAMPLE_WINDOW_SECOND_HALF
+		return (maxDisplacementSecondHalf - minDisplacementSecondHalf);
+	}
+}
+
+INT32 RadarInternal::GetCountOverTarget( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    return countOverTarget;
+}
+
+void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr )
+{
+	detectionFinished = param0;
+}
+
 INT32 RadarInternal::Init( INT32 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 
+	g_Radar_Driver_Initialized = TRUE;
     return retVal;
 }
 

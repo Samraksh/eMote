@@ -50,7 +50,40 @@ namespace Samraksh.eMote
                     return true;
                 else                
                     return false;                
-            }            
+            }
+
+            public bool GetWindowOverThreshold()
+            {
+                return _radarInternal.GetWindowOverThreshold();
+            }
+
+            public bool CurrentDetectionFinished()
+            {
+                return _radarInternal.CurrentDetectionFinished();
+            }
+
+            public int GetNetDisplacement(SAMPLE_WINDOW_PORTION portion)
+            {
+                return _radarInternal.GetNetDisplacement(portion);
+            }
+
+            public int GetAbsoluteDisplacement(SAMPLE_WINDOW_PORTION portion)
+            {
+                return _radarInternal.GetAbsoluteDisplacement(portion);
+            }
+
+            public int GetDisplacementRange(SAMPLE_WINDOW_PORTION portion)
+            {
+                return _radarInternal.GetDisplacementRange(portion);
+            }
+
+            public void SetProcessingInProgress(bool status)
+            {
+
+            }
+
+
+            public extern int GetCountOverTarget();
 
             /// <summary>
             /// Native Radar driver callback
@@ -131,6 +164,54 @@ namespace Samraksh.eMote
         /// <returns>The result of turning on the radar: Success, Fail</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool ConfigureFPGADetectionPrivate(ushort[] sampleBuffI, ushort[] sampleBuffQ, uint numSamples);
+
+        /// <summary>
+        /// Request whether the last window's displacement was over the threshold
+        /// </summary>
+        /// <returns>Returns true if last window's displacement was over the threshold and false if not.</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern bool GetWindowOverThreshold();
+
+        /// <summary>
+        /// Request whether the current detection has finished
+        /// </summary>
+        /// <returns>Returns true if the current detection is finished and false if not.</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern bool CurrentDetectionFinished();
+
+        /// <summary>
+        /// Request the window's net displacement
+        /// </summary>
+        /// <returns>Returns the window's net displacement.</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern int GetNetDisplacement(SAMPLE_WINDOW_PORTION portion);
+
+        /// <summary>
+        /// Request the window's absolute displacement.
+        /// </summary>
+        /// <returns>Returns the window's absolute displacement.</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern int GetAbsoluteDisplacement(SAMPLE_WINDOW_PORTION portion);
+        /// <summary>
+        /// Request the window's displacement range.
+        /// </summary>
+        /// <returns>Returns the window's displacement range.</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern int GetDisplacementRange(SAMPLE_WINDOW_PORTION portion);
+
+        /// <summary>
+        /// Request the window's count of samples over classifierTargetFilter parameter.
+        /// </summary>
+        /// <returns>Returns the window's count of samples over target.</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern int GetCountOverTarget();
+
+        /// <summary>
+        /// Inform firmware of status of data processing
+        /// </summary>
+        /// <returns>Nothing returned</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern void SetProcessingInProgress(bool status);
     }
 
 
