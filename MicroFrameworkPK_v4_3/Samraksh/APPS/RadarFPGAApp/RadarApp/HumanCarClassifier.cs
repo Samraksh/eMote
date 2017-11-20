@@ -49,12 +49,15 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         //public static bool waiting = true;
         public static int c = 0;
 
-        public const int fftWindowSize = 256;
+        /*public const int fftWindowSize = 256;
         public const int step = 64;   // in fact it is fftWindowSize - overlap, which is the proceed points
-        public const int nStepMax = 60; // Added by Dhrubo - variable extracted from now-nonexistent dstate
+        public const int nStepMax = 60; // Added by Dhrubo - variable extracted from now-nonexistent dstate*/
+        public const int fftWindowSize = 25;
+        public const int step = 6;   // in fact it is fftWindowSize - overlap, which is the proceed points
+        public const int nStepMax = 6; // Added by Dhrubo - variable extracted from now-nonexistent dstate*/
 
-        public static ushort[] channelIBuffer;
-        public static ushort[] channelQBuffer;
+        private static ushort[] channelIBuffer;
+        private static ushort[] channelQBuffer;
 
         public static short[] fftInput = new short[2 * fftWindowSize];
         public static short[] fftOutput = new short[2 * fftWindowSize];
@@ -297,9 +300,9 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             lcd.Clear();
             lcd.Write(LCD.CHAR_S, LCD.CHAR_T, LCD.CHAR_A, LCD.CHAR_R);*/
 
-#if !DBG_LOGIC
-            Debug.Print("Initializing fft buffer arr ...");
-#endif
+
+            //Debug.Print("Initializing fft buffer arr ...");
+
             channelIBuffer = new ushort[fftWindowSize];  //fftWindowSize, 
             channelQBuffer = new ushort[fftWindowSize];  //fftWindowSize,
 
@@ -392,228 +395,87 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             //Debug.Print("d1 " + step.ToString() + " " + (fftWindowSize - step).ToString());
             //Array.Copy(channelIBuffer, step, channelIBuffer, 0, fftWindowSize - step);
             //Array.Copy(channelQBuffer, step, channelQBuffer, 0, fftWindowSize - step);
-            Debug.Print("d2");
-            sampleBuffer1.CopyTo(channelIBuffer, fftWindowSize - step);
-            sampleBuffer2.CopyTo(channelQBuffer, fftWindowSize - step);
-            Debug.Print("d3");
-            if (detectionStepIndex < nStepMax - 1) { detectionStepIndex++; }
-            ///////////////////// rotate and unwrap the phase
-            //TODO: Replace phase calculation with lower layer stuff
-            //dState.rotatePhase();
-            //dState.clearMaxMinPhaseInStep();
-
-            //dState.IsumInStep = 0;
-            //dState.QsumInStep = 0;
-
-            //dState.I2sumInStep = 0;
-            //dState.Q2sumInStep = 0;
-
-            /* Commented by Dhrubo
-            for (int i = 0; i < step; i++)
+            try
             {
-                dState.IsumInStep += channelIBuffer[256 - step + i];
-                dState.QsumInStep += channelQBuffer[256 - step + i];
+                Debug.Print("d2: memory usage (after) " + Debug.GC(true));
+                sampleBuffer1.CopyTo(channelIBuffer, fftWindowSize - step);
+                sampleBuffer2.CopyTo(channelQBuffer, fftWindowSize - step);
+                Debug.Print("d3");
+                if (detectionStepIndex < nStepMax - 1) { detectionStepIndex++; }
 
-                dState.I2sumInStep += channelIBuffer[256 - step + i] * channelIBuffer[256 - step + i];
-                dState.Q2sumInStep += channelQBuffer[256 - step + i] * channelQBuffer[256 - step + i];
-
-                //Debug.Print("I2sumInStep=" + dState.I2sumInStep);
-
-                //short acI = (short)(channelIBuffer.buffer[256 - step + i] - meanI);
-                //short acQ = (short)(channelQBuffer.buffer[256 - step + i] - meanQ);
-                //Debug.Print("acI=" + acI.ToString());
-                //Debug.Print("acQ=" + acQ.ToString());
-
-                \* Commented by Dhrubo*\
-                //dState.noiseParameter.sumIsqr += acI * acI;
-                //dState.noiseParameter.sumQsqr += acQ * acQ;
-                \*End comment*\
-
-                // TimeDomain. - PLEASE UNCOMMENT!
-                \*int currPhase = Phase.unwrap(acI, acQ);//>> 12; // /4096
-                if (currPhase > dState.maxPhaseInStep) dState.maxPhaseInStep = currPhase;
-                if (currPhase < dState.minPhaseInStep) dState.minPhaseInStep = currPhase;
-
-                dState.phase[128 - step + i] = currPhase;*\
-
-                //Debug.Print("currPhase=" + currPhase.ToString());
-
-            }*/
-            //dState.updateMaxMinPhaseInStepArr();
-
-
-            /*dState.phaseChangeInOneStep = dState.phase[127] - dState.phase[63]; -- Commented by Dhrubo */
-            // dState.maxAbsPhaseChangeInOneStep = System.Math.Max(dState.maxAbsPhaseChangeInOneStep, System.Math.Abs(phaseChangeInOneStep));
-
-            /*Commented by Dhrubo - unused elsewhere in the computation*/
-            /*---------------------------------------------------------*/
-            /*//Filling out the phaseChangeArr
-            Array.Copy(dState.phaseChangeArr, 1, dState.phaseChangeArr, 0, dState.phaseChangeArr.Length - 1);
-            dState.phaseChangeArr[dState.N - 1] = dState.phaseChangeInOneStep;*/
-
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-            // if (detectionStepIndex < nStepMax - 1) { detectionStepIndex++; }
-
-            // phase related feature update
-            //dState.cumAbsPhaseChange += System.Math.Abs(dState.phaseChangeInOneStep); --Commented by Dhrubo
-            //dState.cumPhaseChange += dState.phaseChangeInOneStep; --Commented by Dhrubo
-
-            //////////////////////////////////////////////// features computation //////////////////////////////////////////////
-
-            /////////////////////// use phase to compute feature class 1, 
-
-            // Commented by Dhrubo
-            /*dState.clearMaxMinPhaseInWindow();
-            for (int i = 0; i < dState.maxPhaseInStepArr.Length; i++)
-            {
-                if (dState.maxPhaseInStepArr[i] > dState.maxPhaseInWindow) dState.maxPhaseInWindow = dState.maxPhaseInStepArr[i];
-                if (dState.minPhaseInStepArr[i] < dState.minPhaseInWindow) dState.minPhaseInWindow = dState.minPhaseInStepArr[i];
-            }
-
-            dState.diffPhaseInWindow = dState.maxPhaseInWindow - dState.minPhaseInWindow;  //to Change*/
-
-            //Debug.Print("dState.diffPhaseInWindow=" + dState.diffPhaseInWindow);
-
-
-
-            //////////////////////////////////////////////// compute fft ////////////////////////////////
-
-            //callbackTime.Write(true);
-            //callbackTime.Write(false);
-
-            if (computeSpectrogramFlag) // compute spectrogram only when the flag is set - start+3rd hit onwards
-            {
-
-                for (int i = 0; i < fftWindowSize; i++)
+                if (computeSpectrogramFlag) // compute spectrogram only when the flag is set - start+3rd hit onwards
                 {
-                    //fftInput[i*2] = (short)(((channelIBuffer.buffer[i] - meanI)>>4) * hammingWindow[i]); 
-                    //fftInput[i*2+1] = (short)(((channelQBuffer.buffer[i] - meanQ)>>4) * hammingWindow[i]); 
-                    fftInput[i * 2] = (short)(channelIBuffer[i] - meanI);
-                    fftInput[i * 2 + 1] = (short)(channelQBuffer[i] - meanQ);
-                }
 
-                transforms.FFT(fftInput, fftOutput, (ushort)(2 * fftWindowSize));
+                    for (int i = 0; i < fftWindowSize; i++)
+                    {
+                        fftInput[i * 2] = (short)(channelIBuffer[i] - meanI);
+                        fftInput[i * 2 + 1] = (short)(channelQBuffer[i] - meanQ);
+                    }
 
-                // after testing, we know that the power scaling factor is: 256^2 = 65536
-                // for small power this scaling factor is not accurate. but for large power, this is more accurate
-                // some example in testing are 63149, 67612, 66133
-                /*
-                if (dState.allStepIndex == 3)
-                {
+                    transforms.FFT(fftInput, fftOutput, (ushort)(2 * fftWindowSize));
+
+                    ///////////////////////////// spectrogram related //////////////////////////////////////////////////////
+
+                    Spectrogram.resetOneCol();
+
                     for (int i = 0; i < 256; i++)
                     {
-                        Debug.Print("i=" + i.ToString()+",Iin=" + fftInput[i * 2].ToString()+",Qin=" + fftInput[i * 2+1].ToString());
-                    }
-                    for (int i = 0; i < 256; i++)
-                    {
-                        Debug.Print("i=" + i.ToString() + ",Iout=" + fftOutput[i * 2].ToString() + ",Qout=" + fftOutput[i * 2 + 1].ToString() + ",power=" + (fftOutput[i * 2] * fftOutput[i * 2] + fftOutput[i * 2+1] * fftOutput[i * 2+1]).ToString());
-                    }
-                }*/
 
+                        int power = fftOutput[2 * i] * fftOutput[2 * i] + fftOutput[2 * i + 1] * fftOutput[2 * i + 1];
 
-                ///////////////////////////// spectrogram related //////////////////////////////////////////////////////
-
-                Spectrogram.resetOneCol();
-
-
-                //callbackTime.Write(true);
-                //callbackTime.Write(false);
-                //Debug.Print("fftInput[0]="+fftInput[0].ToString()+" fftInput[1]="+fftInput[1].ToString()+" fftInput[2]="+fftInput[2].ToString() );
-                //Debug.Print("fftOutput[0]="+fftOutput[0].ToString()+" fftOutput[1]="+fftOutput[1].ToString()+" fftOutput[2]="+fftOutput[2].ToString() );
-                //testPort_PIN1.Write(true);
-                for (int i = 0; i < 256; i++)
-                {
-                    //if (i==0||i==1||i==2||i==254||i==255) continue; //dont include low frequency staff - 5 frequencies 
-
-
-                    int power = fftOutput[2 * i] * fftOutput[2 * i] + fftOutput[2 * i + 1] * fftOutput[2 * i + 1];
-                    //if (dState.detectionStepIndex==0) Debug.Print("i=" + i.ToString() + " power=" + power.ToString());
-
-
-                    //dState.noiseParameter.meanPowerOnFreq[0][i] = dState.noiseParameter.meanPowerOnFreq[1][i];
-                    //dState.noiseParameter.meanPowerOnFreq[1][i] += power;
-
-                    /*
-                    dState.noiseParameter.maxPowerInSpect = System.Math.Max(dState.noiseParameter.maxPowerInSpect, power);
-                    dState.noiseParameter.sumPowerInSpect += power;
-                     * */
-
-                    // power -= (dState.noiseParameter.meanPowerOnFreq[0][i]+dState.noiseParameter.meanPowerOnFreq[1][i])/2;
-
-
-
-                    //if (power> Spectrogram.thr_sqr_Csharp[i])    // threshold on different frequencies 
-
-                    if (power > Spectrogram.thr_sqr_Csharp_9)
-                    {
-                        Spectrogram.numHitBins_9++;
-                        if (Spectrogram.freq(i) > Spectrogram.maxFreqInWindow_9)
+                        if (power > Spectrogram.thr_sqr_Csharp_9)
                         {
-                            Spectrogram.maxFreqInWindow_9 = Spectrogram.freq(i);
+                            Spectrogram.numHitBins_9++;
+                            if (Spectrogram.freq(i) > Spectrogram.maxFreqInWindow_9)
+                            {
+                                Spectrogram.maxFreqInWindow_9 = Spectrogram.freq(i);
+                            }
+                        }
+                        if (power > Spectrogram.thr_sqr_Csharp_19)
+                        {
+                            Spectrogram.numHitBins_19++;
+                            if (Spectrogram.freq(i) > Spectrogram.maxFreqInWindow_19)
+                            {
+                                Spectrogram.maxFreqInWindow_19 = Spectrogram.freq(i);
+                            }
+                        }
+                        if (power > Spectrogram.thr_sqr_Csharp_30)
+                        {
+                            Spectrogram.numHitBins_30++;
+                            if (Spectrogram.freq(i) > Spectrogram.maxFreqInWindow_30)
+                            {
+                                Spectrogram.maxFreqInWindow_30 = Spectrogram.freq(i);
+                            }
+                        }
+                        if (power > Spectrogram.thr_sqr_Csharp_99)
+                        {
+                            Spectrogram.numHitBins_99++;
+                            if (Spectrogram.freq(i) > Spectrogram.maxFreqInWindow_99)
+                            {
+                                Spectrogram.maxFreqInWindow_99 = Spectrogram.freq(i);
+                            }
                         }
                     }
-                    if (power > Spectrogram.thr_sqr_Csharp_19)
-                    {
-                        Spectrogram.numHitBins_19++;
-                        if (Spectrogram.freq(i) > Spectrogram.maxFreqInWindow_19)
-                        {
-                            Spectrogram.maxFreqInWindow_19 = Spectrogram.freq(i);
-                        }
-                    }
-                    if (power > Spectrogram.thr_sqr_Csharp_30)
-                    {
-                        Spectrogram.numHitBins_30++;
-                        if (Spectrogram.freq(i) > Spectrogram.maxFreqInWindow_30)
-                        {
-                            Spectrogram.maxFreqInWindow_30 = Spectrogram.freq(i);
-                        }
-                    }
-                    if (power > Spectrogram.thr_sqr_Csharp_99)
-                    {
-                        Spectrogram.numHitBins_99++;
-                        if (Spectrogram.freq(i) > Spectrogram.maxFreqInWindow_99)
-                        {
-                            Spectrogram.maxFreqInWindow_99 = Spectrogram.freq(i);
-                        }
-                    }
+
+                    Spectrogram.numHitBinsArr_9[Spectrogram.spectArrIndex++] = Spectrogram.numHitBins_9;  //dState.allStepIndex-3
+
+                    Spectrogram.numHitBins_sum_9 += Spectrogram.numHitBins_9;
+                    Spectrogram.numHitBins_sum_99 += Spectrogram.numHitBins_99;
+                    Spectrogram.numHitBins_max_9 = System.Math.Max(Spectrogram.numHitBins_max_9, Spectrogram.numHitBins_9);
+                    Spectrogram.numHitBins_max_99 = System.Math.Max(Spectrogram.numHitBins_max_99, Spectrogram.numHitBins_99);
+
+                    Spectrogram.maxFreqThroughWindows_9 = System.Math.Max(Spectrogram.maxFreqThroughWindows_9, Spectrogram.maxFreqInWindow_9);
+                    Spectrogram.maxFreqThroughWindows_19 = System.Math.Max(Spectrogram.maxFreqThroughWindows_19, Spectrogram.maxFreqInWindow_19);
+                    Spectrogram.maxFreqThroughWindows_30 = System.Math.Max(Spectrogram.maxFreqThroughWindows_30, Spectrogram.maxFreqInWindow_30);
+                    Spectrogram.maxFreqThroughWindows_99 = System.Math.Max(Spectrogram.maxFreqThroughWindows_99, Spectrogram.maxFreqInWindow_99);
+
                 }
 
-                //if (Spectrogram.MaxRunLenInWindow > Spectrogram.maxRunLenThroughWindows) Spectrogram.maxRunLenThroughWindows = Spectrogram.MaxRunLenInWindow;
-
-                Spectrogram.numHitBinsArr_9[Spectrogram.spectArrIndex++] = Spectrogram.numHitBins_9;  //dState.allStepIndex-3
-                // Spectrogram.numHitBinsArr_high[detectionStepIndex] = Spectrogram.numHitBins_high;
-                //Debug.Print("detectionStepIndex=" + dState.detectionStepIndex + " numHitBins=" + Spectrogram.numHitBins + " numHitBins_high=" + Spectrogram.numHitBins_high);
-
-                Spectrogram.numHitBins_sum_9 += Spectrogram.numHitBins_9;
-                Spectrogram.numHitBins_sum_99 += Spectrogram.numHitBins_99;
-                Spectrogram.numHitBins_max_9 = System.Math.Max(Spectrogram.numHitBins_max_9, Spectrogram.numHitBins_9);
-                Spectrogram.numHitBins_max_99 = System.Math.Max(Spectrogram.numHitBins_max_99, Spectrogram.numHitBins_99);
-
-                Spectrogram.maxFreqThroughWindows_9 = System.Math.Max(Spectrogram.maxFreqThroughWindows_9, Spectrogram.maxFreqInWindow_9);
-                Spectrogram.maxFreqThroughWindows_19 = System.Math.Max(Spectrogram.maxFreqThroughWindows_19, Spectrogram.maxFreqInWindow_19);
-                Spectrogram.maxFreqThroughWindows_30 = System.Math.Max(Spectrogram.maxFreqThroughWindows_30, Spectrogram.maxFreqInWindow_30);
-                Spectrogram.maxFreqThroughWindows_99 = System.Math.Max(Spectrogram.maxFreqThroughWindows_99, Spectrogram.maxFreqInWindow_99);
-                // testPort_PIN1.Write(false);
-                // Spectrogram.maxFreqThroughWindows = System.Math.Max(Spectrogram.maxFreqThroughWindows, Spectrogram.maxFreqInWindow);
-                // Spectrogram.maxFreqThroughWindows_high = System.Math.Max(Spectrogram.maxFreqThroughWindows_high, Spectrogram.maxFreqInWindow_high);
             }
-
-            ///////////////////////////////////////// insertion sort
-            /*int diffPhaseFlag = 0;
-
-            // Next two lines commented by Dhrubo - features not used
-            for (int i = 0; i < dState.detectionStepIndex; i++)  // because window 3 is window 0, the first 3 is thrown
-            {
-                if (diffPhaseFlag == 0 && dState.diffPhaseInWindowArr[i] > dState.diffPhaseInWindow)
-                {
-                    Array.Copy(dState.diffPhaseInWindowArr, i, dState.diffPhaseInWindowArr, i + 1, dState.detectionStepIndex - i);
-                    dState.diffPhaseInWindowArr[i] = dState.diffPhaseInWindow;
-                    diffPhaseFlag = 1;
-                }
+         catch (Exception ex) {
+                //finalMsg = ex.Message;
+                //EnhancedLcd.Display(LCDMessages.Error);
+            } 
             }
-
-            if (diffPhaseFlag == 0) dState.diffPhaseInWindowArr[dState.detectionStepIndex] = dState.diffPhaseInWindow;*/
-        }
     }
 }

@@ -36,9 +36,9 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         //      If each ADC buffer's work were a separate data reference, the limit would be quickly reached.
         //  LargeDataStore lets multiple buffers be stored in one data reference
         //  For efficiency, ADCBufferSize should divide LargeDataStoreReferenceSize
-        private const int DataStoreBlockSize = 125 * 1024; // 128k bytes/block
+        //private const int DataStoreBlockSize = 125 * 1024; // 128k bytes/block
         // ReSharper disable once UnusedMember.Local
-        private const int DataStoreNumBlocks = 125;
+        //private const int DataStoreNumBlocks = 125;
 
         // sampling 125 radar I and 125 radar Q samples every 0.5 seconds
         private const int ADCBufferSize = 128; // Number of ushorts per ADC buffer
