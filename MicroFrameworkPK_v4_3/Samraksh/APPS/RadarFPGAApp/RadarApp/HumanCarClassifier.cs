@@ -49,12 +49,9 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         //public static bool waiting = true;
         public static int c = 0;
 
-        /*public const int fftWindowSize = 256;
+        public const int fftWindowSize = 256;
         public const int step = 64;   // in fact it is fftWindowSize - overlap, which is the proceed points
-        public const int nStepMax = 60; // Added by Dhrubo - variable extracted from now-nonexistent dstate*/
-        public const int fftWindowSize = 25;
-        public const int step = 6;   // in fact it is fftWindowSize - overlap, which is the proceed points
-        public const int nStepMax = 6; // Added by Dhrubo - variable extracted from now-nonexistent dstate*/
+        public const int nStepMax = 60; // Added by Dhrubo - variable extracted from now-nonexistent dstate
 
         private static ushort[] channelIBuffer;
         private static ushort[] channelQBuffer;
