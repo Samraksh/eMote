@@ -24,8 +24,9 @@ static BOOL g_radarInterruptEnabled = TRUE;
 static BOOL g_Radar_Driver_Initialized = FALSE;
 static bool windowOverThreshold = false;
 static bool detectionFinished = false;
+static bool processingInProgress = false;
 static int continueToSendCount = 0;
-static UINT16 unwrap = 0;
+static int unwrapSigned = 0;
 static UINT16 countOverTarget = 0;
 static int displacementFirstHalf = 0;
 static int displacementSecondHalf = 0;
@@ -70,6 +71,7 @@ UINT32 g_radarBufferSize = 0;
 
 void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 	{
+		UINT16 unwrap = 0;
 		FlagStatus status;
 		int bytesToRead = 768;
 		UINT8 rxData[bytesToRead];
@@ -162,35 +164,45 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 				g_radarUserBufferChannel2Ptr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+1])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)])));
 				unwrap = (UINT16)((((UINT16)(rxData[(tmpPos)+5])&0x0f) << 4) | (((UINT16)(rxData[(tmpPos)+4])&0xf0)>>4));
 				countOverTarget = (UINT16)((((UINT16)(rxData[(tmpPos)+4])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)+3])));
+				if (unwrap & 0x80) {
+					unwrapSigned = 0 - (256 - unwrap);
+				} else {
+					unwrapSigned = unwrap;
+				}
 				if (i < bytesToRead/12){
-					displacementFirstHalf = unwrap;
-					absoluteDisplFirstHalf = abs(unwrap);
-					if (unwrap < minDisplacementFirstHalf)
-						minDisplacementFirstHalf = unwrap;
-					if (unwrap > maxDisplacementFirstHalf)
-						maxDisplacementFirstHalf = unwrap;
+					displacementFirstHalf = unwrapSigned;
+					absoluteDisplFirstHalf = abs(unwrapSigned);
+					if (unwrapSigned < minDisplacementFirstHalf)
+						minDisplacementFirstHalf = unwrapSigned;
+					if (unwrapSigned > maxDisplacementFirstHalf)
+						maxDisplacementFirstHalf = unwrapSigned;
 				}
 				if (i >= bytesToRead/12){
-					displacementSecondHalf = unwrap;
-					absoluteDisplSecondHalf = abs(unwrap);
-					if (unwrap < minDisplacementFirstHalf)
-						minDisplacementSecondHalf = unwrap;
-					if (unwrap > maxDisplacementFirstHalf)
-						maxDisplacementSecondHalf = unwrap;
+					displacementSecondHalf = unwrapSigned;
+					absoluteDisplSecondHalf = abs(unwrapSigned);
+					if (unwrapSigned < minDisplacementFirstHalf)
+						minDisplacementSecondHalf = unwrapSigned;
+					if (unwrapSigned > maxDisplacementFirstHalf)
+						maxDisplacementSecondHalf = unwrapSigned;
 				}
 				// calculating data for entire window
-				absoluteDisplEntire = abs(unwrap);
-				if (unwrap < minDisplacementEntire)
-					minDisplacementEntire = unwrap;
-				if (unwrap > maxDisplacementEntire)
-					maxDisplacementEntire = unwrap;
+				absoluteDisplEntire = abs(unwrapSigned);
+				if (unwrapSigned < minDisplacementEntire)
+					minDisplacementEntire = unwrapSigned;
+				if (unwrapSigned > maxDisplacementEntire)
+					maxDisplacementEntire = unwrapSigned;
 			}
-			FPGAIQRejection = (UINT32)((((UINT16)(rxData[4])&0x0f) << 8) | ((UINT16)(rxData[3])));
+			//FPGAIQRejection = (UINT32)((((UINT16)(rxData[4])&0x0f) << 8) | ((UINT16)(rxData[3])));
 			hal_printf("cot: %d\r\n", countOverTarget);
+			hal_printf("unwrap: %d\r\n", unwrapSigned);
 			GLOBAL_LOCK(irq);
 
-			g_radarUserData = HAL_Time_CurrentTicks();
-			SaveNativeEventToHALQueue( g_radarContext, 0, UINT32(FPGAIQRejection & 0xFFFFFFFF) );
+			if (processingInProgress == true){
+				hal_printf("****** processing in progress error ******\r\n");
+			} else {
+				//g_radarUserData = HAL_Time_CurrentTicks();
+				SaveNativeEventToHALQueue( g_radarContext, 0, UINT32(FPGAIQRejection & 0xFFFFFFFF) );
+			}
 		}
 		/*for (i=0; i<bytesToRead;i=i+6){
 			hal_printf("%03d %02x %02x %02x %02x %02x %02x\r\n", i/6, rxData[i], rxData[i+1], rxData[i+2], rxData[i+3], rxData[i+4], rxData[i+5]);
@@ -287,7 +299,7 @@ INT8 RadarInternal::CurrentDetectionFinished( CLR_RT_HeapBlock* pMngObj, HRESULT
 INT32 RadarInternal::GetNetDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr )
 {
     if (portion == SAMPLE_WINDOW_FULL){
-		return (unwrap);
+		return (unwrapSigned);
 	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
 		return (displacementFirstHalf);
 	} else {

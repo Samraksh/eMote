@@ -61,28 +61,6 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         private static readonly ushort[] ADCBufferI = new ushort[ADCBufferSize];
         private static readonly ushort[] ADCBufferQ = new ushort[ADCBufferSize];
 
-        //public static ushort[] unwrapBuffer = new ushort[ADCBufferSize*50];  
-
-        // The buffer queue and it's maximum length
-        private static readonly Queue BufferQueue = new Queue();
-        private const int MaxBufferQueueLen = 2;
-
-        // A circular array of pre-allocated buffers that receive the contents of the ADC buffers
-        private static readonly ArrayList ADCCopyBuffers = new ArrayList();
-        private const int ADCCopyBuffersCnt = MaxBufferQueueLen;
-        private static int _adcCopyBuffersPtr;
-
-        public static ushort thresholdRotations = 7;
-        public static ushort IQRejection = 30;
-        public static ushort thresholdRadians = (ushort)(thresholdRotations * 2 * 3.14159);
-        public static bool threshholdMet = false;
-        public static int j = 0;
-
-        private static bool buzzerState = false;
-
-        //public static Samraksh.eMote.Algorithm.RadarDetection radarDetect = new Samraksh.eMote.Algorithm.RadarDetection();
-
-        private static bool historyUpdateCtrl = false;
 
         private static int num_humans = 0;
         private static int num_nonhumans = 0;
@@ -103,7 +81,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
 
         private static HumanCarClassifier _humanCarClassifier = new HumanCarClassifier();
         public static Samraksh.eMote.Algorithm.DecisionFunction decisionFunc = new Samraksh.eMote.Algorithm.DecisionFunction();
-        private static Timer _aggregateTimer = new Timer(Send_Decision, null, Timeout.Infinite, Timeout.Infinite);
+//        private static Timer _aggregateTimer = new Timer(Send_Decision, null, Timeout.Infinite, Timeout.Infinite);
         private static DecisionSendState decState = DecisionSendState.TEMP_DEC;
 
         private static DetectionStatus ongoingDisp = DetectionStatus.FALSE;
@@ -134,15 +112,6 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         /// </remarks>
         private static void SetupBuffers()
         {
-            for (var i = 0; i < ADCCopyBuffersCnt; i++)
-            {
-                var iBuff = new ushort[ADCBufferSize];
-                var qBuff = new ushort[ADCBufferSize];
-                var iqBuff = new IQ(iBuff, qBuff);
-                ADCCopyBuffers.Add(iqBuff);
-            }
-            _adcCopyBuffersPtr = 0;
-
             // Initialize parameters
             float rho = -0.015521f;
             float gamma = 5f;
@@ -161,36 +130,8 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         private static void ADCCallback(long FPGAIQRejection)
         {
             radar.SetProcessingInProgress(true);
-            var bqCnt = BufferQueue.Count;
-            _maxBuffersEnqueued = System.Math.Max(_maxBuffersEnqueued, bqCnt + 1);  // Add 1 because we're about to enqueue
 
-            // If queue is full, we can't add another entry
-            //  Exit with the _bufferQueueIsFull and _collectIsDone flags set
-            if (!_bufferQueueIsFull && bqCnt > MaxBufferQueueLen - 1)
-            {
-                _bufferQueueIsFull = true;
-                _collectIsDone = true;
-                AnalogInput.StopSampling();
-                return;
-            }
 
-            // There's space in the queue: copy the buffers and enqueue them
-            //      We need to copy to avoid a race condition. 
-            //      Whenever ADC is ready to call back, the new set of samples is stored in the specified buffer.
-            //      Hence if we're processing one buffer when the next callback occurs, the values in the current buffer can change.
-
-            // Get an I-Q buffer pair that will receive the ADC buffer data
-            //  Note that we're using pre-allocated buffers rather than creating new
-            //  This protects against the garbage collector
-            var iq = (IQ)ADCCopyBuffers[_adcCopyBuffersPtr];
-            // Copy to the pair
-            ADCBufferI.CopyTo(iq.IBuff, 0);
-            ADCBufferQ.CopyTo(iq.QBuff, 0);
-            // Update the circular buffer pointer
-            _adcCopyBuffersPtr = (_adcCopyBuffersPtr + 1) % ADCCopyBuffersCnt;
-
-            // Enqueue the pair for processing
-            BufferQueue.Enqueue(iq);
             // Signal the processing thread
             SampleBufferSemaphore.Set();
         }
@@ -220,7 +161,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
 
                         Debug.Print("Second Timer: memory usage (before) " + Debug.GC(true));
 
-                        _aggregateTimer.Change(45000, Timeout.Infinite);
+//                        _aggregateTimer.Change(45000, Timeout.Infinite);
                         decState = DecisionSendState.CONF_DEC;
 
                         Debug.Print("Second Timer: memory usage (after) " + Debug.GC(true));
@@ -250,7 +191,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
 
                             //Reset variables
                             //_aggregateTimer = null;
-                            _aggregateTimer.Change(Timeout.Infinite, Timeout.Infinite);
+//                            _aggregateTimer.Change(Timeout.Infinite, Timeout.Infinite);
                             decState = DecisionSendState.TEMP_DEC;
                             ongoingTimer = false;
                             num_humans = 0;
@@ -258,7 +199,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                         }
                         else // Defer sending the decision
                         {
-                            _aggregateTimer.Change(Timeout.Infinite, Timeout.Infinite);
+ //                           _aggregateTimer.Change(Timeout.Infinite, Timeout.Infinite);
                             decState = DecisionSendState.DEFERRED_DEC;
                         }
                     }
@@ -314,22 +255,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             {
                 // Wait for signal that a buffer is ready for processing
                 SampleBufferSemaphore.WaitOne();
-                // Process as many buffers as are available
-                while (BufferQueue.Count > 0)
-                {
-                    // Get a buffer to process
-                    var iq = (IQ)BufferQueue.Dequeue();
-                    ProcessBuffers(iq);
-                }
-                // Check if the end-sampling flag is set. If so, we're done
-                if (!_collectIsDone)
-                {
-                    continue;
-                }
-                //Debug.Print("Finished sampling");
-                AnalogInput.StopSampling();
-                // Terminate the thread and join with the main program
-                return;
+                ProcessBuffers();
             }
         }
 
@@ -340,14 +266,14 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         /// We do this so that the ADC callback will return quickly.
         /// The main program blocks until this thread ends
         /// </remarks>
-        private static void ProcessBuffers(IQ iq)
+        private static void ProcessBuffers()
         {
             bool walkendflag = false;
             bool detection = true;
 
 
-            var iBuff = iq.IBuff;
-            var qBuff = iq.QBuff;
+            var iBuff = ADCBufferI;
+            var qBuff = ADCBufferQ;
             if (!newDisplacement)
             {
                 newDisplacement = true;
@@ -435,7 +361,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                             Debug.Print("First Timer: memory usage (before) " + Debug.GC(true));
 
                             //_aggregateTimer = new Timer(Send_Confirmation, null, 60000, Timeout.Infinite); // Create one-shot timer for 15 seconds
-                            _aggregateTimer.Change(15000, Timeout.Infinite);
+//                            _aggregateTimer.Change(15000, Timeout.Infinite);
                             ongoingTimer = true;
 
                             Debug.Print("First Timer: memory usage (after) " + Debug.GC(true));
@@ -459,7 +385,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
 
                             //Reset variables
                             //_aggregateTimer = null;
-                            _aggregateTimer.Change(Timeout.Infinite, Timeout.Infinite);
+//                            _aggregateTimer.Change(Timeout.Infinite, Timeout.Infinite);
                             decState = DecisionSendState.TEMP_DEC;
                             ongoingTimer = false;
                             num_humans = 0;
@@ -481,6 +407,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                 Debug.Print("count over target: " + numCountAboveTarget.ToString());
                 _humanCarClassifier.ComputePhaseFeaturesLongBuffers(iBuff, qBuff);
             }
+            Debug.Print("-----------------------------");
             radar.SetProcessingInProgress(false);
         }
 
