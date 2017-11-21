@@ -405,7 +405,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                 Debug.Print("distance: " + distance.ToString());
                 numCountAboveTarget += radar.GetCountOverTarget();
                 Debug.Print("count over target: " + numCountAboveTarget.ToString());
-                _humanCarClassifier.ComputePhaseFeaturesLongBuffers(iBuff, qBuff);
+                //_humanCarClassifier.ComputePhaseFeaturesLongBuffers(iBuff, qBuff);
             }
             Debug.Print("-----------------------------");
             radar.SetProcessingInProgress(false);
