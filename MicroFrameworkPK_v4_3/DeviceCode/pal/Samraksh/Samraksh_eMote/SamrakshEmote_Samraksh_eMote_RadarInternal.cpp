@@ -76,8 +76,8 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 		int bytesToRead = 768;
 		UINT8 rxData[bytesToRead];
 
-		if (radarGarbagePurged == 0){
-			radarGarbagePurged = 1;			
+		if (radarGarbagePurged <= 2){
+			radarGarbagePurged++;
 			// read three garbage bytes
 			CPU_GPIO_SetPinState(25, TRUE);
 			HAL_Time_Sleep_MicroSeconds(10);
@@ -88,18 +88,13 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 			CPU_SPI_WriteByte(config, 0x5a);
 			HAL_Time_Sleep_MicroSeconds(10);
 			CPU_GPIO_SetPinState(25, FALSE);
-		} else 	if (radarGarbagePurged == 1){
-			radarGarbagePurged = 2;			
-			// read two garbage bytes
-			CPU_GPIO_SetPinState(25, TRUE);
-			HAL_Time_Sleep_MicroSeconds(10);
-			CPU_SPI_WriteByte(config, 0x5a);
-			HAL_Time_Sleep_MicroSeconds(10);
-			CPU_SPI_WriteByte(config, 0x5a);
-			HAL_Time_Sleep_MicroSeconds(10);
-			CPU_GPIO_SetPinState(25, FALSE);
+		} else 	if (radarGarbagePurged == 3){
+			radarGarbagePurged = 4;			
+			// disabling data ready interrupt
+			CPU_GPIO_DisablePin(0, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
 		}
 
+		// pulling out a block of data
 		CPU_GPIO_SetPinState(25, TRUE);
 		HAL_Time_Sleep_MicroSeconds(10);
 		int i;
@@ -114,6 +109,15 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 		
 		CPU_GPIO_SetPinState(25, FALSE);
 
+		// we shouldn't have any detections initially....just purging out the few garbage packets that occur on startup
+		//if  (radarGarbagePurged != 4) return;
+		
+		// if we are already processing data, we need to wait
+		if (processingInProgress == true){
+			hal_printf("processing already in progress\r\n");
+			return;
+		}
+
 		/*int tmpPos;
 		for (i=0;i<bytesToRead/6;i++){
 			tmpPos = i*6;
@@ -124,113 +128,125 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 			//g_radarUserBufferChannel2Ptr[i] = (UINT16)(((UINT16)((rxData[tmpPos+4]) << 8 | rxData[tmpPos+3])));
 		}*/
 		UINT32 FPGAIQRejection;
-		
-		// we'll send a few more frames to close out the human detector logic
-		if ((rxData[5])&0xf0 != 0) {
-			continueToSendCount = 6;
-			windowOverThreshold = true;
-			detectionFinished = false;	
-		} else {
-			if (continueToSendCount > 0)
-				continueToSendCount--;
-			windowOverThreshold = false;
-			detectionFinished = true;
-		}
-		if (((rxData[5])&0xf0 != 0) | (continueToSendCount > 0)) {
-				
-			/*if ((rxData[5] & 0x80) != 0) {
-				hal_printf("--- fpga detection ---\r\n");
-			}*/
-			int tmpPos;
-			displacementFirstHalf = 0;
- 			displacementSecondHalf = 0;
-	
-			absoluteDisplFirstHalf = 0;
-			absoluteDisplSecondHalf = 0;
-			absoluteDisplEntire = 0;
+		if ((CPU_GPIO_GetPinState(1) == TRUE) | (continueToSendCount > 0)){		
+			hal_printf("enabling data pull; cont: %d\r\n", continueToSendCount);
+			CPU_GPIO_EnableInputPin(0, FALSE, Radar_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 
-			minDisplacementFirstHalf = 0;
-			minDisplacementSecondHalf = 0;
-			minDisplacementEntire = 0;
-
-			maxDisplacementFirstHalf = 0;
-			maxDisplacementSecondHalf = 0;
-			maxDisplacementEntire = 0;
-
-			//hal_printf("Radar_Handler\r\n");
-			for (i=0;i<bytesToRead/6;i++){
-				tmpPos = i*6;
-				g_radarUserBufferChannel1Ptr[i] = (UINT16)(((UINT16)(rxData[tmpPos+2]) << 4) | (((UINT16)(rxData[tmpPos+1])&0xf0) >> 4));
-				g_radarUserBufferChannel2Ptr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+1])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)])));
-				unwrap = (UINT16)((((UINT16)(rxData[(tmpPos)+5])&0x0f) << 4) | (((UINT16)(rxData[(tmpPos)+4])&0xf0)>>4));
-				countOverTarget = (UINT16)((((UINT16)(rxData[(tmpPos)+4])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)+3])));
-				if (unwrap & 0x80) {
-					unwrapSigned = 0 - (256 - unwrap);
-				} else {
-					unwrapSigned = unwrap;
-				}
-				if (i < bytesToRead/12){
-					displacementFirstHalf = unwrapSigned;
-					absoluteDisplFirstHalf = abs(unwrapSigned);
-					if (unwrapSigned < minDisplacementFirstHalf)
-						minDisplacementFirstHalf = unwrapSigned;
-					if (unwrapSigned > maxDisplacementFirstHalf)
-						maxDisplacementFirstHalf = unwrapSigned;
-				}
-				if (i >= bytesToRead/12){
-					displacementSecondHalf = unwrapSigned;
-					absoluteDisplSecondHalf = abs(unwrapSigned);
-					if (unwrapSigned < minDisplacementFirstHalf)
-						minDisplacementSecondHalf = unwrapSigned;
-					if (unwrapSigned > maxDisplacementFirstHalf)
-						maxDisplacementSecondHalf = unwrapSigned;
-				}
-				// calculating data for entire window
-				absoluteDisplEntire = abs(unwrapSigned);
-				if (unwrapSigned < minDisplacementEntire)
-					minDisplacementEntire = unwrapSigned;
-				if (unwrapSigned > maxDisplacementEntire)
-					maxDisplacementEntire = unwrapSigned;
-			}
-			//FPGAIQRejection = (UINT32)((((UINT16)(rxData[4])&0x0f) << 8) | ((UINT16)(rxData[3])));
-			hal_printf("cot: %d\r\n", countOverTarget);
-			hal_printf("unwrap: %d\r\n", unwrapSigned);
-			GLOBAL_LOCK(irq);
-
-			if (processingInProgress == true){
-				hal_printf("****** processing in progress error ******\r\n");
+			// we'll send a few more frames to close out the human detector logic
+			if ((rxData[bytesToRead-1])&0xf0 != 0) {
+				continueToSendCount = 6;
+				windowOverThreshold = true;
+				detectionFinished = false;	
 			} else {
-				//g_radarUserData = HAL_Time_CurrentTicks();
-				SaveNativeEventToHALQueue( g_radarContext, 0, UINT32(FPGAIQRejection & 0xFFFFFFFF) );
+				if (continueToSendCount > 0)
+					continueToSendCount--;
+				windowOverThreshold = false;
+				detectionFinished = true;
 			}
-		}
-		/*for (i=0; i<bytesToRead;i=i+6){
-			hal_printf("%03d %02x %02x %02x %02x %02x %02x\r\n", i/6, rxData[i], rxData[i+1], rxData[i+2], rxData[i+3], rxData[i+4], rxData[i+5]);
-		}	*/
-
-		/*UINT16 adc1, adc2,median,detection,unwrap;
-		static UINT16 markerPrimary = 0xa5a5;
-		static UINT16 bogus = 0x2031;
-		static UINT16 bogus2 = 0x3339;
-		static UINT16 end = 0x0a0d;
-		USART_Write( 0, (char *)&markerPrimary, 2 );
-		for (i=0;i<bytesToRead;i=i+6){
-			adc1 = (UINT16)(((UINT16)(rxData[(i)+2]) << 4) | (((UINT16)(rxData[(i)+1])&0xf0) >> 4));
-			adc2 = (UINT16)((((UINT16)(rxData[(i)+1])&0x0f) << 8) | ((UINT16)(rxData[(i)])));
-			median = (UINT16)((((UINT16)(rxData[(i)+4])&0x0f) << 8) | ((UINT16)(rxData[(i)+3])));
-			detection = (UINT16)(((UINT16)(rxData[(i)+5])&0xf0) >> 4);
-			unwrap = (UINT16)((((UINT16)(rxData[(i)+5])&0x0f) << 8) | (((UINT16)(rxData[(i)+4])&0xf0)>>4));
+			if (((rxData[bytesToRead-1])&0xf0 != 0) | (continueToSendCount > 0)) {
 					
-			USART_Write( 0, (char *)&adc1, 2 );
-			USART_Write( 0, (char *)&adc2, 2 );
-		}
+				if ((rxData[bytesToRead-1] & 0x80) != 0) {
+					hal_printf("--- fpga detection ---\r\n");
+				}
+				int tmpPos;
+				displacementFirstHalf = 0;
+ 				displacementSecondHalf = 0;
+	
+				absoluteDisplFirstHalf = 0;
+				absoluteDisplSecondHalf = 0;
+				absoluteDisplEntire = 0;
 
-		USART_Write( 0, (char *)&bogus, 2 );
-		USART_Write( 0, (char *)&bogus, 2 );
-		USART_Write( 0, (char *)&bogus, 2 );
-		USART_Write( 0, (char *)&bogus, 2 );
-		USART_Write( 0, (char *)&bogus2, 2 );
-		USART_Write( 0, (char *)&end, 2 );	*/
+				minDisplacementFirstHalf = 0;
+				minDisplacementSecondHalf = 0;
+				minDisplacementEntire = 0;
+
+				maxDisplacementFirstHalf = 0;
+				maxDisplacementSecondHalf = 0;
+				maxDisplacementEntire = 0;
+
+				//hal_printf("Radar_Handler\r\n");
+				for (i=0;i<bytesToRead/6;i++){
+					tmpPos = i*6;
+					g_radarUserBufferChannel1Ptr[i] = (UINT16)(((UINT16)(rxData[tmpPos+2]) << 4) | (((UINT16)(rxData[tmpPos+1])&0xf0) >> 4));
+					g_radarUserBufferChannel2Ptr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+1])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)])));
+					unwrap = (UINT16)((((UINT16)(rxData[(tmpPos)+5])&0x0f) << 4) | (((UINT16)(rxData[(tmpPos)+4])&0xf0)>>4));
+					countOverTarget = (UINT16)((((UINT16)(rxData[(tmpPos)+4])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)+3])));
+//hal_printf("%d %d\r\n",i,countOverTarget);
+					if (unwrap & 0x80) {
+						unwrapSigned = 0 - (256 - unwrap);
+					} else {
+						unwrapSigned = unwrap;
+					}
+					if (i < bytesToRead/12){
+						displacementFirstHalf = unwrapSigned;
+						absoluteDisplFirstHalf = abs(unwrapSigned);
+						if (unwrapSigned < minDisplacementFirstHalf)
+							minDisplacementFirstHalf = unwrapSigned;
+						if (unwrapSigned > maxDisplacementFirstHalf)
+							maxDisplacementFirstHalf = unwrapSigned;
+					}
+					if (i >= bytesToRead/12){
+						displacementSecondHalf = unwrapSigned;
+						absoluteDisplSecondHalf = abs(unwrapSigned);
+						if (unwrapSigned < minDisplacementFirstHalf)
+							minDisplacementSecondHalf = unwrapSigned;
+						if (unwrapSigned > maxDisplacementFirstHalf)
+							maxDisplacementSecondHalf = unwrapSigned;
+					}
+					// calculating data for entire window
+					absoluteDisplEntire = abs(unwrapSigned);
+					if (unwrapSigned < minDisplacementEntire)
+						minDisplacementEntire = unwrapSigned;
+					if (unwrapSigned > maxDisplacementEntire)
+						maxDisplacementEntire = unwrapSigned;
+				}
+				//FPGAIQRejection = (UINT32)((((UINT16)(rxData[4])&0x0f) << 8) | ((UINT16)(rxData[3])));
+				//hal_printf("cot: %d\r\n", countOverTarget);
+				//hal_printf("unwrap: %d\r\n", unwrapSigned);
+				GLOBAL_LOCK(irq);
+
+				if (processingInProgress != true){					
+					//g_radarUserData = HAL_Time_CurrentTicks();
+					SaveNativeEventToHALQueue( g_radarContext, 0, UINT32(FPGAIQRejection & 0xFFFFFFFF) );
+				}
+				for (i=0; i<bytesToRead;i=i+6){
+					hal_printf("%03d %02x %02x %02x %02x %02x %02x\r\n", i/6, rxData[i], rxData[i+1], rxData[i+2], rxData[i+3], rxData[i+4], rxData[i+5]);
+				}	
+				/*UINT16 adc1, adc2,median,detection,unwrap;
+				static UINT16 markerPrimary = 0xa5a5;
+				static UINT16 bogus = 0x2031;
+				static UINT16 bogus2 = 0x3339;
+				static UINT16 end = 0x0a0d;
+				USART_Write( 0, (char *)&markerPrimary, 2 );
+				for (i=0;i<bytesToRead;i=i+6){
+					adc1 = (UINT16)(((UINT16)(rxData[(i)+2]) << 4) | (((UINT16)(rxData[(i)+1])&0xf0) >> 4));
+					adc2 = (UINT16)((((UINT16)(rxData[(i)+1])&0x0f) << 8) | ((UINT16)(rxData[(i)])));
+					median = (UINT16)((((UINT16)(rxData[(i)+4])&0x0f) << 8) | ((UINT16)(rxData[(i)+3])));
+					detection = (UINT16)(((UINT16)(rxData[(i)+5])&0xf0) >> 4);
+					unwrap = (UINT16)((((UINT16)(rxData[(i)+5])&0x0f) << 8) | (((UINT16)(rxData[(i)+4])&0xf0)>>4));
+					
+					USART_Write( 0, (char *)&adc1, 2 );
+					USART_Write( 0, (char *)&adc2, 2 );
+				}
+
+				USART_Write( 0, (char *)&bogus, 2 );
+				USART_Write( 0, (char *)&bogus, 2 );
+				USART_Write( 0, (char *)&bogus, 2 );
+				USART_Write( 0, (char *)&bogus, 2 );
+				USART_Write( 0, (char *)&bogus2, 2 );
+				USART_Write( 0, (char *)&end, 2 );*/
+
+			}
+		}  else {
+			// if there is a current detection or we  are pulling out continuation data the we allow the data alert pulse to call this interrupt
+			// we need to exit this interrupt after every block of data to allow user processing time
+			hal_printf("disabling data pull\r\n");
+			CPU_GPIO_DisablePin(0, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+			return;
+		}
+		
+
+		
 	}
 
 INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, HRESULT &hr )
@@ -275,7 +291,10 @@ INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CL
 
 	config.SPI_mod				 = SPIBUS2;
 
+	// data alert
 	CPU_GPIO_EnableInputPin(0, FALSE, Radar_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	// detection
+	CPU_GPIO_EnableInputPin(1, FALSE, Radar_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	// setup chip select pin
 	CPU_GPIO_EnableOutputPin(25,FALSE);
 	// toggle reset line to FPGA
