@@ -76,6 +76,12 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 		int bytesToRead = 768;
 		UINT8 rxData[bytesToRead];
 
+		// if we are already processing data, we need to wait
+		if (processingInProgress == true){
+			//hal_printf("*");
+			return;
+		}
+
 		if (radarGarbagePurged <= 2){
 			radarGarbagePurged++;
 			// read three garbage bytes
@@ -109,24 +115,6 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 		
 		CPU_GPIO_SetPinState(25, FALSE);
 
-		// we shouldn't have any detections initially....just purging out the few garbage packets that occur on startup
-		//if  (radarGarbagePurged != 4) return;
-		
-		// if we are already processing data, we need to wait
-		if (processingInProgress == true){
-			hal_printf("processing already in progress\r\n");
-			return;
-		}
-
-		/*int tmpPos;
-		for (i=0;i<bytesToRead/6;i++){
-			tmpPos = i*6;
-			g_radarUserBufferChannel1Ptr[i] = (UINT16)(((UINT16)(rxData[tmpPos+2]) << 4) | (((UINT16)(rxData[tmpPos+1])&0xf0) >> 4));
-			g_radarUserBufferChannel2Ptr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+1])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)])));
-
-			// debug count
-			//g_radarUserBufferChannel2Ptr[i] = (UINT16)(((UINT16)((rxData[tmpPos+4]) << 8 | rxData[tmpPos+3])));
-		}*/
 		UINT32 FPGAIQRejection;
 		if ((CPU_GPIO_GetPinState(1) == TRUE) | (continueToSendCount > 0)){		
 			hal_printf("enabling data pull; cont: %d\r\n", continueToSendCount);
@@ -171,7 +159,7 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 					g_radarUserBufferChannel2Ptr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+1])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)])));
 					unwrap = (UINT16)((((UINT16)(rxData[(tmpPos)+5])&0x0f) << 4) | (((UINT16)(rxData[(tmpPos)+4])&0xf0)>>4));
 					countOverTarget = (UINT16)((((UINT16)(rxData[(tmpPos)+4])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)+3])));
-//hal_printf("%d %d\r\n",i,countOverTarget);
+hal_printf("%d %d\r\n",i,countOverTarget);
 					if (unwrap & 0x80) {
 						unwrapSigned = 0 - (256 - unwrap);
 					} else {
@@ -205,13 +193,13 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 				//hal_printf("unwrap: %d\r\n", unwrapSigned);
 				GLOBAL_LOCK(irq);
 
-				if (processingInProgress != true){					
-					//g_radarUserData = HAL_Time_CurrentTicks();
-					SaveNativeEventToHALQueue( g_radarContext, 0, UINT32(FPGAIQRejection & 0xFFFFFFFF) );
-				}
-				for (i=0; i<bytesToRead;i=i+6){
+				//g_radarUserData = HAL_Time_CurrentTicks();
+				processingInProgress = true;
+				SaveNativeEventToHALQueue( g_radarContext, 0, UINT32(FPGAIQRejection & 0xFFFFFFFF) );
+
+				/*for (i=0; i<bytesToRead;i=i+6){
 					hal_printf("%03d %02x %02x %02x %02x %02x %02x\r\n", i/6, rxData[i], rxData[i+1], rxData[i+2], rxData[i+3], rxData[i+4], rxData[i+5]);
-				}	
+				}*/	
 				/*UINT16 adc1, adc2,median,detection,unwrap;
 				static UINT16 markerPrimary = 0xa5a5;
 				static UINT16 bogus = 0x2031;
@@ -358,7 +346,8 @@ INT32 RadarInternal::GetCountOverTarget( CLR_RT_HeapBlock* pMngObj, HRESULT &hr 
 
 void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr )
 {
-	detectionFinished = param0;
+	processingInProgress = param0;
+	hal_printf("PiP set to %d\r\n",processingInProgress);
 }
 
 INT32 RadarInternal::Init( INT32 param0, HRESULT &hr )
