@@ -76,6 +76,13 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 		int bytesToRead = 768;
 		UINT8 rxData[bytesToRead];
 
+		// checking to make sure we have enough data to pull
+		// this could occur if we are currently pulling data (per continuations) and a detection occurs
+		if (CPU_GPIO_GetPinState(0) == FALSE){
+			hal_printf("detection but not enough data\r\n");
+			return;
+		}
+		GLOBAL_LOCK(irq);
 		// if we are already processing data, we need to wait
 		if (processingInProgress == true){
 			//hal_printf("*");
@@ -114,7 +121,8 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 		}
 		
 		CPU_GPIO_SetPinState(25, FALSE);
-
+// ************** rxData[bytesToRead-1] does not contain accurate data for the block !!!!! **************
+//
 		UINT32 FPGAIQRejection;
 		if ((CPU_GPIO_GetPinState(1) == TRUE) | (continueToSendCount > 0)){		
 			hal_printf("enabling data pull; cont: %d\r\n", continueToSendCount);
@@ -191,7 +199,6 @@ hal_printf("%d %d\r\n",i,countOverTarget);
 				//FPGAIQRejection = (UINT32)((((UINT16)(rxData[4])&0x0f) << 8) | ((UINT16)(rxData[3])));
 				//hal_printf("cot: %d\r\n", countOverTarget);
 				//hal_printf("unwrap: %d\r\n", unwrapSigned);
-				GLOBAL_LOCK(irq);
 
 				//g_radarUserData = HAL_Time_CurrentTicks();
 				processingInProgress = true;
@@ -241,7 +248,7 @@ INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CL
 {
     INT8 retVal = 0; 
 	g_Radar_Driver_Initialized = TRUE;
-	radarGarbagePurged = false;
+	radarGarbagePurged = 0;
 
 	g_radarUserBufferChannel1Ptr = param0.GetBuffer();
 	g_radarUserBufferChannel2Ptr = param1.GetBuffer();
@@ -348,6 +355,10 @@ void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 par
 {
 	processingInProgress = param0;
 	hal_printf("PiP set to %d\r\n",processingInProgress);
+	if ((param0 == FALSE) & (CPU_GPIO_GetPinState(0) == TRUE)){
+		hal_printf("calling data pull\r\n");
+		Radar_Handler((GPIO_PIN) 0, TRUE, NULL);
+	}
 }
 
 INT32 RadarInternal::Init( INT32 param0, HRESULT &hr )
