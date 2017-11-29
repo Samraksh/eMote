@@ -28,6 +28,7 @@ static bool processingInProgress = false;
 static int continueToSendCount = 0;
 static int unwrapSigned = 0;
 static UINT16 countOverTarget = 0;
+static int maxCountOverTarget = 0;
 static int displacementFirstHalf = 0;
 static int displacementSecondHalf = 0;
 
@@ -42,6 +43,8 @@ static int minDisplacementEntire = 0;
 static int maxDisplacementFirstHalf = 0;
 static int maxDisplacementSecondHalf = 0;
 static int maxDisplacementEntire = 0;
+
+static bool alertInterruptActive = false;
 
 using namespace Samraksh::eMote;
 
@@ -69,6 +72,8 @@ UINT16 *g_radarUserBufferChannel1Ptr = NULL;
 UINT16 *g_radarUserBufferChannel2Ptr = NULL;
 UINT32 g_radarBufferSize = 0;
 
+void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param);
+
 void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 	{
 		UINT16 unwrap = 0;
@@ -76,12 +81,7 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 		int bytesToRead = 768;
 		UINT8 rxData[bytesToRead];
 
-		// checking to make sure we have enough data to pull
-		// this could occur if we are currently pulling data (per continuations) and a detection occurs
-		if (CPU_GPIO_GetPinState(0) == FALSE){
-			hal_printf("detection but not enough data\r\n");
-			return;
-		}
+		
 
 		// if we are already processing data, we need to wait
 		if (processingInProgress == true){
@@ -105,6 +105,7 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 			radarGarbagePurged = 4;			
 			// disabling data ready interrupt
 			CPU_GPIO_DisablePin(0, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+			alertInterruptActive = false;
 		}
 
 		// pulling out a block of data
@@ -124,6 +125,9 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 		int maxDetect = 0;
 		int detect = 0;
 		int tmpPos;
+
+		maxCountOverTarget = 0;
+
 		displacementFirstHalf = 0;
  		displacementSecondHalf = 0;
 	
@@ -146,14 +150,17 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 			unwrap = (UINT16)((((UINT16)(rxData[(tmpPos)+5])&0x0f) << 4) | (((UINT16)(rxData[(tmpPos)+4])&0xf0)>>4));
 			countOverTarget = (UINT16)((((UINT16)(rxData[(tmpPos)+4])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)+3])));
 			detect = (UINT16)(((UINT16)(rxData[(tmpPos)+5])&0xf0) >> 4);
-hal_printf("%d %d %x\r\n",i,countOverTarget, detect);
 			if (unwrap & 0x80) {
 				unwrapSigned = 0 - (256 - unwrap);
 			} else {
 				unwrapSigned = unwrap;
 			}
+if (radarGarbagePurged == 4) hal_printf("%d %d %x\r\n",unwrapSigned ,countOverTarget, detect);
 			if (detect > maxDetect){
 				maxDetect = detect;
+			}
+			if ((int)countOverTarget > maxCountOverTarget){
+				maxCountOverTarget = (int)countOverTarget;
 			}
 			if (i < bytesToRead/12){
 				displacementFirstHalf = unwrapSigned;
@@ -183,8 +190,13 @@ hal_printf("%d %d %x\r\n",i,countOverTarget, detect);
 
 		UINT32 FPGAIQRejection;
 		if ((CPU_GPIO_GetPinState(1) == TRUE) | (continueToSendCount > 0)){		
+			if (alertInterruptActive == false){
 			hal_printf("enabling data pull; cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
-			CPU_GPIO_EnableInputPin(0, FALSE, Radar_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+				CPU_GPIO_EnableInputPin(0, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+				alertInterruptActive = true;
+			} else {
+				hal_printf("cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
+			}
 
 			// we'll send a few more frames to close out the human detector logic
 			if ((maxDetect) != 0) {
@@ -197,7 +209,7 @@ hal_printf("%d %d %x\r\n",i,countOverTarget, detect);
 				windowOverThreshold = false;
 				detectionFinished = true;
 			}
-			if ((maxDetect != 0) | (continueToSendCount > 0)) {
+			//if ((maxDetect != 0) | (continueToSendCount > 0)) {
 					
 				if ((maxDetect & 0x8) != 0) {
 					hal_printf("--- fpga detection ---\r\n");
@@ -205,6 +217,7 @@ hal_printf("%d %d %x\r\n",i,countOverTarget, detect);
 				
 				g_radarUserData = HAL_Time_CurrentTicks();
 				processingInProgress = true;
+				hal_printf("post event\r\n");
 				SaveNativeEventToHALQueue( g_radarContext, UINT32(g_radarUserData >> 32), UINT32(g_radarUserData & 0xFFFFFFFF) );
 
 				/*for (i=0; i<bytesToRead;i=i+6){
@@ -233,17 +246,35 @@ hal_printf("%d %d %x\r\n",i,countOverTarget, detect);
 				USART_Write( 0, (char *)&bogus, 2 );
 				USART_Write( 0, (char *)&bogus2, 2 );
 				USART_Write( 0, (char *)&end, 2 );*/
-			}
+			//}
 		}  else {
 			// if there is a current detection or we  are pulling out continuation data the we allow the data alert pulse to call this interrupt
 			// we need to exit this interrupt after every block of data to allow user processing time
 			hal_printf("disabling data pull\r\n");
 			CPU_GPIO_DisablePin(0, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+			alertInterruptActive = false;
 			return;
 		}
+}
 		
+void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
+	hal_printf("detect\r\n");
+	// checking to make sure we have enough data to pull
+	// this could occur if we are currently pulling data (per continuations) and a detection occurs
+	if (CPU_GPIO_GetPinState(0) == FALSE){
+		hal_printf("detection but not enough data\r\n");
+		return;
+	}
+	Radar_Handler((GPIO_PIN) 1, TRUE, NULL);
+}
 
-		
+void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
+	hal_printf("data alert\r\n");
+	if (CPU_GPIO_GetPinState(0) == FALSE){
+		hal_printf("alert but not enough data\r\n");
+		return;
+	}
+	Radar_Handler((GPIO_PIN) 0, TRUE, NULL);
 	}
 
 INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, HRESULT &hr )
@@ -289,9 +320,10 @@ INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CL
 	config.SPI_mod				 = SPIBUS2;
 
 	// data alert
-	CPU_GPIO_EnableInputPin(0, FALSE, Radar_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	CPU_GPIO_EnableInputPin(0, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	alertInterruptActive = true;
 	// detection
-	CPU_GPIO_EnableInputPin(1, FALSE, Radar_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	CPU_GPIO_EnableInputPin(1, FALSE, detectHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	// setup chip select pin
 	CPU_GPIO_EnableOutputPin(25,FALSE);
 	// toggle reset line to FPGA
@@ -326,14 +358,23 @@ INT32 RadarInternal::GetNetDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 portio
 
 INT32 RadarInternal::GetAbsoluteDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr )
 {
-    if (portion == SAMPLE_WINDOW_FULL){
+    /*if (portion == SAMPLE_WINDOW_FULL){
 		return absoluteDisplEntire;
 	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
 		return absoluteDisplFirstHalf;
 	} else {
 		// SAMPLE_WINDOW_SECOND_HALF
 		return absoluteDisplSecondHalf;
+	}*/
+	if (portion == SAMPLE_WINDOW_FULL){
+		return maxDisplacementEntire;
+	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
+		return maxDisplacementFirstHalf;
+	} else {
+		// SAMPLE_WINDOW_SECOND_HALF
+		return maxDisplacementSecondHalf;
 	}
+	
 }
 
 INT32 RadarInternal::GetDisplacementRange( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr )
@@ -350,7 +391,7 @@ INT32 RadarInternal::GetDisplacementRange( CLR_RT_HeapBlock* pMngObj, INT32 port
 
 INT32 RadarInternal::GetCountOverTarget( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    return countOverTarget;
+    return maxCountOverTarget;
 }
 
 void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr )
@@ -416,4 +457,5 @@ const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Radar =
     DRIVER_INTERRUPT_METHODS_CHECKSUM,
     &g_RadarInteropDriverMethods
 };
+
 

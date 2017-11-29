@@ -394,10 +394,10 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             //Array.Copy(channelQBuffer, step, channelQBuffer, 0, fftWindowSize - step);
             try
             {
-                Debug.Print("d2: memory usage (after) " + Debug.GC(true));
+                //Debug.Print("d2: memory usage (after) " + Debug.GC(true));
                 sampleBuffer1.CopyTo(channelIBuffer, fftWindowSize - step);
                 sampleBuffer2.CopyTo(channelQBuffer, fftWindowSize - step);
-                Debug.Print("d3");
+                //Debug.Print("d3");
                 if (detectionStepIndex < nStepMax - 1) { detectionStepIndex++; }
 
                 if (computeSpectrogramFlag) // compute spectrogram only when the flag is set - start+3rd hit onwards

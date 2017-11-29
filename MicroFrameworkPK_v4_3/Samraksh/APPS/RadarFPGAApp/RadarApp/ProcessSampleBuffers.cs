@@ -58,8 +58,8 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         private static readonly AutoResetEvent SampleBufferSemaphore = new AutoResetEvent(false);
 
         // The ADC buffers that are populated by the ADC driver
-        private static readonly ushort[] ADCBufferI = new ushort[ADCBufferSize];
-        private static readonly ushort[] ADCBufferQ = new ushort[ADCBufferSize];
+        private static readonly ushort[] ADCBufferI = new ushort[256];
+        private static readonly ushort[] ADCBufferQ = new ushort[256];
 
 
         private static int num_humans = 0;
@@ -81,7 +81,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
 
         private static HumanCarClassifier _humanCarClassifier = new HumanCarClassifier();
         public static Samraksh.eMote.Algorithm.DecisionFunction decisionFunc = new Samraksh.eMote.Algorithm.DecisionFunction();
-//        private static Timer _aggregateTimer = new Timer(Send_Decision, null, Timeout.Infinite, Timeout.Infinite);
+        private static Timer _aggregateTimer = new Timer(Send_Decision, null, Timeout.Infinite, Timeout.Infinite);
         private static DecisionSendState decState = DecisionSendState.TEMP_DEC;
 
         private static DetectionStatus ongoingDisp = DetectionStatus.FALSE;
@@ -138,7 +138,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
 
         private static void Send_Decision(object state)
         {
-
+            Debug.Print("Decision:" + decState.ToString() + " non: " + num_nonhumans.ToString() + " human: " + num_humans.ToString());
             switch (decState)
             {
                 case DecisionSendState.TEMP_DEC:
@@ -159,9 +159,9 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                             Debug.Print("\tAttempting to send temporary decision NON-HUMAN.");
                         }
 
-                        Debug.Print("Second Timer: memory usage (before) " + Debug.GC(true));
+                        //Debug.Print("Second Timer: memory usage (before) " + Debug.GC(true));
 
-//                        _aggregateTimer.Change(45000, Timeout.Infinite);
+                        _aggregateTimer.Change(45000, Timeout.Infinite);
                         decState = DecisionSendState.CONF_DEC;
 
                         Debug.Print("Second Timer: memory usage (after) " + Debug.GC(true));
@@ -172,7 +172,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                 case DecisionSendState.CONF_DEC:
                     //lock (_thisLock)
                     {
-
+                        Debug.Print("newDisplace: " + newDisplacement.ToString());
                         if (!newDisplacement) // If not in an ongoing displacement, send result immediately
                         {
                             if (num_humans == num_nonhumans)
@@ -191,7 +191,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
 
                             //Reset variables
                             //_aggregateTimer = null;
-//                            _aggregateTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                            _aggregateTimer.Change(Timeout.Infinite, Timeout.Infinite);
                             decState = DecisionSendState.TEMP_DEC;
                             ongoingTimer = false;
                             num_humans = 0;
@@ -199,7 +199,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                         }
                         else // Defer sending the decision
                         {
- //                           _aggregateTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                            _aggregateTimer.Change(Timeout.Infinite, Timeout.Infinite);
                             decState = DecisionSendState.DEFERRED_DEC;
                         }
                     }
@@ -358,10 +358,10 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                         if (!ongoingTimer)
                         {
 
-                            Debug.Print("First Timer: memory usage (before) " + Debug.GC(true));
+                            //Debug.Print("First Timer: memory usage (before) " + Debug.GC(true));
 
                             //_aggregateTimer = new Timer(Send_Confirmation, null, 60000, Timeout.Infinite); // Create one-shot timer for 15 seconds
-//                            _aggregateTimer.Change(15000, Timeout.Infinite);
+                            _aggregateTimer.Change(15000, Timeout.Infinite);
                             ongoingTimer = true;
 
                             Debug.Print("First Timer: memory usage (after) " + Debug.GC(true));
@@ -385,7 +385,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
 
                             //Reset variables
                             //_aggregateTimer = null;
-//                            _aggregateTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                            _aggregateTimer.Change(Timeout.Infinite, Timeout.Infinite);
                             decState = DecisionSendState.TEMP_DEC;
                             ongoingTimer = false;
                             num_humans = 0;
@@ -401,11 +401,13 @@ namespace Samraksh.AppNote.Scarecrow.Radar
 
             if (ongoingDisp != DetectionStatus.FALSE)
             {
-                distance += radar.GetAbsoluteDisplacement(eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_FULL);
-                Debug.Print("distance: " + distance.ToString());
+                //distance += radar.GetAbsoluteDisplacement(eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_FULL);
+                distance += radar.GetDisplacementRange(eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_FULL);
+                Debug.Print("unwrap: " + radar.GetDisplacementRange(eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_FULL).ToString() + " distance: " + distance.ToString());
                 numCountAboveTarget += radar.GetCountOverTarget();
-                Debug.Print("count over target: " + numCountAboveTarget.ToString());
-                //_humanCarClassifier.ComputePhaseFeaturesLongBuffers(iBuff, qBuff);
+                Debug.Print("cot: " + radar.GetCountOverTarget().ToString() + " numCntTotal: " + numCountAboveTarget.ToString());
+                //Debug.Print("classifier: memory usage (after) " + Debug.GC(true));
+                _humanCarClassifier.ComputePhaseFeaturesLongBuffers(iBuff, qBuff);
             }
             Debug.Print("-----------------------------");
             radar.SetProcessingInProgress(false);
