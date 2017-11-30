@@ -76,6 +76,7 @@ void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param);
 
 void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 	{
+		hal_printf("rh\r\n");
 		UINT16 unwrap = 0;
 		FlagStatus status;
 		int bytesToRead = 768;
