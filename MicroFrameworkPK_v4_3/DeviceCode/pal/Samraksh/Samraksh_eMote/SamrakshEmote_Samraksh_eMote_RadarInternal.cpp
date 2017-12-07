@@ -76,7 +76,7 @@ void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param);
 
 void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 	{
-		hal_printf("rh\r\n");
+		//hal_printf("rh\r\n");
 		UINT16 unwrap = 0;
 		FlagStatus status;
 		int bytesToRead = 768;
@@ -156,7 +156,8 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 			} else {
 				unwrapSigned = unwrap;
 			}
-if (radarGarbagePurged == 4) hal_printf("%d %d %x\r\n",unwrapSigned ,countOverTarget, detect);
+//if (radarGarbagePurged == 4) hal_printf("%d %d %x\r\n",unwrapSigned ,countOverTarget, detect);
+//if (radarGarbagePurged == 4) hal_printf("%d %d %d %d %d %x\r\n", i, g_radarUserBufferChannel1Ptr[i], g_radarUserBufferChannel2Ptr[i],unwrapSigned ,countOverTarget, detect);
 			if (detect > maxDetect){
 				maxDetect = detect;
 			}
@@ -192,11 +193,11 @@ if (radarGarbagePurged == 4) hal_printf("%d %d %x\r\n",unwrapSigned ,countOverTa
 		UINT32 FPGAIQRejection;
 		if ((CPU_GPIO_GetPinState(1) == TRUE) | (continueToSendCount > 0)){		
 			if (alertInterruptActive == false){
-			hal_printf("enabling data pull; cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
+			//hal_printf("enabling data pull; cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
 				CPU_GPIO_EnableInputPin(0, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 				alertInterruptActive = true;
 			} else {
-				hal_printf("cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
+				//hal_printf("cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
 			}
 
 			// we'll send a few more frames to close out the human detector logic
@@ -213,12 +214,12 @@ if (radarGarbagePurged == 4) hal_printf("%d %d %x\r\n",unwrapSigned ,countOverTa
 			//if ((maxDetect != 0) | (continueToSendCount > 0)) {
 					
 				if ((maxDetect & 0x8) != 0) {
-					hal_printf("--- fpga detection ---\r\n");
+					//hal_printf("--- fpga detection ---\r\n");
 				}
 				
 				g_radarUserData = HAL_Time_CurrentTicks();
 				processingInProgress = true;
-				hal_printf("post event\r\n");
+				//hal_printf("post event\r\n");
 				SaveNativeEventToHALQueue( g_radarContext, UINT32(g_radarUserData >> 32), UINT32(g_radarUserData & 0xFFFFFFFF) );
 
 				/*for (i=0; i<bytesToRead;i=i+6){
@@ -251,7 +252,7 @@ if (radarGarbagePurged == 4) hal_printf("%d %d %x\r\n",unwrapSigned ,countOverTa
 		}  else {
 			// if there is a current detection or we  are pulling out continuation data the we allow the data alert pulse to call this interrupt
 			// we need to exit this interrupt after every block of data to allow user processing time
-			hal_printf("disabling data pull\r\n");
+			//hal_printf("disabling data pull\r\n");
 			CPU_GPIO_DisablePin(0, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
 			alertInterruptActive = false;
 			return;
@@ -259,20 +260,20 @@ if (radarGarbagePurged == 4) hal_printf("%d %d %x\r\n",unwrapSigned ,countOverTa
 }
 		
 void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
-	hal_printf("detect\r\n");
+	//hal_printf("detect\r\n");
 	// checking to make sure we have enough data to pull
 	// this could occur if we are currently pulling data (per continuations) and a detection occurs
 	if (CPU_GPIO_GetPinState(0) == FALSE){
-		hal_printf("detection but not enough data\r\n");
+		//hal_printf("detection but not enough data\r\n");
 		return;
 	}
 	Radar_Handler((GPIO_PIN) 1, TRUE, NULL);
 }
 
 void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
-	hal_printf("data alert\r\n");
+	//hal_printf("data alert\r\n");
 	if (CPU_GPIO_GetPinState(0) == FALSE){
-		hal_printf("alert but not enough data\r\n");
+		//hal_printf("alert but not enough data\r\n");
 		return;
 	}
 	Radar_Handler((GPIO_PIN) 0, TRUE, NULL);
@@ -398,9 +399,9 @@ INT32 RadarInternal::GetCountOverTarget( CLR_RT_HeapBlock* pMngObj, HRESULT &hr 
 void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr )
 {
 	processingInProgress = param0;
-	hal_printf("PiP set to %d\r\n",processingInProgress);
+	//hal_printf("PiP set to %d\r\n",processingInProgress);
 	if ((param0 == FALSE) & (CPU_GPIO_GetPinState(0) == TRUE)){
-		hal_printf("calling data pull\r\n");
+		//hal_printf("calling data pull\r\n");
 		Radar_Handler((GPIO_PIN) 0, TRUE, NULL);
 	}
 }
