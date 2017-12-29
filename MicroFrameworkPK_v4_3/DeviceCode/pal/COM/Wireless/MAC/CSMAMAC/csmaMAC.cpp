@@ -2,7 +2,7 @@
 #include <Samraksh/VirtualTimer.h>
 #include <Timer/netmf_timers.cpp>
 
-
+ 
 csmaMAC g_csmaMacObject;
 
 volatile UINT32 csmaSendToRadioFailCount = 0;  //!< count DS_Fail from radio during sendToRadio.
@@ -23,7 +23,14 @@ BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param){
 }
 
 void SendFirstPacketToRadio(void * arg){
+	if (g_send_buffer.GetNumberMessagesInBuffer() >= 1){
 	g_csmaMacObject.SendToRadio();
+	} else {
+		//hal_printf("no packets to send...stopping flushbuffer\r\n");
+		if (g_csmaMacObject.flushTimerRunning == true) {
+			VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
+		}
+	}
 }
 
 // Send a beacon everytime this fires
@@ -583,7 +590,8 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 				// Attempt to send the next packet out since we have no scheduler
 				if(!g_send_buffer.IsBufferEmpty())
 				{
-					SendFirstPacketToRadio(NULL);
+					VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
+					flushTimerRunning = true;
 				}
 			}
 			break;

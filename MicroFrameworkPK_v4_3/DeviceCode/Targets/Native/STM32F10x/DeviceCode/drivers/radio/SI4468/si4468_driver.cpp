@@ -16,6 +16,7 @@
 #define SI446x_TX_DONE_STATE (SI_STATE_SPI_ACTIVE<<4)
 #endif
 
+#define SI446x_RX_DONE_STATE SI_STATE_RX
 // Do NOT to back to RX after sending an ACK.
 #define SI446x_TX_ACK_DONE_STATE (SI_STATE_SPI_ACTIVE<<4)
 
@@ -329,7 +330,7 @@ static void rx_cont_do(void *arg) {
 
 
 		si446x_fifo_info(0x3); // Defensively reset FIFO
-		si446x_change_state(SI_STATE_SLEEP); // All done, sleep.
+		si446x_change_state(SI446x_RX_DONE_STATE); // All done, sleep.
 
 		si446x_radio_unlock();
 		si446x_spi_unlock();
@@ -351,7 +352,7 @@ static void rx_cont_do(void *arg) {
 	freq_error = si446x_get_afc_info();
 
 	si446x_fifo_info(0x3); // Defensively reset FIFO
-	si446x_change_state(SI_STATE_SLEEP); // All done, sleep.
+	si446x_change_state(SI446x_RX_DONE_STATE); // All done, sleep.
 
 	si446x_radio_unlock();
 	si446x_spi_unlock();
