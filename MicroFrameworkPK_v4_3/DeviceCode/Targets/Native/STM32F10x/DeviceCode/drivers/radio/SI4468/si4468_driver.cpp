@@ -31,6 +31,8 @@
 #define SI446x_INT_MODE_CHECK() {}
 #endif
 
+si_state_t defaultRxDoneState = SI_STATE_SLEEP;
+
 // Uncomment to disable debug prints
 // Cuts Flash usage by about 5.7 kB
 //#define SI446x_NO_DEBUG_PRINT
@@ -330,7 +332,7 @@ static void rx_cont_do(void *arg) {
 
 
 		si446x_fifo_info(0x3); // Defensively reset FIFO
-		si446x_change_state(SI446x_RX_DONE_STATE); // All done, sleep.
+		si446x_change_state(defaultRxDoneState); // All done, sleep.
 
 		si446x_radio_unlock();
 		si446x_spi_unlock();
@@ -352,7 +354,7 @@ static void rx_cont_do(void *arg) {
 	freq_error = si446x_get_afc_info();
 
 	si446x_fifo_info(0x3); // Defensively reset FIFO
-	si446x_change_state(SI446x_RX_DONE_STATE); // All done, sleep.
+	si446x_change_state(defaultRxDoneState); // All done, sleep.
 
 	si446x_radio_unlock();
 	si446x_spi_unlock();
@@ -876,6 +878,10 @@ UINT16 si446x_hal_get_address(UINT8 radio) {
 BOOL si446x_hal_set_address(UINT8 radio, UINT16 address) {
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_set_address()\r\n");
 	return radio_si446x_spi2.SetAddress(address);
+}
+
+void si446x_hal_set_default_state(si_state_t defaultState){
+	defaultRxDoneState = defaultState;
 }
 
 // INTERNAL USE ONLY -- CALLER MUST HOLD SPI_LOCK AND RADIO_LOCK

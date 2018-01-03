@@ -738,3 +738,10 @@ UINT8 CPU_RadioLayer_NumberRadiosSupported()
 {
 	return 2;
 }
+
+// default state is sleep, so CSMA needs to call this to keep RX always on
+UINT32 CPU_Radio_SetDefaultRxState(UINT8 state){
+	if (state == 0){
+		si446x_hal_set_default_state(SI_STATE_RX);
+	}
+}
