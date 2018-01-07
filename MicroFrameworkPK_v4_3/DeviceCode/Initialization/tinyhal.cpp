@@ -586,7 +586,25 @@ mipi_dsi_shutdown();
     HAL_Time_Initialize();
 
     HAL_Initialize();
-
+/*
+#if defined( SAM_APP_TINYCLR )
+#if defined PLATFORM_ARM_WLN
+	// turning off power rails
+	hal_printf("start test\r\n");
+	CPU_GPIO_EnableOutputPin(40,TRUE); //3.3V on
+	CPU_GPIO_EnableOutputPin(38,TRUE); //1.8V on
+	CPU_GPIO_EnableOutputPin(43,TRUE); //1.8V on
+	hal_printf("waiting for big cap\r\n");
+	CPU_GPIO_EnableInputPin3(44, FALSE, GPIO_INT_NONE, RESISTOR_PULLUP);
+	while (CPU_GPIO_GetPinState(44) == 0){hal_printf(".");}
+	CPU_GPIO_EnableOutputPin(45,TRUE); //1.8V on
+	hal_printf("waiting again\r\n");
+	CPU_GPIO_EnableInputPin3(39, FALSE, GPIO_INT_NONE, RESISTOR_PULLUP);
+	while (CPU_GPIO_GetPinState(39) == 0){hal_printf("x");}
+	hal_printf("done.\r\n");
+#endif
+#endif 
+*/
 #if !defined(BUILD_RTM)
 #ifdef TINYHAL_BOOTUP_DISPLAY_BUILD_INFO
     DEBUG_TRACE4( STREAM_LCD, ".NetMF v%d.%d_%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD , SAM_VERSION_REVISION);

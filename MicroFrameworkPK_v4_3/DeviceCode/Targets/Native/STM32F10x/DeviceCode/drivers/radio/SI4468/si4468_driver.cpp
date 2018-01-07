@@ -515,9 +515,25 @@ static void init_si446x_pins() {
 
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
 
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	/*GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_InitStructure.GPIO_Pin =  config->sdn_pin;
-	GPIO_Init(config->sdn_port, &GPIO_InitStructure);
+	GPIO_Init(config->sdn_port, &GPIO_InitStructure);*/
+
+	/*GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_8;
+	GPIO_Init(GPIOC, &GPIO_InitStructure);*/
+
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_11;
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_13;
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
 	// GPIO 0
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
@@ -559,10 +575,35 @@ uint8_t radio_spi_go(uint8_t data) {
 }
 
 void radio_shutdown(int go) {
-	if (go) // turn off the radio
+	/*if (go) // turn off the radio
 		GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_SET);
 	else
-		GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_RESET);
+		GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_RESET);*/
+	if (go) {
+		hal_printf("radio power off\r\n");
+		//GPIO_WriteBit(GPIOC, GPIO_Pin_8, Bit_RESET);
+		GPIO_WriteBit(GPIOC, GPIO_Pin_11, Bit_RESET);
+		GPIO_WriteBit(GPIOC, GPIO_Pin_13, Bit_RESET);
+	} else {
+		hal_printf("radio power on\r\n");
+		//GPIO_WriteBit(GPIOC, GPIO_Pin_8, Bit_SET);
+		GPIO_WriteBit(GPIOC, GPIO_Pin_11, Bit_SET);
+		/*HAL_Time_Sleep_MicroSeconds(1000000);
+		HAL_Time_Sleep_MicroSeconds(1000000);
+		HAL_Time_Sleep_MicroSeconds(1000000);
+		HAL_Time_Sleep_MicroSeconds(1000000);
+		HAL_Time_Sleep_MicroSeconds(1000000);
+		HAL_Time_Sleep_MicroSeconds(1000000);
+		HAL_Time_Sleep_MicroSeconds(1000000);
+		HAL_Time_Sleep_MicroSeconds(1000000);
+		HAL_Time_Sleep_MicroSeconds(1000000);
+		HAL_Time_Sleep_MicroSeconds(1000000);
+		HAL_Time_Sleep_MicroSeconds(1000000);
+		HAL_Time_Sleep_MicroSeconds(1000000);*/
+		while (CPU_GPIO_GetPinState(44) == 0) {hal_printf(".");}
+		hal_printf("done waiting\r\n");
+		GPIO_WriteBit(GPIOC, GPIO_Pin_13, Bit_SET);
+	}
 }
 
 // Returns TRUE if IRQ is asserted
@@ -660,7 +701,7 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		config->sdn_port		= GPIOB;
 		config->sdn_pin			= GPIO_Pin_11;
 		config->spi_rcc			= RCC_APB1Periph_SPI2;
-		si446x_debug_print(DEBUG03, "SI446X: Using WWF2 Hardware Config\r\n");
+		hal_printf( "SI446X: Using WWF2 Hardware Config\r\n");
 		si446x_debug_print(DEBUG02, "SI446X: TEST: Enabling PWM\r\n");
 
 		// TEST CODE
@@ -747,7 +788,7 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	initSPI2();
 	init_si446x_pins();
 
-	si446x_reset();
+	//si446x_reset();
 	reset_errors  = si446x_part_info();
 	reset_errors += si446x_func_info();
 
