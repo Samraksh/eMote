@@ -44,47 +44,7 @@ UINT64 STM32F10x_RTC::Get64Counter()
 // and using timer1 as a prescaler to timer2.
 DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, UINT32 ISR_Param)
 {
-	// Return if already initialized
-	if(STM32F10x_RTC::initialized)
-		return DS_Success;
-
-	m_systemTime = 0;
-
-	STM32F10x_RTC::initialized = TRUE;
-
-	// Maintains the last recorded 32 bit counter value
-	setCompareRunning = false;
-
-	callBackISR = ISR;
-	callBackISR_Param = ISR_Param;
-
-	int err  = 0;
-
-	// First make sure the RTC is running, we will use that to measure.
-	RCC_APB1PeriphClockCmd( RCC_APB1Periph_BKP, ENABLE);
-	PWR_BackupAccessCmd(ENABLE);
-	RTC_SetPrescaler(0); 
-	RCC_LSEConfig(RCC_LSE_ON);
-	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET) {
-		if (err++ == PWR_RTC_TIMEOUT) {
-			return DS_Fail; // Crystal not starting. Give up.
-		}
-	}
-	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
-	RCC_RTCCLKCmd(ENABLE);
-	RTC_WaitForLastTask();
-	RTC_WaitForSynchro();
-	RTC_WaitForLastTask();
-	RCC_LSICmd(DISABLE);
-
-	RTC_EnterConfigMode();
-	RTC_ITConfig(RTC_IT_ALR, ENABLE);
-	if( !CPU_INTC_ActivateInterrupt(RTC_IRQn, ISR_RTC_ALARM, NULL) )
-		return DS_Fail;
-	RTC_ExitConfigMode();
-
-    return DS_Success;
-
+	return DS_Success;
 }
 
 DeviceStatus STM32F10x_RTC::UnInitialize()

@@ -4,6 +4,7 @@
 
 #include <tinyclr_application.h>
 #include <tinyhal.h>
+#include <stm32f10x.h>
 
 #include <stdint.h>
 
@@ -74,8 +75,103 @@ static uint16_t my_rand(void) {
 }
 ///////////////////////////////////////////////////////////////////////////////
 
+static void power_supply_reset() {
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 |/* GPIO_Pin_8 |*/ GPIO_Pin_11 | GPIO_Pin_13; // leave out PC8 due to schematic issues
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  
+  // Configure Inputs
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_12;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  
+  // Configure Inputs
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; // PB5 is open-drain from LTC3103
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  
+  // Configure Inputs
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  hal_printf("Power Reset\r\n");
+}
+
+static void power_supply_activate(uint16_t pin) __attribute__ ((unused));
+static void power_supply_activate(uint16_t pin) {
+  GPIO_InitTypeDef GPIO_InitStructure;
+  // if (pin == GPIO_Pin_8) {
+	  // hal_printf(BAD\r\n", pin);
+	  // return;
+  // }
+  GPIO_InitStructure.GPIO_Pin = pin;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  switch(pin) {
+	  case GPIO_Pin_6:  hal_printf("1.8v rail enabled...\r\n", pin); break;
+	  case GPIO_Pin_8:  hal_printf("3.3v rail enabled...\r\n", pin); break;
+	  case GPIO_Pin_11: hal_printf("Rad Charge On enabled...\r\n", pin); break;
+	  case GPIO_Pin_13: hal_printf("2.5v radio rail enabled...\r\n", pin); break;
+	  default: hal_printf("Pin %d unknown... enabled anyway\r\n", pin); break;
+  }
+}	
+
+//PC12, PC9, PB5, PC7
+static void print_power_supply_status(void) {
+	if (GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_12)) {
+		hal_printf("Radio Cap Fully Charged OK\r\n");
+	}  else {
+		hal_printf("Radio Cap Fully Charged FAIL\r\n");
+	}
+	if (GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_9)) {
+		hal_printf("3.3v supply OK\r\n");
+	}  else {
+		hal_printf("3.3v supply FAIL\r\n");
+	}
+	if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5)) {
+		hal_printf("1.8v supply OK\r\n");
+	}  else {
+		hal_printf("1.8v supply FAIL\r\n");
+	}
+	if (GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_7)) {
+		hal_printf("2.5v radio rail OK\r\n");
+	}  else {
+		hal_printf("2.5v radio rail FAIL\r\n");
+	}
+}
+
+// 0 = Cap not rady, 1 = Cap Ready
+static int get_radio_charge_status(void) {
+	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_12);
+}
+
 void ApplicationEntryPoint()
 {
+	power_supply_reset();
+
+	hal_printf("Turning on Power Supplies...\r\n");
+
+	power_supply_activate(GPIO_Pin_8);
+	power_supply_activate(GPIO_Pin_6);
+	power_supply_activate(GPIO_Pin_11); // Big Cap
+
+	hal_printf("Waiting for big radio cap...\r\n");
+	while( get_radio_charge_status() == 0 );
+	hal_printf("Big radio cap charged...\r\n");
+
+	power_supply_activate(GPIO_Pin_13);
+	while( get_radio_charge_status() == 0 );
+
+	hal_printf("All power supplies enabled...\r\n\r\n");
+	print_power_supply_status();
+	
+	
 	print_cpu_serial();
 	si4468_spi2_init_test();
 	//si4468_spi2_init_test();

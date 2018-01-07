@@ -587,7 +587,8 @@ static int am_i_wwf(void) {
 			return 2;
 	}
 
-	return 1;
+	//return 1;
+	return 2;
 }
 
 static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
