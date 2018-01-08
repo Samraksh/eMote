@@ -207,9 +207,9 @@ static void si446x_debug_print(int priority, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
 
-    if(priority >= si4468x_debug_level) {
+    //if(priority >= si4468x_debug_level) {
 		hal_vprintf(fmt, args);
-	}
+	//}
 
     va_end(args);
 }
@@ -1214,6 +1214,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 
 	si446x_start_rx_fast_channel(si446x_channel);
 	si446x_spi_unlock();
+	si446x_request_device_state();
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() END\r\n");
 
 
@@ -1265,6 +1266,7 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	}
 
 	si446x_change_state(SI_STATE_SLEEP);
+	si446x_request_device_state();
 	si446x_radio_unlock();
 	si446x_spi_unlock();
 
@@ -1518,7 +1520,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 
 	if (Pin != SI446X_pin_setup.nirq_mf_pin) { return; }
 
-	si446x_debug_print(DEBUG02, "SI446X: INT\r\n");
+	hal_printf( "SI446X: INT\r\n");
 
 	if ( owner = si446x_spi_lock(radio_lock_interrupt) ) {
 		// Damn, we got an interrupt in the middle of another transaction. Have to defer it.
@@ -1536,6 +1538,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	// Only save timestamp if it was an RX event.
 	// Unlock SPI after the potential radio_lock, so both don't glitch free.
 	if (modem_pend & MODEM_MASK_SYNC_DETECT) {
+		hal_printf("SYNC\r\n");
 		// Unconditional lock grab.
 		owner = si446x_radio_lock_nofail(radio_lock_rx);
 		if (owner != radio_lock_none && owner != radio_lock_tx)
@@ -1545,13 +1548,14 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	}
 
 	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{
+		hal_printf("rx int\r\n");
 		si446x_pkt_rx_int();
 		if (!rx_callback_continuation.IsLinked()) {
 			si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() No RX cont linked???\r\n");
 		}
 	}
 
-	if (ph_pend & PH_STATUS_MASK_PACKET_SENT) 	{ si446x_pkt_tx_int(); }
+	if (ph_pend & PH_STATUS_MASK_PACKET_SENT) 	{hal_printf("tx int\r\n"); si446x_pkt_tx_int(); }
 	if (ph_pend & PH_STATUS_MASK_CRC_ERROR) 	{
 		si446x_pkt_bad_crc_int();
 	}

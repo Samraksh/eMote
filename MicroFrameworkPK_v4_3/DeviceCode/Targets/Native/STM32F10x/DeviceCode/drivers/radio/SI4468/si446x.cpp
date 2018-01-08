@@ -331,6 +331,7 @@ si_state_t si446x_request_device_state()
 	//si446x_debug_print(DEBUG01, "\tCHANNEL %d\r\n",Si446xCmd.REQUEST_DEVICE_STATE.CURRENT_CHANNEL);
 	
 	current_state = (si_state_t) Si446xCmd.REQUEST_DEVICE_STATE.CURR_STATE;
+	hal_printf("req state: %d\r\n", current_state);
 	return current_state;
 }
 
@@ -341,6 +342,7 @@ si_state_t si446x_request_device_state()
  */
 void si446x_change_state(si_state_t NEXT_STATE1)
 {
+	hal_printf("ch st: %d\r\n", NEXT_STATE1);
     Pro2Cmd[0] = SI446X_CMD_ID_CHANGE_STATE;
     Pro2Cmd[1] = (U8) NEXT_STATE1;
 

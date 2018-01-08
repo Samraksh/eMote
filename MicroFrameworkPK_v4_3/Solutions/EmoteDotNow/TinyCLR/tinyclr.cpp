@@ -151,8 +151,21 @@ static int get_radio_charge_status(void) {
 	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_12);
 }
 
+// 0 = Cap not rady, 1 = Cap Ready
+static int get_radio_power_status(void) {
+	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_7);
+}
+
+static void rad_power_monitor(GPIO_PIN Pin, BOOL PinState, void* Param) {
+	if (CPU_GPIO_GetPinState(39) == TRUE){
+		hal_printf("*** rad pwr good ***\r\n");
+	} else {
+		hal_printf("*** rad pwr bad ***\r\n");
+	}
+}
 void ApplicationEntryPoint()
 {
+	CPU_GPIO_EnableInputPin( (GPIO_PIN) 39, FALSE, rad_power_monitor, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP );
 	power_supply_reset();
 
 	hal_printf("Turning on Power Supplies...\r\n");
@@ -169,6 +182,7 @@ void ApplicationEntryPoint()
 
 	power_supply_activate(GPIO_Pin_13);
 	while( get_radio_charge_status() == 0 );
+	while( get_radio_power_status() == 0 );
 
 	hal_printf("All power supplies enabled...\r\n\r\n");
 	print_power_supply_status();
