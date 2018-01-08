@@ -236,7 +236,7 @@ DeviceStatus STM32F10x_I2C_Driver::XActionStop()
 
 DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 {
-
+		return DS_Success; // TEMPORARY FOR AUSTERE. KILL I2C.
 		GPIO_InitTypeDef GPIO_InitStructure;
 		I2C_InitTypeDef I2C_InitStruct;
 
