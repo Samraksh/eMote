@@ -48,7 +48,7 @@ const char wwf2_serial_numbers[serial_max_wwf2][serial_per]     = { "05de0033303
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
-const unsigned si4468x_debug_level = DEBUG02; // CHANGE ME.
+const unsigned si4468x_debug_level = DEBUG01; // CHANGE ME.
 
 // Pin list used in setup.
 static SI446X_pin_setup_t SI446X_pin_setup;
