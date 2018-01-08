@@ -249,7 +249,7 @@ static void int_cont_do(void *arg) {
 }
 
 static void sendSoftwareAck(UINT16 dest){
-	CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, TRUE);
+	//CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, TRUE);
 	si446x_debug_print(DEBUG01,"SI446X: sendSoftwareAck\r\n");
 	static int i = 0;
 	static softwareACKHeader softwareAckHeader;
@@ -260,7 +260,7 @@ static void sendSoftwareAck(UINT16 dest){
 	}
 	softwareAckHeader.dest = dest;
 	si446x_packet_send(si446x_channel, (uint8_t *) &softwareAckHeader, sizeof(softwareACKHeader), 0, NO_TIMESTAMP, SI446x_TX_ACK_DONE_STATE);
-	CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, FALSE);
+	//CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, FALSE);
 }
 
 // I agree its questionable that I'm being too complicated with continuation stuff... --NPS.
@@ -278,7 +278,7 @@ static void tx_cont_do(void *arg) {
 
 	// only unlock if TX was the source. Could overlap with RX, which overrides.
 	si446x_radio_lock_if_then_nofail(radio_lock_tx, radio_lock_none);
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, TRUE );
+	//CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, TRUE );
 }
 
 // Returns true if a continuation is linked and needs service.
@@ -339,7 +339,7 @@ static void rx_cont_do(void *arg) {
 
 		si446x_debug_print(ERR99,"SI446X: incorrect size in rx_cont_do:  Pkt RSSI: %d dBm Freq_Error: %d Hz\r\n", convert_rssi(rssi), freq_error);
 
-		CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
+		//CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
 		return;
 	}
 
@@ -394,7 +394,7 @@ static void rx_cont_do(void *arg) {
 	rx_msg_ptr = (Message_15_4_t *) (radio_si446x_spi2.GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, header->length);
 
 	//CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, TRUE );
-	CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
+	//CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
 }
 
 void si446x_hal_register_tx_callback(si446x_tx_callback_t callback) {
@@ -1063,15 +1063,15 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		si446x_write_tx_fifo(4, (uint8_t*)&eventOffset); // generate and write timestamp late as possible.
 
 		if(SI4468_Radio_TX_Instance != DISABLED_PIN ){
-			CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance, !CPU_GPIO_GetPinState(SI4468_Radio_TX_Instance) );
-			CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance, !CPU_GPIO_GetPinState(SI4468_Radio_TX_Instance) );
+			//CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance, !CPU_GPIO_GetPinState(SI4468_Radio_TX_Instance) );
+			//CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance, !CPU_GPIO_GetPinState(SI4468_Radio_TX_Instance) );
 		}
 		si446x_start_tx(chan, after_state, tx_buf[0]+1);
 		irq.Release();
 	} else { // Normal Case
 		if(SI4468_Radio_TX_Instance_NOTS != DISABLED_PIN ){
-			CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance_NOTS, !CPU_GPIO_GetPinState(SI4468_Radio_TX_Instance_NOTS) );
-			CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance_NOTS, !CPU_GPIO_GetPinState(SI4468_Radio_TX_Instance_NOTS) );
+			//CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance_NOTS, !CPU_GPIO_GetPinState(SI4468_Radio_TX_Instance_NOTS) );
+			//CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance_NOTS, !CPU_GPIO_GetPinState(SI4468_Radio_TX_Instance_NOTS) );
 		}
 		si446x_start_tx(chan, after_state, tx_buf[0]+1);
 	}
@@ -1083,7 +1083,7 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 }
 
 void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
-	CPU_GPIO_SetPinState( SI4468_TX, TRUE );
+	//CPU_GPIO_SetPinState( SI4468_TX, TRUE );
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_send()\r\n");
 
 	DeviceStatus ret;
@@ -1104,13 +1104,13 @@ void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
 	Message_15_4_t* temp = tx_msg_ptr;
 	tx_msg_ptr = (Message_15_4_t*) msg;
 
-	CPU_GPIO_SetPinState( SI4468_TX, FALSE );
+	//CPU_GPIO_SetPinState( SI4468_TX, FALSE );
 	return msg;
 }
 
 void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime) {
 
-	CPU_GPIO_SetPinState( SI4468_TX_TIMESTAMP, TRUE );
+	//CPU_GPIO_SetPinState( SI4468_TX_TIMESTAMP, TRUE );
 
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_send_ts()\r\n");
 
@@ -1132,7 +1132,7 @@ void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime
 	Message_15_4_t* temp = tx_msg_ptr;
 	tx_msg_ptr = (Message_15_4_t*) msg;
 
-	CPU_GPIO_SetPinState( SI4468_TX_TIMESTAMP, FALSE );
+	//CPU_GPIO_SetPinState( SI4468_TX_TIMESTAMP, FALSE );
 	return msg;
 }
 
@@ -1168,7 +1168,7 @@ static bool rx_consistency_check(void) {
 
 // Does NOT set the radio busy unless a packet comes in.
 DeviceStatus si446x_hal_rx(UINT8 radioID) {
-	CPU_GPIO_SetPinState( SI4468_Radio_STATE, TRUE );
+	//CPU_GPIO_SetPinState( SI4468_Radio_STATE, TRUE );
 	radio_lock_id_t owner;
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx()\r\n");
 
@@ -1222,7 +1222,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 
 
 DeviceStatus si446x_hal_sleep(UINT8 radioID) {
-	CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
+	//CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
 	radio_lock_id_t owner;
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep()\r\n");
 
@@ -1240,9 +1240,9 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 
 	if ( owner = si446x_spi_lock(radio_lock_sleep) ) {
 		si446x_debug_print(ERR99, "SI446X: si446x_hal_sleep() FAIL. SPI locked. Owner is %s\r\n", print_lock(owner));
-		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
-		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
-		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
+		//CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
+		//CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
+		//CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
 		return DS_Fail;
 	}
 
@@ -1251,9 +1251,9 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 		//Radio complains that tx is not yet done
 		//si446x_radio_unlock();
 		si446x_spi_unlock();
-		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
-		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
-		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
+		//CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
+		//CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
+		//CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
 		return DS_Fail;
 	}
 
@@ -1268,8 +1268,8 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	si446x_radio_unlock();
 	si446x_spi_unlock();
 
-	CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
-	CPU_GPIO_SetPinState( SI4468_Radio_STATE, FALSE );
+	//CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
+	//CPU_GPIO_SetPinState( SI4468_Radio_STATE, FALSE );
 	return DS_Success;
 }
 
