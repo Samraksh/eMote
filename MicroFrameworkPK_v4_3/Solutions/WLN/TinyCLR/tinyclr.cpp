@@ -157,10 +157,10 @@ void ApplicationEntryPoint()
 
 	hal_printf("Turning on Power Supplies...\r\n");
 
-	//hal_printf("NOT turning on rfPowOn\r\n");
-	power_supply_activate(GPIO_Pin_8);
-	//hal_printf("NOT turning on v1.8PowOn\r\n");
-	power_supply_activate(GPIO_Pin_6);
+	hal_printf("NOT turning on rfPowOn\r\n");
+	//power_supply_activate(GPIO_Pin_8);
+	hal_printf("NOT turning on v1.8PowOn\r\n");
+	//power_supply_activate(GPIO_Pin_6);
 	power_supply_activate(GPIO_Pin_11); // Big Cap
 
 	hal_printf("Waiting for big radio cap...\r\n");
