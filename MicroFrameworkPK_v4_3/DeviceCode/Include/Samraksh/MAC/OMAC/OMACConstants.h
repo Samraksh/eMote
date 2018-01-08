@@ -379,7 +379,8 @@ typedef OFProv<UINT64> OMACTicks;
 #define OMACClockSpecifier HFCLOCKID
 #define OMACClockFreq 8000
 //#define OMACClocktoSystemClockFreqRatio 250
-#define OMACClocktoSystemClockFreqRatio 244.140625
+//#define OMACClocktoSystemClockFreqRatio 244.140625
+#define OMACClocktoSystemClockFreqRatio 1
 
 #define INITIALIZATION_TIMESYNC_INTERVAL_INMICS 10000000
 
