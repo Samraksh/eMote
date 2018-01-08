@@ -77,7 +77,7 @@ static uint16_t my_rand(void) {
 
 static void power_supply_reset() {
   GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 |/* GPIO_Pin_8 |*/ GPIO_Pin_11 | GPIO_Pin_13; // leave out PC8 due to schematic issues
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_11 | GPIO_Pin_13; // leave out PC8 due to schematic issues
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
@@ -99,7 +99,7 @@ static void power_supply_reset() {
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
-  hal_printf("Power Reset\r\n");
+  hal_printf("Power Global Reset Complete\r\n");
 }
 
 static void power_supply_activate(uint16_t pin) __attribute__ ((unused));
@@ -155,10 +155,10 @@ void ApplicationEntryPoint()
 {
 	power_supply_reset();
 
-	hal_printf("Turning on Power Supplies...\r\n");
+	//hal_printf("Turning on Power Supplies...\r\n");
 
-	power_supply_activate(GPIO_Pin_8);
-	power_supply_activate(GPIO_Pin_6);
+	//power_supply_activate(GPIO_Pin_8); // 3.3v
+	//power_supply_activate(GPIO_Pin_6); // 1.8v
 	power_supply_activate(GPIO_Pin_11); // Big Cap
 
 	hal_printf("Waiting for big radio cap...\r\n");
