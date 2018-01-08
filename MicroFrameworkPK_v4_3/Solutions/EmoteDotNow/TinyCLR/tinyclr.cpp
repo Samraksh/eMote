@@ -182,13 +182,13 @@ void ApplicationEntryPoint()
 	//si4468_spi2_chain_tx();
 
 
-	while(1) {
+//	while(1) { // just do it once.
 		si4468_spi2_tx_test();
 		if ( si4468_spi2_rx_test() ) {
 			/*We got a packet, so wait abit before TX*/
 			for(int i=0; i<500000 + my_rand()*10; i++) ;
 		}
-	}
+//	}
 
 	//si4468_spi2_tx_test();
 /*
@@ -207,7 +207,7 @@ void ApplicationEntryPoint()
 
 	//SOFT_Breakpoint();
 	//::CPU_Reset();
-	while(1);
+	while(1) { __WFI(); }
 
 	/*
     CLR_SETTINGS clrSettings;
