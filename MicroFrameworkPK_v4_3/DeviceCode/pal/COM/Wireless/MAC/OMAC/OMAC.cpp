@@ -23,7 +23,7 @@
 #include <Samraksh/MAC/OMAC/OMAC.h>
 #include <Samraksh/Radio_decl.h>
 
-#define DEBUG_OMAC 0
+#define DEBUG_OMAC 1
 const bool NEED_OMAC_CALLBACK_CONTINUATION = false;
 
 
