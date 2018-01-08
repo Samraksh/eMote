@@ -51,7 +51,7 @@ const char wwf2_serial_numbers[serial_max_wwf2][serial_per]     = { "05de0033303
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
-const unsigned si4468x_debug_level = NONE00; // CHANGE ME.
+const unsigned si4468x_debug_level = DEBUG01; // CHANGE ME.
 
 // Pin list used in setup.
 static SI446X_pin_setup_t SI446X_pin_setup;
@@ -630,7 +630,7 @@ static void set_radio_power_pwm(int go) {
 // Quick and dirty. Clean me up later. --NPS
 static int am_i_wwf(void) {
 #ifdef PLATFORM_ARM_WLN
-	return 2;
+	return 3; // TEMPORARY FOR AUSTERE
 #else
 	uint8_t cpuserial[serial_size];
 	GetCPUSerial(cpuserial, serial_size);
@@ -713,6 +713,27 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		set_radio_power_pwm(0);
 		// END TEST
 	}
+	else if (isWWF == 3) { // 2nd iteration fully integrated board
+		config->spi_base 		= SPI2;
+		config->spi_port 		= GPIOB;
+		config->nirq_port		= GPIOB;
+		config->nirq_pin		= GPIO_Pin_10;
+		config->nirq_mf_pin		= (GPIO_PIN) 26;
+		config->gpio0_port		= GPIOC;
+		config->gpio1_port		= GPIOC;
+		config->gpio0_pin		= GPIO_Pin_0; // ANY PIN FROM FPGA FOR NOW, this is FPGA_GPIO_0
+		config->gpio1_pin		= GPIO_Pin_1; // ANY PIN FROM FPGA FOR NOW, this is FPGA_GPIO_1
+		config->cs_port			= GPIOB;
+		config->cs_pin			= GPIO_Pin_12;
+		config->sclk_pin		= GPIO_Pin_13;
+		config->miso_pin		= GPIO_Pin_14;
+		config->mosi_pin		= GPIO_Pin_15;
+		config->sdn_port		= GPIOB;
+		config->sdn_pin			= GPIO_Pin_11;
+		config->spi_rcc			= RCC_APB1Periph_SPI2;
+		hal_printf( "SI446X: Using Austere Hardware Config\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: TEST: Enabling PWM\r\n");
+	}
 	else { // I am a .NOW
 		config->spi_base 		= SPI2;
 		config->spi_port 		= GPIOB;
@@ -743,6 +764,7 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	uint8_t temp;
 	radio_lock_id_t owner;
 
+	/*
 	CPU_GPIO_EnableOutputPin(SI4468_HANDLE_INTERRUPT_TX, TRUE);
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, FALSE );
 	CPU_GPIO_EnableOutputPin(SI4468_HANDLE_INTERRUPT_RX, TRUE);
@@ -768,6 +790,7 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 
 	CPU_GPIO_EnableOutputPin(SI4468_Radio_TX_Instance_NOTS, TRUE);
 	CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance_NOTS, FALSE );
+	*/
 
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
