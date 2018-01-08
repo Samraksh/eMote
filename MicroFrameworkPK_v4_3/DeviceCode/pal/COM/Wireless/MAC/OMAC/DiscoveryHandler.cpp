@@ -99,11 +99,13 @@ UINT64 DiscoveryHandler::NextEvent(){
 	if(firstHighRateDiscoTimeinSlotNum == 0) {
 		firstHighRateDiscoTimeinSlotNum = currentSlotNum;
 		PermanentlyDecreaseDiscoRate();
-		TempIncreaseDiscoRate();
-		g_OMAC.m_omac_RadioControl.stayOn = true;
+		if(g_OMAC.HIGH_DISCO_PERIOD_IN_SLOTS){
+			TempIncreaseDiscoRate();
+			g_OMAC.m_omac_RadioControl.stayOn = true;
 #if OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE
 		hal_printf("Turning ON ALWAYSONMODE \r\n");
 #endif
+		}
 	}
 
 	if(highdiscorate && ( (currentSlotNum - firstHighRateDiscoTimeinSlotNum) > g_OMAC.HIGH_DISCO_PERIOD_IN_SLOTS ) ) {
