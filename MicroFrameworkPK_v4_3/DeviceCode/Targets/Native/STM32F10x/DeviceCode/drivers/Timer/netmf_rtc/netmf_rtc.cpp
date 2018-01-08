@@ -73,6 +73,8 @@ UINT64 STM32F10x_RTC::Get64Counter()
 // and using timer1 as a prescaler to timer2.
 DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, UINT32 ISR_Param)
 {
+	return DS_Success; // TEMPORARY UNTIL 32.768 kHz FROM FPGA IS WORKING
+	/*
 	// Return if already initialized
 	if(STM32F10x_RTC::initialized)
 		return DS_Success;
@@ -118,7 +120,7 @@ DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, U
 	//PWR_BackupAccessCmd(DISABLE);
 
     return DS_Success;
-
+	*/
 }
 
 DeviceStatus STM32F10x_RTC::UnInitialize()
