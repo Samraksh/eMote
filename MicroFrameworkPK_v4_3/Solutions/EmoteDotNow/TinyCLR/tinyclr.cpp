@@ -8,7 +8,7 @@
 
 #include <stdint.h>
 
-#include "E:\DotNet-MF\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\SI4468\si4468_driver_test.h"
+#include "..\..\..\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\SI4468\si4468_driver_test.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
