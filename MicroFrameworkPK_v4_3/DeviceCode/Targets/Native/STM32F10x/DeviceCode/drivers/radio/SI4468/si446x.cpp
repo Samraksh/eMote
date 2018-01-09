@@ -174,7 +174,7 @@ void si446x_reset(void)
 
 	// Verify that state transition passed. Discovered this as a failure mode. Perhaps hardware damaged?
 	for(volatile int i=0; i<CTS_TIMEOUT; i++) ; // spin, replace with real delay, 10us+
-	//SI_ASSERT(si446x_request_device_state() == SI_STATE_READY, "Si446x FATAL: No response to state change request.\r\n");
+	SI_ASSERT(si446x_request_device_state() == SI_STATE_READY, "Si446x FATAL: No response to state change request.\r\n");
 
 	// END INIT
 }
