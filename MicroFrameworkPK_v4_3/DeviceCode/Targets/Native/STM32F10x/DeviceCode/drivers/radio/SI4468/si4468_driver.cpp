@@ -975,7 +975,7 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	si_state_t state = SI_STATE_ERROR;
 
 	si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() size:%d doTs:%d\r\n", len, doTS);
-	si446x_debug_print(DEBUG01, "\tcontents: %s\r\n", (char *)pkt);
+	//si446x_debug_print(DEBUG01, "\tcontents: %s\r\n", (char *)pkt);
 
 	SI446x_INT_MODE_CHECK();
 
@@ -1142,7 +1142,7 @@ static bool rx_consistency_check(void) {
 DeviceStatus si446x_hal_rx(UINT8 radioID) {
 	//CPU_GPIO_SetPinState( SI4468_Radio_STATE, TRUE );
 	radio_lock_id_t owner;
-	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx()\r\n");
+	//si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx()\r\n");
 
 	if (!isInit) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. Not Init.\r\n");
@@ -1186,7 +1186,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 
 	si446x_start_rx_fast_channel(si446x_channel);
 	si446x_spi_unlock();
-	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() END\r\n");
+	//si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() END\r\n");
 
 
 	return DS_Success;
@@ -1196,7 +1196,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	//CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
 	radio_lock_id_t owner;
-	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep()\r\n");
+	//si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep()\r\n");
 
 	SI446x_INT_MODE_CHECK();
 
