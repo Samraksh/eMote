@@ -575,11 +575,11 @@ uint8_t radio_spi_go(uint8_t data) {
 }
 
 void radio_shutdown(int go) {
-	/*if (go) // turn off the radio
+	if (go) // turn off the radio
 		GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_SET);
 	else
-		GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_RESET);*/
-	if (go) {
+		GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_RESET);
+/*	if (go) {
 		hal_printf("radio power off\r\n");
 		//GPIO_WriteBit(GPIOC, GPIO_Pin_8, Bit_RESET);
 		GPIO_WriteBit(GPIOC, GPIO_Pin_11, Bit_RESET);
@@ -587,7 +587,7 @@ void radio_shutdown(int go) {
 	} else {
 		hal_printf("radio power on\r\n");
 		//GPIO_WriteBit(GPIOC, GPIO_Pin_8, Bit_SET);
-		GPIO_WriteBit(GPIOC, GPIO_Pin_11, Bit_SET);
+		GPIO_WriteBit(GPIOC, GPIO_Pin_11, Bit_SET);*/
 		/*HAL_Time_Sleep_MicroSeconds(1000000);
 		HAL_Time_Sleep_MicroSeconds(1000000);
 		HAL_Time_Sleep_MicroSeconds(1000000);
@@ -600,9 +600,9 @@ void radio_shutdown(int go) {
 		HAL_Time_Sleep_MicroSeconds(1000000);
 		HAL_Time_Sleep_MicroSeconds(1000000);
 		HAL_Time_Sleep_MicroSeconds(1000000);*/
-		while (CPU_GPIO_GetPinState(44) == 0) {hal_printf(".");}
+	/*	while (CPU_GPIO_GetPinState(44) == 0) {hal_printf(".");}
 		hal_printf("done waiting\r\n");
-		GPIO_WriteBit(GPIOC, GPIO_Pin_13, Bit_SET);
+		GPIO_WriteBit(GPIOC, GPIO_Pin_13, Bit_SET);*/
 	}
 }
 
