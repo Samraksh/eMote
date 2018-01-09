@@ -808,7 +808,7 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	initSPI2();
 	init_si446x_pins();
 
-	//si446x_reset();
+	si446x_reset();
 	reset_errors  = si446x_part_info();
 	reset_errors += si446x_func_info();
 
