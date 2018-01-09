@@ -629,9 +629,7 @@ static void set_radio_power_pwm(int go) {
 
 // Quick and dirty. Clean me up later. --NPS
 static int am_i_wwf(void) {
-#ifdef PLATFORM_ARM_WLN
 	return 3; // TEMPORARY FOR AUSTERE
-#else
 	uint8_t cpuserial[serial_size];
 	GetCPUSerial(cpuserial, serial_size);
 	char my_serial[serial_per];
@@ -659,7 +657,6 @@ static int am_i_wwf(void) {
 	}
 	si446x_debug_print(ERR100, "SI446X: Found Serial Number am_i_wwf()=1 0x%s\r\n", my_serial);
 	return 1;
-#endif
 }
 
 static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
