@@ -51,7 +51,7 @@ const char wwf2_serial_numbers[serial_max_wwf2][serial_per]     = { "05de0033303
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
-const unsigned si4468x_debug_level = DEBUG01; // CHANGE ME.
+const unsigned si4468x_debug_level = ERR100; // CHANGE ME.
 
 // Pin list used in setup.
 static SI446X_pin_setup_t SI446X_pin_setup;
@@ -673,7 +673,7 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		config->sdn_port		= GPIOB;
 		config->sdn_pin			= GPIO_Pin_11;
 		config->spi_rcc			= RCC_APB1Periph_SPI2;
-		hal_printf( "SI446X: Using WWF2 Hardware Config\r\n");
+		si446x_debug_print(DEBUG03, "SI446X: Using WWF2 Hardware Config\r\n");
 		si446x_debug_print(DEBUG02, "SI446X: TEST: Enabling PWM\r\n");
 
 		// TEST CODE
@@ -1142,7 +1142,7 @@ static bool rx_consistency_check(void) {
 DeviceStatus si446x_hal_rx(UINT8 radioID) {
 	//CPU_GPIO_SetPinState( SI4468_Radio_STATE, TRUE );
 	radio_lock_id_t owner;
-	//si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx()\r\n");
+	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx()\r\n");
 
 	if (!isInit) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. Not Init.\r\n");
@@ -1186,7 +1186,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 
 	si446x_start_rx_fast_channel(si446x_channel);
 	si446x_spi_unlock();
-	//si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() END\r\n");
+	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() END\r\n");
 
 
 	return DS_Success;
@@ -1196,7 +1196,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	//CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
 	radio_lock_id_t owner;
-	//si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep()\r\n");
+	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep()\r\n");
 
 	SI446x_INT_MODE_CHECK();
 

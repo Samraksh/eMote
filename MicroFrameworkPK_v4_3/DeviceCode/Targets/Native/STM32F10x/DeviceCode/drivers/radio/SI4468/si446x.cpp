@@ -220,16 +220,16 @@ int si446x_part_info()
     Si446xCmd.PART_INFO.CUSTOMER        = Pro2Cmd[6];
     Si446xCmd.PART_INFO.ROMID           = Pro2Cmd[7];
 	
-	hal_printf( "\tCHIPREV %d\r\n",	Si446xCmd.PART_INFO.CHIPREV);
-	hal_printf( "\tPART 0x%.4X\r\n",	Si446xCmd.PART_INFO.PART); // This is best shown in hex
-	hal_printf( "\tPBUILD %d\r\n",	Si446xCmd.PART_INFO.PBUILD);
-	hal_printf( "\tID %d\r\n",		Si446xCmd.PART_INFO.ID);
-	hal_printf( "\tCUSTOMER %d\r\n",	Si446xCmd.PART_INFO.CUSTOMER);
-	hal_printf( "\tROMID %d\r\n",	Si446xCmd.PART_INFO.ROMID); // ROMID=03 means you have a revB1B chip. ROMID of revC2A is 06.
+	si446x_debug_print(DEBUG01, "\tCHIPREV %d\r\n",	Si446xCmd.PART_INFO.CHIPREV);
+	si446x_debug_print(DEBUG01, "\tPART 0x%.4X\r\n",	Si446xCmd.PART_INFO.PART); // This is best shown in hex
+	si446x_debug_print(DEBUG01, "\tPBUILD %d\r\n",	Si446xCmd.PART_INFO.PBUILD);
+	si446x_debug_print(DEBUG01, "\tID %d\r\n",		Si446xCmd.PART_INFO.ID);
+	si446x_debug_print(DEBUG01, "\tCUSTOMER %d\r\n",	Si446xCmd.PART_INFO.CUSTOMER);
+	si446x_debug_print(DEBUG01, "\tROMID %d\r\n",	Si446xCmd.PART_INFO.ROMID); // ROMID=03 means you have a revB1B chip. ROMID of revC2A is 06.
 	
 	// RF4463PRO board from niceRF has ROMID 6 == revC2A
 	// Unfortunately it looks like different chip revs need different treatment. So must verify ROMID
-	hal_printf( "\nROMID = %d\n", Si446xCmd.PART_INFO.ROMID);
+	si446x_debug_print(DEBUG01, "\nROMID = %d\n", Si446xCmd.PART_INFO.ROMID);
 	ret += SI_ASSERT(Si446xCmd.PART_INFO.ROMID == ROMC2A, "Fatal: Bad ROMID\r\n");
 	ret += SI_ASSERT(Si446xCmd.PART_INFO.PART  == PART_SI446X, "Fatal: Bad Part\r\n");
 	
