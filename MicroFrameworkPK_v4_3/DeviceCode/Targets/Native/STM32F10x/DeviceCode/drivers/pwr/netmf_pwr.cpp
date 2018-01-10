@@ -113,12 +113,13 @@ void PowerInit() {
 	RCC_AdjustHSICalibrationValue(PWR_HSI_DEFAULT_TRIM);
 #endif
 
-#define PLATFORM_MIDPOWER // TEMPORARY DEFINE FOR AUSTERE
-#ifdef PLATFORM_MIDPOWER
-	Mid_Power();
-#else
-	High_Power();
-#endif
+//#define PLATFORM_MIDPOWER // TEMPORARY DEFINE FOR AUSTERE
+//#ifdef PLATFORM_MIDPOWER
+//	Mid_Power();
+//#else
+//	High_Power();
+//#endif
+	High_Power_48();
 	RCC_LSICmd(DISABLE);
 }
 
@@ -387,6 +388,59 @@ void Mid_Power() {
 	while ( RCC_GetSYSCLKSource() != 0x08 ) { ; }
 
 	stm_power_state = POWER_STATE_MID;
+
+	USART_reinit(); // Clock sensitive. Must redo.
+}
+
+void High_Power_48() {
+
+	// Make sure actually changing
+	if (stm_power_state == POWER_STATE_HIGH) {
+		return;
+	}
+
+	GLOBAL_LOCK(irq);
+
+	pause_peripherals();
+
+	// Set HSI (instead of PLL) as SYSCLK source
+	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
+	while ( RCC_GetSYSCLKSource() != 0x00 ) { ; }
+	RCC_PLLCmd(DISABLE);
+
+	// Setup PLL for 8/2*12 = 48 MHz
+	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_12);
+
+	// Set timer prescaler for constant 8 MHz
+	// Only TIM1 needed, TIM2 is slave
+	// PCLK @ 32 MHz, TIM runs x2, so /8
+	TIM_PrescalerConfig(TIM1, 5, TIM_PSCReloadMode_Immediate);
+
+	// Set Bus Speeds
+	RCC_HCLKConfig(RCC_SYSCLK_Div1);  // 48 MHz
+	RCC_PCLK1Config(RCC_HCLK_Div2);   // 24 MHz
+	RCC_PCLK2Config(RCC_HCLK_Div2);   // 24 MHz
+	RCC_ADCCLKConfig(RCC_PCLK2_Div6); // 4 MHz
+
+	// This is confusing, pay attention:
+	// If the PCLK1/2 prescaler != 1
+	// Then the associated TIM clock is x2
+	// so PCLK @ 48/2 MHz really means TIM @ 48 MHz.
+
+	// Set flash speeds
+	FLASH_SetLatency(FLASH_Latency_1);
+	FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Disable);
+	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
+
+	// Enable PLL and spin waiting for PLL ready
+	RCC_PLLCmd(ENABLE);
+	while ( RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET ) { ; }
+
+	// Set PLL as clock source and spin waiting for active
+	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
+	while ( RCC_GetSYSCLKSource() != 0x08 ) { ; }
+
+	stm_power_state = POWER_STATE_HIGH;
 
 	USART_reinit(); // Clock sensitive. Must redo.
 }
