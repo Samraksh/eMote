@@ -51,15 +51,15 @@ using namespace Samraksh::eMote;
 static int radarGarbagePurged = 0;
 SPI_CONFIGURATION config;
 
-#define SPIy             SPI2
-#define SPIy_CLK         RCC_APB1Periph_SPI2
-#define SPIy_GPIO        GPIOB
-#define SPIy_GPIO_CLK    RCC_APB2Periph_GPIOB 
+#define SPIy             SPI1
+#define SPIy_CLK         RCC_APB2Periph_SPI1
+#define SPIy_GPIO        GPIOA
+#define SPIy_GPIO_CLK    RCC_APB2Periph_GPIOA 
 
-#define SPIy_NSS	     GPIO_Pin_12 //nss
-#define SPIy_PIN_SCK     GPIO_Pin_13 //sck
-#define SPIy_PIN_MISO	 GPIO_Pin_14 //miso
-#define SPIy_PIN_MOSI    GPIO_Pin_15 //mosi
+#define SPIy_NSS	     GPIO_Pin_11 //nss
+#define SPIy_PIN_SCK     GPIO_Pin_5 //sck
+#define SPIy_PIN_MISO	 GPIO_Pin_6 //miso
+#define SPIy_PIN_MOSI    GPIO_Pin_7 //mosi
 
 enum SAMPLE_WINDOW_PORTION
     {
@@ -93,7 +93,7 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 		if (radarGarbagePurged <= 2){
 			radarGarbagePurged++;
 			// read three garbage bytes
-			CPU_GPIO_SetPinState(25, TRUE);
+			CPU_GPIO_SetPinState(8, TRUE);
 			HAL_Time_Sleep_MicroSeconds(10);
 			CPU_SPI_WriteByte(config, 0x5a);
 			HAL_Time_Sleep_MicroSeconds(10);
@@ -101,16 +101,16 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 			HAL_Time_Sleep_MicroSeconds(10);
 			CPU_SPI_WriteByte(config, 0x5a);
 			HAL_Time_Sleep_MicroSeconds(10);
-			CPU_GPIO_SetPinState(25, FALSE);
+			CPU_GPIO_SetPinState(8, FALSE);
 		} else 	if (radarGarbagePurged == 3){
 			radarGarbagePurged = 4;			
 			// disabling data ready interrupt
-			CPU_GPIO_DisablePin(0, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+			CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
 			alertInterruptActive = false;
 		}
 
 		// pulling out a block of data
-		CPU_GPIO_SetPinState(25, TRUE);
+		CPU_GPIO_SetPinState(8, TRUE);
 		HAL_Time_Sleep_MicroSeconds(10);
 		int i;
 		for (i=0;i<bytesToRead;i++){
@@ -119,9 +119,9 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 			while (status != SET){
 				status = SPI_I2S_GetFlagStatus(SPIy, SPI_I2S_FLAG_RXNE);
 			}
-			rxData[i] = SPI_I2S_ReceiveData(SPI2);
+			rxData[i] = SPI_I2S_ReceiveData(SPIy);
 		}
-		CPU_GPIO_SetPinState(25, FALSE);
+		CPU_GPIO_SetPinState(8, FALSE);
 
 		int maxDetect = 0;
 		int detect = 0;
@@ -191,10 +191,10 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 		if (radarGarbagePurged != 4) return;
 
 		UINT32 FPGAIQRejection;
-		if ((CPU_GPIO_GetPinState(1) == TRUE) | (continueToSendCount > 0)){		
+		if ((CPU_GPIO_GetPinState(33) == TRUE) | (continueToSendCount > 0)){		
 			if (alertInterruptActive == false){
 			//hal_printf("enabling data pull; cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
-				CPU_GPIO_EnableInputPin(0, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+				CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 				alertInterruptActive = true;
 			} else {
 				//hal_printf("cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
@@ -253,7 +253,7 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 			// if there is a current detection or we  are pulling out continuation data the we allow the data alert pulse to call this interrupt
 			// we need to exit this interrupt after every block of data to allow user processing time
 			//hal_printf("disabling data pull\r\n");
-			CPU_GPIO_DisablePin(0, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+			CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
 			alertInterruptActive = false;
 			return;
 		}
@@ -263,20 +263,20 @@ void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	//hal_printf("detect\r\n");
 	// checking to make sure we have enough data to pull
 	// this could occur if we are currently pulling data (per continuations) and a detection occurs
-	if (CPU_GPIO_GetPinState(0) == FALSE){
+	if (CPU_GPIO_GetPinState(33) == FALSE){
 		//hal_printf("detection but not enough data\r\n");
 		return;
 	}
-	Radar_Handler((GPIO_PIN) 1, TRUE, NULL);
+	Radar_Handler((GPIO_PIN) 33, TRUE, NULL);
 }
 
 void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	//hal_printf("data alert\r\n");
-	if (CPU_GPIO_GetPinState(0) == FALSE){
+	if (CPU_GPIO_GetPinState(33) == FALSE){
 		//hal_printf("alert but not enough data\r\n");
 		return;
 	}
-	Radar_Handler((GPIO_PIN) 0, TRUE, NULL);
+	Radar_Handler((GPIO_PIN) 33, TRUE, NULL);
 	}
 
 INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, HRESULT &hr )
@@ -297,12 +297,12 @@ INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CL
 
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	GPIO_InitStructure.GPIO_Pin =  SPIy_PIN_SCK | SPIy_NSS | SPIy_PIN_MOSI;
+	GPIO_InitStructure.GPIO_Pin =  SPIy_PIN_SCK |  SPIy_PIN_MOSI;
 	GPIO_ConfigurePin(SPIy_GPIO, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
 	// SPI MISO pin
 	GPIO_InitStructure.GPIO_Pin =  SPIy_PIN_MISO;
-	GPIO_ConfigurePin(GPIOB, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_IN_FLOATING, GPIO_Speed_50MHz);
+	GPIO_ConfigurePin(SPIy_GPIO, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_IN_FLOATING, GPIO_Speed_50MHz);
 
 	SPI_StructInit(&SPI_InitStructure);
 	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
@@ -319,19 +319,19 @@ INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CL
 	SPI_SSOutputCmd(SPIy, ENABLE);
 	SPI_Cmd(SPIy, ENABLE);
 
-	config.SPI_mod				 = SPIBUS2;
-
+	config.SPI_mod				 = SPIBUS1;
+hal_printf("**** disabled interrupt\r\n");
 	// data alert
-	CPU_GPIO_EnableInputPin(0, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+//	CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	alertInterruptActive = true;
 	// detection
-	CPU_GPIO_EnableInputPin(1, FALSE, detectHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+//	CPU_GPIO_EnableInputPin(0, FALSE, detectHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	// setup chip select pin
-	CPU_GPIO_EnableOutputPin(25,FALSE);
+	CPU_GPIO_EnableOutputPin(8,FALSE);
 	// toggle reset line to FPGA
-	CPU_GPIO_EnableOutputPin(24,FALSE);
+	CPU_GPIO_EnableOutputPin(32,FALSE);
 	HAL_Time_Sleep_MicroSeconds(300000);
-	CPU_GPIO_SetPinState(24, TRUE);
+	CPU_GPIO_SetPinState(32, TRUE);
 	
     return retVal;
 }
@@ -400,9 +400,9 @@ void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 par
 {
 	processingInProgress = param0;
 	//hal_printf("PiP set to %d\r\n",processingInProgress);
-	if ((param0 == FALSE) & (CPU_GPIO_GetPinState(0) == TRUE)){
+	if ((param0 == FALSE) & (CPU_GPIO_GetPinState(33) == TRUE)){
 		//hal_printf("calling data pull\r\n");
-		Radar_Handler((GPIO_PIN) 0, TRUE, NULL);
+		Radar_Handler((GPIO_PIN) 33, TRUE, NULL);
 	}
 }
 
