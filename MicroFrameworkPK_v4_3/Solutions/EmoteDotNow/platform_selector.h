@@ -209,12 +209,12 @@ const UINT8 TIMER_32BIT = ADVTIMER_32BIT;
 const UINT8 TIMER1_16BIT = 2;
 const UINT8 TIMER2_16BIT = 3;
 const UINT8 RTC_32BIT = 4;
-const UINT8 LOW_DRIFT_TIMER = ADVTIMER_32BIT;
+const UINT8 LOW_DRIFT_TIMER = RTC_32BIT;
 
-const UINT8 g_CountOfHardwareTimers = 1;
-const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {DEFAULT_TIMER };
+const UINT8 g_CountOfHardwareTimers = 2;
+const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {DEFAULT_TIMER, LOW_DRIFT_TIMER};
 const UINT8 g_VirtualTimerPerHardwareTimer = 16;
-const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000 };
+const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000, 32768};
 
 
 /*BK: TImer Mapper does not seem to work. We need manually select timers from range 0-8 anyways

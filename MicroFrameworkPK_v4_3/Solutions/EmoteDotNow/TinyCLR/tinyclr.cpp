@@ -164,6 +164,8 @@ static void rad_power_monitor(GPIO_PIN Pin, BOOL PinState, void* Param) {
 	}
 }
 
+
+
 void ApplicationEntryPoint()
 {
 	CPU_GPIO_EnableInputPin( (GPIO_PIN) 39, FALSE, rad_power_monitor, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP );
@@ -227,6 +229,7 @@ void ApplicationEntryPoint()
 	//::CPU_Reset();
 	//while(1);
 
+	
 	
     CLR_SETTINGS clrSettings;
 
