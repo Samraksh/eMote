@@ -76,7 +76,6 @@ void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param);
 
 void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 	{
-		//hal_printf("rh\r\n");
 		UINT16 unwrap = 0;
 		FlagStatus status;
 		int bytesToRead = 768;
@@ -84,9 +83,8 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 	
 		// if we are already processing data, we need to wait
 		if (processingInProgress == true){
-// UNCOMMENT THIS!			
 hal_printf("@");		
-//			return;
+			return;
 		}
 
 		GLOBAL_LOCK(irq);
@@ -122,7 +120,6 @@ hal_printf("@");
 			rxData[i] = SPI_I2S_ReceiveData(SPIy);
 		}
 		CPU_GPIO_SetPinState(8, FALSE);
-hal_printf("x");
 		int maxDetect = 0;
 		int detect = 0;
 		int tmpPos;
@@ -219,8 +216,7 @@ hal_printf("x");
 				
 				g_radarUserData = HAL_Time_CurrentTicks();
 				processingInProgress = true;
-				hal_printf("**** NOT posting event\r\n");
-				//SaveNativeEventToHALQueue( g_radarContext, UINT32(g_radarUserData >> 32), UINT32(g_radarUserData & 0xFFFFFFFF) );
+				SaveNativeEventToHALQueue( g_radarContext, UINT32(g_radarUserData >> 32), UINT32(g_radarUserData & 0xFFFFFFFF) );
 
 				/*for (i=0; i<bytesToRead;i=i+6){
 					hal_printf("%03d %02x %02x %02x %02x %02x %02x\r\n", i/6, rxData[i], rxData[i+1], rxData[i+2], rxData[i+3], rxData[i+4], rxData[i+5]);
@@ -271,7 +267,7 @@ void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 }
 
 void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
-	hal_printf("~");
+	hal_printf("alert\r\n");
 	if (CPU_GPIO_GetPinState(33) == FALSE){
 		//hal_printf("alert but not enough data\r\n");
 		return;
