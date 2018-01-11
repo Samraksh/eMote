@@ -81,12 +81,12 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 		FlagStatus status;
 		int bytesToRead = 768;
 		UINT8 rxData[bytesToRead];
-
-		
-
+	
 		// if we are already processing data, we need to wait
 		if (processingInProgress == true){
-			return;
+// UNCOMMENT THIS!			
+hal_printf("@");		
+//			return;
 		}
 
 		GLOBAL_LOCK(irq);
@@ -122,7 +122,7 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 			rxData[i] = SPI_I2S_ReceiveData(SPIy);
 		}
 		CPU_GPIO_SetPinState(8, FALSE);
-
+hal_printf("x");
 		int maxDetect = 0;
 		int detect = 0;
 		int tmpPos;
@@ -214,13 +214,13 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 			//if ((maxDetect != 0) | (continueToSendCount > 0)) {
 					
 				if ((maxDetect & 0x8) != 0) {
-					//hal_printf("--- fpga detection ---\r\n");
+					hal_printf("--- fpga detection ---\r\n");
 				}
 				
 				g_radarUserData = HAL_Time_CurrentTicks();
 				processingInProgress = true;
-				//hal_printf("post event\r\n");
-				SaveNativeEventToHALQueue( g_radarContext, UINT32(g_radarUserData >> 32), UINT32(g_radarUserData & 0xFFFFFFFF) );
+				hal_printf("**** NOT posting event\r\n");
+				//SaveNativeEventToHALQueue( g_radarContext, UINT32(g_radarUserData >> 32), UINT32(g_radarUserData & 0xFFFFFFFF) );
 
 				/*for (i=0; i<bytesToRead;i=i+6){
 					hal_printf("%03d %02x %02x %02x %02x %02x %02x\r\n", i/6, rxData[i], rxData[i+1], rxData[i+2], rxData[i+3], rxData[i+4], rxData[i+5]);
@@ -260,7 +260,7 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 }
 		
 void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
-	//hal_printf("detect\r\n");
+	hal_printf("detect\r\n");
 	// checking to make sure we have enough data to pull
 	// this could occur if we are currently pulling data (per continuations) and a detection occurs
 	if (CPU_GPIO_GetPinState(33) == FALSE){
@@ -271,7 +271,7 @@ void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 }
 
 void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
-	//hal_printf("data alert\r\n");
+	hal_printf("~");
 	if (CPU_GPIO_GetPinState(33) == FALSE){
 		//hal_printf("alert but not enough data\r\n");
 		return;
@@ -320,19 +320,18 @@ INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CL
 	SPI_Cmd(SPIy, ENABLE);
 
 	config.SPI_mod				 = SPIBUS1;
-hal_printf("**** disabled interrupt\r\n");
 	// data alert
-//	CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	alertInterruptActive = true;
 	// detection
-//	CPU_GPIO_EnableInputPin(0, FALSE, detectHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	CPU_GPIO_EnableInputPin(0, FALSE, detectHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	// setup chip select pin
 	CPU_GPIO_EnableOutputPin(8,FALSE);
 	// toggle reset line to FPGA
 	CPU_GPIO_EnableOutputPin(32,FALSE);
 	HAL_Time_Sleep_MicroSeconds(300000);
 	CPU_GPIO_SetPinState(32, TRUE);
-	
+	hal_printf("radar initialized\r\n");
     return retVal;
 }
 
