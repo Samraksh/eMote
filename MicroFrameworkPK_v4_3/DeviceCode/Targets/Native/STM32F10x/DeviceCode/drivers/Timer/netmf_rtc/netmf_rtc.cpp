@@ -78,6 +78,7 @@ DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, U
 		return DS_Success;
 
 	m_systemTime = 0;
+	savedCompare = 0;
 
 	STM32F10x_RTC::initialized = TRUE;
 
@@ -153,13 +154,18 @@ DeviceStatus STM32F10x_RTC::SetCompare(UINT64 compareValue)
 	RTC_WaitForLastTask();
 	RTC_WaitForSynchro();
 	RTC_ClearFlag(RTC_FLAG_ALR);
-	RTC_SetAlarm(compareValue);
+	savedCompare = compareValue&0xFFFFFFFF;
+	RTC_SetAlarm(savedCompare);
 	//PWR_BackupAccessCmd(DISABLE);
 	RTC_WaitForLastTask();
 
 	setCompareRunning = true;
 
 	return DS_Success;
+}
+
+UINT32 STM32F10x_RTC::GetCompare(void) {
+	return savedCompare;
 }
 
 UINT32 STM32F10x_RTC::GetMaxTicks()
@@ -174,7 +180,10 @@ void ISR_RTC_ALARM(void* Param){
 	//RTC_WaitForLastTask();
 	RTC_ClearITPendingBit(RTC_IT_ALR);
 	//PWR_BackupAccessCmd(DISABLE);
+	GLOBAL_LOCK(irq);
 	g_STM32F10x_RTC.setCompareRunning = false; // Reset
+	g_STM32F10x_RTC.savedCompare = 0;
+	irq.Release();
 	g_STM32F10x_RTC.callBackISR(&g_STM32F10x_RTC.callBackISR_Param);
 }
 

@@ -172,6 +172,14 @@ UINT64 VirtTimer_TicksToTime(UINT8 timer_id, UINT64 Ticks)
 	return CPU_TicksToTime(Ticks, (UINT16)g_HardwareTimerIDs[mapperId]);
 }
 
+UINT64 VirtTimer_TicksToMicroseconds(UINT8 timer_id, UINT64 Ticks)
+{
+	UINT8 mapperId = 0;
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperId);
+
+	return CPU_TicksToMicroseconds(Ticks, (UINT16)g_HardwareTimerIDs[mapperId]);
+}
+
 
 UINT64 VirtTimer_GetTicks(UINT8 timer_id)
 {
