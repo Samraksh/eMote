@@ -143,8 +143,10 @@ BOOL       Utility_SafeSprintf( LPSTR& szBuffer, size_t& iBuffer, LPCSTR format,
 BOOL    HAL_Time_Initialize      (     );
 BOOL    HAL_Time_Uninitialize    (     );
 INT64   HAL_Time_TicksToTime     ( UINT64 Ticks        );
+INT64 HAL_Time_TicksToMicroseconds( UINT64 Ticks );
 INT64   HAL_Time_CurrentTime     (     );
 void    HAL_Time_SetCompare      ( UINT64 CompareValue );
+void    HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( UINT32 compareTimeInMicroSecs );
 void    HAL_Time_GetDriftParameters( INT32* a, INT32* b, INT64* c ); /// correct-time = (raw-time * b + c) / a. b is multiplication factor, a is the divisor and c is offset (if any).
 
 extern "C" 

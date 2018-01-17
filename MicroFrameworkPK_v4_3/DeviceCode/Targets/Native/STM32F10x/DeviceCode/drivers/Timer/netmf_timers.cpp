@@ -365,6 +365,7 @@ UINT32 CPU_TicksPerSecond(UINT16 Timer)
 
 // OK, so the DriftParameters *should* correct this in the PAL layer
 // But that begs the question of what this function is really for...
+// returns common language runtime (CLR) base time, in 100-nanosecond (ns) increments
 UINT64 CPU_TicksToTime( UINT64 Ticks, UINT16 Timer )
 {
 	UINT8 i;
@@ -378,30 +379,44 @@ UINT64 CPU_TicksToTime( UINT64 Ticks, UINT16 Timer )
 
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
-		Ticks *= (TEN_MHZ               /SLOW_CLOCKS_TEN_MHZ_GCD);
-		Ticks /= (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_TEN_MHZ_GCD);
+		UINT64 Time;
+		Time  = Ticks * (TEN_MHZ               /SLOW_CLOCKS_TEN_MHZ_GCD);
+		Time /=                   (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_TEN_MHZ_GCD);
+		return Time;
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
-		Ticks *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);
+		// this reduces to multiplying by 1 if CLOCK_COMMON_FACTOR == 1000000
+		if (CLOCK_COMMON_FACTOR != 1000000){
+			Ticks *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);				 
+		}
+		if (timerFrequency == 8000000){
+			Ticks >> 3;
+		} else {
 		Ticks /= (timerFrequency/CLOCK_COMMON_FACTOR);
+	}
+		return Ticks * 10;
 	}
 	else if(Timer == RTC_32BIT)
 	{
-		Ticks *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);
-		//TODO: not accurate. but code is never called.
-		Ticks = Ticks *(CLOCK_COMMON_FACTOR/timerFrequency); // Ticks * 30; (should be 30.5...)
+		// this reduces to multiplying by 1 if CLOCK_COMMON_FACTOR == 1000000
+		if (CLOCK_COMMON_FACTOR != 1000000){
+			Ticks *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);				 
 	}
-	else {
+		Ticks = Ticks * (CLOCK_COMMON_FACTOR / timerFrequency);
+		
+		return Ticks * 10;
+	}
+	else
+	{
 		ASSERT(0);
+		return 0;
 	}
-	ASSERT(Ticks != 0);
-	return Ticks;
 }
 
 // OK, so the DriftParameters *should* correct this in the PAL layer
 // But that begs the question of what this function is really for...
-//TODO: not used?
+// returns common language runtime (CLR) base time, in 100-nanosecond (ns) increments
 UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 {
 	UINT32 timerFrequency = SYSTEM_CLOCK_HZ;
@@ -415,10 +430,10 @@ UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
-		UINT64 Ticks;
-		Ticks  = (UINT64)Ticks32 * (TEN_MHZ               /SLOW_CLOCKS_TEN_MHZ_GCD);
-		Ticks /=                   (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_TEN_MHZ_GCD);
-		return Ticks;
+		UINT64 Time;
+		Time  = (UINT64)Ticks32 * (TEN_MHZ               /SLOW_CLOCKS_TEN_MHZ_GCD);
+		Time /=                   (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_TEN_MHZ_GCD);
+		return Time;
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
@@ -431,7 +446,7 @@ UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 		} else {
 			Ticks32 /= (timerFrequency/CLOCK_COMMON_FACTOR);
 		}
-		return Ticks32;
+		return Ticks32 * 10;
 	}
 	else if(Timer == RTC_32BIT)
 	{
@@ -441,7 +456,7 @@ UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 		}
 		Ticks32 = Ticks32 * (CLOCK_COMMON_FACTOR / timerFrequency);
 		
-		return Ticks32;
+		return Ticks32 * 10;
 	}
 	else
 	{
