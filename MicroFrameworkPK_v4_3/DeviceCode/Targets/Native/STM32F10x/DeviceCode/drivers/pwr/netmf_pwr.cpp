@@ -12,9 +12,57 @@ nathan.stohs@samraksh.com
 #include "netmf_pwr_wakelock.h"
 #include "../usart/sam_usart.h"
 
+#ifdef PLATFORM_EMOTE_AUSTERE
+#include <stm32f10x.h>
+#endif
+
 static int pwr_hsi_clock_measure;
 static int pwr_hsi_clock_measure_orig;
 static enum stm_power_modes stm_power_state = POWER_STATE_DEFAULT;
+
+#ifdef PLATFORM_EMOTE_AUSTERE
+static void power_supply_reset() {
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_11 | GPIO_Pin_13; // leave out PC8 due to schematic issues
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+  // Configure Inputs
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_12;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+  // Configure Inputs
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; // PB5 is open-drain from LTC3103
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+  // Configure Inputs
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+}
+
+// AUSTERE. ONLY GPIOC and FOR IPU/IPD (i.e. not for 3.3v ctrl which uses OD logic)
+static void power_supply_activate(uint16_t pin) {
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = pin;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+}
+// 0 = Cap not rady, 1 = Cap Ready
+static int get_radio_charge_status(void) {
+	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_12);
+}
+static int get_radio_power_status(void) {
+	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_7);
+}
+#endif
 
 
 #ifdef EMOTE_WAKELOCKS
@@ -114,13 +162,20 @@ void PowerInit() {
 #endif
 
 #ifdef PLATFORM_EMOTE_AUSTERE
-	Mid_Power();
+	power_supply_reset();
+	power_supply_activate(GPIO_Pin_6); // 1.8v rail (with the RTC clock)
+	// Spin long enough for the 1.8v domain to power up. This delay is a mostly blind guess.
+	for(volatile int i=0; i<106666; i++) ; // spin, maybe about 10ms ???
+	power_supply_activate(GPIO_Pin_11); 		// Big Cap
+	while( get_radio_charge_status() == 0 ); 	// wait for big cap to charge
+	power_supply_activate(GPIO_Pin_13);			// Turn on 2.5v rail
+	while( get_radio_charge_status() == 0 );	// Wait for big cap again
+	while( get_radio_power_status() == 0 );		// Wait for 2.5v to stab
+	Mid_Power(); // Would prefer 8 MHz
 #else
 	High_Power();
 #endif
-	
 
-	High_Power();
 	RCC_LSICmd(DISABLE);
 }
 

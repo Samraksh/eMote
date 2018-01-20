@@ -75,33 +75,6 @@ static uint16_t my_rand(void) {
 }
 ///////////////////////////////////////////////////////////////////////////////
 
-static void power_supply_reset() {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_11 | GPIO_Pin_13; // leave out PC8 due to schematic issues
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-  
-  // Configure Inputs
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_12;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-  
-  // Configure Inputs
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; // PB5 is open-drain from LTC3103
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-  
-  // Configure Inputs
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-  hal_printf("Power Global Reset Complete\r\n");
-}
-
 static void power_supply_activate(uint16_t pin) __attribute__ ((unused));
 static void power_supply_activate(uint16_t pin) {
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -120,7 +93,7 @@ static void power_supply_activate(uint16_t pin) {
 	  case GPIO_Pin_13: hal_printf("2.5v radio rail enabled...\r\n", pin); break;
 	  default: hal_printf("Pin %d unknown... enabled anyway\r\n", pin); break;
   }
-}	
+}
 
 //PC12, PC9, PB5, PC7
 static void print_power_supply_status(void) {
@@ -146,6 +119,7 @@ static void print_power_supply_status(void) {
 	}
 }
 
+/*
 // 0 = Cap not rady, 1 = Cap Ready
 static int get_radio_charge_status(void) {
 	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_12);
@@ -155,6 +129,7 @@ static int get_radio_charge_status(void) {
 static int get_radio_power_status(void) {
 	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_7);
 }
+*/
 
 static void rad_power_monitor(GPIO_PIN Pin, BOOL PinState, void* Param) {
 	if (CPU_GPIO_GetPinState(39) == TRUE){
@@ -168,68 +143,10 @@ static void rad_power_monitor(GPIO_PIN Pin, BOOL PinState, void* Param) {
 
 void ApplicationEntryPoint()
 {
+#ifdef PLATFORM_EMOTE_AUSTERE // TODO: THIS REALLY SHOULD GO SOMEWHERE ELSE
 	CPU_GPIO_EnableInputPin( (GPIO_PIN) 39, FALSE, rad_power_monitor, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP );
-
-	power_supply_reset();
-
-	hal_printf("Turning on Power Supplies...\r\n");
-
-	//hal_printf("NOT turning on rfPowOn\r\n");
-	//power_supply_activate(GPIO_Pin_8);
-	//hal_printf("NOT turning on v1.8PowOn\r\n");
-	power_supply_activate(GPIO_Pin_6);
-	power_supply_activate(GPIO_Pin_11); // Big Cap
-
-	hal_printf("Waiting for big radio cap...\r\n");
-	while( get_radio_charge_status() == 0 );
-	hal_printf("Big radio cap charged...\r\n");
-
-	power_supply_activate(GPIO_Pin_13);
-	while( get_radio_charge_status() == 0 );
-	while( get_radio_power_status() == 0 );
-
-	hal_printf("All power supplies enabled...\r\n\r\n");
 	print_power_supply_status();
-	
-	
-	print_cpu_serial();
-	//si4468_spi2_init_test();
-	//si4468_spi2_init_test();
-	//si4468_spi2_init_test();
-	//si4468_spi2_init_test();
-	//si4468_spi2_init_test();
-	
-	//si4468_spi2_chain_tx();
-
-
-	/*while(1) {
-		si4468_spi2_tx_test();
-		if ( si4468_spi2_rx_test() ) {
-	
-			for(int i=0; i<500000 + my_rand()*10; i++) ;
-		}
-	}*/
-
-	//si4468_spi2_tx_test();
-/*
-	while(1) {
-		si4468_spi2_tx_test();
-		for(int i=0; i<10666666; i++) ; // spin, maybe about 1 second
-	}
-*/
-	//while(1) { si4468_spi2_rx_test(); }
-
-	//si4468_spi2_rx_test();
-	//si4468_spi2_rx_test(); // do it twice
-	//si4468_spi2_power_change();
-
-	//hal_printf("All tests done!\r\n");
-
-	//SOFT_Breakpoint();
-	//::CPU_Reset();
-	//while(1);
-
-	
+#endif
 	
     CLR_SETTINGS clrSettings;
 
