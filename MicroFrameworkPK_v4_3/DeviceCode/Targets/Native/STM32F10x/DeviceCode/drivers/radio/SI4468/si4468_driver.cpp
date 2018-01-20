@@ -604,7 +604,9 @@ static void set_radio_power_pwm(int go) {
 
 // Quick and dirty. Clean me up later. --NPS
 static int am_i_wwf(void) {
-	return 3; // TEMPORARY FOR AUSTERE
+#ifdef PLATFORM_EMOTE_AUSTERE
+	return 3;
+#else
 	uint8_t cpuserial[serial_size];
 	GetCPUSerial(cpuserial, serial_size);
 	char my_serial[serial_per];
@@ -632,6 +634,7 @@ static int am_i_wwf(void) {
 	}
 	si446x_debug_print(ERR100, "SI446X: Found Serial Number am_i_wwf()=1 0x%s\r\n", my_serial);
 	return 1;
+#endif
 }
 
 static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
@@ -704,7 +707,6 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		config->sdn_pin			= GPIO_Pin_11;
 		config->spi_rcc			= RCC_APB1Periph_SPI2;
 		hal_printf( "SI446X: Using Austere Hardware Config\r\n");
-		si446x_debug_print(DEBUG02, "SI446X: TEST: Enabling PWM\r\n");
 	}
 	else { // I am a .NOW
 		config->spi_base 		= SPI2;
