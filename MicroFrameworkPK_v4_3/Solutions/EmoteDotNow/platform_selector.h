@@ -26,6 +26,8 @@ typedef uint16_t ushort;
 
 // #define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
 
+// TEMPORARY UNTIL NEW PLATFORM CREATED
+#define PLATFORM_EMOTE_AUSTERE
 
 #if defined(PLATFORM_ARM_EmoteDotNow)
 #define HAL_SYSTEM_NAME                     "EmoteDotNow"

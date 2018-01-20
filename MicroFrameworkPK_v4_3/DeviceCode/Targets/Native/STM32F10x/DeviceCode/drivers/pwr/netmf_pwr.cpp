@@ -113,8 +113,7 @@ void PowerInit() {
 	RCC_AdjustHSICalibrationValue(PWR_HSI_DEFAULT_TRIM);
 #endif
 
-#define PLATFORM_MIDPOWER // TEMPORARY DEFINE FOR AUSTERE
-#ifdef PLATFORM_MIDPOWER
+#ifdef PLATFORM_EMOTE_AUSTERE
 	Mid_Power();
 #else
 	High_Power();
