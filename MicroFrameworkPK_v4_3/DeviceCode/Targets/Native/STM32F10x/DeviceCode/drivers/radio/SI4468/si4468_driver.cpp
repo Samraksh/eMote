@@ -514,26 +514,11 @@ static void init_si446x_pins() {
 	SI446X_pin_setup_t *config = &SI446X_pin_setup;
 
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-
-	/*GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_InitStructure.GPIO_Pin =  config->sdn_pin;
-	GPIO_Init(config->sdn_port, &GPIO_InitStructure);*/
-
-	/*GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_8;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);*/
-
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_11;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_13;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+#ifndef PLATFORM_EMOTE_AUSTERE // Power driver already does this in Austere
+	GPIO_Init(config->sdn_port, &GPIO_InitStructure);
+#endif
 
 	// GPIO 0
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;

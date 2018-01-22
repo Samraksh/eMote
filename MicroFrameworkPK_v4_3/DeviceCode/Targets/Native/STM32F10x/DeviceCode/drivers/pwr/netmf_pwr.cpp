@@ -45,6 +45,12 @@ static void power_supply_reset() {
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+  // Radio shutdown pin
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
 
 // AUSTERE. ONLY GPIOC and FOR IPU/IPD (i.e. not for 3.3v ctrl which uses OD logic)
@@ -61,6 +67,12 @@ static int get_radio_charge_status(void) {
 }
 static int get_radio_power_status(void) {
 	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_7);
+}
+static void radio_shutdown(int go) {
+	if (go) // turn off the radio
+		GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_SET);
+	else
+		GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_RESET);
 }
 #endif
 
@@ -161,6 +173,7 @@ void PowerInit() {
 	RCC_AdjustHSICalibrationValue(PWR_HSI_DEFAULT_TRIM);
 #endif
 
+// NOTE: THIS ASSUMES THAT TINYBOOTER ALREADY INIT THE GPIO
 #ifdef PLATFORM_EMOTE_AUSTERE
 	power_supply_reset();
 	power_supply_activate(GPIO_Pin_6); // 1.8v rail (with the RTC clock)
@@ -169,6 +182,7 @@ void PowerInit() {
 	power_supply_activate(GPIO_Pin_11); 		// Big Cap
 	while( get_radio_charge_status() == 0 ); 	// wait for big cap to charge
 	power_supply_activate(GPIO_Pin_13);			// Turn on 2.5v rail
+	radio_shutdown(1);							// Disable radio
 	while( get_radio_charge_status() == 0 );	// Wait for big cap again
 	while( get_radio_power_status() == 0 );		// Wait for 2.5v to stab
 	Mid_Power(); // Would prefer 8 MHz
