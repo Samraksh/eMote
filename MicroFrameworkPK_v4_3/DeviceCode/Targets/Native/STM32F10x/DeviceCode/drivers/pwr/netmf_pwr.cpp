@@ -185,7 +185,8 @@ void PowerInit() {
 	radio_shutdown(1);							// Disable radio
 	while( get_radio_charge_status() == 0 );	// Wait for big cap again
 	while( get_radio_power_status() == 0 );		// Wait for 2.5v to stab
-	Mid_Power(); // Would prefer 8 MHz
+	//Mid_Power(); // Would prefer 8 MHz
+	High_Power();
 #else
 	High_Power();
 #endif
