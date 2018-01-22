@@ -289,7 +289,8 @@ INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CL
 	SPI_InitTypeDef SPI_InitStructure;
 
 	RCC_APB2PeriphClockCmd(SPIy_GPIO_CLK, ENABLE);
-	RCC_APB1PeriphClockCmd(SPIy_CLK, ENABLE);
+	//RCC_APB1PeriphClockCmd(SPIy_CLK, ENABLE); // SPI1 is NOT APB1
+	RCC_APB2PeriphClockCmd(SPIy_CLK, ENABLE);
 
 	GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -312,7 +313,7 @@ INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CL
 	SPI_InitStructure.SPI_CRCPolynomial = 7;
 
 	SPI_Init(SPIy, &SPI_InitStructure);
-	SPI_SSOutputCmd(SPIy, ENABLE);
+	//SPI_SSOutputCmd(SPIy, ENABLE); // This is only for "Hard" NSS.
 	SPI_Cmd(SPIy, ENABLE);
 
 	config.SPI_mod				 = SPIBUS1;
