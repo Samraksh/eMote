@@ -175,6 +175,7 @@ void PowerInit() {
 
 // NOTE: THIS ASSUMES THAT TINYBOOTER ALREADY INIT THE GPIO
 #ifdef PLATFORM_EMOTE_AUSTERE
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC, ENABLE);
 	power_supply_reset();
 	power_supply_activate(GPIO_Pin_6); // 1.8v rail (with the RTC clock)
 	// Spin long enough for the 1.8v domain to power up. This delay is a mostly blind guess.
@@ -197,7 +198,7 @@ void PowerInit() {
 	volatile int ii=0;
 	while( get_radio_power_status() == 0 ) {		// Wait for 2.5v to stab
 		if (ii++ == 10000000) // ~20 seconds
-			ASSERT(0);
+		{ ASSERT(0); break; }
 	}
 
 	//Mid_Power(); // Would prefer 8 MHz
