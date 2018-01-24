@@ -21,7 +21,7 @@ typedef uint16_t ushort;
 
 // Samraksh eMote Wireless Reprogrammer Updater Portable Array Kit PAK
 // To enable, define SAMRAKSH_UPDATE_EXT, uncomment MFUpdate section of TinyCLR.proj, swap commented addresses in scatterfile_tinyclr_gcc.xml
-#define SAMRAKSH_UPDATE_EXT
+//#define SAMRAKSH_UPDATE_EXT
 
 
 // #define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
@@ -29,6 +29,8 @@ typedef uint16_t ushort;
 // TEMPORARY UNTIL NEW PLATFORM CREATED
 #define PLATFORM_EMOTE_AUSTERE
 //#define AUSTERE_NO_CAP_TIMEOUT // Disabled by default. Disables capacitor timeout. Need timeout because "good" signal is unreliable.
+//#define EMOTE_COMPLETIONS_STARTUP_WAIT // Only allow snooze mode for 1 minute after boot.
+#define EMOTE_DEEP_SLEEP_MIN 5000 // microseconds. Sleep intervals less than this will only snooze
 
 #if defined(PLATFORM_ARM_EmoteDotNow)
 #define HAL_SYSTEM_NAME                     "EmoteDotNow"
@@ -174,7 +176,7 @@ typedef uint16_t ushort;
 #endif /* DEBUG_* */
 #endif /* !DEBUG */
 
-#define DISABLE_SLEEP
+//#define DISABLE_SLEEP
 #define EMOTE_WAKELOCKS // in power driver
 //#define DOTNOW_HSI_CALIB
 

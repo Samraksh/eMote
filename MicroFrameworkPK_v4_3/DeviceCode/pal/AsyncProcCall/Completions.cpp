@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "tinyhal.h"
-static UINT64 waitTime = 0;
 /***************************************************************************/
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
@@ -184,6 +183,10 @@ void HAL_COMPLETION::Abort()
 
 //--//
 
+#ifdef EMOTE_COMPLETIONS_STARTUP_WAIT
+static UINT64 waitTime = 0;
+#endif
+
 void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64 wakeEvents )
 {
     NATIVE_PROFILE_PAL_ASYNC_PROC_CALL();
@@ -210,6 +213,7 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
     }
 #ifndef DISABLE_SLEEP
 #if defined( SAM_APP_TINYCLR )
+#ifdef EMOTE_COMPLETIONS_STARTUP_WAIT
 	if (waitTime == 0){
 		// If we ever attempt to enter deep sleep then we are not able to program, so for now, since wakelock is not sufficient, we wait a minute before attempting sleep allowing the user time to reprogram.
 		waitTime = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * 60 * 1);
@@ -218,7 +222,7 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 		if (now > waitTime) {
 			UINT32 sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(Expire - now));
 			//CPU_GPIO_SetPinState(25,true);
-			if (sleepTimeMicroseconds >= 5000) {
+			if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
 				if(state & c_SetCompare){
 					HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );
 					CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
@@ -236,6 +240,20 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 			}
 		}
 	}
+#else
+	UINT64 now = HAL_Time_CurrentTicks();
+	UINT32 sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(Expire - now));
+
+	if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
+		if(state & c_SetCompare){
+			HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );
+			CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
+		}
+	} else {
+		if(state & c_SetCompare) HAL_Time_SetCompare( Expire  );
+			CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
+	}
+#endif
 
 #else
 	// TinyBooter

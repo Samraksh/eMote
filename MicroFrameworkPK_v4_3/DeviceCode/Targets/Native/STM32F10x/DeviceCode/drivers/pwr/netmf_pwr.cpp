@@ -15,6 +15,8 @@ nathan.stohs@samraksh.com
 
 #define EMOTE_WAKELOCKS
 
+//#define NATHAN_DEBUG_SLEEP // DELETE ME
+
 #ifdef PLATFORM_EMOTE_AUSTERE
 #include <stm32f10x.h>
 #endif
@@ -30,6 +32,14 @@ static void power_supply_reset() {
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+#ifdef NATHAN_DEBUG_SLEEP
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3; // PPS debug pin
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_RESET);
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+#endif
 
   // Configure Inputs
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_12;
@@ -76,6 +86,14 @@ static void radio_shutdown(int go) {
 		GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_SET);
 	else
 		GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_RESET);
+}
+static void set_debug_pin(int go) {
+#ifdef NATHAN_DEBUG_SLEEP
+	if (go)
+		GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_SET);
+	else
+		GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_RESET);
+#endif
 }
 #endif
 
@@ -607,6 +625,7 @@ void Sleep() {
 #ifdef EMOTE_WAKELOCKS
 	BOOL doWFI = FALSE;
 
+	/*
 	if (waketime > 0) {
 		UINT64 now = HAL_Time_CurrentTicks();
 		if (waketime > now) {
@@ -616,6 +635,7 @@ void Sleep() {
 		waketime = 0; // Time is past, clear the time and continue to sleep
 	}
 	}
+	*/
 
 	if (wakelock) { // A driver has signaled a wakelock
 		doWFI = TRUE; // Wakelocked
@@ -659,7 +679,7 @@ void Sleep() {
 	if (wakeup_time - now >= 1966080) {
 		SOFT_BREAKPOINT();
 	}
-
+	set_debug_pin(1); // delete me
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
@@ -693,6 +713,7 @@ void Sleep() {
 			TIM_Cmd(TIM1, ENABLE);
 			break;
 	}
+
 	// Disable SEVONPEND and create-consume a dummy event.
 	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
 	__SEV();
@@ -710,6 +731,7 @@ void Sleep() {
 	ticks = ticks * 305;
 	HAL_Time_AddClockTime(ticks + ticks_extra);
 
+	set_debug_pin(0); // delete me
 	irq.Release();
 }
 
