@@ -193,8 +193,13 @@ void PowerInit() {
 
 	power_supply_activate(GPIO_Pin_13);			// Turn on 2.5v rail
 	radio_shutdown(1);							// Disable radio
-	//while( get_radio_charge_status() == 0 );	// Wait for big cap again
-	while( get_radio_power_status() == 0 );		// Wait for 2.5v to stab
+
+	volatile int ii=0;
+	while( get_radio_power_status() == 0 ) {		// Wait for 2.5v to stab
+		if (ii++ == 10000000) // ~20 seconds
+			ASSERT(0);
+	}
+
 	//Mid_Power(); // Would prefer 8 MHz
 	High_Power();
 #else
