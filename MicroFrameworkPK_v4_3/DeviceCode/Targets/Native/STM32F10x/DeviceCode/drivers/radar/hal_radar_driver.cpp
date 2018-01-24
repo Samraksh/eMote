@@ -34,6 +34,9 @@ static bool alertInterruptActive = false;
 static int radarGarbagePurged = 0;
 SPI_CONFIGURATION config;
 
+static HAL_CONTINUATION radarHandler_continuation;
+static bool interruptServiceInProcess = false;
+
 #define SPIy             SPI1
 #define SPIy_CLK         RCC_APB2Periph_SPI1
 #define SPIy_GPIO        GPIOA
@@ -56,6 +59,10 @@ UINT16 *g_radarUserBufferChannel2Ptr = NULL;
 UINT32 g_radarBufferSize = 0;
 
 void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
+	if (interruptServiceInProcess == true){
+		hal_printf("#detect\r\n");
+		return;
+	}
 	hal_printf("detect\r\n");
 	// checking to make sure we have enough data to pull
 	// this could occur if we are currently pulling data (per continuations) and a detection occurs
@@ -63,21 +70,29 @@ void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 		//hal_printf("detection but not enough data\r\n");
 		return;
 	}
-	Radar_Handler((GPIO_PIN) 33, TRUE, NULL);
+	//Radar_Handler((GPIO_PIN) 33, TRUE, NULL);
+	interruptServiceInProcess = true;
+	radarHandler_continuation.Enqueue();
 }
 
 void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
+	if (interruptServiceInProcess == true){
+		hal_printf("#alert\r\n");
+		return;
+	}
 	hal_printf("alert\r\n");
 	if (CPU_GPIO_GetPinState(33) == FALSE){
 		//hal_printf("alert but not enough data\r\n");
 		return;
 	}
-	Radar_Handler((GPIO_PIN) 33, TRUE, NULL);
-	}
+	//Radar_Handler((GPIO_PIN) 33, TRUE, NULL);
+	interruptServiceInProcess = true;
+	radarHandler_continuation.Enqueue();
+}
 
 
 
-void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
+void Radar_Handler(void *arg)
 	{
 		UINT16 unwrap = 0;
 		FlagStatus status;
@@ -87,10 +102,10 @@ void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 		// if we are already processing data, we need to wait
 		if (processingInProgress == true){
 hal_printf("@");		
+			interruptServiceInProcess = false;
 			return;
 		}
 
-		GLOBAL_LOCK(irq);
 		if (radarGarbagePurged <= 2){
 			radarGarbagePurged++;
 			// read three garbage bytes
@@ -188,7 +203,10 @@ hal_printf("@");
 				maxDisplacementEntire = unwrapSigned;
 		}
 
-		if (radarGarbagePurged != 4) return;
+		if (radarGarbagePurged != 4) {
+			interruptServiceInProcess = false;
+			return;
+		}
 
 		UINT32 FPGAIQRejection;
 		if ((CPU_GPIO_GetPinState(33) == TRUE) | (continueToSendCount > 0)){		
@@ -254,8 +272,11 @@ hal_printf("@");
 			//hal_printf("disabling data pull\r\n");
 			CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
 			alertInterruptActive = false;
+			interruptServiceInProcess = false;
 			return;
 		}
+	interruptServiceInProcess = false;
+	return;
 }
 
 INT8 FPGA_RadarInit(UINT16 *chan1Ptr, UINT16 *chan2Ptr, UINT32 size){
@@ -310,6 +331,8 @@ INT8 FPGA_RadarInit(UINT16 *chan1Ptr, UINT16 *chan2Ptr, UINT32 size){
 	CPU_GPIO_EnableOutputPin(32,FALSE);
 	HAL_Time_Sleep_MicroSeconds(300000);
 	CPU_GPIO_SetPinState(32, TRUE);
+	interruptServiceInProcess = false;
+	radarHandler_continuation.InitializeCallback(Radar_Handler, NULL);
 	hal_printf("radar initialized\r\n");
 
 	return 0;
@@ -365,6 +388,6 @@ void setProcessingInProgress(int state){
 	//hal_printf("PiP set to %d\r\n",processingInProgress);
 	if ((state == FALSE) & (CPU_GPIO_GetPinState(33) == TRUE)){
 		//hal_printf("calling data pull\r\n");
-		Radar_Handler((GPIO_PIN) 33, TRUE, NULL);
+		Radar_Handler(NULL);
 	}
 }

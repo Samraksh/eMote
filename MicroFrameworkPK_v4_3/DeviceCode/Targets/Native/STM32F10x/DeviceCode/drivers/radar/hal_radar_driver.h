@@ -5,7 +5,7 @@
 
 void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param);
 void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param);
-void Radar_Handler(GPIO_PIN Pin, BOOL PinState, void* Param);
+void Radar_Handler(void *arg);
 INT8 FPGA_RadarInit(UINT16 *chan1Ptr, UINT16 *chan2Ptr, UINT32 size);
 INT8 getWindowOverThreshold();
 INT8 getDetectionFinished();
