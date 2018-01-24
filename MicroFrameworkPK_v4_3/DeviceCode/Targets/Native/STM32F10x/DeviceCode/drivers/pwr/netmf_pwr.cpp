@@ -180,7 +180,17 @@ void PowerInit() {
 	// Spin long enough for the 1.8v domain to power up. This delay is a mostly blind guess.
 	for(volatile int i=0; i<106666; i++) ; // spin, maybe about 10ms ???
 	power_supply_activate(GPIO_Pin_11); 		// Big Cap
+
+#ifdef AUSTERE_NO_CAP_TIMEOUT
 	while( get_radio_charge_status() == 0 ); 	// wait for big cap to charge
+#else
+	volatile int i=0;
+	while(get_radio_charge_status() == 0) {
+		if (i++ == 106666666) // 10-20 seconds.
+			break;
+	}
+#endif
+
 	power_supply_activate(GPIO_Pin_13);			// Turn on 2.5v rail
 	radio_shutdown(1);							// Disable radio
 	//while( get_radio_charge_status() == 0 );	// Wait for big cap again

@@ -28,6 +28,7 @@ typedef uint16_t ushort;
 
 // TEMPORARY UNTIL NEW PLATFORM CREATED
 #define PLATFORM_EMOTE_AUSTERE
+//#define AUSTERE_NO_CAP_TIMEOUT // Disabled by default. Disables capacitor timeout. Need timeout because "good" signal is unreliable.
 
 #if defined(PLATFORM_ARM_EmoteDotNow)
 #define HAL_SYSTEM_NAME                     "EmoteDotNow"
