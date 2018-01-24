@@ -186,7 +186,7 @@ void PowerInit() {
 #else
 	volatile int i=0;
 	while(get_radio_charge_status() == 0) {
-		if (i++ == 106666666) // 10-20 seconds.
+		if (i++ == 10000000) // ~20 seconds
 			break;
 	}
 #endif
