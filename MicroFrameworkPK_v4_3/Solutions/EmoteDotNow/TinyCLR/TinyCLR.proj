@@ -518,6 +518,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\adc\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
+    <DriverLibs Include="STM32F10x_radar.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radar\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="STM32F10x_intc.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\intc\dotNetMF.proj" />
   </ItemGroup>
