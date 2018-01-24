@@ -60,7 +60,7 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	firstHighRateDiscoTimeinSlotNum = 0;
 	PermanentlyDecreaseDiscoRate();
 	TempIncreaseDiscoRate();
-	g_OMAC.m_omac_RadioControl.stayOn = true;
+	g_OMAC.m_omac_RadioControl.stayOn = HIGH_DISCO_PERIOD_ALWAYS_ON;
 #if OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE
 	hal_printf("Turning ON ALWAYSONMODE \r\n");
 #endif
@@ -101,7 +101,7 @@ UINT64 DiscoveryHandler::NextEvent(){
 		PermanentlyDecreaseDiscoRate();
 		if(g_OMAC.HIGH_DISCO_PERIOD_IN_SLOTS){
 			TempIncreaseDiscoRate();
-			g_OMAC.m_omac_RadioControl.stayOn = true;
+			g_OMAC.m_omac_RadioControl.stayOn = HIGH_DISCO_PERIOD_ALWAYS_ON;
 #if OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE
 		hal_printf("Turning ON ALWAYSONMODE \r\n");
 #endif
