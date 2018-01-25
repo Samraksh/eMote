@@ -689,7 +689,7 @@ void Sleep() {
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
 			set_debug_pin(1); // delete me
 			RTC_WaitForSynchro();
-			aft = align_to_rtc2();
+			aft = RTC_GetCounter(); // align_to_rtc2() not needed because redundant with WaitForSyncrho() but ONLY FOR LOW-POWER CASE
 			TIM_Cmd(TIM1, ENABLE);
 			stm_power_state = POWER_STATE_LOW; // Low_Power is basically identical to Sleep_Power, so basically a no-op.
 			break;
