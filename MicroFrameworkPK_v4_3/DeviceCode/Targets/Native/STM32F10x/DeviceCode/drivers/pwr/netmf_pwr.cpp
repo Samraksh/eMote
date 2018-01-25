@@ -13,8 +13,6 @@ nathan.stohs@samraksh.com
 #include "../usart/sam_usart.h"
 #include "../Timer/netmf_rtc/netmf_rtc.h"
 
-#define EMOTE_WAKELOCKS
-
 //#define NATHAN_DEBUG_SLEEP // DELETE ME
 
 #ifdef PLATFORM_EMOTE_AUSTERE
@@ -35,7 +33,7 @@ static void power_supply_reset() {
 
 #ifdef NATHAN_DEBUG_SLEEP
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3; // PPS debug pin
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_RESET);
   GPIO_Init(GPIOC, &GPIO_InitStructure);
@@ -104,8 +102,11 @@ static volatile UINT64 waketime;
 
 void WakeLockInit(void) {
 	wakelock = 0;
-	// TEMPORARY: Force awake for 1 minute until MFDeploy/VS is more robust
-	waketime = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * 60 * 1);
+#if defined (EMOTE_WAKELOCK_STARTUP) && (EMOTE_WAKELOCK_STARTUP > 0)
+	waketime = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * EMOTE_WAKELOCK_STARTUP);
+#else
+	waketime = 0;
+#endif
 }
 
 void WakeLock(uint32_t lock) {
@@ -673,11 +674,12 @@ void Sleep() {
 		return;
 	}
 
+#ifdef NATHAN_DEBUG_SLEEP
 	// DEBUGGING ONLY. Alert if sleep time is longer than 1 minute
 	if (wakeup_time - now >= 1966080) {
 		SOFT_BREAKPOINT();
 	}
-	//set_debug_pin(1); // delete me
+#endif
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
@@ -686,10 +688,10 @@ void Sleep() {
 			Sleep_Power();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
 			set_debug_pin(1); // delete me
-			Low_Power();
 			RTC_WaitForSynchro();
 			aft = align_to_rtc2();
 			TIM_Cmd(TIM1, ENABLE);
+			stm_power_state = POWER_STATE_LOW; // Low_Power is basically identical to Sleep_Power, so basically a no-op.
 			break;
 		case POWER_STATE_MID:
 			now = align_to_rtc2();
