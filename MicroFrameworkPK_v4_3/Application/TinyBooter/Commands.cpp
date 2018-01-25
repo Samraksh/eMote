@@ -20,7 +20,7 @@ UINT8* g_ConfigBuffer       = NULL;
 int    g_ConfigBufferLength = 0;
 static const int g_ConfigBufferTotalSize = sizeof(ConfigurationSector);
 
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN)
+#if !defined(PLATFORM_ARM_KRAIT)
 typedef  void (*pFunction)(void);
 #define     __IO    volatile 
 
@@ -1124,7 +1124,7 @@ void Loader_Engine::Launch( ApplicationStartAddress startAddress )
     }
 
 
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN)
+#if !defined(PLATFORM_ARM_KRAIT)	
     HAL_Time_Uninitialize();
 
     int ResetVector = *(__IO UINT32 *) (startAddress + 4);  // Cortex-M3 vector table is MSP followed by Reset

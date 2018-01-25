@@ -11,8 +11,7 @@ static const INT8 XOFF_FLAG_FULL  = 0x01;
 static const INT8 XOFF_CLOCK_HALT = 0x02;
 
 //--//
-
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+#if !defined(PLATFORM_ARM_KRAIT)
 static int use_com0_managed;
 BOOL USART_InitializeManaged( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
 {
@@ -25,7 +24,7 @@ BOOL USART_InitializeManaged( int ComPortNum, int BaudRate, int Parity, int Data
 
 BOOL USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
 {
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+#if !defined(PLATFORM_ARM_KRAIT)
 	if (ComPortNum == 0) {
 		use_com0_managed = 0;
 	}
@@ -35,7 +34,7 @@ BOOL USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, i
 
 BOOL USART_Uninitialize( int ComPortNum )
 {
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+#if !defined(PLATFORM_ARM_KRAIT)	
 	if (ComPortNum == 0) {
 		use_com0_managed = 0;
 	}
@@ -68,7 +67,7 @@ BOOL USART_AddCharToRxBuffer( int ComPortNum, char c )
     return USART_Driver::AddCharToRxBuffer( ComPortNum, c );
 }
 
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+#if !defined(PLATFORM_ARM_KRAIT)
 BOOL USART_AddToRxBuffer( int ComPortNum, char *data, size_t size )
 {
 	return USART_Driver::AddToRxBuffer( ComPortNum, data, size );
@@ -165,7 +164,7 @@ UINT8 ManagedCodeRxBuffer_Com[1];
 UINT8 TxBuffer_Com[TX_USART_BUFFER_SIZE * TOTAL_USART_PORT];
 
 // Just need a single RxBuffer_Com for dotNOW for COM2. Otherwise a waste of stack.
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+#if !defined(PLATFORM_ARM_KRAIT)
 UINT8 RxBuffer_Com[RX_USART_BUFFER_SIZE];
 #else
 UINT8 RxBuffer_Com[RX_USART_BUFFER_SIZE * TOTAL_USART_PORT];
@@ -287,7 +286,7 @@ BOOL USART_Driver::Initialize( int ComPortNum, int BaudRate, int Parity, int Dat
             State.TicksStartTxXOFF      = 0;
 
             State.TxQueue.Initialize( &TxBuffer_Com[ComPortNum * TX_USART_BUFFER_SIZE], TX_USART_BUFFER_SIZE);
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+#if !defined(PLATFORM_ARM_KRAIT)			
 			if (ComPortNum == 0) {
 				State.RxQueue.Initialize( &RxBuffer_Com[ComPortNum * RX_USART_BUFFER_SIZE], RX_USART_BUFFER_SIZE );
 			}
@@ -407,7 +406,7 @@ int USART_Driver::Write( int ComPortNum, const char* Data, size_t size )
 int USART_Driver::Read( int ComPortNum, char* Data, size_t size )
 {
     NATIVE_PROFILE_PAL_COM();
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+#if !defined(PLATFORM_ARM_KRAIT)	
 	if(ComPortNum > 0) {ASSERT(FALSE); return -1;}
 #else
     if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) {ASSERT(FALSE); return -1;}
@@ -506,7 +505,7 @@ int USART_Driver::ManagedRead( int ComPortNum, char* Data, size_t size ){
         CharsRead += toRead;
     }
 
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+#if !defined(PLATFORM_ARM_KRAIT)	
 	if (ComPortNum == 1)
 	{
         GLOBAL_LOCK(irq);
@@ -521,7 +520,7 @@ int USART_Driver::ManagedRead( int ComPortNum, char* Data, size_t size ){
 }
 
 // Optimised UART PAL for dotNOW board. --NPS
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+#if !defined(PLATFORM_ARM_KRAIT)
 BOOL USART_Driver::Flush( int ComPortNum ) {
 
 	if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) {
@@ -655,7 +654,7 @@ BOOL USART_Driver::Flush( int ComPortNum )
 
 //--//
 
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+#if !defined(PLATFORM_ARM_KRAIT)
 // Special extensions for moving around UART data to improve efficiency.
 // Does NOT support software flow control
 // Nathan -- 2014-06-24
@@ -756,7 +755,7 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
     {
         GLOBAL_LOCK(irq);
 		UINT8* Dst;
-#if !defined(PLATFORM_ARM_EmoteDotNow) && !defined(PLATFORM_ARM_WLN) && !defined(PLATFORM_ARM_SmartFusion2)
+#if defined(PLATFORM_ARM_KRAIT)
         Dst = State.RxQueue.Push();
 
         if(Dst)
@@ -1001,7 +1000,7 @@ void USART_Driver::DiscardBuffer( int ComPortNum, BOOL fRx )
             if(fRx)
             {
 				size_t nElements;
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_SmartFusion2)
+#if !defined(PLATFORM_ARM_KRAIT)				
 				if (ComPortNum == 0) { // Only COM1 has RxQueue
 					nElements = State.RxQueue.NumberOfElements();
 					State.RxQueue.Pop(nElements);
