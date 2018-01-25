@@ -722,17 +722,28 @@ void Sleep() {
 	__SEV();
 	__WFE();
 
-	// Main system timer does not run during sleep
-	// So we have to fix up clock afterwards.
-	// Below code does a two iteration floor estimate for the clock conversion.
-	// Fractional part (up to 4.5us worth) is carried.
-	uint32_t ticks = aft-now;
+	// Main system timer does not run during sleep so we have to fix up clock afterwards.
+	// Do a three iteration floor estimate for the clock conversion.
+	// Basically this is "leap ticks" and avoids both floating point and long division.
+	uint32_t ticks = aft-now;			 // 1st iteration
 	uint32_t ticks_extra;
-	static uint32_t ticks_carried = 0; // only the fractional part
-	ticks_extra = (ticks+ticks_carried)/256 * 45;
-	ticks_carried = (ticks+ticks_carried) % 256;
-	ticks = ticks * 305;
-	HAL_Time_AddClockTime(ticks + ticks_extra);
+	static uint32_t ticks_carried  = 0;  // 2nd iteration
+	static uint32_t ticks_carried3  = 0; // 3nd iteration
+	// 2nd iteration, every 62.5ms
+	ticks_extra = (ticks+ticks_carried) / 2048;
+	ticks_carried = (ticks+ticks_carried) % 2048;
+	// 3rd iteration, every 8 seconds
+	ticks_extra += (ticks_extra+ticks_carried3)/128 * 23;
+	ticks_carried3 = (ticks_extra+ticks_carried3) % 128;
+	// Add it up
+	ticks = (ticks+ticks_extra) * 305;
+	// Punch it in
+	HAL_Time_AddClockTime(ticks);
+
+	// Long term numerical error should be 312.5 ppb
+	// Typical short term error of 1 tick (~30.5us) but max of 24 ticks (~732 us).
+	// Long term error is about right for a 5-10ppm source (~10x better) but a real source of error if <= 1ppm.
+	// Then again, the HSI contributes too and is something like 50,000 ppm so this is fundamentally broken anyway
 
 	set_debug_pin(0); // delete me
 	irq.Release();
