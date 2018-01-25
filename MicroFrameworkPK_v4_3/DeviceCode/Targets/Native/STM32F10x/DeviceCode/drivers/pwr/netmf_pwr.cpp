@@ -247,9 +247,9 @@ void PowerInit() {
 		{ ASSERT(0); break; }
 	}
 
-	Low_Power();
+	//Low_Power();
 	//Mid_Power(); // Would prefer 8 MHz
-	//High_Power();
+	High_Power();
 #else
 	High_Power();
 #endif
@@ -625,7 +625,6 @@ void Sleep() {
 #ifdef EMOTE_WAKELOCKS
 	BOOL doWFI = FALSE;
 
-	/*
 	if (waketime > 0) {
 		UINT64 now = HAL_Time_CurrentTicks();
 		if (waketime > now) {
@@ -635,7 +634,6 @@ void Sleep() {
 		waketime = 0; // Time is past, clear the time and continue to sleep
 	}
 	}
-	*/
 
 	if (wakelock) { // A driver has signaled a wakelock
 		doWFI = TRUE; // Wakelocked
@@ -679,7 +677,7 @@ void Sleep() {
 	if (wakeup_time - now >= 1966080) {
 		SOFT_BREAKPOINT();
 	}
-	set_debug_pin(1); // delete me
+	//set_debug_pin(1); // delete me
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
@@ -687,6 +685,7 @@ void Sleep() {
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
+			set_debug_pin(1); // delete me
 			Low_Power();
 			RTC_WaitForSynchro();
 			aft = align_to_rtc2();
@@ -697,6 +696,7 @@ void Sleep() {
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
+			set_debug_pin(1); // delete me
 			Mid_Power();
 			RTC_WaitForSynchro();
 			aft = align_to_rtc2();
@@ -707,6 +707,7 @@ void Sleep() {
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
+			set_debug_pin(1); // delete me
 			High_Power();
 			RTC_WaitForSynchro();
 			aft = align_to_rtc2();
