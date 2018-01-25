@@ -286,8 +286,9 @@ typedef OFProv<UINT64> OMACTicks;
 #define SLOTRETRYMAXATTEMPT 2
 #define CCA_PERIOD_FRAME_RETRY_MICRO 0 //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 
-//#define HIGH_DISCO_PERIOD_IN_SLOTS_CONSTANT 9000
-#define HIGH_DISCO_PERIOD_IN_SLOTS_CONSTANT 0
+#define HIGH_DISCO_PERIOD_IN_SLOTS_CONSTANT 50000 //This is setting the length of high disco period after start up. Note that the length of disco slot is different than the length of data slots. The ratio is determined by DISCOPERIODINSLOTS. Note that this is a convention and there is no direct relationship limiting the ratio between the data slots and the discovery slots.
+//#define HIGH_DISCO_PERIOD_IN_SLOTS_CONSTANT 0
+#define HIGH_DISCO_PERIOD_ALWAYS_ON 0
 
 //#define RANDOM_BACKOFF_COUNT_MAX	4
 //#define RANDOM_BACKOFF_COUNT_MIN	1
@@ -513,18 +514,18 @@ UINT32 ArbiterP_Timing;
  * Prime numbers used in determining DISCO period of a node
  */
 
-UINT16 CONTROL_P1[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
-UINT16 CONTROL_P2[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
-UINT16 CONTROL_P3[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
-UINT16 CONTROL_P4[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
+//UINT16 CONTROL_P1[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
+//UINT16 CONTROL_P2[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
+//UINT16 CONTROL_P3[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
+//UINT16 CONTROL_P4[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
 
 //UINT16 CONTROL_P1[] = {911, 727, 787, 769, 773, 853, 797};
 //UINT16 CONTROL_P2[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
 //UINT16 CONTROL_P3[] = {911, 727, 787, 769, 773, 853, 797};
 //UINT16 CONTROL_P4[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
 
-//UINT16 CONTROL_P3[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
-//UINT16 CONTROL_P4[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
+UINT16 CONTROL_P3[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
+UINT16 CONTROL_P4[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
 //UINT16 CONTROL_P1[] = {197, 157, 151, 163, 211, 113, 127};
 //UINT16 CONTROL_P2[] = {911, 727, 787, 769, 773, 853, 797};
 
@@ -533,7 +534,7 @@ UINT16 CONTROL_P4[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
 //UINT16 CONTROL_P1[] = {19, 17, 13, 37, 11, 5, 7};
 //UINT16 CONTROL_P2[] = {67, 43, 53, 47, 61, 59};
 
-//UINT16 CONTROL_P1[] = {47, 37, 43, 37, 53, 29, 31};
-//UINT16 CONTROL_P2[] = {227, 181, 197, 191, 211, 199};
+UINT16 CONTROL_P1[] = {47, 37, 43, 37, 53, 29, 31};
+UINT16 CONTROL_P2[] = {227, 181, 197, 191, 211, 199};
 
 #endif /* OMACCONSTANTS_H_ */
