@@ -173,13 +173,10 @@ UINT32 STM32F10x_RTC::GetMaxTicks()
 	return (UINT32)0xFFFFFFFF;
 }
 
+// NOTE: This is apparently not actually the RTC_Alarm IRQ, but rather the general RTC_IRQ --NPS
 void ISR_RTC_ALARM(void* Param){
 	// TODO: check for overflow
-	RTC_ClearFlag(RTC_FLAG_ALR);
-	//PWR_BackupAccessCmd(ENABLE);
-	//RTC_WaitForLastTask();
-	RTC_ClearITPendingBit(RTC_IT_ALR);
-	//PWR_BackupAccessCmd(DISABLE);
+	RTC_ClearFlag(RTC_FLAG_ALR); // Magical. I don't know why we need this... --NPS
 	GLOBAL_LOCK(irq);
 	g_STM32F10x_RTC.setCompareRunning = false; // Reset
 	g_STM32F10x_RTC.savedCompare = 0;
