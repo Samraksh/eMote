@@ -16,6 +16,11 @@
 #include <Samraksh/MAC/OMAC/RadioControl.h>
 #include <Samraksh/MAC/OMAC/OMAC.h>
 
+//#include "netmf_pwr_wakelock.h"
+#define WLO_OMAC 0x00000010
+extern void WakeLock(uint32_t lock);
+extern void WakeUnlock(uint32_t lock);
+
 extern OMACType g_OMAC;
 
 
@@ -400,6 +405,7 @@ DeviceStatus RadioControl_t::Stop(){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, TRUE );
 #endif
+		WakeUnlock(WLO_OMAC);
 		DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
 
 		if(returnVal == DS_Success) {
@@ -429,6 +435,7 @@ DeviceStatus RadioControl_t::StartRx(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, TRUE );
 #endif
+	WakeLock(WLO_OMAC);
 	DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
 	if(returnVal == DS_Success){
 #ifdef OMAC_DEBUG_GPIO
