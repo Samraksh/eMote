@@ -313,12 +313,15 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
+		OMAC_HAL_PRINTF("Disco Message1 Sent\r\n");
 		break;
 	case BEACON2_SEND_START:
 		m_state = BEACON2_SEND_DONE;
+
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  1, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+		OMAC_HAL_PRINTF("Disco Message2 Sent\r\n");
 		break;
 	default:
 #ifdef OMAC_DEBUG_PRINTF
@@ -599,6 +602,8 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	OMAC_CPU_GPIO_SetPinState(DISCO_SYNCSENDPIN, FALSE );
 #endif
 
+
+
 	return retValue;
 }
 
@@ -607,14 +612,24 @@ void DiscoveryHandler::TempIncreaseDiscoRate(){
 	m_period2 = CONTROL_P2[g_OMAC.GetMyAddress() % 7] ;
 	highdiscorate = true;
 	firstHighRateDiscoTimeinSlotNum = GetSlotNumber();
+#if OMAC_DEBUG_PRINTF_HIGH_DISCO_MODE
+	hal_printf("DiscoveryHandler::switching to fast disco mode \r\n");
+	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
+	discoInterval = m_period1 * m_period2;	// Initially set to 1 to accelerate self-declaration as root
+	hal_printf("Expected discoInterval: %d\r\n", discoInterval);
+#endif
+
 }
 
 void DiscoveryHandler::PermanentlyDecreaseDiscoRate(){
 	m_period1 = CONTROL_P3[g_OMAC.GetMyAddress() % 7] ;
 	m_period2 = CONTROL_P4[g_OMAC.GetMyAddress() % 7] ;
 	g_OMAC.m_omac_RadioControl.stayOn = false;
-#if OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE
-	hal_printf("Turning OFF ALWAYSONMODE \r\n");
+#if OMAC_DEBUG_PRINTF_HIGH_DISCO_MODE
+	hal_printf("DiscoveryHandler::switching to slow disco mode \r\n");
+	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
+	discoInterval = m_period1 * m_period2;	// Initially set to 1 to accelerate self-declaration as root
+	hal_printf("Expected discoInterval: %d\r\n", discoInterval);
 #endif
 	highdiscorate = false;
 }
