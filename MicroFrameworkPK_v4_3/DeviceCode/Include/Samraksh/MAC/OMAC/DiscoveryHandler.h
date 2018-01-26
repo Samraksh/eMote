@@ -52,7 +52,7 @@ class DiscoveryHandler: public EventHandler {
 	UINT8 m_num_sleep_retry_attempts;
 
  public:
-	UINT32 discoInterval;
+	//UINT32 discoInterval;
 	UINT16 m_seed;
 	UINT32 m_nextFrame;
 

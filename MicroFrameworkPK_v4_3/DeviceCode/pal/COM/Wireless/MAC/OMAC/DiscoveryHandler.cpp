@@ -68,9 +68,8 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 #ifdef OMAC_DEBUG_PRINTF
 	OMAC_HAL_PRINTF("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
 #endif
-	discoInterval = m_period1 * m_period2;	// Initially set to 1 to accelerate self-declaration as root
 #ifdef OMAC_DEBUG_PRINTF
-	OMAC_HAL_PRINTF("discoInterval: %d\r\n", discoInterval);
+	OMAC_HAL_PRINTF("Estimated disco interval : %llu secs\r\n", (UINT64)m_period1*(UINT64)m_period2*(UINT64)g_OMAC.DISCO_SLOT_PERIOD_MICRO/1000000);
 #endif
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, g_OMAC.DISCO_SLOT_PERIOD_MICRO, TRUE, FALSE, PublicBeaconNCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
@@ -615,8 +614,7 @@ void DiscoveryHandler::TempIncreaseDiscoRate(){
 #if OMAC_DEBUG_PRINTF_HIGH_DISCO_MODE
 	hal_printf("DiscoveryHandler::switching to fast disco mode \r\n");
 	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
-	discoInterval = m_period1 * m_period2;	// Initially set to 1 to accelerate self-declaration as root
-	hal_printf("Expected discoInterval: %d\r\n", discoInterval);
+	hal_printf("Estimated disco interval : %llu secs\r\n", (UINT64)m_period1*(UINT64)m_period2*(UINT64)g_OMAC.DISCO_SLOT_PERIOD_MICRO/1000000);
 #endif
 
 }
@@ -628,8 +626,7 @@ void DiscoveryHandler::PermanentlyDecreaseDiscoRate(){
 #if OMAC_DEBUG_PRINTF_HIGH_DISCO_MODE
 	hal_printf("DiscoveryHandler::switching to slow disco mode \r\n");
 	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
-	discoInterval = m_period1 * m_period2;	// Initially set to 1 to accelerate self-declaration as root
-	hal_printf("Expected discoInterval: %d\r\n", discoInterval);
+	hal_printf("Estimated disco interval : %llu secs\r\n", (UINT64)m_period1*(UINT64)m_period2*(UINT64)g_OMAC.DISCO_SLOT_PERIOD_MICRO/1000000);
 #endif
 	highdiscorate = false;
 }
