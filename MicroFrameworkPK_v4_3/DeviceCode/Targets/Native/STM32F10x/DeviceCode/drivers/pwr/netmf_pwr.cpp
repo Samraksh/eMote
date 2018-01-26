@@ -224,11 +224,9 @@ void PowerInit() {
 	}
 #endif
 
-#ifdef DOTNOW_HSI_CALIB
+#if defined(DOTNOW_HSI_CALIB) && !defined(PLATFORM_EMOTE_AUSTERE)
 	Low_Power();
 	CalibrateHSI();
-#else
-	RCC_AdjustHSICalibrationValue(PWR_HSI_DEFAULT_TRIM);
 #endif
 
 
@@ -239,6 +237,9 @@ void PowerInit() {
 	// Spin long enough for the 1.8v domain to power up. This delay is a mostly blind guess.
 	for(volatile int i=0; i<106666; i++) ; // spin, maybe about 10ms ???
 	power_supply_activate(GPIO_Pin_11);    // Big Cap
+
+	Low_Power();
+	CalibrateHSI(); // Lets calibrate the HSI while we wait for the cap to charge.
 
 #ifdef AUSTERE_NO_CAP_TIMEOUT
 	while( get_radio_charge_status() == 0 ); 	// wait for big cap to charge
@@ -357,9 +358,15 @@ void CalibrateHSI() {
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
 	RTC_SetPrescaler(0x0FFF); // 1/8th second
+	//RTC_SetPrescaler(0x0F41); // 1/8th second. Delete me. For a temporary gimped board.
+#ifdef PLATFORM_EMOTE_AUSTERE
+	RCC_LSEConfig(RCC_LSE_Bypass);
+#else
 	RCC_LSEConfig(RCC_LSE_ON);
+#endif
 	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET) {
 		if (err++ == PWR_RTC_TIMEOUT) {
+			ASSERT(0);
 			return; // Crystal not starting. Give up.
 		}
 	}
