@@ -13,8 +13,6 @@ nathan.stohs@samraksh.com
 #include "../usart/sam_usart.h"
 #include "../Timer/netmf_rtc/netmf_rtc.h"
 
-#define EMOTE_WAKELOCKS
-
 //#define NATHAN_DEBUG_SLEEP // DELETE ME
 
 #ifdef PLATFORM_EMOTE_AUSTERE
@@ -35,7 +33,7 @@ static void power_supply_reset() {
 
 #ifdef NATHAN_DEBUG_SLEEP
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3; // PPS debug pin
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_RESET);
   GPIO_Init(GPIOC, &GPIO_InitStructure);
@@ -104,8 +102,11 @@ static volatile UINT64 waketime;
 
 void WakeLockInit(void) {
 	wakelock = 0;
-	// TEMPORARY: Force awake for 1 minute until MFDeploy/VS is more robust
-	waketime = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * 60 * 1);
+#if defined (EMOTE_WAKELOCK_STARTUP) && (EMOTE_WAKELOCK_STARTUP > 0)
+	waketime = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * EMOTE_WAKELOCK_STARTUP);
+#else
+	waketime = 0;
+#endif
 }
 
 void WakeLock(uint32_t lock) {
@@ -247,9 +248,9 @@ void PowerInit() {
 		{ ASSERT(0); break; }
 	}
 
-	Low_Power();
+	//Low_Power();
 	//Mid_Power(); // Would prefer 8 MHz
-	//High_Power();
+	High_Power();
 #else
 	High_Power();
 #endif
@@ -625,7 +626,6 @@ void Sleep() {
 #ifdef EMOTE_WAKELOCKS
 	BOOL doWFI = FALSE;
 
-	/*
 	if (waketime > 0) {
 		UINT64 now = HAL_Time_CurrentTicks();
 		if (waketime > now) {
@@ -635,7 +635,6 @@ void Sleep() {
 		waketime = 0; // Time is past, clear the time and continue to sleep
 	}
 	}
-	*/
 
 	if (wakelock) { // A driver has signaled a wakelock
 		doWFI = TRUE; // Wakelocked
@@ -675,11 +674,12 @@ void Sleep() {
 		return;
 	}
 
+#ifdef NATHAN_DEBUG_SLEEP
 	// DEBUGGING ONLY. Alert if sleep time is longer than 1 minute
 	if (wakeup_time - now >= 1966080) {
 		SOFT_BREAKPOINT();
 	}
-	set_debug_pin(1); // delete me
+#endif
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
@@ -687,16 +687,18 @@ void Sleep() {
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
-			Low_Power();
+			set_debug_pin(1); // delete me
 			RTC_WaitForSynchro();
-			aft = align_to_rtc2();
+			aft = RTC_GetCounter(); // align_to_rtc2() not needed because redundant with WaitForSyncrho() but ONLY FOR LOW-POWER CASE
 			TIM_Cmd(TIM1, ENABLE);
+			stm_power_state = POWER_STATE_LOW; // Low_Power is basically identical to Sleep_Power, so basically a no-op.
 			break;
 		case POWER_STATE_MID:
 			now = align_to_rtc2();
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
+			set_debug_pin(1); // delete me
 			Mid_Power();
 			RTC_WaitForSynchro();
 			aft = align_to_rtc2();
@@ -707,6 +709,7 @@ void Sleep() {
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
+			set_debug_pin(1); // delete me
 			High_Power();
 			RTC_WaitForSynchro();
 			aft = align_to_rtc2();
@@ -719,17 +722,28 @@ void Sleep() {
 	__SEV();
 	__WFE();
 
-	// Main system timer does not run during sleep
-	// So we have to fix up clock afterwards.
-	// Below code does a two iteration floor estimate for the clock conversion.
-	// Fractional part (up to 4.5us worth) is carried.
-	uint32_t ticks = aft-now;
+	// Main system timer does not run during sleep so we have to fix up clock afterwards.
+	// Do a three iteration floor estimate for the clock conversion.
+	// Basically this is "leap ticks" and avoids both floating point and long division.
+	uint32_t ticks = aft-now;			 // 1st iteration
 	uint32_t ticks_extra;
-	static uint32_t ticks_carried = 0; // only the fractional part
-	ticks_extra = (ticks+ticks_carried)/256 * 45;
-	ticks_carried = (ticks+ticks_carried) % 256;
-	ticks = ticks * 305;
-	HAL_Time_AddClockTime(ticks + ticks_extra);
+	static uint32_t ticks_carried  = 0;  // 2nd iteration
+	static uint32_t ticks_carried3  = 0; // 3nd iteration
+	// 2nd iteration, every 62.5ms
+	ticks_extra = (ticks+ticks_carried) / 2048;
+	ticks_carried = (ticks+ticks_carried) % 2048;
+	// 3rd iteration, every 8 seconds
+	ticks_extra += (ticks_extra+ticks_carried3)/128 * 23;
+	ticks_carried3 = (ticks_extra+ticks_carried3) % 128;
+	// Add it up
+	ticks = (ticks+ticks_extra) * 305;
+	// Punch it in
+	HAL_Time_AddClockTime(ticks);
+
+	// Long term numerical error should be 312.5 ppb
+	// Typical short term error of 1 tick (~30.5us) but max of 24 ticks (~732 us).
+	// Long term error is about right for a 5-10ppm source (~10x better) but a real source of error if <= 1ppm.
+	// Then again, the HSI contributes too and is something like 50,000 ppm so this is fundamentally broken anyway
 
 	set_debug_pin(0); // delete me
 	irq.Release();
