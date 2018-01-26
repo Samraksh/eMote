@@ -650,11 +650,13 @@ void Sleep() {
 			doWFI = TRUE; // Wakelocked
 		}
 		else {
-			waketime = 0; // Time is past, clear the time and continue to sleep
-		}
+		waketime = 0; // Time is past, clear the time and continue to sleep
+	}
 	}
 
+	if (wakelock) { // A driver has signaled a wakelock
 		doWFI = TRUE; // Wakelocked
+	}
 
 	if (doWFI) { // If wakelocked, use snooze mode.
 	__DSB();
@@ -692,6 +694,8 @@ void Sleep() {
 	// DEBUGGING ONLY. Alert if sleep time is longer than 1 minute
 	if (wakeup_time - now >= 1966080) {
 		SOFT_BREAKPOINT();
+	}
+#endif
 	}
 #endif
 	switch(stm_power_state) {
