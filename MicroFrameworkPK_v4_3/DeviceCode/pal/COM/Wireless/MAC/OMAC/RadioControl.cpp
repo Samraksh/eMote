@@ -49,7 +49,7 @@ DeviceStatus RadioControl_t::Initialize(){
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );
 
 #endif
-#ifdef OMAC_DEBUG_PRINTF_RADIOCONTROL_SEND
+#if OMAC_DEBUG_PRINTF_RADIOCONTROL_SEND
 	packet_seq_num = 0;
 #endif
 	stayOn = false;
@@ -119,7 +119,7 @@ DeviceStatus RadioControl_t::Preload(RadioAddress_t address, Message_15_4_t * ms
  *
  */
 DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size){
-#ifdef OMAC_DEBUG_PRINTF_RADIOCONTROL_SEND
+#if OMAC_DEBUG_PRINTF_RADIOCONTROL_SEND
 	++packet_seq_num;
 #endif
 	//Check if we can send with timestamping, 4bytes for timestamping + 8 bytes for clock value
@@ -224,7 +224,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 		}
 #endif
 
-#ifdef OMAC_DEBUG_PRINTF_RADIOCONTROL_SEND_EXCEPT_DISCO
+#if OMAC_DEBUG_PRINTF_RADIOCONTROL_SEND_EXCEPT_DISCO
 		if(header->payloadType != MFM_OMAC_DISCOVERY){
 			hal_printf("\r\nRadioControl_t::Send sent a packet seq = %u dest = %u type =%u flags = %u\r\n",packet_seq_num,  header->dest, header->payloadType, header->flags);
 		}

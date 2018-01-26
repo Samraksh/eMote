@@ -20,7 +20,7 @@ private:
 	bool PiggybackEntendedMACInfoMsg(Message_15_4_t* msg, UINT16 &size);
 	UINT8 next_piggybacked_extendedneighborinfo_index;
 public:
-#ifdef OMAC_DEBUG_PRINTF_RADIOCONTROL_SEND
+#if OMAC_DEBUG_PRINTF_RADIOCONTROL_SEND
 	UINT16 packet_seq_num;
 #endif
 	DeviceStatus Initialize();
