@@ -49,3 +49,9 @@ Samraksh/Interops/Samraksh_eMote_ProgramManager/Samraksh_eMote_ProgramManager.v1
 # keep Interop stuff... FOR NOW muhahaha!
 !MicroFrameworkPK_v4_3/Samraksh/Interops/*/*/bin
 !MicroFrameworkPK_v4_3/Samraksh/Interops/*/*/obj
+
+
+#ignore eclipse files
+MicroFrameworkPK_v4_3/.project
+MicroFrameworkPK_v4_3/.settings
+MicroFrameworkPK_v4_3/OpenEclipseforDevelopment.bat
