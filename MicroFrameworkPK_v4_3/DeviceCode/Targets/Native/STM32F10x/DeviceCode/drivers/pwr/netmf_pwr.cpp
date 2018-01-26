@@ -696,8 +696,6 @@ void Sleep() {
 		SOFT_BREAKPOINT();
 	}
 #endif
-	}
-#endif
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
