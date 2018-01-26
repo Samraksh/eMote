@@ -66,7 +66,7 @@ BOOL VirtualTimerMapper::Initialize(UINT16 temp_HWID)
 
 	for (UINT16 j = 0; j < m_current_timer_cnt_; j++)
 	{
-		g_VirtualTimerInfo[j].set_m_timer_id(0);
+		g_VirtualTimerInfo[j].set_m_timer_id(250);
 	}
 	
 

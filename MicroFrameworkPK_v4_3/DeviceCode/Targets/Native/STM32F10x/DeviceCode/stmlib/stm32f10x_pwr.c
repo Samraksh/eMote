@@ -182,6 +182,15 @@ void PWR_WakeUpPinCmd(FunctionalState NewState)
   *(__IO uint32_t *) CSR_EWUP_BB = (uint32_t)NewState;
 }
 
+// Errata 2.5
+static void __WFE2(void) __attribute__ ((naked));
+static void __WFE2(void)
+{
+  __WFE();
+  __NOP();
+  __ASM("bx lr");
+}
+
 /**
   * @brief  Enters STOP mode.
   * @param  PWR_Regulator: specifies the regulator state in STOP mode.
@@ -222,6 +231,7 @@ void PWR_EnterSTOPMode(uint32_t PWR_Regulator, uint8_t PWR_STOPEntry)
   {
     /* Request Wait For Event */
     __WFE();
+	__NOP();
   }
   
   /* Reset SLEEPDEEP bit of Cortex System Control Register */
