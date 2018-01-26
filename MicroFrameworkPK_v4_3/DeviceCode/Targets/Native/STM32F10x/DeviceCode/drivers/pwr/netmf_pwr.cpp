@@ -13,6 +13,17 @@ nathan.stohs@samraksh.com
 #include "../usart/sam_usart.h"
 #include "../Timer/netmf_rtc/netmf_rtc.h"
 
+
+// Number of RTC ticks it takes to wakeup from each power level.
+// So wakeup early by this amount plus some slop
+enum wakeup_ticks{
+	MIN_SLEEP_TICKS = 33,
+	SLEEP_EXTRA_PAD = 1,
+	SLEEP_PADDING_HIGH_POWER = 8,
+	SLEEP_PADDING_MID_POWER = 8,
+	SLEEP_PADDING_LOW_POWER = 6,
+};
+
 //#define NATHAN_DEBUG_SLEEP // DELETE ME
 
 #ifdef PLATFORM_EMOTE_AUSTERE
@@ -213,11 +224,9 @@ void PowerInit() {
 	}
 #endif
 
-#ifdef DOTNOW_HSI_CALIB
+#if defined(DOTNOW_HSI_CALIB) && !defined(PLATFORM_EMOTE_AUSTERE)
 	Low_Power();
 	CalibrateHSI();
-#else
-	RCC_AdjustHSICalibrationValue(PWR_HSI_DEFAULT_TRIM);
 #endif
 
 
@@ -228,6 +237,9 @@ void PowerInit() {
 	// Spin long enough for the 1.8v domain to power up. This delay is a mostly blind guess.
 	for(volatile int i=0; i<106666; i++) ; // spin, maybe about 10ms ???
 	power_supply_activate(GPIO_Pin_11);    // Big Cap
+
+	Low_Power();
+	CalibrateHSI(); // Lets calibrate the HSI while we wait for the cap to charge.
 
 #ifdef AUSTERE_NO_CAP_TIMEOUT
 	while( get_radio_charge_status() == 0 ); 	// wait for big cap to charge
@@ -346,9 +358,15 @@ void CalibrateHSI() {
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
 	RTC_SetPrescaler(0x0FFF); // 1/8th second
+	//RTC_SetPrescaler(0x0F41); // 1/8th second. Delete me. For a temporary gimped board.
+#ifdef PLATFORM_EMOTE_AUSTERE
+	RCC_LSEConfig(RCC_LSE_Bypass);
+#else
 	RCC_LSEConfig(RCC_LSE_ON);
+#endif
 	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET) {
 		if (err++ == PWR_RTC_TIMEOUT) {
+			ASSERT(0);
 			return; // Crystal not starting. Give up.
 		}
 	}
@@ -662,27 +680,29 @@ void Sleep() {
 	uint32_t aft; // post sleep RTC time;
 	uint32_t wakeup_time; // when the RTC is supposed to wake us up.
 
-	// Abort if our wakeup time is not at least 3 ticks in the future.
-	// This is going to be a little screwy on roll-over but OK for now
+	// Abort if our wakeup time is too soon
 	now = RTC_GetCounter();
 	wakeup_time = g_STM32F10x_RTC.GetCompare();
-	if(0 == wakeup_time || wakeup_time < now+3) {
+	if(wakeup_time < now+MIN_SLEEP_TICKS) {
 		// Abort!
 		NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
 		__SEV();
 		__WFE();
 		return;
 	}
-
 #ifdef NATHAN_DEBUG_SLEEP
 	// DEBUGGING ONLY. Alert if sleep time is longer than 1 minute
 	if (wakeup_time - now >= 1966080) {
 		SOFT_BREAKPOINT();
 	}
 #endif
+	}
+#endif
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
+			RTC_SetAlarm(wakeup_time-SLEEP_EXTRA_PAD-SLEEP_PADDING_LOW_POWER);
+			RTC_WaitForLastTask();
 			now = align_to_rtc2();
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
@@ -694,6 +714,8 @@ void Sleep() {
 			stm_power_state = POWER_STATE_LOW; // Low_Power is basically identical to Sleep_Power, so basically a no-op.
 			break;
 		case POWER_STATE_MID:
+			RTC_SetAlarm(wakeup_time-SLEEP_EXTRA_PAD-SLEEP_PADDING_MID_POWER);
+			RTC_WaitForLastTask();
 			now = align_to_rtc2();
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
@@ -705,6 +727,8 @@ void Sleep() {
 			TIM_Cmd(TIM1, ENABLE);
 			break;
 		case POWER_STATE_HIGH:
+			RTC_SetAlarm(wakeup_time-SLEEP_EXTRA_PAD-SLEEP_PADDING_HIGH_POWER);
+			RTC_WaitForLastTask();
 			now = align_to_rtc2();
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
@@ -725,7 +749,9 @@ void Sleep() {
 	// Main system timer does not run during sleep so we have to fix up clock afterwards.
 	// Do a three iteration floor estimate for the clock conversion.
 	// Basically this is "leap ticks" and avoids both floating point and long division.
-	uint32_t ticks = aft-now;			 // 1st iteration
+	uint32_t ticks;			 			  // 1st iteration
+	if (aft >= now) { ticks = aft-now; }  // Check for roll-over
+	else { ticks = aft-now+0xFFFFFFFF; }
 	uint32_t ticks_extra;
 	static uint32_t ticks_carried  = 0;  // 2nd iteration
 	static uint32_t ticks_carried3  = 0; // 3nd iteration

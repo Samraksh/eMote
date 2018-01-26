@@ -183,7 +183,7 @@ typedef uint16_t ushort;
 //#define DISABLE_SLEEP
 #define EMOTE_WAKELOCKS // in power driver
 #define EMOTE_WAKELOCK_STARTUP 60 // Wakelock at startup. Seconds. Allows some time for deployment etc.
-//#define DOTNOW_HSI_CALIB
+#define DOTNOW_HSI_CALIB
 
 //Comment below line to below the regular CLR
 #define SAMRAKSH_RTOS_EXT 1 //Samraksh RT extension
