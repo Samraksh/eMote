@@ -51,7 +51,7 @@ const char wwf2_serial_numbers[serial_max_wwf2][serial_per]     = { "05de0033303
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
-const unsigned si4468x_debug_level = ERR100; // CHANGE ME.
+const unsigned si4468x_debug_level = ERR99; // CHANGE ME.
 
 // Pin list used in setup.
 static SI446X_pin_setup_t SI446X_pin_setup;
@@ -267,6 +267,10 @@ static void reset_cont_do(void *arg) {
 	if (!isGood) { si446x_debug_print(ERR99,"SI446X: 2.5v rail FAIL\r\n"); }
 
 	if (isGood && isInit) return; // Nothing to do
+
+#ifdef AUSTERE_SI4468_REBOOT_ON_PWR_FAIL
+	CPU_Reset(); // Just give up and reboot
+#endif
 
 	// Check again in case it came up between ISR and Continuation
 	isGood = CPU_GPIO_GetPinState(39);

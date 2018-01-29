@@ -35,6 +35,7 @@ typedef uint16_t ushort;
 //#define AUSTERE_NO_CAP_TIMEOUT // Disabled by default. Disables capacitor timeout. Need timeout because "good" signal is unreliable.
 //#define EMOTE_COMPLETIONS_STARTUP_WAIT // Only allow snooze mode for 1 minute after boot.
 #define EMOTE_DEEP_SLEEP_MIN 5000 // microseconds. Sleep intervals less than this will only snooze
+#define AUSTERE_SI4468_REBOOT_ON_PWR_FAIL // Driver will just throw the big switch and reboot everything, instead of trying to recover.
 
 #if defined(PLATFORM_ARM_EmoteDotNow)
 #define HAL_SYSTEM_NAME                     "EmoteDotNow"
