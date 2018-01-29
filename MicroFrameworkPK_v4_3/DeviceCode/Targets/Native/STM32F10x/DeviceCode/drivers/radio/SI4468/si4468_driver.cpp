@@ -181,6 +181,7 @@ static const char* print_lock(radio_lock_id_t x) {
 		case radio_lock_interrupt: 		return "radio_lock_interrupt";
 		case radio_lock_all: 			return "radio_lock_all";
 		case radio_lock_rx_setup:		return "radio_lock_rx_setup";
+		case radio_lock_power:			return "radio_lock_power";
 		default: 						return "ERROR, Unknown Lock!!!";
 	}
 }
@@ -269,8 +270,10 @@ static void reset_cont_do(void *arg) {
 
 	// Check again in case it came up between ISR and Continuation
 	isGood = CPU_GPIO_GetPinState(39);
-	if (isGood) { si446x_debug_print(ERR99,"SI446X: 2.5v rail OK\r\n"); }
+	if (!isGood) { return; } // Interrupt will fire again when we are OK.
 
+	si446x_debug_print(ERR99,"SI446X: 2.5v rail OK\r\n");
+	radio_abort = 0;
 	ret = si446x_reinit(radio_lock_power);
 	if (ret != DS_Success) { // Try again
 		reset_defer_continuation.SetArgument(pwr_bad);
@@ -937,10 +940,13 @@ static DeviceStatus si446x_reinit(radio_lock_id_t lock) {
 	si446x_fifo_info(0x3); // Reset both FIFOs. bit1 RX, bit0 TX
 	si446x_debug_print(DEBUG01, "SI446X: Radio RX/TX FIFOs Cleared\r\n");
 
+	si446x_change_state(SI_STATE_SLEEP); // Assume go straight to sleep
+
 si446x_hal_init_CLEANUP:
 
 	si446x_radio_unlock();
 	si446x_spi_unlock();
+	si446x_debug_print(ERR100, "SI446X: si446x_reinit(): Done.\r\n");
 
 	return ret;
 }
@@ -1612,6 +1618,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	si446x_debug_print(DEBUG02, "SI446X: INT\r\n");
 
 	if ( owner = si446x_spi_lock(radio_lock_interrupt) ) {
+		if (owner == radio_lock_power) return; // Ignore. Probably spurious. We are resetting.
 		// Damn, we got an interrupt in the middle of another transaction. Have to defer it.
 		// Hope this doesn't happen much because will screw up timestamp.
 		// TODO: Spend some effort to mitigate this if/when it happens.
