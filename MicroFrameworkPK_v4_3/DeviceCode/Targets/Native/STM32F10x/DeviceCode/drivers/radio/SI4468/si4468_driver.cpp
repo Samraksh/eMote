@@ -1599,6 +1599,10 @@ static void rad_power_monitor(GPIO_PIN Pin, BOOL PinState, void* Param) {
 		arg = pwr_good;
 	}
 
+	// Make sure its not already enqueued.
+	if (reset_defer_continuation.IsLinked())
+		return;
+
 	reset_defer_continuation.SetArgument(arg);
 	reset_defer_continuation.Enqueue();
 }
