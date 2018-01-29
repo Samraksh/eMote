@@ -220,12 +220,21 @@ static void si446x_debug_print(int priority, const char *fmt, ...) { return; }
 
 static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Param);
 
+#ifdef PLATFORM_EMOTE_AUSTERE
+static uint16_t *pwr_good;
+static uint16_t *pwr_bad;
+static volatile uint32_t radio_abort=0;
+static void rad_power_monitor(GPIO_PIN Pin, BOOL PinState, void* Param);
+static DeviceStatus si446x_reinit(radio_lock_id_t lock);
+#endif
+
 static si446x_tx_callback_t tx_callback;
 static si446x_rx_callback_t rx_callback;
 
 static HAL_CONTINUATION tx_callback_continuation;
 static HAL_CONTINUATION rx_callback_continuation;
 static HAL_CONTINUATION int_defer_continuation;
+static HAL_CONTINUATION reset_defer_continuation;
 
 static unsigned isInit = 0;
 static int si446x_channel = 0;
@@ -246,6 +255,30 @@ static void int_cont_do(void *arg) {
 	si446x_debug_print(DEBUG02,"SI446X: int_cont_do()\r\n");
 	SI446x_INT_MODE_CHECK();
 	si446x_spi2_handle_interrupt( SI446X_pin_setup.nirq_mf_pin, false, NULL );
+}
+
+// Called when the power supply fades and we can't reset immediately.
+static void reset_cont_do(void *arg) {
+#ifdef PLATFORM_EMOTE_AUSTERE
+	BOOL isGood;
+	DeviceStatus ret;
+	isGood = ( (uint16_t *) arg == pwr_good) ? TRUE : FALSE;
+	if (!isGood) { si446x_debug_print(ERR99,"SI446X: 2.5v rail FAIL\r\n"); }
+
+	if (isGood && isInit) return; // Nothing to do
+
+	// Check again in case it came up between ISR and Continuation
+	isGood = CPU_GPIO_GetPinState(39);
+	if (isGood) { si446x_debug_print(ERR99,"SI446X: 2.5v rail OK\r\n"); }
+
+	ret = si446x_reinit(radio_lock_power);
+	if (ret != DS_Success) { // Try again
+		reset_defer_continuation.SetArgument(pwr_bad);
+		reset_defer_continuation.Enqueue();
+	}
+#else
+	return;
+#endif
 }
 
 static void sendSoftwareAck(UINT16 dest){
@@ -283,7 +316,7 @@ static void tx_cont_do(void *arg) {
 
 // Returns true if a continuation is linked and needs service.
 static bool cont_busy(void) {
-	return (tx_callback_continuation.IsLinked() || rx_callback_continuation.IsLinked() || int_defer_continuation.IsLinked());
+	return (tx_callback_continuation.IsLinked() || rx_callback_continuation.IsLinked() || int_defer_continuation.IsLinked() || reset_defer_continuation.IsLinked());
 }
 
 static void rx_cont_do(void *arg) {
@@ -829,12 +862,18 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 		si446x_debug_print(DEBUG02, "SI446X: CPU Serial Hash: 0x%.4X\r\n", tempNum);
 	}
 
+// Austere only. This pin watches the radio power supply. We need to reset if we trip this.
+#ifdef PLATFORM_EMOTE_AUSTERE
+	CPU_GPIO_EnableInputPin( (GPIO_PIN) 39, FALSE, rad_power_monitor, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP );
+#endif
+
 	// Init Continuations and interrupts
 	// Leave these last in case something above fails.
 	CPU_GPIO_EnableInputPin( SI446X_pin_setup.nirq_mf_pin, FALSE, si446x_spi2_handle_interrupt, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED);
 	tx_callback_continuation.InitializeCallback(tx_cont_do, NULL);
 	rx_callback_continuation.InitializeCallback(rx_cont_do, NULL);
 	int_defer_continuation.InitializeCallback(int_cont_do, NULL);
+	reset_defer_continuation.InitializeCallback(reset_cont_do, NULL);
 
 si446x_hal_init_CLEANUP:
 
@@ -843,6 +882,69 @@ si446x_hal_init_CLEANUP:
 
 	return ret;
 }
+
+#ifdef PLATFORM_EMOTE_AUSTERE
+// Only used for post-init resets e.g. due to power failure
+// Lock: Pass in a lock to be used
+static DeviceStatus si446x_reinit(radio_lock_id_t lock) {
+
+	DeviceStatus ret = DS_Success;
+	int reset_errors;
+	uint8_t temp;
+	radio_lock_id_t owner;
+
+	si446x_debug_print(DEBUG02, "SI446X: si446x_reinit()\r\n");
+
+	if ( owner = si446x_spi_lock(lock) ) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_reinit() FAIL, SPI busy: %s\r\n", print_lock(owner));
+		return DS_Fail;
+	}
+
+	si446x_reset();
+	reset_errors  = si446x_part_info();
+	reset_errors += si446x_func_info();
+
+	if ( reset_errors ) {
+		ret = DS_Fail;
+		si446x_debug_print(ERR100, "SI446X: si446x_reinit(): reset failed.\r\n");
+		goto si446x_hal_init_CLEANUP;
+	}
+
+	isInit = 1;
+
+	si446x_get_int_status(0x0, 0x0, 0x0); // Saves status and clears all interrupts
+	si446x_request_device_state();
+	si446x_debug_print(DEBUG01, "SI446X: Radio Interrupts Cleared\r\n");
+
+	temp = si446x_get_property(0x00, 0x01, 0x03);
+	if (temp != RF_GLOBAL_CONFIG_1_1) {
+		si446x_debug_print(DEBUG01, "SI446X: si446x_reinit() GLOBAL_CONFIG Setting Looks Wrong... Overriding...\r\n");
+		si446x_set_property( 0x00, 0x01, 0x03, RF_GLOBAL_CONFIG_1_1 );
+	}
+
+	temp = si446x_get_property(0x12, 0x01, 0x08);
+	if (temp != PKT_LEN) {
+		si446x_debug_print(DEBUG01, "SI446X: si446x_reinit() PKT_LEN Setting Looks Wrong...Overriding...\r\n");
+		si446x_set_property( 0x12, 0x01, 0x08, PKT_LEN );
+	}
+
+	temp = si446x_get_property(0x12, 0x01, 0x12);
+	if (temp != PKT_FIELD_2_LENGTH) {
+		si446x_debug_print(DEBUG01, "SI446X: si446x_reinit() PKT_FIELD_2_LENGTH Setting Looks Wrong...Overriding...\r\n");
+		si446x_set_property( 0x12, 0x01, 0x12, PKT_FIELD_2_LENGTH );
+	}
+
+	si446x_fifo_info(0x3); // Reset both FIFOs. bit1 RX, bit0 TX
+	si446x_debug_print(DEBUG01, "SI446X: Radio RX/TX FIFOs Cleared\r\n");
+
+si446x_hal_init_CLEANUP:
+
+	si446x_radio_unlock();
+	si446x_spi_unlock();
+
+	return ret;
+}
+#endif
 
 // Hard radio shut-off. Does not check busy.
 // This will ALWAYS shut down the radio regardless of MAC level status.
@@ -1463,6 +1565,36 @@ static void si446x_pkt_bad_crc_int(void) {
 	// We lost the packet, so give up the radio
 	si446x_radio_unlock();
 }
+
+#ifdef PLATFORM_EMOTE_AUSTERE
+// Si446x.cpp checks before talking to the radio.
+uint32_t is_abort(void) {
+	return radio_abort;
+}
+
+// Signal from power supply indicating status of the 2.5v supply to the radio
+// If this goes bad, we assume the worst and reset the world
+// Have to be extra careful because we could have a SPI operation in-flight
+static void rad_power_monitor(GPIO_PIN Pin, BOOL PinState, void* Param) {
+	uint16_t *arg;
+	if (CPU_GPIO_GetPinState(39) == FALSE){
+		radio_abort = 1;
+		radio_shutdown(1);
+		isInit = 0;
+		tx_callback_continuation.Abort();
+		rx_callback_continuation.Abort();
+		int_defer_continuation.Abort();
+		arg = pwr_bad;
+	} else {
+		arg = pwr_good;
+	}
+
+	reset_defer_continuation.SetArgument(arg);
+	reset_defer_continuation.Enqueue();
+}
+#else
+uint32_t is_abort(void) { return 0; }
+#endif
 
 // INTERRUPT CONTEXT
 static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Param)

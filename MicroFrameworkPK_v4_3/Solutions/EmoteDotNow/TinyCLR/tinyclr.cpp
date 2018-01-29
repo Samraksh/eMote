@@ -131,20 +131,10 @@ static int get_radio_power_status(void) {
 }
 */
 
-static void rad_power_monitor(GPIO_PIN Pin, BOOL PinState, void* Param) {
-	if (CPU_GPIO_GetPinState(39) == TRUE){
-		hal_printf("*** rad pwr good ***\r\n");
-	} else {
-		hal_printf("*** rad pwr bad ***\r\n");
-	}
-}
-
-
 
 void ApplicationEntryPoint()
 {
-#ifdef PLATFORM_EMOTE_AUSTERE // TODO: THIS REALLY SHOULD GO SOMEWHERE ELSE
-	CPU_GPIO_EnableInputPin( (GPIO_PIN) 39, FALSE, rad_power_monitor, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP );
+#ifdef PLATFORM_EMOTE_AUSTERE
 	print_power_supply_status();
 #endif
 	

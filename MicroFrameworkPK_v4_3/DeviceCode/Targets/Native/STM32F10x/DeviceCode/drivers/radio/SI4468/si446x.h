@@ -26,6 +26,7 @@ enum radio_lock_id_t {
 	radio_lock_crc			=11, // Not used
 	radio_lock_interrupt	=12,
 	radio_lock_rx_setup		=13,
+	radio_lock_power		=14,
 	radio_lock_all			=0xFF,
 };
 
@@ -174,6 +175,7 @@ extern void radio_shutdown(int go);
 extern void radio_spi_sel_assert(void);
 extern void radio_spi_sel_no_assert(void);
 extern bool radio_get_assert_irq(void);
+extern uint32_t is_abort(void);
 
 //extern void radio_debug_print(int level, const char * restrict fmt, ...);
 

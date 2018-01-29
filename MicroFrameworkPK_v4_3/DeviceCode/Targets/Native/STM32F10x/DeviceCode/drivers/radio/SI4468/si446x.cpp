@@ -797,7 +797,7 @@ uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData) {
 	radio_spi_go(0x44); //read CMD buffer
 	ctsVal = radio_spi_go(0);
 
-	while(ctsVal != 0xFF && timeout++ <= CTS_TIMEOUT) {
+	while(ctsVal != 0xFF && timeout++ <= CTS_TIMEOUT && !is_abort()) {
 		radio_spi_sel_no_assert();
 		//for(unsigned i=0; i<CTS_WAIT; i++) ; // spin
 		// Looking for at least 150ns, or likely even half that would be enough.
@@ -808,10 +808,10 @@ uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData) {
 		radio_spi_go(0x44); //read CMD buffer
 		ctsVal = radio_spi_go(0);
 	}
-	
-	if (ctsVal != 0xFF) {
+
+	if (ctsVal != 0xFF || is_abort()) {
 		radio_spi_sel_no_assert();
-		SI_ASSERT(0, "Fatal: CTS Timeout waiting for response\r\n");
+		//SI_ASSERT(0, "Fatal: CTS Timeout waiting for response\r\n");
 		return 0;
 	}
 	else {
@@ -835,13 +835,13 @@ unsigned int radio_comm_PollCTS() {
 	ctsWentHigh = 0;
 #endif
 
-	while(ctsWentHigh == 0 && timeout < CTS_TIMEOUT) {
+	while(ctsWentHigh == 0 && timeout < CTS_TIMEOUT && !is_abort()) {
 		radio_comm_GetResp(0, NULL);
 		timeout++;
 	}
-	if (timeout == CTS_TIMEOUT) {
+	if (timeout == CTS_TIMEOUT || is_abort()) {
 		ctsWentHigh = 0;
-		SI_ASSERT(0, "Fatal: CTS Timeout waiting for response\r\n");
+		//SI_ASSERT(0, "Fatal: CTS Timeout waiting for response\r\n");
 		return 0;
 	}
 
