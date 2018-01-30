@@ -24,7 +24,7 @@ enum wakeup_ticks{
 	SLEEP_PADDING_LOW_POWER = 6,
 };
 
-#define NATHAN_DEBUG_SLEEP // DELETE ME
+//#define NATHAN_DEBUG_SLEEP // DELETE ME
 
 #ifdef PLATFORM_EMOTE_AUSTERE
 #include <stm32f10x.h>
@@ -696,7 +696,6 @@ void Sleep() {
 		SOFT_BREAKPOINT();
 	}
 #endif
-	set_debug_pin(1);
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
@@ -706,7 +705,7 @@ void Sleep() {
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
-			//set_debug_pin(1); // delete me
+			set_debug_pin(1); // delete me
 			RTC_WaitForSynchro();
 			aft = RTC_GetCounter(); // align_to_rtc2() not needed because redundant with WaitForSyncrho() but ONLY FOR LOW-POWER CASE
 			TIM_Cmd(TIM1, ENABLE);
@@ -719,7 +718,7 @@ void Sleep() {
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
-			//set_debug_pin(1); // delete me
+			set_debug_pin(1); // delete me
 			Mid_Power();
 			RTC_WaitForSynchro();
 			aft = align_to_rtc2();
@@ -732,7 +731,7 @@ void Sleep() {
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
-			//set_debug_pin(1); // delete me
+			set_debug_pin(1); // delete me
 			High_Power();
 			RTC_WaitForSynchro();
 			aft = align_to_rtc2();
