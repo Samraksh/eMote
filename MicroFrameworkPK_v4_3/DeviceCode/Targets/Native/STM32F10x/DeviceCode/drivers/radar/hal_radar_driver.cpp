@@ -66,7 +66,12 @@ void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	hal_printf("detect\r\n");
 	// checking to make sure we have enough data to pull
 	// this could occur if we are currently pulling data (per continuations) and a detection occurs
-	if (CPU_GPIO_GetPinState(33) == FALSE){
+	CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	bool alertState = CPU_GPIO_GetPinState(33);
+	if (alertInterruptActive == false)
+		CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+
+	if (alertState == FALSE){
 		//hal_printf("detection but not enough data\r\n");
 		return;
 	}
@@ -207,9 +212,13 @@ hal_printf("@");
 			interruptServiceInProcess = false;
 			return;
 		}
+		CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+		bool alertState = CPU_GPIO_GetPinState(33);
+		if (alertInterruptActive == false)
+			CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
 
 		UINT32 FPGAIQRejection;
-		if ((CPU_GPIO_GetPinState(33) == TRUE) | (continueToSendCount > 0)){		
+		if ((alertState == TRUE) | (continueToSendCount > 0)){		
 			if (alertInterruptActive == false){
 			//hal_printf("enabling data pull; cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
 				CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
@@ -386,7 +395,12 @@ INT32 getCountOverTarget(){
 void setProcessingInProgress(int state){
 	processingInProgress = state;
 	//hal_printf("PiP set to %d\r\n",processingInProgress);
-	if ((state == FALSE) & (CPU_GPIO_GetPinState(33) == TRUE)){
+	CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);	
+	bool alertState = CPU_GPIO_GetPinState(33);
+	if (alertInterruptActive == false)
+		CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+
+	if ((state == FALSE) & (alertState == TRUE)){
 		//hal_printf("calling data pull\r\n");
 		Radar_Handler(NULL);
 	}
