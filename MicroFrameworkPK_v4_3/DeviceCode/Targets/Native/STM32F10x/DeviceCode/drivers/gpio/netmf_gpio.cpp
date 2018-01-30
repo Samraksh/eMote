@@ -355,6 +355,17 @@ void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Dire
 	GPIO_ConfigurePin(port, pinInHex, GPIO_Mode_AIN); // AIN disables digital input so should prevent interrupts etc.
 	CPU_GPIO_SetPinState(Pin, FALSE);
 
+	if ( gpio_isr[Pin] != NULL ) { // Need to deconfigure its interrupt as well.
+		// Disable in NVIC
+		CPU_INTC_InterruptDisable(GPIO_GetIRQNumber(Pin));
+
+		// Kill EXTI interrupt source
+		EXTI_InitTypeDef EXTI_InitStructure;
+		EXTI_StructInit(&EXTI_InitStructure);
+		EXTI_InitStructure.EXTI_Line = GPIO_GetExtiLine(Pin);
+		EXTI_Init(&EXTI_InitStructure);
+	}
+
 	// Remove any user interrupts
 	gpio_isr[Pin] = NULL;
 	gpio_parm[Pin] = NULL;
