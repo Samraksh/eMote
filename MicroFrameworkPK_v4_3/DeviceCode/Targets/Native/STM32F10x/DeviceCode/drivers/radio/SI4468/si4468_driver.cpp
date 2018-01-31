@@ -520,6 +520,7 @@ static void init_si446x_pins() {
 	GPIO_Init(config->sdn_port, &GPIO_InitStructure);
 #endif
 
+#ifndef PLATFORM_EMOTE_AUSTERE // not used presently, maybe conflicts with radar
 	// GPIO 0
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_InitStructure.GPIO_Pin = config->gpio0_pin;
@@ -529,6 +530,7 @@ static void init_si446x_pins() {
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_InitStructure.GPIO_Pin = config->gpio1_pin;
 	GPIO_Init(config->gpio1_port, &GPIO_InitStructure);
+#endif
 
 	// NIRQ
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
@@ -581,10 +583,14 @@ static bool is_radio_asleep(void) {
 }
 
 static void set_radio_power_pwm(int go) {
+#if defined(PLATFORM_ARM_WLN) && !defined(PLATFORM_EMOTE_AUSTERE) // WLN alone is probably sufficient
 	if (go)
 		GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_SET);
 	else
 		GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_RESET);
+#else
+	return;
+#endif
 }
 
 // Quick and dirty. Clean me up later. --NPS
