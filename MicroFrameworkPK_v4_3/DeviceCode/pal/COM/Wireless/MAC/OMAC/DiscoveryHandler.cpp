@@ -58,12 +58,7 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	m_num_sleep_retry_attempts = 0;
 
 	firstHighRateDiscoTimeinSlotNum = 0;
-	PermanentlyDecreaseDiscoRate();
-	TempIncreaseDiscoRate();
-	g_OMAC.m_omac_RadioControl.stayOn = HIGH_DISCO_PERIOD_ALWAYS_ON;
-#if OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE
-	hal_printf("Turning ON ALWAYSONMODE \r\n");
-#endif
+	PermanentlyDecreaseDiscoRate(); //Select initial disco parameters
 
 #ifdef OMAC_DEBUG_PRINTF
 	OMAC_HAL_PRINTF("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
@@ -97,13 +92,8 @@ UINT64 DiscoveryHandler::NextEvent(){
 
 	if(firstHighRateDiscoTimeinSlotNum == 0) {
 		firstHighRateDiscoTimeinSlotNum = currentSlotNum;
-		PermanentlyDecreaseDiscoRate();
 		if(g_OMAC.HIGH_DISCO_PERIOD_IN_SLOTS){
 			TempIncreaseDiscoRate();
-			g_OMAC.m_omac_RadioControl.stayOn = HIGH_DISCO_PERIOD_ALWAYS_ON;
-#if OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE
-		hal_printf("Turning ON ALWAYSONMODE \r\n");
-#endif
 		}
 	}
 
@@ -611,6 +601,7 @@ void DiscoveryHandler::TempIncreaseDiscoRate(){
 	m_period2 = CONTROL_P2[g_OMAC.GetMyAddress() % 7] ;
 	highdiscorate = true;
 	firstHighRateDiscoTimeinSlotNum = GetSlotNumber();
+	g_OMAC.m_omac_RadioControl.stayOn = HIGH_DISCO_PERIOD_ALWAYS_ON;
 #if OMAC_DEBUG_PRINTF_HIGH_DISCO_MODE
 	hal_printf("DiscoveryHandler::switching to fast disco mode \r\n");
 	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
