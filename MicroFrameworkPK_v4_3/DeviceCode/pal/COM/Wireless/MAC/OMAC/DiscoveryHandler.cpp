@@ -597,8 +597,8 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 }
 
 void DiscoveryHandler::TempIncreaseDiscoRate(){
-	m_period1 = CONTROL_P1[g_OMAC.GetMyAddress() % 7] ;
-	m_period2 = CONTROL_P2[g_OMAC.GetMyAddress() % 7] ;
+	m_period1 = CONTROL_P1[g_OMAC.GetMyAddress() % DISCOVERY_SIZE_OF_PRIME_NUMBER_POOL] ;
+	m_period2 = CONTROL_P2[g_OMAC.GetMyAddress() % DISCOVERY_SIZE_OF_PRIME_NUMBER_POOL] ;
 	highdiscorate = true;
 	firstHighRateDiscoTimeinSlotNum = GetSlotNumber();
 	g_OMAC.m_omac_RadioControl.stayOn = HIGH_DISCO_PERIOD_ALWAYS_ON;
@@ -611,8 +611,8 @@ void DiscoveryHandler::TempIncreaseDiscoRate(){
 }
 
 void DiscoveryHandler::PermanentlyDecreaseDiscoRate(){
-	m_period1 = CONTROL_P3[g_OMAC.GetMyAddress() % 7] ;
-	m_period2 = CONTROL_P4[g_OMAC.GetMyAddress() % 7] ;
+	m_period1 = CONTROL_P3[g_OMAC.GetMyAddress() % DISCOVERY_SIZE_OF_PRIME_NUMBER_POOL] ;
+	m_period2 = CONTROL_P4[g_OMAC.GetMyAddress() % DISCOVERY_SIZE_OF_PRIME_NUMBER_POOL] ;
 	g_OMAC.m_omac_RadioControl.stayOn = false;
 #if OMAC_DEBUG_PRINTF_HIGH_DISCO_MODE
 	hal_printf("DiscoveryHandler::switching to slow disco mode \r\n");

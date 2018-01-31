@@ -418,7 +418,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define WAKEUPPERIODINTICKS 8000000
 
 #define TIMEITTAKES2TXDISCOPACKETINMICSEC 4096
-#define DISCOPERIODINMILLI 8
+#define DISCOPERIODINMILLI 15
 
 //FCF table:
 //15 14 13  12  11  10  9  8  7  6  5  4  3  2  1  0 (bits)
@@ -514,6 +514,7 @@ UINT32 ArbiterP_Timing;
 /*
  * Prime numbers used in determining DISCO period of a node
  */
+#define DISCOVERY_SIZE_OF_PRIME_NUMBER_POOL 7
 
 //UINT16 CONTROL_P1[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
 //UINT16 CONTROL_P2[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
@@ -535,7 +536,20 @@ UINT16 CONTROL_P4[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
 //UINT16 CONTROL_P1[] = {19, 17, 13, 37, 11, 5, 7};
 //UINT16 CONTROL_P2[] = {67, 43, 53, 47, 61, 59};
 
-UINT16 CONTROL_P1[] = {47, 37, 43, 37, 53, 29, 31};
-UINT16 CONTROL_P2[] = {227, 181, 197, 191, 211, 199};
+//UINT16 CONTROL_P1[] = {47, 37, 43, 37, 53, 29, 31};
+//UINT16 CONTROL_P2[] = {227, 181, 197, 191, 211, 199};
+
+UINT16 CONTROL_P1[] = {67, 71, 79, 83, 89, 97};
+UINT16 CONTROL_P2[] = {227, 229, 233, 239, 241, 251};
+
+
+//Define total size of a Disco packet with piggybacking
+#if OMAC_DEBUG_SEND_EXTENDEDMACINfo
+
+#else
+
+#endif
+
+
 
 #endif /* OMACCONSTANTS_H_ */
