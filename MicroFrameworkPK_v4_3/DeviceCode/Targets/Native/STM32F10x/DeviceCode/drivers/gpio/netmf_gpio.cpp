@@ -352,7 +352,7 @@ void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Dire
 
 	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
 	uint16_t pinInHex = GPIO_GetPin(Pin);
-	GPIO_ConfigurePin(port, pinInHex, GPIO_Mode_AIN); // AIN disables digital input so should prevent interrupts etc.
+	GPIO_ConfigurePin(port, pinInHex ); // AIN disables digital input so should prevent interrupts etc.
 	CPU_GPIO_SetPinState(Pin, FALSE);
 
 	if ( gpio_isr[Pin] != NULL ) { // Need to deconfigure its interrupt as well.
