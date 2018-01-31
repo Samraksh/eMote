@@ -209,7 +209,6 @@ void I2C_Error_Handler(void  *param)
 
 DeviceStatus STM32F10x_I2C_Driver::XActionStart(I2C_HAL_XACTION* xAction, bool repeatedStart)
 {
-	SOFT_BREAKPOINT();
 	setCurrentXAction(xAction);
 
 	setCurrentXActionUnit(xAction->m_xActionUnits[ xAction->m_current++ ]);
@@ -235,7 +234,6 @@ DeviceStatus STM32F10x_I2C_Driver::XActionStart(I2C_HAL_XACTION* xAction, bool r
 
 DeviceStatus STM32F10x_I2C_Driver::XActionStop()
 {
-	SOFT_BREAKPOINT();
 	if ((I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->SR2 & I2C_SR2_BUSY) && !(I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->CR1 & I2C_CR1_STOP)) {
 		I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->CR1 |= I2C_CR1_STOP; // send stop
 	}
