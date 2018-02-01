@@ -270,7 +270,7 @@ void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer)
 			return;
 		}
 
-		GLOBAL_LOCK(irq);
+		//GLOBAL_LOCK(irq);
 
 		if(uSec <= 5)
 		{

@@ -139,6 +139,104 @@ static void rad_power_monitor(GPIO_PIN Pin, BOOL PinState, void* Param) {
 	}
 }
 
+static char get_key() {
+	int ret;
+	char c;
+	USART_DiscardBuffer(0, TRUE); // Does this work???
+	ret = 0;
+
+	do { // yeah this is silly and will break easily. --NPS
+		__WFI(); // Wait for char
+		__WFI(); // Wait for idle
+		ret = USART_Read(0, &c, 1);
+	} while (ret == 0);
+	return c;
+}
+
+static void my_flash_reader() {
+	char keys[16];
+	uint8_t data[257];
+	int addr;
+
+	hal_printf("Enter Address to Read: ");
+	for(int i=0; i<15; i++) {
+		keys[i] = '\0';
+		char c = get_key();
+		hal_printf("%c", c);
+		if (c == 13) { break; } // enter key
+		keys[i] = c;
+	}
+	keys[15] = '\0';
+	addr = atoi(keys);
+	hal_printf("\nReading 256 bytes from 0x%.6x\r\n", addr);
+
+	spiflash_read(data, 256, addr);
+	data[256] = '\0';
+	hal_printf("%s\r\n", data);
+}
+
+static void my_flash_writer() {
+	char keys[16];
+	uint8_t data[256];
+	int addr;
+	int size;
+
+	hal_printf("Enter Address to write to: ");
+	for(int i=0; i<15; i++) {
+		keys[i] = '\0';
+		char c = get_key();
+		hal_printf("%c", c);
+		if (c == 13) { break; } // enter key
+		keys[i] = c;
+	}
+	keys[15] = '\0';
+	addr = atoi(keys);
+	hal_printf("\nWriting to 0x%.6x\r\n", addr);
+
+	hal_printf("Enter data\r\n");
+	for(size=0; size<256; size++) {
+		data[size] = '\0';
+		char c = get_key();
+		hal_printf("%c", c);
+		if (c == 13) { break; } // enter key
+		data[size] = c;
+	}
+	hal_printf("\n");
+	hal_printf("Doing Write\r\n");
+	spiflash_write_page(data, size, addr);
+	hal_printf("Write Done\r\n");
+}
+
+static void sooper_sekret_menu() __attribute__ ((noreturn));
+static void sooper_sekret_menu() {
+	char c;
+	int ret;
+
+	while(1) {
+		hal_printf("\r\n!!! SECRET MENU !!!\r\n");
+		hal_printf("E: Erase SPI-Flash Chip (CE)\r\n");
+		hal_printf("Q: Reboot\r\n");
+		hal_printf("W: Write something to Flash\r\n");
+		hal_printf("R: Read from Flash\r\n");
+		hal_printf("Make your choice: ");
+
+		c = get_key();
+
+		hal_printf("%c\r\n", c);
+
+		switch(c) {
+			case 'E':  spiflash_chip_erase(0, 0); break;
+			case 'Q':  hal_printf("REBOOTING...\r\n"); CPU_Reset(); break;
+			case 'W':  my_flash_writer(); break;
+			case 'R':  my_flash_reader(); break;
+			default: hal_printf("Unknown cmd\r\n"); break;
+		}
+	}
+
+	// Not reachable
+	SOFT_BREAKPOINT();
+	while(1) { __WFI(); }
+}
 
 
 void ApplicationEntryPoint()
@@ -147,22 +245,38 @@ void ApplicationEntryPoint()
 	CPU_GPIO_EnableInputPin( (GPIO_PIN) 39, FALSE, rad_power_monitor, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP );
 	print_power_supply_status();
 #endif
+
+#ifdef PLATFORM_EMOTE_AUSTERE
+	char in[3];
+	spiflash_init(0,0);
+	USART_DiscardBuffer(0, TRUE);
+	hal_printf("Press Secret Key For Secret Menu Now...\r\n");
+	HAL_Time_Sleep_MicroSeconds(5000000);
+	USART_Read(0, in, sizeof(in) );
+	if ( hal_strncmp_s(";;;", in, sizeof(in)) == 0 ) {
+		sooper_sekret_menu();
+	}
+#endif // PLATFORM_EMOTE_AUSTERE
+
+	hal_printf("Done!\r\n");
+	SOFT_BREAKPOINT();
+	while(1) __WFI();
 	
-    CLR_SETTINGS clrSettings;
+    // CLR_SETTINGS clrSettings;
 
-    memset(&clrSettings, 0, sizeof(CLR_SETTINGS));
+    // memset(&clrSettings, 0, sizeof(CLR_SETTINGS));
 
-    clrSettings.MaxContextSwitches         = 50;
-    clrSettings.WaitForDebugger            = false;
-    clrSettings.EnterDebuggerLoopAfterExit = true;
+    // clrSettings.MaxContextSwitches         = 50;
+    // clrSettings.WaitForDebugger            = false;
+    // clrSettings.EnterDebuggerLoopAfterExit = true;
 
-    ClrStartup( clrSettings );
+    // ClrStartup( clrSettings );
 
-#if !defined(BUILD_RTM)
-    debug_printf( "Exiting.\r\n" );
-#else
-    ::CPU_Reset();
-#endif
+// #if !defined(BUILD_RTM)
+    // debug_printf( "Exiting.\r\n" );
+// #else
+    // ::CPU_Reset();
+// #endif
 	
 }
 

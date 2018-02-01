@@ -260,9 +260,9 @@ void PowerInit() {
 		{ ASSERT(0); break; }
 	}
 
-	//Low_Power();
+	Low_Power();
 	//Mid_Power(); // Would prefer 8 MHz
-	High_Power();
+	//High_Power();
 #else
 	High_Power();
 #endif
