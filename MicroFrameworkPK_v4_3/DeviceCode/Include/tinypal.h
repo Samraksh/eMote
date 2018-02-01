@@ -43,6 +43,7 @@
 #include <PWM_decl.h>
 #include <Analog_decl.h>
 #include <AnalogOut_decl.h>
+#include <spiflash_decl.h>
 
 #include <Blockstorage_decl.h>
 #include <SD_decl.h>

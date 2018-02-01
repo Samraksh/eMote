@@ -492,6 +492,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Timer\Timer16Bit\Timer16BitStubs\dotNetMF.proj" />
 	<DriverLibs Include="Timer16Bit.$(LIB_EXT)" />
   </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\spiflash\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_spiflash.$(LIB_EXT)" />
+  </ItemGroup>
   
   
   
