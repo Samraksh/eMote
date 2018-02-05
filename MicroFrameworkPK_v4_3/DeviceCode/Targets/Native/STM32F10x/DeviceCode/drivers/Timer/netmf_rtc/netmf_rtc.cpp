@@ -94,7 +94,7 @@ DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, U
 	RCC_APB1PeriphClockCmd( RCC_APB1Periph_BKP, ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
 	RTC_SetPrescaler(0); 
-#if defined(PLATFORM_ARM_WLN) || defined(PLATFORM_EMOTE_AUSTERE)
+#if defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_AUSTERE)
 	RCC_LSEConfig(RCC_LSE_Bypass);
 #else
 	RCC_LSEConfig(RCC_LSE_ON);

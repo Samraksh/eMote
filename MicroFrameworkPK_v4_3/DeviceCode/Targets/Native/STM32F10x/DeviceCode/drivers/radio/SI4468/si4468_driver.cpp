@@ -516,11 +516,11 @@ static void init_si446x_pins() {
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_InitStructure.GPIO_Pin =  config->sdn_pin;
-#ifndef PLATFORM_EMOTE_AUSTERE // Power driver already does this in Austere
+#ifndef PLATFORM_ARM_AUSTERE // Power driver already does this in Austere
 	GPIO_Init(config->sdn_port, &GPIO_InitStructure);
 #endif
 
-#ifndef PLATFORM_EMOTE_AUSTERE // not used presently, maybe conflicts with radar
+#ifndef PLATFORM_ARM_AUSTERE // not used presently, maybe conflicts with radar
 	// GPIO 0
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_InitStructure.GPIO_Pin = config->gpio0_pin;
@@ -583,7 +583,7 @@ static bool is_radio_asleep(void) {
 }
 
 static void set_radio_power_pwm(int go) {
-#if defined(PLATFORM_ARM_WLN) && !defined(PLATFORM_EMOTE_AUSTERE) // WLN alone is probably sufficient
+#if defined(PLATFORM_ARM_WLN) && !defined(PLATFORM_ARM_AUSTERE) // WLN alone is probably sufficient
 	if (go)
 		GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_SET);
 	else
@@ -595,7 +595,7 @@ static void set_radio_power_pwm(int go) {
 
 // Quick and dirty. Clean me up later. --NPS
 static int am_i_wwf(void) {
-#ifdef PLATFORM_EMOTE_AUSTERE
+#ifdef PLATFORM_ARM_AUSTERE
 	return 3;
 #else
 	uint8_t cpuserial[serial_size];

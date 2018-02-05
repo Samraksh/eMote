@@ -604,14 +604,12 @@ mipi_dsi_shutdown();
 
     HeapLocation( BaseAddress,    SizeInBytes );
     memset      ( BaseAddress, 0, SizeInBytes );
-#ifndef PLATFORM_EMOTE_AUSTERE // tired of looking at this. Otherwise random
     lcd_printf("\f");
 
     lcd_printf("%-15s\r\n", HalName);
     lcd_printf("%-15s\r\n", "Build Date:");
     lcd_printf("  %-13s\r\n", __DATE__);
     lcd_printf("  %-13s\r\n", __TIME__);
-#endif
 
 #endif  // !defined(BUILD_RTM)
 

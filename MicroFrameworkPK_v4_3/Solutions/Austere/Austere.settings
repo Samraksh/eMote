@@ -5,7 +5,7 @@
     <Description>This is "The Samraksh Company" solution for the Austere platform</Description>
     <Documentation />
     <PlatformGuid>{a3226721-64ea-47d8-a61b-c7ab9fdf93f3}</PlatformGuid>
-    <TARGETPLATFORM>Austere</TARGETPLATFORM>
+    <TARGETPLATFORM>AUSTERE</TARGETPLATFORM>
     <PLATFORM>Austere</PLATFORM>
     <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
     <ENDIANNESS>le</ENDIANNESS>

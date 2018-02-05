@@ -9,7 +9,7 @@
  */
 
 #include <tinyhal.h>
-#ifdef PLATFORM_EMOTE_AUSTERE // Doesn't use I2C for now. Stub out.
+#ifdef PLATFORM_ARM_AUSTERE // Doesn't use I2C for now. Stub out.
 BOOL  I2C_Internal_Initialize  (                                              ) { return TRUE; }
 BOOL  I2C_Internal_Uninitialize(                                              ) { return TRUE; }
 void  I2C_Internal_XActionStart( I2C_HAL_XACTION* xAction, bool repeatedStart ) { SOFT_BREAKPOINT(); }

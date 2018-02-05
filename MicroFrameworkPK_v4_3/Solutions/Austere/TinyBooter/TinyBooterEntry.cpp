@@ -72,11 +72,10 @@ void Tinybooter_PrepareForDecompressedLaunch()
 ////////////////////////////////////////////////////////////////////////////////
 bool WaitForTinyBooterUpload( INT32 &timeout_ms )
 {
-    bool enterBooterMode = false;
+	return false; // Austere doesn't use Pin based TB selection
 
-#ifdef PLATFORM_EMOTE_AUSTERE
-	return false;
-#endif
+	/*
+    bool enterBooterMode = false;
 
 	CPU_GPIO_EnableInputPin3((GPIO_PIN) INPUT_REBOOT_PIN, TRUE, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	
@@ -91,6 +90,7 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
 
     return enterBooterMode;
     //return false;
+	*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////

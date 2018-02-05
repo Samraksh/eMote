@@ -26,7 +26,7 @@ enum wakeup_ticks{
 
 //#define NATHAN_DEBUG_SLEEP // DELETE ME
 
-#ifdef PLATFORM_EMOTE_AUSTERE
+#ifdef PLATFORM_ARM_AUSTERE
 #include <stm32f10x.h>
 #endif
 
@@ -34,7 +34,7 @@ static int pwr_hsi_clock_measure;
 static int pwr_hsi_clock_measure_orig;
 static enum stm_power_modes stm_power_state = POWER_STATE_DEFAULT;
 
-#ifdef PLATFORM_EMOTE_AUSTERE
+#ifdef PLATFORM_ARM_AUSTERE
 static void power_supply_reset() {
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_11 | GPIO_Pin_13; // leave out PC8 due to schematic issues
@@ -106,7 +106,7 @@ static void set_debug_pin(int go) {
 }
 #else
 #define set_debug_pin(x)
-#endif // PLATFORM_EMOTE_AUSTERE
+#endif // PLATFORM_ARM_AUSTERE
 
 
 #ifdef EMOTE_WAKELOCKS
@@ -226,13 +226,13 @@ void PowerInit() {
 	}
 #endif
 
-#if defined(DOTNOW_HSI_CALIB) && !defined(PLATFORM_EMOTE_AUSTERE)
+#if defined(DOTNOW_HSI_CALIB) && !defined(PLATFORM_ARM_AUSTERE)
 	Low_Power();
 	CalibrateHSI();
 #endif
 
 
-#ifdef PLATFORM_EMOTE_AUSTERE
+#ifdef PLATFORM_ARM_AUSTERE
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC, ENABLE);
 	power_supply_reset();
 	power_supply_activate(GPIO_Pin_6); // 1.8v rail (with the RTC clock)
@@ -361,7 +361,7 @@ void CalibrateHSI() {
 	PWR_BackupAccessCmd(ENABLE);
 	RTC_SetPrescaler(0x0FFF); // 1/8th second
 	//RTC_SetPrescaler(0x0F41); // 1/8th second. Delete me. For a temporary gimped board.
-#ifdef PLATFORM_EMOTE_AUSTERE
+#ifdef PLATFORM_ARM_AUSTERE
 	RCC_LSEConfig(RCC_LSE_Bypass);
 #else
 	RCC_LSEConfig(RCC_LSE_ON);
