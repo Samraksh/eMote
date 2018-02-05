@@ -971,9 +971,11 @@ Neighbor_t* NeighborTable::GetCritalSyncNeighborWOldestSyncPtr(const UINT64& cur
 
 					if(Neighbor[tableIndex].LastTimeSyncRequestTime == 0  || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > forcererequest_limit ){
 						rn = &Neighbor[tableIndex];
+						return rn;
 					}
-					else if(Neighbor[tableIndex].IsInitializationTimeSamplesNeeded() && curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > fast_disco_request_interval){
+					else if(Neighbor[tableIndex].IsInitializationTimeSamplesNeeded() && (Neighbor[tableIndex].LastTimeSyncRequestTime == 0  || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > fast_disco_request_interval)  ){
 						rn = &Neighbor[tableIndex];
+						return rn;
 					}
 				}
 			}
