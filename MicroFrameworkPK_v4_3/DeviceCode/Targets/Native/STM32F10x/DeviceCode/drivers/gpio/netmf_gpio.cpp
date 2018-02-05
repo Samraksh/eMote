@@ -264,8 +264,12 @@ HAL_CALLBACK_FPN GPIO_GetCallBack(GPIO_PIN Pin)
 BOOL CPU_GPIO_Initialize()
 {
 	// Configure clock source for all gpio ports
+#ifndef PLATFORM_ARM_AUSTERE
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
 										RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOF | RCC_APB2Periph_GPIOG | RCC_APB2Periph_AFIO, ENABLE);
+#else
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_AFIO, ENABLE); // Austere only has/uses GPIOs ABC
+#endif // PLATFORM_ARM_AUSTERE
 
 	return TRUE;
 }
@@ -281,6 +285,7 @@ BOOL CPU_GPIO_Uninitialize()
 	//GPIOC
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOC, ENABLE);
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOC, DISABLE);
+#ifndef PLATFORM_ARM_AUSTERE
 	//GPIOD
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOD, ENABLE);
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOD, DISABLE);
@@ -293,6 +298,7 @@ BOOL CPU_GPIO_Uninitialize()
 	//GPIOG
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOG, ENABLE);
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOG, DISABLE);
+#endif
 	//AFIO
 	RCC_APB2PeriphResetCmd(RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB2PeriphResetCmd(RCC_APB2Periph_AFIO, DISABLE);
