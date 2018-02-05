@@ -104,7 +104,9 @@ static void set_debug_pin(int go) {
 		GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_RESET);
 #endif
 }
-#endif
+#else
+#define set_debug_pin(x)
+#endif // PLATFORM_EMOTE_AUSTERE
 
 
 #ifdef EMOTE_WAKELOCKS

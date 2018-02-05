@@ -74,10 +74,6 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
 {
     bool enterBooterMode = false;
 
-#ifdef PLATFORM_EMOTE_AUSTERE
-	return false;
-#endif
-
 	CPU_GPIO_EnableInputPin3((GPIO_PIN) INPUT_REBOOT_PIN, TRUE, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	
 	if(CPU_GPIO_GetPinState((GPIO_PIN) INPUT_REBOOT_PIN) == FALSE)
