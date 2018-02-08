@@ -381,14 +381,6 @@ void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 		return;
 	}
 
-	// HACK HACK HACK
-	// Due to C# fail, we will try to init this pin. It is not an output.
-	// Don't let that happen
-#ifdef PLATFORM_EMOTE_AUSTERE
-	if (Pin == (GPIO_PIN)28)
-		return;
-#endif
-
 	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
 	uint16_t pinInHex = GPIO_GetPin(Pin);
 	CPU_GPIO_SetPinState(Pin, InitialState);

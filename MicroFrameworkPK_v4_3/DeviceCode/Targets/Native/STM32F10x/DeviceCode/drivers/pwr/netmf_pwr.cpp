@@ -705,7 +705,6 @@ void Sleep() {
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
-			set_debug_pin(1); // delete me
 			RTC_WaitForSynchro();
 			aft = RTC_GetCounter(); // align_to_rtc2() not needed because redundant with WaitForSyncrho() but ONLY FOR LOW-POWER CASE
 			TIM_Cmd(TIM1, ENABLE);
@@ -718,7 +717,6 @@ void Sleep() {
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
-			set_debug_pin(1); // delete me
 			Mid_Power();
 			RTC_WaitForSynchro();
 			aft = align_to_rtc2();
@@ -731,7 +729,6 @@ void Sleep() {
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
-			set_debug_pin(1); // delete me
 			High_Power();
 			RTC_WaitForSynchro();
 			aft = align_to_rtc2();
@@ -769,7 +766,6 @@ void Sleep() {
 	// Long term error is about right for a 5-10ppm source (~10x better) but a real source of error if <= 1ppm.
 	// Then again, the HSI contributes too and is something like 50,000 ppm so this is fundamentally broken anyway
 
-	set_debug_pin(0); // delete me
 	irq.Release();
 }
 

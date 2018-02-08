@@ -26,13 +26,8 @@ typedef uint16_t ushort;
 
 // #define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
 
-// TEMPORARY UNTIL NEW PLATFORM CREATED
-#define PLATFORM_EMOTE_AUSTERE
 
 
-
-
-//#define AUSTERE_NO_CAP_TIMEOUT // Disabled by default. Disables capacitor timeout. Need timeout because "good" signal is unreliable.
 //#define EMOTE_COMPLETIONS_STARTUP_WAIT // Only allow snooze mode for 1 minute after boot.
 #define EMOTE_DEEP_SLEEP_MIN 5000 // microseconds. Sleep intervals less than this will only snooze
 
