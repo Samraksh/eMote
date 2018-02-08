@@ -38,7 +38,7 @@ typedef uint16_t ushort;
 
 #if defined(PLATFORM_ARM_Austere)
 #define HAL_SYSTEM_NAME                     "Austere"
-#define SAM_VERSION_REVISION 68
+#define SAM_VERSION_REVISION 70
 #define TINYBOOTER_REVISION 2
 //#define COMPILE_CUSTOMER_RELEASE 1
 
