@@ -242,7 +242,12 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 	}
 #else
 	UINT64 now = HAL_Time_CurrentTicks();
-	UINT32 sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(Expire - now));
+	UINT64 sleepTime = Expire - now;
+
+	UINT32 sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(sleepTime));
+	if ((sleepTimeMicroseconds < 0) | (sleepTimeMicroseconds > 10000000)){
+		sleepTimeMicroseconds = 10000000;
+	}
 
 	if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
 		if(state & c_SetCompare){
