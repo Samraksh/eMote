@@ -220,7 +220,15 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 	} else {
 		UINT64 now = HAL_Time_CurrentTicks();
 		if (now > waitTime) {
-			UINT32 sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(Expire - now));
+			UINT64 sleepTime = 0;
+			UINT32 sleepTimeMicroseconds = 100;
+			if (Expire > now) {
+				sleepTime = Expire - now;
+				sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(sleepTime));
+			} else {
+				sleepTime = 0;
+				sleepTimeMicroseconds = 100;
+			}
 			//CPU_GPIO_SetPinState(25,true);
 			if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
 				if(state & c_SetCompare){
@@ -242,11 +250,15 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 	}
 #else
 	UINT64 now = HAL_Time_CurrentTicks();
-	UINT64 sleepTime = Expire - now;
+	UINT64 sleepTime = 0;
 
-	UINT32 sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(sleepTime));
-	if ((sleepTimeMicroseconds < 0) | (sleepTimeMicroseconds > 10000000)){
-		sleepTimeMicroseconds = 10000000;
+	UINT32 sleepTimeMicroseconds = 100;
+	if (Expire > now) {
+		sleepTime = Expire - now;
+		sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(sleepTime));
+	} else {
+		sleepTime = 0;
+		sleepTimeMicroseconds = 100;
 	}
 
 	if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
@@ -258,6 +270,7 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 		if(state & c_SetCompare) HAL_Time_SetCompare( Expire  );
 			CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
 	}
+	
 #endif
 
 #else
