@@ -183,7 +183,8 @@ void HAL_COMPLETION::Abort()
 
 //--//
 
-#ifdef EMOTE_COMPLETIONS_STARTUP_WAIT
+//#ifdef EMOTE_COMPLETIONS_STARTUP_WAIT
+#if 1
 static UINT64 waitTime = 0;
 #endif
 
@@ -213,7 +214,8 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
     }
 #ifndef DISABLE_SLEEP
 #if defined( SAM_APP_TINYCLR )
-#ifdef EMOTE_COMPLETIONS_STARTUP_WAIT
+//#ifdef EMOTE_COMPLETIONS_STARTUP_WAIT
+#if 1
 	if (waitTime == 0){
 		// If we ever attempt to enter deep sleep then we are not able to program, so for now, since wakelock is not sufficient, we wait a minute before attempting sleep allowing the user time to reprogram.
 		waitTime = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * 60 * 1);

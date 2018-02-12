@@ -75,7 +75,7 @@ void ApplicationEntryPoint()
         enterBootMode = WaitForTinyBooterUpload( timeout );
     }
 
-#if defined (ENABLE_TINYOS_HACK) && (TINYOS_BOOT_MAGIC) && ((PLATFORM_ARM_EmoteDotNow)||PLATFORM_ARM_WLN||PLATFORM_ARM_Austere) && (TINYOS_BOOT_MAGIC_LOC)
+#if defined (ENABLE_TINYOS_HACK) && (TINYOS_BOOT_MAGIC) && ((PLATFORM_ARM_EmoteDotNow)||PLATFORM_ARM_WLN||PLATFORM_ARM_AUSTERE) && (TINYOS_BOOT_MAGIC_LOC)
 { // This is basically a condensed version of ::Launch, which is private, and I'm lazy
 	int check_tinyos = *(volatile unsigned int *)TINYOS_BOOT_MAGIC_LOC;
 	if (check_tinyos == TINYOS_BOOT_MAGIC && !enterBootMode) {
