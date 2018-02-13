@@ -387,6 +387,15 @@ void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 		return;
 	}
 
+	// The interop Samraksh_eMote_DotNow was used in the Fence app which automatically enables pin 28 for the LCD
+	// We need to develop a separate interop for every platform to avoid such problems, however for the Austere, this will work
+	// Don't let that happen
+#ifdef PLATFORM_EMOTE_AUSTERE
+	if (Pin == (GPIO_PIN)28)
+		return;
+#endif
+	
+
 	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
 	uint16_t pinInHex = GPIO_GetPin(Pin);
 	CPU_GPIO_SetPinState(Pin, InitialState);
