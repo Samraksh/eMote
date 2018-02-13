@@ -669,7 +669,8 @@ void Sleep() {
 
 	USART_Flush(0); // Flush USART1 / COM0 before we sleep
 	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, ENABLE);
-	GLOBAL_LOCK(irq); // After sleep clocks are potentially unstable, so lock until returned.
+	ASSERT_IRQ_MUST_BE_OFF();
+	//GLOBAL_LOCK(irq); // Should already be locked from caller
 
 	if (check_pending_isr()) { // Must ensure something didn't slip in
 		NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
@@ -768,7 +769,7 @@ void Sleep() {
 	// Long term error is about right for a 5-10ppm source (~10x better) but a real source of error if <= 1ppm.
 	// Then again, the HSI contributes too and is something like 50,000 ppm so this is fundamentally broken anyway
 
-	irq.Release();
+	//irq.Release(); // Should already be locked from caller
 }
 
 // Shouldn't be used, possibly for unrecoverable error in debug mode.
