@@ -62,6 +62,7 @@ BOOL CPU_JTAG_Attached();
 void CPU_Sleep           (SLEEP_LEVEL level, UINT64 wakeEvents);
 void CPU_ChangePowerLevel(POWER_LEVEL level);
 BOOL CPU_IsSoftRebootSupported();
+BOOL CPU_Sleep_WakeLock_Status();
 
 #endif // _DRIVERS_POWER_DECL_H_
 

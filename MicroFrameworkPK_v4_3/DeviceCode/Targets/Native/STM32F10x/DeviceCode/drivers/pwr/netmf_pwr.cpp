@@ -110,8 +110,8 @@ static void set_debug_pin(int go) {
 
 
 #ifdef EMOTE_WAKELOCKS
-static volatile uint32_t wakelock;
-static volatile UINT64 waketime;
+static uint32_t wakelock;
+static UINT64 waketime;
 
 void WakeLockInit(void) {
 	wakelock = 0;
@@ -154,20 +154,27 @@ void WakeUntil(UINT64 until) {
 	waketime = until;
 }
 
-uint32_t GetWakeLock(void) {
-	return wakelock;
-}
-
-UINT64 GetWakeUntil(void) {
-	return waketime;
+bool GetWakeLocked(void) {
+	bool doWFI;
+	ASSERT_IRQ_MUST_BE_OFF();
+	if (wakelock) { doWFI = TRUE; }
+	else if (waketime > 0) {
+		UINT64 now = HAL_Time_CurrentTicks();
+		if (waketime >= now) {
+			doWFI = TRUE; // Wakelocked
+		} else {
+			waketime = 0;
+			doWFI = FALSE;
+		}
+	} else { doWFI = FALSE; }
+	return doWFI;
 }
 
 #else // EMOTE_WAKELOCKS
 void WakeLock(uint32_t lock) {}
 void WakeUnlock(uint32_t lock) {}
 void WakeUntil(UINT64 until) {}
-uint32_t GetWakeLock(void) {return 0;}
-UINT64 GetWakeUntil(void) {return 0;}
+bool GetWakeLocked(void) {return false;}
 void WakeLockInit(void) {}
 #endif // EMOTE_WAKELOCKS
 
@@ -272,9 +279,7 @@ void PowerInit() {
 	RCC_LSICmd(DISABLE);
 	RTC_wakeup_init();
 
-#ifdef EMOTE_WAKELOCKS
 	WakeLockInit();
-#endif
 }
 
 static void do_hsi_measure() {
@@ -644,25 +649,9 @@ void Snooze() {
 void Sleep() {
 
 #ifdef EMOTE_WAKELOCKS
-	BOOL doWFI = FALSE;
-
-	if (waketime > 0) {
-		UINT64 now = HAL_Time_CurrentTicks();
-		if (waketime > now) {
-			doWFI = TRUE; // Wakelocked
-		}
-		else {
-		waketime = 0; // Time is past, clear the time and continue to sleep
-	}
-	}
-
-	if (wakelock) { // A driver has signaled a wakelock
-		doWFI = TRUE; // Wakelocked
-	}
-
-	if (doWFI) { // If wakelocked, use snooze mode.
-	__DSB();
-	__WFI();
+	if ( GetWakeLocked() ) { // If wakelocked, use snooze mode.
+		__DSB();
+		__WFI();
 		return; // Sleep completed, done here.
 	}
 #endif // EMOTE_WAKELOCKS

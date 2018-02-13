@@ -6,8 +6,7 @@
 extern void WakeLock(uint32_t lock);
 extern void WakeUnlock(uint32_t lock);
 extern void WakeUntil(UINT64 until);
-extern uint32_t GetWakeLock(void);
-extern UINT64 GetWakeUntil(void);
+extern bool GetWakeLocked(void);
 extern void WakeLockInit(void);
 
 #endif // #ifndef _NETMF_POWER_H_
