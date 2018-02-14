@@ -193,5 +193,9 @@ void Time_Driver::Sleep_uSec_Loop( UINT32 uSec )
 // timeToAdd is in 100-nanosecond (ns) increments. This is a Microsoft thing.
 void Time_Driver::AddClockTime(UINT64 timeToAdd)
 {
+	// After waking up, we calculated how much time needs to be added to the system clock
+	// TODO: we probably need to add this time to ever timer
 	CPU_AddClockTime(ADVTIMER_32BIT, timeToAdd);
+	// After updating the timers, we need to set the alarms again.
+	VirtTimer_UpdateAlarms();
 }

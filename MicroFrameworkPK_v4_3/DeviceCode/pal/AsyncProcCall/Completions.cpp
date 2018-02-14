@@ -3,6 +3,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "tinyhal.h"
+#if defined( SAM_APP_TINYCLR )
+#include <Samraksh/VirtualTimer.h>
+#endif
 /***************************************************************************/
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
@@ -224,25 +227,31 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 		if (now > waitTime) {
 			UINT64 sleepTime = 0;
 			UINT32 sleepTimeMicroseconds = 100;
+
+			// Here we check to see when the next VT timer will go off.
+			// Currently we only check the same timer that the system time is based off of
+			// TODO: check all hardware timers (which each has a different system time and thus we need to figure out when to wake up)
+			UINT64 nextVtAlarm = VirtTimer_GetNextAlarm();			
+			// If the next alarm is earlier than Expire, we set the wakeup time (slightly) before Expire
+			// The alarms will be updated before sleep and the next time we come through this section of code we won't enter deep sleep			
+			if (nextVtAlarm < Expire)
+				Expire = nextVtAlarm - 32000;
+
 			if (Expire > now) {
 				sleepTime = Expire - now;
 				sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(sleepTime));
-			} else {
-				sleepTime = 0;
-				sleepTimeMicroseconds = 100;
-			}
-			//CPU_GPIO_SetPinState(25,true);
-			if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
-				if(state & c_SetCompare){
-					HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );
-					CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
+			 
+				if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
+					if(state & c_SetCompare){
+						HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );
+						CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
+					}
+				} else {
+					// sleep times < 5 ms will snooze with HF clock
+					if(state & c_SetCompare) HAL_Time_SetCompare( Expire  );
+						CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
 				}
-			} else {
-				// sleep times < 5 ms will snooze with HF clock
-				if(state & c_SetCompare) HAL_Time_SetCompare( Expire  );
-					CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
 			}
-			//CPU_GPIO_SetPinState(25,false);
 		} else {
 			if(state & c_SetCompare) {
 				HAL_Time_SetCompare( Expire );
@@ -258,19 +267,16 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 	if (Expire > now) {
 		sleepTime = Expire - now;
 		sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(sleepTime));
-	} else {
-		sleepTime = 0;
-		sleepTimeMicroseconds = 100;
-	}
-
-	if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
-		if(state & c_SetCompare){
-			HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );
-			CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
+	
+		if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
+			if(state & c_SetCompare){
+				HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );
+				CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
+			}
+		} else {
+			if(state & c_SetCompare) HAL_Time_SetCompare( Expire  );
+				CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
 		}
-	} else {
-		if(state & c_SetCompare) HAL_Time_SetCompare( Expire  );
-			CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
 	}
 	
 #endif

@@ -259,6 +259,7 @@ public:
 	inline BOOL VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTimerIndex);
 
 	void SetAlarmForTheNextTimer();
+	UINT64 GetNextAlarm();
 
 };
 
@@ -298,7 +299,8 @@ public:
 	void VirtTimer_SleepMicroseconds(UINT8 timer_id, UINT32 uSec);
 
 	UINT32 VirtTimer_GetMaxTicks(UINT8 timer_id);
-
+	UINT64 VirtTimer_GetNextAlarm();
+	void VirtTimer_UpdateAlarms();
 
 
 #endif

@@ -249,6 +249,32 @@ BOOL VirtualTimerMapper::IsRunning(UINT8 timer_id)
 
 }
 
+UINT64 VirtualTimerMapper::GetNextAlarm(){
+	UINT16 i;
+	// looking to see which timer will be called the earliest
+	if(!is_callback_running){
+		UINT16 nextTimer = 0;
+		UINT64 smallestTicks = cTimerMax64Value;
+		bool timerInQueue = false;
+		for(i = 0; i < m_current_timer_cnt_; i++) {
+			if(g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
+			{
+				if(g_VirtualTimerInfo[i].get_m_ticks_when_match_() <= smallestTicks)
+				{
+					smallestTicks = g_VirtualTimerInfo[i].get_m_ticks_when_match_();
+					nextTimer = i;
+					timerInQueue = true;
+				}
+			}
+		}
+
+		if(timerInQueue) {
+			return g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_();
+		} else {
+			return cTimerMax64Value;
+		}
+	}
+}
 
 void VirtualTimerMapper::SetAlarmForTheNextTimer(){
 	UINT16 i;
@@ -285,9 +311,6 @@ void VirtualTimerMapper::SetAlarmForTheNextTimer(){
 		else{
 			m_current_timer_running_ = g_VirtualTimerPerHardwareTimer;
 		}
-	}
-	else{
-		//hal_printf("SetAlarmForTheNextTimer from withing callback");
 	}
 }
 
