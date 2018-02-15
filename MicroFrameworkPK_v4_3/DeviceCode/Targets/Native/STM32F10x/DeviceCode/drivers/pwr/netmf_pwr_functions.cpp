@@ -1,6 +1,6 @@
-//#include <cores\arm\include\cpu.h>
 #include <tinyhal.h>
 #include "netmf_pwr.h"
+#include "netmf_pwr_wakelock.h"
 
 BOOL CPU_Initialize() {
 	PowerInit();
@@ -26,6 +26,10 @@ void CPU_ChangePowerLevel(POWER_LEVEL level) {
 			Low_Power();
             break;
     }
+}
+
+BOOL CPU_Sleep_WakeLock_Status() {
+	return GetWakeLocked();
 }
 
 void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents ) {
