@@ -232,10 +232,10 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 			// Currently we only check the same timer that the system time is based off of
 			// TODO: check all hardware timers (which each has a different system time and thus we need to figure out when to wake up)
 			UINT64 nextVtAlarm = VirtTimer_GetNextAlarm();			
-			// If the next alarm is earlier than Expire, we set the wakeup time (slightly) before Expire
-			// The alarms will be updated before sleep and the next time we come through this section of code we won't enter deep sleep			
+			// If the next alarm is earlier than Expire, we set Expire to be the wakeup alarm
+			// The alarms will be updated after sleep
 			if (nextVtAlarm < Expire)
-				Expire = nextVtAlarm - 32000;
+				Expire = nextVtAlarm;
 
 			if (Expire > now) {
 				sleepTime = Expire - now;
