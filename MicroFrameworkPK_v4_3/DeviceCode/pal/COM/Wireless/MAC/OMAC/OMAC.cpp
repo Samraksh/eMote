@@ -845,11 +845,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				for(UINT8 i=0; i < numNfits ; ++i){
 					macinfo_msg = (MACNeighborInfo*) (msg->GetPayload() + location_in_packet_payload);
 					macinfo_msg2 = (MACNeighborLinkInfo*) (msg->GetPayload() + location_in_packet_payload + (numNfits-i) * sizeof(MACNeighborInfo) + i * sizeof(MACNeighborLinkInfo));
-					hal_printf("   EMI MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u, SLR=%c%c%c%c%c%c%c%c, RLRSSI = %u\r\n"
+					hal_printf("   EMI MAC=%u, S=%u, A=%u, SN=%u, NTSS=%u, NTSR=%u, SLR=%c%c%c%c%c%c%c%c, RLRSSI = %u\r\n"
 							, macinfo_msg->MACAddress
 							, macinfo_msg->neighborStatus
 							, macinfo_msg->IsAvailableForUpperLayers
-							, macinfo_msg->NumTimeSyncMessagesSent
+							, mac_info_msg->IsMyScheduleKnown
+							, macinfo_msg->NumInitializationMessagesSent
 							, macinfo_msg->NumTimeSyncMessagesRecv
 							, UINT_TO_BINARY(macinfo_msg2->SendLink.Link_reliability_bitmap)
 							, macinfo_msg2->ReceiveLink.AvgRSSI
@@ -863,11 +864,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				for(UINT8 i=0; i < numNfits ; ++i){
 					macinfo_msg = (MACNeighborInfo*) (msg->GetPayload() + location_in_packet_payload);
 					macinfo_msg2 = (MACNeighborLinkInfo*) (msg->GetPayload() + location_in_packet_payload + (numNfits-i) * sizeof(MACNeighborInfo) + i * sizeof(MACNeighborLinkInfo));
-					hal_printf("   EMI MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u\r\n"
+					hal_printf("   EMI MAC=%u, S=%u, A=%u, SN=%u, NTSS=%u, NTSR=%u\r\n"
 							, macinfo_msg->MACAddress
 							, macinfo_msg->neighborStatus
 							, macinfo_msg->IsAvailableForUpperLayers
-							, macinfo_msg->NumTimeSyncMessagesSent
+							, macinfo_msg->IsMyScheduleKnown
+							, macinfo_msg->NumInitializationMessagesSent
 							, macinfo_msg->NumTimeSyncMessagesRecv
 					);
 					location_in_packet_payload += sizeof(MACNeighborInfo);
@@ -1359,11 +1361,12 @@ void OMACType::PrintNeighborTable(){
 	for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; ++tableIndex){
 		if(    g_NeighborTable.Neighbor[tableIndex].MACAddress != 0 && g_NeighborTable.Neighbor[tableIndex].MACAddress != 65535 ){
 
-			hal_printf("  MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u, SLR=%c%c%c%c%c%c%c%c, RLRSSI = %u, LHT = %llu, CT = %llu \r\n "
+			hal_printf("  MAC=%u, S=%u, A=%u, SN=%u, NTSS=%u, NTSR=%u, SLR=%c%c%c%c%c%c%c%c, RLRSSI = %u, LHT = %llu, CT = %llu \r\n "
 					, g_NeighborTable.Neighbor[tableIndex].MACAddress
 					, g_NeighborTable.Neighbor[tableIndex].neighborStatus
 					, g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers
-					, g_NeighborTable.Neighbor[tableIndex].NumTimeSyncMessagesSent
+					, g_NeighborTable.Neighbor[tableIndex].IsMyScheduleKnown
+					, g_NeighborTable.Neighbor[tableIndex].NumInitializationMessagesSent
 					, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[tableIndex].MACAddress)
 					, UINT_TO_BINARY(g_NeighborTable.Neighbor[tableIndex].SendLink.Link_reliability_bitmap)
 					, g_NeighborTable.Neighbor[tableIndex].ReceiveLink.AvgRSSI

@@ -102,9 +102,9 @@ enum NeighborStatus {
 typedef struct {
 	UINT16 MACAddress;
 	UINT8 NumInitializationMessagesSent;	//Count of timesync+disco packets sent per neighbor
-
+	bool IsMyScheduleKnown;
 	bool IsInitializationTimeSamplesNeeded(){
-		if( NumInitializationMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS) return true;
+		if(IsSendingMyScheduleNeeded() || NumInitializationMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS) return true;
 		else return false;
 	}
 	void IncrementNumInitMessagesSent(){
@@ -115,6 +115,12 @@ typedef struct {
 			}
 		}
 
+	}
+	inline bool IsSendingMyScheduleNeeded(){
+		return !IsMyScheduleKnown;
+	}
+	void RecordMyScheduleSent(){
+		IsMyScheduleKnown = true;
 	}
 	//Send (formerly forward) link details between current and neighbor node
 	Link_t SendLink;
@@ -161,6 +167,7 @@ typedef struct {
 
 		MACAddress = INVALID_MACADDRESS;
 		NumInitializationMessagesSent = 0;
+		IsMyScheduleKnown = false;
 		//		SendLink.AvgRSSI = 0;
 		//		SendLink.LinkQuality = 0;
 		//		SendLink.AveDelay = 0;
@@ -738,12 +745,14 @@ DeviceStatus NeighborTable::FindOrInsertNeighbor(const UINT16 address, UINT8* in
 			if(retValue == DS_Success) {
 				Neighbor[*index].MACAddress = address;
 				Neighbor[*index].NumInitializationMessagesSent = 0;
+				Neighbor[*index].IsMyScheduleKnown = false;
 				DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Inserting Neighbor %hu.\n", address);
 			}
 		}
 		else{
 			if(Neighbor[*index].neighborStatus != Alive){
 				Neighbor[*index].NumInitializationMessagesSent = 0;
+				Neighbor[*index].IsMyScheduleKnown = false;
 			}
 		}
 	}
@@ -990,6 +999,7 @@ struct PACK MACNeighborInfo	//6bytes
 	UINT16 MACAddress;
 	NeighborStatus neighborStatus;
 	bool IsAvailableForUpperLayers;
+	bool IsMyScheduleKnown;
 	UINT8 NumInitializationMessagesSent;
 	UINT8 NumTimeSyncMessagesRecv;
 };

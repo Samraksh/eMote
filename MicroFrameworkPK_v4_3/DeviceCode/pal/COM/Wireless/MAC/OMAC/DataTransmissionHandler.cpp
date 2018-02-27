@@ -328,6 +328,7 @@ void DataTransmissionHandler::DropPacket(){
 		//		}
 		//		if(m_outgoingEntryPtr->GetHeaderConst()->GetFlagsConst() & MFM_TIMESYNC_FLAG){
 		//			neigh_ptr->IncrementNumInitMessagesSent();
+		//			neigh_ptr->RecordMyScheduleSent();
 		//		}
 		//
 		//
@@ -339,7 +340,7 @@ void DataTransmissionHandler::DropPacket(){
 		if(neigh_ptr->IsInitializationTimeSamplesNeeded() && g_NeighborTable.IsThereATSRPacketWithDest(m_outgoingEntryPtr_dest) && m_outgoingEntryPtr == g_NeighborTable.FindTSRPacketForNeighbor(m_outgoingEntryPtr_dest)  ) {
 #if OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
 			hal_printf("Dropping TSR Packet SUCCESS NumTimeSyncMessagesSent = %u < INITIAL_RETRY_BACKOFF_WINDOW_SIZE dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
-					, neigh_ptr->NumTimeSyncMessagesSent
+					, neigh_ptr->NumInitializationMessagesSent
 					, m_outgoingEntryPtr->GetHeader()->dest
 					, m_outgoingEntryPtr->GetHeader()->payloadType
 					, m_outgoingEntryPtr->GetHeader()->flags
@@ -352,6 +353,7 @@ void DataTransmissionHandler::DropPacket(){
 
 			if((m_outgoingEntryPtr->GetHeader()->flags & MFM_DISCOVERY_FLAG) && (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)) //Increment only if both of complete initialization info was sent out
 				neigh_ptr->IncrementNumInitMessagesSent();
+				neigh_ptr->RecordMyScheduleSent();
 
 
 		}
@@ -376,6 +378,7 @@ void DataTransmissionHandler::DropPacket(){
 				}
 				if((m_outgoingEntryPtr->GetHeader()->flags & MFM_DISCOVERY_FLAG) && (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)) //Increment only if both of complete initialization info was sent out
 					neigh_ptr->IncrementNumInitMessagesSent();
+					neigh_ptr->RecordMyScheduleSent();
 
 			}
 			if(true){
@@ -399,6 +402,7 @@ void DataTransmissionHandler::DropPacket(){
 			if( (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)){
 				if((m_outgoingEntryPtr->GetHeader()->flags & MFM_DISCOVERY_FLAG) && (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)) //Increment only if both of complete initialization info was sent out
 					neigh_ptr->IncrementNumInitMessagesSent();
+					neigh_ptr->RecordMyScheduleSent();
 			}
 
 			g_NeighborTable.DeletePacket(m_outgoingEntryPtr);
