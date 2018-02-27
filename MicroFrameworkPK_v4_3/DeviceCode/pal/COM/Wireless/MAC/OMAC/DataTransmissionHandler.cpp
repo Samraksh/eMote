@@ -327,7 +327,7 @@ void DataTransmissionHandler::DropPacket(){
 		//			SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
 		//		}
 		//		if(m_outgoingEntryPtr->GetHeaderConst()->GetFlagsConst() & MFM_TIMESYNC_FLAG){
-		//			neigh_ptr->IncrementNumTimeSyncMessagesSent();
+		//			neigh_ptr->IncrementNumInitMessagesSent();
 		//		}
 		//
 		//
@@ -349,7 +349,9 @@ void DataTransmissionHandler::DropPacket(){
 			g_NeighborTable.DeletePacket(m_outgoingEntryPtr);
 			//			neigh_ptr->tsr_send_buffer.DropOldest(1);
 			neigh_ptr->SendLink.RecordPacketSuccess(true);
-			neigh_ptr->IncrementNumTimeSyncMessagesSent();
+
+			if((m_outgoingEntryPtr->GetHeader()->flags & MFM_DISCOVERY_FLAG) && (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)) //Increment only if both of complete initialization info was sent out
+				neigh_ptr->IncrementNumInitMessagesSent();
 
 
 		}
@@ -372,7 +374,8 @@ void DataTransmissionHandler::DropPacket(){
 				while((g_NeighborTable.IsThereATSRPacketWithDest(m_outgoingEntryPtr_dest))){
 					g_NeighborTable.DeletePacket(g_NeighborTable.FindTSRPacketForNeighbor(m_outgoingEntryPtr_dest));
 				}
-				neigh_ptr->IncrementNumTimeSyncMessagesSent();
+				if((m_outgoingEntryPtr->GetHeader()->flags & MFM_DISCOVERY_FLAG) && (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)) //Increment only if both of complete initialization info was sent out
+					neigh_ptr->IncrementNumInitMessagesSent();
 
 			}
 			if(true){
@@ -394,7 +397,8 @@ void DataTransmissionHandler::DropPacket(){
 			//			ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
 			//			neigh_ptr->tsr_send_buffer.DropOldest(1);
 			if( (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)){
-				neigh_ptr->IncrementNumTimeSyncMessagesSent();
+				if((m_outgoingEntryPtr->GetHeader()->flags & MFM_DISCOVERY_FLAG) && (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)) //Increment only if both of complete initialization info was sent out
+					neigh_ptr->IncrementNumInitMessagesSent();
 			}
 
 			g_NeighborTable.DeletePacket(m_outgoingEntryPtr);

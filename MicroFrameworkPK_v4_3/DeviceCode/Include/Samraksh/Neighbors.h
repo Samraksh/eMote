@@ -101,16 +101,17 @@ enum NeighborStatus {
 
 typedef struct {
 	UINT16 MACAddress;
-	UINT8 NumTimeSyncMessagesSent;	//Count of timesync packets sent per neighbor
+	UINT8 NumInitializationMessagesSent;	//Count of timesync+disco packets sent per neighbor
+
 	bool IsInitializationTimeSamplesNeeded(){
-		if(NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS) return true;
+		if( NumInitializationMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS) return true;
 		else return false;
 	}
-	void IncrementNumTimeSyncMessagesSent(){
+	void IncrementNumInitMessagesSent(){
 		if( IsInitializationTimeSamplesNeeded() ) {
-			++(NumTimeSyncMessagesSent);
-			if(NumTimeSyncMessagesSent == NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS){
-				++(NumTimeSyncMessagesSent);
+			++(NumInitializationMessagesSent);
+			if(NumInitializationMessagesSent == NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS){
+				++(NumInitializationMessagesSent);
 			}
 		}
 
@@ -157,8 +158,9 @@ typedef struct {
 		//		send_buffer.Initialize();
 		//		tsr_send_buffer.Initialize();
 
+
 		MACAddress = INVALID_MACADDRESS;
-		NumTimeSyncMessagesSent = 0;
+		NumInitializationMessagesSent = 0;
 		//		SendLink.AvgRSSI = 0;
 		//		SendLink.LinkQuality = 0;
 		//		SendLink.AveDelay = 0;
@@ -735,13 +737,13 @@ DeviceStatus NeighborTable::FindOrInsertNeighbor(const UINT16 address, UINT8* in
 			retValue = GetFreeIdx(index);
 			if(retValue == DS_Success) {
 				Neighbor[*index].MACAddress = address;
-				Neighbor[*index].NumTimeSyncMessagesSent = 0;
+				Neighbor[*index].NumInitializationMessagesSent = 0;
 				DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Inserting Neighbor %hu.\n", address);
 			}
 		}
 		else{
 			if(Neighbor[*index].neighborStatus != Alive){
-				Neighbor[*index].NumTimeSyncMessagesSent = 0;
+				Neighbor[*index].NumInitializationMessagesSent = 0;
 			}
 		}
 	}
@@ -988,7 +990,7 @@ struct PACK MACNeighborInfo	//6bytes
 	UINT16 MACAddress;
 	NeighborStatus neighborStatus;
 	bool IsAvailableForUpperLayers;
-	UINT8 NumTimeSyncMessagesSent;
+	UINT8 NumInitializationMessagesSent;
 	UINT8 NumTimeSyncMessagesRecv;
 };
 
