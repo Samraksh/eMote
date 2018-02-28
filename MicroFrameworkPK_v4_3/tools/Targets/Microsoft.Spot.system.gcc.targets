@@ -213,7 +213,7 @@
 
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(CLRROOT)\$(Directory)</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\DeviceCode\include</CC_CPP_INCS>
-    <CC_CPP_INCS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_INCS) -I$(CLRROOT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis -I$(CLRROOT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\stmlib</CC_CPP_INCS>
+    <CC_CPP_INCS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_INCS) -I$(CLRROOT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis -I$(CLRROOT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\stmlib -I$(CLRROOT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\DeviceCode\Cores\arm</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\Support\Include  </CC_CPP_INCS>
 	<CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\fsmc\P30BF65NOR  </CC_CPP_INCS>

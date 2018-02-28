@@ -1,0 +1,47 @@
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AssemblyName>Austere_extra</AssemblyName>
+    <ProjectGuid>{28d61b56-2748-42b7-8dc1-e6b77d2fce5f}</ProjectGuid>
+    <Size>
+    </Size>
+    <Description>Austere Misc Support</Description>
+    <Level>HAL</Level>
+    <LibraryFile>austere_extra.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\austere\dotNetMF.proj</ProjectPath>
+    <ManifestFile>austere_extra.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Processor\STM32F10x</Groups>
+    <LibraryCategory>
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="spi_HAL" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" Conditional="" xmlns="">
+        <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
+          <Major>4</Major>
+          <Minor>0</Minor>
+          <Revision>0</Revision>
+          <Build>0</Build>
+          <Extra />
+          <Date>2010-07-01</Date>
+        </VersionDependency>
+        <ComponentType xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">LibraryCategory</ComponentType>
+      </MFComponent>
+    </LibraryCategory>
+    <Documentation>
+    </Documentation>
+    <PlatformIndependent>False</PlatformIndependent>
+    <CustomFilter>
+    </CustomFilter>
+    <Required>False</Required>
+    <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
+    <IsStub>False</IsStub>
+    <Directory>DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\austere</Directory>
+    <OutputType>Library</OutputType>
+    <PlatformIndependentBuild>false</PlatformIndependentBuild>
+    <Version>4.0.0.0</Version>
+  </PropertyGroup>
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <PropertyGroup />
+  <ItemGroup>
+	<HFiles Include="austere.h"/>
+	<Compile Include="austere.cpp"/>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+</Project>

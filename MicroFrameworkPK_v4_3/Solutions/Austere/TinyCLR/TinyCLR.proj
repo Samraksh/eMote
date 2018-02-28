@@ -625,6 +625,11 @@
   
   
   <!--     - - - - - - - -               Samraksh's Extensions   - - - - - - - -                  -->
+  <!--     - - - - - - - -               Platform Extensions   - - - - - - - -                    -->
+    <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\austere\dotNetMF.proj" />
+    <DriverLibs Include="austere_extra.$(LIB_EXT)" />
+  </ItemGroup>
   <!-- 									Hardware Extension        								-->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote\dotNetMF.proj" />
