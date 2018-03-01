@@ -740,8 +740,32 @@ UINT8 CPU_RadioLayer_NumberRadiosSupported()
 }
 
 // default state is sleep, so CSMA needs to call this to keep RX always on
-UINT32 CPU_Radio_SetDefaultRxState(UINT8 state){
-	if (state == 0){
-		si446x_hal_set_default_state(SI_STATE_RX);
+DeviceStatus CPU_Radio_SetDefaultRxState(UINT8 radioID, UINT8 state){
+	DeviceStatus status = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			//status = grf231Radio.TurnOnRx();
+			break;
+		case RF231RADIOLR:
+			//status = grf231RadioLR.TurnOnRx();
+			break;
+		case SI4468_SPI2:
+			if (state == 0){
+				si446x_hal_set_default_state(SI_STATE_RX);
+				status = DS_Success;
+			}
+			else if(state == 1){
+				si446x_hal_set_default_state(SI_STATE_SLEEP);
+				status = DS_Success;
+			}
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
 	}
+
+	return status;
+
 }
