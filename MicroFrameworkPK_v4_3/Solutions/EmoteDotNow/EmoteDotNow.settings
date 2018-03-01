@@ -18,8 +18,10 @@
   <ItemGroup>
     <IncludePaths Include="Solutions\EmoteDotNow" />
     <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis" />
+	<IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\stmlib" />
     <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers" />
     <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\processor" />
+	<IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\fsmc\P30BF65NOR" />
   </ItemGroup>
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\STM32F10x.settings" />
   <!-- Samraksh Heap and Stack settings to be propagated across ASM, C/C++, and Linker Script targets -->

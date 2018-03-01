@@ -18,6 +18,7 @@
   <ItemGroup>
     <IncludePaths Include="Solutions\Austere" />
     <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis" />
+	<IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\stmlib" />
     <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers" />
     <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\processor" />
   </ItemGroup>
