@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "si446x.h"
+#include "si446x_pin_configs.h"
 
 // Hardware stuff
 #include <stm32f10x.h>
@@ -42,19 +43,11 @@ si_state_t defaultRxDoneState = SI_STATE_SLEEP;
 
 enum { SI_DUMMY=0, };
 
-// For now, memorize all WWF serial numbers
-// Yes these are strings and yes I'm a terrible person.
-// These are hex CPU serial numbers
-enum { serial_max_dotnow = 6, serial_max_wwf2=4, serial_per = 25 };
-const char dotnow_serial_numbers[serial_max_dotnow][serial_per] = { "3400dc05414d303638391043", "3600d8053259383732441543", "392dd9054355353848400843", "3400d805414d303631321043", "3400d905414d303640461443", "3400d605414d303629401043" };
-const char wwf2_serial_numbers[serial_max_wwf2][serial_per]     = { "05de00333035424643163542", "05d900333035424643162544", "3300d9054642353041381643", "3300df054642353040531643" };
-// end serial number list.
-
 // SETS SI446X PRINTF DEBUG VERBOSITY
 const unsigned si4468x_debug_level = ERR100; // CHANGE ME.
 
 // Pin list used in setup.
-static SI446X_pin_setup_t SI446X_pin_setup;
+static const SI446X_pin_setup_t *SI446X_pin_setup = NULL;
 
 // CORE LOCKING STUFF, MOVE ME LATER
 static volatile uint32_t spi_lock;
@@ -245,7 +238,7 @@ static Message_15_4_t* rx_msg_ptr;
 static void int_cont_do(void *arg) {
 	si446x_debug_print(DEBUG02,"SI446X: int_cont_do()\r\n");
 	SI446x_INT_MODE_CHECK();
-	si446x_spi2_handle_interrupt( SI446X_pin_setup.nirq_mf_pin, false, NULL );
+	si446x_spi2_handle_interrupt( SI446X_pin_setup->nirq_mf_pin, false, NULL );
 }
 
 static void sendSoftwareAck(UINT16 dest){
@@ -451,13 +444,13 @@ static unsigned get_APB2_clock() {
 	return RCC_Clocks.PCLK2_Frequency;
 }
 
-static void initSPI2() {
+static void init_radio_SPI() {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	unsigned int baud;
 	unsigned SpiBusClock;
 	SPI_InitTypeDef SPI_InitStruct;
 
-	const SI446X_pin_setup_t *config = &SI446X_pin_setup;
+	const SI446X_pin_setup_t *config = SI446X_pin_setup;
 
 	RCC_APB1PeriphClockCmd(config->spi_rcc,	ENABLE);
 	SPI_I2S_DeInit(config->spi_base);
@@ -511,26 +504,28 @@ static void initSPI2() {
 static void init_si446x_pins() {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	SI446X_pin_setup_t *config = &SI446X_pin_setup;
+	const SI446X_pin_setup_t *config = SI446X_pin_setup;
 
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Pin =  config->sdn_pin;
-#ifndef PLATFORM_ARM_AUSTERE // Power driver already does this in Austere
-	GPIO_Init(config->sdn_port, &GPIO_InitStructure);
-#endif
+	if (config->sdn_port != NULL) {
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+		GPIO_InitStructure.GPIO_Pin =  config->sdn_pin;
+		GPIO_Init(config->sdn_port, &GPIO_InitStructure);
+	}
 
-#ifndef PLATFORM_ARM_AUSTERE // not used presently, maybe conflicts with radar
 	// GPIO 0
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Pin = config->gpio0_pin;
-	GPIO_Init(config->gpio0_port, &GPIO_InitStructure);
+	if (config->gpio0_port != NULL) {
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+		GPIO_InitStructure.GPIO_Pin = config->gpio0_pin;
+		GPIO_Init(config->gpio0_port, &GPIO_InitStructure);
+	}
 
 	// GPIO 1
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Pin = config->gpio1_pin;
-	GPIO_Init(config->gpio1_port, &GPIO_InitStructure);
-#endif
+	if (config->gpio1_port != NULL) {
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+		GPIO_InitStructure.GPIO_Pin = config->gpio1_pin;
+		GPIO_Init(config->gpio1_port, &GPIO_InitStructure);
+	}
 
 	// NIRQ
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
@@ -546,26 +541,26 @@ static void init_si446x_pins() {
 
 // TODO: Pass control struct with function pointers instead of direct linking
 void radio_spi_sel_assert() {
-	GPIO_WriteBit(SI446X_pin_setup.cs_port, SI446X_pin_setup.cs_pin, Bit_RESET); // chip select
+	GPIO_WriteBit(SI446X_pin_setup->cs_port, SI446X_pin_setup->cs_pin, Bit_RESET); // chip select
 	__NOP();
 }
 
 void radio_spi_sel_no_assert() {
-	GPIO_WriteBit(SI446X_pin_setup.cs_port, SI446X_pin_setup.cs_pin, Bit_SET); // chip select
+	GPIO_WriteBit(SI446X_pin_setup->cs_port, SI446X_pin_setup->cs_pin, Bit_SET); // chip select
 }
 
 uint8_t radio_spi_go(uint8_t data) {
-	while( SPI_I2S_GetFlagStatus(SI446X_pin_setup.spi_base, SPI_I2S_FLAG_TXE) == RESET ) ; // spin
-	SPI_I2S_SendData(SI446X_pin_setup.spi_base, data);
-	while( SPI_I2S_GetFlagStatus(SI446X_pin_setup.spi_base, SPI_I2S_FLAG_RXNE) == RESET ) ; // spin
-	return SPI_I2S_ReceiveData(SI446X_pin_setup.spi_base);
+	while( SPI_I2S_GetFlagStatus(SI446X_pin_setup->spi_base, SPI_I2S_FLAG_TXE) == RESET ) ; // spin
+	SPI_I2S_SendData(SI446X_pin_setup->spi_base, data);
+	while( SPI_I2S_GetFlagStatus(SI446X_pin_setup->spi_base, SPI_I2S_FLAG_RXNE) == RESET ) ; // spin
+	return SPI_I2S_ReceiveData(SI446X_pin_setup->spi_base);
 }
 
 void radio_shutdown(int go) {
 	if (go) // turn off the radio
-		GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_SET);
+		GPIO_WriteBit(SI446X_pin_setup->sdn_port, SI446X_pin_setup->sdn_pin, Bit_SET);
 	else
-		GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_RESET);
+		GPIO_WriteBit(SI446X_pin_setup->sdn_port, SI446X_pin_setup->sdn_pin, Bit_RESET);
 }
 
 // Returns TRUE if IRQ is asserted
@@ -582,8 +577,9 @@ static bool is_radio_asleep(void) {
 	return (si446x_request_device_state_shadow() == SI_STATE_SLEEP);
 }
 
+// This is a WLN specific feature and a no-op otherwise
 static void set_radio_power_pwm(int go) {
-#if defined(PLATFORM_ARM_WLN) && !defined(PLATFORM_ARM_AUSTERE) // WLN alone is probably sufficient
+#if defined(PLATFORM_ARM_WLN)
 	if (go)
 		GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_SET);
 	else
@@ -593,169 +589,40 @@ static void set_radio_power_pwm(int go) {
 #endif
 }
 
-// Quick and dirty. Clean me up later. --NPS
-static int am_i_wwf(void) {
-#ifdef PLATFORM_ARM_AUSTERE
-	return 3;
-#else
-	uint8_t cpuserial[serial_size];
-	GetCPUSerial(cpuserial, serial_size);
-	char my_serial[serial_per];
-
-	// Build CPU serial string. Quick and dirty. Please help me =(
-	for(int i=0,j=0; i<12; i++, j+=2) {
-		hal_snprintf(&my_serial[j], 3, "%.2x", cpuserial[i]);
+// Only support Austere and WLN. "WLN Half board" and DOT pin configs were prototype only.
+// If you want to use an older (non-platform) pin config, hack it in here.
+static int pin_config(void) {
+#if defined(PLATFORM_ARM_AUSTERE)
+	if (SI446X_pin_setup == NULL) {
+		SI446X_pin_setup = &si446x_pin_config_austere;
+		si446x_debug_print(DEBUG03, "SI446X: Using Austere V1 Hardware Config\r\n");
 	}
-
-
-	// check against all other serials.
-	// This is a brutal ugly O(n) search.
-	for(int i=0; i<serial_max_dotnow; i++) {
-		if ( strcmp( dotnow_serial_numbers[i], my_serial ) == 0 ){
-			si446x_debug_print(ERR100, "SI446X: Found Serial Number am_i_wwf()=0 0x%s\r\n", my_serial);
-			return 0;
-		}
-	}
-
-	for(int i=0; i<serial_max_wwf2; i++) {
-		if ( strcmp( wwf2_serial_numbers[i], my_serial ) == 0 ){
-			si446x_debug_print(ERR100, "SI446X: Found Serial Number am_i_wwf()=2 0x%s\r\n", my_serial);
-			return 2;
-		}
-	}
-	si446x_debug_print(ERR100, "SI446X: Found Serial Number am_i_wwf()=1 0x%s\r\n", my_serial);
-	return 1;
-#endif
-}
-
-static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
-	if (isWWF == 1) {	// First test half-integrated board
-		config->spi_base 		= SPI2;
-		config->spi_port 		= GPIOB;
-		config->nirq_port		= GPIOB;
-		config->nirq_pin		= GPIO_Pin_10;
-		config->nirq_mf_pin		= (GPIO_PIN) 26;
-		config->gpio0_port		= GPIOA;
-		config->gpio1_port		= GPIOA;
-		config->gpio0_pin		= GPIO_Pin_6;
-		config->gpio1_pin		= GPIO_Pin_0;
-		config->cs_port			= GPIOB;
-		config->cs_pin			= GPIO_Pin_12;
-		config->sclk_pin		= GPIO_Pin_13;
-		config->miso_pin		= GPIO_Pin_14;
-		config->mosi_pin		= GPIO_Pin_15;
-		config->sdn_port		= GPIOB;
-		config->sdn_pin			= GPIO_Pin_11;
-		config->spi_rcc			= RCC_APB1Periph_SPI2;
-		si446x_debug_print(DEBUG03, "SI446X: Using WWF Hardware Config\r\n");
-	}
-	else if (isWWF == 2) { // 2nd iteration fully integrated board
-		config->spi_base 		= SPI2;
-		config->spi_port 		= GPIOB;
-		config->nirq_port		= GPIOB;
-		config->nirq_pin		= GPIO_Pin_10;
-		config->nirq_mf_pin		= (GPIO_PIN) 26;
-		config->gpio0_port		= GPIOB;
-		config->gpio1_port		= GPIOA;
-		config->gpio0_pin		= GPIO_Pin_6;
-		config->gpio1_pin		= GPIO_Pin_3;
-		config->cs_port			= GPIOB;
-		config->cs_pin			= GPIO_Pin_12;
-		config->sclk_pin		= GPIO_Pin_13;
-		config->miso_pin		= GPIO_Pin_14;
-		config->mosi_pin		= GPIO_Pin_15;
-		config->sdn_port		= GPIOB;
-		config->sdn_pin			= GPIO_Pin_11;
-		config->spi_rcc			= RCC_APB1Periph_SPI2;
-		si446x_debug_print(DEBUG03, "SI446X: Using WWF2 Hardware Config\r\n");
-		si446x_debug_print(DEBUG02, "SI446X: TEST: Enabling PWM\r\n");
-
-		// TEST CODE
+	return RADIO_PLATFORM_AUSTERE;
+#elif defined(PLATFORM_ARM_WLN)
+	if (SI446X_pin_setup == NULL) {
+		SI446X_pin_setup = &si446x_pin_config_wln;
 		GPIO_InitTypeDef GPIO_InitStructure;
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 		GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_9;
 		GPIO_Init(GPIOB, &GPIO_InitStructure);
 		set_radio_power_pwm(0);
-		// END TEST
+		si446x_debug_print(DEBUG03, "SI446X: Using WWF Hardware Config\r\n");
 	}
-	else if (isWWF == 3) { // 2nd iteration fully integrated board
-		config->spi_base 		= SPI2;
-		config->spi_port 		= GPIOB;
-		config->nirq_port		= GPIOB;
-		config->nirq_pin		= GPIO_Pin_10;
-		config->nirq_mf_pin		= (GPIO_PIN) 26;
-		config->gpio0_port		= GPIOC;
-		config->gpio1_port		= GPIOC;
-		config->gpio0_pin		= GPIO_Pin_0; // ANY PIN FROM FPGA FOR NOW, this is FPGA_GPIO_0
-		config->gpio1_pin		= GPIO_Pin_1; // ANY PIN FROM FPGA FOR NOW, this is FPGA_GPIO_1
-		config->cs_port			= GPIOB;
-		config->cs_pin			= GPIO_Pin_12;
-		config->sclk_pin		= GPIO_Pin_13;
-		config->miso_pin		= GPIO_Pin_14;
-		config->mosi_pin		= GPIO_Pin_15;
-		config->sdn_port		= GPIOB;
-		config->sdn_pin			= GPIO_Pin_11;
-		config->spi_rcc			= RCC_APB1Periph_SPI2;
-		hal_printf( "SI446X: Using Austere Hardware Config\r\n");
-	}
-	else { // I am a .NOW
-		config->spi_base 		= SPI2;
-		config->spi_port 		= GPIOB;
-		config->nirq_port		= GPIOA;
-		config->nirq_pin		= GPIO_Pin_1;
-		config->nirq_mf_pin		= (GPIO_PIN) 1;
-		config->gpio0_port		= GPIOA;
-		config->gpio1_port		= GPIOA;
-		config->gpio0_pin		= GPIO_Pin_3;
-		config->gpio1_pin		= GPIO_Pin_8;
-		config->cs_port			= GPIOA;
-		config->cs_pin			= GPIO_Pin_4;
-		config->sclk_pin		= GPIO_Pin_13;
-		config->miso_pin		= GPIO_Pin_14;
-		config->mosi_pin		= GPIO_Pin_15;
-		config->sdn_port		= GPIOA;
-		config->sdn_pin			= GPIO_Pin_2;
-		config->spi_rcc			= RCC_APB1Periph_SPI2;
-		si446x_debug_print(DEBUG03, "SI446X: Using .NOW Hardware Config\r\n");
-	}
+	return RADIO_PLATFORM_WLN;
+#else
+#error "SI446X: Unknown pin configuration"
+	//si446x_debug_print(ERR99, "SI446X: Unknown hardware platform, pin config will probably fail\r\n");
+	return RADIO_PLATFORM_UNKNOWN;
+#endif
 }
 
-// FIXME: Hard-coded to si4468 and SPI2 for the moment.
 DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT8 mac_id) {
 
 	DeviceStatus ret = DS_Success;
 	int reset_errors;
 	uint8_t temp;
 	radio_lock_id_t owner;
-
-	/*
-	CPU_GPIO_EnableOutputPin(SI4468_HANDLE_INTERRUPT_TX, TRUE);
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, FALSE );
-	CPU_GPIO_EnableOutputPin(SI4468_HANDLE_INTERRUPT_RX, TRUE);
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
-	CPU_GPIO_EnableOutputPin(SI4468_HANDLE_CCA, TRUE);
-	CPU_GPIO_SetPinState( SI4468_HANDLE_CCA, FALSE );
-	CPU_GPIO_EnableOutputPin(SI4468_HANDLE_SLEEP, TRUE);
-	CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
-	CPU_GPIO_EnableOutputPin(DATARX_SEND_SW_ACK, TRUE);
-	CPU_GPIO_SetPinState( DATARX_SEND_SW_ACK, FALSE );
-	CPU_GPIO_EnableOutputPin(SI4468_MEASURE_RX_TIME, TRUE);
-	CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
-
-	CPU_GPIO_EnableOutputPin(SI4468_TX, TRUE);
-	CPU_GPIO_SetPinState( SI4468_TX, FALSE );
-	CPU_GPIO_EnableOutputPin(SI4468_TX_TIMESTAMP, TRUE);
-	CPU_GPIO_SetPinState( SI4468_TX_TIMESTAMP, FALSE );
-	CPU_GPIO_EnableOutputPin(SI4468_TX_TIMESTAMP, TRUE);
-	CPU_GPIO_SetPinState( SI4468_Radio_STATE, FALSE );
-
-	CPU_GPIO_EnableOutputPin(SI4468_Radio_TX_Instance, TRUE);
-	CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance, FALSE );
-
-	CPU_GPIO_EnableOutputPin(SI4468_Radio_TX_Instance_NOTS, TRUE);
-	CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance_NOTS, FALSE );
-	*/
 
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
@@ -766,14 +633,14 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 		return DS_Fail;
 	}
 
-	choose_hardware_config(am_i_wwf(), &SI446X_pin_setup);
+	pin_config();
 
 	// Default settings
 	si446x_channel = si446x_default_channel;
 	tx_power = si446x_default_power;
 	tx_msg_ptr = &tx_msg;
 	rx_msg_ptr = &rx_msg;
-	initSPI2();
+	init_radio_SPI();
 	init_si446x_pins();
 
 	si446x_reset();
@@ -837,7 +704,7 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 
 	// Init Continuations and interrupts
 	// Leave these last in case something above fails.
-	CPU_GPIO_EnableInputPin( SI446X_pin_setup.nirq_mf_pin, FALSE, si446x_spi2_handle_interrupt, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED);
+	CPU_GPIO_EnableInputPin( SI446X_pin_setup->nirq_mf_pin, FALSE, si446x_spi2_handle_interrupt, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED);
 	tx_callback_continuation.InitializeCallback(tx_cont_do, NULL);
 	rx_callback_continuation.InitializeCallback(rx_cont_do, NULL);
 	int_defer_continuation.InitializeCallback(int_cont_do, NULL);
@@ -864,7 +731,7 @@ DeviceStatus si446x_hal_uninitialize(UINT8 radio) {
 	isInit = 0;
 	radio_shutdown(1);
 
-	CPU_GPIO_DisablePin(SI446X_pin_setup.nirq_mf_pin, RESISTOR_DISABLED, 0, GPIO_ALT_PRIMARY); // Only PIN matters
+	CPU_GPIO_DisablePin(SI446X_pin_setup->nirq_mf_pin, RESISTOR_DISABLED, 0, GPIO_ALT_PRIMARY); // Only PIN matters
 	radio_si446x_spi2.SetInitialized(FALSE);
 
 	rx_callback = NULL;
@@ -1481,7 +1348,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	int_ts = HAL_Time_CurrentTicks(); // Log RX time.
 	irq.Release(); // Unlock after timestamp.
 
-	if (Pin != SI446X_pin_setup.nirq_mf_pin) { return; }
+	if (Pin != SI446X_pin_setup->nirq_mf_pin) { return; }
 
 	si446x_debug_print(DEBUG02, "SI446X: INT\r\n");
 
