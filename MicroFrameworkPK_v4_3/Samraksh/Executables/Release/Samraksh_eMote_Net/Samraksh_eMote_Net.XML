@@ -1943,6 +1943,13 @@
             <remarks>The offset for the timestamp in the packet is specified by TimeStampOffset  member of the RadioConfiguration structure passed as parameter during radio module initialization.</remarks>
             <returns>The result of the method: E_RadioInit, E_RadioSync, E_RadioConfig, E_MacInit, E_MacConfig, E_MacSendError, E_MacBufferFull, S_Success</returns>
         </member>
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetDefaultRxState(System.Byte,System.UInt16)">
+            <summary>SetDefaultRxState</summary>
+            <param name="radioName">Radio name</param>
+            <param name="state">State Desired</param>
+            <returns>Status of operation</returns>
+            <seealso cref="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Sleep(System.Byte)">Sleep Method</seealso>
+        </member>
         <member name="P:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.RadioAddress">
             <summary>Radop address</summary>
         </member>

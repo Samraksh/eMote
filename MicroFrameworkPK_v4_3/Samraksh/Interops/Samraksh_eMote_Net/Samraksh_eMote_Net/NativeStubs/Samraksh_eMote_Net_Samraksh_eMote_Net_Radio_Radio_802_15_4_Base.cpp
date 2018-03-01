@@ -106,3 +106,9 @@ INT32 Radio_802_15_4_Base::TurnOffRx( CLR_RT_HeapBlock* pMngObj, UINT8 param0, H
     return retVal;
 }
 
+INT32 Radio_802_15_4_Base::SetDefaultRxState( CLR_RT_HeapBlock* pMngObj, UINT8 param0, UINT16 param1, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
