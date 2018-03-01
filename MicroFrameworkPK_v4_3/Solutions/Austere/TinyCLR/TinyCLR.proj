@@ -579,14 +579,14 @@
     <DriverLibs Include="STM32_Flash.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32\DeviceCode\STM32_Flash\dotNetMF.proj" />
   </ItemGroup>-->
-  <ItemGroup>
-    <DriverLibs Include="BlockStorageAddDevices_HAL.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Austere\DeviceCode\BlockStorageAddDevices_HAL\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="BlockStorageConfig_HAL.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\Austere\DeviceCode\BlockStorageConfig_HAL\dotNetMF.proj" />
-  </ItemGroup>
+  <!-- <ItemGroup> -->
+    <!-- <DriverLibs Include="BlockStorageAddDevices_HAL.$(LIB_EXT)" /> -->
+    <!-- <RequiredProjects Include="$(SPOCLIENT)\Solutions\Austere\DeviceCode\BlockStorageAddDevices_HAL\dotNetMF.proj" /> -->
+  <!-- </ItemGroup> -->
+  <!-- <ItemGroup> -->
+    <!-- <DriverLibs Include="BlockStorageConfig_HAL.$(LIB_EXT)" /> -->
+    <!-- <RequiredProjects Include="$(SPOCLIENT)\Solutions\Austere\DeviceCode\BlockStorageConfig_HAL\dotNetMF.proj" /> -->
+  <!-- </ItemGroup> -->
   <ItemGroup>
     <DriverLibs Include="I2C_HAL.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\Austere\DeviceCode\I2C_HAL\dotNetMF.proj" />
