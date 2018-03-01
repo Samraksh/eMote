@@ -49,6 +49,8 @@ namespace Samraksh
                     static INT8 SetRadioAddress( CLR_RT_HeapBlock* pMngObj, UINT8 param0, UINT16 param1, HRESULT &hr );
                     static INT32 UnInitialize( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
                     static INT32 TurnOffRx( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
+                    static INT32 SetDefaultRxState( CLR_RT_HeapBlock* pMngObj, UINT8 param0, UINT16 param1, HRESULT &hr );
+
                 };
             }
         }

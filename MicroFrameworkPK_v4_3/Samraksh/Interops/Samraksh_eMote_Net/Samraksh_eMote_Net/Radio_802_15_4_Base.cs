@@ -9,20 +9,14 @@ namespace Samraksh.eMote.Net.Radio
 	// ReSharper disable once InconsistentNaming
 	public class Radio_802_15_4_Base : IRadio
 	{
-		// Removed RadioPacketSize & RadioConfigSize - not used - BIll
 
-		//// Size of the radio packet
-		//const byte RadioPacketSize = 128;
+        /// <summary>Event handler for radio interfaces receive packet event</summary>
+        // public delegate void IRadioReceiveEventHandler(IRadio radioInstance, DateTime time, Packet receivedPacket);
+        //  public delegate void IRadioTransmitACKEventHandler(IRadio radioInstance, DateTime time, SendPacketStatus ACKStatus, uint transmitDestination, UInt16 index);
+        //  event IRadioReceiveEventHandler OnReceive;
+        // event IRadioTransmitACKEventHandler OnSendStatus;
 
-		//// Size of the radio configuration byte array for marshalling purposes
-		//// Note we are marshalling because NETMF does not support passing custom types to native code
-		//const byte RadioConfigSize = 3;
 
-		// Removed dataBuffer & marshalBuffer; not used - Bill
-		//byte[] dataBuffer = new byte[RadioPacketSize];
-
-		//// Create a buffer that you can use when you want to marshal
-		//byte[] marshalBuffer = new byte[RadioConfigSize];
 
 		/// <summary>
 		/// Current user of the radio (C# or MAC objects)
@@ -217,5 +211,15 @@ namespace Samraksh.eMote.Net.Radio
 		/// <returns>The result of the method: E_RadioInit, E_RadioSync, E_RadioConfig, E_MacInit, E_MacConfig, E_MacSendError, E_MacBufferFull, S_Success</returns>
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public extern NetOpStatus SendTimeStamped(byte radioName, byte[] packet, ushort size, uint eventTime);
+
+        /// <summary>SetDefaultRxState</summary>
+        /// <param name="radioName">Radio name</param>
+        /// <param name="state">State Desired</param>
+        /// <returns>Status of operation</returns>
+        /// <seealso cref="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Sleep(System.Byte)">Sleep Method</seealso>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern DeviceStatus SetDefaultRxState(byte radioName, ushort state);
+
+
 	}
 }
