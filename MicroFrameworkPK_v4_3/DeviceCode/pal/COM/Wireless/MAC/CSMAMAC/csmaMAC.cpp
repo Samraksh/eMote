@@ -11,6 +11,16 @@ UINT8 RadioLockUp;
 UINT16 discoveryCounter = 0;
 
 void* csmaReceiveHandler(void *msg, UINT16 Size){
+	hal_printf("\r\n CSMA rx packet" );
+
+	uint8_t* buf = static_cast<UINT8*>(msg);
+	for (UINT16 i= 0; i < Size; ++i)
+	{
+	    //if (i > 0) printf(":");
+		hal_printf("%02X :: ", buf[i]);
+	}
+	hal_printf("\r\n");
+
 	return (void*) g_csmaMacObject.ReceiveHandler((Message_15_4_t *) msg, Size);
 }
 
