@@ -217,6 +217,9 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
     }
 #ifndef DISABLE_SLEEP
 #if defined( SAM_APP_TINYCLR )
+#ifndef EMOTE_DEEP_SLEEP_MIN
+#define EMOTE_DEEP_SLEEP_MIN 5000
+#endif
 //#ifdef EMOTE_COMPLETIONS_STARTUP_WAIT
 #if 1
 	if (waitTime == 0){

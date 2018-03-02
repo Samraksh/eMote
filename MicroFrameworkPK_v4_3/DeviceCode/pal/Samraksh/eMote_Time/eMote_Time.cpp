@@ -13,6 +13,9 @@
 #include "eMote_Time.h"
 #include "../Include/Samraksh/VirtualTimer.h"
 
+#ifndef VIRT_TIMER_SLEEP
+#define VIRT_TIMER_SLEEP 6
+#endif
 //#define DEBUG_TIMER
 
 Time_Driver g_Time_Driver;
