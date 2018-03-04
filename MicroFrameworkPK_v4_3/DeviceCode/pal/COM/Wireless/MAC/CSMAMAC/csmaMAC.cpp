@@ -33,6 +33,7 @@ BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param){
 }
 
 void SendFirstPacketToRadio(void * arg){
+	CPU_Radio_TurnOnRx(g_csmaMacObject.radioName);
 	if (g_send_buffer.GetNumberMessagesInBuffer() >= 1){
 		g_csmaMacObject.SendToRadio();
 	}
@@ -79,6 +80,7 @@ DeviceStatus csmaMAC::SetConfig(MACConfig *config){
 	return DS_Success;
 }
 
+
 DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MACConfig* config){
 	DeviceStatus status;
 
@@ -117,15 +119,15 @@ DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, U
 			return status;
 		}
 
-//		if((status = CPU_Radio_TurnOnRx(this->radioName)) != DS_Success) {
-//			SOFT_BREAKPOINT();
-//			return status;
-//		}
+		if((status = CPU_Radio_TurnOnRx(this->radioName)) != DS_Success) {
+			SOFT_BREAKPOINT();
+			return status;
+		}
 
 		SetMyAddress(CPU_Radio_GetAddress(this->radioName));
 
 		// telling the radio to keep the RX on instead of sleeping
-		//CPU_Radio_SetDefaultRxState(this->radioName,0);
+		CPU_Radio_SetDefaultRxState(this->radioName,0);
 
 		// VIRT_TIMER_MAC_SENDPKT is the one-shot resend timer that will be activated if we need to resend a packet
 		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_SENDPKT, 0, 30000, TRUE, TRUE, SendFirstPacketToRadio, ADVTIMER_32BIT) != TimerSupported){ //50 milli sec Timer in micro seconds
