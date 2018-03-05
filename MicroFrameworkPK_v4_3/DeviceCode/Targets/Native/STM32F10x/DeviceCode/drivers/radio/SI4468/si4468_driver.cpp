@@ -1044,6 +1044,7 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	si446x_spi_unlock();
 	// RADIO STAYS LOCKED UNTIL TX DONE
 
+	hal_printf("si446x_packet_send success");
 	return DS_Success;
 }
 
