@@ -396,7 +396,6 @@ void csmaMAC::SendToRadio(){
 		m_recovery = 1;
 
 		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
-		hal_printf("csmaMAC::SendToRadio Starting carrier sensing\r\n");
 		CPU_Radio_TurnOnRx(this->radioName);
 		//DeviceStatus ds = CPU_Radio_ClearChannelAssesment(this->radioName, 200);
 		DeviceStatus ds = CPU_Radio_ClearChannelAssesment(this->radioName);
@@ -449,10 +448,7 @@ void csmaMAC::SendToRadio(){
 			if(txMsgPtr->GetHeader()->flags & MFM_TIMESYNC)
 			{
 				UINT32 snapShot = (UINT32) txMsgPtr->GetMetaData()->GetReceiveTimeStamp();
-
 				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->length, snapShot);
-
-				hal_printf("csmaMAC::SendToRadio send done\r\n");
 			}
 			else
 			{
@@ -608,7 +604,6 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 	Message_15_4_t* temp = (Message_15_4_t *)msg;
 	UINT8* rcv_payload =  temp->GetPayload();
 #endif
-	hal_printf("csmaMAC::SendAckHandler status=%u ", status);
 	switch(status)
 	{
 		case NetworkOperations_Success:
