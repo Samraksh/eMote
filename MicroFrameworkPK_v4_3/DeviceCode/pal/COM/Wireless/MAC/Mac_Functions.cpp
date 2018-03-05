@@ -308,7 +308,13 @@ DeviceStatus MAC_Send(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 siz
 
 PacketID_T MAC_EnqueueToSend(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size){
 	if(currentMacName == CSMAMAC){
-		return INVALID_PACKET_ID;
+		BOOL status = g_csmaMacObject.Send(destAddress,dataType, msg, size);
+		if(status == TRUE){
+			return 0;
+		}
+		else{
+			return INVALID_PACKET_ID;
+		}
 	}
 	else if(currentMacName == OMAC){
 		return g_OMAC.EnqueueToSend(destAddress, dataType, msg, size);
