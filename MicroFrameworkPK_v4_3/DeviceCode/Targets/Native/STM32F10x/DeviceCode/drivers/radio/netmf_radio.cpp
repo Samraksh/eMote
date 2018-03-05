@@ -23,6 +23,11 @@
 #include "RF231\RF231.h"
 #include "SI4468\si446x.h"
 
+// platform stuff
+#ifdef PLATFORM_ARM_AUSTERE
+#include <austere/austere.h>
+#endif
+
 #define ASSERT_NOFAIL(x) {if(x==DS_Fail){ SOFT_BREAKPOINT(); }}
 
 #define SI4468_SPI2_POWER_OFFSET 16
@@ -402,6 +407,32 @@ void* CPU_Radio_SendStrobe(UINT8 radioName, UINT16 size)
 
 	//ASSERT_SP(ptr_temp != NULL);
 	return ptr_temp;
+}
+
+radio_state_t CPU_Radio_Get_State(UINT8 radioName) {
+	switch(radioName) {
+		case SI4468_SPI2: return si446x_hal_get_state();
+		default: ASSERT(0); return STATE_ERROR;
+	}
+}
+
+DeviceStatus CPU_Radio_Set_State(UINT8 radioName, radio_state_t next) {
+	switch(radioName) {
+		case SI4468_SPI2: return si446x_hal_set_state(next);
+		default: ASSERT(0); return DS_Fail;
+	}
+}
+
+// A callback from the driver.
+// 'rs' is the current state (after change)
+// For now, only called when leaving the OFF state.
+void CPU_Radio_State_Changed(UINT8 radioName, radio_state_t rs) {
+	hal_printf("NEW STATE %d \r\n", (int)rs);
+}
+
+// Return: -1 if unknown, else transition time in milliseconds
+INT32 CPU_Radio_Get_TrTime(UINT8 radioName, radio_state_t x, radio_state_t y) {
+	return -1;
 }
 
 void* CPU_Radio_Send(UINT8 radioName, void* msg, UINT16 size)

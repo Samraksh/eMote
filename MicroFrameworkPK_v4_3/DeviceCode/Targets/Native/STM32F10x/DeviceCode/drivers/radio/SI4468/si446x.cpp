@@ -26,7 +26,7 @@ enum { PART_SI446X=0x4468, PATCHID=0 };
 
 // State Vars
 static unsigned ctsWentHigh;
-static volatile si_state_t current_state;
+static volatile si_state_t current_state = SI_STATE_OFF; // why did I make this volatile? Probably shouldn't be... --NPS
 
 static uint8_t latched_rssi;
 static uint8_t current_rssi;

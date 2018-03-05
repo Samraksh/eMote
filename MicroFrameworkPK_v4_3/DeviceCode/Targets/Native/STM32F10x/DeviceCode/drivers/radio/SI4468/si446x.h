@@ -5,6 +5,14 @@
 
 #include <Samraksh\Radio.h>
 
+#ifdef PLATFORM_ARM_AUSTERE
+#include <austere/austere.h>
+#endif
+
+#define TURN_RADIO_ON 1
+#define TURN_RADIO_OFF 0
+#define THIS_RADIO 0
+
 enum { PH_STATUS_MASK_FILTER_MATCH = 0x80, PH_STATUS_MASK_FILTER_MISS = 0x40, PH_STATUS_MASK_PACKET_SENT=0x20, PH_STATUS_MASK_PACKET_RX=0x10, \
 PH_STATUS_MASK_CRC_ERROR=0x08, PH_STATUS_MASK_ALT_CRC_ERROR=0x04, PH_STATUS_MASK_TX_FIFO_ALMOST_EMPTY=0x02, PH_STATUS_MASK_RX_FIFO_ALMOST_EMPTY=0x01 };
 
@@ -83,7 +91,7 @@ typedef void (*si446x_rx_callback_t)(UINT64, unsigned, const __restrict__ uint8_
 typedef enum { 	SI_STATE_BOOT=0, SI_STATE_SLEEP=1, SI_STATE_SPI_ACTIVE=2, \
 				SI_STATE_READY=3, SI_STATE_READY2=4, SI_STATE_TX_TUNE=5, \
 				SI_STATE_RX_TUNE=6, SI_STATE_TX=7, SI_STATE_RX=8, SI_STATE_ERROR=9, \
-				SI_STATE_UNKNOWN=10
+				SI_STATE_UNKNOWN=10, SI_STATE_OFF=11
 } si_state_t;
 
 typedef struct {
@@ -107,6 +115,8 @@ typedef struct {
 } SI446X_pin_setup_t;
 
 // MF HAL FUNCTIONS
+radio_state_t	si446x_hal_get_state(void);
+DeviceStatus	si446x_hal_set_state(radio_state_t next);
 DeviceStatus 	si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT8 mac_id);
 DeviceStatus 	si446x_hal_uninitialize(UINT8 radio);
 DeviceStatus 	si446x_hal_reset(UINT8 radio);

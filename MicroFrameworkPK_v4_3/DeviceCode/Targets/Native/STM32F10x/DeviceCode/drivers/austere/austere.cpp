@@ -2,13 +2,17 @@
 
 // TODO: Move power init stuff here
 
+static HAL_CONTINUATION *pwr_cb = NULL;
+
 // Interrupt. TODO: CHANGE ME
 static void rad_power_monitor(GPIO_PIN Pin, BOOL PinState, void* Param) {
-	if (CPU_GPIO_GetPinState(39) == TRUE){
-		hal_printf("*** rad pwr good ***\r\n");
-	} else {
-		hal_printf("*** rad pwr bad ***\r\n");
-	}
+	if (pwr_cb == NULL) return;
+	pwr_cb->Enqueue();
+	// if (CPU_GPIO_GetPinState(39) == TRUE){
+		// hal_printf("*** rad pwr good ***\r\n");
+	// } else {
+		// hal_printf("*** rad pwr bad ***\r\n");
+	// }
 }
 
 //PC12, PC9, PB5, PC7
@@ -119,5 +123,23 @@ void austere_power_init(void) {
 	// Default the 2.5v rail and its tank cap to OFF at start. Will use on demand.
 	power_supply_disable(AUSTERE_BIG_CAP);
 	power_supply_disable(AUSTERE_2V5);
-	austere_radio_shutdown(AUSTERE_RADIO_OFF);	// Disable radio
+	austere_radio_shutdown(AUSTERE_RADIO_OFF);	// Disable radio. This will be over-ridden by driver
+}
+
+int platform_power_event_sub(HAL_CONTINUATION *cb) {
+	pwr_cb = cb;
+	return 0;
+}
+
+// Turn the radio on/off.
+// Only one radio, so second parameter is ignored.
+int platform_radio_pwr_ctrl(int on, int radio) {
+	if (on) {
+		power_supply_enable(AUSTERE_BIG_CAP);
+		power_supply_enable(AUSTERE_2V5);
+	} else {
+		power_supply_disable(AUSTERE_2V5);
+		power_supply_disable(AUSTERE_BIG_CAP);
+	}
+	return 0;
 }

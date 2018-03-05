@@ -8,8 +8,7 @@
  *
 */
 
-#ifndef _RADIO_DECL_H_
-#define _RADIO_DECL_H_
+#pragma once
 
 #include <tinyhal.h>
 #include "Hal_util.h"
@@ -23,6 +22,16 @@ typedef UINT16 RadioAddress_t;
 
 // Represents a generic group of interrupts supported by any radio. There is a good chance some of these are not relevant to a radio,
 // its is upto to the radio layer to determine this and inform the user appropriately
+
+typedef enum {
+	STATE_OFF,		// Full power off
+	STATE_SLEEP,	// Sleep
+	STATE_IDLE,		// A higher power idle state, ready for commands
+	STATE_RX,		// In RX (listen) mode
+	STATE_TX,		// Transmitting a packet, assumed busy
+	STATE_ERROR,	// Error condition
+	STATE_BUSY,		// Misc busy state. Example, booting.
+} radio_state_t;
 
 enum RadioInterrupt
 {
@@ -144,10 +153,13 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//extern "C"
-//{
 //Radio HAL declarations
 
+// New state settings
+radio_state_t CPU_Radio_Get_State(UINT8 radioName);
+DeviceStatus CPU_Radio_Set_State(UINT8 radioName, radio_state_t next);
+INT32 CPU_Radio_Get_TrTime(UINT8 radioName, radio_state_t x, radio_state_t y);
+void CPU_Radio_State_Changed(UINT8 radioName, radio_state_t rs);
 
 // Called by MAC layers responsible for registering of eventhandlers
 DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioIDs, UINT8 numberRadios , UINT8 mac_id); //Initializes Return the ID of the Radio layer that was initialized
@@ -199,8 +211,3 @@ DeviceStatus CPU_Radio_ChangeChannel(UINT8 radioID, int channel);
 UINT32 CPU_Radio_GetTxPower(UINT8 radioID);
 
 UINT32 CPU_Radio_GetChannel(UINT8 radioID);
-
-//}
-
-
-#endif //_RADIO_DECL_H_

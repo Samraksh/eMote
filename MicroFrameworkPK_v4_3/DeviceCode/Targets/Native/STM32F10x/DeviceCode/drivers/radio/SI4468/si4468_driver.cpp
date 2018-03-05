@@ -44,7 +44,7 @@ si_state_t defaultRxDoneState = SI_STATE_SLEEP;
 enum { SI_DUMMY=0, };
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
-const unsigned si4468x_debug_level = ERR100; // CHANGE ME.
+const unsigned si4468x_debug_level = DEBUG02; // CHANGE ME.
 
 // Pin list used in setup.
 static const SI446X_pin_setup_t *SI446X_pin_setup = NULL;
@@ -191,7 +191,21 @@ static const char* PrintStateID(si_state_t id){
 		case SI_STATE_RX:			return "SI_STATE_RX";
 		case SI_STATE_ERROR:		return "SI_STATE_ERROR";
 		case SI_STATE_UNKNOWN:		return "SI_STATE_UNKNOWN";
+		case SI_STATE_OFF:			return "SI_STATE_OFF";
 		default:					return "error";
+	}
+}
+
+static const char* rs_tostring(radio_state_t id){
+	switch(id){
+		case STATE_OFF:		return "STATE_OFF";
+		case STATE_SLEEP:	return "STATE_SLEEP";
+		case STATE_IDLE:	return "STATE_IDLE";
+		case STATE_RX:		return "STATE_RX";
+		case STATE_TX:		return "STATE_TX";
+		case STATE_ERROR:	return "STATE_ERROR";
+		case STATE_BUSY:	return "STATE_BUSY";
+		default:			return "error";
 	}
 }
 
@@ -219,6 +233,7 @@ static si446x_rx_callback_t rx_callback;
 static HAL_CONTINUATION tx_callback_continuation;
 static HAL_CONTINUATION rx_callback_continuation;
 static HAL_CONTINUATION int_defer_continuation;
+static HAL_CONTINUATION state_callback_continuation;
 
 static unsigned isInit = 0;
 static int si446x_channel = 0;
@@ -239,6 +254,10 @@ static void int_cont_do(void *arg) {
 	si446x_debug_print(DEBUG02,"SI446X: int_cont_do()\r\n");
 	SI446x_INT_MODE_CHECK();
 	si446x_spi2_handle_interrupt( SI446X_pin_setup->nirq_mf_pin, false, NULL );
+}
+
+static void state_cont_do(void *arg) {
+	
 }
 
 static void sendSoftwareAck(UINT16 dest){
@@ -617,12 +636,61 @@ static int pin_config(void) {
 #endif
 }
 
+radio_state_t si446x_hal_get_state() {
+	si_state_t state = si446x_request_device_state_shadow();
+	//si446x_debug_print(DEBUG02,"%s\r\n", __func__);
+
+	switch(state) {
+		case SI_STATE_OFF: 		return STATE_OFF;
+		case SI_STATE_SLEEP: 	return STATE_SLEEP;
+		case SI_STATE_SPI_ACTIVE:
+		case SI_STATE_READY:
+		case SI_STATE_READY2: 	return STATE_IDLE;
+		case SI_STATE_TX_TUNE:
+		case SI_STATE_TX: 		return STATE_TX;
+		case SI_STATE_RX_TUNE:
+		case SI_STATE_RX: 		return STATE_RX;
+		case SI_STATE_ERROR:
+		case SI_STATE_UNKNOWN: 	return STATE_ERROR;
+		case SI_STATE_BOOT: 	return STATE_BUSY;
+		default: 				return STATE_BUSY;
+	}
+}
+
+DeviceStatus si446x_hal_set_state(radio_state_t next) {
+	DeviceStatus ret = DS_Fail;
+	int status;
+	radio_state_t curr = si446x_hal_get_state();
+	si446x_debug_print(DEBUG02,"%s : Curr=%d next=%d\r\n", __func__, rs_tostring(curr), rs_tostring(next));
+	
+	// Allowed transitions:
+	// OFF to IDLE
+	// IDLE to RX
+	// IDLE to OFF
+	// Change to BUSY never allowed
+	// SLEEP to RX
+	// SLEEP to OFF
+	// SLEEP to IDLE
+	// TODO: FINISH ME
+	
+	if (curr == next) return DS_Success;
+	
+	// OFF state is special because power may take some time to turn on
+	if (curr == STATE_OFF) { // Supports: IDLE
+		int status = platform_radio_pwr_ctrl(TURN_RADIO_ON, THIS_RADIO);
+		ret = (status) ? DS_Fail : DS_Success;
+	}
+	return ret;
+}
+
 DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT8 mac_id) {
 
 	DeviceStatus ret = DS_Success;
 	int reset_errors;
 	uint8_t temp;
 	radio_lock_id_t owner;
+	
+	if (isInit) return DS_Bug;
 
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
@@ -708,6 +776,10 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	tx_callback_continuation.InitializeCallback(tx_cont_do, NULL);
 	rx_callback_continuation.InitializeCallback(rx_cont_do, NULL);
 	int_defer_continuation.InitializeCallback(int_cont_do, NULL);
+
+	// Power system callbacks
+	state_callback_continuation.InitializeCallback(state_cont_do, NULL);
+	platform_power_event_sub(&state_callback_continuation);
 
 si446x_hal_init_CLEANUP:
 

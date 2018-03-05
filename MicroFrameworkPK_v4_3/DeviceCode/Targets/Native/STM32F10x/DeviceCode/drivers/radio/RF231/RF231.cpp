@@ -159,7 +159,7 @@ void* RF231Radio::Send_Ack(void *msg, UINT16 size, NetOpStatus status, UINT8 tra
 void RF231Radio::Wakeup() {
 	INIT_STATE_CHECK();
 	GLOBAL_LOCK(irq);
-	if (state == STATE_SLEEP) {
+	if (state == STATE_RF231_SLEEP) {
 		if(RF231_extended_mode){
 			SlptrClear();
 			HAL_Time_Sleep_MicroSeconds(380); // Wait for the radio to come out of sleep
@@ -869,7 +869,7 @@ DeviceStatus RF231Radio::Reset()
 	SlptrSet();
 
 	// set software state machine state to sleep
-	state = STATE_SLEEP;
+	state = STATE_RF231_SLEEP;
 #	ifdef DEBUG_RF231
 	hal_printf("RF231: RESET\r\n");
 #	endif
@@ -979,7 +979,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 #endif
 	// If we are already in sleep state do nothing
 	// Unsure if during sleep we can read registers (No, you can't --NPS).
-	if(state == STATE_SLEEP) {
+	if(state == STATE_RF231_SLEEP) {
 		return DS_Success;
 	}
 
@@ -1029,7 +1029,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 		case RF230_TRX_OFF:
 			ENABLE_LRR(FALSE);
 			SlptrSet();
-			state = STATE_SLEEP;
+			state = STATE_RF231_SLEEP;
 			sleep_pending = TRUE;
 #ifdef DEBUG_RF231
 			hal_printf("RF231: SLEEP.\r\n");
@@ -1576,7 +1576,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		// TODO: with CSMA do we ever want to sleep?
 		sleep_pending = TRUE;
 		// set software state machine state to sleep
-		state = STATE_SLEEP;
+		state = STATE_RF231_SLEEP;
 		//NATHAN_SET_DEBUG_GPIO(0);
 #		ifdef DEBUG_RF231
 		hal_printf("RF231: INIT. Default sleep\r\n");
@@ -1903,7 +1903,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 		return DS_Fail;
 
 	// If cca is initiated during sleep, come out of sleep do cca and go back to sleep
-	if(state == STATE_SLEEP)
+	if(state == STATE_RF231_SLEEP)
 	{
 		if(TurnOnRx() != DS_Success)
 			return DS_Fail;
@@ -1963,7 +1963,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 		// If sleep is success then go back to sleep and turn sleep_pending to FALSE
 		if(Sleep(0) == DS_Success)
 		{
-			state = STATE_SLEEP;
+			state = STATE_RF231_SLEEP;
 			sleep_pending = FALSE;
 		}
 		else

@@ -245,7 +245,7 @@ typedef enum radio_hal_trx_status
 enum RadioStateEnum
 {
 	STATE_P_ON = 0,
-	STATE_SLEEP = 1,
+	STATE_RF231_SLEEP = 1,
 	STATE_SLEEP_2_TRX_OFF = 2,
 	STATE_TRX_OFF = 3,
 	STATE_TRX_OFF_2_RX_ON = 4,

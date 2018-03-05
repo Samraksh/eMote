@@ -8,7 +8,7 @@
 #include <austere\austere.h>
 
 void ApplicationEntryPoint()
-{
+{	
 	austere_init();
 	print_power_supply_status();
 
