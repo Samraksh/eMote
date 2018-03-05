@@ -11,7 +11,7 @@ UINT8 RadioLockUp;
 UINT16 discoveryCounter = 0;
 
 void* csmaReceiveHandler(void *msg, UINT16 Size){
-	hal_printf("\r\n CSMA rx packet" );
+/*	hal_printf("\r\n CSMA rx packet " );
 
 	uint8_t* buf = static_cast<UINT8*>(msg);
 	for (UINT16 i= 0; i < Size; ++i)
@@ -20,7 +20,7 @@ void* csmaReceiveHandler(void *msg, UINT16 Size){
 		hal_printf("%02X :: ", buf[i]);
 	}
 	hal_printf("\r\n");
-
+*/
 	return (void*) g_csmaMacObject.ReceiveHandler((Message_15_4_t *) msg, Size);
 }
 
@@ -456,9 +456,6 @@ void csmaMAC::SendToRadio(){
 				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->length);
 				//txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), 70);
 			}
-		}
-		while(CPU_Radio_TurnOffRx(this->radioName) != DS_Success) {
-			hal_printf("csmaMAC::SendToRadio radio sleep fail 3");
 		}
 	}
 }
