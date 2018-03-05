@@ -467,9 +467,6 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 	NeighborTableCommonParameters_Two_t neighborTableCommonParameters_two_t;
 	UINT8 index;
 
-	hal_printf("CSMA ReceiveHandler. Size: %d, src = %u \r\n"
-		, Size, msg->GetHeader()->src);
-
 	if(Size == sizeof(softwareACKHeader)){
 		//hal_printf("software ACK\r\n");
 		return msg;
