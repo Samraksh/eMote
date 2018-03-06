@@ -43,6 +43,7 @@ enum radio_lock_id_t {
 	radio_lock_interrupt	=12,
 	radio_lock_rx_setup		=13,
 	radio_lock_power		=14,
+	radio_lock_state		=15,
 	radio_lock_all			=0xFF,
 };
 
@@ -65,6 +66,7 @@ static const char* print_lock(radio_lock_id_t x) {
 		case radio_lock_all: 			return "radio_lock_all";
 		case radio_lock_rx_setup:		return "radio_lock_rx_setup";
 		case radio_lock_power:			return "radio_lock_power";
+		case radio_lock_state:			return "radio_lock_state";
 		default: 						return "ERROR, Unknown Lock!!!";
 	}
 #else
@@ -118,7 +120,7 @@ typedef void (*si446x_rx_callback_t)(UINT64, unsigned, const __restrict__ uint8_
 typedef enum { 	SI_STATE_BOOT=0, SI_STATE_SLEEP=1, SI_STATE_SPI_ACTIVE=2, \
 				SI_STATE_READY=3, SI_STATE_READY2=4, SI_STATE_TX_TUNE=5, \
 				SI_STATE_RX_TUNE=6, SI_STATE_TX=7, SI_STATE_RX=8, SI_STATE_ERROR=9, \
-				SI_STATE_UNKNOWN=10, SI_STATE_OFF=11
+				SI_STATE_UNKNOWN=10, SI_STATE_OFF=11, SI_STATE_OFF_NO_INIT=12,
 } si_state_t;
 
 typedef struct {
@@ -213,7 +215,7 @@ int 	si446x_get_afc_info(void);
 void si446x_start_rx_fast_channel(uint8_t CHANNEL);
 void si446x_start_tx_fast_channel(uint8_t CHANNEL);
 si_state_t si446x_request_device_state_shadow(void);
-void si446x_set_power_off(si_state_t st);
+void si446x_inform_state(si_state_t st);
 
 extern uint8_t radio_spi_go(uint8_t data);
 extern void radio_shutdown(int go);

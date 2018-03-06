@@ -26,7 +26,7 @@ enum { PART_SI446X=0x4468, PATCHID=0 };
 
 // State Vars
 static unsigned ctsWentHigh;
-static volatile si_state_t current_state = SI_STATE_OFF; // why did I make this volatile? Probably shouldn't be... --NPS
+static volatile si_state_t current_state = SI_STATE_OFF_NO_INIT; // why did I make this volatile? Probably shouldn't be... --NPS
 
 static uint8_t latched_rssi;
 static uint8_t current_rssi;
@@ -141,7 +141,9 @@ uint8_t si446x_get_current_rssi(){
 	return current_rssi;
 }
 
-void si446x_set_power_off(si_state_t st) {
+// Forces driver state in event of external state change (e.g. power goes off)
+// In such cases you cannot poll the chip and ask.
+void si446x_inform_state(si_state_t st) {
 	current_state = st;
 }
 

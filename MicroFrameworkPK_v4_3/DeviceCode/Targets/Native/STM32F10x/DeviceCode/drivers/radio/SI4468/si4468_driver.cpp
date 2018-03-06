@@ -167,6 +167,7 @@ static const char* PrintStateID(si_state_t id){
 		case SI_STATE_ERROR:		return "SI_STATE_ERROR";
 		case SI_STATE_UNKNOWN:		return "SI_STATE_UNKNOWN";
 		case SI_STATE_OFF:			return "SI_STATE_OFF";
+		case SI_STATE_OFF_NO_INIT:	return "SI_STATE_OFF_NO_INIT";
 		default:					return "error";
 	}
 }
@@ -237,7 +238,7 @@ static void state_cont_do(void *arg) {
 	state_tr_time = 0;
 	si446x_debug_print(DEBUG03,"%s(): Took %d ms\r\n", __func__, HAL_Time_TicksToMicroseconds(tr_time)/1000);
 #endif
-	HAL_Time_Sleep_MicroSeconds(AUSTERE_RADIO_POWER_PAD_MS*1000);
+	HAL_Time_Sleep_MicroSeconds(RADIO_POWER_PAD_MS*1000);
 
 	ret = si446x_reinit();
 	if (ret != DS_Success) CPU_Radio_State_Changed(SI4468_SPI2, STATE_ERROR);
@@ -631,7 +632,17 @@ radio_state_t si446x_hal_get_state() {
 	si_state_t state = si446x_request_device_state_shadow();
 	//si446x_debug_print(DEBUG02,"%s\r\n", __func__);
 
+	// If the radio is available, we can ask it the state directly.
+	if (state != SI_STATE_OFF_NO_INIT && state != SI_STATE_OFF && state != SI_STATE_SLEEP) {
+		// It is safe to poll the radio as long as the spi-bus is free
+		if ( !si446x_spi_lock(radio_lock_state) ) {
+			state = si446x_request_device_state();
+			si446x_spi_unlock();
+		}
+	}
+
 	switch(state) {
+		case SI_STATE_OFF_NO_INIT: return STATE_OFF_NO_INIT;
 		case SI_STATE_OFF: 		return STATE_OFF;
 		case SI_STATE_SLEEP: 	return STATE_SLEEP;
 		case SI_STATE_SPI_ACTIVE:
@@ -664,7 +675,7 @@ static int radio_turn_on_internal(const int t_max) {
 		si446x_debug_print(DEBUG02,"+");
 	}
 	si446x_debug_print(DEBUG02,"\r\n");
-	if (timeout == 0) HAL_Time_Sleep_MicroSeconds(AUSTERE_RADIO_POWER_PAD_MS*1000); // Padding. Doesn't seem fully stable when indicated.
+	if (timeout == 0) HAL_Time_Sleep_MicroSeconds(RADIO_POWER_PAD_MS*1000); // Padding. Doesn't seem fully stable when indicated.
 	return t_max-timeout;
 }
 
@@ -684,18 +695,24 @@ DeviceStatus si446x_hal_set_state(radio_state_t next) {
 	si446x_debug_print(DEBUG03,"%s() : Curr=%s next=%s\r\n", __func__, rs_tostring(curr), rs_tostring(next));
 
 	if (curr == next) return DS_Success;
-	
+
 	// SLEEP --> RX
 	if (curr == STATE_SLEEP && next == STATE_RX) {
 		return si446x_hal_rx(0);
 	}
-	
+
+	// RX --> SLEEP
 	if (curr == STATE_RX && next == STATE_SLEEP) {
 		return si446x_hal_sleep(0);
 	}
 
+	// IDLE --> SLEEP
+	if (curr == STATE_IDLE && next == STATE_SLEEP) {
+		return si446x_hal_sleep(0);
+	}
+
 	// OFF --> SLEEP
-	if (curr == STATE_OFF && next == STATE_SLEEP) { 
+	if (curr == STATE_OFF && next == STATE_SLEEP) {
 		int ret;
 		DeviceStatus stat;
 		if (!isInit) {
@@ -711,9 +728,10 @@ DeviceStatus si446x_hal_set_state(radio_state_t next) {
 		state_tr_time = HAL_Time_CurrentTicks();
 #endif
 		si446x_next_state = STATE_SLEEP; // Driver will target this state after power-up
+		si446x_inform_state(SI_STATE_BOOT);
 		// Check status now
 		if (platform_power_radio_status(THIS_RADIO) > 0) {
-			// Ready now
+			// Ready now, interrupt won't fire, queue immediately.
 			state_callback_continuation.Enqueue();
 		}
 		return DS_Success; // Continuation will fire when power is ready
@@ -722,20 +740,21 @@ DeviceStatus si446x_hal_set_state(radio_state_t next) {
 	// OFF --> START
 	// Special case. Must be coming from OFF. Will block until ready.
 	// May or may not already be init()
-	// We are confirmed OFF so no need to check for locks 
-	if (curr == STATE_OFF && next == STATE_START) {
+	// We are confirmed OFF so no need to check for locks
+	if ((curr == STATE_OFF || curr == STATE_OFF_NO_INIT) && next == STATE_START) {
 		int time = radio_turn_on_internal(t_max);
 		if (time == t_max || time < 0) {
 			si446x_debug_print(ERR100,"%s(): STATE_START fatal timeout or error\r\n", __func__);
 			return DS_Fail;
 		} else { // Power indicated as good
-			si446x_debug_print(DEBUG02,"%s(): STATE_START took %d ms\r\n", __func__, (time)*100);
+			si446x_radio_unlock(); // In case was locked from previous sleep
+			si446x_debug_print(DEBUG03,"%s(): STATE_START took %d ms\r\n", __func__, (time)*100);
 			if (isInit) return si446x_reinit();
 			else return DS_Success; // User has not called init() yet and must do so later
 		}
 	}
 
-	// OFF --> ANY (other than START, which is above)
+	// ANY --> OFF (other than START, which is above)
 	// Turn off the radio and its power supply. Checks locks so won't interrpt an op.
 	if (next == STATE_OFF) {
 		// Get both locks
@@ -752,8 +771,8 @@ DeviceStatus si446x_hal_set_state(radio_state_t next) {
 		radio_shutdown(1);
 		HAL_Time_Sleep_MicroSeconds(20);
 		platform_radio_pwr_ctrl(TURN_RADIO_OFF, THIS_RADIO);
-		si446x_set_power_off(SI_STATE_OFF);
-		si446x_radio_unlock();
+		si446x_inform_state(SI_STATE_OFF);
+		//si446x_radio_unlock(); // Unlock it after we re-init
 		si446x_spi_unlock();
 		return DS_Success;
 	}
@@ -838,7 +857,7 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	int reset_errors;
 	uint8_t temp;
 	radio_lock_id_t owner;
-	
+
 	if (isInit) return DS_Bug;
 
 	// Set up debugging output
@@ -849,7 +868,7 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 		si446x_debug_print(DEBUG03, "%s() Fatal error, radio power not ready.\r\n", __func__);
 		return DS_Fail;
 	}
-	
+
 	if ( owner = si446x_spi_lock(radio_lock_init) ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_init() FAIL, SPI busy: %s\r\n", print_lock(owner));
 		return DS_Fail;
@@ -950,10 +969,10 @@ DeviceStatus si446x_hal_uninitialize(UINT8 radio) {
 	DeviceStatus ret = DS_Success;
 	radio_lock_id_t owner;
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_uninitialize()\r\n");
-	
+
 	if ( owner = si446x_spi_lock(radio_lock_uninit) ) 	{ return DS_Fail; }
 	if ( !isInit )				{ si446x_spi_unlock(); return DS_Fail; }
-	
+
 	isInit = 0;
 	radio_shutdown(1);
 
@@ -1266,7 +1285,6 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 		si446x_spi_unlock();
 		return DS_Busy;
 	}
-	si446x_set_power_off(SI_STATE_RX);
 
 	// Now that we are sure we aren't busy, can unlock the radio.
 	si446x_radio_unlock();

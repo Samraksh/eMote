@@ -24,7 +24,7 @@ typedef UINT16 RadioAddress_t;
 // its is upto to the radio layer to determine this and inform the user appropriately
 
 typedef enum {
-	STATE_OFF,		// Full power off
+	STATE_OFF,		// Full power off, but mac+radio is initalized
 	STATE_START,	// Enables power supply but does not init()
 	STATE_SLEEP,	// Sleep
 	STATE_IDLE,		// A higher power idle state, ready for commands
@@ -33,6 +33,7 @@ typedef enum {
 	STATE_ERROR,	// Error condition
 	STATE_BUSY,		// Misc busy state. Example, booting.
 	STATE_POWER_FAIL,	// Radio power has unexpectedly failed
+	STATE_OFF_NO_INIT,	// Radio is off, never initalized
 } radio_state_t;
 
 static const char* rs_tostring(radio_state_t id){
@@ -46,6 +47,8 @@ static const char* rs_tostring(radio_state_t id){
 		case STATE_TX:		return "STATE_TX";
 		case STATE_ERROR:	return "STATE_ERROR";
 		case STATE_BUSY:	return "STATE_BUSY";
+		case STATE_POWER_FAIL: return "STATE_POWER_FAIL";
+		case STATE_OFF_NO_INIT: return "STATE_OFF_NO_INIT";
 		default:			return "error";
 	}
 #else
