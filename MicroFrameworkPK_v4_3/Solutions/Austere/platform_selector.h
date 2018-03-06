@@ -23,7 +23,7 @@ typedef uint16_t ushort;
 // To enable, define SAMRAKSH_UPDATE_EXT, uncomment MFUpdate section of TinyCLR.proj, swap commented addresses in scatterfile_tinyclr_gcc.xml
 //#define SAMRAKSH_UPDATE_EXT
 
-#define NETMF_RADIO_DEBUG
+//#define NETMF_RADIO_DEBUG
 #define AUSTERE_RADIO_POWER_PAD_MS 400
 
 // #define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
