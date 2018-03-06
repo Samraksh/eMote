@@ -75,6 +75,8 @@ class csmaMAC: public MAC<Message_15_4_t, MACConfig>
 	BOOL RadioAckPending;
 	UINT8 m_recovery;
 
+private:
+	Message_15_4_t* StoreIncomingPacket(Message_15_4_t* msg);
 
 public:
 	BOOL flushTimerRunning;
@@ -96,9 +98,10 @@ public:
 	BOOL RadioInterruptHandler(RadioInterrupt Interrupt, void* Param);
 	void SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radioAckStatus);
 	BOOL UnInitialize(void);
-	BOOL HandleBroadcastMessage(Message_15_4_t * msg);
-	BOOL HandleUnicastMessage(Message_15_4_t * msg);
-	BOOL HandlePromiscousMessage(Message_15_4_t * msg);
+
+	Message_15_4_t* HandleBroadcastMessage(Message_15_4_t * msg, int Size);
+	Message_15_4_t* HandleUnicastMessage(Message_15_4_t * msg, int Size);
+	Message_15_4_t* HandlePromiscousMessage(Message_15_4_t * msg, int Size);
 	void SendToRadio();
 	void UpdateNeighborTable();
 	UINT8 GetSendBufferSize();

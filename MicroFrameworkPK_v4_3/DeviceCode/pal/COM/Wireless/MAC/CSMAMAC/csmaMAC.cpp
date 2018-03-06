@@ -466,11 +466,77 @@ void csmaMAC::SendToRadio(){
 	}
 }
 
+Message_15_4_t* csmaMAC::HandleBroadcastMessage(Message_15_4_t * msg, int Size){
+	return HandleUnicastMessage(msg, Size);
+}
+
+Message_15_4_t* csmaMAC::HandleUnicastMessage(Message_15_4_t * msg, int Size){
+	IEEE802_15_4_Header_t* rcv_msg_hdr = msg->GetHeader();
+	Message_15_4_t* temp = StoreIncomingPacket(msg);
+	//Call routing/app receive callback
+	MACReceiveFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->ReceiveHandler;
+
+	// Protect against catastrophic errors like dereferencing a null pointer
+	if(appHandler == NULL)
+	{
+		SOFT_BREAKPOINT();
+		hal_printf("[NATIVE] Error from csma mac recieve handler :  Handler not registered\n");
+		goto ReceiveHandler_out;
+	}
+
+	//TODO: GLOBAL_LOCK(irq); // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue requires IRQs off.  Updater needs IRQs on; TODO: make Update use a queue and disable IRQs again?
+	//(*appHandler)(msg, g_receive_buffer.GetNumberMessagesInBuffer());
+	(*appHandler)(msg, rcv_msg_hdr->payloadType);
+#if 0
+	//hal_printf("CSMA Receive: SRC address is : %d\n", rcv_msg_hdr->src);
+	if(rcv_msg_hdr->dest == MAC_BROADCAST_ADDRESS){
+
+		// Nived.Sivadas - changing interfaces with new dll design
+		(*appHandler)(g_receive_buffer.GetNumberMessagesInBuffer());
+		//(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,FALSE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
+		//HandleBroadcastMessage(msg);
+	}else if(rcv_msg_hdr->dest == CPU_Radio_GetAddress(this->radioName)){
+		//HandleUnicastMessage(msg);
+		(*appHandler)(g_receive_buffer.GetNumberMessagesInBuffer());
+		//(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,TRUE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
+	}
+	else {
+		//HandlePromiscousMessage(msg);
+	}
+#endif
+ReceiveHandler_out:
+	return temp;
+}
+
+Message_15_4_t* csmaMAC::HandlePromiscousMessage(Message_15_4_t * msg, int Size){
+
+}
+
+Message_15_4_t* StoreIncomingPacket(Message_15_4_t* msg){
+
+	// Implement bag exchange if the packet type is data
+	Message_15_4_t** next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
+
+	if(! (next_free_buffer))
+	{
+		g_receive_buffer.DropOldest(1);
+		next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
+	}
+
+	//Implement bag exchange, by actually switching the contents.
+	Message_15_4_t* temp = *next_free_buffer;	//get the ptr to a msg inside the first free buffer.
+	(*next_free_buffer) = msg;	//put the currently received message into the buffer (thereby its not free anymore)
+								//finally the temp, which is a ptr to free message will be returned.
+	return temp;
+
+}
+
 Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 	NeighborTableCommonParameters_One_t neighborTableCommonParameters_One_t;
 	NeighborTableCommonParameters_Two_t neighborTableCommonParameters_two_t;
 	UINT8 index;
 
+	//Handle ACK
 	if(Size == sizeof(softwareACKHeader)){
 		//hal_printf("software ACK\r\n");
 		return msg;
@@ -539,60 +605,18 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 	if((rcv_msg_hdr->dest == 0)){
 		//dont do anything
 	}
-	else if( ( rcv_msg_hdr->dest != MAC_BROADCAST_ADDRESS && rcv_msg_hdr->dest != CPU_Radio_GetAddress(this->radioName) ) )
+	else if( rcv_msg_hdr->dest != MAC_BROADCAST_ADDRESS   )
 	{
 		//HandlePromiscousMessage(msg);
-		return msg;
+		return HandleBroadcastMessage(msg,Size);
 	}
-	// Implement bag exchange if the packet type is data
-	Message_15_4_t** next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
-
-	if(! (next_free_buffer))
-	{
-		g_receive_buffer.DropOldest(1);
-		next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
+	else if(rcv_msg_hdr->dest != CPU_Radio_GetAddress(this->radioName) ){
+		return HandlePromiscousMessage(msg,Size);
+	}
+	else{
+		return HandleUnicastMessage(msg, Size);
 	}
 
-	//Implement bag exchange, by actually switching the contents.
-	Message_15_4_t* temp = *next_free_buffer;	//get the ptr to a msg inside the first free buffer.
-	(*next_free_buffer) = msg;	//put the currently received message into the buffer (thereby its not free anymore)
-								//finally the temp, which is a ptr to free message will be returned.
-
-
-	//Call routing/app receive callback
-	MACReceiveFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->ReceiveHandler;
-
-	// Protect against catastrophic errors like dereferencing a null pointer
-	if(appHandler == NULL)
-	{
-		SOFT_BREAKPOINT();
-		hal_printf("[NATIVE] Error from csma mac recieve handler :  Handler not registered\n");
-		goto ReceiveHandler_out;
-	}
-
-	//TODO: GLOBAL_LOCK(irq); // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue requires IRQs off.  Updater needs IRQs on; TODO: make Update use a queue and disable IRQs again?
-	//(*appHandler)(msg, g_receive_buffer.GetNumberMessagesInBuffer());
-	(*appHandler)(msg, rcv_msg_hdr->payloadType);
-
-#if 0
-	//hal_printf("CSMA Receive: SRC address is : %d\n", rcv_msg_hdr->src);
-	if(rcv_msg_hdr->dest == MAC_BROADCAST_ADDRESS){
-
-		// Nived.Sivadas - changing interfaces with new dll design
-		(*appHandler)(g_receive_buffer.GetNumberMessagesInBuffer());
-		//(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,FALSE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
-		//HandleBroadcastMessage(msg);
-	}else if(rcv_msg_hdr->dest == CPU_Radio_GetAddress(this->radioName)){
-		//HandleUnicastMessage(msg);
-		(*appHandler)(g_receive_buffer.GetNumberMessagesInBuffer());
-		//(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,TRUE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
-	}
-	else {
-		//HandlePromiscousMessage(msg);
-	}
-#endif
-ReceiveHandler_out:
-	return temp;
 }
 
 
