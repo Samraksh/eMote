@@ -140,8 +140,15 @@ DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, U
 		RadioAckPending = FALSE;
 		m_recovery = 1;
 
+		hal_printf("csmaMAC::Initialize CPU_Radio_Get_State = %u =? STATE_OFF_NO_INIT=%u \r\n", CPU_Radio_Get_State(this->radioName), STATE_OFF_NO_INIT);
 		if(CPU_Radio_Get_State(this->radioName) == STATE_OFF_NO_INIT){
-			CPU_Radio_Set_State(this->radioName, STATE_START);
+			while(	CPU_Radio_Get_State(this->radioName) != STATE_START
+				&&	CPU_Radio_Get_State(this->radioName) != STATE_SLEEP
+				&&	CPU_Radio_Get_State(this->radioName) != STATE_RX
+				){
+				hal_printf("csmaMAC::Initialize CPU_Radio_Set_State STATE_START CPU_Radio_Get_State = %u \r\n", CPU_Radio_Get_State(this->radioName));
+				CPU_Radio_Set_State(this->radioName, STATE_START);
+			}
 		}
 
 		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, numberOfRadios, macName)) != DS_Success) {
