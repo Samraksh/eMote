@@ -163,3 +163,12 @@ INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT
 	status = CPU_Radio_ClearChannelAssesment(radioName, numberOfMicroSecond);
 	return status;
 }
+
+
+INT32 Radio_802_15_4_Base::SetDefaultRxState( CLR_RT_HeapBlock* pMngObj, UINT8 radioName, UINT16 state, HRESULT &hr )
+{
+	DeviceStatus status;
+	status = CPU_Radio_SetDefaultRxState(radioName, state);
+	return status;
+}
+

@@ -333,3 +333,25 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base:
     }
     TINYCLR_NOCLEANUP();
 }
+
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::SetDefaultRxState___SamraksheMoteNetDeviceStatus__U1__U2( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        UINT8 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 1, param0 ) );
+
+        UINT16 param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 2, param1 ) );
+
+        INT32 retVal = Radio_802_15_4_Base::SetDefaultRxState( pMngObj,  param0, param1, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}

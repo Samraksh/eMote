@@ -164,6 +164,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
     TINYCLR_NATIVE_DECLARE(SetRadioAddress___BOOLEAN__U1__U2);
     TINYCLR_NATIVE_DECLARE(UnInitialize___SamraksheMoteNetDeviceStatus__U1);
     TINYCLR_NATIVE_DECLARE(TurnOffRx___SamraksheMoteNetDeviceStatus__U1);
+    TINYCLR_NATIVE_DECLARE(SetDefaultRxState___SamraksheMoteNetDeviceStatus__U1__U2);
 
     //--//
 
