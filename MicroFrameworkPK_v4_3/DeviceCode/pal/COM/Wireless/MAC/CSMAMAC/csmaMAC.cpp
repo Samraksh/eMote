@@ -22,9 +22,45 @@ BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param){
 	return g_csmaMacObject.RadioInterruptHandler(Interrupt, param);
 }
 
+void csmaRadioStateChangeHandler(UINT8 radioName, radio_state_t rs){
+	if(g_csmaMacObject.flushTimerRunning  == false){
+		g_csmaMacObject.flushTimerRunning = true;
+		VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
+	}
+}
+
 void SendFirstPacketToRadio(void * arg){
 	if (g_send_buffer.GetNumberMessagesInBuffer() >= 1){
-	g_csmaMacObject.SendToRadio();
+		radio_state_t radio_state = CPU_Radio_Get_State(g_csmaMacObject.radioName);
+		switch(radio_state){ //reschedule to check again
+			case STATE_OFF: //Turn on and reschedule
+				CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_SLEEP );
+				//return; //Disabling return for now. We can use the callback
+			case STATE_BUSY:
+			case STATE_ERROR:
+			case STATE_POWER_FAIL: // Just reschedule to check again
+				VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
+				g_csmaMacObject.flushTimerRunning  = true;
+				return;
+
+			case STATE_TX:
+			case STATE_RX:
+			case STATE_IDLE:
+			case STATE_SLEEP: //Do nothing
+				break;
+
+
+
+			case STATE_OFF_NO_INIT:
+			case STATE_START:
+				hal_printf("CSMA: SendFirstPacketToRadio Not expecting non init state\r\n");
+			default:
+				hal_printf("Unknown state");
+				SOFT_BREAKPOINT();
+				break;
+		}
+
+		g_csmaMacObject.SendToRadio();
 	} else {
 		//hal_printf("no packets to send...stopping flushbuffer\r\n");
 		if (g_csmaMacObject.flushTimerRunning == true) {
@@ -94,6 +130,7 @@ DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, U
 		Radio_Event_Handler.SetRadioInterruptHandler(csmaRadioInterruptHandler);
 		Radio_Event_Handler.SetReceiveHandler(csmaReceiveHandler);
 		Radio_Event_Handler.SetSendAckHandler(csmaSendAckHandler);
+		Radio_Event_Handler.SetStateChangeHandler(csmaRadioStateChangeHandler);
 
 		g_send_buffer.Initialize();
 		g_receive_buffer.Initialize();
@@ -381,6 +418,7 @@ BOOL csmaMAC::Resend(void* msg, int Size){
 void csmaMAC::SendToRadio(){
 	// if we have more than one packet in the send buffer we will switch on the timer that will be used to flush the packets out
 	DEBUG_PRINTF_CSMA("SndRad<%d> %d\r\n",g_send_buffer.GetNumberMessagesInBuffer(), RadioAckPending);
+
 	if ( (g_send_buffer.GetNumberMessagesInBuffer() > 1) && (flushTimerRunning == false) ){
 		DEBUG_PRINTF_CSMA("start FLUSHBUFFER3\r\n");
 		VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
@@ -512,7 +550,7 @@ Message_15_4_t* csmaMAC::HandlePromiscousMessage(Message_15_4_t * msg, int Size)
 
 }
 
-Message_15_4_t* StoreIncomingPacket(Message_15_4_t* msg){
+Message_15_4_t* csmaMAC::StoreIncomingPacket(Message_15_4_t* msg){
 
 	// Implement bag exchange if the packet type is data
 	Message_15_4_t** next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
@@ -630,6 +668,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 	Message_15_4_t* temp = (Message_15_4_t *)msg;
 	UINT8* rcv_payload =  temp->GetPayload();
 #endif
+	hal_printf("csmaMAC::SendAckHandler status = %u, radioAckStatus = %u", status, radioAckStatus );
 	switch(status)
 	{
 		case NetworkOperations_Success:
