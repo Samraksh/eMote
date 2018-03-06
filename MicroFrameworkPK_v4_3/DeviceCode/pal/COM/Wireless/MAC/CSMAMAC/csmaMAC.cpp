@@ -457,6 +457,10 @@ void csmaMAC::SendToRadio(){
 				//txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), 70);
 			}
 		}
+
+		while(CPU_Radio_TurnOffRx(this->radioName) != DS_Success) {
+			//hal_printf("csmaMAC::SendToRadio radio sleep fail 3");
+		}
 	}
 }
 
