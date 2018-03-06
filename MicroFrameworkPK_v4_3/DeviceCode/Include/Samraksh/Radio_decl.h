@@ -32,6 +32,7 @@ typedef enum {
 	STATE_TX,		// Transmitting a packet, assumed busy
 	STATE_ERROR,	// Error condition
 	STATE_BUSY,		// Misc busy state. Example, booting.
+	STATE_POWER_FAIL,	// Radio power has unexpectedly failed
 } radio_state_t;
 
 static const char* rs_tostring(radio_state_t id){
