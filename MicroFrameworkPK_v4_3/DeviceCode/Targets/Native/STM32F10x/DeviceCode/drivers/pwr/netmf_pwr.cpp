@@ -154,7 +154,7 @@ void PowerInit() {
 	CalibrateHSI();
 #endif
 
-	High_Power();
+	//High_Power();
 	RCC_LSICmd(DISABLE);
 	RTC_wakeup_init();
 	WakeLockInit();

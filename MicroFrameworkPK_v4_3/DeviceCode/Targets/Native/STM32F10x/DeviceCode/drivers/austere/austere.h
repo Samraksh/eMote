@@ -23,3 +23,4 @@ void print_power_supply_status(void);
 
 int platform_radio_pwr_ctrl(int on, int radio __attribute__((unused)));
 int platform_power_event_sub(HAL_CONTINUATION *cb);
+int platform_power_radio_status(int radio);

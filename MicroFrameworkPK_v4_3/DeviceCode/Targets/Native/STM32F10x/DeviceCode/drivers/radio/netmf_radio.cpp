@@ -45,8 +45,10 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioN
 	DeviceStatus status = DS_Fail;
 	currentRadioName = -1;
 
+#ifndef NETMF_RADIO_DEBUG
 	if(eventHandlers == NULL)
 		goto CPU_Radio_Initialize_out;
+#endif
 
 	switch(radioName)
 	{
@@ -427,12 +429,19 @@ DeviceStatus CPU_Radio_Set_State(UINT8 radioName, radio_state_t next) {
 // 'rs' is the current state (after change)
 // For now, only called when leaving the OFF state.
 void CPU_Radio_State_Changed(UINT8 radioName, radio_state_t rs) {
-	hal_printf("NEW STATE %d \r\n", (int)rs);
+	hal_printf("NEW STATE: %s \r\n", rs_tostring(rs)); // Debug example. Delete me.
 }
 
 // Return: -1 if unknown, else transition time in milliseconds
 INT32 CPU_Radio_Get_TrTime(UINT8 radioName, radio_state_t x, radio_state_t y) {
+#ifdef PLATFORM_ARM_AUSTERE
+	if (x == STATE_OFF && y != x)
+		return 20000; // From OFF to any other state, approximate
+	else
+		return -1; // Undefined for now
+#else
 	return -1;
+#endif
 }
 
 void* CPU_Radio_Send(UINT8 radioName, void* msg, UINT16 size)

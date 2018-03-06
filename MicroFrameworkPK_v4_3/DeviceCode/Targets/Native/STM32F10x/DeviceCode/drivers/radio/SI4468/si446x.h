@@ -42,8 +42,35 @@ enum radio_lock_id_t {
 	radio_lock_crc			=11, // Not used
 	radio_lock_interrupt	=12,
 	radio_lock_rx_setup		=13,
+	radio_lock_power		=14,
 	radio_lock_all			=0xFF,
 };
+
+static const char* print_lock(radio_lock_id_t x) {
+#ifndef BUILD_RTM
+	switch(x) {
+		case radio_lock_none: 			return "radio_lock_none";
+		case radio_lock_tx: 			return "radio_lock_tx";
+		case radio_lock_tx_power: 		return "radio_lock_tx_power";
+		case radio_lock_set_channel:	return "radio_lock_set_channel";
+		case radio_lock_cca: 			return "radio_lock_cca";
+		case radio_lock_cca_ms: 		return "radio_lock_cca_ms";
+		case radio_lock_rx: 			return "radio_lock_rx";
+		case radio_lock_init: 			return "radio_lock_init";
+		case radio_lock_uninit: 		return "radio_lock_uninit";
+		case radio_lock_reset: 			return "radio_lock_reset";
+		case radio_lock_sleep: 			return "radio_lock_sleep";
+		case radio_lock_crc: 			return "radio_lock_crc";
+		case radio_lock_interrupt: 		return "radio_lock_interrupt";
+		case radio_lock_all: 			return "radio_lock_all";
+		case radio_lock_rx_setup:		return "radio_lock_rx_setup";
+		case radio_lock_power:			return "radio_lock_power";
+		default: 						return "ERROR, Unknown Lock!!!";
+	}
+#else
+	return "";
+#endif
+}
 
 enum {
 	NONE00=0,
@@ -118,6 +145,7 @@ typedef struct {
 radio_state_t	si446x_hal_get_state(void);
 DeviceStatus	si446x_hal_set_state(radio_state_t next);
 DeviceStatus 	si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT8 mac_id);
+DeviceStatus 	si446x_reinit(void);
 DeviceStatus 	si446x_hal_uninitialize(UINT8 radio);
 DeviceStatus 	si446x_hal_reset(UINT8 radio);
 UINT16 			si446x_hal_get_address(UINT8 radio);
@@ -144,8 +172,9 @@ void			si446x_hal_register_rx_callback(si446x_rx_callback_t handler);
 void			si446x_hal_unregister_rx_callback();
 
 // END MF HAL FUNCTIONS
-
+#ifndef SI446x_NO_DEBUG_PRINT
 void si446x_set_debug_print(my_debug_print_t f, unsigned level);
+#endif
 void si446x_reset(void);
 int si446x_part_info();
 void si446x_get_int_status(uint8_t PH_CLR_PEND, uint8_t MODEM_CLR_PEND, uint8_t CHIP_CLR_PEND);
@@ -184,6 +213,7 @@ int 	si446x_get_afc_info(void);
 void si446x_start_rx_fast_channel(uint8_t CHANNEL);
 void si446x_start_tx_fast_channel(uint8_t CHANNEL);
 si_state_t si446x_request_device_state_shadow(void);
+void si446x_set_power_off(si_state_t st);
 
 extern uint8_t radio_spi_go(uint8_t data);
 extern void radio_shutdown(int go);

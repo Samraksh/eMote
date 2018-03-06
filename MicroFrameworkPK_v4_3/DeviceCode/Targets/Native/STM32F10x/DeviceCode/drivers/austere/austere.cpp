@@ -4,15 +4,20 @@
 
 static HAL_CONTINUATION *pwr_cb = NULL;
 
-// Interrupt. TODO: CHANGE ME
+// 0 = Cap not rady, 1 = Cap Ready
+static int get_radio_charge_status(void) {
+	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_12);
+}
+
+static int get_radio_power_status(void) {
+	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_7);
+}
+
 static void rad_power_monitor(GPIO_PIN Pin, BOOL PinState, void* Param) {
 	if (pwr_cb == NULL) return;
-	pwr_cb->Enqueue();
-	// if (CPU_GPIO_GetPinState(39) == TRUE){
-		// hal_printf("*** rad pwr good ***\r\n");
-	// } else {
-		// hal_printf("*** rad pwr bad ***\r\n");
-	// }
+
+	if (platform_power_radio_status(0))
+		pwr_cb->Enqueue();
 }
 
 //PC12, PC9, PB5, PC7
@@ -81,6 +86,16 @@ static void power_supply_enable(uint16_t pin) {
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 }
 
+static void power_supply_enable_output_mode(uint16_t pin) {
+	ASSERT(IS_AUSTERE_PWR_PIN(pin));
+	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Pin = pin;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_WriteBit(GPIOC, pin, Bit_SET);
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
+}
+
 // AUSTERE. ONLY GPIOC and FOR IPU/IPD (i.e. not for 3.3v ctrl which uses OD logic)
 static void power_supply_disable(uint16_t pin) {
 	ASSERT(IS_AUSTERE_PWR_PIN(pin));
@@ -91,13 +106,14 @@ static void power_supply_disable(uint16_t pin) {
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 }
 
-// 0 = Cap not rady, 1 = Cap Ready
-static int get_radio_charge_status(void) {
-	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_12);
-}
-
-static int get_radio_power_status(void) {
-	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_7);
+static void power_supply_disable_output_mode(uint16_t pin) {
+	ASSERT(IS_AUSTERE_PWR_PIN(pin));
+	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Pin = pin;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_WriteBit(GPIOC, pin, Bit_RESET);
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
 }
 
 void austere_radio_shutdown(int go) {
@@ -107,11 +123,13 @@ void austere_radio_shutdown(int go) {
 		GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_RESET);
 }
 
-// PC7. This is called from TinyCLR.cpp at boot after driver init but before CLR starts.
+// PC12. This is called from TinyCLR.cpp at boot
 void austere_init(void) {
+	CPU_GPIO_EnableInputPin( (GPIO_PIN) 44, FALSE, rad_power_monitor, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP );
 	CPU_GPIO_EnableInputPin( (GPIO_PIN) 39, FALSE, rad_power_monitor, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP );
 }
 
+// for Power driver only
 void austere_power_init(void) {
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC, ENABLE);
 	power_supply_reset();
@@ -121,8 +139,8 @@ void austere_power_init(void) {
 	for(volatile int i=0; i<106666; i++) ; // spin, maybe about 10ms ???
 
 	// Default the 2.5v rail and its tank cap to OFF at start. Will use on demand.
-	power_supply_disable(AUSTERE_BIG_CAP);
-	power_supply_disable(AUSTERE_2V5);
+	power_supply_disable_output_mode(AUSTERE_BIG_CAP);
+	power_supply_disable_output_mode(AUSTERE_2V5);
 	austere_radio_shutdown(AUSTERE_RADIO_OFF);	// Disable radio. This will be over-ridden by driver
 }
 
@@ -131,15 +149,23 @@ int platform_power_event_sub(HAL_CONTINUATION *cb) {
 	return 0;
 }
 
+int platform_power_radio_status(int radio) {
+	return get_radio_power_status() && get_radio_charge_status();
+}
+
 // Turn the radio on/off.
 // Only one radio, so second parameter is ignored.
 int platform_radio_pwr_ctrl(int on, int radio) {
 	if (on) {
-		power_supply_enable(AUSTERE_BIG_CAP);
-		power_supply_enable(AUSTERE_2V5);
+		//power_supply_enable(AUSTERE_BIG_CAP);
+		//power_supply_enable(AUSTERE_2V5);
+		power_supply_enable_output_mode(AUSTERE_BIG_CAP);
+		power_supply_enable_output_mode(AUSTERE_2V5);
 	} else {
-		power_supply_disable(AUSTERE_2V5);
-		power_supply_disable(AUSTERE_BIG_CAP);
+		//power_supply_disable(AUSTERE_2V5);
+		//power_supply_disable(AUSTERE_BIG_CAP);
+		power_supply_disable_output_mode(AUSTERE_2V5);
+		power_supply_disable_output_mode(AUSTERE_BIG_CAP);
 	}
 	return 0;
 }

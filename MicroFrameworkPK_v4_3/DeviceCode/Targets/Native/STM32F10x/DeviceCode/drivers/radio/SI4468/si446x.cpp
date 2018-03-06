@@ -65,7 +65,7 @@ static void blank_debug(int x, const char *fmt, ...) {
 	return;
 }
 
-
+#ifndef SI446x_NO_DEBUG_PRINT
 static my_debug_print_t si446x_debug_print;
 void si446x_set_debug_print(my_debug_print_t f, unsigned level) {
 	if (level != 0)
@@ -73,6 +73,9 @@ void si446x_set_debug_print(my_debug_print_t f, unsigned level) {
 	else
 		si446x_debug_print = blank_debug;
 }
+#else
+#define si446x_debug_print(...) ((void)0)
+#endif
 
 static void radio_error() {
 	//__ASM volatile ("bkpt"); // TURN ME OFF FOR RELEASE !!!!!!
@@ -136,6 +139,10 @@ uint8_t si446x_get_chip_pend() {
 
 uint8_t si446x_get_current_rssi(){
 	return current_rssi;
+}
+
+void si446x_set_power_off(si_state_t st) {
+	current_state = st;
 }
 
 void si446x_reset(void)

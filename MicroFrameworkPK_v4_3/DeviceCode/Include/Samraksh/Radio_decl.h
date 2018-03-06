@@ -25,6 +25,7 @@ typedef UINT16 RadioAddress_t;
 
 typedef enum {
 	STATE_OFF,		// Full power off
+	STATE_START,	// Enables power supply but does not init()
 	STATE_SLEEP,	// Sleep
 	STATE_IDLE,		// A higher power idle state, ready for commands
 	STATE_RX,		// In RX (listen) mode
@@ -32,6 +33,24 @@ typedef enum {
 	STATE_ERROR,	// Error condition
 	STATE_BUSY,		// Misc busy state. Example, booting.
 } radio_state_t;
+
+static const char* rs_tostring(radio_state_t id){
+#ifndef BUILD_RTM
+	switch(id){
+		case STATE_START:	return "STATE_START";
+		case STATE_OFF:		return "STATE_OFF";
+		case STATE_SLEEP:	return "STATE_SLEEP";
+		case STATE_IDLE:	return "STATE_IDLE";
+		case STATE_RX:		return "STATE_RX";
+		case STATE_TX:		return "STATE_TX";
+		case STATE_ERROR:	return "STATE_ERROR";
+		case STATE_BUSY:	return "STATE_BUSY";
+		default:			return "error";
+	}
+#else
+	return "";
+#endif
+}
 
 enum RadioInterrupt
 {
