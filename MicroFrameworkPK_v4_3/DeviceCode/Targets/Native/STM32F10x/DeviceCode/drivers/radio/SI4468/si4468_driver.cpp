@@ -241,16 +241,51 @@ static void state_cont_do(void *arg) {
 	HAL_Time_Sleep_MicroSeconds(RADIO_POWER_PAD_MS*1000);
 
 	ret = si446x_reinit();
-	if (ret != DS_Success) CPU_Radio_State_Changed(SI4468_SPI2, STATE_ERROR);
+	if (ret != DS_Success) {
+		//SendStateChangeUpdateToUpperLayers(SI4468_SPI2, STATE_ERROR);
+
+		RadioEventHandler* ev_handler_ptr = radio_si446x_spi2.GetMacHandler(active_mac_index);
+		if(ev_handler_ptr && ev_handler_ptr->GetStateChangeHandler()){
+			RadioStateChangeFuncPtrType funcptr = ev_handler_ptr->GetStateChangeHandler();
+			(*funcptr)(SI4468_SPI2, STATE_ERROR);
+		}
+
+	}
+
 
 	if (next == STATE_SLEEP) {
 		ret = si446x_hal_sleep(0);
-		if (ret == DS_Success)
-			CPU_Radio_State_Changed(SI4468_SPI2, STATE_SLEEP);
-		else
-			CPU_Radio_State_Changed(SI4468_SPI2, STATE_ERROR);
+		if (ret == DS_Success){
+			//SendStateChangeUpdateToUpperLayers(SI4468_SPI2, STATE_SLEEP);
+			RadioEventHandler* ev_handler_ptr = radio_si446x_spi2.GetMacHandler(active_mac_index);
+			if(ev_handler_ptr && ev_handler_ptr->GetStateChangeHandler()){
+				RadioStateChangeFuncPtrType funcptr = ev_handler_ptr->GetStateChangeHandler();
+				(*funcptr)(SI4468_SPI2, STATE_SLEEP);
+			}
+		}
+
+		else{
+			//SendStateChangeUpdateToUpperLayers(SI4468_SPI2, STATE_ERROR);
+			RadioEventHandler* ev_handler_ptr = radio_si446x_spi2.GetMacHandler(active_mac_index);
+			if(ev_handler_ptr && ev_handler_ptr->GetStateChangeHandler()){
+				RadioStateChangeFuncPtrType funcptr = ev_handler_ptr->GetStateChangeHandler();
+				(*funcptr)(SI4468_SPI2, STATE_SLEEP);
+			}
+		}
+
 	}
 }
+
+
+//void SendStateChangeUpdateToUpperLayers(UINT8 radioName, radio_state_t r){
+//
+//	RadioEventHandler* ev_handler_ptr = radio_si446x_spi2.GetMacHandler(active_mac_index);
+//	if(ev_handler_ptr && ev_handler_ptr->GetStateChangeHandler()){
+//		RadioStateChangeFuncPtrType* funcptr = ev_handler_ptr->GetStateChangeHandler();
+//		(*funcptr)(radioName, r);
+//	}
+//
+//}
 
 static void sendSoftwareAck(UINT16 dest){
 	//CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, TRUE);
