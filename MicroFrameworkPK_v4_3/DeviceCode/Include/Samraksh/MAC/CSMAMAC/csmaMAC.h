@@ -61,6 +61,8 @@ extern NeighborTable g_NeighborTable;
 
 extern volatile UINT32 csmaSendToRadioFailCount;
 
+#define CSMA_KEEP_RADIO_OFF 1
+#define CSMA_ENABLE_DISCO_BEACON 0
 /*******************************************************************************************************/
 
 // core mac class definitions extends the MAC class and implements its virtual functions

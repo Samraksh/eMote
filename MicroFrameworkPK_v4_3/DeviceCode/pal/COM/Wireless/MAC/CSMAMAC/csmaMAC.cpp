@@ -37,7 +37,9 @@ void SendFirstPacketToRadio(void * arg){
 void beaconScheduler(void *arg){
 	DEBUG_PRINTF_CSMA("bS fire\r\n");
 	g_csmaMacObject.UpdateNeighborTable();
+#if CSMA_ENABLE_DISCO_BEACON
 	g_csmaMacObject.SendHello();
+#endif
 }
 
 DeviceStatus csmaMAC::SendHello(){
@@ -101,20 +103,28 @@ DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, U
 		RadioAckPending = FALSE;
 		m_recovery = 1;
 
+		if(CPU_Radio_Get_State(this->radioName) == STATE_OFF_NO_INIT){
+			CPU_Radio_Set_State(this->radioName, STATE_START);
+		}
+
 		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, numberOfRadios, macName)) != DS_Success) {
 			SOFT_BREAKPOINT();
 			return status;
 		}
 
+#if (CSMA_KEEP_RADIO_OFF==0)
 		if((status = CPU_Radio_TurnOnRx(this->radioName)) != DS_Success) {
 			SOFT_BREAKPOINT();
 			return status;
 		}
+#endif
 
 		SetMyAddress(CPU_Radio_GetAddress(this->radioName));
 
+#if (CSMA_KEEP_RADIO_OFF==0)
 		// telling the radio to keep the RX on instead of sleeping
 		CPU_Radio_SetDefaultRxState(this->radioName,0);
+#endif
 
 		// VIRT_TIMER_MAC_SENDPKT is the one-shot resend timer that will be activated if we need to resend a packet
 		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_SENDPKT, 0, 30000, TRUE, TRUE, SendFirstPacketToRadio, ADVTIMER_32BIT) != TimerSupported){ //50 milli sec Timer in micro seconds
@@ -122,11 +132,14 @@ DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, U
 			return DS_Fail;
 		}
 
+
 		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_BEACON, 0, 5000000, FALSE, TRUE, beaconScheduler, ADVTIMER_32BIT) != TimerSupported){
 			ASSERT(FALSE);
 			return DS_Fail;
 		}
+#if CSMA_ENABLE_DISCO_BEACON
 		VirtTimer_Start(VIRT_TIMER_MAC_BEACON);
+#endif
 
 		// This is the buffer flush timer that flushes the send buffer if it contains more than just one packet
 		flushTimerRunning = false;
@@ -394,9 +407,15 @@ void csmaMAC::SendToRadio(){
 			//if(CPU_Radio_ClearChannelAssesment(this->radioName, 200)!=DS_Success){
 			if(CPU_Radio_ClearChannelAssesment(this->radioName)!=DS_Success){
 				VirtTimer_Start(VIRT_TIMER_MAC_SENDPKT);
+#if	CSMA_KEEP_RADIO_OFF
+				while(CPU_Radio_TurnOffRx(this->radioName) != DS_Success) {
+					hal_printf("csmaMAC::SendToRadio radio sleep fail 1");
+				}
+#endif
 				return;
 			}
-		} else if (ds == DS_Fail) {
+		}
+		else if (ds == DS_Fail) {
 			//SOFT_BREAKPOINT();
 #ifdef DEBUG_CSMAMAC
 			ASSERT(0);
@@ -405,6 +424,11 @@ void csmaMAC::SendToRadio(){
 #endif
 			++csmaSendToRadioFailCount;
 			VirtTimer_Start(VIRT_TIMER_MAC_SENDPKT);
+#if	CSMA_KEEP_RADIO_OFF
+				while(CPU_Radio_TurnOffRx(this->radioName) != DS_Success) {
+					hal_printf("csmaMAC::SendToRadio radio sleep fail 2");
+				}
+#endif
 			return;
 		}
 
