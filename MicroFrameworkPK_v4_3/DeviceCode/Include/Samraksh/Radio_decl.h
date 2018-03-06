@@ -111,6 +111,7 @@ typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status, 
 // Typedef defining the signature of the RadioInterruptFuncPtr function
 typedef BOOL (*RadioInterruptFuncPtrType) (RadioInterrupt Interrupt, void *param);
 
+typedef void (*RadioStateChangeFuncPtrType) (UINT8 radioName, radio_state_t rs);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,7 +134,14 @@ public:
 	ReceiveFuncPtrType ReceiveHandler;
 	SendAckFuncPtrType SendAckHandler;
 	RadioInterruptFuncPtrType RadioInterruptHandler;
+	RadioStateChangeFuncPtrType RadioStateChangeHandler;
 
+	RadioEventHandler(){
+		ReceiveHandler = NULL;
+		SendAckHandler = NULL;
+		RadioInterruptHandler = NULL;
+		RadioStateChangeHandler = NULL;
+	}
 	/*RadioEventHandler(ReceiveFuncPtrType recieve_handler, SendAckFuncPtrType send_ack_handler,RadioInterruptFuncPtrType  radio_interrupt_handler, UINT32 radio_interrupt_mask )
 	{
 		this->RecieveHandler = recieve_handler;
@@ -141,7 +149,6 @@ public:
 		this->RadioInterruptHandler = radio_interrupt_handler;
 		this->RadioInterruptMask = radio_interrupt_mask;
 	}*/
-
 	void SetReceiveHandler(ReceiveFuncPtrType receive_handler)
 	{
 		this->ReceiveHandler = receive_handler;
@@ -155,6 +162,11 @@ public:
 	void SetRadioInterruptHandler(RadioInterruptFuncPtrType radio_interrupt_handler)
 	{
 		this->RadioInterruptHandler = radio_interrupt_handler;
+	}
+
+	void SetStateChangeHandler(RadioStateChangeFuncPtrType receive_handler)
+	{
+		this->RadioStateChangeHandler = receive_handler;
 	}
 
 	ReceiveFuncPtrType GetReceiveHandler()
@@ -172,6 +184,11 @@ public:
 		return this->RadioInterruptHandler;
 	}
 
+	RadioStateChangeFuncPtrType GetStateChangeHandler()
+	{
+		return this->RadioStateChangeHandler;
+	}
+
 }RadioEventHandler_t;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,7 +199,7 @@ public:
 radio_state_t CPU_Radio_Get_State(UINT8 radioName);
 DeviceStatus CPU_Radio_Set_State(UINT8 radioName, radio_state_t next);
 INT32 CPU_Radio_Get_TrTime(UINT8 radioName, radio_state_t x, radio_state_t y);
-void CPU_Radio_State_Changed(UINT8 radioName, radio_state_t rs);
+//void CPU_Radio_State_Changed(UINT8 radioName, radio_state_t rs);
 
 // Called by MAC layers responsible for registering of eventhandlers
 DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioIDs, UINT8 numberRadios , UINT8 mac_id); //Initializes Return the ID of the Radio layer that was initialized

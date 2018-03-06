@@ -428,9 +428,14 @@ DeviceStatus CPU_Radio_Set_State(UINT8 radioName, radio_state_t next) {
 // A callback from the driver.
 // 'rs' is the current state (after change)
 // For now, only called when leaving the OFF state.
-void CPU_Radio_State_Changed(UINT8 radioName, radio_state_t rs) {
-	hal_printf("NEW STATE: %s \r\n", rs_tostring(rs)); // Debug example. Delete me.
-}
+//void CPU_Radio_State_Changed(UINT8 radioName, radio_state_t rs) {
+//	hal_printf("NEW STATE: %s \r\n", rs_tostring(rs)); // Debug example. Delete me.
+//	switch(radioName) {
+//		case SI4468_SPI2: return si446x_hal_set_state(next);
+//		default: ASSERT(0); return DS_Fail;
+//	}
+//
+//}
 
 // Return: -1 if unknown, else transition time in milliseconds
 INT32 CPU_Radio_Get_TrTime(UINT8 radioName, radio_state_t x, radio_state_t y) {
