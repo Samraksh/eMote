@@ -15,9 +15,10 @@ static int get_radio_power_status(void) {
 
 static void rad_power_monitor(GPIO_PIN Pin, BOOL PinState, void* Param) {
 	if (pwr_cb == NULL) return;
+	pwr_cb->Enqueue();
 
-	if (platform_power_radio_status(0))
-		pwr_cb->Enqueue();
+	// if (platform_power_radio_status(0))
+		// pwr_cb->Enqueue();
 }
 
 //PC12, PC9, PB5, PC7
