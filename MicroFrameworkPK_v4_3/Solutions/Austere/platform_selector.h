@@ -24,7 +24,7 @@ typedef uint16_t ushort;
 //#define SAMRAKSH_UPDATE_EXT
 
 //#define NETMF_RADIO_DEBUG
-#define RADIO_POWER_PAD_MS 400
+#define RADIO_POWER_PAD_MS 800
 
 // #define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
 //#define EMOTE_COMPLETIONS_STARTUP_WAIT // Only allow snooze mode for 1 minute after boot.
