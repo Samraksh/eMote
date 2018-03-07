@@ -61,6 +61,8 @@ extern NeighborTable g_NeighborTable;
 
 extern volatile UINT32 csmaSendToRadioFailCount;
 
+
+#define CSMA_POWER_DOWN_RADIO 1
 #define CSMA_KEEP_RADIO_OFF 1
 #define CSMA_ENABLE_DISCO_BEACON 0
 /*******************************************************************************************************/
@@ -78,6 +80,8 @@ class csmaMAC: public MAC<Message_15_4_t, MACConfig>
 private:
 	Message_15_4_t* StoreIncomingPacket(Message_15_4_t* msg);
 
+
+	DeviceStatus CSMARadioInitialize();
 public:
 	BOOL flushTimerRunning;
 	UINT16 GetRadioAddress();
@@ -88,6 +92,7 @@ public:
 	BOOL SetRadioTxPower(int power);
 	BOOL SetRadioChannel(int channel);
 
+	void RadioPowerFailHandler();
 
 	BOOL Resend(void* msg, int Size);
 	DeviceStatus Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID,UINT8 radioName, MACConfig *config);

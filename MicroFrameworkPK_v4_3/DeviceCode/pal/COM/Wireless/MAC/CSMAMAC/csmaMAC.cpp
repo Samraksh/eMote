@@ -18,14 +18,35 @@ void csmaSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 	g_csmaMacObject.SendAckHandler(msg, Size, status, radioAckStatus);
 }
 
+void csmaMAC::RadioPowerFailHandler(){
+	CSMARadioInitialize();
+}
+
 BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param){
 	return g_csmaMacObject.RadioInterruptHandler(Interrupt, param);
 }
 
 void csmaRadioStateChangeHandler(UINT8 radioName, radio_state_t rs){
-	if(g_csmaMacObject.flushTimerRunning  == false){
-		g_csmaMacObject.flushTimerRunning = true;
-		VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
+	hal_printf("csmaRadioStateChangeHandler rs = %u", rs);
+	switch(rs){ //reschedule to check again
+		case STATE_SLEEP: //schedule radio flush buffer
+			if(g_csmaMacObject.flushTimerRunning  == false){
+				g_csmaMacObject.flushTimerRunning = true;
+				VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
+			}
+			break;
+		case STATE_ERROR: //Turn on and reschedule
+			hal_printf("csmaRadioStateChangeHandler Power failed in the capacitor. Need to reinitialize rs = %u \r\n", rs);
+			SOFT_BREAKPOINT();
+			break;
+		case STATE_POWER_FAIL:
+			hal_printf("csmaRadioStateChangeHandler Power failed in the capacitor. Need to reinitialize rs = %u \r\n", rs);
+			g_csmaMacObject.RadioPowerFailHandler();
+			break;
+
+		default:
+			hal_printf("csmaRadioStateChangeHandler Unepected State Change rs = %u \r\n", rs);
+			break;
 	}
 }
 
@@ -34,6 +55,7 @@ void SendFirstPacketToRadio(void * arg){
 		radio_state_t radio_state = CPU_Radio_Get_State(g_csmaMacObject.radioName);
 		switch(radio_state){ //reschedule to check again
 			case STATE_OFF: //Turn on and reschedule
+				hal_printf("csmaMAC::SendFirstPacketToRadio Turning radio power ON");
 				CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_SLEEP );
 				//return; //Disabling return for now. We can use the callback
 			case STATE_BUSY:
@@ -106,6 +128,36 @@ DeviceStatus csmaMAC::SetConfig(MACConfig *config){
 	return DS_Success;
 }
 
+DeviceStatus csmaMAC::CSMARadioInitialize(){
+	DeviceStatus status = DS_Fail;
+
+	UINT8 numberOfRadios = 1;
+	RadioAckPending = FALSE;
+	m_recovery = 1;
+
+	Radio_Event_Handler.SetRadioInterruptHandler(csmaRadioInterruptHandler);
+	Radio_Event_Handler.SetReceiveHandler(csmaReceiveHandler);
+	Radio_Event_Handler.SetSendAckHandler(csmaSendAckHandler);
+	Radio_Event_Handler.SetStateChangeHandler(csmaRadioStateChangeHandler);
+
+	hal_printf("csmaMAC::Initialize CPU_Radio_Get_State = %u =? STATE_OFF_NO_INIT=%u \r\n", CPU_Radio_Get_State(this->radioName), STATE_OFF_NO_INIT);
+	if(CPU_Radio_Get_State(this->radioName) == STATE_OFF_NO_INIT){
+		while(	CPU_Radio_Get_State(this->radioName) != STATE_START
+			&&	CPU_Radio_Get_State(this->radioName) != STATE_SLEEP
+			&&	CPU_Radio_Get_State(this->radioName) != STATE_RX
+			){
+			hal_printf("csmaMAC::Initialize CPU_Radio_Set_State STATE_START CPU_Radio_Get_State = %u \r\n", CPU_Radio_Get_State(this->radioName));
+			CPU_Radio_Set_State(this->radioName, STATE_START);
+		}
+	}
+
+	if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, numberOfRadios, macName)) != DS_Success) {
+		SOFT_BREAKPOINT();
+		return status;
+	}
+	return status;
+}
+
 DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MACConfig* config){
 	DeviceStatus status;
 
@@ -127,31 +179,12 @@ DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, U
 		AppCount = 0; //number of upperlayers connected to you
 		csmaMAC::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
 
-		Radio_Event_Handler.SetRadioInterruptHandler(csmaRadioInterruptHandler);
-		Radio_Event_Handler.SetReceiveHandler(csmaReceiveHandler);
-		Radio_Event_Handler.SetSendAckHandler(csmaSendAckHandler);
-		Radio_Event_Handler.SetStateChangeHandler(csmaRadioStateChangeHandler);
-
 		g_send_buffer.Initialize();
 		g_receive_buffer.Initialize();
 		g_NeighborTable.ClearTable();
 
-		UINT8 numberOfRadios = 1;
-		RadioAckPending = FALSE;
-		m_recovery = 1;
-
-		hal_printf("csmaMAC::Initialize CPU_Radio_Get_State = %u =? STATE_OFF_NO_INIT=%u \r\n", CPU_Radio_Get_State(this->radioName), STATE_OFF_NO_INIT);
-		if(CPU_Radio_Get_State(this->radioName) == STATE_OFF_NO_INIT){
-			while(	CPU_Radio_Get_State(this->radioName) != STATE_START
-				&&	CPU_Radio_Get_State(this->radioName) != STATE_SLEEP
-				&&	CPU_Radio_Get_State(this->radioName) != STATE_RX
-				){
-				hal_printf("csmaMAC::Initialize CPU_Radio_Set_State STATE_START CPU_Radio_Get_State = %u \r\n", CPU_Radio_Get_State(this->radioName));
-				CPU_Radio_Set_State(this->radioName, STATE_START);
-			}
-		}
-
-		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, numberOfRadios, macName)) != DS_Success) {
+		status = CSMARadioInitialize();
+		if(status != DS_Success){
 			SOFT_BREAKPOINT();
 			return status;
 		}
@@ -675,20 +708,29 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 	Message_15_4_t* temp = (Message_15_4_t *)msg;
 	UINT8* rcv_payload =  temp->GetPayload();
 #endif
-	hal_printf("csmaMAC::SendAckHandler status = %u, radioAckStatus = %u", status, radioAckStatus );
+	hal_printf("csmaMAC::SendAckHandler status = %u, radioAckStatus = %u \r\n", status, radioAckStatus );
 	switch(status)
 	{
 		case NetworkOperations_Success:
 			{
 				DEBUG_PRINTF_CSMA("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 				//VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
-				if(SendAckFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->SendAckHandler)
+				if(SendAckFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->SendAckHandler){
+					hal_printf("csmaMAC::SendAckHandler Notifying upper layer \r\n", status, radioAckStatus );
 					(*appHandler)(msg, Size, status, radioAckStatus);
+				}
+
 				// Attempt to send the next packet out since we have no scheduler
 				if(!g_send_buffer.IsBufferEmpty())
 				{
 					VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
 					flushTimerRunning = true;
+				}
+				else{
+#if CSMA_POWER_DOWN_RADIO
+				hal_printf("csmaMAC::SendAckHandler Turning radio power off");
+				CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_OFF );
+#endif
 				}
 			}
 			break;
