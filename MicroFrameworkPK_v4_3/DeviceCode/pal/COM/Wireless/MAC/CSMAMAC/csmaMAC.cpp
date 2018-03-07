@@ -861,8 +861,6 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 	{
 		case NetworkOperations_Success:
 			{
-				m_DATAACKPending = TRUE;
-				SendACKToUpperLayers((Message_15_4_t*)msg, Size, NetworkOperations_SendInitiated, radioAckStatus);
 				if(true){
 					if(!txMsgPtr ){
 						hal_printf("csmaMAC::SendAckHandler txMsgPtr NULL");
@@ -878,18 +876,31 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 					}
 				}
 				if(txMsgPtr->GetHeader()->dest == MAC_BROADCAST_ADDRESS){
-					m_DATAACKPending = FALSE;
-				}
-
-
-				if(VirtTimer_Start(VIRT_TIMER_MAC_DATAACKFAIL) != TimerSupported){ //Assume failed
 					txMsgPtr = NULL;
 					m_DATAACKPending = FALSE;
 #if CSMA_POWER_DOWN_RADIO
-				hal_printf("csmaMAC::SendAckHandler Turning radio power off \r\n");
-				CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_OFF );
+		hal_printf("csmaMAC::SendAckHandler Turning radio power off \r\n");
+		CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_OFF );
 #endif
 				}
+				else{
+					m_DATAACKPending = TRUE;
+					SendACKToUpperLayers((Message_15_4_t*)msg, Size, NetworkOperations_SendInitiated, radioAckStatus);
+					if(VirtTimer_Start(VIRT_TIMER_MAC_DATAACKFAIL) != TimerSupported){ //Assume failed
+						txMsgPtr = NULL;
+						m_DATAACKPending = FALSE;
+#if CSMA_POWER_DOWN_RADIO
+					hal_printf("csmaMAC::SendAckHandler Turning radio power off \r\n");
+					CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_OFF );
+#endif
+					}
+				}
+
+
+
+
+
+
 
 
 			}
