@@ -12,6 +12,10 @@
 // Hardware stuff
 #include <stm32f10x.h>
 
+#ifndef RADIO_POWER_PAD_MS
+#define RADIO_POWER_PAD_MS 0
+#endif
+
 // Automatically moves the radio to RX after a transmit instead of sleeping.
 // Comment out below line to disable and use default ('0')
 #define SI446x_TX_DONE_STATE (SI_STATE_RX<<4)
