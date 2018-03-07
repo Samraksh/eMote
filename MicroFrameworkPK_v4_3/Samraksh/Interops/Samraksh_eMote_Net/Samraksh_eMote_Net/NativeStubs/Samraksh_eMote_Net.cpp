@@ -10,27 +10,6 @@
 #include "Samraksh_eMote_Net.h"
 
 
-CLR_RT_HeapBlock_NativeEventDispatcher *Net_ne_Context;
-UINT64 Net_ne_userData;
-
-static HRESULT Initialize_Net_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData ){
-	Net_ne_Context = pContext;
-	Net_ne_userData = userData;
-	return S_OK;
-}
-
-static HRESULT  EnableDisable_Net_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, bool fEnable ){
-	return S_OK;
-}
-
-static HRESULT Cleanup_Net_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext ){
-	Net_ne_Context = NULL;
-	Net_ne_userData = 0;
-	CleanupNativeEventsFromHALQueue( pContext );
-	return S_OK;
-}
-
-
 static const CLR_RT_MethodHandler method_lookup[] =
 {
     NULL,

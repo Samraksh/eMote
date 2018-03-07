@@ -1261,6 +1261,15 @@ namespace Samraksh.eMote.Net
         [MethodImpl(MethodImplOptions.InternalCall)]
         private extern DeviceStatus GetMACNeighborListInternal(ushort[] neighborlist);
 
+        /// <summary>Send packet</summary>
+        /// <param name="address">Address of recipient</param>
+        /// <param name="payload">Payload (in byte array) to send</param>
+        /// <param name="offset">Offset into array</param>
+        /// <param name="size">Size of payload</param>
+        /// <returns>Result status</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size);
+
 		/*/// <summary>Get the type of this MAC instance</summary>
 		/// <returns></returns>
 		[MethodImpl(MethodImplOptions.InternalCall)]
@@ -1281,14 +1290,7 @@ namespace Samraksh.eMote.Net
 		#endregion Private Externs
 
 
-		/// <summary>Send packet</summary>
-		/// <param name="address">Address of recipient</param>
-		/// <param name="payload">Payload (in byte array) to send</param>
-		/// <param name="offset">Offset into array</param>
-		/// <param name="size">Size of payload</param>
-		/// <returns>Result status</returns>
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		public extern NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size);
+
 
         /// <summary></summary>
         /// <param name="nativeBuffer"></param>
