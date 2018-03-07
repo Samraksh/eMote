@@ -1035,7 +1035,6 @@ DeviceStatus si446x_hal_uninitialize(UINT8 radio) {
 }
 
 // Sets chip to OFF_NO_INIT, frees locks, disables power, and does a HW chip shutdown
-// Does not change power supply state
 // We assume a full MAC re-init is done as well
 // For example, done after an unexpected power loss
 DeviceStatus si446x_hal_reset(UINT8 radio) {
@@ -1054,6 +1053,10 @@ DeviceStatus si446x_hal_reset(UINT8 radio) {
 	isInit = 0;
 	si446x_next_state = STATE_NONE;
 	platform_radio_pwr_ctrl(TURN_RADIO_OFF, THIS_RADIO);
+	tx_callback_continuation.Abort();
+	rx_callback_continuation.Abort();
+	int_defer_continuation.Abort();
+	state_callback_continuation.Abort();
 	irq.Release();
 
 	si446x_radio_unlock(); // The owner, if any, is now dead
@@ -1642,6 +1645,8 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	radio_lock_id_t owner;
 	UINT64 int_ts;
 
+	if (!isInit) return;
+
 	GLOBAL_LOCK(irq); // Locked due to time critical.
 	int_ts = HAL_Time_CurrentTicks(); // Log RX time.
 	irq.Release(); // Unlock after timestamp.
@@ -1652,7 +1657,6 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 
 	if ( owner = si446x_spi_lock(radio_lock_interrupt) ) {
 		if (owner == radio_lock_init) return; // Ignore spurious error during init and reset
-		if (owner == radio_lock_reset) return;
 
 		// Damn, we got an interrupt in the middle of another transaction. Have to defer it.
 		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI locked: %s\r\n", print_lock(owner));

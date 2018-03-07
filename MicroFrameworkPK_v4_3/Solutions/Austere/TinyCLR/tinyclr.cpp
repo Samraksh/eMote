@@ -126,9 +126,9 @@ void ApplicationEntryPoint()
 
 OUT:
 	hal_printf("DONE\r\n");
-	CPU_Sleep(SLEEP_LEVEL__AWAKE, 0);
-	hal_printf("wokeup\r\n");
-	while(1) { wait(); }
+	while(1) {
+		CPU_Sleep(SLEEP_LEVEL__AWAKE, 0);
+	}
 #else
     CLR_SETTINGS clrSettings;
 
