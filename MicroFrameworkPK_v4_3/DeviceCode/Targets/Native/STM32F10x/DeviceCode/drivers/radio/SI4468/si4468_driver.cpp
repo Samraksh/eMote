@@ -1034,18 +1034,30 @@ DeviceStatus si446x_hal_uninitialize(UINT8 radio) {
 	return ret;
 }
 
-// A full-stop reset of the chip. In the PAL API but you probably shouldn't be.
-// Prefer to use UnInit() and Init() instead. --NPS
+// Sets chip to OFF_NO_INIT, frees locks, disables power, and does a HW chip shutdown
+// Does not change power supply state
+// We assume a full MAC re-init is done as well
+// For example, done after an unexpected power loss
 DeviceStatus si446x_hal_reset(UINT8 radio) {
 	radio_lock_id_t owner;
 
-	si446x_debug_print(ERR99, "SI446X: si446x_hal_reset(). PROBABLY A BAD IDEA. USE UNINIT() AND INIT() INSTEAD.\r\n");
+	if ( owner = si446x_spi_lock(radio_lock_reset) ) {
+		// Bummer. Not clear how this could happen. I hope it doesn't.
+		// Only thing to do is try again.
+		si446x_debug_print(ERR99, "%s() Reset failed... maybe fatal\r\n");
+		return DS_Fail;
+	}
 
-	if ( owner = si446x_spi_lock(radio_lock_reset) ) 	{ return DS_Fail; }
+	GLOBAL_LOCK(irq); // Probably not necessary, but just to be safe...
+	si446x_inform_state(SI_STATE_OFF_NO_INIT);
+	radio_shutdown(1);
+	isInit = 0;
+	si446x_next_state = STATE_NONE;
+	platform_radio_pwr_ctrl(TURN_RADIO_OFF, THIS_RADIO);
+	irq.Release();
 
-	si446x_reset();
-	si446x_get_int_status(0x0, 0x0, 0x0); // Clear all interrupts.
-	si446x_fifo_info(0x3); // Reset both FIFOs. bit1 RX, bit0 TX
+	si446x_radio_unlock(); // The owner, if any, is now dead
+	si446x_spi_unlock();
 
 	return DS_Success;
 }
@@ -1639,7 +1651,8 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	si446x_debug_print(DEBUG02, "SI446X: INT\r\n");
 
 	if ( owner = si446x_spi_lock(radio_lock_interrupt) ) {
-		if (owner == radio_lock_init) return; // Ignore spurious error during init.
+		if (owner == radio_lock_init) return; // Ignore spurious error during init and reset
+		if (owner == radio_lock_reset) return;
 
 		// Damn, we got an interrupt in the middle of another transaction. Have to defer it.
 		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI locked: %s\r\n", print_lock(owner));

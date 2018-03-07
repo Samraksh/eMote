@@ -27,6 +27,7 @@ void ApplicationEntryPoint()
 
 #ifdef NETMF_RADIO_DEBUG
 	DeviceStatus ret;
+	BOOL ret_bool;
 	hal_printf("Native Radio Test Running...\r\n");
 	print_radio_state();
 
@@ -98,14 +99,26 @@ void ApplicationEntryPoint()
 	hal_printf("\r\n");
 
 	// wait 11 seconds then RX to SLEEP
+	// This should fail because power blinked
+	hal_printf("TESTING: Going to sleep after power fail (should dis-allow)\r\n");
 	HAL_Time_Sleep_MicroSeconds(11000000);
 	wait4();
 	ret = CPU_Radio_Set_State(SI4468_SPI2, STATE_SLEEP);
-	if (ret == DS_Success) hal_printf("Radio RX-->sleep test pass\r\n");
+	if (ret == DS_Fail) hal_printf("Radio RX-->sleep test pass\r\n");
 	else { hal_printf("Radio RX-->Sleep test FAIL\r\n"); goto OUT; }
 	wait4();
 	hal_printf("\r\n");
 
+	// wait 11 seconds then RESET
+	HAL_Time_Sleep_MicroSeconds(11000000);
+	wait4();
+	ret_bool = CPU_Radio_Reset(SI4468_SPI2);
+	if (ret_bool) hal_printf("Reset test pass\r\n");
+	else { hal_printf("Reset test FAIL\r\n"); goto OUT; }
+	wait4();
+	hal_printf("\r\n");
+
+	HAL_Time_Sleep_MicroSeconds(1000000);
 	wait4();
 	print_radio_state();
 
