@@ -875,7 +875,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 						return;
 					}
 				}
-				if(txMsgPtr->GetHeader()->dest == MAC_BROADCAST_ADDRESS){
+				if(false) { //if(txMsgPtr->GetHeader()->dest == MAC_BROADCAST_ADDRESS){
 					txMsgPtr = NULL;
 					m_DATAACKPending = FALSE;
 #if CSMA_POWER_DOWN_RADIO
