@@ -269,7 +269,7 @@ static void state_cont_do(void *arg) {
 			RadioEventHandler* ev_handler_ptr = radio_si446x_spi2.GetMacHandler(active_mac_index);
 			if(ev_handler_ptr && ev_handler_ptr->GetStateChangeHandler()){
 				RadioStateChangeFuncPtrType funcptr = ev_handler_ptr->GetStateChangeHandler();
-				(*funcptr)(SI4468_SPI2, STATE_SLEEP);
+				(*funcptr)(SI4468_SPI2, STATE_ERROR);
 			}
 		}
 
@@ -668,7 +668,7 @@ radio_state_t si446x_hal_get_state() {
 	//si446x_debug_print(DEBUG02,"%s\r\n", __func__);
 
 	// If the radio is available, we can ask it the state directly.
-	if (state != SI_STATE_OFF_NO_INIT && state != SI_STATE_OFF && state != SI_STATE_SLEEP) {
+	if (state != SI_STATE_OFF_NO_INIT && state != SI_STATE_OFF && state != SI_STATE_SLEEP && state != SI_STATE_START && state != SI_STATE_BOOT) {
 		// It is safe to poll the radio as long as the spi-bus is free
 		if ( !si446x_spi_lock(radio_lock_state) ) {
 			state = si446x_request_device_state();
@@ -690,6 +690,7 @@ radio_state_t si446x_hal_get_state() {
 		case SI_STATE_ERROR:
 		case SI_STATE_UNKNOWN: 	return STATE_ERROR;
 		case SI_STATE_BOOT: 	return STATE_BUSY;
+		case SI_STATE_START:	return STATE_START;
 		default: 				return STATE_BUSY;
 	}
 }
@@ -785,7 +786,10 @@ DeviceStatus si446x_hal_set_state(radio_state_t next) {
 			si446x_radio_unlock(); // In case was locked from previous sleep
 			si446x_debug_print(DEBUG03,"%s(): STATE_START took %d ms\r\n", __func__, (time)*100);
 			if (isInit) return si446x_reinit();
-			else return DS_Success; // User has not called init() yet and must do so later
+			else {
+				si446x_inform_state(SI_STATE_START);
+				return DS_Success;
+			}
 		}
 	}
 
