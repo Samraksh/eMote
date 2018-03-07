@@ -75,14 +75,26 @@ class csmaMAC: public MAC<Message_15_4_t, MACConfig>
 	//Buffer variable
 	UINT8 CurrentActiveApp;
 	BOOL RadioAckPending;
+	BOOL m_DATAACKPending;
 	UINT8 m_recovery;
+
+	Message_15_4_t txMsg;
+	Message_15_4_t* txMsgPtr;
 
 private:
 	Message_15_4_t* StoreIncomingPacket(Message_15_4_t* msg);
 
 
 	DeviceStatus CSMARadioInitialize();
+	void SendACKToUpperLayers(Message_15_4_t* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus);
+
+
+
+	BOOL SendDataACK(UINT16 dest);
+
 public:
+	void SendFirstPacketToRadio();
+
 	BOOL flushTimerRunning;
 	UINT16 GetRadioAddress();
 	UINT16 GetMaxPayload(){return MaxPayload;}
@@ -119,6 +131,7 @@ public:
 	NeighborTable* GetNeighborTable(){return &g_NeighborTable;}
 	Neighbor_t* GetNeighbor(UINT16 macAddress){return g_NeighborTable.GetNeighborPtr(macAddress); }
 
+	void DataACKFailTimerHandler();
 };
 
 

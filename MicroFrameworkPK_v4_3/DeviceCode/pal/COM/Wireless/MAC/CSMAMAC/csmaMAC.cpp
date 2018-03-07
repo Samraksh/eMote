@@ -27,7 +27,7 @@ BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param){
 }
 
 void csmaRadioStateChangeHandler(UINT8 radioName, radio_state_t rs){
-	hal_printf("csmaRadioStateChangeHandler rs = %u", rs);
+	hal_printf("csmaRadioStateChangeHandler rs = %u \r\n", rs);
 	switch(rs){ //reschedule to check again
 		case STATE_SLEEP: //schedule radio flush buffer
 			if(g_csmaMacObject.flushTimerRunning  == false){
@@ -50,22 +50,58 @@ void csmaRadioStateChangeHandler(UINT8 radioName, radio_state_t rs){
 	}
 }
 
-void SendFirstPacketToRadio(void * arg){
-	if (g_send_buffer.GetNumberMessagesInBuffer() >= 1){
-		radio_state_t radio_state = CPU_Radio_Get_State(g_csmaMacObject.radioName);
+void csmaDataACKFailTimerHandler(void *arg){
+	g_csmaMacObject.DataACKFailTimerHandler();
+
+}
+void csmaMAC::DataACKFailTimerHandler(){
+
+	if(txMsgPtr){
+		SendACKToUpperLayers(txMsgPtr, sizeof(Message_15_4_t), NetworkOperations_Fail, 0);
+
+		// Attempt to send the next packet out since we have no scheduler
+		if(!g_send_buffer.IsBufferEmpty())
+		{
+			VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
+			flushTimerRunning = true;
+		}
+		else{
+#if CSMA_POWER_DOWN_RADIO
+		hal_printf("csmaMAC::SendAckHandler Turning radio power off \r\n");
+		CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_OFF );
+#endif
+
+		txMsgPtr = NULL;
+		}
+	}
+	else if(m_DATAACKPending){
+		hal_printf("csmaMAC::DataACKFailTimerHandler m_DATAACKPending but no txMsgPtr \r\n");
+	}
+
+	m_DATAACKPending = FALSE;
+}
+
+void gSendFirstPacketToRadio(void * arg){
+	g_csmaMacObject.SendFirstPacketToRadio();
+}
+void csmaMAC::SendFirstPacketToRadio(){
+	hal_printf("CSMA SendFirstPacketToRadio g_send_buffer.GetNumberMessagesInBuffer() = %u rs = %u \r\n", g_send_buffer.GetNumberMessagesInBuffer(), CPU_Radio_Get_State(radioName));
+	if (g_send_buffer.GetNumberMessagesInBuffer() >= 1 && txMsgPtr == NULL){
+		radio_state_t radio_state = CPU_Radio_Get_State(radioName);
 		switch(radio_state){ //reschedule to check again
 			case STATE_OFF: //Turn on and reschedule
-				hal_printf("csmaMAC::SendFirstPacketToRadio Turning radio power ON");
-				CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_SLEEP );
+				hal_printf("csmaMAC::SendFirstPacketToRadio Turning radio power ON \r\n");
+				CPU_Radio_Set_State( radioName, STATE_SLEEP );
 				//return; //Disabling return for now. We can use the callback
 			case STATE_BUSY:
 			case STATE_ERROR:
 			case STATE_POWER_FAIL: // Just reschedule to check again
 				VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
-				g_csmaMacObject.flushTimerRunning  = true;
+				flushTimerRunning  = true;
 				return;
 
 			case STATE_TX:
+				return;
 			case STATE_RX:
 			case STATE_IDLE:
 			case STATE_SLEEP: //Do nothing
@@ -82,10 +118,11 @@ void SendFirstPacketToRadio(void * arg){
 				break;
 		}
 
-		g_csmaMacObject.SendToRadio();
-	} else {
-		//hal_printf("no packets to send...stopping flushbuffer\r\n");
-		if (g_csmaMacObject.flushTimerRunning == true) {
+		SendToRadio();
+	}
+	else {
+		hal_printf("no packets to send...stopping flushbuffer\r\n");
+		if (flushTimerRunning == true) {
 			VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
 		}
 	}
@@ -133,6 +170,7 @@ DeviceStatus csmaMAC::CSMARadioInitialize(){
 
 	UINT8 numberOfRadios = 1;
 	RadioAckPending = FALSE;
+	m_DATAACKPending = FALSE;
 	m_recovery = 1;
 
 	Radio_Event_Handler.SetRadioInterruptHandler(csmaRadioInterruptHandler);
@@ -163,6 +201,7 @@ DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, U
 
 	//Initialize yourself first (you being the MAC)
 	if(!this->Initialized){
+		txMsgPtr = NULL;
 		////MAC<Message_15_4_t, MACConfig>::Initialize(eventHandler, macName, routingAppID, radioID, config);
 		if(routingAppID >= MAX_APPS) {
 			SOFT_BREAKPOINT();
@@ -171,10 +210,7 @@ DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, U
 		this->macName = macName;
 		this->radioName = radioID;
 		SetConfig(config);
-		//MAC<Message_15_4_t, MACConfig>::AppIDIndex = routingAppID;
-		g_csmaMacObject.SetAppIdIndex(routingAppID);
-		//Initialize upperlayer callbacks
-		g_csmaMacObject.SetAppHandlers(eventHandler);
+
 
 		AppCount = 0; //number of upperlayers connected to you
 		csmaMAC::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
@@ -204,7 +240,7 @@ DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, U
 #endif
 
 		// VIRT_TIMER_MAC_SENDPKT is the one-shot resend timer that will be activated if we need to resend a packet
-		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_SENDPKT, 0, 30000, TRUE, TRUE, SendFirstPacketToRadio, ADVTIMER_32BIT) != TimerSupported){ //50 milli sec Timer in micro seconds
+		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_SENDPKT, 0, 30000, TRUE, TRUE, gSendFirstPacketToRadio, ADVTIMER_32BIT) != TimerSupported){ //50 milli sec Timer in micro seconds
 			ASSERT(FALSE);
 			return DS_Fail;
 		}
@@ -220,10 +256,16 @@ DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, U
 
 		// This is the buffer flush timer that flushes the send buffer if it contains more than just one packet
 		flushTimerRunning = false;
-		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_FLUSHBUFFER, 0, 50000, FALSE, TRUE, SendFirstPacketToRadio, ADVTIMER_32BIT) != TimerSupported){
+		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_FLUSHBUFFER, 0, 50000, FALSE, TRUE, gSendFirstPacketToRadio, ADVTIMER_32BIT) != TimerSupported){
 			ASSERT(FALSE);
 			return DS_Fail;
 		}
+
+		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_DATAACKFAIL, 0, 1000, TRUE, TRUE, csmaDataACKFailTimerHandler, ADVTIMER_32BIT) != TimerSupported){
+			ASSERT(FALSE);
+			return DS_Fail;
+		}
+
 		Initialized = TRUE;
 	}
 
@@ -233,6 +275,9 @@ DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, U
 	//Initialize upperlayer callbacks
 	////AppHandlers[routingAppID] = eventHandler;
 	CurrentActiveApp = routingAppID;
+	g_csmaMacObject.SetAppIdIndex(routingAppID);
+	g_csmaMacObject.SetAppHandlers(routingAppID,eventHandler);
+
 
 	return DS_Success;
 }
@@ -349,7 +394,7 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 	}
 
 	// Try to  send the packet out immediately if possible
-	SendFirstPacketToRadio(NULL);
+	SendFirstPacketToRadio();
 
 	return TRUE;
 }
@@ -411,6 +456,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 		payload[i] = lmsg[i];
 	}
 
+	hal_printf("CSMA Sending: dest: %d, src: %d, mac_id: %d, type: %d\r\n",dest, GetMyAddress(),this->macName,dataType);
 	DEBUG_PRINTF_CSMA("CSMA Sending: dest: %d, src: %d, network: %d, mac_id: %d, type: %d\r\n",dest, GetMyAddress(),MyConfig.Network,this->macName,dataType);
 
 	// Check if the circular buffer is full
@@ -420,7 +466,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 	}
 
 	// Try to  send the packet out immediately if possible
-	SendFirstPacketToRadio(NULL);
+	SendFirstPacketToRadio();
 
 	return TRUE;
 }
@@ -459,6 +505,7 @@ void csmaMAC::SendToRadio(){
 	// if we have more than one packet in the send buffer we will switch on the timer that will be used to flush the packets out
 	DEBUG_PRINTF_CSMA("SndRad<%d> %d\r\n",g_send_buffer.GetNumberMessagesInBuffer(), RadioAckPending);
 
+
 	if ( (g_send_buffer.GetNumberMessagesInBuffer() > 1) && (flushTimerRunning == false) ){
 		DEBUG_PRINTF_CSMA("start FLUSHBUFFER3\r\n");
 		VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
@@ -471,7 +518,7 @@ void csmaMAC::SendToRadio(){
 	}
 
 
-	if(!g_send_buffer.IsEmpty() && !RadioAckPending){
+	if(!g_send_buffer.IsEmpty() && !RadioAckPending && txMsgPtr == NULL && !m_DATAACKPending){
 
 		m_recovery = 1;
 
@@ -513,8 +560,7 @@ void csmaMAC::SendToRadio(){
 		//Message_15_4_t** temp = g_send_buffer.GetOldestPtr();
 		//Message_15_4_t* msg = *temp;
 		
-		Message_15_4_t txMsg;
-		Message_15_4_t* txMsgPtr = &txMsg;
+		txMsgPtr = &txMsg;
 		Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
 		Message_15_4_t* msgPtr = *tempPtr;
 		memset(txMsgPtr, 0, msgPtr->GetMessageSize());
@@ -533,22 +579,26 @@ void csmaMAC::SendToRadio(){
 			{
 				UINT32 snapShot = (UINT32) txMsgPtr->GetMetaData()->GetReceiveTimeStamp();
 				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->length, snapShot);
+				hal_printf("csmaMAC::CPU_Radio_Send_TimeStamped ");
 			}
 			else
 			{
 				//txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength());
 				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->length);
+
+				hal_printf("csmaMAC::SendToRadio CPU_Radio_Send ");
 				//txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), 70);
+			}
+			if(txMsgPtr){
+				hal_printf("dest = %u, src =%u, payloadType = %u \r\n"
+						,txMsgPtr->GetHeader()->dest,txMsgPtr->GetHeader()->src, txMsgPtr->GetHeader()->payloadType);
 			}
 		}
 	}
 }
 
-Message_15_4_t* csmaMAC::HandleBroadcastMessage(Message_15_4_t * msg, int Size){
-	return HandleUnicastMessage(msg, Size);
-}
 
-Message_15_4_t* csmaMAC::HandleUnicastMessage(Message_15_4_t * msg, int Size){
+Message_15_4_t* csmaMAC::HandleBroadcastMessage(Message_15_4_t * msg, int Size){
 	IEEE802_15_4_Header_t* rcv_msg_hdr = msg->GetHeader();
 	Message_15_4_t* temp = StoreIncomingPacket(msg);
 	//Call routing/app receive callback
@@ -584,6 +634,29 @@ Message_15_4_t* csmaMAC::HandleUnicastMessage(Message_15_4_t * msg, int Size){
 #endif
 ReceiveHandler_out:
 	return temp;
+
+}
+
+Message_15_4_t* csmaMAC::HandleUnicastMessage(Message_15_4_t * msg, int Size){
+	if(!msg) return msg;
+	Message_15_4_t* temp = StoreIncomingPacket(msg);
+	IEEE802_15_4_Header_t* rcv_msg_hdr = msg->GetHeader();
+	if(!rcv_msg_hdr) return msg;
+	//Send the ack back
+	SendDataACK(rcv_msg_hdr->src);
+
+	//Then process incoming packet
+	MACReceiveFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->ReceiveHandler;
+	if(appHandler == NULL)
+	{
+		SOFT_BREAKPOINT();
+		hal_printf("[NATIVE] Error from csma mac recieve handler :  Handler not registered\n");
+	}
+	else{
+		(*appHandler)(msg, rcv_msg_hdr->payloadType);
+	}
+	return temp;
+
 }
 
 Message_15_4_t* csmaMAC::HandlePromiscousMessage(Message_15_4_t * msg, int Size){
@@ -609,6 +682,20 @@ Message_15_4_t* csmaMAC::StoreIncomingPacket(Message_15_4_t* msg){
 
 }
 
+BOOL csmaMAC::SendDataACK(UINT16 dest){
+	static int i = 0;
+	static softwareACKHeader softwareAckHeader;
+	if(i == 0){
+		softwareAckHeader.src = g_csmaMacObject.GetMyAddress();
+		softwareAckHeader.payloadType = MFM_CSMA_DATA_ACK;
+		i++;
+	}
+	softwareAckHeader.dest = dest;
+	m_DATAACKPending = TRUE;
+	Message_15_4_t * txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (Message_15_4_t*)&softwareAckHeader, sizeof(softwareACKHeader));
+}
+
+
 Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 	NeighborTableCommonParameters_One_t neighborTableCommonParameters_One_t;
 	NeighborTableCommonParameters_Two_t neighborTableCommonParameters_two_t;
@@ -616,9 +703,21 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 	//Handle ACK
 	if(Size == sizeof(softwareACKHeader)){
-		//hal_printf("software ACK\r\n");
+		softwareACKHeader* swAckHeader = (softwareACKHeader*)msg;
+		RadioAddress_t sourceID = swAckHeader->src;
+		RadioAddress_t destID = swAckHeader->dest;
+		UINT8 payloadType = swAckHeader->payloadType;
+		hal_printf("ACK Received sourceID = %u, destID = %u   \r\n", sourceID, destID);
+		if(destID == CPU_Radio_GetAddress(radioName)){
+			if(txMsgPtr && CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_CSMA_DATA_ACK){
+				m_DATAACKPending = FALSE;
+				SendACKToUpperLayers(txMsgPtr, Size, NetworkOperations_SendACKed, 0);
+				txMsgPtr = NULL;
+			}
+		}
 		return msg;
-	} else if(Size- sizeof(IEEE802_15_4_Header_t) >  csmaMAC::GetMaxPayload()){
+	}
+	else if(Size- sizeof(IEEE802_15_4_Header_t) >  csmaMAC::GetMaxPayload()){
 		hal_printf("CSMA Receive Error: Packet is too big. Size: %d, MaxPayload: %d, ExpectedHeaderSize: %d \r\n", Size, csmaMAC::GetMaxPayload(), sizeof(IEEE802_15_4_Header_t));
 		return msg;
 	}
@@ -681,18 +780,18 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 	// Dont add the packet to the handler if the message happens to be a unicast not intended for me, unless you want to enable promiscous
 	if((rcv_msg_hdr->dest == 0)){
-		//dont do anything
+		//dont do anything //return HandlePromiscousMessage(msg, Size);
 	}
 	else if( rcv_msg_hdr->dest != MAC_BROADCAST_ADDRESS   )
 	{
 		//HandlePromiscousMessage(msg);
 		return HandleBroadcastMessage(msg,Size);
 	}
-	else if(rcv_msg_hdr->dest != CPU_Radio_GetAddress(this->radioName) ){
-		return HandlePromiscousMessage(msg,Size);
+	else if(rcv_msg_hdr->dest == CPU_Radio_GetAddress(this->radioName) ){
+		return HandleUnicastMessage(msg,Size);
 	}
 	else{
-		return HandleUnicastMessage(msg, Size);
+		return HandlePromiscousMessage(msg, Size);
 	}
 
 }
@@ -703,35 +802,96 @@ BOOL csmaMAC::RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 }
 
 
+void csmaMAC::SendACKToUpperLayers(Message_15_4_t* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus){
+	SendAckFuncPtrType m_txAckHandler = NULL;
+	MACEventHandler* mac_event_handler_ptr = NULL;
+
+	hal_printf("csmaMAC::SendACKToUpperLayers status = %u\r\n", status );
+
+	if (msg != NULL && msg->GetHeader()){
+		hal_printf("csmaMAC::SendACKToUpperLayers payloadType = %u \r\n",msg->GetHeader()->payloadType);
+
+		if(msg->GetHeader()->payloadType != MFM_CSMA_DISCOVERY){
+
+			//if(IsValidNativeAppIdOffset(msg->GetHeader()->payloadType) ){
+				mac_event_handler_ptr = g_csmaMacObject.GetAppHandler(CurrentActiveApp);
+				if(mac_event_handler_ptr != NULL) {
+
+					m_txAckHandler = mac_event_handler_ptr->GetSendAckHandler();
+				}
+			//}
+		}
+	}
+
+	if(m_txAckHandler != NULL){
+		hal_printf("csmaMAC::SendACKToUpperLayers Sending ACK to upper layer status = %u \r\n", status);
+		(m_txAckHandler)(msg, Size, status, radioAckStatus);
+	}
+
+}
+
 void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radioAckStatus){
 #ifdef DEBUG_CSMAMAC
 	Message_15_4_t* temp = (Message_15_4_t *)msg;
 	UINT8* rcv_payload =  temp->GetPayload();
 #endif
+
+	//Handle ACK
+	if(Size == sizeof(softwareACKHeader)){
+		softwareACKHeader* swAckHeader = (softwareACKHeader*)msg;
+		RadioAddress_t sourceID = swAckHeader->src;
+		RadioAddress_t destID = swAckHeader->dest;
+		UINT8 payloadType = swAckHeader->payloadType;
+		hal_printf("csmaMAC::SendAckHandler DataACK type meessage status = %u, radioAckStatus = %u sourceID = %u, destID = %u , payloadType = %u  \r\n", status, radioAckStatus , sourceID, destID, payloadType);
+		if(destID == CPU_Radio_GetAddress(radioName)){
+			if(txMsgPtr && CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_CSMA_DATA_ACK){
+				m_DATAACKPending = FALSE;
+				SendACKToUpperLayers(txMsgPtr, Size, NetworkOperations_SendACKed, 0);
+				txMsgPtr = NULL;
+			}
+		}
+		return;
+	}
+
 	hal_printf("csmaMAC::SendAckHandler status = %u, radioAckStatus = %u \r\n", status, radioAckStatus );
+
+
+
 	switch(status)
 	{
 		case NetworkOperations_Success:
 			{
-				DEBUG_PRINTF_CSMA("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
-				//VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
-				if(SendAckFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->SendAckHandler){
-					hal_printf("csmaMAC::SendAckHandler Notifying upper layer \r\n", status, radioAckStatus );
-					(*appHandler)(msg, Size, status, radioAckStatus);
+				m_DATAACKPending = TRUE;
+				SendACKToUpperLayers((Message_15_4_t*)msg, Size, NetworkOperations_SendInitiated, radioAckStatus);
+				if(true){
+					if(!txMsgPtr ){
+						hal_printf("csmaMAC::SendAckHandler txMsgPtr NULL");
+						return;
+					}
+					else if(msg == NULL){
+						hal_printf("csmaMAC::SendAckHandler msg NULL");
+						return;
+					}
+					else if(((Message_15_4_t*)msg) != txMsgPtr){
+						hal_printf("csmaMAC::SendAckHandler Stored TX message and the ACK status msgs are not matching");
+						return;
+					}
+				}
+				if(txMsgPtr->GetHeader()->dest == MAC_BROADCAST_ADDRESS){
+					m_DATAACKPending = FALSE;
 				}
 
-				// Attempt to send the next packet out since we have no scheduler
-				if(!g_send_buffer.IsBufferEmpty())
-				{
-					VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
-					flushTimerRunning = true;
-				}
-				else{
+
+				if(VirtTimer_Start(VIRT_TIMER_MAC_DATAACKFAIL) != TimerSupported){ //Assume failed
+					txMsgPtr = NULL;
+					m_DATAACKPending = FALSE;
 #if CSMA_POWER_DOWN_RADIO
-				hal_printf("csmaMAC::SendAckHandler Turning radio power off");
+				hal_printf("csmaMAC::SendAckHandler Turning radio power off \r\n");
 				CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_OFF );
 #endif
 				}
+
+
 			}
 			break;
 		

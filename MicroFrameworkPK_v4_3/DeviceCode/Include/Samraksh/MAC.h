@@ -129,6 +129,22 @@ public:
 		return NativeAppHandlers[routingNativeAppID - NATIVE_APP_ID_OFFSET];
 	}
 
+	BOOL SetAppHandlers(UINT8 AppID, MACEventHandler* handler)
+	{
+		if(handler == NULL){
+			return FALSE;
+		}
+
+		UINT8 routingNativeAppID = GetAppIdIndex();
+		//hal_printf("SetAppHandlers %u\n", TempAppIdIndex);
+		if(AppID >= MAX_APPS){
+			return FALSE;
+		}
+
+		AppHandlers[AppID] = handler;
+		return TRUE;
+	}
+
 	BOOL SetAppHandlers(MACEventHandler* handler)
 	{
 		if(handler == NULL){
@@ -144,6 +160,7 @@ public:
 		AppHandlers[TempAppIdIndex] = handler;
 		return TRUE;
 	}
+
 
 	MACEventHandler* GetAppHandler(UINT8 MacIndex)
 	{
