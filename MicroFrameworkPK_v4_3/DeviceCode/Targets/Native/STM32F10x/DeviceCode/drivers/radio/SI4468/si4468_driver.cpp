@@ -696,7 +696,7 @@ static int radio_turn_on_internal(const int t_max) {
 		si446x_debug_print(DEBUG02,"+");
 	}
 	si446x_debug_print(DEBUG02,"\r\n");
-	if (timeout == 0) HAL_Time_Sleep_MicroSeconds(RADIO_POWER_PAD_MS*1000); // Padding. Doesn't seem fully stable when indicated.
+	if (timeout != 0) HAL_Time_Sleep_MicroSeconds(RADIO_POWER_PAD_MS*1000); // Padding. Doesn't seem fully stable when indicated.
 	return t_max-timeout;
 }
 
