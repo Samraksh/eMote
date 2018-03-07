@@ -153,25 +153,6 @@ static int si446x_radio_unlock(void) {
 }
 // END LOCKING STUFF
 
-static const char* PrintStateID(si_state_t id){
-	switch(id){
-		case SI_STATE_BOOT:			return "SI_STATE_BOOT";
-		case SI_STATE_SLEEP:		return "SI_STATE_SLEEP";
-		case SI_STATE_SPI_ACTIVE:	return "SI_STATE_SPI_ACTIVE";
-		case SI_STATE_READY:		return "SI_STATE_READY";
-		case SI_STATE_READY2:		return "SI_STATE_READY2";
-		case SI_STATE_TX_TUNE:		return "SI_STATE_TX_TUNE";
-		case SI_STATE_RX_TUNE:		return "SI_STATE_RX_TUNE";
-		case SI_STATE_TX:			return "SI_STATE_TX";
-		case SI_STATE_RX:			return "SI_STATE_RX";
-		case SI_STATE_ERROR:		return "SI_STATE_ERROR";
-		case SI_STATE_UNKNOWN:		return "SI_STATE_UNKNOWN";
-		case SI_STATE_OFF:			return "SI_STATE_OFF";
-		case SI_STATE_OFF_NO_INIT:	return "SI_STATE_OFF_NO_INIT";
-		default:					return "error";
-	}
-}
-
 #ifndef SI446x_NO_DEBUG_PRINT
 static void si446x_debug_print(int priority, const char *fmt, ...) {
     va_list args;

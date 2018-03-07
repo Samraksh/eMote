@@ -123,6 +123,31 @@ typedef enum { 	SI_STATE_BOOT=0, SI_STATE_SLEEP=1, SI_STATE_SPI_ACTIVE=2, \
 				SI_STATE_UNKNOWN=10, SI_STATE_OFF=11, SI_STATE_OFF_NO_INIT=12, SI_STATE_START=13,
 } si_state_t;
 
+// quasi states are imposed externally on the radio and exist only for driver accounting.
+static const char* PrintStateID(si_state_t id){
+#ifndef BUILD_RTM
+	switch(id){
+		case SI_STATE_BOOT:			return "SI_STATE_BOOT";
+		case SI_STATE_SLEEP:		return "SI_STATE_SLEEP";
+		case SI_STATE_SPI_ACTIVE:	return "SI_STATE_SPI_ACTIVE";
+		case SI_STATE_READY:		return "SI_STATE_READY";
+		case SI_STATE_READY2:		return "SI_STATE_READY2";
+		case SI_STATE_TX_TUNE:		return "SI_STATE_TX_TUNE";
+		case SI_STATE_RX_TUNE:		return "SI_STATE_RX_TUNE";
+		case SI_STATE_TX:			return "SI_STATE_TX";
+		case SI_STATE_RX:			return "SI_STATE_RX";
+		case SI_STATE_ERROR:		return "SI_STATE_ERROR";		// maybe quasi
+		case SI_STATE_UNKNOWN:		return "SI_STATE_UNKNOWN";		// maybe quasi
+		case SI_STATE_OFF:			return "SI_STATE_OFF";			// quasi state
+		case SI_STATE_OFF_NO_INIT:	return "SI_STATE_OFF_NO_INIT";	// quasi state
+		case SI_STATE_START:		return "SI_STATE_START";		// quasi state
+		default:					return "error";
+	}
+#else
+	return "";
+#endif
+}
+
 typedef struct {
 	SPI_TypeDef 	*spi_base;
 	GPIO_TypeDef 	*spi_port;
