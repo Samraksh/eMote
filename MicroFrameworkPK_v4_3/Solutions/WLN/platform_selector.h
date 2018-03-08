@@ -27,6 +27,7 @@ typedef uint16_t ushort;
 // #define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
 
 
+#define EMOTE_DEEP_SLEEP_MIN 5000 // microseconds. Sleep intervals less than this will only snooze
 #if defined(PLATFORM_ARM_WLN)
 #define HAL_SYSTEM_NAME                     "WLN"
 #define SAM_VERSION_REVISION 68
@@ -173,6 +174,7 @@ typedef uint16_t ushort;
 
 //#define DISABLE_SLEEP
 #define EMOTE_WAKELOCKS // in power driver
+#define EMOTE_WAKELOCK_STARTUP 60 // Wakelock at startup. Seconds. Allows some time for deployment etc.
 //#define DOTNOW_HSI_CALIB
 
 //Comment below line to below the regular CLR
@@ -234,10 +236,11 @@ HAL_RECEPTION_TIMER 6
 //#define VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC		3
 #define NeighborClockMonitor_TIMER1 34
 #define VIRT_TIMER_OMAC_RECEIVER_ACK 	5
+#define VIRT_TIMER_SLEEP 6
 
 // The following definition will be used within the code as the decision point in deciding if the timer is to be run within interrupt context or continuation
 // Adjust this marker appropriately ( <= marker is interrupt context, > marker is continuation)
-#define VIRT_TIMER_INTERRUPT_CONTEXT_MARKER 5
+#define VIRT_TIMER_INTERRUPT_CONTEXT_MARKER 6
 
 // timers that are run within continuations (all C# user timers are run outside an interrupt context also)
 #define VIRT_TIMER_TIME 			10
