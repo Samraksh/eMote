@@ -266,6 +266,7 @@ static void state_cont_do(void *arg) {
 	if (ret != DS_Success) {
 		si446x_debug_print(ERR99,"%s() Failed reinit()\r\n", __func__);
 		state_changed_handler_wrapper(THIS_RADIO, STATE_ERROR);
+		si446x_inform_state(SI_STATE_OFF); // Assume still off
 		return;
 	}
 	if (next == STATE_SLEEP) { // Woke up from OFF, go to SLEEP
