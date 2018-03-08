@@ -154,9 +154,9 @@ void austere_power_init(void) {
 	austere_radio_shutdown(AUSTERE_RADIO_OFF);	// Disable radio. This will be over-ridden by driver
 }
 
-int platform_power_event_sub(HAL_CONTINUATION *cb) {
+int * platform_power_event_sub(HAL_CONTINUATION *cb) {
 	pwr_cb = cb;
-	return 0;
+	return &isOn;
 }
 
 int platform_power_radio_status(int radio) {

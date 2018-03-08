@@ -229,14 +229,17 @@ OUT:
 }
 
 // Called when power is restored to the radio
+// Arg is "int * isOn" from platform power.
 static void state_cont_do(void *arg) {
 	DeviceStatus ret;
 	radio_state_t next;
+	int isOn;
+	if (arg != NULL) isOn = *((int*)arg);
 
 	if (si446x_next_state == STATE_NONE) return; // nobody listening
 	next = si446x_next_state; // shadow
 	si446x_next_state = STATE_POWER_FAIL;	// If this hits again, its because power failed
-	si446x_debug_print(DEBUG02,"%s()\r\n", __func__);
+	si446x_debug_print(DEBUG03,"%s() isOn=%d\r\n", __func__, isOn);
 #ifdef _DEBUG
 	if (next == STATE_SLEEP) {
 		UINT64 tr_time = HAL_Time_CurrentTicks() - state_tr_time;
@@ -256,6 +259,8 @@ static void state_cont_do(void *arg) {
 	// Assume we are coming up from power off
 	// If more state changes are added, this will no longer be true.
 	HAL_Time_Sleep_MicroSeconds(RADIO_POWER_PAD_MS*1000);
+	ASSERT(isOn == 1);
+	ASSERT(platform_power_radio_status(THIS_RADIO) == 1);
 	ret = si446x_reinit();
 
 	if (ret != DS_Success) {
@@ -804,10 +809,12 @@ DeviceStatus si446x_hal_set_state(radio_state_t next) {
 			return DS_Busy;
 		}
 
-		if ( owner = si446x_radio_lock(radio_lock_power) ) 	{
-			si446x_debug_print(DEBUG02, "%s(): Fail. Radio locked by %s\r\n", __func__, print_lock(owner));
-			si446x_spi_unlock();
-			return DS_Busy;
+		if ( owner = si446x_radio_lock(radio_lock_power) ) 	{ // in case need to double-off (bad start-up).
+			if (owner != radio_lock_power) {
+				si446x_debug_print(DEBUG02, "%s(): Fail. Radio locked by %s\r\n", __func__, print_lock(owner));
+				si446x_spi_unlock();
+				return DS_Busy;
+			}
 		}
 		si446x_next_state = STATE_NONE; // tell state change continuation that we are going off on purpose
 		radio_shutdown(1);
@@ -897,6 +904,7 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 
 	DeviceStatus ret = DS_Success;
 	int reset_errors;
+	int *isOn;
 	uint8_t temp;
 	radio_lock_id_t owner;
 
@@ -993,8 +1001,8 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	int_defer_continuation.InitializeCallback(int_cont_do, NULL);
 
 	// Power system callbacks
-	state_callback_continuation.InitializeCallback(state_cont_do, NULL);
-	platform_power_event_sub(&state_callback_continuation);
+	isOn = platform_power_event_sub(&state_callback_continuation);
+	state_callback_continuation.InitializeCallback(state_cont_do, (void*) isOn);
 
 si446x_hal_init_CLEANUP:
 
