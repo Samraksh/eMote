@@ -19,8 +19,13 @@ void csmaSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 }
 
 void csmaMAC::RadioPowerFailHandler(){
+	hal_printf("csmaMAC::RadioPowerFailHandler resetting radio \r\n");
+	CPU_Radio_Reset(this->radioName);
+
+
 	hal_printf("csmaMAC::RadioPowerFailHandler\r\n");
 	if(CSMARadioInitialize() != DS_Success){
+		hal_printf("csmaMAC::RadioPowerFailHandler failed\r\n");
 		VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
 		flushTimerRunning = true;
 	}
@@ -219,10 +224,7 @@ DeviceStatus csmaMAC::CSMARadioInitialize(){
 	radio_state_t rs = CPU_Radio_Get_State(this->radioName);
 	hal_printf("csmaMAC::CSMARadioInitialize CPU_Radio_Get_State = %u \r\n", rs);
 
-	if(rs == STATE_ERROR || rs == STATE_POWER_FAIL || rs == STATE_BUSY){
-		hal_printf("csmaMAC::CSMARadioInitialize resetting radio \r\n", rs);
-		CPU_Radio_Reset(this->radioName);
-	}
+
 //	CPU_Radio_Set_State(this->radioName, STATE_START);
 
 	if(rs == STATE_OFF_NO_INIT || rs == STATE_ERROR || rs == STATE_POWER_FAIL){
