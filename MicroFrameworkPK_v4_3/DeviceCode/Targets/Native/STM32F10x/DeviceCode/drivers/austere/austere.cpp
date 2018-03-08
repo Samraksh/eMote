@@ -3,6 +3,7 @@
 // TODO: Move power init stuff here
 
 static HAL_CONTINUATION *pwr_cb = NULL;
+static int isOn; // A hack, because the charger GOOD signal is wonky
 
 // 0 = Cap not rady, 1 = Cap Ready
 static int get_radio_charge_status(void) {
@@ -14,11 +15,18 @@ static int get_radio_power_status(void) {
 }
 
 static void rad_power_monitor(GPIO_PIN Pin, BOOL PinState, void* Param) {
-	if (pwr_cb == NULL) return;
-	pwr_cb->Enqueue();
-
-	// if (platform_power_radio_status(0))
-		// pwr_cb->Enqueue();
+	if (!isOn && platform_power_radio_status(0) == 1) {
+		// Mark that we got stabilized
+		isOn = 1;
+		if (pwr_cb == NULL) return;
+		else pwr_cb->Enqueue();
+	}
+	if (isOn && get_radio_power_status() == 0) { // only consider switcher signal here
+		// Power was lost
+		isOn = 0;
+		if (pwr_cb == NULL) return;
+		else pwr_cb->Enqueue();
+	}
 }
 
 //PC12, PC9, PB5, PC7
@@ -126,8 +134,9 @@ void austere_radio_shutdown(int go) {
 
 // PC12. This is called from TinyCLR.cpp at boot
 void austere_init(void) {
-	CPU_GPIO_EnableInputPin( (GPIO_PIN) 44, FALSE, rad_power_monitor, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP );
-	CPU_GPIO_EnableInputPin( (GPIO_PIN) 39, FALSE, rad_power_monitor, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP );
+	isOn = 0;
+	CPU_GPIO_EnableInputPin( (GPIO_PIN) 44, FALSE, rad_power_monitor, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP ); // from charger PC12
+	CPU_GPIO_EnableInputPin( (GPIO_PIN) 39, FALSE, rad_power_monitor, GPIO_INT_EDGE_BOTH, RESISTOR_PULLUP ); // from switcher PC7
 }
 
 // for Power driver only

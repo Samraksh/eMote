@@ -18,6 +18,11 @@ static int poll_for_sleep(void) {
 	if (rs == STATE_SLEEP) return 1;
 	else return 0;
 }
+static int poll_for_fail(void) {
+	radio_state_t rs = CPU_Radio_Get_State(SI4468_SPI2);
+	if (rs == STATE_POWER_FAIL) return 1;
+	else return 0;
+}
 #endif
 
 void ApplicationEntryPoint()
@@ -28,6 +33,7 @@ void ApplicationEntryPoint()
 #ifdef NETMF_RADIO_DEBUG
 	DeviceStatus ret;
 	BOOL ret_bool;
+	int fail_time = 0; //ms
 	hal_printf("Native Radio Test Running...\r\n");
 	print_radio_state();
 
@@ -101,7 +107,13 @@ void ApplicationEntryPoint()
 	// wait 11 seconds then RX to SLEEP
 	// This should fail because power blinked
 	hal_printf("TESTING: Going to sleep after power fail (should dis-allow)\r\n");
-	HAL_Time_Sleep_MicroSeconds(11000000);
+	//HAL_Time_Sleep_MicroSeconds(11000000);
+	while(poll_for_fail() == 0) {
+		HAL_Time_Sleep_MicroSeconds(100000);
+		fail_time += 100;
+		wait();
+	}
+	hal_printf("Took %d ms to fail in RX\r\n", fail_time);
 	wait4();
 	ret = CPU_Radio_Set_State(SI4468_SPI2, STATE_SLEEP);
 	if (ret == DS_Fail) hal_printf("Radio RX-->sleep test pass\r\n");
@@ -122,9 +134,26 @@ void ApplicationEntryPoint()
 	wait4();
 	print_radio_state();
 
+	hal_printf("TESTING: START FROM OFF_NO_INIT\r\n");
+	ret = CPU_Radio_Set_State(SI4468_SPI2, STATE_START); // STATE_START only valid from OFF and will block until ready
+	if (ret == DS_Success) hal_printf("Radio power-on test pass\r\n");
+	else { hal_printf("Radio power-on test FAIL\r\n"); goto OUT; }
+	wait4();
+	hal_printf("\r\n");
+
+	hal_printf("TESTING: INIT()\r\n");
+	HAL_Time_Sleep_MicroSeconds(11000000);
+	ret = CPU_Radio_Initialize(NULL, SI4468_SPI2, 0, 0 );
+	if (ret == DS_Success) hal_printf("CPU_Radio_Initialize() test pass\r\n");
+	else { hal_printf("CPU_Radio_Initialize() test FAIL\r\n"); goto OUT; }
+	wait4();
+	hal_printf("\r\n");
+	print_radio_state();
+
 	hal_printf("All tests PASS\r\n");
 
 OUT:
+	ret = CPU_Radio_Set_State(SI4468_SPI2, STATE_OFF);
 	hal_printf("DONE\r\n");
 	while(1) {
 		CPU_Sleep(SLEEP_LEVEL__AWAKE, 0);

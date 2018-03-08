@@ -795,7 +795,7 @@ DeviceStatus si446x_hal_set_state(radio_state_t next) {
 		}
 	}
 
-	// ANY --> OFF (other than START, which is above)
+	// ANY --> OFF
 	// Turn off the radio and its power supply. Checks locks so won't interrpt an op.
 	if (next == STATE_OFF) {
 		// Get both locks
