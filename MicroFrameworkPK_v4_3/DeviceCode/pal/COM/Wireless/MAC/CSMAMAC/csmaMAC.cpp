@@ -364,6 +364,11 @@ BOOL csmaMAC::UnInitialize(){
 }
 
 BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime){
+
+	if(!g_send_buffer.IsEmpty()){
+		hal_printf("CSMA SendTimeStamped MAC busy. refusing packet!\r\n");
+		return FALSE;
+	}
 	static UINT8 seqNumber = 0;
 	UINT8 finalSeqNumber = 0;
 
@@ -436,6 +441,10 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 }
 
 BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
+	if(!g_send_buffer.IsEmpty()){
+		hal_printf("CSMA SendTimeStamped MAC busy. refusing packet!\r\n");
+		return FALSE;
+	}
 	static UINT8 seqNumber = 0;
 	UINT8 finalSeqNumber = 0;
 
