@@ -201,6 +201,11 @@ DeviceStatus csmaMAC::SetConfig(MACConfig *config){
 DeviceStatus csmaMAC::CSMARadioInitialize(){
 	DeviceStatus status = DS_Fail;
 
+	if(txMsgPtr ){
+		SendACKToUpperLayers(txMsgPtr, sizeof(Message_15_4_t), NetworkOperations_Fail, 0);
+		txMsgPtr = NULL;
+	}
+
 	UINT8 numberOfRadios = 1;
 	RadioAckPending = FALSE;
 	m_DATAACKPending = FALSE;
@@ -226,7 +231,7 @@ DeviceStatus csmaMAC::CSMARadioInitialize(){
 			&&	CPU_Radio_Get_State(this->radioName) != STATE_RX
 			&&	CPU_Radio_Get_State(this->radioName) != STATE_IDLE
 			){
-			hal_printf("csmaMAC::Initialize CPU_Radio_Set_State STATE_START CPU_Radio_Get_State = %u \r\n", CPU_Radio_Get_State(this->radioName));
+			hal_printf("csmaMAC::CSMARadioInitialize CPU_Radio_Set_State STATE_START CPU_Radio_Get_State = %u \r\n", CPU_Radio_Get_State(this->radioName));
 			CPU_Radio_Set_State(this->radioName, STATE_START);
 		}
 	}
