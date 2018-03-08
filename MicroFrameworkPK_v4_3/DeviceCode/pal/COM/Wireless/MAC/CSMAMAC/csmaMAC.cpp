@@ -19,7 +19,10 @@ void csmaSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 }
 
 void csmaMAC::RadioPowerFailHandler(){
-	CSMARadioInitialize();
+	if(CSMARadioInitialize() != DS_Success){
+		VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
+		flushTimerRunning = true;
+	}
 }
 
 BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param){
@@ -55,7 +58,7 @@ void csmaDataACKFailTimerHandler(void *arg){
 
 }
 void csmaMAC::DataACKFailTimerHandler(){
-
+	hal_printf("csmaMAC::DataACKFailTimerHandler \r\n");
 	if(txMsgPtr){
 		SendACKToUpperLayers(txMsgPtr, sizeof(Message_15_4_t), NetworkOperations_Fail, 0);
 
@@ -90,15 +93,31 @@ void csmaMAC::SendFirstPacketToRadio(){
 		radio_state_t radio_state = CPU_Radio_Get_State(radioName);
 		switch(radio_state){ //reschedule to check again
 			case STATE_OFF: //Turn on and reschedule
+				VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
 				hal_printf("csmaMAC::SendFirstPacketToRadio Turning radio power ON \r\n");
 				CPU_Radio_Set_State( radioName, STATE_SLEEP );
-				//return; //Disabling return for now. We can use the callback
-			case STATE_BUSY:
+				return; //return for now. We can use the callback
+
+
+			case STATE_START:
+				hal_printf("CSMA: SendFirstPacketToRadio Not expecting non init state\r\n");
 			case STATE_ERROR:
-			case STATE_POWER_FAIL: // Just reschedule to check again
+			case STATE_BUSY:
 				VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
 				flushTimerRunning  = true;
 				return;
+
+			case STATE_OFF_NO_INIT:
+				hal_printf("CSMA: SendFirstPacketToRadio Not expecting non init state\r\n");
+
+			case STATE_POWER_FAIL: // Just reschedule to check again
+				VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
+				hal_printf("csmaRadioStateChangeHandler Power failed in the capacitor. Need to reinitialize rs = %u \r\n", radio_state);
+				g_csmaMacObject.RadioPowerFailHandler();
+
+
+
+
 
 			case STATE_TX:
 				return;
@@ -109,9 +128,8 @@ void csmaMAC::SendFirstPacketToRadio(){
 
 
 
-			case STATE_OFF_NO_INIT:
-			case STATE_START:
-				hal_printf("CSMA: SendFirstPacketToRadio Not expecting non init state\r\n");
+
+
 			default:
 				hal_printf("Unknown state");
 				SOFT_BREAKPOINT();
@@ -178,11 +196,14 @@ DeviceStatus csmaMAC::CSMARadioInitialize(){
 	Radio_Event_Handler.SetSendAckHandler(csmaSendAckHandler);
 	Radio_Event_Handler.SetStateChangeHandler(csmaRadioStateChangeHandler);
 
-	hal_printf("csmaMAC::Initialize CPU_Radio_Get_State = %u =? STATE_OFF_NO_INIT=%u \r\n", CPU_Radio_Get_State(this->radioName), STATE_OFF_NO_INIT);
-	if(CPU_Radio_Get_State(this->radioName) == STATE_OFF_NO_INIT){
+	radio_state_t rs = CPU_Radio_Get_State(this->radioName);
+	hal_printf("csmaMAC::Initialize CPU_Radio_Get_State = %u =? \r\n", rs);
+
+	if(rs == STATE_OFF_NO_INIT || rs == STATE_ERROR || rs == STATE_POWER_FAIL){
 		while(	CPU_Radio_Get_State(this->radioName) != STATE_START
 			&&	CPU_Radio_Get_State(this->radioName) != STATE_SLEEP
 			&&	CPU_Radio_Get_State(this->radioName) != STATE_RX
+			&&	CPU_Radio_Get_State(this->radioName) != STATE_IDLE
 			){
 			hal_printf("csmaMAC::Initialize CPU_Radio_Set_State STATE_START CPU_Radio_Get_State = %u \r\n", CPU_Radio_Get_State(this->radioName));
 			CPU_Radio_Set_State(this->radioName, STATE_START);
