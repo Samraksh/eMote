@@ -19,6 +19,7 @@ void csmaSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 }
 
 void csmaMAC::RadioPowerFailHandler(){
+	hal_printf("csmaMAC::RadioPowerFailHandler\r\n");
 	if(CSMARadioInitialize() != DS_Success){
 		VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
 		flushTimerRunning = true;
@@ -33,10 +34,21 @@ void csmaRadioStateChangeHandler(UINT8 radioName, radio_state_t rs){
 	hal_printf("csmaRadioStateChangeHandler rs = %u \r\n", rs);
 	switch(rs){ //reschedule to check again
 		case STATE_SLEEP: //schedule radio flush buffer
-			if(g_csmaMacObject.flushTimerRunning  == false){
-				g_csmaMacObject.flushTimerRunning = true;
-				VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
-			}
+			g_csmaMacObject.SendFirstPacketToRadio();
+//			if(VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER) == TimerSupported){
+//				g_csmaMacObject.flushTimerRunning = true;
+//			}
+//			else{
+//				if(VirtTimer_Start(VIRT_TIMER_MAC_SENDPKT) != TimerSupported){
+//					hal_printf("Cannot initiate transmissions rs = %u \r\n", rs);
+//					SendFirstPacketToRadio();
+//				}
+//			}
+
+//			if(g_csmaMacObject.flushTimerRunning  == false){
+//				g_csmaMacObject.flushTimerRunning = true;
+//				VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
+//			}
 			break;
 		case STATE_ERROR: //Turn on and reschedule
 			hal_printf("csmaRadioStateChangeHandler Power failed in the capacitor. Need to reinitialize rs = %u \r\n", rs);
@@ -88,62 +100,65 @@ void gSendFirstPacketToRadio(void * arg){
 	g_csmaMacObject.SendFirstPacketToRadio();
 }
 void csmaMAC::SendFirstPacketToRadio(){
-	hal_printf("CSMA SendFirstPacketToRadio g_send_buffer.GetNumberMessagesInBuffer() = %u rs = %u \r\n", g_send_buffer.GetNumberMessagesInBuffer(), CPU_Radio_Get_State(radioName));
-	if (g_send_buffer.GetNumberMessagesInBuffer() >= 1 && txMsgPtr == NULL){
-		radio_state_t radio_state = CPU_Radio_Get_State(radioName);
-		switch(radio_state){ //reschedule to check again
-			case STATE_OFF: //Turn on and reschedule
-				VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
-				hal_printf("csmaMAC::SendFirstPacketToRadio Turning radio power ON \r\n");
-				CPU_Radio_Set_State( radioName, STATE_SLEEP );
-				return; //return for now. We can use the callback
+	hal_printf("CSMA SendFirstPacketToRadio (txMsgPtr?=NULL)=%u g_send_buffer.GetNumberMessagesInBuffer() = %u rs = %u \r\n", txMsgPtr == NULL, g_send_buffer.GetNumberMessagesInBuffer(), CPU_Radio_Get_State(radioName));
+	if( txMsgPtr == NULL){
+		if (g_send_buffer.GetNumberMessagesInBuffer() >= 1) {
+			radio_state_t radio_state = CPU_Radio_Get_State(radioName);
+			switch(radio_state){ //reschedule to check again
+				case STATE_OFF: //Turn on and reschedule
+					VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
+					hal_printf("csmaMAC::SendFirstPacketToRadio Turning radio power ON \r\n");
+					CPU_Radio_Set_State( radioName, STATE_SLEEP );
+					return; //return for now. We can use the callback
 
 
-			case STATE_START:
-				hal_printf("CSMA: SendFirstPacketToRadio Not expecting non init state\r\n");
-			case STATE_ERROR:
-			case STATE_BUSY:
-				VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
-				flushTimerRunning  = true;
-				return;
+				case STATE_START:
+					hal_printf("CSMA: SendFirstPacketToRadio Not expecting non init state\r\n");
+				case STATE_ERROR:
+				case STATE_BUSY:
+					VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
+					flushTimerRunning  = true;
+					return;
 
-			case STATE_OFF_NO_INIT:
-				hal_printf("CSMA: SendFirstPacketToRadio Not expecting non init state\r\n");
+				case STATE_OFF_NO_INIT:
+					hal_printf("CSMA: SendFirstPacketToRadio Not expecting non init state\r\n");
 
-			case STATE_POWER_FAIL: // Just reschedule to check again
-				VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
-				hal_printf("csmaRadioStateChangeHandler Power failed in the capacitor. Need to reinitialize rs = %u \r\n", radio_state);
-				g_csmaMacObject.RadioPowerFailHandler();
-
-
-
-
-
-			case STATE_TX:
-				return;
-			case STATE_RX:
-			case STATE_IDLE:
-			case STATE_SLEEP: //Do nothing
-				break;
+				case STATE_POWER_FAIL: // Just reschedule to check again
+					VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
+					hal_printf("csmaRadioStateChangeHandler Power failed in the capacitor. Need to reinitialize rs = %u \r\n", radio_state);
+					g_csmaMacObject.RadioPowerFailHandler();
 
 
 
 
 
-			default:
-				hal_printf("Unknown state");
-				SOFT_BREAKPOINT();
-				break;
+				case STATE_TX:
+					return;
+				case STATE_RX:
+				case STATE_IDLE:
+				case STATE_SLEEP: //Do nothing
+					break;
+
+
+
+
+
+				default:
+					hal_printf("Unknown state");
+					SOFT_BREAKPOINT();
+					break;
+			}
+
+			SendToRadio();
 		}
-
-		SendToRadio();
-	}
-	else {
-		hal_printf("no packets to send...stopping flushbuffer\r\n");
-		if (flushTimerRunning == true) {
-			VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
+		else {
+			hal_printf("no packets to send...stopping flushbuffer\r\n");
+			if (flushTimerRunning == true) {
+				VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
+			}
 		}
 	}
+
 }
 
 // Send a beacon everytime this fires
