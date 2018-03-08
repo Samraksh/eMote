@@ -102,7 +102,7 @@ enum {
 	si446x_timestamp_size=4,
 	si446x_packet_size=128, // max payload accounting for 1 byte size for variable packet
 	si446x_payload_ts=124, // max with timestamp of 4 bytes
-	si446x_default_power=0x7f,
+	si446x_default_power=64, //0x7f,
 	si446x_default_channel=0,
 	si446x_rssi_cca_thresh=0x7F,
 	si446x_tx_timeout=200,
