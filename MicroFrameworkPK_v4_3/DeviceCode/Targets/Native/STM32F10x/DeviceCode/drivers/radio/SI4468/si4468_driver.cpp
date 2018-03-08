@@ -809,6 +809,7 @@ DeviceStatus si446x_hal_set_state(radio_state_t next) {
 			si446x_spi_unlock();
 			return DS_Busy;
 		}
+		si446x_next_state = STATE_NONE; // tell state change continuation that we are going off on purpose
 		radio_shutdown(1);
 		HAL_Time_Sleep_MicroSeconds(20);
 		platform_radio_pwr_ctrl(TURN_RADIO_OFF, THIS_RADIO);
