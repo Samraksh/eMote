@@ -212,7 +212,12 @@ DeviceStatus csmaMAC::CSMARadioInitialize(){
 	Radio_Event_Handler.SetStateChangeHandler(csmaRadioStateChangeHandler);
 
 	radio_state_t rs = CPU_Radio_Get_State(this->radioName);
-	hal_printf("csmaMAC::Initialize CPU_Radio_Get_State = %u =? \r\n", rs);
+	hal_printf("csmaMAC::Initialize CPU_Radio_Get_State = %u \r\n", rs);
+
+	if(rs != STATE_ERROR || rs == STATE_POWER_FAIL || rs == STATE_BUSY){
+		CPU_Radio_Reset(this->radioName);
+	}
+//	CPU_Radio_Set_State(this->radioName, STATE_START);
 
 	if(rs == STATE_OFF_NO_INIT || rs == STATE_ERROR || rs == STATE_POWER_FAIL){
 		while(	CPU_Radio_Get_State(this->radioName) != STATE_START
@@ -225,10 +230,18 @@ DeviceStatus csmaMAC::CSMARadioInitialize(){
 		}
 	}
 
+
+
 	if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, numberOfRadios, macName)) != DS_Success) {
 		SOFT_BREAKPOINT();
 		return status;
 	}
+
+#if CSMA_POWER_DOWN_RADIO
+		hal_printf("csmaMAC::CSMARadioInitialize Turning radio power off \r\n");
+		CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_OFF );
+#endif
+
 	return status;
 }
 
