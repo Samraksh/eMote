@@ -237,7 +237,9 @@ hal_printf("@");
 				
 				g_radarUserData = HAL_Time_CurrentTicks();
 				processingInProgress = true;
+				GLOBAL_LOCK(irq);
 				SaveNativeEventToHALQueue( g_radarContext, UINT32(g_radarUserData >> 32), UINT32(g_radarUserData & 0xFFFFFFFF) );
+				irq.Release();
 
 				/*for (i=0; i<bytesToRead;i=i+6){
 					hal_printf("%03d %02x %02x %02x %02x %02x %02x\r\n", i/6, rxData[i], rxData[i+1], rxData[i+2], rxData[i+3], rxData[i+4], rxData[i+5]);
