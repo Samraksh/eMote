@@ -212,9 +212,10 @@ DeviceStatus csmaMAC::CSMARadioInitialize(){
 	Radio_Event_Handler.SetStateChangeHandler(csmaRadioStateChangeHandler);
 
 	radio_state_t rs = CPU_Radio_Get_State(this->radioName);
-	hal_printf("csmaMAC::Initialize CPU_Radio_Get_State = %u \r\n", rs);
+	hal_printf("csmaMAC::CSMARadioInitialize CPU_Radio_Get_State = %u \r\n", rs);
 
-	if(rs != STATE_ERROR || rs == STATE_POWER_FAIL || rs == STATE_BUSY){
+	if(rs == STATE_ERROR || rs == STATE_POWER_FAIL || rs == STATE_BUSY){
+		hal_printf("csmaMAC::CSMARadioInitialize resetting radio \r\n", rs);
 		CPU_Radio_Reset(this->radioName);
 	}
 //	CPU_Radio_Set_State(this->radioName, STATE_START);
