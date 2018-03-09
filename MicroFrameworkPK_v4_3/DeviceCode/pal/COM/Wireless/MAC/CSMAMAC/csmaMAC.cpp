@@ -77,8 +77,10 @@ void csmaDataACKFailTimerHandler(void *arg){
 void csmaMAC::DataACKFailTimerHandler(){
 	hal_printf("csmaMAC::DataACKFailTimerHandler \r\n");
 	if(txMsgPtr){
+#if CSMA_SOFTWARE_ACKS_ENABLED
 		SendACKToUpperLayers(txMsgPtr, sizeof(Message_15_4_t), NetworkOperations_Fail, 0);
-
+#endif
+		txMsgPtr = NULL;
 		// Attempt to send the next packet out since we have no scheduler
 		if(!g_send_buffer.IsBufferEmpty())
 		{
@@ -86,12 +88,13 @@ void csmaMAC::DataACKFailTimerHandler(){
 			flushTimerRunning = true;
 		}
 		else{
-#if CSMA_POWER_DOWN_RADIO
-		hal_printf("csmaMAC::SendAckHandler Turning radio power off \r\n");
+#if CSMA_KEEP_RADIO_OFF_WITH_POWERDOWN
+		hal_printf("csmaMAC::DataACKFailTimerHandler Turning radio power off \r\n");
 		CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_OFF );
+#elif CSMA_KEEP_RADIO_OFF_WITH_SLEEP
+		hal_printf("csmaMAC::DataACKFailTimerHandler Radio Sleep is about to be requested \r\n");
+		CPU_Radio_TurnOffRx(g_csmaMacObject.radioName);
 #endif
-
-		txMsgPtr = NULL;
 		}
 	}
 	else if(m_DATAACKPending){
@@ -245,9 +248,16 @@ DeviceStatus csmaMAC::CSMARadioInitialize(){
 		return status;
 	}
 
-#if CSMA_POWER_DOWN_RADIO
+#if CSMA_KEEP_RADIO_OFF_WITH_POWERDOWN
 		hal_printf("csmaMAC::CSMARadioInitialize Turning radio power off \r\n");
 		CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_OFF );
+#elif CSMA_KEEP_RADIO_ON
+		if((status = CPU_Radio_TurnOnRx(this->radioName)) != DS_Success) {
+			SOFT_BREAKPOINT();
+		}
+		CPU_Radio_SetDefaultRxState(this->radioName,0);
+#elif CSMA_KEEP_RADIO_OFF_WITH_SLEEP
+		CPU_Radio_TurnOffRx(this->radioName);
 #endif
 
 	return status;
@@ -282,19 +292,10 @@ DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, U
 			return status;
 		}
 
-#if (CSMA_KEEP_RADIO_OFF==0)
-		if((status = CPU_Radio_TurnOnRx(this->radioName)) != DS_Success) {
-			SOFT_BREAKPOINT();
-			return status;
-		}
-#endif
+
 
 		SetMyAddress(CPU_Radio_GetAddress(this->radioName));
 
-#if (CSMA_KEEP_RADIO_OFF==0)
-		// telling the radio to keep the RX on instead of sleeping
-		CPU_Radio_SetDefaultRxState(this->radioName,0);
-#endif
 
 		// VIRT_TIMER_MAC_SENDPKT is the one-shot resend timer that will be activated if we need to resend a packet
 		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_SENDPKT, 0, 30000, TRUE, TRUE, gSendFirstPacketToRadio, ADVTIMER_32BIT) != TimerSupported){ //50 milli sec Timer in micro seconds
@@ -598,7 +599,7 @@ void csmaMAC::SendToRadio(){
 			//if(CPU_Radio_ClearChannelAssesment(this->radioName, 200)!=DS_Success){
 			if(CPU_Radio_ClearChannelAssesment(this->radioName)!=DS_Success){
 				VirtTimer_Start(VIRT_TIMER_MAC_SENDPKT);
-#if	CSMA_KEEP_RADIO_OFF
+#if	CSMA_KEEP_RADIO_OFF_WITH_SLEEP
 				while(CPU_Radio_TurnOffRx(this->radioName) != DS_Success) {
 					hal_printf("csmaMAC::SendToRadio radio sleep fail 1");
 				}
@@ -615,7 +616,7 @@ void csmaMAC::SendToRadio(){
 #endif
 			++csmaSendToRadioFailCount;
 			VirtTimer_Start(VIRT_TIMER_MAC_SENDPKT);
-#if	CSMA_KEEP_RADIO_OFF
+#if	CSMA_KEEP_RADIO_OFF_WITH_SLEEP
 				while(CPU_Radio_TurnOffRx(this->radioName) != DS_Success) {
 					hal_printf("csmaMAC::SendToRadio radio sleep fail 2");
 				}
@@ -667,39 +668,21 @@ void csmaMAC::SendToRadio(){
 Message_15_4_t* csmaMAC::HandleBroadcastMessage(Message_15_4_t * msg, int Size){
 	IEEE802_15_4_Header_t* rcv_msg_hdr = msg->GetHeader();
 	Message_15_4_t* temp = StoreIncomingPacket(msg);
-	//Call routing/app receive callback
-	MACReceiveFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->ReceiveHandler;
 
 	// Protect against catastrophic errors like dereferencing a null pointer
+	MACReceiveFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->ReceiveHandler;
 	if(appHandler == NULL)
 	{
 		SOFT_BREAKPOINT();
 		hal_printf("[NATIVE] Error from csma mac recieve handler :  Handler not registered\n");
-		goto ReceiveHandler_out;
 	}
+	else{
+		(*appHandler)(msg, rcv_msg_hdr->payloadType);
+	}
+	return temp;
 
 	//TODO: GLOBAL_LOCK(irq); // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue requires IRQs off.  Updater needs IRQs on; TODO: make Update use a queue and disable IRQs again?
 	//(*appHandler)(msg, g_receive_buffer.GetNumberMessagesInBuffer());
-	(*appHandler)(msg, rcv_msg_hdr->payloadType);
-#if 0
-	//hal_printf("CSMA Receive: SRC address is : %d\n", rcv_msg_hdr->src);
-	if(rcv_msg_hdr->dest == MAC_BROADCAST_ADDRESS){
-
-		// Nived.Sivadas - changing interfaces with new dll design
-		(*appHandler)(g_receive_buffer.GetNumberMessagesInBuffer());
-		//(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,FALSE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
-		//HandleBroadcastMessage(msg);
-	}else if(rcv_msg_hdr->dest == CPU_Radio_GetAddress(this->radioName)){
-		//HandleUnicastMessage(msg);
-		(*appHandler)(g_receive_buffer.GetNumberMessagesInBuffer());
-		//(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,TRUE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
-	}
-	else {
-		//HandlePromiscousMessage(msg);
-	}
-#endif
-ReceiveHandler_out:
-	return temp;
 
 }
 
@@ -902,6 +885,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 	UINT8* rcv_payload =  temp->GetPayload();
 #endif
 
+#if CSMA_SOFTWARE_ACKS_ENABLED
 	//Handle ACK
 	if(Size == sizeof(softwareACKHeader)){
 		softwareACKHeader* swAckHeader = (softwareACKHeader*)msg;
@@ -918,6 +902,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 		}
 		return;
 	}
+#endif
 
 	hal_printf("csmaMAC::SendAckHandler status = %u, radioAckStatus = %u \r\n", status, radioAckStatus );
 
@@ -942,24 +927,40 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 					}
 				}
 				if(false) { //if(txMsgPtr->GetHeader()->dest == MAC_BROADCAST_ADDRESS){
-					txMsgPtr = NULL;
-					m_DATAACKPending = FALSE;
-#if CSMA_POWER_DOWN_RADIO
-		hal_printf("csmaMAC::SendAckHandler Turning radio power off \r\n");
-		CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_OFF );
-#endif
+					DataACKFailTimerHandler();
+//					txMsgPtr = NULL;
+//					m_DATAACKPending = FALSE;
+//#if CSMA_KEEP_RADIO_OFF_WITH_POWERDOWN
+//		hal_printf("csmaMAC::SendAckHandler Turning radio power off \r\n");
+//		CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_OFF );
+//#elif CSMA_KEEP_RADIO_OFF_WITH_SLEEP
+//		CPU_Radio_TurnOffRx(g_csmaMacObject.radioName);
+//#endif
 				}
 				else{
 					m_DATAACKPending = TRUE;
 					SendACKToUpperLayers((Message_15_4_t*)msg, Size, NetworkOperations_SendInitiated, radioAckStatus);
 					if(VirtTimer_Start(VIRT_TIMER_MAC_DATAACKFAIL) != TimerSupported){ //Assume failed
-						txMsgPtr = NULL;
-						m_DATAACKPending = FALSE;
-#if CSMA_POWER_DOWN_RADIO
-					hal_printf("csmaMAC::SendAckHandler Turning radio power off \r\n");
-					CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_OFF );
-#endif
+						DataACKFailTimerHandler();
+//						txMsgPtr = NULL;
+//						m_DATAACKPending = FALSE;
+//#if CSMA_KEEP_RADIO_OFF_WITH_POWERDOWN
+//		hal_printf("csmaMAC::SendAckHandler Turning radio power off \r\n");
+//		CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_OFF );
+//#elif CSMA_KEEP_RADIO_OFF_WITH_SLEEP
+//		CPU_Radio_TurnOffRx(g_csmaMacObject.radioName);
+//#endif
 					}
+#if !CSMA_SOFTWARE_ACKS_ENABLED
+					DataACKFailTimerHandler();
+//#if CSMA_KEEP_RADIO_OFF_WITH_POWERDOWN
+//		hal_printf("csmaMAC::SendAckHandler Turning radio power off \r\n");
+//		CPU_Radio_Set_State( g_csmaMacObject.radioName, STATE_OFF );
+//#elif CSMA_KEEP_RADIO_OFF_WITH_SLEEP
+//		CPU_Radio_TurnOffRx(g_csmaMacObject.radioName);
+//#endif
+
+#endif
 				}
 
 

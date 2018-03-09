@@ -61,9 +61,19 @@ extern NeighborTable g_NeighborTable;
 
 extern volatile UINT32 csmaSendToRadioFailCount;
 
+#define CSMA_KEEP_RADIO_OFF_WITH_SLEEP 0
+#define CSMA_KEEP_RADIO_OFF_WITH_POWERDOWN 1
 
-#define CSMA_POWER_DOWN_RADIO 1
-#define CSMA_KEEP_RADIO_OFF 1
+#if CSMA_KEEP_RADIO_OFF_WITH_SLEEP ==0 && CSMA_KEEP_RADIO_OFF_WITH_POWERDOWN==0
+#define CSMA_KEEP_RADIO_ON 1
+#else
+#define CSMA_KEEP_RADIO_ON 0
+#endif
+
+#define CSMA_SOFTWARE_ACKS_ENABLED 1
+
+//#define CSMA_POWER_DOWN_RADIO 1
+//#define CSMA_KEEP_RADIO_OFF 1
 #define CSMA_ENABLE_DISCO_BEACON 0
 /*******************************************************************************************************/
 
