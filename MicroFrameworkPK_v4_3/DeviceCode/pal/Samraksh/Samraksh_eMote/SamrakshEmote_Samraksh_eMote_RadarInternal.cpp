@@ -25,17 +25,6 @@ UINT64 g_radarUserData = 0;
 extern BOOL g_Radar_Driver_Initialized = FALSE;
 static BOOL g_radarInterruptEnabled = TRUE;
 
-#ifdef PLATFORM_ARM_WLN // stubs
-INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, HRESULT &hr ) { return 0; }
-INT8 RadarInternal::GetWindowOverThreshold( CLR_RT_HeapBlock* pMngObj, HRESULT &hr ) { return 0; }
-INT8 RadarInternal::CurrentDetectionFinished( CLR_RT_HeapBlock* pMngObj, HRESULT &hr ) { return 0; }
-INT32 RadarInternal::GetNetDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr ) { return 0; }
-INT32 RadarInternal::GetAbsoluteDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr ) { return 0; }
-INT32 RadarInternal::GetDisplacementRange( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr ) { return 0; }
-INT32 RadarInternal::GetCountOverTarget( CLR_RT_HeapBlock* pMngObj, HRESULT &hr ) { return 0; }
-void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr ) { ; }
-#else
-
 INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, HRESULT &hr )
 {
 	INT8 retVal = FPGA_RadarInit(param0.GetBuffer(), param1.GetBuffer(), param2);
@@ -76,8 +65,6 @@ void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 par
 {
 	setProcessingInProgress(param0);
 }
-
-#endif // #ifdef PLATFORM_ARM_WLN
 
 INT32 RadarInternal::Init( INT32 param0, HRESULT &hr )
 {
