@@ -50,6 +50,8 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\Diagnostics.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\I2C.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\InterruptHandler.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\Framework\Features\MFUpdate.featureproj" />-->
+  <!--Import Project="$(SPOCLIENT)\Framework\Features\PWM.featureproj" /-->
   <Import Project="$(SPOCLIENT)\Framework\Features\SD.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\SPI.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\serial_port.featureproj" Condition="'$(SERIAL_PORT_FEATUREPROJ)'==''" />
@@ -60,6 +62,7 @@
   <!--<Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote\Samraksh_eMote.featureproj" />-->
   <!--<Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow.featureproj" />-->
   <!--<Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime.featureproj" />-->
+  <!--<Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_ProgramManager\Samraksh_eMote_ProgramManager.featureproj" />-->
   <Import Condition="'$(CRYPTO_FEATUREPROJ)'==''" Project="$(SPOCLIENT)\Framework\Features\Crypto.featureproj" />
   <!-- <Import Condition="'$(TIMESERVICE_FEATUREPROJ)'==''" Project="$(SPOCLIENT)\Framework\Features\TimeService.featureproj" />-->
   <!-- <Import Condition="'$(SSL_OPEN_FEATUREPROJ)'==''" Project="$(SPOCLIENT)\Framework\Features\SSL_OPEN.featureproj" />-->
@@ -315,10 +318,16 @@
     <DriverLibs Include="TimeService_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\TimeService\stubs\dotNetMF.proj" />
   </ItemGroup>
+  
   <ItemGroup>
     <DriverLibs Include="MFUpdate_PAL_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\MFUpdate\stubs\dotnetmf.proj" />
   </ItemGroup>
+  <!--<ItemGroup>
+    <DriverLibs Include="MFUpdate_PAL.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\MFUpdate\dotnetmf.proj" />
+  </ItemGroup>-->
+  
   <ItemGroup>
     <DriverLibs Include="Gesture_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Gesture\stubs\dotNetMF.proj" />
