@@ -41,6 +41,7 @@
 // RF231.h is needed for enum RadioID and enum RadioStateEnum.  enums should be pulled into a public API header file.
 #include "..\..\..\Targets\Native\STM32F10x\DeviceCode\drivers\radio\RF231\RF231.h"
 
+extern NeighborTable g_NeighborTable;
 //////////////////////////////////////////////////////////////////////////////
 // FILE-SCOPE SIGNATURES
 //////////////////////////////////////////////////////////////////////////////

@@ -2,7 +2,7 @@
 using Microsoft.SPOT;
 using System.Threading;
 using Microsoft.SPOT.Hardware;
-using Samraksh.SPOT.Hardware;
+using Samraksh.eMote.DotNow;
 
 namespace TimerExample
 {
@@ -10,13 +10,14 @@ namespace TimerExample
     {
         Timer testTimer;
         bool timerState;
+        int count = 0;
         static OutputPort Output = new OutputPort((Cpu.Pin)30, true);
         static OutputPort Error = new OutputPort((Cpu.Pin)31, true);
-        Samraksh.SPOT.Hardware.EmoteDotNow.EmoteLCD lcd;
+        Samraksh.eMote.DotNow.EmoteLCD lcd;
 
         public Program()
         {
-            lcd = new Samraksh.SPOT.Hardware.EmoteDotNow.EmoteLCD();
+            lcd = new Samraksh.eMote.DotNow.EmoteLCD();
             lcd.Initialize();
 
             try
@@ -39,15 +40,15 @@ namespace TimerExample
 
         private void timerCallback(object state)
         {
-            
+            count++;
             timerState = !timerState;
             if (timerState)
-                lcd.WriteN(4, Samraksh.SPOT.Hardware.EmoteDotNow.LCD.CHAR_0);
+                lcd.WriteN(4, Samraksh.eMote.DotNow.LCD.CHAR_0);
             else
-                lcd.WriteN(4, Samraksh.SPOT.Hardware.EmoteDotNow.LCD.CHAR_1);
+                lcd.WriteN(4, Samraksh.eMote.DotNow.LCD.CHAR_1);
 
             Output.Write(timerState);
-            Debug.Print("Inside timer..");
+            Debug.Print("Inside timer " + count.ToString() + "...");
         }
                 
         public static void Main()

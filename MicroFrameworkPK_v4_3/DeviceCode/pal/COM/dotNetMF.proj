@@ -37,7 +37,7 @@
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
     <Version>4.0.0.0</Version>
   </PropertyGroup>
-  <!--<Import Project="$(SPOCLIENT)\Framework\Features\Sockets_PAL.libcatproj" />-->
+  <!-- <Import Project="$(SPOCLIENT)\Framework\Features\Sockets_PAL.libcatproj" /> -->
   <Import Project="$(SPOCLIENT)\Framework\Features\USART_PAL.libcatproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\USART_HAL.libcatproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\USB_PAL.libcatproj" />
@@ -45,7 +45,7 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <ItemGroup>
     <SubDirectories Include="i2c" />
-    <!--<SubDirectories Include="sockets" />-->
+    <!-- <SubDirectories Include="sockets" /> -->
     <SubDirectories Include="usart" />
     <SubDirectories Include="usb" />
     <SubDirectories Include="stubs" />

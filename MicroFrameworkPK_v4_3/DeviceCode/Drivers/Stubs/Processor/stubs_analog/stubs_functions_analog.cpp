@@ -11,6 +11,10 @@ BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
     return FALSE;
 }
 
+BOOL AD_Uninitialize( )
+{
+}
+
 void AD_Uninitialize( ANALOG_CHANNEL channel )
 {
 }

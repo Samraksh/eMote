@@ -1,9 +1,11 @@
 #include "mbedTLS_PKCS11.h"
 
+extern void InitKeyArray();
+
 CK_RV MBEDTLS_PKCS11_Token::Initialize()
 {
     //MBEDTLS_add_all_algorithms();
-
+	InitKeyArray();
     return CKR_OK;
 }
 CK_RV MBEDTLS_PKCS11_Token::Uninitialize()

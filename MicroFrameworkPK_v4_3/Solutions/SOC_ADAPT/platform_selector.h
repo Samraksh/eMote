@@ -120,7 +120,7 @@
 //
 // communication facilities
 
-#define SAMRAKSH_RTOS_EXT 1 //Samraksh RT extension
+//#define SAMRAKSH_RTOS_EXT 1 //Samraksh RT extension
 
 const UINT8 g_CountOfHardwareTimers = 1;
 const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {17};			//From Krait_Timer.h -- INT_DEBUG_TIMER_EXP

@@ -190,6 +190,10 @@ typedef uint16_t ushort;
 //If the CLR has 500ms to sleep, it calls compaction. If it has 5ms to sleep calls mark&Sweep
 //#define SAMRAKSH_GC_EXT 1
 
+
+//Config file for mbedTLS crypto library if build it
+//#define MBEDTLS_CONFIG_FILE <Configs/Sam-mbedTLS-config.h>
+
 // Macros configuring the HALTimer system
 #define HALTIMER 5
 #define HALTIMER_MAX_RESOLUTION 1365
