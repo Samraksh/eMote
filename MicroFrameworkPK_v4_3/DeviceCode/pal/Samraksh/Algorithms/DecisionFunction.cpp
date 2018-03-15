@@ -12,7 +12,7 @@ UINT16 DecisionFunction::nSV = 0;
 UINT16 DecisionFunction::nFeature = 0;
 float* DecisionFunction::feature_min = NULL;
 float* DecisionFunction::scalingFactors = NULL;
-UINT32 dataVectors[7284] = {
+const UINT32 dataVectors[7284] = {
 22014, 32632, 135256, 249477, 11481, 468514, 86761, 127528, 241172, 75192, 389965, 106493,
 				407508, 751284, 83274, 714133, 1048576, 0, 709760, 0, 1048576, 363237, 1048576, 773545, 10, 180995,
 				3104, 558335, 158513, 871126, 190830, 865683, 569230, 5071, 471450, 184623, 9482, 314887, 90939, 721242,
