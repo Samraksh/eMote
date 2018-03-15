@@ -72,10 +72,10 @@ class csmaMAC: public MAC<Message_15_4_t, MACConfig>
 	UINT8 CurrentActiveApp;
 	BOOL RadioAckPending;
 	UINT8 m_recovery;
-	BOOL flushTimerRunning;
 
 
 public:
+	BOOL flushTimerRunning;
 	UINT16 GetRadioAddress();
 	UINT16 GetMaxPayload(){return MaxPayload;}
 	BOOL SetRadioAddress(UINT16 address);

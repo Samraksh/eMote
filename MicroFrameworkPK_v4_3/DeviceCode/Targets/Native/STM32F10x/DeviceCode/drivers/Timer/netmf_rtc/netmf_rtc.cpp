@@ -78,6 +78,7 @@ DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, U
 		return DS_Success;
 
 	m_systemTime = 0;
+	savedCompare = 0;
 
 	STM32F10x_RTC::initialized = TRUE;
 
@@ -93,7 +94,7 @@ DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, U
 	RCC_APB1PeriphClockCmd( RCC_APB1Periph_BKP, ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
 	RTC_SetPrescaler(0); 
-#if defined(PLATFORM_ARM_WLN)
+#if defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_AUSTERE)
 	RCC_LSEConfig(RCC_LSE_Bypass);
 #else
 	RCC_LSEConfig(RCC_LSE_ON);
@@ -153,7 +154,8 @@ DeviceStatus STM32F10x_RTC::SetCompare(UINT64 compareValue)
 	RTC_WaitForLastTask();
 	RTC_WaitForSynchro();
 	RTC_ClearFlag(RTC_FLAG_ALR);
-	RTC_SetAlarm(compareValue);
+	savedCompare = compareValue&0xFFFFFFFF;
+	RTC_SetAlarm(savedCompare);
 	//PWR_BackupAccessCmd(DISABLE);
 	RTC_WaitForLastTask();
 
@@ -162,19 +164,23 @@ DeviceStatus STM32F10x_RTC::SetCompare(UINT64 compareValue)
 	return DS_Success;
 }
 
+UINT32 STM32F10x_RTC::GetCompare(void) {
+	return savedCompare;
+}
+
 UINT32 STM32F10x_RTC::GetMaxTicks()
 {
 	return (UINT32)0xFFFFFFFF;
 }
 
+// NOTE: This is apparently not actually the RTC_Alarm IRQ, but rather the general RTC_IRQ --NPS
 void ISR_RTC_ALARM(void* Param){
 	// TODO: check for overflow
-	RTC_ClearFlag(RTC_FLAG_ALR);
-	//PWR_BackupAccessCmd(ENABLE);
-	//RTC_WaitForLastTask();
-	RTC_ClearITPendingBit(RTC_IT_ALR);
-	//PWR_BackupAccessCmd(DISABLE);
+	RTC_ClearFlag(RTC_FLAG_ALR); // Magical. I don't know why we need this... --NPS
+	GLOBAL_LOCK(irq);
 	g_STM32F10x_RTC.setCompareRunning = false; // Reset
+	g_STM32F10x_RTC.savedCompare = 0;
+	irq.Release();
 	g_STM32F10x_RTC.callBackISR(&g_STM32F10x_RTC.callBackISR_Param);
 }
 

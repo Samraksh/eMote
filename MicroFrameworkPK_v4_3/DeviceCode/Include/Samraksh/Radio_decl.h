@@ -172,6 +172,7 @@ BOOL CPU_Radio_SetTimeStamp(UINT8 radioID);
 BOOL CPU_Radio_SetTimeStamp2(UINT8 radioID, UINT64 timeStamp);
 UINT32 CPU_Radio_GetSNR(UINT8 radioID);
 UINT32 CPU_Radio_GetRSSI(UINT8 radioID);
+UINT32 CPU_Radio_SetDefaultRxState(UINT8 state); // default state is sleep, so CSMA needs to call this to keep RX always on
 
 //Aggregate apis
 BOOL CPU_Radio_SwitchType(UINT8 radioID);

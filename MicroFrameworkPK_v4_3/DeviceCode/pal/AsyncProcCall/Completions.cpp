@@ -2,8 +2,10 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <tinyhal.h>
-
+#include "tinyhal.h"
+#if defined( SAM_APP_TINYCLR )
+#include <Samraksh/VirtualTimer.h>
+#endif
 /***************************************************************************/
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
@@ -78,7 +80,7 @@ void HAL_COMPLETION::DequeueAndExec()
             ++HAL_COMPLETION::late_calls_total;
         }
 #endif
-        
+
         Events_Set(SYSTEM_EVENT_FLAG_SYSTEM_TIMER);
 
         ptr->Unlink();
@@ -122,7 +124,7 @@ void HAL_COMPLETION::EnqueueTicks( UINT64 EventTimeTicks )
     }
 
     g_HAL_Completion_List.InsertBeforeNode( ptr, this );
-    
+
     if(this == g_HAL_Completion_List.FirstNode())
     {
         HAL_Time_SetCompare( EventTimeTicks );
@@ -184,6 +186,11 @@ void HAL_COMPLETION::Abort()
 
 //--//
 
+//#ifdef EMOTE_COMPLETIONS_STARTUP_WAIT
+#if 1
+static UINT64 waitTime = 0;
+#endif
+
 void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64 wakeEvents )
 {
     NATIVE_PROFILE_PAL_ASYNC_PROC_CALL();
@@ -209,13 +216,85 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
         state = 0;
     }
 #ifndef DISABLE_SLEEP
-    if(state & c_SetCompare) HAL_Time_SetCompare( Expire );
+#if defined( SAM_APP_TINYCLR )
+#ifndef EMOTE_DEEP_SLEEP_MIN
+#define EMOTE_DEEP_SLEEP_MIN 5000
+#endif
+//#ifdef EMOTE_COMPLETIONS_STARTUP_WAIT
+#if 1
+	if (waitTime == 0){
+		// If we ever attempt to enter deep sleep then we are not able to program, so for now, since wakelock is not sufficient, we wait a minute before attempting sleep allowing the user time to reprogram.
+		waitTime = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * 60 * 1);
+	} else {
+		UINT64 now = HAL_Time_CurrentTicks();
+		if (now > waitTime) {
+			UINT64 sleepTime = 0;
+			UINT32 sleepTimeMicroseconds = 100;
 
-    CPU_Sleep( (SLEEP_LEVEL)sleepLevel, wakeEvents );
+			// Here we check to see when the next VT timer will go off.
+			// Currently we only check the same timer that the system time is based off of
+			// TODO: check all hardware timers (which each has a different system time and thus we need to figure out when to wake up)
+			UINT64 nextVtAlarm = VirtTimer_GetNextAlarm();			
+			// If the next alarm is earlier than Expire, we set Expire to be the wakeup alarm
+			// The alarms will be updated after sleep
+			if (nextVtAlarm < Expire)
+				Expire = nextVtAlarm;
+
+			if (Expire > now) {
+				sleepTime = Expire - now;
+				sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(sleepTime));
+			 
+				if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
+					if(state & c_SetCompare){
+						HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );
+						CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
+					}
+				} else {
+					// sleep times < 5 ms will snooze with HF clock
+					if(state & c_SetCompare) HAL_Time_SetCompare( Expire  );
+						CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
+				}
+			}
+		} else {
+			if(state & c_SetCompare) {
+				HAL_Time_SetCompare( Expire );
+				CPU_Sleep( SLEEP_LEVEL__AWAKE, wakeEvents );
+			}
+		}
+	}
+#else
+	UINT64 now = HAL_Time_CurrentTicks();
+	UINT64 sleepTime = 0;
+
+	UINT32 sleepTimeMicroseconds = 100;
+	if (Expire > now) {
+		sleepTime = Expire - now;
+		sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(sleepTime));
+	
+		if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
+			if(state & c_SetCompare){
+				HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );
+				CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
+			}
+		} else {
+			if(state & c_SetCompare) HAL_Time_SetCompare( Expire  );
+				CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
+		}
+	}
+	
+#endif
+
+#else
+	// TinyBooter
+    if(state & c_SetCompare) {
+		HAL_Time_SetCompare( Expire );
+		CPU_Sleep( SLEEP_LEVEL__AWAKE, wakeEvents );
+	}
+#endif
 #endif
 
     if(state & (c_ResetCompare | c_NilCompare))
-    {   
+    {
         // let's get the first node again
         // it could have changed since CPU_Sleep re-enabled interrupts
         ptr = (HAL_COMPLETION*)g_HAL_Completion_List.FirstNode();
@@ -227,18 +306,18 @@ void HAL_COMPLETION::Uninitialize()
 {
     NATIVE_PROFILE_PAL_ASYNC_PROC_CALL();
     GLOBAL_LOCK(irq);
-    
+
     HAL_COMPLETION* ptr;
 
     while(TRUE)
     {
         ptr = (HAL_COMPLETION*)g_HAL_Completion_List.ExtractFirstNode();
 
-        if(!ptr) 
+        if(!ptr)
         {
             break;
         }
-        
+
     }
 }
 

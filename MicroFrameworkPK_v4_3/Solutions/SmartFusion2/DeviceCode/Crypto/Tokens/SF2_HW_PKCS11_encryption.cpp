@@ -17,6 +17,9 @@ int EncryptDecryptInit(sf2_cipher_context_t *cipher_ctx, const unsigned char *ke
 
     _encrypt ? cipher_ctx->operation = ENCRYPT : cipher_ctx->operation = DECRYPT;
 
+	CPU_GPIO_EnableOutputPin( 0, FALSE );
+	CPU_GPIO_SetPinState(0, FALSE);
+
     return ret;
 }
 
@@ -205,7 +208,10 @@ CK_RV SF2_HW_PKCS11_Encryption::Encrypt(Cryptoki_Session_Context* pSessionCtx, C
 
 	CK_ULONG tmp = *pulEncryptedDataLen;
 
+	//this line
+	CPU_GPIO_SetPinState(0, TRUE);
 	SF2_HW_PKCS11_CHECK_CK_RESULT(SF2_HW_PKCS11_Encryption::EncryptUpdate(pSessionCtx, pData, ulDataLen, pEncryptedData, pulEncryptedDataLen));
+	CPU_GPIO_SetPinState(0, FALSE);
 
 	tmp -= *pulEncryptedDataLen;
 
@@ -340,7 +346,10 @@ CK_RV SF2_HW_PKCS11_Encryption::Decrypt(Cryptoki_Session_Context* pSessionCtx, C
 
 	CK_ULONG tmp = *pulDataLen;
 
+	// this line
+	CPU_GPIO_SetPinState(0, TRUE);
 	SF2_HW_PKCS11_CHECK_CK_RESULT(SF2_HW_PKCS11_Encryption::DecryptUpdate(pSessionCtx, pEncryptedData, ulEncryptedDataLen, pData, pulDataLen));
+	CPU_GPIO_SetPinState(0, FALSE);
 
 	tmp -= *pulDataLen;
 

@@ -17,7 +17,7 @@
 
 #include "SamrakshEmoteRealtime.h"
 
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN)
+#if !defined(PLATFORM_ARM_KRAIT)
 #include <stm32f10x.h>
 #endif
 
@@ -93,7 +93,7 @@ BOOL RT_Dispose ()
 
 	VirtTimer_Stop( realTimeID );
 	if (debuggerAttached == false){
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN)
+#if !defined(PLATFORM_ARM_KRAIT)		
 		CPU_INTC_DeactivateInterrupt(PEND_SV_INTERRUPT);
 #else
 		//Need something similar to above for Adapt
@@ -137,7 +137,7 @@ static HRESULT InitializeRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispat
    RealTimeTimerMicrosecs = userData;
    InitializeTimer();
 
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN)
+#if !defined(PLATFORM_ARM_KRAIT)   
    //Register the software interrupt Handler
    //On eMote .Now, it is pendSV interrupt.
 	if (debuggerAttached == false)
@@ -173,7 +173,7 @@ void GenerateInterrupt( HRESULT &hr )
 
 void GenerateSoftwareInterrupt()
 {
-#if defined(PLATFORM_ARM_EmoteDotNow) || defined(PLATFORM_ARM_WLN)
+#if !defined(PLATFORM_ARM_KRAIT)	
 	SCB->ICSR |= SCB_ICSR_PENDSVSET;
 #else
 	//Below is temporary. Need something similar to above (.Now) for Adapt

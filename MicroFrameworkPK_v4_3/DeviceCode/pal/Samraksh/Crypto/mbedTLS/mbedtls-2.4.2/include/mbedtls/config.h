@@ -59,7 +59,6 @@
 //#define MBEDTLS_HAVE_ASM  //commented out by Mukundan
 //#define MBEDTLS_HAVE_TIME //commented out by Mukundan
 #define MBEDTLS_PLATFORM_C
-#define MBEDTLS_PLATFORM_NO_STD_FUNCTIONS
 
 /* mbed TLS feature support */
 #define MBEDTLS_CIPHER_MODE_CBC

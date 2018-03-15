@@ -621,7 +621,6 @@ mipi_dsi_shutdown();
 
     HeapLocation( BaseAddress,    SizeInBytes );
     memset      ( BaseAddress, 0, SizeInBytes );
-
     lcd_printf("\f");
 
     lcd_printf("%-15s\r\n", HalName);

@@ -16,6 +16,11 @@
 #include <Samraksh/MAC/OMAC/RadioControl.h>
 #include <Samraksh/MAC/OMAC/OMAC.h>
 
+//#include "netmf_pwr_wakelock.h"
+#define WLO_OMAC 0x00000010
+extern void WakeLock(uint32_t lock);
+extern void WakeUnlock(uint32_t lock);
+
 extern OMACType g_OMAC;
 
 
@@ -43,6 +48,9 @@ DeviceStatus RadioControl_t::Initialize(){
 	CPU_GPIO_EnableOutputPin(OMAC_DRIVING_RADIO_SLEEP, TRUE);
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );
 
+#endif
+#if OMAC_DEBUG_PRINTF_RADIOCONTROL_SEND
+	packet_seq_num = 0;
 #endif
 	stayOn = false;
 	next_piggybacked_extendedneighborinfo_index = 0;
@@ -111,6 +119,9 @@ DeviceStatus RadioControl_t::Preload(RadioAddress_t address, Message_15_4_t * ms
  *
  */
 DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size){
+#if OMAC_DEBUG_PRINTF_RADIOCONTROL_SEND
+	++packet_seq_num;
+#endif
 	//Check if we can send with timestamping, 4bytes for timestamping + 8 bytes for clock value
 	Message_15_4_t* returnMsg;
 	if(size == sizeof(softwareACKHeader)){
@@ -139,6 +150,8 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 		PiggybackMessages( msg, size);
 		IEEE802_15_4_Header_t *header = msg->GetHeader();
 		IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
+
+
 
 
 		header->length = (size);
@@ -208,6 +221,12 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 		}
 		else if(header->payloadType == MFM_DATA){
 			CPU_GPIO_SetPinState( RC_TX_DATA, FALSE );
+		}
+#endif
+
+#if OMAC_DEBUG_PRINTF_RADIOCONTROL_SEND_EXCEPT_DISCO
+		if(header->payloadType != MFM_OMAC_DISCOVERY){
+			hal_printf("\r\nRadioControl_t::Send sent a packet seq = %u dest = %u type =%u flags = %u\r\n",packet_seq_num,  header->dest, header->payloadType, header->flags);
 		}
 #endif
 
@@ -400,6 +419,7 @@ DeviceStatus RadioControl_t::Stop(){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, TRUE );
 #endif
+		WakeUnlock(WLO_OMAC);
 		DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
 
 		if(returnVal == DS_Success) {
@@ -429,6 +449,7 @@ DeviceStatus RadioControl_t::StartRx(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, TRUE );
 #endif
+	WakeLock(WLO_OMAC);
 	DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
 	if(returnVal == DS_Success){
 #ifdef OMAC_DEBUG_GPIO

@@ -17,6 +17,10 @@ Cuts out a lot of junk, but the real point is to create isolated and stable driv
 static enum stm_power_modes stm_power_state = POWER_STATE_DEFAULT;
 static const int PWR_HSI_DEFAULT_TRIM = 16;
 
+extern "C" {
+void __irq RTCAlarm_IRQHandler(void) { }
+}
+
 void PowerInit() {
 
 	//DBGMCU_Config(DBGMCU_SLEEP | DBGMCU_STANDBY | DBGMCU_STOP, ENABLE);

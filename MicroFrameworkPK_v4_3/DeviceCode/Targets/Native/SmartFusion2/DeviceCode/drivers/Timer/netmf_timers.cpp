@@ -37,8 +37,8 @@ void Timer2_IRQHandler(void* Param)
 {
 	//UINT64 getCount = CPU_Timer_CurrentTicks(0);
 	//hal_printf("%llu\r\n",getCount);
-    CPU_GPIO_SetPinState(0, TRUE);
-	CPU_GPIO_SetPinState(0, FALSE);
+    //CPU_GPIO_SetPinState(0, TRUE);
+	//CPU_GPIO_SetPinState(0, FALSE);
     // Clear interrupt 
     MSS_TIM2_clear_irq();
 }
@@ -59,7 +59,7 @@ BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CA
 	//if( !CPU_INTC_ActivateInterrupt(Timer2_IRQn, ISR, NULL) )
 	if( !CPU_INTC_ActivateInterrupt(Timer2_IRQn, Timer2_IRQHandler, NULL) )
 		return DS_Fail;
-	CPU_GPIO_EnableOutputPin( 0, FALSE );
+	//CPU_GPIO_EnableOutputPin( 0, FALSE );
 	MSS_TIM1_start();
 	MSS_TIM2_start();
     MSS_TIM1_enable_irq();

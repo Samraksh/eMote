@@ -117,6 +117,7 @@ DeviceStatus 	si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32
 UINT32 			si446x_hal_get_chan(UINT8 radioID);
 UINT32 			si446x_hal_get_power(UINT8 radioID);
 UINT32			si446x_hal_get_rssi(UINT8 radioID);
+void			si446x_hal_set_default_state(si_state_t defaultState);
 
 void			si446x_hal_register_tx_callback(si446x_tx_callback_t handler);
 void			si446x_hal_unregister_tx_callback();

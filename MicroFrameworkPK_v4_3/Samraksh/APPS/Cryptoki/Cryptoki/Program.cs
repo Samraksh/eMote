@@ -35,7 +35,7 @@ namespace Cryptoki
                 0x70, 0x60, 0x50, 0x40, 0x30, 0x20, 0x10, 0x00,
             };
 
-       /* public void RSA_Example()
+        public void RSA_Example()
         {
             try
             {
@@ -59,7 +59,7 @@ namespace Cryptoki
             {
                 Debug.Print(e.ToString());
             }
-        }*/
+        }
 
         public CryptoKey GetAESKey(byte[] key, AesCryptoServiceProvider csp)
         {
@@ -120,13 +120,12 @@ namespace Cryptoki
 
        public void AES_Example()
        {
+            Debug.Print("Lets begin the aes example");
+            //Specify the key size. Native side will figure out the key to use.
+            //AesCryptoServiceProvider aes = new AesCryptoServiceProvider(_keysize);
+            AesCryptoServiceProvider aes = new AesCryptoServiceProvider(256);
 
-           //Specify the key size. Native side will figure out the key to use.
-           //AesCryptoServiceProvider aes = new AesCryptoServiceProvider(_keysize);
-           AesCryptoServiceProvider aes = new AesCryptoServiceProvider(256);
-
-           Session aesSession = aes.Session;
-
+            Session aesSession = aes.Session;
 
             /*AesCryptoServiceProvider aes = new AesCryptoServiceProvider
             {
@@ -136,17 +135,19 @@ namespace Cryptoki
             //GenerateAESKey(Key256, aes);
             CryptoKey ckey = CryptoKey.ImportKey(aesSession, Key256bit, 
                 CryptoKey.KeyClass.Secret, CryptoKey.KeyType.AES, true);
-          
 
-            CryptoKey ckey2 = aes.Key;
+            //aes.Key = ckey;
+            //aes.IV = IV16;
 
-           //Create encryptor and decryptor
-           //var encryptor = aes.CreateEncryptor();
-           aes.Key = ckey;
-           aes.IV = IV16;
-           // var encryptor = aes.CreateEncryptor(ckey, aes.IV);
-           //var encryptor = aes.CreateEncryptor(ckey, IV16);
-           var encryptor = aes.CreateEncryptor();
+            //CryptoKey ckey2 = aes.Key;
+
+            //Create encryptor and decryptor
+            //var encryptor = aes.CreateEncryptor();
+
+            Debug.Print("Lets create encryptor ");
+            // var encryptor = aes.CreateEncryptor(ckey, aes.IV);
+            var encryptor = aes.CreateEncryptor(ckey, IV16);
+            //var encryptor = aes.CreateEncryptor();
 
             //Store the key securely. will need for decrypting latter
             //byte[] aesKey = aes.Key.ExportKey(true);
@@ -160,20 +161,31 @@ namespace Cryptoki
             //convert to byte array
             byte[] original_data = UTF8Encoding.UTF8.GetBytes(original_string);
             //Encrypt the data
+            //TimeSpan s = TimeSpan(DateTime.Now);
+            
+            DateTime start = DateTime.Now;
             byte[] en_bytes = encryptor.TransformFinalBlock(original_data, 0, original_data.Length);
+            TimeSpan encTime = (DateTime.Now - start);
             //string en_s = new string(Encoding.UTF8.GetChars(en_bytes));
-            //Debug.Print("Data Size= " + original_string.Length + ", Data= " + original_string);
-            //Debug.Print("Encrypted Data: " + ByteArrayToString(en_bytes));
-            //Debug.Print("Encrypted Data size= " + en_bytes.Length);       
-     
+            Debug.Print("Data Size= " + original_string.Length + ", Data= " + original_string);
+            Debug.Print("Encrypted Data Size: " + en_bytes.Length +", Encrypte Data= "+ ByteArrayToString(en_bytes));
+            Debug.Print("Time to encrypt = " + encTime.ToString());       
+
+            Debug.Print("Lets create decryptor.... ");
             //Decrypt the data
-            var decryptor = aes.CreateDecryptor();
+            //var decryptor = aes.CreateDecryptor();
+            var decryptor = aes.CreateDecryptor(ckey, IV16);
+
+            start = DateTime.Now;
             byte[] de_bytes = decryptor.TransformFinalBlock(en_bytes,0, en_bytes.Length);
+            TimeSpan decTime = (DateTime.Now - start);
             //print the decrypted data
 
             string decrypted_string = new string(Encoding.UTF8.GetChars(de_bytes));
             //Debug.Print("Decrypted Data= " + ByteArrayToString(de_bytes));
-            Debug.Print("Decrypted String= " + decrypted_string);
+            Debug.Print("Decrypted String Size= " + decrypted_string.Length 
+                + ", Decrypted String= " + decrypted_string);
+            Debug.Print("Time to decrypt= " + decTime.ToString());
         }
 
         public static void Main()
@@ -181,9 +193,7 @@ namespace Cryptoki
             Program p= new Program();
             //p.RSA_Example();
             p.AES_Example();
-            Debug.GC(true);
-
-            Debug.Print(Resources.GetString(Resources.StringResources.String1));
+            Debug.Print("End of Demo");
             Thread.Sleep(Timeout.Infinite);
         }
     }

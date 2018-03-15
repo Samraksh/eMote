@@ -1,6 +1,6 @@
-//#include <cores\arm\include\cpu.h>
 #include <tinyhal.h>
 #include "netmf_pwr.h"
+#include "netmf_pwr_wakelock.h"
 
 BOOL CPU_Initialize() {
 	PowerInit();
@@ -12,6 +12,7 @@ BOOL CPU_JTAG_Attached(){
 }
 
 void CPU_ChangePowerLevel(POWER_LEVEL level) {
+	GLOBAL_LOCK(irq);
     switch(level)
     {
         case POWER_LEVEL__HIGH_POWER:
@@ -27,8 +28,12 @@ void CPU_ChangePowerLevel(POWER_LEVEL level) {
     }
 }
 
+BOOL CPU_Sleep_WakeLock_Status() {
+	return GetWakeLocked();
+}
+
 void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents ) {
-#if defined (DISABLE_SLEEP) || defined (SAM_APP_TINYBOOTER) // To make grabbing it with the JTAG easier.
+#if defined (DISABLE_SLEEP) // To make grabbing it with the JTAG easier.
 	return;
 #else
     switch(level)
@@ -38,10 +43,12 @@ void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents ) {
 			break;
 		case SLEEP_LEVEL__DEEP_SLEEP:
 		case SLEEP_LEVEL__SELECTIVE_OFF:
+			Sleep();
+			break;
 		case SLEEP_LEVEL__AWAKE:
 		case SLEEP_LEVEL__SLEEP:
 		default:
-			Sleep();
+			Snooze();
 			break;
     }
 #endif

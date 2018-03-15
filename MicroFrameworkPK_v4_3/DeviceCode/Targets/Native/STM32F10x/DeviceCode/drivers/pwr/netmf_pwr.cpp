@@ -11,19 +11,115 @@ nathan.stohs@samraksh.com
 #include "netmf_pwr.h"
 #include "netmf_pwr_wakelock.h"
 #include "../usart/sam_usart.h"
+#include "../Timer/netmf_rtc/netmf_rtc.h"
+
+
+// Number of RTC ticks it takes to wakeup from each power level.
+// So wakeup early by this amount plus some slop
+enum wakeup_ticks{
+	MIN_SLEEP_TICKS = 33,
+	SLEEP_EXTRA_PAD = 1,
+	SLEEP_PADDING_HIGH_POWER = 8,
+	SLEEP_PADDING_MID_POWER = 8,
+	SLEEP_PADDING_LOW_POWER = 6,
+};
+
+//#define NATHAN_DEBUG_SLEEP // DELETE ME
+
+#ifdef PLATFORM_ARM_AUSTERE
+#include <stm32f10x.h>
+#endif
 
 static int pwr_hsi_clock_measure;
 static int pwr_hsi_clock_measure_orig;
 static enum stm_power_modes stm_power_state = POWER_STATE_DEFAULT;
 
+#ifdef PLATFORM_ARM_AUSTERE
+static void power_supply_reset() {
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_11 | GPIO_Pin_13; // leave out PC8 due to schematic issues
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+#ifdef NATHAN_DEBUG_SLEEP
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3; // PPS debug pin
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_RESET);
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+#endif
+
+  // Configure Inputs
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_12;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+  // Configure Inputs
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; // PB5 is open-drain from LTC3103
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+  // Configure Inputs
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+  // Radio shutdown pin
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+}
+
+// AUSTERE. ONLY GPIOC and FOR IPU/IPD (i.e. not for 3.3v ctrl which uses OD logic)
+static void power_supply_activate(uint16_t pin) {
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = pin;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+}
+// 0 = Cap not rady, 1 = Cap Ready
+static int get_radio_charge_status(void) {
+	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_12);
+}
+static int get_radio_power_status(void) {
+	return GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_7);
+}
+static void radio_shutdown(int go) {
+	if (go) // turn off the radio
+		GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_SET);
+	else
+		GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_RESET);
+}
+static void set_debug_pin(int go) {
+#ifdef NATHAN_DEBUG_SLEEP
+	if (go)
+		GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_SET);
+	else
+		GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_RESET);
+#endif
+}
+#else
+#define set_debug_pin(x)
+#endif // PLATFORM_ARM_AUSTERE
+
 
 #ifdef EMOTE_WAKELOCKS
-static volatile uint32_t wakelock;
-static volatile UINT64 waketime;
+static uint32_t wakelock;
+static UINT64 waketime;
 
 void WakeLockInit(void) {
 	wakelock = 0;
+#if defined (EMOTE_WAKELOCK_STARTUP) && (EMOTE_WAKELOCK_STARTUP > 0)
+	waketime = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * EMOTE_WAKELOCK_STARTUP);
+#else
 	waketime = 0;
+#endif
 }
 
 void WakeLock(uint32_t lock) {
@@ -37,7 +133,9 @@ void WakeUnlock(uint32_t lock) {
 }
 
 void WakeUntil(UINT64 until) {
-	INT64 now;
+	UINT64 now;
+
+	GLOBAL_LOCK(irq);
 
 	// Value of 0 will force kill the wakelock
 	if (until == 0) {
@@ -56,32 +154,72 @@ void WakeUntil(UINT64 until) {
 	waketime = until;
 }
 
-uint32_t GetWakeLock(void) {
-	return wakelock;
+bool GetWakeLocked(void) {
+	bool doWFI;
+	ASSERT_IRQ_MUST_BE_OFF();
+	if (wakelock) { doWFI = TRUE; }
+	else if (waketime > 0) {
+		UINT64 now = HAL_Time_CurrentTicks();
+		if (waketime >= now) {
+			doWFI = TRUE; // Wakelocked
+		} else {
+			waketime = 0;
+			doWFI = FALSE;
+		}
+	} else { doWFI = FALSE; }
+	return doWFI;
 }
 
-UINT64 GetWakeUntil(void) {
-	return waketime;
-}
-
-BOOL WakeLockEnabled(void) {
-	return TRUE;
-}
 #else // EMOTE_WAKELOCKS
 void WakeLock(uint32_t lock) {}
 void WakeUnlock(uint32_t lock) {}
 void WakeUntil(UINT64 until) {}
-uint32_t GetWakeLock(void) {return 0;}
-UINT64 GetWakeUntil(void) {return 0;}
+bool GetWakeLocked(void) {return false;}
 void WakeLockInit(void) {}
-BOOL WakeLockEnabled(void) {return FALSE;}
 #endif // EMOTE_WAKELOCKS
 
+#ifdef DEBUG_DOTNOW_ISR
+extern volatile unsigned interrupt_count[64];
+#endif
+
+// Doesn't have to do anything but it does cause wakeup.
+extern "C" {
+void __irq RTCAlarm_IRQHandler(void) {
+	//SOFT_BREAKPOINT();
+#ifdef DEBUG_DOTNOW_ISR
+	interrupt_count[RTCAlarm_IRQn]++;
+#endif
+	RTC_ClearITPendingBit(RTC_IT_ALR);
+	EXTI_ClearITPendingBit(EXTI_Line17);
+}
+}
+
+static void RTC_wakeup_init(void) {
+	EXTI_InitTypeDef EXTI_InitStruct;
+	NVIC_InitTypeDef NVIC_InitStruct;
+
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO , ENABLE);
+	EXTI_DeInit();
+
+	EXTI_ClearITPendingBit(EXTI_Line17);
+	EXTI_InitStruct.EXTI_Line = EXTI_Line17;
+	EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
+	//EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Event;
+	EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
+	EXTI_InitStruct.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&EXTI_InitStruct);
+
+	// Setup RTC Alarm interrupt (for wakeup)
+	NVIC_InitStruct.NVIC_IRQChannel = RTCAlarm_IRQn;
+	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStruct);
+}
+
 void PowerInit() {
-
-	WakeLockInit();
-
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+	GLOBAL_LOCK(irq);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
 
 #if !defined(BUILD_RTM) // For non-RTM flavors (e.g. Release, Debug), do not artificially raise lowest power mode. But, in flavors Debug, Instrumented ...
 	if(JTAG_Attached() > 0) // ... when JTAG is attached, artificially raise lowest power mode to support JTAG connection.
@@ -95,26 +233,53 @@ void PowerInit() {
 	}
 #endif
 
-#if defined(SAM_APP_TINYBOOTER)
-	//High_Power();
-	Mid_Power();
-	//Low_Power();
-	return;
-	// Its important that we return before doing HSI calibration.
-	// For some reason if we do it here and TinyCLR it freezes.
-	// Also no reason to waste time on it.
-	// Guessing its a double-init or deinit-init issue.
-#endif
-
-#ifdef DOTNOW_HSI_CALIB
+#if defined(DOTNOW_HSI_CALIB) && !defined(PLATFORM_ARM_AUSTERE)
 	Low_Power();
 	CalibrateHSI();
-#else
-	RCC_AdjustHSICalibrationValue(PWR_HSI_DEFAULT_TRIM);
 #endif
 
+
+#ifdef PLATFORM_ARM_AUSTERE
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC, ENABLE);
+	power_supply_reset();
+	power_supply_activate(GPIO_Pin_6); // 1.8v rail (with the RTC clock)
+	// Spin long enough for the 1.8v domain to power up. This delay is a mostly blind guess.
+	for(volatile int i=0; i<106666; i++) ; // spin, maybe about 10ms ???
+	power_supply_activate(GPIO_Pin_11);    // Big Cap
+
+	Low_Power();
+	CalibrateHSI(); // Lets calibrate the HSI while we wait for the cap to charge.
+
+#ifdef AUSTERE_NO_CAP_TIMEOUT
+	while( get_radio_charge_status() == 0 ); 	// wait for big cap to charge
+#else
+	volatile int i=0;
+	while(get_radio_charge_status() == 0) {
+		if (i++ == 10000000) // ~20 seconds
+			break;
+	}
+#endif
+
+	power_supply_activate(GPIO_Pin_13);			// Turn on 2.5v rail
+	radio_shutdown(1);							// Disable radio
+
+	volatile int ii=0;
+	while( get_radio_power_status() == 0 ) {		// Wait for 2.5v to stab
+		if (ii++ == 10000000) // ~20 seconds
+		{ ASSERT(0); break; }
+	}
+
+	//Low_Power();
+	//Mid_Power(); // Would prefer 8 MHz
 	High_Power();
+#else
+	High_Power();
+#endif
+
 	RCC_LSICmd(DISABLE);
+	RTC_wakeup_init();
+
+	WakeLockInit();
 }
 
 static void do_hsi_measure() {
@@ -200,9 +365,15 @@ void CalibrateHSI() {
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
 	RTC_SetPrescaler(0x0FFF); // 1/8th second
+	//RTC_SetPrescaler(0x0F41); // 1/8th second. Delete me. For a temporary gimped board.
+#ifdef PLATFORM_ARM_AUSTERE
+	RCC_LSEConfig(RCC_LSE_Bypass);
+#else
 	RCC_LSEConfig(RCC_LSE_ON);
+#endif
 	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET) {
 		if (err++ == PWR_RTC_TIMEOUT) {
+			ASSERT(0);
 			return; // Crystal not starting. Give up.
 		}
 	}
@@ -291,14 +462,42 @@ static void pause_peripherals(void) {
 	USART_pause();
 }
 
+// Just like Low power but doesn't re-init
+static void Sleep_Power(void) {
+	// Make sure actually changing
+	if (stm_power_state == POWER_STATE_GOING_SLEEP) {
+		return;
+	}
+
+	pause_peripherals();
+
+	// Set HSI (instead of PLL) as SYSCLK source
+	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
+
+	// Spin waiting for HSI to be used.
+	while ( RCC_GetSYSCLKSource() != 0x00 ) { ; }
+
+	// Disable (now unused) PLL
+	RCC_PLLCmd(DISABLE);
+
+	// Set Bus speeds
+	RCC_HCLKConfig(RCC_SYSCLK_Div1);  // 8 MHz
+	RCC_PCLK1Config(RCC_HCLK_Div1);   // 8 MHz
+	RCC_PCLK2Config(RCC_HCLK_Div1);   // 8 MHz
+	RCC_ADCCLKConfig(RCC_PCLK2_Div2); // 4 MHz
+
+	// Set flash speeds
+	FLASH_SetLatency(FLASH_Latency_0);
+
+	stm_power_state = POWER_STATE_GOING_SLEEP;
+}
+
 void Low_Power() {
 
 	// Make sure actually changing
 	if (stm_power_state == POWER_STATE_LOW) {
 		return;
 	}
-
-	GLOBAL_LOCK(irq);
 
 	pause_peripherals();
 
@@ -323,10 +522,6 @@ void Low_Power() {
 
 	// Set flash speeds
 	FLASH_SetLatency(FLASH_Latency_0);
-#if !defined(SAM_APP_TINYBOOTER) // Can't touch this in TinyBooter, breaks backwards compatibility.
-	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Disable);
-	FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Enable);
-#endif
 
 	stm_power_state = POWER_STATE_LOW;
 
@@ -339,8 +534,6 @@ void Mid_Power() {
 	if (stm_power_state == POWER_STATE_MID) {
 		return;
 	}
-
-	GLOBAL_LOCK(irq);
 
 	pause_peripherals();
 
@@ -370,8 +563,6 @@ void Mid_Power() {
 
 	// Set flash speeds
 	FLASH_SetLatency(FLASH_Latency_0);
-	FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Disable);
-	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
 
 	// Enable PLL and spin waiting for PLL ready
 	RCC_PLLCmd(ENABLE);
@@ -392,8 +583,6 @@ void High_Power() {
 	if (stm_power_state == POWER_STATE_HIGH) {
 		return;
 	}
-
-	GLOBAL_LOCK(irq);
 
 	pause_peripherals();
 
@@ -421,10 +610,8 @@ void High_Power() {
 	// Then the associated TIM clock is x2
 	// so PCLK @ 48/2 MHz really means TIM @ 48 MHz.
 
-	// Set flash speeds
+	// Set flash speed
 	FLASH_SetLatency(FLASH_Latency_2);
-	FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Disable);
-	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
 
 	// Enable PLL and spin waiting for PLL ready
 	RCC_PLLCmd(ENABLE);
@@ -439,43 +626,139 @@ void High_Power() {
 	USART_reinit(); // Clock sensitive. Must redo.
 }
 
+static bool check_pending_isr(void) {
+	const volatile unsigned icsr = *((volatile unsigned *)0xE000ED04);
+	const unsigned ISRPENDING_MASK = 1<<22;
+	return (icsr & ISRPENDING_MASK);
+}
+
+// Only to be called with interrupts disabled
+static uint32_t align_to_rtc2(void) {
+	uint32_t now = RTC_GetCounter();
+	while (RTC_GetCounter() == now) ; // align by waiting until we tick
+	return now+1;
+}
+
+void Snooze() {
+	__DSB();
+	__WFI();
+}
+
 // Exit in the same power state as we entered.
+// TODO: Need to clean this up...
 void Sleep() {
 
 #ifdef EMOTE_WAKELOCKS
-	// First check wakelocks
-	// Really should use WFI but need execution loop polling for now.
-	// TODO above
-
-	if (wakelock) {
-		return;
-	}
-
-	if (waketime > 0) {
-		UINT64 now = HAL_Time_CurrentTicks();
-		if (waketime > now) {
-			return; // Wakelocked
-		}
-		waketime = 0; // Time is past, clear the time and continue to sleep
+	if ( GetWakeLocked() ) { // If wakelocked, use snooze mode.
+		__DSB();
+		__WFI();
+		return; // Sleep completed, done here.
 	}
 #endif // EMOTE_WAKELOCKS
 
-#ifdef SAM_APP_TINYBOOTER // Normally not reachable anyway.
-	__DSB();
-	__WFI();
-#else
-	switch(stm_power_state) {
-		case POWER_STATE_LOW:
-			//PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
-			__DSB();
-			__WFI();
-			break;
-		default:
-			__DSB();
-			__WFI();
-			break;
+	USART_Flush(0); // Flush USART1 / COM0 before we sleep
+	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, ENABLE);
+	ASSERT_IRQ_MUST_BE_OFF();
+	//GLOBAL_LOCK(irq); // Should already be locked from caller
+
+	if (check_pending_isr()) { // Must ensure something didn't slip in
+		NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
+		__SEV();
+		__WFE();
+		return;
+	}
+
+	uint32_t now; // 32-bits can store about 90 days worth of ticks
+	uint32_t aft; // post sleep RTC time;
+	uint32_t wakeup_time; // when the RTC is supposed to wake us up.
+
+	// Abort if our wakeup time is too soon
+	now = RTC_GetCounter();
+	wakeup_time = g_STM32F10x_RTC.GetCompare();
+	if(wakeup_time < now+MIN_SLEEP_TICKS) {
+		// Abort!
+		NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
+		__SEV();
+		__WFE();
+		return;
+	}
+#ifdef NATHAN_DEBUG_SLEEP
+	// DEBUGGING ONLY. Alert if sleep time is longer than 1 minute
+	if (wakeup_time - now >= 1966080) {
+		SOFT_BREAKPOINT();
 	}
 #endif
+	switch(stm_power_state) {
+		default:
+		case POWER_STATE_LOW:
+			RTC_SetAlarm(wakeup_time-SLEEP_EXTRA_PAD-SLEEP_PADDING_LOW_POWER);
+			RTC_WaitForLastTask();
+			now = align_to_rtc2();
+			TIM_Cmd(TIM1, DISABLE);
+			Sleep_Power();
+			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
+			RTC_WaitForSynchro();
+			aft = RTC_GetCounter(); // align_to_rtc2() not needed because redundant with WaitForSyncrho() but ONLY FOR LOW-POWER CASE
+			TIM_Cmd(TIM1, ENABLE);
+			stm_power_state = POWER_STATE_LOW; // Low_Power is basically identical to Sleep_Power, so basically a no-op.
+			break;
+		case POWER_STATE_MID:
+			RTC_SetAlarm(wakeup_time-SLEEP_EXTRA_PAD-SLEEP_PADDING_MID_POWER);
+			RTC_WaitForLastTask();
+			now = align_to_rtc2();
+			TIM_Cmd(TIM1, DISABLE);
+			Sleep_Power();
+			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
+			Mid_Power();
+			RTC_WaitForSynchro();
+			aft = align_to_rtc2();
+			TIM_Cmd(TIM1, ENABLE);
+			break;
+		case POWER_STATE_HIGH:
+			RTC_SetAlarm(wakeup_time-SLEEP_EXTRA_PAD-SLEEP_PADDING_HIGH_POWER);
+			RTC_WaitForLastTask();
+			now = align_to_rtc2();
+			TIM_Cmd(TIM1, DISABLE);
+			Sleep_Power();
+			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
+			High_Power();
+			RTC_WaitForSynchro();
+			aft = align_to_rtc2();
+			TIM_Cmd(TIM1, ENABLE);
+			break;
+	}
+
+	// Disable SEVONPEND and create-consume a dummy event.
+	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
+	__SEV();
+	__WFE();
+
+	// Main system timer does not run during sleep so we have to fix up clock afterwards.
+	// Do a three iteration floor estimate for the clock conversion.
+	// Basically this is "leap ticks" and avoids both floating point and long division.
+	uint32_t ticks;			 			  // 1st iteration
+	if (aft >= now) { ticks = aft-now; }  // Check for roll-over
+	else { ticks = aft-now+0xFFFFFFFF; }
+	uint32_t ticks_extra;
+	static uint32_t ticks_carried  = 0;  // 2nd iteration
+	static uint32_t ticks_carried3  = 0; // 3nd iteration
+	// 2nd iteration, every 62.5ms
+	ticks_extra = (ticks+ticks_carried) / 2048;
+	ticks_carried = (ticks+ticks_carried) % 2048;
+	// 3rd iteration, every 8 seconds
+	ticks_extra += (ticks_extra+ticks_carried3)/128 * 23;
+	ticks_carried3 = (ticks_extra+ticks_carried3) % 128;
+	// Add it up
+	ticks = (ticks+ticks_extra) * 305;
+	// Punch it in
+	HAL_Time_AddClockTime(ticks);
+
+	// Long term numerical error should be 312.5 ppb
+	// Typical short term error of 1 tick (~30.5us) but max of 24 ticks (~732 us).
+	// Long term error is about right for a 5-10ppm source (~10x better) but a real source of error if <= 1ppm.
+	// Then again, the HSI contributes too and is something like 50,000 ppm so this is fundamentally broken anyway
+
+	//irq.Release(); // Should already be locked from caller
 }
 
 // Shouldn't be used, possibly for unrecoverable error in debug mode.

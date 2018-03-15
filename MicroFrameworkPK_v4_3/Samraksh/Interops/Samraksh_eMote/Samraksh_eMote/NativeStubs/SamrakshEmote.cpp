@@ -143,15 +143,39 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_SamrakshEmote_Samraksh_eMote_Platform::GetPlatformTypeInternal___STATIC__SamraksheMotePLATFORMTYPE,
     NULL,
     NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     Library_SamrakshEmote_Samraksh_eMote_RadarInterface::TurnOn___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_RadarInterface::TurnOff___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_RadarInterface::Blind___BOOLEAN,
+    NULL,
+    NULL,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::ConfigureFPGADetectionPrivate___BOOLEAN__SZARRAY_U2__SZARRAY_U2__U4,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetWindowOverThreshold___BOOLEAN,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::CurrentDetectionFinished___BOOLEAN,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetNetDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetAbsoluteDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetDisplacementRange___I4__SamraksheMoteSAMPLEWINDOWPORTION,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetCountOverTarget___I4,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::SetProcessingInProgress___VOID__BOOLEAN,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::Init___STATIC__I4__I4,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::Uninit___STATIC__BOOLEAN,
 };
 
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote =
 {
     "Samraksh_eMote", 
-    0x829E2430,
+    0x6653CE83,
     method_lookup
 };
 

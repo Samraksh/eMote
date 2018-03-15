@@ -17,11 +17,13 @@ enum stm_power_modes {
 	POWER_STATE_LOW,
 	POWER_STATE_MID,
 	POWER_STATE_HIGH,
+	POWER_STATE_GOING_SLEEP,
 };
 
 extern UINT32 pwr_get_hsi(int x);
 
 void Sleep();
+void Snooze();
 void PowerInit();
 void High_Power();
 void Mid_Power();

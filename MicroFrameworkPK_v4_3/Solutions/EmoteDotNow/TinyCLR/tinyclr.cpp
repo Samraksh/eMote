@@ -6,6 +6,8 @@
 #include <tinyhal.h>
 
 ////////////////////////////////////////////////////////////////////////////////
+
+
 void ApplicationEntryPoint()
 {
     CLR_SETTINGS clrSettings;
@@ -23,6 +25,7 @@ void ApplicationEntryPoint()
 #else
     ::CPU_Reset();
 #endif
+	
 }
 
 
