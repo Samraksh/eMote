@@ -40,7 +40,14 @@ namespace Samraksh.eMote
                 RadarInternal.Uninit();
             }
 
-            public bool ConfigureFPGADetection(ushort[] sampleBuffI, ushort[] sampleBuffQ, uint numSamples, RadarCallBack callback)
+        /// <summary> Turns on the Radar </summary>
+        /// <param name="sampleBuffI">Buffer for samples</param>
+        /// <param name="sampleBuff1">Buffer for samples</param>
+        /// <param name="numSamples">Number of samples</param>
+        /// <param name="callback">Method to call when numSamples collected</param>
+        /// <returns>True if operation success</returns>
+        /// <returns>The result of turning on the radar: Success, Fail</returns>
+        public bool ConfigureFPGADetection(ushort[] sampleBuffI, ushort[] sampleBuffQ, uint numSamples, RadarCallBack callback)
             {
                 _myCallback = callback;
                 var eventHandler = new NativeEventHandler(InternalCallback);
@@ -85,6 +92,8 @@ namespace Samraksh.eMote
 
             public int GetCountOverTarget()
             {
+                //var x = _radarInternal.GetCountOverTarget();
+                //Debug.Print("C#RadarInterface::GetCountOverTarget()" + x);
                 return _radarInternal.GetCountOverTarget();
             }
 

@@ -27,43 +27,47 @@ static BOOL g_radarInterruptEnabled = TRUE;
 
 INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, HRESULT &hr )
 {
-	INT8 retVal = FPGA_RadarInit(param0.GetBuffer(), param1.GetBuffer(), param2);
+	INT8 retVal = HAL_RADAR_DRIVER::FPGA_RadarInit(param0.GetBuffer(), param1.GetBuffer(), param2);
     return retVal;
 }
 
 INT8 RadarInternal::GetWindowOverThreshold( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    return getWindowOverThreshold();
+	INT8 x = HAL_RADAR_DRIVER::getWindowOverThreshold();
+	hal_printf( "RadarInternal::GetWindowOverThreshold() = %d \r\n", x );
+    return x;
 }
 
 INT8 RadarInternal::CurrentDetectionFinished( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    return getDetectionFinished();
+    return HAL_RADAR_DRIVER::getDetectionFinished();
 }
 
 INT32 RadarInternal::GetNetDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr )
 {
-    return getNetDisplacement(portion);
+    return HAL_RADAR_DRIVER::getNetDisplacement(portion);
 }
 
 INT32 RadarInternal::GetAbsoluteDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr )
 {
-    return getAbsoluteDisplacement(portion);	
+    return HAL_RADAR_DRIVER::getAbsoluteDisplacement(portion);
 }
 
 INT32 RadarInternal::GetDisplacementRange( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr )
 {
-    return getDisplacementRange(portion);	
+    return HAL_RADAR_DRIVER::getDisplacementRange(portion);
 }
 
 INT32 RadarInternal::GetCountOverTarget( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    return getCountOverTarget();
+	INT32 x = HAL_RADAR_DRIVER::getCountOverTarget();
+	hal_printf( "RadarInternal::GetCountOverTarget() = %d \r\n", x );
+    return x;
 }
 
 void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr )
 {
-	setProcessingInProgress(param0);
+	HAL_RADAR_DRIVER::setProcessingInProgress(param0);
 }
 
 INT32 RadarInternal::Init( INT32 param0, HRESULT &hr )

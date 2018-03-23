@@ -349,6 +349,7 @@ int getDisplacement(INT32 portion){
 }
 
 int getAbsoluteDisplacement(INT32 portion){
+	//hal_printf( "unwrap.cpp :: getAbsoluteDisplacement() = %d \r\n", absoluteDisplEntire );
 	if (portion == SAMPLE_WINDOW_FULL){
 		return absoluteDisplEntire;
 	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
@@ -379,5 +380,6 @@ INT16 getAbsOffsetI(){
 }
 
 INT16 getCountOverTarget(){
+	//hal_printf( "unwrap.cpp :: getCountOverTarget() = %d \r\n", countOverTarget );
 	return countOverTarget;
 }

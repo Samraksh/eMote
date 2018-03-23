@@ -2,7 +2,7 @@
 #define HAL_RADAR_DRIVER_H_
 
 #include <stm32f10x.h>
-
+namespace HAL_RADAR_DRIVER{
 void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param);
 void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param);
 void Radar_Handler(void *arg);
@@ -14,5 +14,5 @@ INT32 getAbsoluteDisplacement(INT32 portion);
 INT32 getDisplacementRange(INT32 portion);
 INT32 getCountOverTarget();
 void setProcessingInProgress(int state);
-
+}
 #endif
