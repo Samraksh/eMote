@@ -709,6 +709,14 @@
   
   <!--     						   SSL and other crypto stuff   							-->
   
+  
+  <!--Secure Boot and Higher level stuff-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Crypto\SecureBoot\BinIntegrity\dotNetMF.proj" />
+    <DriverLibs Include="BinIntegrity.$(LIB_EXT)" />
+  </ItemGroup>
+  
+  <!--Basic PKCS stuff-->	
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\PKCS11\dotNetMF.proj" />
     <DriverLibs Include="PKCS11_Engine.$(LIB_EXT)" />
