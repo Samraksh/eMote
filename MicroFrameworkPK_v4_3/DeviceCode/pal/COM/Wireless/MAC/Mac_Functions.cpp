@@ -399,7 +399,7 @@ DeviceStatus MAC_GetNeighborStatus(UINT16 macAddress, UINT8 *buffer)
 			buffer[6] = (g_NeighborTable.Neighbor[i].ReceiveLink.LinkQuality);
 			buffer[7] = (g_NeighborTable.Neighbor[i].ReceiveLink.AveDelay);
 			buffer[8] = (g_NeighborTable.Neighbor[i].neighborStatus & 0x0F) || ( ((g_NeighborTable.Neighbor[i].IsAvailableForUpperLayers) & 0x0F) << 4)  ;
-			buffer[9] = (g_NeighborTable.Neighbor[i].NumTimeSyncMessagesSent);
+			buffer[9] = (g_NeighborTable.Neighbor[i].NumInitializationMessagesSent);
 			buffer[10] =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[i].MACAddress);
 
 //			buffer[9] = (g_NeighborTable.Neighbor[i].CountOfPacketsReceived & 0xff);
