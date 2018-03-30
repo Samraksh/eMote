@@ -101,3 +101,30 @@ int SF2_Cipher(sf2_cipher_context_t* ctx, uint8_t* data, uint32_t dataSize, uint
 	*resultSize = nb_blocks*16;
 	return status;
 }
+
+
+int SF2_Digest(sf2_digest_context_t* ctx, uint8_t* data, uint32_t dataSize, uint8_t* result, uint32_t *resultSize){
+	int status=0;
+	/*uint16_t nb_blocks; //specifies the size of data as 128-bit/16-byte blocks
+
+	nb_blocks = dataSize/16;
+	// if data size is not multiple of 128-bits return error.
+	//We dont do padding at this level, padding should have been already done.
+	if(dataSize % 16) {
+		nb_blocks++;
+	}
+*/
+
+	// SF2 supports only HMAC-SHA256 so no switch case
+
+	status = MSS_SYS_hmac
+			(   ctx->key,
+				data,
+				dataSize,
+				result
+			);
+
+	*resultSize = 32; //SHA256 HMAC has constant 256-bit or 32byte mac
+	return status;
+}
+

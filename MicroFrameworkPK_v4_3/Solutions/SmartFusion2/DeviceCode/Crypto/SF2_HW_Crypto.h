@@ -13,6 +13,9 @@
     if((x) != MSS_SYS_SUCCESS) SF2_MYSYS_SET_AND_LEAVE(x)
 
 
+enum SF2_DigestType{
+	HMAC_SHA256
+};
 
 enum SF2_CipherType{
 	AES_128,
@@ -58,6 +61,12 @@ typedef struct {
 
 } sf2_cipher_context_t;
 
+
+typedef struct {
+	uint8_t mode;
+	int key_bitlen; // Key length to use
+	unsigned char key[SF2_HW_MAX_KEY_LENGTH];
+}sf2_digest_context_t;
 
 //function prototypes
 
