@@ -64,7 +64,7 @@ UINT32 g_radarBufferSize = 0;
 
 void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	if (interruptServiceInProcess == true){
-		hal_printf("#detect\r\n");
+		//hal_printf("#detect\r\n");
 		return;
 	}
 	hal_printf("\r\n detect\r\n");
@@ -81,7 +81,7 @@ void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 
 void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	if (interruptServiceInProcess == true){
-		hal_printf("#alert\r\n");
+		//hal_printf("#alert\r\n");
 		return;
 	}
 	//hal_printf("alert\r\n");
