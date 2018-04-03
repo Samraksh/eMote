@@ -102,7 +102,7 @@ enum NeighborStatus {
 typedef struct {
 	UINT16 MACAddress;
 	UINT8 NumInitializationMessagesSent;	//Count of timesync+disco packets sent per neighbor
-	bool IsMyScheduleKnown;
+	bool IsMyScheduleKnown; //Boolean indicating whether the neighbor has information about the current node's schedule
 	bool IsInitializationTimeSamplesNeeded(){
 		if(IsSendingMyScheduleNeeded() || NumInitializationMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS) return true;
 		else return false;
