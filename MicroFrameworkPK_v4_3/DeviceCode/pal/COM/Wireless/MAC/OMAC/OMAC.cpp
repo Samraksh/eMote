@@ -1280,7 +1280,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 					if(g_NeighborTable.Neighbor[tableIndex].LastHeardTime == 0){ //Should not happen since in order to exist in the table we should heard about it
 						hal_printf("OMAC: Update Neighbor WARNIING Code: 001");
 					}
-					else if(currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > 10*livelinessDelayInTicks ){ //we have waited long enough to get time and we should delete it to clear space for other neighbors
+					else if(currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > g_OMAC.m_Clock.ConvertMicroSecstoTicks(OMAC_MAX_WAITING_TIME_FOR_TIMESAMPLES_INMICS) ){ //we have waited long enough to get time and we should delete it to clear space for other neighbors
 #if OMAC_DEBUG_PRINTF_NEIGHCHANGE
 						is_print_neigh_table = true;
 #endif

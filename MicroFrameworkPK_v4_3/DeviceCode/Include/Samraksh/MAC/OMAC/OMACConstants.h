@@ -394,6 +394,8 @@ typedef OFProv<UINT64> OMACTicks;
 
 #define INITIALIZATION_TIMESYNC_INTERVAL_INMICS 10000000   // Controls the interval during the neighbor intiialization period after a discovery. This interval is faster than the regular intervals in order to fill the neighbor's timesync table with the samples from the current node.
 
+#define OMAC_MAX_WAITING_TIME_FOR_TIMESAMPLES_INMICS  EXPECTED_DISCOVERY_TIME_FOR_A_SINGLE_SAMPLE_IN_HOURS*3600*1000000 //After discovering a neighbor (ie receiving its schedule) OMAC_waits this much amount of time  to collect enough time samples to predict time before allowing deletion of this neighbor's entry in the neighbor table when a new neighbor is discovered. This is related to the max disco interval since it is the default way of discovering the neighbors.
+
 #if (OMACClockSpecifier==LFCLOCKID)
 //#define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
 #define FORCE_REQUESTTIMESYNC_INMICS 610000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
