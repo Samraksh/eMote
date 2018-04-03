@@ -604,7 +604,7 @@ void DiscoveryHandler::TempIncreaseDiscoRate(){
 	g_OMAC.m_omac_RadioControl.stayOn = HIGH_DISCO_PERIOD_ALWAYS_ON;
 #if OMAC_DEBUG_PRINTF_HIGH_DISCO_MODE
 	hal_printf("DiscoveryHandler::switching to fast disco mode \r\n");
-	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
+	hal_printf("prime 1: %d\tprime 2: %d g_OMAC.m_omac_RadioControl.stayOn : %d \r\n",m_period1, m_period2, g_OMAC.m_omac_RadioControl.stayOn);
 	hal_printf("Estimated disco interval : %llu secs\r\n", (UINT64)m_period1*(UINT64)m_period2*(UINT64)g_OMAC.DISCO_SLOT_PERIOD_MICRO/1000000);
 #endif
 

@@ -395,12 +395,12 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 		}
 
 		SetOMACParametersBasedOnRadioName(this->radioName);
+		SetMyAddress(CPU_Radio_GetAddress(radioName));
+		SetMyID(CPU_Radio_GetAddress(radioName));
 
 #ifdef OMAC_DEBUG_PRINTF
 		OMAC_HAL_PRINTF("Initializing OMACType: My address: %d\r\n", g_OMAC.GetMyAddress());
 #endif
-		SetMyAddress(CPU_Radio_GetAddress(radioName));
-		SetMyID(CPU_Radio_GetAddress(radioName));
 
 		m_omac_RadioControl.Initialize();
 		m_omac_scheduler.Initialize(radioName, macName);
