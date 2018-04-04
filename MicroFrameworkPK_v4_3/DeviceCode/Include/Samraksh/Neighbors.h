@@ -160,10 +160,18 @@ typedef struct {
 	//	Buffer_15_4_T<Data_Send_Buffer_15_4_t_SIZE, Message_15_4_t*> send_buffer;
 	//	Buffer_15_4_T<TimeSync_Send_Buffer_15_4_t_SIZE, Message_15_4_t*> tsr_send_buffer;
 
+	void MarkAsDead(){
+		neighborStatus = Dead;
+		IsAvailableForUpperLayers = false;
+		IsMyScheduleKnown = false;
+		NumInitializationMessagesSent = 0;
+
+	}
 	void Clear(){
 		//		send_buffer.Initialize();
 		//		tsr_send_buffer.Initialize();
 
+		MarkAsDead();
 
 		MACAddress = INVALID_MACADDRESS;
 		NumInitializationMessagesSent = 0;

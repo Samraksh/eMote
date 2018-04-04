@@ -175,6 +175,8 @@ private:
 
 	void SendRXPacketToUpperLayers(Message_15_4_t *msg, UINT8 payloadType);
 	void PrintNeighborTable();
+
+	void MarkNeighborAsDead(UINT8 tableIndex);
   public:
 
 	//Not used

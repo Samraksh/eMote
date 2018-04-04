@@ -1229,6 +1229,24 @@ Message_15_4_t* OMACType::FindFirstSyncedNbrMessage(){
 	return NULL;
 }
 
+void OMACType::MarkNeighborAsDead(UINT8 tableIndex){
+	Message_15_4_t* msg_carrier = NULL;
+	g_NeighborTable.Neighbor[tableIndex].MarkAsDead();
+
+	//Return Packets for neighbors
+	msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+	while(msg_carrier){
+		m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+		msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+	}
+	msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+	while(msg_carrier){
+		m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+		msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+	}
+	//						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); //  BK: New logic enables deleting by the time sync table. We don't need to delete here.
+}
+
 /*
  *
  */
@@ -1255,20 +1273,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 					}
 					if(g_NeighborTable.Neighbor[tableIndex].LastHeardTime != 0 && currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > livelinessDelayInTicks ){
 						++numberOfDeadNeighbors;
-						g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
-						g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
-						//Return Packets for neighbors
-						msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
-							msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						}
-						msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
-							msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						}
-						//						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); //  BK: New logic enables deleting by the time sync table. We don't need to delete here.
+						MarkNeighborAsDead(tableIndex);
 					}
 //					else if(!g_NeighborTable.Neighbor[tableIndex].SendLink.IsReliable()){
 //						++numberOfDeadNeighbors;
@@ -1285,21 +1290,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 						is_print_neigh_table = true;
 #endif
 						++numberOfDeadNeighbors;
-						g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
-
-
-						msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
-							msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						}
-						msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
-							msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						}
-
-						//						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); // BK: New logic enables deleting by the time sync table. We don't need to delete here.
+						MarkNeighborAsDead(tableIndex);
 					}
 					//					else{ //We are still waiting for time samples to accumulate to give reliable time estimate keep it in the table
 					//
