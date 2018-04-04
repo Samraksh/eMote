@@ -584,6 +584,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 #if OMAC_DEBUG_PRINTF_PACKETREC
 		hal_printf("OMAC RX sourceID = %u, destID = %u payloadType = %u flags = %u RSSI = %u LQI = %u \r\n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags, msg->GetMetaData()->GetRssi(), msg->GetMetaData()->GetLqi());
+		g_OMAC.is_print_neigh_table = true;
 #endif
 
 
@@ -849,7 +850,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 							, macinfo_msg->MACAddress
 							, macinfo_msg->neighborStatus
 							, macinfo_msg->IsAvailableForUpperLayers
-							, mac_info_msg->IsMyScheduleKnown
+							, macinfo_msg->IsMyScheduleKnown
 							, macinfo_msg->NumInitializationMessagesSent
 							, macinfo_msg->NumTimeSyncMessagesRecv
 							, UINT_TO_BINARY(macinfo_msg2->SendLink.Link_reliability_bitmap)
