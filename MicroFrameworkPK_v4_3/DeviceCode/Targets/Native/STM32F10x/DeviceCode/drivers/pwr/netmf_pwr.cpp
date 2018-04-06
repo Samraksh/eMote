@@ -276,6 +276,7 @@ void PowerInit() {
 	High_Power();
 #endif
 
+	hal_printf("POWER LEVEL: HIGH\r\n");
 	RCC_LSICmd(DISABLE);
 	RTC_wakeup_init();
 
