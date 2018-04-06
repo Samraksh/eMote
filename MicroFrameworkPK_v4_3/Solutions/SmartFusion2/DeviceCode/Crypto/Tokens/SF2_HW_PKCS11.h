@@ -205,9 +205,11 @@ private:
 
 typedef struct _SF2_HW_DigestData
 {
-	sf2_cipher_context_t CurrentCtx;
+	//sf2_cipher_context_t CurrentCtx;
 	sf2_digest_context_t   HmacCtx;
     KEY_DATA*  HmacKey;
+    CK_BYTE_PTR pDigest;
+    CK_ULONG_PTR pulDigestLen;
     BOOL       IsUpdateInProgress;
 } SF2_HW_DigestData;
 

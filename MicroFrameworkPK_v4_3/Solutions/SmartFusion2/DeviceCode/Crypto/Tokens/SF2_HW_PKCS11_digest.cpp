@@ -1,5 +1,13 @@
 #include "SF2_HW_PKCS11.h"
 
+
+int HMAC_Init(sf2_digest_context_t *ctx, const void *key, int key_bitlen){
+	//pDigData->HmacCtx
+	ctx->key_bitlen=256; //we support only sha256 based hmac
+	memcpy(ctx->key,key,key_bitlen/8);
+	return 0;
+}
+
 CK_RV SF2_HW_PKCS11_Digest::DigestInit(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pMechanism)
 {
 	SF2_HW_PKCS11_HEADER();
@@ -22,61 +30,10 @@ CK_RV SF2_HW_PKCS11_Digest::DigestInit(Cryptoki_Session_Context* pSessionCtx, CK
 
 	switch(pMechanism->mechanism)
 	{
-		case CKM_SHA_1:
-			pDigest = EVP_sha1();
-			break;
-		case CKM_SHA224:
-			pDigest = EVP_sha224();
-			break;
-		case CKM_SHA256:
-			pDigest = EVP_sha256();
-			break;
-		case CKM_SHA384:
-			pDigest = EVP_sha384();
-			break;
-		case CKM_SHA512:
-			pDigest = EVP_sha512();
-			break;
-
-		case CKM_MD5:
-			pDigest = EVP_md5();
-			break;
-
-		case CKM_RIPEMD160:
-			pDigest = EVP_ripemd160();
-			break;
-
-		case CKM_MD5_HMAC:
-			pDigest = EVP_md5();
-			isHMAC = true;
-			break;
-
-		case CKM_SHA_1_HMAC:
-			pDigest = EVP_sha1();
-			isHMAC = true;
-			break;
-
 		case CKM_SHA256_HMAC:
-			pDigest = EVP_sha256();
+			//pDigest = EVP_sha256();
 			isHMAC = true;
 			break;
-
-		case CKM_SHA384_HMAC:
-			pDigest = EVP_sha384();
-			isHMAC = true;
-			break;
-
-		case CKM_SHA512_HMAC:
-			pDigest = EVP_sha512();
-			isHMAC = true;
-			break;
-
-		case CKM_RIPEMD160_HMAC:
-			pDigest = EVP_ripemd160();
-			isHMAC = true;
-			break;
-
-
 		default:
 			SF2_HW_PKCS11_SET_AND_LEAVE(CKR_MECHANISM_INVALID);
 	}
@@ -92,17 +49,17 @@ CK_RV SF2_HW_PKCS11_Digest::DigestInit(Cryptoki_Session_Context* pSessionCtx, CK
 			SF2_HW_PKCS11_SET_AND_LEAVE(CKR_MECHANISM_PARAM_INVALID);
 		}
 
-		pDigData->HmacKey = PKCS11_Keys_SF2_HW_PKCS11::GetKeyFromHandle(pSessionCtx, hKey, TRUE);
+		pDigData->HmacKey = SF2_HW_PKCS11_Keys::GetKeyFromHandle(pSessionCtx, hKey, TRUE);
 
 		if(pDigData->HmacKey==NULL) SF2_HW_PKCS11_SET_AND_LEAVE(CKR_MECHANISM_PARAM_INVALID);
 
-		pDigData->HmacCtx.md = pDigest;
+		//pDigData->HmacCtx.md = pDigest;
 
-		SF2_HW_PKCS11_CHECKRESULT(HMAC_Init(&pDigData->HmacCtx, pDigData->HmacKey->key, pDigData->HmacKey->size/8, pDigData->HmacCtx.md));
+		SF2_HW_PKCS11_CHECKRESULT(HMAC_Init(&pDigData->HmacCtx, pDigData->HmacKey->key, pDigData->HmacKey->size));
 	}
 	else
 	{
-		SF2_HW_PKCS11_CHECKRESULT(EVP_DigestInit_ex(&pDigData->CurrentCtx, pDigest, NULL));
+		SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_NOT_SUPPORTED);
 	}
 
 	pSessionCtx->DigestCtx = pDigData;
@@ -110,7 +67,8 @@ CK_RV SF2_HW_PKCS11_Digest::DigestInit(Cryptoki_Session_Context* pSessionCtx, CK
 	SF2_HW_PKCS11_CLEANUP();
 	if(retVal != CKR_OK && pDigData != NULL)
 	{
-		TINYCLR_SSL_FREE(pDigData);
+		SF2_HW_PKCS11_FREE(pDigData);
+		pSessionCtx->DigestCtx = NULL;
 	}
 	SF2_HW_PKCS11_RETURN();
 
@@ -118,12 +76,68 @@ CK_RV SF2_HW_PKCS11_Digest::DigestInit(Cryptoki_Session_Context* pSessionCtx, CK
 
 CK_RV SF2_HW_PKCS11_Digest::Digest(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pData, CK_ULONG ulDataLen, CK_BYTE_PTR pDigest, CK_ULONG_PTR pulDigestLen)
 {
-    return CKR_FUNCTION_NOT_SUPPORTED;
+	SF2_HW_PKCS11_HEADER();
+
+	UINT32 digestLen = *pulDigestLen;
+	SF2_HW_DigestData* pDigData;
+
+	if(pSessionCtx == NULL || pSessionCtx->DigestCtx == NULL) return CKR_SESSION_CLOSED;
+
+	pDigData = (SF2_HW_DigestData*)pSessionCtx->DigestCtx;
+	pDigData->pDigest= pDigest;
+	pDigData->pulDigestLen = pulDigestLen;
+
+	if(pDigData->HmacKey != NULL)
+	{
+		uint32_t digestLen = *pulDigestLen;
+		SF2_HW_PKCS11_CHECKRESULT(SF2_Digest(&pDigData->HmacCtx, pData  , ulDataLen, pDigest, &digestLen));
+		//SF2_HW_PKCS11_CHECKRESULT(HMAC_Final (&pDigData->HmacCtx, pDigest, &digestLen));
+	}
+	else
+	{
+		SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_NOT_SUPPORTED);
+	}
+
+	*pulDigestLen = digestLen;
+
+	SF2_HW_PKCS11_CLEANUP();
+
+	SF2_HW_PKCS11_FREE(pDigData);
+	pSessionCtx->DigestCtx = NULL;
+
+	SF2_HW_PKCS11_RETURN();
+
 }
 
 CK_RV SF2_HW_PKCS11_Digest::Update(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pData, CK_ULONG ulDataLen)
 {
-    return CKR_FUNCTION_NOT_SUPPORTED;
+	SF2_HW_PKCS11_HEADER();
+
+	SF2_HW_DigestData* pDigData;
+
+	if(pSessionCtx == NULL || pSessionCtx->DigestCtx == NULL) return CKR_SESSION_CLOSED;
+
+	pDigData = (SF2_HW_DigestData*)pSessionCtx->DigestCtx;
+
+	if(pDigData->HmacKey != NULL)
+	{
+		uint32_t digestLen = *pDigData->pulDigestLen;
+		SF2_HW_PKCS11_CHECKRESULT(SF2_Digest(&pDigData->HmacCtx, pData  , ulDataLen, pDigData->pDigest, &digestLen));
+	}
+	else
+	{
+		SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_NOT_SUPPORTED);
+	}
+
+	SF2_HW_PKCS11_CLEANUP();
+
+	if(retVal != CKR_OK)
+	{
+		SF2_HW_PKCS11_FREE(pDigData);
+		pSessionCtx->DigestCtx = NULL;
+	}
+
+	SF2_HW_PKCS11_RETURN();
 }
 
 CK_RV SF2_HW_PKCS11_Digest::DigestKey(Cryptoki_Session_Context* pSessionCtx, CK_OBJECT_HANDLE hKey)
@@ -133,6 +147,32 @@ CK_RV SF2_HW_PKCS11_Digest::DigestKey(Cryptoki_Session_Context* pSessionCtx, CK_
 
 CK_RV SF2_HW_PKCS11_Digest::Final(Cryptoki_Session_Context* pSessionCtx, CK_BYTE_PTR pDigest, CK_ULONG_PTR pulDigestLen)
 {
-    return CKR_FUNCTION_NOT_SUPPORTED;
+    SF2_HW_PKCS11_HEADER();
+
+    SF2_HW_DigestData* pDigData;
+    UINT32             digestLen = *pulDigestLen;
+
+    if(pSessionCtx == NULL || pSessionCtx->DigestCtx == NULL) return CKR_SESSION_CLOSED;
+
+    pDigData = (SF2_HW_DigestData*)pSessionCtx->DigestCtx;
+
+    if(pDigData->HmacKey != NULL)
+    {
+        //SF2_HW_PKCS11_CHECKRESULT(HMAC_Final (&pDigData->HmacCtx, pDigest, &digestLen));
+    }
+    else
+    {
+    	SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_NOT_SUPPORTED);
+    }
+
+    *pulDigestLen = digestLen;
+
+    SF2_HW_PKCS11_CLEANUP();
+
+    SF2_HW_PKCS11_FREE(pDigData);
+    pSessionCtx->DigestCtx = NULL;
+
+    SF2_HW_PKCS11_RETURN();
+
 }
 
