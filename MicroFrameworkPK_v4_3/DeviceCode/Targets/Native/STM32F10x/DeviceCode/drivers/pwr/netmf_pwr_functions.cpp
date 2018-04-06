@@ -31,6 +31,10 @@ void CPU_ChangePowerLevel(POWER_LEVEL level) {
     }
 }
 
+UINT8 CPU_GetCurrentPowerLevel(){
+	return Get_CurrentPower();
+}
+
 BOOL CPU_Sleep_WakeLock_Status() {
 	return GetWakeLocked();
 }

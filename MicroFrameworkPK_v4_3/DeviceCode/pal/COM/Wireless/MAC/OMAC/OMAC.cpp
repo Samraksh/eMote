@@ -409,6 +409,8 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 
 	CurrentActiveApp = routingAppID;
 
+	hal_printf("OMACType::init CPU_GetCurrentPowerLevel = %u \r\n",CPU_GetCurrentPowerLevel());
+
 	m_rxAckHandler = NULL;
 	m_txAckHandler = NULL;
 	if(g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())){
