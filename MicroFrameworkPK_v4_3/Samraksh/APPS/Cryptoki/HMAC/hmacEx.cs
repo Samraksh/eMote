@@ -38,7 +38,7 @@ namespace HMAC
             CryptoKey hkey = CryptoKey.ImportKey(hmacSession, Key1,
               CryptoKey.KeyClass.Secret, CryptoKey.KeyType.GENERIC_SECRET, true);
 
-            string original_string = "Samraksh eMote Cryptoki HMAC Example; Plus the wolf is great, but the fox is grey, the lamb is prey, but its a mountain pro!";
+            string original_string = "Samraksh eMote Cryptoki HMAC Example; Plus the wolf is great, but the fox is grey. The lamb is prey, but its a mountain pro!";
             //convert to byte array
             byte[] original_data = UTF8Encoding.UTF8.GetBytes(original_string);
             hmac.Key = hkey;
