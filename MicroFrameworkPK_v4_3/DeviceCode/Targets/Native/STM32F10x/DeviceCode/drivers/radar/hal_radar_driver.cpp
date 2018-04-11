@@ -361,23 +361,32 @@ INT32 getNetDisplacement(INT32 portion){
 
 INT32 getAbsoluteDisplacement(INT32 portion){
 	if (portion == SAMPLE_WINDOW_FULL){
-		return maxDisplacementEntire;
+		if (abs(minDisplacementEntire) > maxDisplacementEntire)
+			return abs(maxDisplacementEntire);
+		else
+			return maxDisplacementEntire;
 	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
-		return maxDisplacementFirstHalf;
+		if (abs(minDisplacementFirstHalf) > maxDisplacementFirstHalf)
+			return abs(minDisplacementFirstHalf);
+		else
+			return maxDisplacementFirstHalf;
 	} else {
 		// SAMPLE_WINDOW_SECOND_HALF
-		return maxDisplacementSecondHalf;
+		if (abs(minDisplacementSecondHalf) > maxDisplacementSecondHalf)
+			return abs(minDisplacementSecondHalf);
+		else
+			return maxDisplacementSecondHalf;
 	}
 }
 
 INT32 getDisplacementRange(INT32 portion){
 	if (portion == SAMPLE_WINDOW_FULL){
-		return (maxDisplacementEntire - minDisplacementEntire);
+		return (maxDisplacementEntire + abs(minDisplacementEntire));
 	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
-		return (maxDisplacementFirstHalf - minDisplacementFirstHalf);
+		return (maxDisplacementFirstHalf + abs(minDisplacementFirstHalf));
 	} else {
 		// SAMPLE_WINDOW_SECOND_HALF
-		return (maxDisplacementSecondHalf - minDisplacementSecondHalf);
+		return (maxDisplacementSecondHalf + abs(minDisplacementSecondHalf));
 	}
 }
 
