@@ -33,9 +33,10 @@ INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CL
 
 INT8 RadarInternal::GetWindowOverThreshold( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-	INT8 x = HAL_RADAR_DRIVER::getWindowOverThreshold();
-	hal_printf( "RadarInternal::GetWindowOverThreshold() = %d \r\n", x );
-    return x;
+	//INT8 x = HAL_RADAR_DRIVER::getWindowOverThreshold();
+	//hal_printf( "RadarInternal::GetWindowOverThreshold() = %d \r\n", x );
+    //return x;
+	return HAL_RADAR_DRIVER::getWindowOverThreshold();
 }
 
 INT8 RadarInternal::CurrentDetectionFinished( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
@@ -60,9 +61,10 @@ INT32 RadarInternal::GetDisplacementRange( CLR_RT_HeapBlock* pMngObj, INT32 port
 
 INT32 RadarInternal::GetCountOverTarget( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-	INT32 x = HAL_RADAR_DRIVER::getCountOverTarget();
-	hal_printf( "RadarInternal::GetCountOverTarget() = %d \r\n", x );
-    return x;
+	//INT32 x = HAL_RADAR_DRIVER::getCountOverTarget();
+	//hal_printf( "RadarInternal::GetCountOverTarget() = %d \r\n", x );
+    //return x;
+	return HAL_RADAR_DRIVER::getCountOverTarget();
 }
 
 void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr )

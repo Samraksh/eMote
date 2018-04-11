@@ -64,7 +64,7 @@ UINT32 g_radarBufferSize = 0;
 
 void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	if (interruptServiceInProcess == true){
-		//hal_printf("#detect\r\n");
+		hal_printf("#!detect interruptServiceInProcess\r\n");
 		return;
 	}
 	hal_printf("\r\n detect\r\n");
@@ -76,19 +76,20 @@ void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	}
 	//Radar_Handler((GPIO_PIN) 33, TRUE, NULL);
 	interruptServiceInProcess = true;
+	continueToSendCount = 6;
 	radarHandler_continuation.Enqueue();
 }
 
 void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	if (interruptServiceInProcess == true){
-		//hal_printf("#alert\r\n");
+		hal_printf("#!alert interruptServiceInProcess\r\n");
+		return;
+	}
+	if (CPU_GPIO_GetPinState(33) == FALSE){
+		hal_printf("#!alert but not enough data\r\n");
 		return;
 	}
 	//hal_printf("alert\r\n");
-	if (CPU_GPIO_GetPinState(33) == FALSE){
-		hal_printf("alert but not enough data\r\n");
-		return;
-	}
 	//Radar_Handler((GPIO_PIN) 33, TRUE, NULL);
 	interruptServiceInProcess = true;
 	radarHandler_continuation.Enqueue();
@@ -105,7 +106,7 @@ void Radar_Handler(void *arg)
 
 	// if we are already processing data, we need to wait
 	if (processingInProgress == true){
-		//hal_printf("@\r\n");
+		hal_printf("@!Radar_Handler processingInProgress\r\n");
 		interruptServiceInProcess = false;
 		return;
 	}
@@ -226,11 +227,11 @@ void Radar_Handler(void *arg)
 	UINT32 FPGAIQRejection;
 	if ((CPU_GPIO_GetPinState(33) == TRUE) | (continueToSendCount > 0)){
 		if (alertInterruptActive == false){
-			//hal_printf("enabling data pull; cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
+			hal_printf("enabling data pull; cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
 			CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 			alertInterruptActive = true;
 		} else {
-			//hal_printf("cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
+			hal_printf("cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
 		}
 
 		// we'll send a few more frames to close out the human detector logic
@@ -250,6 +251,7 @@ void Radar_Handler(void *arg)
 		//	hal_printf("--- fpga detection ---\r\n");
 		//}
 
+		hal_printf("--- Enqueing radar data to C# windowOverThreshold = %u, maxCountOverTarget = %u --- \r\n",windowOverThreshold,maxCountOverTarget);
 		g_radarUserData = HAL_Time_CurrentTicks();
 		processingInProgress = true;
 				GLOBAL_LOCK(irq);
@@ -286,7 +288,7 @@ void Radar_Handler(void *arg)
 	}  else {
 		// if there is a current detection or we  are pulling out continuation data the we allow the data alert pulse to call this interrupt
 		// we need to exit this interrupt after every block of data to allow user processing time
-		//hal_printf("disabling data pull\r\n");
+		hal_printf("disabling data pull\r\n");
 		CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
 		alertInterruptActive = false;
 		interruptServiceInProcess = false;
@@ -405,7 +407,8 @@ INT32 getCountOverTarget(){
 void setProcessingInProgress(int state){
 	processingInProgress = state;
 	//hal_printf("PiP set to %d\r\n",processingInProgress);
-	if ((state == FALSE) & (CPU_GPIO_GetPinState(33) == TRUE)){
+	if ( ((state == FALSE) & (CPU_GPIO_GetPinState(33) == TRUE))
+	){
 		//hal_printf("calling data pull\r\n");
 		Radar_Handler(NULL);
 	}
