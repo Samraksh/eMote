@@ -209,11 +209,11 @@ typedef struct _SF2_HW_DigestData
 	sf2_digest_context_t   HmacCtx;
     KEY_DATA*  HmacKey;
     CK_BYTE_PTR pDigest;
-    CK_ULONG_PTR pulDigestLen;
+    CK_ULONG digestLen; //DigestLen in bytes
     BOOL       IsUpdateInProgress;
 } SF2_HW_DigestData;
 
-
+/*
 uint8_t MSS_SYS_hmac
 (
     const uint8_t * key,
@@ -221,6 +221,7 @@ uint8_t MSS_SYS_hmac
     uint32_t length,
     uint8_t * p_result
 );
+*/
 
 struct SF2_HW_PKCS11_Digest
 {

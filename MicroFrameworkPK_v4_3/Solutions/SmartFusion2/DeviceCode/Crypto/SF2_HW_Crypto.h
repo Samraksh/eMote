@@ -3,8 +3,10 @@
 
 #include <drivers/mss_sys_services/mss_sys_services.h>
 
+
 #define SF2_HW_MAX_IV_LENGTH 32
 #define SF2_HW_MAX_KEY_LENGTH 64 // This is in bytes
+#define SF2_HW_MAX_DIGEST_LENGTH 64 //in bytes
 
 #define SF2_MYSYS_SET_AND_LEAVE(x) \
 	return x
@@ -64,8 +66,9 @@ typedef struct {
 
 typedef struct {
 	//uint8_t mode;
-	int key_bitlen; // Key length to use
+	uint8_t key_byteLen; // Key length to use in bytes
 	unsigned char key[SF2_HW_MAX_KEY_LENGTH];
+	unsigned char digest[SF2_HW_MAX_DIGEST_LENGTH];
 }sf2_digest_context_t;
 
 //function prototypes

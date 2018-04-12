@@ -1,10 +1,10 @@
 #include "SF2_HW_PKCS11.h"
 
 
-int HMAC_Init(sf2_digest_context_t *ctx, const void *key, int key_bitlen){
-	//pDigData->HmacCtx
-	ctx->key_bitlen=256; //we support only sha256 based hmac
-	memcpy(ctx->key,key,key_bitlen/8);
+int HMAC_Init(SF2_HW_DigestData* pDigData, const void *key, int key_byteLen){
+	pDigData->HmacCtx.key_byteLen=256/8; //we support only sha256 based hmac
+	memcpy(pDigData->HmacCtx.key,key,key_byteLen);
+	pDigData->pDigest=pDigData->HmacCtx.digest;
 	return 0;
 }
 
@@ -32,6 +32,7 @@ CK_RV SF2_HW_PKCS11_Digest::DigestInit(Cryptoki_Session_Context* pSessionCtx, CK
 	{
 		case CKM_SHA256_HMAC:
 			//pDigest = EVP_sha256();
+			pDigData->digestLen=(256/8); //in bytes
 			isHMAC = true;
 			break;
 		default:
@@ -55,7 +56,7 @@ CK_RV SF2_HW_PKCS11_Digest::DigestInit(Cryptoki_Session_Context* pSessionCtx, CK
 
 		//pDigData->HmacCtx.md = pDigest;
 
-		SF2_HW_PKCS11_CHECKRESULT(HMAC_Init(&pDigData->HmacCtx, pDigData->HmacKey->key, pDigData->HmacKey->size));
+		SF2_HW_PKCS11_CHECKRESULT(HMAC_Init(pDigData, pDigData->HmacKey->key, (pDigData->HmacKey->size/8)));
 	}
 	else
 	{
@@ -85,7 +86,7 @@ CK_RV SF2_HW_PKCS11_Digest::Digest(Cryptoki_Session_Context* pSessionCtx, CK_BYT
 
 	pDigData = (SF2_HW_DigestData*)pSessionCtx->DigestCtx;
 	pDigData->pDigest= pDigest;
-	pDigData->pulDigestLen = pulDigestLen;
+	pDigData->digestLen = *pulDigestLen;
 
 	if(pDigData->HmacKey != NULL)
 	{
@@ -121,8 +122,8 @@ CK_RV SF2_HW_PKCS11_Digest::Update(Cryptoki_Session_Context* pSessionCtx, CK_BYT
 
 	if(pDigData->HmacKey != NULL)
 	{
-		uint32_t digestLen = *pDigData->pulDigestLen;
-		SF2_HW_PKCS11_CHECKRESULT(SF2_Digest(&pDigData->HmacCtx, pData  , ulDataLen, pDigData->pDigest, &digestLen));
+		//uint32_t digestLen = *pDigData->pulDigestLen;
+		SF2_HW_PKCS11_CHECKRESULT(SF2_Digest(&pDigData->HmacCtx, pData  , ulDataLen, pDigData->pDigest, &pDigData->digestLen));
 	}
 	else
 	{
@@ -158,6 +159,8 @@ CK_RV SF2_HW_PKCS11_Digest::Final(Cryptoki_Session_Context* pSessionCtx, CK_BYTE
 
     if(pDigData->HmacKey != NULL)
     {
+    	//We have already calculated the digest through update. now return the result.
+    	memcpy(pDigest, pDigData->pDigest, pDigData->digestLen);
         //SF2_HW_PKCS11_CHECKRESULT(HMAC_Final (&pDigData->HmacCtx, pDigest, &digestLen));
     }
     else

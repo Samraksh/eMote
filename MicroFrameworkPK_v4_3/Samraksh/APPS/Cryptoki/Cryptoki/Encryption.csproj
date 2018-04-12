@@ -40,11 +40,19 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
   </ItemGroup>
+
   <ItemGroup>
-    <Reference Include="Microsoft.SPOT.Native" />
-    <Reference Include="Microsoft.SPOT.Security.PKCS11" />
-    <Reference Include="System.Security" />
+    <Reference Include="Microsoft.SPOT.Native">
+		<HintPath>$(SPOCLIENT)\BuildOutput\public\Debug\Client\</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SPOT.Security.PKCS11">
+		<HintPath>$(SPOCLIENT)\BuildOutput\public\Debug\Client\</HintPath>
+    </Reference>
+    <Reference Include="System.Security">
+		<HintPath>$(SPOCLIENT)\BuildOutput\public\Debug\Client\</HintPath>
+    </Reference>
   </ItemGroup>
+  
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
       <SubType>Designer</SubType>
@@ -57,13 +65,13 @@
   <Import Condition="EXISTS('$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets')" Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <Import Condition="!EXISTS('$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets')" Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   
- <!-- If building on command line use the block under this -->
- <!-- <Import Project="$(SPOCLIENT)\tools\Targets\Microsoft.SPOT.CSharp.Targets" /> 
+  
+ <!-- If building on command line use the block under this 
+ <Import Project="$(SPOCLIENT)\tools\Targets\Microsoft.SPOT.CSharp.Targets" /> 
   <PropertyGroup>
     <MMP_PE_NoBitmapCompression>true</MMP_PE_NoBitmapCompression>
     <MMP_DAT_SKIP>false</MMP_DAT_SKIP>
-    <MMP_DAT_CreateDatabaseFile>bin\$(Configuration)\Cryptoki.dat</MMP_DAT_CreateDatabaseFile>
+    <MMP_DAT_CreateDatabaseFile>bin\$(Configuration)\aes.dat</MMP_DAT_CreateDatabaseFile>
   </PropertyGroup>
  -->
-  
 </Project>

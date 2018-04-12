@@ -47,8 +47,8 @@ namespace HMAC
             byte[] hSig = hmac.TransformFinalBlock(original_data, 0, original_data.Length);
             TimeSpan encTime = (DateTime.Now - start);
 
-            Debug.Print("Data Size= " + original_string.Length + ", Data= " + original_string);
-            Debug.Print("HMAC Size: " + hSig.Length + ", Encrypte Data= " + ByteArrayToString(hSig));
+            Debug.Print("Data Size= " + original_string.Length + ", Data= \"" + original_string + "\"");
+            Debug.Print("HMAC Size: " + hSig.Length + ", HMAC= \"" + ByteArrayToString(hSig)+"\"");
             Debug.Print("Time for HMAC Sig = " + encTime.ToString());
         }
 
