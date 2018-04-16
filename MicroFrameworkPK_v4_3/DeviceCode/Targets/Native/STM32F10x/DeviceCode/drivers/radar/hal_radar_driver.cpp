@@ -60,10 +60,10 @@ UINT32 g_radarBufferSize = 0;
 
 void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	if (interruptServiceInProcess == true){
-		hal_printf("#detect\r\n");
+		//hal_printf("#detect\r\n");
 		return;
 	}
-	hal_printf("detect\r\n");
+	//hal_printf("detect\r\n");
 	// checking to make sure we have enough data to pull
 	// this could occur if we are currently pulling data (per continuations) and a detection occurs
 	if (CPU_GPIO_GetPinState(33) == FALSE){
@@ -77,10 +77,10 @@ void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 
 void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	if (interruptServiceInProcess == true){
-		hal_printf("#alert\r\n");
+		//hal_printf("#alert\r\n");
 		return;
 	}
-	hal_printf("alert\r\n");
+	//hal_printf("alert\r\n");
 	if (CPU_GPIO_GetPinState(33) == FALSE){
 		//hal_printf("alert but not enough data\r\n");
 		return;
@@ -101,7 +101,7 @@ void Radar_Handler(void *arg)
 	
 		// if we are already processing data, we need to wait
 		if (processingInProgress == true){
-hal_printf("@");		
+//hal_printf("@");		
 			interruptServiceInProcess = false;
 			return;
 		}
@@ -121,7 +121,7 @@ hal_printf("@");
 		} else 	if (radarGarbagePurged == 3){
 			radarGarbagePurged = 4;			
 			// disabling data ready interrupt
-			CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+			//CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
 			alertInterruptActive = false;
 		}
 
@@ -159,6 +159,36 @@ hal_printf("@");
 		maxDisplacementSecondHalf = 0;
 		maxDisplacementEntire = 0;
 
+		UINT16 adc1, adc2,median,detection;
+				static UINT16 markerPrimary = 0xa5a5;
+				static UINT16 bogus = 0x2031;
+				static UINT16 bogus2 = 0x3339;
+				static UINT16 end = 0x0a0d;
+				USART_Write( 0, (char *)&markerPrimary, 2 );
+				for (i=0;i<bytesToRead;i=i+6){
+					adc1 = (UINT16)(((UINT16)(rxData[(i)+2]) << 4) | (((UINT16)(rxData[(i)+1])&0xf0) >> 4));
+					adc2 = (UINT16)((((UINT16)(rxData[(i)+1])&0x0f) << 8) | ((UINT16)(rxData[(i)])));
+					median = (UINT16)((((UINT16)(rxData[(i)+4])&0x0f) << 8) | ((UINT16)(rxData[(i)+3])));
+					detection = (UINT16)(((UINT16)(rxData[(i)+5])&0xf0) >> 4);
+					unwrap = (UINT16)((((UINT16)(rxData[(i)+5])&0x0f) << 8) | (((UINT16)(rxData[(i)+4])&0xf0)>>4));					
+					
+USART_Write( 0, (char *)&adc1, 2 );
+USART_Write( 0, (char *)&adc2, 2 );
+USART_Write( 0, (char *)&detection, 2 );
+USART_Write( 0, (char *)&unwrap, 2 );
+USART_Write( 0, (char *)&median, 2 );
+					//hal_printf("%03d %03x %03x %d %03d %03x\r\n", i/6, adc1, adc2, detection, unwrap, median);
+				}
+
+				USART_Write( 0, (char *)&bogus, 2 );
+				USART_Write( 0, (char *)&bogus, 2 );
+				USART_Write( 0, (char *)&bogus, 2 );
+				USART_Write( 0, (char *)&bogus, 2 );
+				USART_Write( 0, (char *)&bogus2, 2 );
+				USART_Write( 0, (char *)&end, 2 );
+	interruptServiceInProcess = false;
+	processingInProgress = false;
+				return;
 		for (i=0;i<bytesToRead/6;i++){
 			tmpPos = i*6;
 			g_radarUserBufferChannel1Ptr[i] = (UINT16)(((UINT16)(rxData[tmpPos+2]) << 4) | (((UINT16)(rxData[tmpPos+1])&0xf0) >> 4));
@@ -232,7 +262,7 @@ hal_printf("@");
 			//if ((maxDetect != 0) | (continueToSendCount > 0)) {
 					
 				if ((maxDetect & 0x8) != 0) {
-					hal_printf("--- fpga detection ---\r\n");
+					//hal_printf("--- fpga detection ---\r\n");
 				}
 				
 				g_radarUserData = HAL_Time_CurrentTicks();
@@ -244,35 +274,13 @@ hal_printf("@");
 				/*for (i=0; i<bytesToRead;i=i+6){
 					hal_printf("%03d %02x %02x %02x %02x %02x %02x\r\n", i/6, rxData[i], rxData[i+1], rxData[i+2], rxData[i+3], rxData[i+4], rxData[i+5]);
 				}*/	
-				/*UINT16 adc1, adc2,median,detection,unwrap;
-				static UINT16 markerPrimary = 0xa5a5;
-				static UINT16 bogus = 0x2031;
-				static UINT16 bogus2 = 0x3339;
-				static UINT16 end = 0x0a0d;
-				USART_Write( 0, (char *)&markerPrimary, 2 );
-				for (i=0;i<bytesToRead;i=i+6){
-					adc1 = (UINT16)(((UINT16)(rxData[(i)+2]) << 4) | (((UINT16)(rxData[(i)+1])&0xf0) >> 4));
-					adc2 = (UINT16)((((UINT16)(rxData[(i)+1])&0x0f) << 8) | ((UINT16)(rxData[(i)])));
-					median = (UINT16)((((UINT16)(rxData[(i)+4])&0x0f) << 8) | ((UINT16)(rxData[(i)+3])));
-					detection = (UINT16)(((UINT16)(rxData[(i)+5])&0xf0) >> 4);
-					unwrap = (UINT16)((((UINT16)(rxData[(i)+5])&0x0f) << 8) | (((UINT16)(rxData[(i)+4])&0xf0)>>4));
-					
-					USART_Write( 0, (char *)&adc1, 2 );
-					USART_Write( 0, (char *)&adc2, 2 );
-				}
-
-				USART_Write( 0, (char *)&bogus, 2 );
-				USART_Write( 0, (char *)&bogus, 2 );
-				USART_Write( 0, (char *)&bogus, 2 );
-				USART_Write( 0, (char *)&bogus, 2 );
-				USART_Write( 0, (char *)&bogus2, 2 );
-				USART_Write( 0, (char *)&end, 2 );*/
+				
 			//}
 		}  else {
 			// if there is a current detection or we  are pulling out continuation data the we allow the data alert pulse to call this interrupt
 			// we need to exit this interrupt after every block of data to allow user processing time
 			//hal_printf("disabling data pull\r\n");
-			CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+			//CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
 			alertInterruptActive = false;
 			interruptServiceInProcess = false;
 			return;
@@ -335,7 +343,7 @@ INT8 FPGA_RadarInit(UINT16 *chan1Ptr, UINT16 *chan2Ptr, UINT32 size){
 	CPU_GPIO_SetPinState(32, TRUE);
 	interruptServiceInProcess = false;
 	radarHandler_continuation.InitializeCallback(Radar_Handler, NULL);
-	hal_printf("radar initialized\r\n");
+	hal_printf("radar initialized  d\r\n");
 
 	return 0;
 }	
