@@ -170,7 +170,7 @@ void Radar_Handler(void *arg)
 					adc2 = (UINT16)((((UINT16)(rxData[(i)+1])&0x0f) << 8) | ((UINT16)(rxData[(i)])));
 					median = (UINT16)((((UINT16)(rxData[(i)+4])&0x0f) << 8) | ((UINT16)(rxData[(i)+3])));
 					detection = (UINT16)(((UINT16)(rxData[(i)+5])&0xf0) >> 4);
-					unwrap = (UINT16)((((UINT16)(rxData[(i)+5])&0x0f) << 8) | (((UINT16)(rxData[(i)+4])&0xf0)>>4));					
+					unwrap = (UINT16)((((UINT16)(rxData[(i)+5])&0x0f) << 4) | (((UINT16)(rxData[(i)+4])&0xf0)>>4));					
 					
 USART_Write( 0, (char *)&adc1, 2 );
 USART_Write( 0, (char *)&adc2, 2 );

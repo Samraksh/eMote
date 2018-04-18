@@ -1323,6 +1323,7 @@ namespace testchart2
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\radar cold tests\3-12 26315 overnight outside.int";
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\radar cold tests\3-13 30670 snow.int";
                 //fileName = @"D:\Users\Chris\Dropbox (Samraksh)\WWF-Google Indoor Networks Logs\Kenneth yard - December tests\raw data collect\group noise 3 min.int";
+                fileName = @"D:\Work\Austere\radar data\4-17\15 13.3 walk pattern.det";
 
                 if (fileName.Contains(".int"))
                 {
