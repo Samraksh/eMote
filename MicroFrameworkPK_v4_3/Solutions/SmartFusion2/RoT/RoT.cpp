@@ -1,0 +1,182 @@
+/*
+ * RoT.cpp
+ *
+ *  Created on: Apr 25, 2018
+ *      Author: MukundanSridharan
+ */
+
+//include
+#include <Tinyhal.h>
+
+void BootEntryLoader();
+
+void EntryPoint(){
+	while(1){
+		BootEntryLoader();
+	}
+}
+
+
+void BootEntryLoader()
+{
+	debug_printf("In bootentry");
+
+/*
+	INT32 timeout = 0;
+    COM_HANDLE hComm = HalSystemConfig.DebuggerPorts[0];
+
+    BlockStorageStream stream;
+    FLASH_WORD ProgramWordCheck;
+    const UINT32 c_NoProgramFound = 0xFFFFFFFF;
+    UINT32 Program = c_NoProgramFound;
+
+#if defined(COMPILE_THUMB2)
+    // Don't initialize floating-point on small builds.
+#else
+    setlocale( LC_ALL, "" );
+#endif
+
+    CPU_Initialize();
+
+    HAL_Time_Initialize();
+
+    HAL_CONTINUATION::InitializeList();
+    HAL_COMPLETION  ::InitializeList();
+
+    Events_Initialize();
+
+    UINT8* BaseAddress;
+    UINT32 SizeInBytes;
+
+    HeapLocation( BaseAddress, SizeInBytes );
+
+    // Initialize custom heap with heap block returned from CustomHeapLocation
+    SimpleHeap_Initialize( BaseAddress, SizeInBytes );
+
+    // this is the place where interrupts are enabled after boot for the first time after boot
+    ENABLE_INTERRUPTS();
+
+    BlockStorageList::Initialize();
+
+    BlockStorage_AddDevices();
+
+    BlockStorageList::InitializeDevices();
+
+    if(!EnterMicroBooter(timeout))
+    {
+        HAL_UPDATE_CONFIG cfg;
+
+        timeout = 0;
+
+        if(HAL_CONFIG_BLOCK::ApplyConfig(HAL_UPDATE_CONFIG::GetDriverName(), &cfg, sizeof(cfg)))
+        {
+            MicroBooter_Install(cfg);
+
+            HAL_CONFIG_BLOCK::InvalidateBlockWithName(HAL_UPDATE_CONFIG::GetDriverName(), FALSE);
+
+            CPU_Reset();
+        }
+    }
+
+    if(stream.Initialize(BlockUsage::CODE))
+    {
+        do
+        {
+            while(TRUE)
+            {
+                FLASH_WORD *pWord = &ProgramWordCheck;
+                UINT32 Address = stream.CurrentAddress();
+
+                if(!stream.Read((BYTE**)&pWord, sizeof(FLASH_WORD))) break;
+
+                if(*pWord == MicroBooter_ProgramMarker())
+                {
+                    Program = (UINT32)Address;
+                    break;
+                }
+
+                if(!stream.Seek(BlockStorageStream::STREAM_SEEK_NEXT_BLOCK))
+                {
+                    if(!stream.NextStream())
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if(Program != c_NoProgramFound) break;
+        }
+        while(stream.NextStream());
+    }
+
+    if(Program == c_NoProgramFound)
+    {
+        timeout = -1;
+    }
+
+#ifdef MICROBOOTER_NO_SREC_PROCESSING
+    while(true)
+    {
+        if(Program != c_NoProgramFound && stream.Device != NULL)
+        {
+            Program = MicroBooter_PrepareForExecution(Program);
+
+            DISABLE_INTERRUPTS();
+            ((void (*)())Program)();
+        }
+
+        Events_WaitForEvents(0, 1000);
+    }
+#else
+    while(true)
+    {
+        if(timeout != 0)
+        {
+            g_SREC.Initialize();
+
+            DebuggerPort_Initialize(hComm);
+
+            //--//
+
+            while(true)
+            {
+                char buf[1024];
+                INT32 cnt;
+
+                if(0 == Events_WaitForEvents(ExtractEventFromTransport(hComm) | SYSTEM_EVENT_FLAG_SYSTEM_TIMER, timeout))
+                {
+                    break;
+                }
+
+                // wait for chars to build up
+                Events_WaitForEvents(0, 8);
+
+                while(0 < (cnt = DebuggerPort_Read(hComm, buf, sizeof(buf))))
+                {
+                    for(INT32 i=0; i<cnt; i++)
+                    {
+                        g_SREC.Process(buf[i]);
+                    }
+                }
+
+            }
+        }
+
+        if(Program != c_NoProgramFound && stream.Device != NULL)
+        {
+            Program = MicroBooter_PrepareForExecution(Program);
+
+            DISABLE_INTERRUPTS();
+            ((void (*)())Program)();
+        }
+
+        timeout = -1;
+    }
+#endif
+*/
+}
+
+void FIQ_SubHandler() {}
+void UNDEF_SubHandler() {ASSERT(FALSE);}
+void ABORTP_SubHandler(){ASSERT(FALSE);}
+void ABORTD_SubHandler(){ASSERT(FALSE);}
