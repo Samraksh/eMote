@@ -1,13 +1,44 @@
-#include <tinyhal.h>
-#include <stm32f10x.h>
+#include <tinyhal_types.h>
+#include <SmartPtr_irq.h>
 
-#if defined(SAMRAKSH_RTOS_EXT)
-#warning "GLOBAL_LOCK may interfere with real time. Need a new version of SmartPtr that utilizes the BASEPRI register to disable all interrupts except realtime."
-#endif
+//#include <tinyhal.h>
 
 //--//
 
-const uint32_t DISABLED_MASK = 0x1;
+#define DISABLED_MASK 0x1
+#define __ASM __asm
+#define __INLINE inline
+
+
+#if (defined (__GNUC__)) /*------------------ GNU Compiler ---------------------*/
+/* GNU gcc specific functions */
+
+static __INLINE void __enable_irq()               { __ASM volatile ("cpsie i"); }
+static __INLINE void __disable_irq()              { __ASM volatile ("cpsid i"); }
+
+static __INLINE void __enable_fault_irq()         { __ASM volatile ("cpsie f"); }
+static __INLINE void __disable_fault_irq()        { __ASM volatile ("cpsid f"); }
+
+static __INLINE void __NOP()                      { __ASM volatile ("nop"); }
+static __INLINE void __WFI()                      { __ASM volatile ("wfi"); }
+static __INLINE void __WFE()                      { __ASM volatile ("wfe"); }
+static __INLINE void __SEV()                      { __ASM volatile ("sev"); }
+static __INLINE void __ISB()                      { __ASM volatile ("isb"); }
+static __INLINE void __DSB()                      { __ASM volatile ("dsb"); }
+static __INLINE void __DMB()                      { __ASM volatile ("dmb"); }
+static __INLINE void __CLREX()                    { __ASM volatile ("clrex"); }
+
+UINT32 __get_PRIMASK(void)
+{
+  UINT32 result=0;
+
+  __ASM volatile ("MRS %0, primask" : "=r" (result) );
+  return(result);
+}
+
+#endif
+
+
 
 SmartPtr_IRQ::SmartPtr_IRQ(void* context)
 {
@@ -41,7 +72,10 @@ void SmartPtr_IRQ::Release()
 
     if ((Cp & DISABLED_MASK) == 0)
     {
-        m_state = __get_PRIMASK();
+        register UINT32 Cs = __get_PRIMASK();
+
+        m_state = Cs;
+
         __enable_irq();
     }
 }
@@ -52,7 +86,9 @@ void SmartPtr_IRQ::Probe()
 
     if ((Cp & DISABLED_MASK) == 0)
     {
-        register UINT32 state = __get_PRIMASK();
+        register UINT32 Cs =__get_PRIMASK();
+
+        UINT32 s = Cs;
 
         __enable_irq();
 
@@ -60,13 +96,13 @@ void SmartPtr_IRQ::Probe()
         __NOP();
 
         // restore irq state
-        __set_PRIMASK( state );
+        Cs = s;
     }
 }
 
 BOOL SmartPtr_IRQ::GetState(void* context)
 {
-	register UINT32 Cp = __get_PRIMASK();
+    register UINT32 Cp = __get_PRIMASK();
     return (0 == (Cp & DISABLED_MASK));
 }
 
@@ -84,7 +120,9 @@ BOOL SmartPtr_IRQ::ForceEnabled(void* context)
 
 void SmartPtr_IRQ::Disable()
 {
-    m_state = __get_PRIMASK();
+    register UINT32 Cp = __get_PRIMASK();
+
+    m_state = Cp;
 
     __disable_irq();
 }

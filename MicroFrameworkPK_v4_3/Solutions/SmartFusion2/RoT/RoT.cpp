@@ -16,6 +16,56 @@ void EntryPoint(){
 	}
 }
 
+/*
+int hal_vsnprintf( char* buffer, size_t len, const char* format, va_list arg )
+{
+    NATIVE_PROFILE_PAL_CRT();
+
+#if defined(HAL_REDUCESIZE) || defined(PLATFORM_EMULATED_FLOATINGPOINT)
+
+#undef _vsnprintf
+
+    // _vsnprintf do not support floating point, vs vsnprintf supports floating point
+
+    return _vsnprintf( buffer, len, format, arg );
+
+#define _vsnprintf  DoNotUse_*printf []
+
+#else
+
+#undef vsnprintf
+
+    return vsnprintf( buffer, len, format, arg );
+
+#define vsnprintf  DoNotUse_*printf []
+
+#endif
+
+}
+*/
+
+void debug_printf( const char* format, ... )
+{
+    char    buffer[256];
+    va_list arg_ptr;
+
+    va_start( arg_ptr, format );
+
+   //int len = hal_vsnprintf( buffer, sizeof(buffer)-1, format, arg_ptr );
+   int len = hal_vsnprintf( buffer, sizeof(buffer)-1, format, arg_ptr );
+
+    // flush existing characters
+    USART_Flush( DEBUG_TEXT_PORT );
+
+    // write string
+    USART_Write( DEBUG_TEXT_PORT, buffer, len );
+
+    // flush new characters
+    USART_Flush( DEBUG_TEXT_PORT );
+
+    va_end( arg_ptr );
+}
+
 
 void BootEntryLoader()
 {

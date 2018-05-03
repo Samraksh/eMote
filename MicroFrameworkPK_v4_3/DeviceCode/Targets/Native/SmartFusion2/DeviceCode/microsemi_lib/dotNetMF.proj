@@ -62,9 +62,10 @@
 	<HFiles Include="drivers_config/sys_config/sysconfig_mss_clocks.h" />
 	<HFiles Include="drivers_config/sys_config/sys_config.h" />
 	<HFiles Include="hal/hw_reg_access.h" />
-	<!--<HFiles Include="hal/hal.h" />
+	<HFiles Include="hal/hal.h" />
 	<HFiles Include="hal/hal_assert.h" />
 	
+	<!--
 	<HFiles Include="hal/CortexM3/.h" />
 	<HFiles Include="hal/CortexM3/.h" />
 	-->
@@ -80,6 +81,7 @@
     <Compile Include="drivers_config/sys_config/sys_config.c" />  
 	<Compile Include="drivers_config/sys_config/sys_config.c" />  
 	<Compile Include="hal\CortexM3\GNU\hw_reg_access.S" />
+	<Compile Include="hal\CortexM3\GNU\hal.S" />
     
   </ItemGroup>
   <ItemGroup />

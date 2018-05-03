@@ -6,15 +6,23 @@
 # SVN $Revision: 6667 $
 # SVN $Date: 2014-07-04 11:48:08 +0100 (Fri, 04 Jul 2014) $
 #
-    .text
-    .global HAL_disable_interrupts
-    .global HAL_restore_interrupts
-    .code 16
-    .syntax unified
-    .type HAL_disable_interrupts, function
-    .type HAL_restore_interrupts, function
+.section .text
+.globl HAL_get_interrupts
+.globl HAL_disable_interrupts
+.globl HAL_restore_interrupts
+#.code 16
+#.syntax unified
+.type HAL_get_interrupts, function
+.type HAL_disable_interrupts, function
+.type HAL_restore_interrupts, function
 #-------------------------------------------------------------------------------
 # 
+#
+HAL_get_interrupts:
+    mrs r0, PRIMASK
+
+#-------------------------------------------------------------------------------
+#
 #
 HAL_disable_interrupts:    
     mrs r0, PRIMASK

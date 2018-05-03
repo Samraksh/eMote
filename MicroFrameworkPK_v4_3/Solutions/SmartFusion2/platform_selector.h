@@ -5,6 +5,8 @@
 #ifndef _PLATFORM_SmartFusion2_SELECTOR_H_
 #define _PLATFORM_SmartFusion2_SELECTOR_H_ 1
 
+#define NO_HAL_BUILD 1
+
 // Properly declare them since they are not ANSI
 // Previously declared by accident in compiler setup because we used _GNU_SOURCE (default)
 // In future, prefer not to use.
@@ -95,6 +97,19 @@ typedef uint16_t ushort;
 #define ASSERT_IRQ_MUST_BE_OFF()
 #define ASSERT_IRQ_MUST_BE_ON()
 #endif
+
+#if defined(NO_HAL_BUILD)
+#define INTERRUPT_START GLOBAL_LOCK(x)
+#define INTERRUPT_END
+
+#else
+#define INTERRUPT_START SystemState_SetNoLock( SYSTEM_STATE_ISR              );   \
+                        SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+#define INTERRUPT_END   SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); \
+                        SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
+#endif
+
+
 
 //
 // macros

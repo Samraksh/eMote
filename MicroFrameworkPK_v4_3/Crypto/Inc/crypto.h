@@ -19,7 +19,7 @@
 #endif
 
 #define WATCH_ID_SIZE			5	// size in bytes of the watch ID string. It's obtained by getting the watch key signature and using the upper 40 bits
-#define AES_KEY_SIZE_BYTES		16	// size in bytes of the keys for AES symmetric encryption
+#define AES_KEY_SIZE_BYTES		32	// size in bytes of the keys for AES symmetric encryption
 #define TEA_KEY_SIZE_BYTES		16	// size in bytes of the keys for TEA symmetric encryption
 
 #define ACTIVATION_STRING_SIZE	17	// XXXXXXXXXXXXXXXX + zero termination

@@ -26,6 +26,7 @@
 /*
  * SoftConsole assertion handling
  */
+#ifndef ASSERT
 #define ASSERT(CHECK)  \
     do { \
         if (!(CHECK)) \
@@ -33,7 +34,7 @@
             __asm volatile ("BKPT\n\t"); \
         } \
     } while (0);
-    
+#endif
 #elif defined ( __ICCARM__ )
 /*
  * IAR Embedded Workbench assertion handling.

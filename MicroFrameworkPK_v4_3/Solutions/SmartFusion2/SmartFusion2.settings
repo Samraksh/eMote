@@ -19,11 +19,12 @@
     <IncludePaths Include="Solutions\SmartFusion2" />
     <IncludePaths Include="DeviceCode\Targets\Native\SmartFusion2\DeviceCode\microsemi_lib" />
     <IncludePaths Include="DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers" />
-    <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers" />
+    <!-- <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers" />
     <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\processor" />
+    -->
     
   </ItemGroup>
-  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\STM32F10x.settings" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\SmartFusion2.settings" />
   <!-- Samraksh Heap and Stack settings to be propagated across ASM, C/C++, and Linker Script targets -->
   <PropertyGroup>
     <!-- BEFORE YOU CHANGE THIS: check size of ER_RAM_RO + ER_RAM_RW + .bss in map file and accommodate accordingly. -->
