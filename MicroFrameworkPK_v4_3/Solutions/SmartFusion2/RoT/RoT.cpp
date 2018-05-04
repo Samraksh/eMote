@@ -8,13 +8,24 @@
 //include
 #include <Tinyhal.h>
 
-void BootEntryLoader();
+//void BootEntryLoader();
 
 void EntryPoint(){
+	BootEntry();
+}
+
+void ApplicationEntryPoint(){
 	while(1){
-		BootEntryLoader();
+		int i=0;
+		debug_printf("I am here: %d\n", i);  i++;
 	}
 }
+
+
+
+
+
+
 
 /*
 int hal_vsnprintf( char* buffer, size_t len, const char* format, va_list arg )

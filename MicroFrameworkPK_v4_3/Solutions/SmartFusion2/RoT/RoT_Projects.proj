@@ -7,6 +7,57 @@
     <DriverLibs Include="RoT.$(LIB_EXT)" />
   </ItemGroup>
   
+  <!-- Hal and pal stuff needed by Rot -->
+  
+  <ItemGroup>
+    <PlatformIndependentLibs Include="CRC.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Support\CRC\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Initialization\dotNetMF.proj" />
+  </ItemGroup>
+   <ItemGroup>
+    <DriverLibs Include="tinycrt_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="TinyHal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\cores\arm\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="asyncproccall_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="events_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Events\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="heap_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Heap\dotNetMF.proj" />
+  </ItemGroup>
+  <!-- The watchdog has toomuch clr stuff, cant use as it is, needs to rewrite 
+  <ItemGroup>
+    <DriverLibs Include="Watchdog_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Watchdog\dotNetMF.proj" />
+  </ItemGroup>
+  -->
+  
+  <ItemGroup>
+    <DriverLibs Include="cpu_watchdog_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\Processor\stubs_watchdog\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <DriverLibs Include="Watchdog_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Watchdog\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <DriverLibs Include="blockstorage_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\BlockStorage\dotNetMF.proj" />
+  </ItemGroup>
   
   <!--   Some CLR stuff we might need       --> 
   <!--
@@ -23,24 +74,6 @@
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Diagnostics\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="events_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Events\dotNetMF.proj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <DriverLibs Include="heap_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Heap\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="SimpleHeap_config.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap_config\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="SimpleHeap.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" />
-  </ItemGroup>
-   
-  <ItemGroup>
     <DriverLibs Include="Time_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Time\dotNetMF.proj" />
   </ItemGroup>
@@ -48,19 +81,11 @@
     <DriverLibs Include="tinycrt_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="Watchdog_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Watchdog\dotNetMF.proj" />
-  </ItemGroup>
-  
   -->
   
   <!--  - - - - - -  - uart, com , debug, only in debug mode  - - - -  -->
   
-  <ItemGroup>
-    <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Initialization\dotNetMF.proj" />
-  </ItemGroup>
+  
   
   <ItemGroup>
     <DriverLibs Include="usart_pal.$(LIB_EXT)" />
@@ -70,34 +95,16 @@
     <DriverLibs Include="COM_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <PlatformIndependentLibs Include="WireProtocol.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Support\WireProtocol\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="SmartFusion2_usart.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\usart\dotNetMF.proj" />
   </ItemGroup>
   
-  <ItemGroup>
-    <DriverLibs Include="tinycrt_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF.proj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <DriverLibs Include="TinyHal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\cores\arm\dotNetMF.proj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <DriverLibs Include="asyncproccall_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <DriverLibs Include="events_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Events\dotNetMF.proj" />
-  </ItemGroup>
+ 
   <ItemGroup>
     <DriverLibs Include="usb_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USB\stubs\dotNetMF.proj" />
@@ -106,7 +113,25 @@
     <DriverLibs Include="sockets_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" />
   </ItemGroup>
+   <ItemGroup>
+    <DriverLibs Include="lcd_hal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Display\stubs\dotNetMF.proj" />
+  </ItemGroup>
   
+  <!-- Needed for providing malloc, calloc, free 
+  <ItemGroup>
+    <PlatformIndependentLibs Include="Core.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Core\dotNetMF.proj" />
+  </ItemGroup>-->
+  
+  <ItemGroup>
+    <DriverLibs Include="SimpleHeap_config.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap_config\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="SimpleHeap.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" />
+  </ItemGroup>
   
   <!--  - - - - - - - - - -what does these do? 
   <ItemGroup>

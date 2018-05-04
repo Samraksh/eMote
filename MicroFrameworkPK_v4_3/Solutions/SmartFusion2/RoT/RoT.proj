@@ -14,6 +14,10 @@
     <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
   </PropertyGroup>
   
+  <PropertyGroup Condition="'$(Configuration)'==''">
+    <Configuration>Debug</Configuration>
+  </PropertyGroup>
+  
   <PropertyGroup>
     <SamAppName>RoT</SamAppName>
   </PropertyGroup>

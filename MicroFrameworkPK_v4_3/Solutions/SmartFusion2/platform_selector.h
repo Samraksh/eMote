@@ -5,7 +5,7 @@
 #ifndef _PLATFORM_SmartFusion2_SELECTOR_H_
 #define _PLATFORM_SmartFusion2_SELECTOR_H_ 1
 
-#define NO_HAL_BUILD 1
+#define MIN_NATIVE_BUILD 1
 
 // Properly declare them since they are not ANSI
 // Previously declared by accident in compiler setup because we used _GNU_SOURCE (default)
@@ -98,7 +98,7 @@ typedef uint16_t ushort;
 #define ASSERT_IRQ_MUST_BE_ON()
 #endif
 
-#if defined(NO_HAL_BUILD)
+#if defined(MIN_NATIVE_BUILD)
 #define INTERRUPT_START GLOBAL_LOCK(x)
 #define INTERRUPT_END
 
