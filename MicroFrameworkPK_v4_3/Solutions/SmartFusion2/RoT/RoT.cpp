@@ -44,6 +44,7 @@ int hal_vsnprintf( char* buffer, size_t len, const char* format, va_list arg )
 }
 */
 
+/*
 void debug_printf( const char* format, ... )
 {
     char    buffer[256];
@@ -65,7 +66,7 @@ void debug_printf( const char* format, ... )
 
     va_end( arg_ptr );
 }
-
+*/
 
 void BootEntryLoader()
 {

@@ -7,14 +7,7 @@
     <DriverLibs Include="RoT.$(LIB_EXT)" />
   </ItemGroup>
   
-  <!-- - - - - -  TinyHAL is the bootstrap - - - - - - - - - -->
-  <!--
-  <ItemGroup>
-    <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Initialization\dotNetMF.proj" />
-  </ItemGroup>
--->
-
+  
   <!--   Some CLR stuff we might need       --> 
   <!--
   <ItemGroup>
@@ -65,6 +58,11 @@
   <!--  - - - - - -  - uart, com , debug, only in debug mode  - - - -  -->
   
   <ItemGroup>
+    <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Initialization\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <DriverLibs Include="usart_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USART\dotNetMF.proj" />
   </ItemGroup>
@@ -92,9 +90,23 @@
   </ItemGroup>
   
   <ItemGroup>
+    <DriverLibs Include="asyncproccall_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <DriverLibs Include="events_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Events\dotNetMF.proj" />
   </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="usb_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USB\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="sockets_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  
   
   <!--  - - - - - - - - - -what does these do? 
   <ItemGroup>
