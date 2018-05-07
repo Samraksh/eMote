@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.3" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>Crypto_config_SF2</AssemblyName>
+    <AssemblyName>CryptoNative_SF2</AssemblyName>
     <Size>
     </Size>
     <ProjectGuid>{6361CA85-3B9B-4B50-883A-2F0E0340E765}</ProjectGuid>
     <Description>PKCS11 Crypto configuration for SF2</Description>
     <Level>HAL</Level>
-    <LibraryFile>Crypto_config_SF2.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\Crypto\dotNetMF.proj</ProjectPath>
-    <ManifestFile>Crypto_config_SF2.$(LIB_EXT).manifest</ManifestFile>
+    <LibraryFile>CryptoNative_SF2.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\Crypto\nativeCrypto_dotNetMF.proj</ProjectPath>
+    <ManifestFile>CryptoNative_SF2.$(LIB_EXT).manifest</ManifestFile>
     <Groups>Solutions\SmartFusion2</Groups>
     <Documentation>
     </Documentation>
@@ -26,17 +26,10 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-    <HFiles Include="$(SPOCLIENT)\devicecode\include\tinyclr_endian.h" />
-    <HFiles Include="$(SPOCLIENT)\devicecode\pal\pkcs11\cryptoki.h" />
-    <HFiles Include="$(SPOCLIENT)\devicecode\pal\pkcs11\cryptokipal.h" />
-    <HFiles Include="$(SPOCLIENT)\devicecode\pal\pkcs11\pkcs11.h" />
-    <HFiles Include="$(SPOCLIENT)\devicecode\pal\pkcs11\pkcs11f.h" />
-    <HFiles Include="$(SPOCLIENT)\devicecode\pal\pkcs11\pkcs11t.h" />
-    <HFiles Include="aes_test.h" />
+    <HFiles Include="$(SPOCLIENT)\Crypto\Crypto.h" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PKCS11_config_SF2_net.cpp" />
-    <!--<Compile Include="aes_test.c" />-->
+    <Compile Include="SF2_HW_Crypto.cpp" />
   </ItemGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

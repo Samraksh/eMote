@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="allocator.cpp" />
     <Compile Include="RoT.cpp" />
+    <IncludePaths Include="Application\RoT" />
     <HFiles Include="$(SPOCLIENT)\DeviceCode\include\tinyhal.h" />
     <!--<ObjFiles Include="$(OBJ_DIR)\rot_dat.$(OBJ_EXT)" /> -->
     <ScatterFileReferences Include="$(SRC_DIR)\scatterfile_rot_$(COMPILER_TOOL).$(SCATTER_EXT)" />

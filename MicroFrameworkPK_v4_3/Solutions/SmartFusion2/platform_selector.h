@@ -165,6 +165,12 @@ typedef uint16_t ushort;
 #define PLATFORM_DEPENDENT_HEAP_SIZE_THRESHOLD  16 * 1024
 #define PLATFORM_DEPENDENT_HEAP_SIZE_THRESHOLD_UPPER 32 * 1024
 
+
+////Crypto definitions
+#define USE_AES 1 //use AES for symmetric cypto
+#define NO_RSA 1 //We dont have RSA support
+
+
 // communication facilities
 /////////////////////////////////////////////////////////
 

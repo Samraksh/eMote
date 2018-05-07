@@ -42,6 +42,9 @@
   <PropertyGroup />
   <ItemGroup>
     <Compile Include="RoT_Services.cpp" />
+    <Compile Include="ConfigurationManager.cpp" />
+    <Compile Include="CryptoInterface.cpp" />
+	<Compile Include="Commands.cpp" />    
     <!--<IncludePaths Include="DeviceCode\PAL" />-->
   </ItemGroup>
   <ItemGroup />

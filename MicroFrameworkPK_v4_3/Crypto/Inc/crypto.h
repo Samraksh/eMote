@@ -18,9 +18,11 @@
 #define ARRAYSIZE(x) (sizeof(x)/sizeof(x[0]))
 #endif
 
+
+
 #define WATCH_ID_SIZE			5	// size in bytes of the watch ID string. It's obtained by getting the watch key signature and using the upper 40 bits
 #define AES_KEY_SIZE_BYTES		32	// size in bytes of the keys for AES symmetric encryption
-#define TEA_KEY_SIZE_BYTES		16	// size in bytes of the keys for TEA symmetric encryption
+#define TEA_KEY_SIZE_BYTES		32	// size in bytes of the keys for TEA symmetric encryption
 
 #define ACTIVATION_STRING_SIZE	17	// XXXXXXXXXXXXXXXX + zero termination
 #define ACTIVATION_BUFFER_SIZE	(WATCH_ID_SIZE + 2 * sizeof(UINT16))
@@ -109,8 +111,10 @@ typedef enum tagCRYPTO_RESULT
 // there are maximum BLOCK_SIZE bytes in the signature (16 bytes for AES and XTEA)
 CRYPTO_RESULT Crypto_GetFingerprint(BYTE *key, BYTE *Signature, int cbSignatureSize);
 	
-// this function generates a hash using the currently chosen hash algorithm
 
+CRYPTO_RESULT Crypto_GetHMAC(BYTE *pBuffer, DWORD cbBufferSize, BYTE *key, BYTE *Signature, int cbSignatureSize);
+
+// this function generates a hash using the currently chosen hash algorithm
 BOOL Crypto_GetHash(BYTE *pBuffer, DWORD cbBufferSize, BYTE *pHash, DWORD cbHashSize);
 
 //BOOL Crypto_GetUniqueInfoFromKey(WatchUniqueInfo *pWatchInfo, SymmetricKey *pKey);

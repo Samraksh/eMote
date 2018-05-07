@@ -15,7 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Initialization\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\Initialization\dotNetMF.proj" />
   </ItemGroup>
    <ItemGroup>
     <DriverLibs Include="tinycrt_pal.$(LIB_EXT)" />
@@ -37,6 +37,13 @@
     <DriverLibs Include="heap_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Heap\dotNetMF.proj" />
   </ItemGroup>
+  <!-- unclear why we need this stub -->
+  <ItemGroup>
+    <DriverLibs Include="cpu_cache_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_cache\dotNetMF.proj" />
+  </ItemGroup>
+  
+  
   <!-- The watchdog has toomuch clr stuff, cant use as it is, needs to rewrite 
   <ItemGroup>
     <DriverLibs Include="Watchdog_pal.$(LIB_EXT)" />
@@ -146,10 +153,10 @@
   
   
   <!-- - - - - - - - - -Crypto stuff needed by RoT   -->
-  <!-- ItemGroup>
-    <DriverLibs Include="Crypto.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Crypto\dotNetMF.proj" />
-  </ItemGroup -->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\Crypto\nativeCrypto_dotnetmf.proj" />
+    <DriverLibs Include="CryptoNative_SF2.$(LIB_EXT)" />
+  </ItemGroup> 
   
   
   <!-- - - - - - - - - -drivers, be very careful what you include -->

@@ -7,6 +7,7 @@
 
 //include
 #include <Tinyhal.h>
+#include <RoT_Services.h>
 
 //void BootEntryLoader();
 
@@ -15,9 +16,14 @@ void EntryPoint(){
 }
 
 void ApplicationEntryPoint(){
+
+	debug_printf("Device booting is done...Going to validate the Kernel \n\n");
+	///If everything is fine, the kernel will start executing.. will never return
+	SecureOS_Boot();
+
 	while(1){
 		int i=0;
-		debug_printf("I am here: %d\n", i);  i++;
+		debug_printf("Things didnt work out ...: %d\n", i);  i++;
 	}
 }
 
