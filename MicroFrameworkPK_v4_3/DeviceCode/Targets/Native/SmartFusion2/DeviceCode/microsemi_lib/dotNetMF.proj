@@ -56,6 +56,7 @@
 	<HFiles Include="drivers/mss_uart/mss_uart_regs.h" />
 	<HFiles Include="drivers/mss_uart/mss_uart.h" />
 	<HFiles Include="drivers/mss_gpio/mss_gpio.h" />
+	<HFiles Include="drivers/mss_gpio/mss_spi.h" />
 	<HFiles Include="drivers/CoreGPIO/core_gpio.h" />
 	<HFiles Include="drivers/CoreGPIO/cpu_types.h" />
 	<HFiles Include="drivers/CoreGPIO/coregpio_regs.h" />
@@ -76,6 +77,7 @@
     <Compile Include="drivers/mss_sys_services/mss_sys_services.c" />
     <Compile Include="drivers/mss_uart/mss_uart.c" />
     <Compile Include="drivers/mss_gpio/mss_gpio.c" />
+    <Compile Include="drivers/mss_gpio/mss_spi.c" />
     <Compile Include="drivers/CoreGPIO/core_gpio.c" />
     <Compile Include="drivers_config/sys_config/sys_config.c" />  
 	<Compile Include="drivers_config/sys_config/sys_config.c" />  

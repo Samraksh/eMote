@@ -3,8 +3,8 @@
  * 
  * This file contains public APIs for SmartFusion2 eNVM software driver.
  * 
- * SVN $Revision: 7556 $
- * SVN $Date: 2015-07-13 17:24:04 +0530 (Mon, 13 Jul 2015) $
+ * SVN $Revision: 7844 $
+ * SVN $Date: 2015-09-22 11:09:31 +0530 (Tue, 22 Sep 2015) $
  */
 /*=========================================================================*//**
   @mainpage SmartFusion2 MSS eNVM Bare Metal Driver.
@@ -55,7 +55,9 @@
 
 #include <stdint.h>
 
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /******************************************************************************/
 /* Public definitions                                                         */
@@ -159,7 +161,7 @@ typedef enum nvm_status
     Allowed values for lock_page are:
         - NVM_DO_NOT_LOCK_PAGE
         - NVM_LOCK_PAGE
-        
+
   @return
     This function returns NVM_SUCCESS or NVM_WRITE_THRESHOLD_WARNING on successful
     execution. It returns one of the following error codes if the programming of the eNVM
@@ -184,6 +186,9 @@ NVM_write
     uint32_t length,
     uint32_t lock_page
 );
+
+/******************************** Additional API's ******************************/
+#define MSS_NVM_ECC2                (1u<<8)     /* NVM 2-bit error occurred */
 
 /***************************************************************************//**
   The NVM_unlock() function is used to unlock the eNVM pages for a specified
@@ -270,7 +275,18 @@ NVM_read_page_write_count
     uint32_t addr
 );
 
+nvm_status_t
+MSS_NVM_read
+(
+    uint8_t * addr,
+    uint8_t * podata,
+    uint32_t  len
+);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __MSS_NVM_H */
+
 
 

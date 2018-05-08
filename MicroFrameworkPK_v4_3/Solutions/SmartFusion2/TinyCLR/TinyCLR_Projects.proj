@@ -467,6 +467,10 @@
     <DriverLibs Include="sf2_spi.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\spi\dotNetMF.proj" />
   </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="sf2_loadTargets.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\loadTarget\dotNetMF.proj" />
+  </ItemGroup>
   
   <!--ItemGroup>
     <DriverLibs Include="STM32F10x_misc.$(LIB_EXT)" />

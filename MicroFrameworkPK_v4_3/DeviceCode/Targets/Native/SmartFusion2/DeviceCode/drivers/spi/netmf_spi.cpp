@@ -1,52 +1,26 @@
-/*
-<License information here>
-
-TODO - 
-        Map the whole thing to .NET MF GPIO APIS, right now using lower level APIs directly
-		Concurrent SPI access, accessing all peripherals
-		Extend it for SPI3, currently its only for SPI1 and SPI2
-		Put the pins to reset state when we do an XAction_Stop
-*/
-
 /*--------- Includes ----------- */
 
 #include "netmf_spi.h"
 #include <cmsis/m2sxxx.h>
+#include <drivers/mss_spi/mss_spi.h>
 
 /*--------- Macros ----------- */
 
-#undef DEBUG_SPI
-#undef FIRST_BIT_LSB 
-#undef NSS_SOFTWARE_MODE 
-
-#define MAX_SPI_PORTS 3
-
-
-/* SPI peripheral Configuration */
-#define SPIx             SPI1
-#define SPIx_CLK         RCC_APB2Periph_SPI1
-#define SPIx_GPIO        GPIOA  
-#define SPIx_GPIO_CLK    RCC_APB2Periph_GPIOA 
-
-#define SPIx_NSS	     GPIO_Pin_4 //nss
-#define SPIx_PIN_SCK     GPIO_Pin_5 //sck  //purple
-#define SPIx_PIN_MISO	 GPIO_Pin_6  //miso //green
-#define SPIx_PIN_MOSI    GPIO_Pin_7 //mosi //blue
-
-#define SPIy             SPI2
-#define SPIy_CLK         RCC_APB1Periph_SPI2
-#define SPIy_GPIO        GPIOB
-#define SPIy_GPIO_CLK    RCC_APB2Periph_GPIOB 
-
-#define SPIy_NSS	     GPIO_Pin_12 //nss
-#define SPIy_PIN_SCK     GPIO_Pin_13 //sck
-#define SPIy_PIN_MISO	 GPIO_Pin_14 //miso
-#define SPIy_PIN_MOSI    GPIO_Pin_15 //mosi
-
 /*--------- Global Variables ----------- */
+mss_spi_instance_t * const gp_my_spi = &g_mss_spi0;
 
 BOOL CPU_SPI_Initialize ()
 {
+	MSS_SPI_init(gp_my_spi);
+
+	MSS_SPI_configure_master_mode
+	(
+		&g_mss_spi0,
+		MSS_SPI_SLAVE_0,
+		MSS_SPI_MODE0,
+		256u,
+		MSS_SPI_BLOCK_TRANSFER_FRAME_SIZE
+	);
 	return TRUE;
 }
 
