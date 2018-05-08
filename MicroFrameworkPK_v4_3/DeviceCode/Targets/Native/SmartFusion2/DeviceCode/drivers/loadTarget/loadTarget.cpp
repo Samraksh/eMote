@@ -5,7 +5,7 @@
 #include <drivers/mss_spi/mss_spi.h>
 #include "../eNVM/eNVM.h"
 
-int loadOverSPI( uint8_t* address, uint16_t binarySize){
+int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 	const uint8_t target_page_size = 64;
 	const uint8_t eNVM_read_size = target_page_size*2; // target is 16-bit while read is 8-bit
 	uint8_t eNVM_read_buff[eNVM_read_size];
@@ -24,6 +24,8 @@ int loadOverSPI( uint8_t* address, uint16_t binarySize){
 	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, 0, 0 );
 	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
 
+	HAL_Time_Sleep_MicroSeconds(100);
+
 
 	// Read signature
 	spi_tx_buff[0] = 0x30;
@@ -37,6 +39,8 @@ int loadOverSPI( uint8_t* address, uint16_t binarySize){
 		return 1;
 	}
 
+	HAL_Time_Sleep_MicroSeconds(100);
+
 	// Read signature
 	spi_tx_buff[0] = 0x30;
 	spi_tx_buff[1] = 0x00;
@@ -48,6 +52,8 @@ int loadOverSPI( uint8_t* address, uint16_t binarySize){
 	if (spi_rx_buff[0] != 0x95){
 			return 1;
 	}
+
+	HAL_Time_Sleep_MicroSeconds(100);
 
 	// Read signature
 	spi_tx_buff[0] = 0x30;
@@ -61,6 +67,8 @@ int loadOverSPI( uint8_t* address, uint16_t binarySize){
 			return 1;
 	}
 
+	HAL_Time_Sleep_MicroSeconds(100);
+
 
 	// Erasing chip
 	spi_tx_buff[0] = 0xAC;
@@ -71,6 +79,8 @@ int loadOverSPI( uint8_t* address, uint16_t binarySize){
 	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
 	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, 0, 0 );
 	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
+
+	HAL_Time_Sleep_MicroSeconds(20000);
 
 	burning_location = 0;
 	reading_location = 0;
@@ -103,6 +113,8 @@ int loadOverSPI( uint8_t* address, uint16_t binarySize){
 			MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, 0, 0 );
 			MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
 
+			HAL_Time_Sleep_MicroSeconds(100);
+
 			// write Mem Page High
 			spi_tx_buff[0] = 0x48;
 			spi_tx_buff[1] = (burning_location & 0xFF00 ) >> 8;
@@ -112,6 +124,8 @@ int loadOverSPI( uint8_t* address, uint16_t binarySize){
 			MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
 			MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, 0, 0 );
 			MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
+
+			HAL_Time_Sleep_MicroSeconds(100);
 
 			burning_location = burning_location + 1;
 		}
@@ -127,6 +141,8 @@ int loadOverSPI( uint8_t* address, uint16_t binarySize){
 		MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
 		MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, 0, 0 );
 		MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
+
+		HAL_Time_Sleep_MicroSeconds(5000);
 
 		reading_location = reading_location + eNVM_read_size;
 	}
@@ -161,7 +177,7 @@ int loadOverSPI( uint8_t* address, uint16_t binarySize){
 			MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
 			MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
 			if (spi_rx_buff[0] != eNVM_read_buff[i]){
-				return 1;
+			//	return 1;
 			}
 
 			// Read Mem Page High
@@ -173,7 +189,7 @@ int loadOverSPI( uint8_t* address, uint16_t binarySize){
 			MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
 			MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
 			if (spi_rx_buff[0] != eNVM_read_buff[i+1]){
-				return 1;
+			//	return 1;
 			}
 
 			burning_location = burning_location + 1;

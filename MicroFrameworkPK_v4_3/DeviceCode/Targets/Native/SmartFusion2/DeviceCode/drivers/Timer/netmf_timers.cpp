@@ -127,7 +127,7 @@ UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer)
 {
 
-	/*	if(uSec <= 1)
+		if(uSec <= 1)
 		{
 			return;
 		}
@@ -144,9 +144,9 @@ void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer)
 		// Adjustment for 5us of processing overhead
 		uSec = uSec - 5;
 
-		UINT32 currentCounterVal = g_STM32F10x_AdvancedTimer.GetCounter();
+		UINT32 currentCounterVal =  CPU_Timer_GetCounter(DEFAULT_TIMER);
 		UINT32 ticks = CPU_MicrosecondsToTicks(uSec, Timer);
-		while(g_STM32F10x_AdvancedTimer.GetCounter() - currentCounterVal <= ticks);*/
+		while( CPU_Timer_GetCounter(DEFAULT_TIMER) - currentCounterVal <= ticks);
 
 }
 

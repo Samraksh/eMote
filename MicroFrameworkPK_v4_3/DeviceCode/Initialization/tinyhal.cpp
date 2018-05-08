@@ -18,6 +18,7 @@ extern Krait_Timer g_Krait_Timer;
 #if defined(PLATFORM_ARM_SmartFusion2)
 #include <drivers/mss_sys_services/mss_sys_services.h>
 #include "..\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer\mss_timer.h"
+#include "..\Targets\Native\SmartFusion2\DeviceCode\drivers\loadTarget\loadTarget.h"
 #include <CMSIS/system_m2sxxx.h>
 #include <DeviceCode/Crypto/aes_test.h>
 #endif
@@ -660,6 +661,7 @@ mipi_dsi_shutdown();
 		}
 	}*/
 #endif
+	//loadArduinoSPI((uint8_t*)0x10000,1932);
 
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
