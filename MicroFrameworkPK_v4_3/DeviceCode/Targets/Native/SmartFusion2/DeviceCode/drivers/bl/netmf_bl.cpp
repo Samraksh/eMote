@@ -9,29 +9,29 @@
 //--//
 #define CR_PER_Reset             ((uint32_t)0x00001FFD)
 
-BOOL STM32F10x_blDriver::InitializeDevice( void* context )
+BOOL SF2_CM3_blDriver::InitializeDevice( void* context )
 {
     return TRUE;
 }
 
-BOOL STM32F10x_blDriver::UninitializeDevice( void* context )
+BOOL SF2_CM3_blDriver::UninitializeDevice( void* context )
 {
 	return TRUE;
 }
 
-const BlockDeviceInfo* STM32F10x_blDriver::GetDeviceInfo( void* context )
+const BlockDeviceInfo* SF2_CM3_blDriver::GetDeviceInfo( void* context )
 {
     BLOCK_CONFIG* config = (BLOCK_CONFIG *)context;	// Type case so we can return
     return config->BlockDeviceInformation;
 }
 
-BOOL STM32F10x_blDriver::Read( void* context, ByteAddress Address, UINT32 NumBytes, BYTE * pSectorBuff )
+BOOL SF2_CM3_blDriver::Read( void* context, ByteAddress Address, UINT32 NumBytes, BYTE * pSectorBuff )
 {
     pSectorBuff = (BYTE *)Address;			// Just move the buffer pointer
 	return TRUE;
 }
 
-BOOL STM32F10x_blDriver::Write( void* context, ByteAddress address, UINT32 numBytes, BYTE * pSectorBuff, BOOL ReadModifyWrite )
+BOOL SF2_CM3_blDriver::Write( void* context, ByteAddress address, UINT32 numBytes, BYTE * pSectorBuff, BOOL ReadModifyWrite )
 {
 	// unlocking deployment section
 	//NVM_unlock(0x064000, 110592);
@@ -49,7 +49,7 @@ return FALSE;
 		for(ii = 0; ii < pages; ii++) {
 			if(!EraseBlock(context, address + ii * 0x800))
 			{
-				hal_printf( "STM32F10x_blDriver::Write failure @ 0x%08x, wrote 0x%08x, read 0x%08x\r\n", (UINT32)addressPtr, *buffPtr, *addressPtr );
+				hal_printf( "SF2_CM3_blDriver::Write failure @ 0x%08x, wrote 0x%08x, read 0x%08x\r\n", (UINT32)addressPtr, *buffPtr, *addressPtr );
 				return FALSE;
 			}
 		}
@@ -78,7 +78,7 @@ return FALSE;
 			//FLASH_ProgramWord(startAddress++, 0);
 		}
 		if (*addressPtr != *buffPtr) {
-		       hal_printf( "STM32F10x_blDriver::Write failure @ 0x%08x, wrote 0x%08x, read 0x%08x\r\n", (UINT32)addressPtr, *buffPtr, *addressPtr );
+		       hal_printf( "SF2_CM3_blDriver::Write failure @ 0x%08x, wrote 0x%08x, read 0x%08x\r\n", (UINT32)addressPtr, *buffPtr, *addressPtr );
 		       return FALSE;
 		}
 		addressPtr++;
@@ -97,7 +97,7 @@ return FALSE;
 	return TRUE;
 }
 
-BOOL STM32F10x_blDriver::Memset(void* context, ByteAddress address, UINT8 Data, UINT32 numBytes)
+BOOL SF2_CM3_blDriver::Memset(void* context, ByteAddress address, UINT8 Data, UINT32 numBytes)
 {
 	// unlocking deployment section
 	//NVM_unlock(0x064000, 110592);
@@ -127,17 +127,17 @@ return FALSE;
 	return TRUE;
 }
 
-BOOL STM32F10x_blDriver::GetSectorMetadata(void* context, ByteAddress SectorStart, SectorMetadata* pSectorMetadata)
+BOOL SF2_CM3_blDriver::GetSectorMetadata(void* context, ByteAddress SectorStart, SectorMetadata* pSectorMetadata)
 {
     return FALSE;
 }
 
-BOOL STM32F10x_blDriver::SetSectorMetadata(void* context, ByteAddress SectorStart, SectorMetadata* pSectorMetadata)
+BOOL SF2_CM3_blDriver::SetSectorMetadata(void* context, ByteAddress SectorStart, SectorMetadata* pSectorMetadata)
 {
     return FALSE;
 }
 
-BOOL STM32F10x_blDriver::IsBlockErased( void* context, ByteAddress Address, UINT32 BlockLength )
+BOOL SF2_CM3_blDriver::IsBlockErased( void* context, ByteAddress Address, UINT32 BlockLength )
 {
 	/*UINT16* addressPtr    = (UINT16* )Address;	// 16-bit writing
 	if(*addressPtr ==  0xFFFF) {
@@ -148,9 +148,9 @@ BOOL STM32F10x_blDriver::IsBlockErased( void* context, ByteAddress Address, UINT
 	return TRUE;
 	  	}
 
-BOOL STM32F10x_blDriver::EraseBlock( void* context, ByteAddress address )
+BOOL SF2_CM3_blDriver::EraseBlock( void* context, ByteAddress address )
 {
-	FLASH_Status stat;
+	//FLASH_Status stat;
 
 	//FLASH_Unlock();
 	//// unlocking deployment section
@@ -167,18 +167,18 @@ BOOL STM32F10x_blDriver::EraseBlock( void* context, ByteAddress address )
 
 
 
-void  STM32F10x_blDriver::SetPowerState( void* context, UINT32 State )
+void  SF2_CM3_blDriver::SetPowerState( void* context, UINT32 State )
 {
 }
 
-UINT32 STM32F10x_blDriver::MaxSectorWrite_uSec( void* context )
+UINT32 SF2_CM3_blDriver::MaxSectorWrite_uSec( void* context )
 {
 	BLOCK_CONFIG* config = (BLOCK_CONFIG*)context;
 	return config->BlockDeviceInformation->MaxSectorWrite_uSec;
 }
 
 
-UINT32 STM32F10x_blDriver::MaxBlockErase_uSec( void* context )
+UINT32 SF2_CM3_blDriver::MaxBlockErase_uSec( void* context )
 {
 	BLOCK_CONFIG* config = (BLOCK_CONFIG*)context;
 	return config->BlockDeviceInformation->MaxBlockErase_uSec;
@@ -187,21 +187,21 @@ UINT32 STM32F10x_blDriver::MaxBlockErase_uSec( void* context )
 //--//
 
 #pragma arm section code
-struct IBlockStorageDevice STM32F10x_IBlockStorageDevice_InternalFlash =
+struct IBlockStorageDevice SF2_CM3_IBlockStorageDevice_InternalFlash =
 {
-    &STM32F10x_blDriver::InitializeDevice,
-    &STM32F10x_blDriver::UninitializeDevice,
-    &STM32F10x_blDriver::GetDeviceInfo,
-    &STM32F10x_blDriver::Read,
-    &STM32F10x_blDriver::Write,
-    &STM32F10x_blDriver::Memset,
-    &STM32F10x_blDriver::GetSectorMetadata,
-    &STM32F10x_blDriver::SetSectorMetadata,
-    &STM32F10x_blDriver::IsBlockErased,
-    &STM32F10x_blDriver::EraseBlock,
-    &STM32F10x_blDriver::SetPowerState,
-    &STM32F10x_blDriver::MaxSectorWrite_uSec,
-    &STM32F10x_blDriver::MaxBlockErase_uSec,
+    &SF2_CM3_blDriver::InitializeDevice,
+    &SF2_CM3_blDriver::UninitializeDevice,
+    &SF2_CM3_blDriver::GetDeviceInfo,
+    &SF2_CM3_blDriver::Read,
+    &SF2_CM3_blDriver::Write,
+    &SF2_CM3_blDriver::Memset,
+    &SF2_CM3_blDriver::GetSectorMetadata,
+    &SF2_CM3_blDriver::SetSectorMetadata,
+    &SF2_CM3_blDriver::IsBlockErased,
+    &SF2_CM3_blDriver::EraseBlock,
+    &SF2_CM3_blDriver::SetPowerState,
+    &SF2_CM3_blDriver::MaxSectorWrite_uSec,
+    &SF2_CM3_blDriver::MaxBlockErase_uSec,
 };
 
 

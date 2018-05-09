@@ -10,7 +10,7 @@
 //--//
 
 
-const BlockRange STM32F10x_BlockRange_InternalFlash[] =
+const BlockRange SF2_CM3_BlockRange_InternalFlash[] =
 {
         // DANGER! Coordinate with applications (TinyBooter and MFUpdate).
         // Always update comments, fix scatterfile targets, and tell everyone on the team before changing the map.
@@ -28,20 +28,20 @@ const BlockRange STM32F10x_BlockRange_InternalFlash[] =
 
 //--//
 
-const BlockRegionInfo  STM32F10x_BlockRegionInfo_InternalFlash[1] =
+const BlockRegionInfo  SF2_CM3_BlockRegionInfo_InternalFlash[1] =
 {
 
     0x60000000,		// ByteAddress     Address;            // Start address
     256,			// UINT32          NumBlocks;          // total number of blocks in this region
     0x800,			// UINT32          BytesPerBlock;      // Total number of bytes per block (MUST be SectorsPerBlock * DataBytesPerSector)
 
-    ARRAYSIZE_CONST_EXPR(STM32F10x_BlockRange_InternalFlash),
-    STM32F10x_BlockRange_InternalFlash,
+    ARRAYSIZE_CONST_EXPR(SF2_CM3_BlockRange_InternalFlash),
+    SF2_CM3_BlockRange_InternalFlash,
 };
 
 //--//
 
-BlockDeviceInfo STM32F10x_BlockDeviceInfo_InternalFlash =
+BlockDeviceInfo SF2_CM3_BlockDeviceInfo_InternalFlash =
 {
     {											// Attributes
         FALSE,									// BOOL Removable;
@@ -53,11 +53,11 @@ BlockDeviceInfo STM32F10x_BlockDeviceInfo_InternalFlash =
     0x4,										// BytesPerSector
     0x80000,									// Size;
     1,											// NumRegions;
-    STM32F10x_BlockRegionInfo_InternalFlash,	// pointer to an array (NumRegions long) of region information
+    SF2_CM3_BlockRegionInfo_InternalFlash,	// pointer to an array (NumRegions long) of region information
 };
 
 /*
-BlockDeviceInfo STM32F10x_BlockDeviceInfo_InternalFlash =
+BlockDeviceInfo SF2_CM3_BlockDeviceInfo_InternalFlash =
 {
     {
         FALSE,									// BOOL Removable;
@@ -72,20 +72,20 @@ BlockDeviceInfo STM32F10x_BlockDeviceInfo_InternalFlash =
     0x80000,									// UINT32 Size;
 
     1,											// UINT32 NumRegions;
-    STM32F10x_BlockRegionInfo_InternalFlash,	// const BlockRegionInfo* pRegions;
+    SF2_CM3_BlockRegionInfo_InternalFlash,	// const BlockRegionInfo* pRegions;
 };
 */
 
-BLOCK_CONFIG STM32F10x_blConfig_InternalFlash =
+BLOCK_CONFIG SF2_CM3_blConfig_InternalFlash =
 {
 	GPIO_PIN_NONE,
 	FALSE,
-    &STM32F10x_BlockDeviceInfo_InternalFlash		// BlockDeviceinfo
+    &SF2_CM3_BlockDeviceInfo_InternalFlash		// BlockDeviceinfo
 };
 
 //--//
 
-struct BlockStorageDevice STM32F10x_BlockStorageDevice_InternalFlash;
+struct BlockStorageDevice SF2_CM3_BlockStorageDevice_InternalFlash;
 
 
 //--//

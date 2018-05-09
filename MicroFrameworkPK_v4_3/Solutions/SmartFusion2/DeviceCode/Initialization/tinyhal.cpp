@@ -4,10 +4,8 @@
 
 #include <tinyhal.h>
 
-#if defined( SAM_APP_TINYCLR )
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/MAC_decl.h>
-#endif
 
 #if defined(PLATFORM_ARM_SOC_ADAPT)
 #include "..\Targets\Native\Krait\DeviceCode\Krait_TIMER\Krait__TIMER.h"
@@ -393,8 +391,8 @@ void HAL_Initialize()
 
     // have to initialize the blockstorage first, as the USB device needs to update the configure block
 
-#ifndef MIN_NATIVE_BUILD
-    Time_Initialize();
+
+    //Time_Initialize();
 
     BlockStorageList::Initialize();
 
@@ -402,6 +400,12 @@ void HAL_Initialize()
 
     BlockStorageList::InitializeDevices();
 
+
+    //#if !defined(HAL_REDUCESIZE)
+        CPU_InitializeCommunication();
+    //#endif
+
+#ifndef MIN_NATIVE_BUILD
     //FS_Initialize();
 
     FileSystemVolumeList::Initialize();
@@ -411,10 +415,6 @@ void HAL_Initialize()
     FileSystemVolumeList::InitializeVolumes();
 
     //LCD_Initialize();
-
-//#if !defined(HAL_REDUCESIZE)
-    CPU_InitializeCommunication();
-//#endif
 
     //I2C_Initialize(); // FIXME: Is commenting this out a Samraksh policy decision? if so, need soft reboot handler for I2C re-init
 
@@ -433,7 +433,7 @@ void HAL_Initialize()
    // Gesture_Initialize();
     //Ink_Initialize();
     TimeService_Initialize();
-#endif
+#endif //end MIN_NATIVE_BUILD
 
 #if defined(ENABLE_NATIVE_PROFILER)
     Native_Profiler_Init();
@@ -596,9 +596,9 @@ mipi_dsi_shutdown();
 
     CPU_Initialize();
 
-#if defined( SAM_APP_TINYCLR ) // TinyBooter, (and future MicroBooter) use SimpleTimer. SimpleTimer needs HAL_Time_Initialize().
+//#if defined( SAM_APP_TINYCLR ) // TinyBooter, (and future MicroBooter) use SimpleTimer. SimpleTimer needs HAL_Time_Initialize().
     VirtTimer_Initialize();
-#endif
+//#endif
     HAL_Time_Initialize();
 
     HAL_Initialize();

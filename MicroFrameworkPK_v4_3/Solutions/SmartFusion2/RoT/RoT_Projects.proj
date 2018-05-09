@@ -9,22 +9,26 @@
   
   <!-- Hal and pal stuff needed by Rot -->
   
-  <ItemGroup>
-    <PlatformIndependentLibs Include="CRC.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Support\CRC\dotNetMF.proj" />
-  </ItemGroup>
+  
   <ItemGroup>
     <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\Initialization\dotNetMF.proj" />
-  </ItemGroup>
-   <ItemGroup>
-    <DriverLibs Include="tinycrt_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="TinyHal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\cores\arm\dotNetMF.proj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <PlatformIndependentLibs Include="CRC.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Support\CRC\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <DriverLibs Include="tinycrt_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF.proj" />
+  </ItemGroup>
+  
   <ItemGroup>
     <DriverLibs Include="asyncproccall_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" />
@@ -125,12 +129,6 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Display\stubs\dotNetMF.proj" />
   </ItemGroup>
   
-  <!-- Needed for providing malloc, calloc, free 
-  <ItemGroup>
-    <PlatformIndependentLibs Include="Core.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\CLR\Core\dotNetMF.proj" />
-  </ItemGroup>-->
-  
   <ItemGroup>
     <DriverLibs Include="SimpleHeap_config.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap_config\dotNetMF.proj" />
@@ -140,14 +138,15 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" />
   </ItemGroup>
   
-  <!--  - - - - - - - - - -what does these do? 
+  <!--  - - - - - - - - - -what does these do? -->
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_bootstrap.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\bootstrap\dotNetMF.proj" />
+    <DriverLibs Include="SmartFusion2_bootstrap.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bootstrap\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="STM32F10x_ID.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\id\dotNetMF.proj" />
+  
+  <!--<ItemGroup>
+    <DriverLibs Include="SmartFusion2_ID.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\id\dotNetMF.proj" />
   </ItemGroup>
   -->
   
@@ -184,7 +183,7 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\eMote_Time\dotNetMF.proj" />
     <DriverLibs Include="eMote_time.$(LIB_EXT)" />
   </ItemGroup>
-    <ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\VirtualTimer\dotNetMF.proj" />
     <DriverLibs Include="VirtualTimer.$(LIB_EXT)" />
   </ItemGroup>

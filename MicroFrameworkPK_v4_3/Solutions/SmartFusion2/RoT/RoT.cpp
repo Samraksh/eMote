@@ -11,19 +11,23 @@
 
 //void BootEntryLoader();
 
-void EntryPoint(){
+/*void EntryPoint(){
 	BootEntry();
 }
+*/
 
 void ApplicationEntryPoint(){
 
 	debug_printf("Device booting is done...Going to validate the Kernel \n\n");
 	///If everything is fine, the kernel will start executing.. will never return
-	SecureOS_Boot();
-
-	while(1){
+	if(!SecureOS_Boot()){
 		int i=0;
-		debug_printf("Things didnt work out ...: %d\n", i);  i++;
+		while(1){
+
+			debug_printf("Things didnt work out ...: %d\n", i);  i++;
+		}
+	}else {
+
 	}
 }
 
