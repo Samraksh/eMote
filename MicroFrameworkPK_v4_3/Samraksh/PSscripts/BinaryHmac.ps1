@@ -35,12 +35,22 @@ Function ConvertToHex {
 
 echo "Computing signature for file $BinFile"
 $execF= Get-Content $BinFile -Encoding byte
-$exec = $execF[0..31]
+
+$exec = $execF
+$codeSize=344888
+$gEnd=$codeSize+7
+echo "Gap in image", $exec[$codeSize..$gEnd]
+[byte[]]$filB=0xFF,0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+$filB.CopyTo($exec,$codeSize)
+#$exec[$codeSize..$gEnd]
+#$exec = $execF[0..344888]
+
+
 #echo $exec
 $eFS = $execF.Length
 echo "Full binary size: $eFS"
 
-echo "Gap in image", $execF[344888..344896]
+echo "Gap in image", $execF[344888..344895]
 
 [byte[]]$defaultKey = 0xC6, 0x29, 0x73, 0xE3, 0xC8, 0xD4, 0xFC, 0xB6,
         0x89, 0x36, 0x46, 0xF9, 0x58, 0xE5, 0xF5, 0xE5,
@@ -54,7 +64,8 @@ $bsize = $exec.Length
 
 echo "Computing the HMAC of binary of size $bsize"
 $hmacsha = New-Object System.Security.Cryptography.HMACSHA256
-$hmacsha.key = [Text.Encoding]::ASCII.GetBytes($key)
+#$hmacsha.key = [Text.Encoding]::ASCII.GetBytes($key)
+$hmacsha.key = $defaultKey
 $sig = $hmacsha.ComputeHash($exec)
 
 #$signature = [Convert]::ToBase64String($signature)
@@ -62,9 +73,9 @@ $sig = $hmacsha.ComputeHash($exec)
 echo "Decimal Sig: $sig"
 
 $hexS=ConvertToHex($sig)
-$hexE=ConvertToHex($exec)
+#$hexE=ConvertToHex($exec)
 
-echo "Data: $hexE"
+#echo "Data: $hexE"
 echo "Hex Sig: $hexS"
 
 # Do we get the expected signature?

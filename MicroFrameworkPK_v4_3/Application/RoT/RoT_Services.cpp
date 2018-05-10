@@ -50,18 +50,20 @@ bool AttestBinary(PBYTE  pData, UINT32 dataLength, PBYTE pSig, UINT32 sigLength,
 	//read the expected hash from the config section
 	//hash = (BYTE*)g_PrimaryConfigManager.GetDeploymentHash( keyIndex );
 
+	debug_printf("\n Expecting signature: ");
+	PrintHex(pSig, sigLength);
+	debug_printf(" Computed signature: ");
+	PrintHex(mSig, sigLength);
+
 	if(memcmp(mSig, pSig,sigLength)==0){
 		return TRUE;
 	}
 	else {
-		debug_printf("Validating failed.. \n Expecting signature: ");
-		PrintHex(pSig, sigLength);
-		debug_printf(" Computed signature: ");
-		PrintHex(mSig, sigLength);
-		if(dataLength==sigLength){
-			debug_printf("Data is: ");
-			PrintHex(pData, sigLength);
-		}
+		debug_printf("Validating failed.. \n");
+
+		debug_printf("Data is: ");
+		PrintHex(pData, 256);
+
 
 		return FALSE;
 	}
@@ -76,17 +78,22 @@ bool SecureOS_Boot(OSModule mod, UINT32 modLength, UINT8* pSig, UINT32 sigLength
 	if (sigLength!=keyLength || sigLength!=32) return FALSE;
 
 	if(AttestOS(mod, modLength,pSig,sigLength,pKey,keyLength)){
-		//g_eng.EnumerateAndLaunch();
-		debug_printf("Success");
+		debug_printf("Root of Trust Validation Success!!");
+		int i=10;
+		while(i>0){
+			debug_printf("Will boot into Rot in %d\n", i);  i--;
+			//WaitForEvent()
+			Events_WaitForEvents(0,1000);
+		}
+
+		BootRoT();
+
 	}
 }
-/*
-bool SecureOS_Boot(){
-	g_eng.EnumerateAndLaunch();
-	return FALSE;
-}
-*/
 
+void BootRoT(){
+	g_eng.EnumerateAndLaunch();
+}
 
 /////////////////////// Support methods for reading and writing//////////////
 

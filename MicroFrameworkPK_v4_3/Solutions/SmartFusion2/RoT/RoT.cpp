@@ -35,13 +35,16 @@ void ApplicationEntryPoint(){
 	debug_printf("Validating ... \n\n");
 
 	///If everything is fine, the kernel will start executing.. will never return
-	//bool ret = SecureOS_Boot(RoT, KERNEL_SIZE, dSig, SIGSIZE, dKey, SIGSIZE);
-	bool ret = SecureOS_Boot(RoT, SIGSIZE, dPreSig, SIGSIZE, dKey, SIGSIZE);
+
+	bool ret=FALSE;
+	 ret = SecureOS_Boot(RoT, KERNEL_SIZE, dSig, SIGSIZE, dKey, SIGSIZE);
+	//ret= SecureOS_Boot(RoT, SIGSIZE, dPreSig, SIGSIZE, dKey, SIGSIZE);
+
+	//BootRoT();
 
 	if(!ret){
 		int i=0;
 		while(i<10){
-
 			debug_printf("Validation Failed!!: %d\n", i);  i++;
 		}
 	}

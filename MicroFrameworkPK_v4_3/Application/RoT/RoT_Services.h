@@ -24,6 +24,8 @@ bool CheckFlashSectorPermission( BlockStorageDevice *pDevice, ByteAddress addres
 BOOL TinyBooter_GetReleaseInfo(MfReleaseInfo& releaseInfo);
 UINT32 Tinybooter_ProgramWordCheck();
 
+void BootRoT();
+
 void PrintHex(UINT8* sig, int size);
 
 #endif /* _ROT_SERVICES_H_ */
