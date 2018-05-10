@@ -8,6 +8,7 @@
 //include
 #include <Tinyhal.h>
 #include <RoT_Services.h>
+#include <defaults.h>
 
 //void BootEntryLoader();
 
@@ -18,16 +19,31 @@
 
 void ApplicationEntryPoint(){
 
-	debug_printf("Device booting is done...Going to validate the Kernel \n\n");
+	debug_printf("Device booting is done...Going to validate the RoT+ Kernel \n\n");
+
+
+	debug_printf("  \n\n"); debug_printf("  \n\n"); debug_printf("  \n\n");debug_printf("  \n\n");
+
+	debug_printf("===================================================== \n\n");
+	debug_printf("               IMMUTABLE BOOT LOADER \n\n");
+	debug_printf("===================================================== \n\n");
+
+
+	debug_printf("Device booting is done...Going to validate the RoT+ Kernel \n\n");
+
+	debug_printf("This will take some time... \n\n");
+	debug_printf("Validating ... \n\n");
+
 	///If everything is fine, the kernel will start executing.. will never return
-	if(!SecureOS_Boot()){
+	//bool ret = SecureOS_Boot(RoT, KERNEL_SIZE, dSig, SIGSIZE, dKey, SIGSIZE);
+	bool ret = SecureOS_Boot(RoT, SIGSIZE, dPreSig, SIGSIZE, dKey, SIGSIZE);
+
+	if(!ret){
 		int i=0;
-		while(1){
+		while(i<10){
 
-			debug_printf("Things didnt work out ...: %d\n", i);  i++;
+			debug_printf("Validation Failed!!: %d\n", i);  i++;
 		}
-	}else {
-
 	}
 }
 

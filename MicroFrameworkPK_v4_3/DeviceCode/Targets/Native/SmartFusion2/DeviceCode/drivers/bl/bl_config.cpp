@@ -17,9 +17,9 @@ const BlockRange SF2_CM3_BlockRange_InternalFlash[] =
         // It should be obvious that block ranges are inclusive, and different regions have exclusive ranges.
         // TODO: check if User Storage B region is needed for EWR Extended Weak References to work (eg, for wear-leveling).
 
-	    { BlockRange::BLOCKTYPE_BOOTSTRAP       ,  0, 31 },  // 32 blocks, 62K for IBL,     address 0x0000_0000
-	    { BlockRange::BLOCKTYPE_CODE            , 32,200 },  //338 blocks, 400K for CLR,        address 0x0000_0000
-	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,201,253 },  // 53 blocks, 106K for Deployment, address 0x06_4800
+	    { BlockRange::BLOCKTYPE_BOOTSTRAP       ,  0, 31 },  // 32 blocks, 64K for IBL,     address 0x0000_0000
+	    { BlockRange::BLOCKTYPE_CODE            , 32,202 },  //171 blocks, 342K for CLR,        address 0x0001_0000
+	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,203,253 },  // 53 blocks, 106K for Deployment, address 0x06_5800
 	    { BlockRange::BLOCKTYPE_CONFIG          ,254,255 }   //  2 blocks,   4K for Config,     address 0x07_F000
 	    //Flash ends at address 0x07_FFFF
 };

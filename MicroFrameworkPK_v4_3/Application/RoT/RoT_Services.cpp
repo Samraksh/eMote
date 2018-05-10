@@ -9,27 +9,84 @@
 #include "Commands.h"
 
 Loader_Engine g_eng;
-BYTE kernelHMAC[32];
+//BYTE kernelHMAC[32];
 
-//This looks up key and hmac from the config section of the flash, recomputes hash and validates it
-bool AttestOS(UINT8* signature, UINT32 length, UINT32 keyIndex){
-	return  g_eng.m_signedDataState.VerifySignature(signature,length, keyIndex );
+#define eNVMAddress 0x60000000
+#define RoT_Offset 0x10000
+#define App_Offset 0x65800
+
+void PrintHex(UINT8* data, int size){
+	for (int j=0;j<size; j++){
+		debug_printf("0x%.2X , ",data[j]);
+	}
+	debug_printf("\n");
 }
 
-bool AttestBinary(PBYTE  pData, PBYTE pSig, SigType st, KeyType kt, PBYTE key ){
-	return FALSE;
+//This looks up key and hmac from the config section of the flash, recomputes hash and validates it
+bool AttestOS(OSModule mod, UINT32 modLength,  UINT8* pSig, UINT32 sigLength, UINT8* pkey, UINT32 keyLength){
+	if(mod==RoT || mod==TB)
+		return  AttestBinary((BYTE*)eNVMAddress+RoT_Offset, modLength, pSig, sigLength, pkey, keyLength );
+	else return FALSE;
+}
+
+/*
+bool FindAddress(UINT32 Module){
+
+}
+*/
+
+bool AttestBinary(PBYTE  pData, UINT32 dataLength, PBYTE pSig, UINT32 sigLength, PBYTE key, UINT32 keyLength ){
+	//Compute Signature with Key
+	BYTE mSig[sigLength];
+	memset(mSig, 0, sigLength);
+	debug_printf("Clearing signature buffer: ");
+	PrintHex(mSig, sigLength);
+	CRYPTO_RESULT m_res = Crypto_GetHMAC(pData,  dataLength, key, mSig, sigLength);
+	//m_res = ::Crypto_StartRSAOperationWithKey( RSA_VERIFYSIGNATURE, key, (BYTE*)m_dataAddress, m_dataLength, (BYTE*)m_sig, m_sigLength, &m_handle );
+
+	//Verify signature
+	if(m_res != CRYPTO_SUCCESS) return false;
+
+	//read the expected hash from the config section
+	//hash = (BYTE*)g_PrimaryConfigManager.GetDeploymentHash( keyIndex );
+
+	if(memcmp(mSig, pSig,sigLength)==0){
+		return TRUE;
+	}
+	else {
+		debug_printf("Validating failed.. \n Expecting signature: ");
+		PrintHex(pSig, sigLength);
+		debug_printf(" Computed signature: ");
+		PrintHex(mSig, sigLength);
+		if(dataLength==sigLength){
+			debug_printf("Data is: ");
+			PrintHex(pData, sigLength);
+		}
+
+		return FALSE;
+	}
+
 }
 
 bool ComputeHMAC(PBYTE  pData, UINT32 ulDataLen, PBYTE pDigest, SigType mtype, KeyType kt, PBYTE key, UINT32 keyLen){
 	return FALSE;
 }
 
-bool SecureOS_Boot(){
-	if(AttestOS(kernelHMAC,32, 0)){
-		g_eng.EnumerateAndLaunch();
+bool SecureOS_Boot(OSModule mod, UINT32 modLength, UINT8* pSig, UINT32 sigLength, UINT8* pKey, UINT32 keyLength){
+	if (sigLength!=keyLength || sigLength!=32) return FALSE;
+
+	if(AttestOS(mod, modLength,pSig,sigLength,pKey,keyLength)){
+		//g_eng.EnumerateAndLaunch();
+		debug_printf("Success");
 	}
+}
+/*
+bool SecureOS_Boot(){
+	g_eng.EnumerateAndLaunch();
 	return FALSE;
 }
+*/
+
 
 /////////////////////// Support methods for reading and writing//////////////
 
