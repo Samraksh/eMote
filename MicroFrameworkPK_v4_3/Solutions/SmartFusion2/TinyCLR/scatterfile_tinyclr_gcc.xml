@@ -24,8 +24,8 @@
         <!-- Regular build: -->
         <Set Name="Config_BaseAddress"  Value="0x6007F000"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
         <Set Name="Config_Size"         Value="0x00001000"/><!--        Config_Size MUST MATCH TINYBOOTER SCATTERFILE -->
-        <Set Name="Code_BaseAddress"    Value="0x60010000"/>
-		<Set Name="Code_BaseAddress_Mirror"    Value="0x00010000"/>
+        <Set Name="Code_BaseAddress"    Value="0x6000F000"/>
+		<Set Name="Code_BaseAddress_Mirror"    Value="0x0000F000"/>
        <!-- <Set Name="Code_BaseAddress"    Value="0x60000000"/>
 		<Set Name="Code_BaseAddress_Mirror"    Value="0x00000000"/> -->
         <Set Name="Deploy_BaseAddress"  Value="0x60065800"/>
