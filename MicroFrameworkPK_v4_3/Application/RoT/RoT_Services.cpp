@@ -78,7 +78,7 @@ bool SecureOS_Boot(OSModule mod, UINT32 modLength, UINT8* pSig, UINT32 sigLength
 	if (sigLength!=keyLength || sigLength!=32) return FALSE;
 
 	if(AttestOS(mod, modLength,pSig,sigLength,pKey,keyLength)){
-		debug_printf("Root of Trust Validation Success!!");
+		debug_printf("\n\nRoot of Trust Validation Success!!\n\n");
 		int i=10;
 		while(i>0){
 			debug_printf("Will boot into Rot in %d\n", i);  i--;
