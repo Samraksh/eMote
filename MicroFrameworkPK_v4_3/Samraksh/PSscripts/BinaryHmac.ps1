@@ -3,7 +3,10 @@
 
 param (
     [Parameter(HelpMessage="Specify app bin file for which hmac needs to be calculated")][string]$BinFile,
-    [Parameter(HelpMessage="Specify app platform to be used: stm32|adapt|sf2")][string]$key = ""
+    [Parameter(HelpMessage="Specify binary type: IBL|CLR|App")][string]$bType = "CLR",
+    [Parameter(HelpMessage="Specify binary Size")][string]$bSize = "",
+    [Parameter(HelpMessage="Specify the key string to use")][string]$key = ""
+
 )
 
 #$message = 'Message'
@@ -37,20 +40,23 @@ echo "Computing signature for file $BinFile"
 $execF= Get-Content $BinFile -Encoding byte
 
 $exec = $execF
-$codeSize=344888
-$gEnd=$codeSize+7
-echo "Gap in image", $exec[$codeSize..$gEnd]
-[byte[]]$filB=0xFF,0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-$filB.CopyTo($exec,$codeSize)
-#$exec[$codeSize..$gEnd]
-#$exec = $execF[0..344888]
 
+if($bType -eq "CLR"){
+    #$codeSize=344888
+    $codeSize=346296
+    $gEnd=$codeSize+7
+    echo "Gap in image", $exec[$codeSize..$gEnd]
+    [byte[]]$filB=0xFF,0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+    $filB.CopyTo($exec,$codeSize)
+    #$exec[$codeSize..$gEnd]
+    #$exec = $execF[0..344888]
+
+    echo "Gap in image", $exec[$codeSize..$gEnd]
+}
 
 #echo $exec
 $eFS = $execF.Length
 echo "Full binary size: $eFS"
-
-echo "Gap in image", $execF[344888..344895]
 
 [byte[]]$defaultKey = 0xC6, 0x29, 0x73, 0xE3, 0xC8, 0xD4, 0xFC, 0xB6,
         0x89, 0x36, 0x46, 0xF9, 0x58, 0xE5, 0xF5, 0xE5,
