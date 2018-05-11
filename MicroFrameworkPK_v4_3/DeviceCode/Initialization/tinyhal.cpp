@@ -382,7 +382,7 @@ void HAL_Initialize()
 
     HAL_Init_Custom_Heap();
 
-    Time_Initialize();
+
 
     Events_Initialize();
 
@@ -394,13 +394,16 @@ void HAL_Initialize()
 
     // have to initialize the blockstorage first, as the USB device needs to update the configure block
 
+#ifndef MIN_NATIVE_BUILD
+    Time_Initialize();
+
     BlockStorageList::Initialize();
 
     BlockStorage_AddDevices();
 
     BlockStorageList::InitializeDevices();
 
-    FS_Initialize();
+    //FS_Initialize();
 
     FileSystemVolumeList::Initialize();
 
@@ -431,6 +434,7 @@ void HAL_Initialize()
    // Gesture_Initialize();
     //Ink_Initialize();
     TimeService_Initialize();
+#endif
 
 #if defined(ENABLE_NATIVE_PROFILER)
     Native_Profiler_Init();

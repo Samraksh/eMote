@@ -199,7 +199,7 @@ CK_RV SF2_HW_PKCS11_Objects::DestroyObject(Cryptoki_Session_Context* pSessionCtx
 			return CKR_FUNCTION_NOT_SUPPORTED;
 		}
 
-		return FreeObject(pSessionCtx, hObject) == NULL ? CKR_OBJECT_HANDLE_INVALID : CKR_OK;
+		return FreeObject(pSessionCtx, hObject) ? CKR_OK:CKR_OBJECT_HANDLE_INVALID;
 	}
 
 	return CKR_OK;

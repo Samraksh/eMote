@@ -17,8 +17,9 @@ Cuts out a lot of junk, but the real point is to create isolated and stable driv
 static enum stm_power_modes stm_power_state = POWER_STATE_DEFAULT;
 static const int PWR_HSI_DEFAULT_TRIM = 16;
 
-void PowerInit() {
 
+void PowerInit() {
+/*
 	//DBGMCU_Config(DBGMCU_SLEEP | DBGMCU_STANDBY | DBGMCU_STOP, ENABLE);
 
 	RCC_AdjustHSICalibrationValue(PWR_HSI_DEFAULT_TRIM); // Load default HSI setting
@@ -26,6 +27,7 @@ void PowerInit() {
 
 	// Choose default power mode here. I choose you, Low_Power()!
 	Low_Power(); // IF YOU CHANGE THIS REMEMBER SIMPLETIMER --NPS
+	*/
 }
 
 
@@ -38,6 +40,8 @@ static void pause_peripherals(void) {
 static void restart_peripherals(void) {
 	// Nothing needed for TB
 }
+
+/*
 
 void Low_Power() {
 
@@ -184,6 +188,8 @@ void High_Power() {
 
 	restart_peripherals();
 }
+*/
+
 
 // Note: This is never called
 void Sleep() {

@@ -15,21 +15,26 @@
 /***************************************************************************//**
  * Enable all interrupts at the processor level.
  */
-void HAL_enable_interrupts( void );
+static void HAL_enable_interrupts( void );
+
+
+//Added by Samraksh/Mukundan, just returns status without disabling
+static psr_t HAL_get_interrupts( void );
+
 
 /***************************************************************************//**
  * Disable all interrupts at the processor core level.
  * Return the interrupts enable state before disabling occured so that it can 
  * later be restored. 
  */
-psr_t HAL_disable_interrupts( void );
+static psr_t HAL_disable_interrupts( void );
 
 /***************************************************************************//**
  * Restore the interrupts enable state at the processor core level.
  * This function is normally passed the value returned from a previous call to
  * HAL_disable_interrupts(). 
  */
-void HAL_restore_interrupts( psr_t saved_psr );
+static void HAL_restore_interrupts( psr_t saved_psr );
 
 /***************************************************************************//**
  */

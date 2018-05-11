@@ -22,10 +22,10 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   
   
-<ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="STM32F10x.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\stmlib\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <PlatformIndependentLibs Include="Core.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Core\dotNetMF.proj" />
@@ -223,18 +223,22 @@
     <DriverLibs Include="cpu_bootstrap_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_bootstrap\dotNetMF.proj" />
   </ItemGroup>
-  -->
   <ItemGroup>
     <DriverLibs Include="STM32F10x_bootstrap.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\bootstrap\dotNetMF.proj" />
+  </ItemGroup>
+  -->
+  <ItemGroup>
+    <DriverLibs Include="SmartFusion2_bootstrap.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bootstrap\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="config_pal_Redux.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\configuration\redux\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="STM32F10x_ID.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\id\dotNetMF.proj" />
+    <DriverLibs Include="SmartFusion2_ID.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\id\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="Crypto_stub.$(LIB_EXT)" />
@@ -258,7 +262,7 @@
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="GlobalLock_hal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cores\arm\Common\GlobalLock\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\cores\arm\Common\GlobalLock\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="SmartFusion2_gpio.$(LIB_EXT)" />
@@ -266,7 +270,7 @@
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Initialization\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\Initialization\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="TimeService_pal_stubs.$(LIB_EXT)" />

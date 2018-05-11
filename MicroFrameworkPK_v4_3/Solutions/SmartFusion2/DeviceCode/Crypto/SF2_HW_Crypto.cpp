@@ -1,5 +1,6 @@
 #include "SF2_HW_Crypto.h"
 #include "tinyhal.h"
+#include <crypto.h>
 
 //nbrg related variables
 static bool nrbg_init =0;
@@ -127,4 +128,52 @@ int SF2_Digest(sf2_digest_context_t* ctx, uint8_t* data, uint32_t dataSize, uint
 	*resultSize = 32; //SHA256 HMAC has constant 256-bit or 32byte mac
 	return status;
 }
+
+////////////////////// Native Crypto APIs ////////////////////
+// there are maximum BLOCK_SIZE bytes in the signature (32 bytes for AES and XTEA)
+CRYPTO_RESULT Crypto_GetFingerprint(BYTE *key, BYTE *Signature, int cbSignatureSize){
+	return CRYPTO_ACTIVATIONBADSYNTAX;
+}
+
+CRYPTO_RESULT Crypto_GetHMAC(BYTE *pBuffer, DWORD cbBufferSize, BYTE *key, BYTE *Signature, int cbSignatureSize){
+	int status=0;
+
+	//SF2 supports only HMAC-SHA256 so no switch case
+
+	status = MSS_SYS_hmac
+				(key,
+				 pBuffer,
+				 cbBufferSize,
+				 Signature
+			 );
+
+	//*resultSize = 32; //SHA256 HMAC has constant 256-bit or 32byte mac
+	return (CRYPTO_RESULT)status;
+}
+
+// this function generates a hash using the currently chosen hash algorithm
+BOOL Crypto_GetHash(BYTE *pBuffer, DWORD cbBufferSize, BYTE *pHash, DWORD cbHashSize){
+
+	return FALSE;
+}
+
+//BOOL Crypto_GetUniqueInfoFromKey(WatchUniqueInfo *pWatchInfo, SymmetricKey *pKey);
+
+// this function returns a string encoding the watch ID; pString must be at least ACTIVATION_KEY_SIZE
+// it computes the activation string from a received watch seed
+BOOL Crypto_GetActivationStringFromSeed(char *pString, int cbStringSize, KeySeed *Seed, UINT16 region, UINT16 model){
+	return FALSE;
+}
+
+// Encrypts a buffer using a symmetric algorithm.
+BOOL Crypto_Encrypt(BYTE *Key, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText){
+	return FALSE;
+}
+
+// Decrypts a buffer using a symmetric algorithm
+BOOL Crypto_Decrypt(BYTE *Key, BYTE *IV, DWORD cbIVSize, BYTE *pCypherText, DWORD cbCypherText, BYTE* pPlainText, DWORD cbPlainText){
+	return FALSE;
+}
+
+
 
