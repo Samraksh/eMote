@@ -125,7 +125,7 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 			MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, 0, 0 );
 			MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
 
-			HAL_Time_Sleep_MicroSeconds(100);
+			HAL_Time_Sleep_MicroSeconds(400);
 
 			burning_location = burning_location + 1;
 		}
@@ -177,7 +177,7 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 			MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
 			MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
 			if (spi_rx_buff[0] != eNVM_read_buff[i]){
-			//	return 1;
+				return 1;
 			}
 
 			// Read Mem Page High
@@ -189,7 +189,7 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 			MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
 			MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
 			if (spi_rx_buff[0] != eNVM_read_buff[i+1]){
-			//	return 1;
+				return 1;
 			}
 
 			burning_location = burning_location + 1;
@@ -199,6 +199,7 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 	}
 
 
+	hal_printf("Arduino successfully programmed.\r\n");
 	return 0;
 }
 
