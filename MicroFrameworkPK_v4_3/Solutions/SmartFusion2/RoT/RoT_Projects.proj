@@ -9,7 +9,10 @@
   
   <!-- Hal and pal stuff needed by Rot -->
   
-  
+  <ItemGroup>
+    <DriverLibs Include="SmartFusion2_bootstrap.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bootstrap\dotNetMF.proj" />
+  </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\Initialization\dotNetMF.proj" />
@@ -92,57 +95,40 @@
     <DriverLibs Include="tinycrt_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF.proj" />
   </ItemGroup>
+  <ItemGroup>
+    <PlatformIndependentLibs Include="WireProtocol.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Support\WireProtocol\dotNetMF.proj" />
+  </ItemGroup>
   -->
   
   <!--  - - - - - -  - uart, com , debug, only in debug mode  - - - -  -->
   
-  
-  
-  <ItemGroup>
+  <ItemGroup Condition="'$(FLAVOR)'!='Release'">
     <DriverLibs Include="usart_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USART\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
+  
     <DriverLibs Include="COM_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\dotNetMF.proj" />
-  </ItemGroup>
-  <!--<ItemGroup>
-    <PlatformIndependentLibs Include="WireProtocol.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Support\WireProtocol\dotNetMF.proj" />
-  </ItemGroup>-->
-  <ItemGroup>
+  
     <DriverLibs Include="SmartFusion2_usart.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\usart\dotNetMF.proj" />
-  </ItemGroup>
-  
- 
-  <ItemGroup>
+   
     <DriverLibs Include="usb_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USB\stubs\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
+   
     <DriverLibs Include="sockets_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" />
-  </ItemGroup>
-   <ItemGroup>
+ 
     <DriverLibs Include="lcd_hal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Display\stubs\dotNetMF.proj" />
-  </ItemGroup>
-  
-  <ItemGroup>
+ 
     <DriverLibs Include="SimpleHeap_config.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap_config\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
+  
     <DriverLibs Include="SimpleHeap.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" />
   </ItemGroup>
   
-  <!--  - - - - - - - - - -what does these do? -->
-  <ItemGroup>
-    <DriverLibs Include="SmartFusion2_bootstrap.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bootstrap\dotNetMF.proj" />
-  </ItemGroup>
   
   <!--<ItemGroup>
     <DriverLibs Include="SmartFusion2_ID.$(LIB_EXT)" />
