@@ -27,13 +27,15 @@ static GPIO_INTERRUPT_SERVICE_ROUTINE gpio_isr[GPIO_PINS];
 
 BOOL CPU_GPIO_Initialize()
 {
-	GPIO_init( &g_gpio,    COREGPIO_BASE_ADDR, GPIO_APB_32_BITS_BUS );
+	//GPIO_init( &g_gpio,    COREGPIO_BASE_ADDR, GPIO_APB_32_BITS_BUS );
+	MSS_GPIO_init();
 	return TRUE;
 }
 
 void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 {
-	GPIO_config( &g_gpio, GPIO_0, GPIO_OUTPUT_MODE );
+	//GPIO_config( &g_gpio, GPIO_0, GPIO_OUTPUT_MODE );
+	MSS_GPIO_config( (mss_gpio_id_t)Pin , InitialState );
 }
 
 void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
@@ -49,7 +51,7 @@ void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
 		//gpio_outputs &= ~mask;
 	}
     GPIO_set_outputs( &g_gpio, gpio_outputs );*/
-	GPIO_set_outputs( &g_gpio, PinState );
+	MSS_GPIO_set_output( (mss_gpio_id_t)Pin, PinState );
 }
 
 INT32  CPU_GPIO_GetPinCount    ()

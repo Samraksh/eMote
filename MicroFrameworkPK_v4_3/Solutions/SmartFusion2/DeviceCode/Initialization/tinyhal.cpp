@@ -664,7 +664,7 @@ mipi_dsi_shutdown();
 			 now = HAL_Time_CurrentTicks();
 		}
 	}*/
-    loadArduinoSPI((uint8_t*)0xF000,1932);
+	loadArduinoSPI((uint8_t*)0xE000,1016);
 #endif
 
 
