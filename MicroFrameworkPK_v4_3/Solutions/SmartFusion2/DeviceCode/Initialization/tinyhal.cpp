@@ -17,8 +17,8 @@ extern Krait_Timer g_Krait_Timer;
 #include <drivers/mss_sys_services/mss_sys_services.h>
 #include "..\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer\mss_timer.h"
 #include "..\Targets\Native\SmartFusion2\DeviceCode\drivers\loadTarget\loadTarget.h"
-#include <CMSIS/system_m2sxxx.h>
-#include <DeviceCode/Crypto/aes_test.h>
+//#include <CMSIS/system_m2sxxx.h>
+//#include <DeviceCode/Crypto/aes_test.h>
 #endif
 
 #if !defined(__GNUC__)
@@ -664,9 +664,11 @@ mipi_dsi_shutdown();
 			 now = HAL_Time_CurrentTicks();
 		}
 	}*/
+
+#endif
+#ifndef MIN_NATIVE_BUILD
     loadArduinoSPI((uint8_t*)0xF000,1932);
 #endif
-
 
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();

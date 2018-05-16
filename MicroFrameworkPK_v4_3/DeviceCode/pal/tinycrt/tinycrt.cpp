@@ -133,7 +133,7 @@ int hal_vfprintf( COM_HANDLE stream, const char* format, va_list arg )
         }
         break;
 #endif
-
+#if !defined(MIN_NATIVE_BUILD)
     case LCD_TRANSPORT:
         {
             for(int i = 0; i < chars; i++)
@@ -142,6 +142,7 @@ int hal_vfprintf( COM_HANDLE stream, const char* format, va_list arg )
             }
         }
         break;
+#endif
     }
 
     return chars;

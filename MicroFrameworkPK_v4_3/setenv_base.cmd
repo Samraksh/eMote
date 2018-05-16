@@ -84,30 +84,26 @@ ECHO "VSPath %COMPILER_TOOL% %VS140COMNTOOLS%"
 
 IF /I NOT "%COMPILER_TOOL%" == "VS" (
 	ECHO "Checking visual studio version..."
-	IF NOT "%VS140COMNTOOLS%" == "" (
-		ECHO "Found Visual Studio 14.0"
-        CALL "%VS140COMNTOOLS%vsvars32.bat"
-    ) ELSE (
-		IF NOT "%VS120COMNTOOLS%" == "" ( 
-			CALL "%VS120COMNTOOLS%vsvars32.bat"
+	
+	IF NOT "%VS120COMNTOOLS%" == "" ( 
+		CALL "%VS120COMNTOOLS%vsvars32.bat"
+	) ELSE (
+		IF NOT "%VS110COMNTOOLS%" == "" (
+			CALL "%VS110COMNTOOLS%vsvars32.bat"
 		) ELSE (
-			IF NOT "%VS110COMNTOOLS%" == "" (
-				CALL "%VS110COMNTOOLS%vsvars32.bat"
+			IF NOT "%VS100COMNTOOLS%" == "" (
+			CALL "%VS100COMNTOOLS%vsvars32.bat"
 			) ELSE (
-				IF NOT "%VS100COMNTOOLS%" == "" (
-				CALL "%VS100COMNTOOLS%vsvars32.bat"
-				) ELSE (
-					IF NOT "%VS90COMNTOOLS%" == "" (
-						CALL "%VS90COMNTOOLS%vsvars32.bat"    
-					) ELSE ( 
-						@ECHO WARNING: Could not find vsvars32.bat.
-						@ECHO WARNING: VISUAL C++ DOES NOT APPEAR TO BE INSTALLED ON THIS MACHINE
-						GOTO :EOF
-					)
+				IF NOT "%VS90COMNTOOLS%" == "" (
+					CALL "%VS90COMNTOOLS%vsvars32.bat"    
+				) ELSE ( 
+					@ECHO WARNING: Could not find vsvars32.bat.
+					@ECHO WARNING: VISUAL C++ DOES NOT APPEAR TO BE INSTALLED ON THIS MACHINE
+					GOTO :EOF
 				)
 			)
 		)
-	)		
+	)	
 )
 
 set TINYCLR_USE_MSBUILD=1   

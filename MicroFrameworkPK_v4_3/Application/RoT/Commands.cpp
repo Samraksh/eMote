@@ -1095,7 +1095,7 @@ void Loader_Engine::Launch( ApplicationStartAddress startAddress )
     if (retAddress != NULL)
         startAddress = retAddress;
 
-    LCD_Clear();
+    //LCD_Clear();
 
     DebuggerPort_Flush( m_port );
     
@@ -1108,7 +1108,7 @@ void Loader_Engine::Launch( ApplicationStartAddress startAddress )
 
     DISABLE_INTERRUPTS();
 
-    LCD_Uninitialize();
+    //LCD_Uninitialize();
 
     //CPU_DisableCaches();
 

@@ -44,12 +44,11 @@
     <DriverLibs Include="heap_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Heap\dotNetMF.proj" />
   </ItemGroup>
-  <!-- unclear why we need this stub -->
+  
   <ItemGroup>
     <DriverLibs Include="cpu_cache_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_cache\dotNetMF.proj" />
   </ItemGroup>
-  
   
   <!-- The watchdog has toomuch clr stuff, cant use as it is, needs to rewrite 
   <ItemGroup>
@@ -71,6 +70,16 @@
   <ItemGroup>
     <DriverLibs Include="blockstorage_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\BlockStorage\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>  
+    <DriverLibs Include="SimpleHeap_config.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap_config\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <DriverLibs Include="SimpleHeap.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" />
   </ItemGroup>
   
   <!--   Some CLR stuff we might need       --> 
@@ -103,7 +112,7 @@
   
   <!--  - - - - - -  - uart, com , debug, only in debug mode  - - - -  -->
   
-  <ItemGroup Condition="'$(FLAVOR)'!='Release'">
+  <ItemGroup Condition="'$(FLAVOR)'=='Debug'">
     <DriverLibs Include="usart_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USART\dotNetMF.proj" />
   
@@ -121,14 +130,12 @@
  
     <DriverLibs Include="lcd_hal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Display\stubs\dotNetMF.proj" />
- 
-    <DriverLibs Include="SimpleHeap_config.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap_config\dotNetMF.proj" />
-  
-    <DriverLibs Include="SimpleHeap.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" />
   </ItemGroup>
   
+  <ItemGroup Condition="'$(FLAVOR)'!='Debug'">
+    <DriverLibs Include="COM_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\stubs\dotNetMF.proj" />
+  </ItemGroup>
   
   <!--<ItemGroup>
     <DriverLibs Include="SmartFusion2_ID.$(LIB_EXT)" />
