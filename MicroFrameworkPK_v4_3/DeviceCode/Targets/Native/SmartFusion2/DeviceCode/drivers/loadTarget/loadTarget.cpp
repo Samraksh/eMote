@@ -14,6 +14,13 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 	uint16_t size, burning_location, reading_location, burn_command_location;
 	uint8_t i,j,k;
 
+	// put Arduino into reset
+	CPU_GPIO_EnableOutputPin(0, FALSE);
+	HAL_Time_Sleep_MicroSeconds(50000);
+	CPU_GPIO_SetPinState(0, TRUE);
+	HAL_Time_Sleep_MicroSeconds(50000);
+	CPU_GPIO_SetPinState(0, FALSE);
+
 	// Program enable
 	spi_tx_buff[0] = 0xAC;
 	spi_tx_buff[1] = 0x53;
@@ -198,7 +205,9 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 		reading_location = reading_location + eNVM_read_size;
 	}
 
-
+	// take Arduino out of reset
+	CPU_GPIO_SetPinState(0, TRUE);
+	
 	hal_printf("Arduino successfully programmed.\r\n");
 	return 0;
 }
