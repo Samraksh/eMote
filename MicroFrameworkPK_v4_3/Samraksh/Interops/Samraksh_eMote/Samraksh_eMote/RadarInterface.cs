@@ -22,23 +22,24 @@ namespace Samraksh.eMote
         /// </summary>
         static RadarCallBack _myCallback;
         /// <summary>
-            /// 
-            /// </summary>
-            public RadarInterface() {
-                _radarInternal = new RadarInternal("RadarCallback", 1234, 0);
-            }
-            
-            //////////////////////////public properties and methods/////////////////////
+        /// 
+        /// </summary>
+        public RadarInterface()
+        {
+            _radarInternal = new RadarInternal("RadarCallback", 1234, 0);
+        }
 
-            /// <summary>
-            /// 
-            /// </summary>
-            ~RadarInterface()
-            {
-                _radarInternal = null;
-                TurnOff();
-                RadarInternal.Uninit();
-            }
+        //////////////////////////public properties and methods/////////////////////
+
+        /// <summary>
+        /// 
+        /// </summary>
+        ~RadarInterface()
+        {
+            _radarInternal = null;
+            TurnOff();
+            RadarInternal.Uninit();
+        }
 
         /// <summary> Turns on the Radar </summary>
         /// <param name="sampleBuffI">Buffer for samples</param>
@@ -48,95 +49,119 @@ namespace Samraksh.eMote
         /// <returns>True if operation success</returns>
         /// <returns>The result of turning on the radar: Success, Fail</returns>
         public bool ConfigureFPGADetection(ushort[] sampleBuffI, ushort[] sampleBuffQ, uint numSamples, RadarCallBack callback)
-            {
-                _myCallback = callback;
-                var eventHandler = new NativeEventHandler(InternalCallback);
-                _radarInternal.OnInterrupt += eventHandler;
+        {
+            _myCallback = callback;
+            var eventHandler = new NativeEventHandler(InternalCallback);
+            _radarInternal.OnInterrupt += eventHandler;
 
-                if (_radarInternal.ConfigureFPGADetectionPrivate(sampleBuffI, sampleBuffQ, numSamples))
-                    return true;
-                else                
-                    return false;                
-            }
+            if (_radarInternal.ConfigureFPGADetectionPrivate(sampleBuffI, sampleBuffQ, numSamples))
+                return true;
+            else
+                return false;
+        }
 
-            public bool GetWindowOverThreshold()
-            {
-                return _radarInternal.GetWindowOverThreshold();
-            }
+        /// <summary>
+        /// Request whether the last window's displacement was over the threshold
+        /// </summary>
+        /// <returns>Returns true if last window's displacement was over the threshold and false if not.</returns>
+        public bool GetWindowOverThreshold()
+        {
+            return _radarInternal.GetWindowOverThreshold();
+        }
 
-            public bool CurrentDetectionFinished()
-            {
-                return _radarInternal.CurrentDetectionFinished();
-            }
+        /// <summary>
+        /// Request whether the current detection has finished
+        /// </summary>
+        /// <returns>Returns true if the current detection is finished and false if not.</returns>
+        public bool CurrentDetectionFinished()
+        {
+            return _radarInternal.CurrentDetectionFinished();
+        }
 
-            public int GetNetDisplacement(SAMPLE_WINDOW_PORTION portion)
-            {
-                return _radarInternal.GetNetDisplacement(portion);
-            }
+        /// <summary>
+        /// Request the window's net displacement
+        /// </summary>
+        /// <returns>Returns the window's net displacement.</returns>
+        public int GetNetDisplacement(SAMPLE_WINDOW_PORTION portion)
+        {
+            return _radarInternal.GetNetDisplacement(portion);
+        }
+        /// <summary>
+        /// Request the window's absolute displacement.
+        /// </summary>
+        /// <returns>Returns the window's absolute displacement.</returns>
+        public int GetAbsoluteDisplacement(SAMPLE_WINDOW_PORTION portion)
+        {
+            return _radarInternal.GetAbsoluteDisplacement(portion);
+        }
+        /// <summary>
+        /// Request the window's displacement range.
+        /// </summary>
+        /// <returns>Returns the window's displacement range.</returns>
+        public int GetDisplacementRange(SAMPLE_WINDOW_PORTION portion)
+        {
+            return _radarInternal.GetDisplacementRange(portion);
+        }
+        /// <summary>
+        /// Inform firmware of status of data processing
+        /// </summary>
+        /// <returns>Nothing returned</returns>
+        public void SetProcessingInProgress(bool status)
+        {
+            _radarInternal.SetProcessingInProgress(status);
+        }
 
-            public int GetAbsoluteDisplacement(SAMPLE_WINDOW_PORTION portion)
-            {
-                return _radarInternal.GetAbsoluteDisplacement(portion);
-            }
+        /// <summary>
+        /// Request the window's count of samples over classifierTargetFilter parameter.
+        /// </summary>
+        /// <returns>Returns the window's count of samples over target.</returns>
+        public int GetCountOverTarget()
+        {
+            //var x = _radarInternal.GetCountOverTarget();
+            //Debug.Print("C#RadarInterface::GetCountOverTarget()" + x);
+            return _radarInternal.GetCountOverTarget();
+        }
 
-            public int GetDisplacementRange(SAMPLE_WINDOW_PORTION portion)
-            {
-                return _radarInternal.GetDisplacementRange(portion);
-            }
+        /// <summary>
+        /// Native Radar driver callback
+        /// </summary>
+        /// <param name="data1">Parameter passed from native</param>
+        /// <param name="data2">Parameter passed from native</param>
+        /// <param name="time">Time of callback</param>
+        static public void InternalCallback(uint data1, uint data2, DateTime time)
+        {
+            _myCallback((long)(((long)data1 << 32) | (long)data2));
+        }
+        ///////////////////////////////////Internal methods/////////////////////////
 
-            public void SetProcessingInProgress(bool status)
-            {
-                _radarInternal.SetProcessingInProgress(status);
-            }
 
 
-            public int GetCountOverTarget()
-            {
-                //var x = _radarInternal.GetCountOverTarget();
-                //Debug.Print("C#RadarInterface::GetCountOverTarget()" + x);
-                return _radarInternal.GetCountOverTarget();
-            }
+        /// <summary>
+        /// Turns on the Radar
+        /// </summary>
+        /// <returns>The result of turning on the radar: Success, Fail</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern bool TurnOn();
 
-            /// <summary>
-            /// Native Radar driver callback
-            /// </summary>
-            /// <param name="data1">Parameter passed from native</param>
-            /// <param name="data2">Parameter passed from native</param>
-            /// <param name="time">Time of callback</param>
-            static public void InternalCallback(uint data1, uint data2, DateTime time)
-            {
-                _myCallback((long)(((long)data1 << 32) | (long)data2));
-            }
-            ///////////////////////////////////Internal methods/////////////////////////
+        /// <summary>
+        /// Turns off the Radar
+        /// </summary>
+        /// <returns>The result of turning off the radar: Success, Fail</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern bool TurnOff();
 
-            
-
-            /// <summary>
-            /// Turns on the Radar
-            /// </summary>
-            /// <returns>The result of turning on the radar: Success, Fail</returns>
-            [MethodImpl(MethodImplOptions.InternalCall)]
-            public extern bool TurnOn();
-
-            /// <summary>
-            /// Turns off the Radar
-            /// </summary>
-            /// <returns>The result of turning off the radar: Success, Fail</returns>
-            [MethodImpl(MethodImplOptions.InternalCall)]
-            public extern bool TurnOff();
-
-            /// <summary>
-            /// Blinds the Radar
-            /// </summary>
-            /// <returns>The result of blinding the radar: Success, Fail</returns>
-            [MethodImpl(MethodImplOptions.InternalCall)]
-            public extern bool Blind();
+        /// <summary>
+        /// Blinds the Radar
+        /// </summary>
+        /// <returns>The result of blinding the radar: Success, Fail</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern bool Blind();
     }
 
     /// <summary>
     /// ADCInternal interface to the native driver
     /// </summary>
-    public class RadarInternal : NativeEventDispatcher
+    class RadarInternal : NativeEventDispatcher
     {
         /// <summary>
         /// Specify the driver name for matching with the native eventdispatcher
