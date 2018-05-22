@@ -692,4 +692,14 @@
     <DriverLibs Include="SF2_HW_PKCS11_Crypto.$(LIB_EXT)" />
   </ItemGroup>
 
+  <!-- Secure monitor and the MPU driver -->
+  <ItemGroup>
+    <DriverLibs Include="SmartFusion2_usart.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\CortexM\drivers\mpu\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\SecureMonitor\dotNetMF.proj" />
+    <DriverLibs Include="CM3_SecureMonitor.$(LIB_EXT)" />
+  </ItemGroup>
+
 </Project>
