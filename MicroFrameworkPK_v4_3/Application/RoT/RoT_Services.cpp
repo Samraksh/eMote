@@ -11,6 +11,8 @@
 Loader_Engine g_eng;
 //BYTE kernelHMAC[32];
 
+#define attestOS 0
+
 #define eNVMAddress 0x60000000
 #define RoT_Offset 0x0F000
 #define App_Offset 0x65800
@@ -75,19 +77,25 @@ bool ComputeHMAC(PBYTE  pData, UINT32 ulDataLen, PBYTE pDigest, SigType mtype, K
 }
 
 bool SecureOS_Boot(OSModule mod, UINT32 modLength, UINT8* pSig, UINT32 sigLength, UINT8* pKey, UINT32 keyLength){
-	if (sigLength!=keyLength || sigLength!=32) return FALSE;
-
-	if(AttestOS(mod, modLength,pSig,sigLength,pKey,keyLength)){
-		debug_printf("\n\nRoot of Trust Validation Success!!\n\n");
-		int i=10;
+	if (attestOS==1){
+		if (sigLength!=keyLength || sigLength!=32) return FALSE;
+		if(AttestOS(mod, modLength,pSig,sigLength,pKey,keyLength)){
+			debug_printf("\n\nRoot of Trust Validation Success!!\n\n");
+			int i=10;
+			while(i>0){
+				debug_printf("Will boot into Rot in %d\n", i);  i--;
+				//WaitForEvent()
+				Events_WaitForEvents(0,1000);
+			}
+			BootRoT();
+		}
+	}else{
+		debug_printf("\n\nOS Attestation DISABLED. Booting directly!!\n\n");
+		int i=5;
 		while(i>0){
 			debug_printf("Will boot into Rot in %d\n", i);  i--;
-			//WaitForEvent()
-			Events_WaitForEvents(0,1000);
 		}
-
 		BootRoT();
-
 	}
 }
 
