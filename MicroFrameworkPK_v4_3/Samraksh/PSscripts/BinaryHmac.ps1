@@ -41,17 +41,19 @@ $execF= Get-Content $BinFile -Encoding byte
 
 $exec = $execF
 
+
+
 if($bType -eq "CLR"){
     #$codeSize=344888
-    $codeSize=346296
+    $codeSize=346344
     $gEnd=$codeSize+7
-    echo "Gap in image", $exec[$codeSize..$gEnd]
+    #echo "Gap in image", $exec[$codeSize..$gEnd]
     [byte[]]$filB=0xFF,0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
     $filB.CopyTo($exec,$codeSize)
     #$exec[$codeSize..$gEnd]
     #$exec = $execF[0..344888]
 
-    echo "Gap in image", $exec[$codeSize..$gEnd]
+    #echo "Gap in image", $exec[$codeSize..$gEnd]
 }
 
 #echo $exec

@@ -12,7 +12,7 @@ Loader_Engine g_eng;
 //BYTE kernelHMAC[32];
 
 #define eNVMAddress 0x60000000
-#define RoT_Offset 0x10000
+#define RoT_Offset 0x0F000
 #define App_Offset 0x65800
 
 void PrintHex(UINT8* data, int size){
