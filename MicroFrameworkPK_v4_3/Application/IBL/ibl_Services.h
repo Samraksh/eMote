@@ -3,14 +3,14 @@
 
 #include <tinyhal_types.h>
 #include "Crypto.h"
-#include "CryptoInterface.h"
-#include "Keys.h"
 #include <tinyhal.h>
 #include <BlockStorage_decl.h>
+#include "CryptoInterface.h"
+#include "Keys.h"
 
 enum KeyType{Symetric, PK };
 enum SigType{HMAC, SHA256};
-enum OSModule{RoT, TB, RT, App};
+enum OSModule{RoT, TB, RT, App, eMoteOS};
 
 
 bool SecureOS_Boot(OSModule mod, UINT32 modLength, UINT8* pSig, UINT32 sigLength, UINT8* pKey, UINT32 keyLength);
@@ -24,7 +24,7 @@ bool CheckFlashSectorPermission( BlockStorageDevice *pDevice, ByteAddress addres
 BOOL TinyBooter_GetReleaseInfo(MfReleaseInfo& releaseInfo);
 UINT32 Tinybooter_ProgramWordCheck();
 
-void BootRoT();
+void BootOS();
 
 void PrintHex(UINT8* sig, int size);
 

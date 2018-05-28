@@ -5,8 +5,9 @@
  *      Author: MukundanSridharan
  */
 
-#include "RoT_Services.h"
-#include "Commands.h"
+#include "ibl_Services.h"
+
+#include "../IBL/Commands.h"
 
 Loader_Engine g_eng;
 //BYTE kernelHMAC[32];
@@ -26,7 +27,7 @@ void PrintHex(UINT8* data, int size){
 
 //This looks up key and hmac from the config section of the flash, recomputes hash and validates it
 bool AttestOS(OSModule mod, UINT32 modLength,  UINT8* pSig, UINT32 sigLength, UINT8* pkey, UINT32 keyLength){
-	if(mod==RoT || mod==TB)
+	if(mod==eMoteOS || mod==RoT || mod==TB )
 		return  AttestBinary((BYTE*)eNVMAddress+RoT_Offset, modLength, pSig, sigLength, pkey, keyLength );
 	else return FALSE;
 }
@@ -87,7 +88,7 @@ bool SecureOS_Boot(OSModule mod, UINT32 modLength, UINT8* pSig, UINT32 sigLength
 				//WaitForEvent()
 				Events_WaitForEvents(0,1000);
 			}
-			BootRoT();
+			BootOS();
 		}
 	}else{
 		debug_printf("\n\nOS Attestation DISABLED. Booting directly!!\n\n");
@@ -95,11 +96,11 @@ bool SecureOS_Boot(OSModule mod, UINT32 modLength, UINT8* pSig, UINT32 sigLength
 		while(i>0){
 			debug_printf("Will boot into Rot in %d\n", i);  i--;
 		}
-		BootRoT();
+		BootOS();
 	}
 }
 
-void BootRoT(){
+void BootOS(){
 	g_eng.EnumerateAndLaunch();
 }
 

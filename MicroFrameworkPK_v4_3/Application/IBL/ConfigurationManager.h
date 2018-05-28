@@ -2,7 +2,6 @@
 #define __CONFIGURATIONMANAGER_H__
 
 
-
 struct ConfigurationSectorManager
 {
     static const UINT32 c_ConfigurationSectorSize = sizeof(ConfigurationSector);

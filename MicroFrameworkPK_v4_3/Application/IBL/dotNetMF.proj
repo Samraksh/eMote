@@ -1,14 +1,14 @@
 ﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>RoT</AssemblyName>
+    <AssemblyName>IBL</AssemblyName>
     <ProjectGuid>070804E5-0025-48ee-8619-77C50DA8AC9E</ProjectGuid>
     <Size>
     </Size>
     <Description>Root of Trust Application</Description>
     <Level>CLR</Level>
-    <LibraryFile>RoT.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\Application\RoT\dotNetMF.proj</ProjectPath>
-    <ManifestFile>RoT.$(LIB_EXT).manifest</ManifestFile>
+    <LibraryFile>IBL.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\Application\IBL\dotNetMF.proj</ProjectPath>
+    <ManifestFile>IBL.$(LIB_EXT).manifest</ManifestFile>
     <Groups>Cryptography</Groups>
     <LibraryCategory>
       <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Crypto" Guid="{997AE9B5-A4A7-4540-AACA-6D8D2110E19F}" ProjectPath="" Conditional="" xmlns="">
@@ -41,7 +41,7 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-    <Compile Include="RoT_Services.cpp" />
+    <Compile Include="ibl_Services.cpp" />
     <Compile Include="ConfigurationManager.cpp" />
     <Compile Include="CryptoInterface.cpp" />
 	<Compile Include="Commands.cpp" />    
