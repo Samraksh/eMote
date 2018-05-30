@@ -143,6 +143,22 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetCountOverTarget__
     TINYCLR_NOCLEANUP();
 }
 
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetDetectionFinished___I4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT32 retVal = RadarInternal::GetDetectionFinished( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
 HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::SetProcessingInProgress___VOID__BOOLEAN( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;

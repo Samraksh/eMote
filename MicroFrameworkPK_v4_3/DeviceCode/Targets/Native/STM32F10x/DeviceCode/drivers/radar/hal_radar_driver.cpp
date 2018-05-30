@@ -143,7 +143,7 @@ void Radar_Handler(void *arg)
 		rxData[i] = SPI_I2S_ReceiveData(SPIy);
 	}
 	CPU_GPIO_SetPinState(8, FALSE);
-	int maxDetect = 0;
+	int assumedDetect = 0;
 	int detect = 0;
 	int tmpPos;
 
@@ -165,8 +165,8 @@ void Radar_Handler(void *arg)
 	maxDisplacementSecondHalf = 0;
 	maxDisplacementEntire = 0;
 
-	//hal_printf("Radar_Handler START Clear variables: maxDisplacementEntire = %d , maxCountOverTarget = %d, maxDetect = %d \r\n"
-	//		, maxDisplacementEntire, maxCountOverTarget, maxDetect);
+	//hal_printf("Radar_Handler START Clear variables: maxDisplacementEntire = %d , maxCountOverTarget = %d, assumedDetect = %d \r\n"
+	//		, maxDisplacementEntire, maxCountOverTarget, assumedDetect);
 
 
 	for (i=0;i<bytesToRead/6;i++){
@@ -181,11 +181,19 @@ void Radar_Handler(void *arg)
 		} else {
 			unwrapSigned = unwrap;
 		}
+
+
 		//if (radarGarbagePurged == 4) hal_printf("%d %d %x\r\n",unwrapSigned ,countOverTarget, detect);
 		//if (radarGarbagePurged == 4) hal_printf("%d %d %d %d %d %x\r\n", i, g_radarUserBufferChannel1Ptr[i], g_radarUserBufferChannel2Ptr[i],unwrapSigned ,countOverTarget, detect);
-		if (detect > maxDetect){
-			maxDetect = detect;
+
+		//BK: this is targeting frame mismatch problem. Assumed value of the buffer is assumedDetect which is detect(1bit) + m/n(3 bits)
+		//if (detect > assumedDetect){
+		//	assumedDetect = detect;
+		//}
+		if(tmpPos == bytesToRead - 6 ){
+			assumedDetect = detect;
 		}
+
 		if ((int)countOverTarget > maxCountOverTarget){
 			maxCountOverTarget = (int)countOverTarget;
 
@@ -216,38 +224,58 @@ void Radar_Handler(void *arg)
 
 	}
 
-	//hal_printf("Radar_Handler: maxDisplacementEntire = %d , maxCountOverTarget = %d, maxDetect = %d \r\n"
-	//		, maxDisplacementEntire, maxCountOverTarget, maxDetect);
 
 	if (radarGarbagePurged != 4) {
 		interruptServiceInProcess = false;
 		return;
 	}
 
+
+
+
+
 	UINT32 FPGAIQRejection;
-	if ((CPU_GPIO_GetPinState(33) == TRUE) | (continueToSendCount > 0)){
+	if ((CPU_GPIO_GetPinState(33) == TRUE) | (continueToSendCount > 0)  ){
 		if (alertInterruptActive == false){
-			hal_printf("enabling data pull; cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
+			hal_printf("enabling data pull; cont: %d detect: %x\r\n", continueToSendCount, assumedDetect);
 			CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 			alertInterruptActive = true;
 		} else {
-			hal_printf("cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
+			hal_printf("cont: %d detect: %x\r\n", continueToSendCount, assumedDetect);
 		}
+
 
 		// we'll send a few more frames to close out the human detector logic
-		if ((maxDetect) != 0) {
-			continueToSendCount = 6;
+//		if ((assumedDetect) != 0) {
+//			continueToSendCount = 2;
+//			windowOverThreshold = true;
+//			detectionFinished = false;
+//		}
+//		else {
+//			if (continueToSendCount > 0)
+//				continueToSendCount--;
+//			windowOverThreshold = false;
+//			detectionFinished = true;
+//		}
+		if(assumedDetect & 0x08){ //If M/N successful somewhere in the current buffer, send the data to the application
+			continueToSendCount = 2;
 			windowOverThreshold = true;
-			detectionFinished = false;
-		} else {
-			if (continueToSendCount > 0)
-				continueToSendCount--;
+		}
+		else{
+			--continueToSendCount;
 			windowOverThreshold = false;
+		}
+		if(continueToSendCount > 0){
+			detectionFinished = false;
+		}
+		else{
 			detectionFinished = true;
 		}
-		//if ((maxDetect != 0) | (continueToSendCount > 0)) {
 
-		//if ((maxDetect & 0x8) != 0) {
+
+		//if ((assumedDetect != 0) | (continueToSendCount > 0)) {
+
+		//if ((assumedDetect & 0x8) != 0) {
 		//	hal_printf("--- fpga detection ---\r\n");
 		//}
 

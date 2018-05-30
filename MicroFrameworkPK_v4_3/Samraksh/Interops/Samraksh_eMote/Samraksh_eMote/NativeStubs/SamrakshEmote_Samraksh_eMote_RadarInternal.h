@@ -29,6 +29,7 @@ namespace Samraksh
             static INT32 GetAbsoluteDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
             static INT32 GetDisplacementRange( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
             static INT32 GetCountOverTarget( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+            static INT32 GetDetectionFinished( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
             static void SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr );
             static INT32 Init( INT32 param0, HRESULT &hr );
             static INT8 Uninit( HRESULT &hr );
