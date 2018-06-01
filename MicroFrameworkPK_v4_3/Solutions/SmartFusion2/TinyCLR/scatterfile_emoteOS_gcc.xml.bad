@@ -21,51 +21,39 @@
         <!-- The M2S010 has  devices have 256 KB of flash starting at 0x60000000 -->
 		<!-- The M2S090 has  devices have 512 KB of flash starting at 0x60000000 -->
         <!-- THIS MUST MATCH THE BLOCK STORAGE DRIVER! -->
+        <!-- The code is divided into three regions, ROT, Kernel, RunTime -->
         <!-- Regular build: -->
         <Set Name="Config_BaseAddress"  Value="0x6007F000"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
         <Set Name="Config_Size"         Value="0x00001000"/><!--        Config_Size MUST MATCH TINYBOOTER SCATTERFILE -->
         <Set Name="Code_BaseAddress"    Value="0x6000F000"/>
 		<Set Name="Code_BaseAddress_Mirror"    Value="0x0000F000"/>
+       <!-- <Set Name="Code_BaseAddress"    Value="0x60000000"/>
+		<Set Name="Code_BaseAddress_Mirror"    Value="0x00000000"/> -->
         <Set Name="Deploy_BaseAddress"  Value="0x60065800"/>
-        <!-- <Set Name="Code_Size"           Value="%Deploy_BaseAddress - Code_BaseAddress%"/> --> 
+        <Set Name="Code_Size"           Value="%Deploy_BaseAddress - Code_BaseAddress%"/>
+        <Set Name="Valid"               Value="true"/>
+		<Set Name="AltName"		Value="LR_FLASH"/>
         
-        <Set Name="RoT_BaseAddress"    Value="0x6000F000"/>
-        <Set Name="RoT_BaseAddress_Mirror"    Value="0x0000F000"/>
-        
+        <!-- <Set Name="RoT_BaseAddress"    Value="0x6000F000"/>
         <Set Name="Kernel_BaseAddress"    Value="0x6001F000"/>
-        <Set Name="Kernel_BaseAddress_Mirror"    Value="0x0001F000"/>
-        
         <Set Name="RunTime_BaseAddress"    Value="0x6003F000"/>		
-		<Set Name="RunTime_BaseAddress_Mirror"    Value="0x0003F000"/>
-
-
 		<Set Name="RoT_Size"           Value="%Kernel_BaseAddress - RoT_BaseAddress%"/>
 		<Set Name="Kernel_Size"           Value="%RunTime_BaseAddress - Kernel_BaseAddress%"/>
 		<Set Name="RunTime_Size"           Value="%Deploy_BaseAddress - RunTime_BaseAddress%"/>
-        <Set Name="Code_Size"           Value="%RoT_Size% + %Kernel_Size% + %RunTime_Size%"/> 
+        <Set Name="Code_Size"           Value="%RoT_Size + Kernel_Size + RunTime_Size%"/> -->
         
-        <Set Name="Valid"               Value="true"/>
-		<Set Name="AltName"		Value="LR_FLASH"/> 
 		<!-- In SmartFusion seems always start running from the address 0x00000000. At run time, the code space needs to get mapped to this space.
 		* The below symbol controls the relocation address. This is actually a parameter for a gdb relocation script.
 		*  0: remap eNVM to address 0x00000000                 Production mode or debugging from eNVM   
 		*  1: remap eSRAM to address 0x00000000                Debugging from eSRAM
 		*  2: remap external DDR memory to address 0x00000000  Debugging from DDR memory
-		*/-->
+		* -->
 		<!--<FileMapping Name="PROVIDE(__smartfusion2_memory_remap = 0);"/>--> <!--This for running from internal eNVM on cortex m3 -->
     </If>
 
-    <!-- No Ram Build for the STM32F10x, since we can not fit it into 96K RAM -->
+    <!-- No Ram Build currently supported for SF2 -->
     <If Name="TARGETLOCATION" In="RAM">
-        <Error Message="EmoteDotNow cannot target memory=RAM. Use memory=FLASH instead."/>
-        <Set Name="Heap_Begin"          Value="0x08300000"/>
-        <Set Name="Heap_End"            Value="0x084FEFFC"/>
-        <Set Name="Code_BaseAddress" Value="0x08020000"/>
-		<Set Name="Code_BaseAddress_Mirror"    Value="0x00000000"/>
-        <Set Name="Code_Size"        Value="0x002D0000"/>
-        <!-- RAM with FLASH config is not needed -->
-        <Set Name="Valid"            Value="true"/>
-		<Set Name="AltName"		Value="LR_RAM"/>
+        <Error Message="SmartFusion2 does not support target memory=RAM. Use memory=FLASH instead."/>
     </If>
 
     <!-- ################################################################################ -->
@@ -74,18 +62,10 @@
         <Error Message="Configuration not recognized"/>
     </If>
 
-    <!-- we start at 0x10080000 since PortBooter lives at 0x10000000 -->
-
+    
     <NamedGroup Name="MEMORY">
-      <LoadRegion Name="ROT_LR_%TARGETLOCATION%" Base="%RoT_BaseAddress%" Size="%RoT_Size%"/>
-	  <LoadRegion Name="ROT_LR_%TARGETLOCATION%_Mirror" Base="%RoT_BaseAddress_Mirror%" Size="%RoT_Size%"/>
-	  
-	  <LoadRegion Name="Kernel_LR_%TARGETLOCATION%" Base="%Kernel_BaseAddress%" Size="%Kernel_Size%"/>
-	  <LoadRegion Name="Kernel_LR_%TARGETLOCATION%_Mirror" Base="%Kernel_BaseAddress_Mirror%" Size="%Kernel_Size%"/>
-	  
-	  <LoadRegion Name="RunTime_LR_%TARGETLOCATION%" Base="%RunTime_BaseAddress%" Size="%RunTime_Size%"/>
-	  <LoadRegion Name="RunTime_LR_%TARGETLOCATION%_Mirror" Base="%RunTime_BaseAddress_Mirror%" Size="%RunTime_Size%"/>
-	  
+      <LoadRegion Name="LR_%TARGETLOCATION%" Base="%RoT_BaseAddress%" Size="%Code_Size%"/>
+	  <!--<LoadRegion Name="LR_%TARGETLOCATION%_Mirror" Base="%RoT_BaseAddress_Mirror%" Size="%Code_Size%"/>-->
       <LoadRegion Name="STACK" Base="%Stack_Bottom%" Size="%Stack_Top - Stack_Bottom% + 1"/>
       <LoadRegion Name="HEAP" Base="%Heap_Begin%" Size="%Heap_End - Heap_Begin% + 1"/>
       <LoadRegion Name="CUSTOMHEAP" Base="%Custom_Heap_Begin%" Size="%Custom_Heap_End - Custom_Heap_Begin% + 1"/>
@@ -120,7 +100,7 @@
 	
     <NamedGroup Name="SECTIONS">
 		
-		<ExecRegion Name="ROT_ER_%TARGETLOCATION%" Options="&gt;ROT_LR_%TARGETLOCATION%_Mirror AT>ROT_%AltName%">
+		<ExecRegion Name="ER_%TARGETLOCATION%" Options="&gt;LR_%TARGETLOCATION%_Mirror AT>%AltName%">
         <FileMapping Name="*" Options="(VectorsTrampolines)" />
         <FileMapping Name="*" Options="(i.EntryPoint)" />
         <FileMapping Name="*" Options="(SectionForBootstrapOperations)" />
@@ -204,15 +184,8 @@
 
     <!-- The following variables are used to simulate the ones autogenerated by RVDS -->
     <!-- The address calculations must follow the desired layout order -->
-    <GlobalVariable Name="Load$$ROT_ER_%TARGETLOCATION%$$Base"          Value="ADDR(ROT_ER_%TARGETLOCATION%)"/>
-    <GlobalVariable Name="Image$$ROT_ER_%TARGETLOCATION%$$Length"       Value="SIZEOF(ROT_ER_%TARGETLOCATION%)"/>
-
- 	<GlobalVariable Name="Load$$Kernel_ER_%TARGETLOCATION%$$Base"          Value="ADDR(Kernel_ER_%TARGETLOCATION%)"/>
-    <GlobalVariable Name="Image$$Kernel_ER_%TARGETLOCATION%$$Length"       Value="SIZEOF(Kernel_ER_%TARGETLOCATION%)"/>
-
-	<GlobalVariable Name="Load$$RunTime_ER_%TARGETLOCATION%$$Base"          Value="ADDR(RunTime_ER_%TARGETLOCATION%)"/>
-    <GlobalVariable Name="Image$$RunTime_ER_%TARGETLOCATION%$$Length"       Value="SIZEOF(RunTime_ER_%TARGETLOCATION%)"/>
-   
+    <GlobalVariable Name="Load$$ER_%TARGETLOCATION%$$Base"          Value="ADDR(ER_%TARGETLOCATION%)"/>
+    <GlobalVariable Name="Image$$ER_%TARGETLOCATION%$$Length"       Value="SIZEOF(ER_%TARGETLOCATION%)"/>
     <GlobalVariable Name="Image$$ER_RAM_RO$$Base"                   Value="ADDR(ER_STACK_TOP) + 8"/>
     <GlobalVariable Name="Image$$ER_RAM_RO$$Length"                 Value="ADDR(ER_RAM_RW) - ADDR(ER_RAM_RO)"/>
     <GlobalVariable Name="Load$$ER_RAM_RO$$Base"                    Value="LOADADDR(ER_RAM_RO)"/>
