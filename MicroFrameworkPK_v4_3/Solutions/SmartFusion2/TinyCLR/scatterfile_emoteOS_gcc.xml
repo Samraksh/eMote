@@ -119,32 +119,63 @@
     <EntryPoint Name="EntryPoint"/>
 	
     <NamedGroup Name="SECTIONS">
-		
+		<!-- Root of trust execution region -->
 		<ExecRegion Name="ROT_ER_%TARGETLOCATION%" Options="&gt;ROT_LR_%TARGETLOCATION%_Mirror AT>ROT_%AltName%">
-        <FileMapping Name="*" Options="(VectorsTrampolines)" />
-        <FileMapping Name="*" Options="(i.EntryPoint)" />
-        <FileMapping Name="*" Options="(SectionForBootstrapOperations)" />
-        <FileMapping Name="*" Options="(.text*)" />
-        <FileMapping Name="*" Options="(i.*)" />
-        <FileMapping Name="*" Options="(t.*)" />
-        <If Name="TARGETLOCATION" In="RAM">     
-          <FileMapping Name="*" Options="(SectionForFlashOperations)" />       
-        </If>
-        <FileMapping Name="*" Options="(.rodata*)" />
-        <FileMapping Name="*" Options="(rodata)" />
-        <FileMapping Name="*" Options="(.constdata*)" />
-        <FileMapping Name="*" Options="(.conststring*)" />
-        <IfNotDefined Name="Data_BaseAddress">
-          <FileMapping Name="*" Options="(tinyclr_metadata)" />
-        </IfNotDefined>
-        <IfNotDefined Name="Config_BaseAddress">
-          <FileMapping Name="*" Options="(SectionForConfig)" />
-        </IfNotDefined>
+        	<FileMapping Name="*" Options="(VectorsTrampolines)" />
+        	<FileMapping Name="*" Options="(i.EntryPoint)" />
+        	<FileMapping Name="*" Options="(SectionForBootstrapOperations)" />
+	        <FileMapping Name="tmp_rot_tinyclr.lib" Options="(.text*)" />
+    	    <FileMapping Name="tmp_rot_tinyclr.lib" Options="(i.*)" />
+        	<FileMapping Name="tmp_rot_tinyclr.lib" Options="(t.*)" />
+        	<If Name="TARGETLOCATION" In="RAM">     
+          		<FileMapping Name="*" Options="(SectionForFlashOperations)" />       
+        	</If>
+        	<FileMapping Name="tmp_rot_tinyclr.lib" Options="(.rodata*)" />
+        	<FileMapping Name="tmp_rot_tinyclr.lib" Options="(rodata)" />
+        	<FileMapping Name="tmp_rot_tinyclr.lib" Options="(.constdata*)" />
+        	<FileMapping Name="tmp_rot_tinyclr.lib" Options="(.conststring*)" />
+        	<IfNotDefined Name="Data_BaseAddress">
+          		<FileMapping Name="tmp_rot_tinyclr.lib" Options="(tinyclr_metadata)" />
+        	</IfNotDefined>
+        	<!--<IfNotDefined Name="Config_BaseAddress">
+          		<FileMapping Name="*" Options="(SectionForConfig)" />
+        	</IfNotDefined>
+        	-->
 
-        <!-- libc thinks that it needs these routines, but they are never called -->
-        <Include File="%SPOCLIENT%\Solutions\%PLATFORM%\scatterfile_gcc_missing_symbols.xml"/>
-
+        	<!-- libc thinks that it needs these routines, but they are never called -->
+        	<Include File="%SPOCLIENT%\Solutions\%PLATFORM%\scatterfile_gcc_missing_symbols.xml"/>
 		</ExecRegion>
+      	
+      	<!-- Root of trust execution region -->
+		<ExecRegion Name="Kernel_ER_%TARGETLOCATION%" Options="&gt;Kernel_LR_%TARGETLOCATION%_Mirror AT>kernel_%AltName%">
+		
+			<FileMapping Name="tmp_kernel_tinyclr.lib" Options="(.text*)" />
+    	    <FileMapping Name="tmp_kernel_tinyclr.lib" Options="(i.*)" />
+        	<FileMapping Name="tmp_kernel_tinyclr.lib" Options="(t.*)" />
+        	<FileMapping Name="tmp_kernel_tinyclr.lib" Options="(.rodata*)" />
+        	<FileMapping Name="tmp_kernel_tinyclr.lib" Options="(rodata)" />
+        	<FileMapping Name="tmp_kernel_tinyclr.lib" Options="(.constdata*)" />
+        	<FileMapping Name="tmp_kernel_tinyclr.lib" Options="(.conststring*)" />
+        	<IfNotDefined Name="Data_BaseAddress">
+          		<FileMapping Name="tmp_kernel_tinyclr.lib" Options="(tinyclr_metadata)" />
+        	</IfNotDefined>
+      	</ExecRegion>
+      	
+      	<!-- RunTime execution region, include all libs excluding whats included in rot, kernel -->
+		<ExecRegion Name="RunTime_ER_%TARGETLOCATION%" Options="&gt;RunTime_LR_%TARGETLOCATION%_Mirror AT>RunTime_%AltName%">
+			<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(.text*)" />
+    	    <FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(i.*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(t.*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(.rodata*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(rodata)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(.constdata*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(.conststring*)" />
+        	<IfNotDefined Name="Data_BaseAddress">
+          		<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(tinyclr_metadata)" />
+        	</IfNotDefined>
+		
+      	</ExecRegion>
+      	
       	<ExecRegion Name="ER_STACK_BOTTOM" Base="%Stack_Bottom%">
         	<FileMapping Name="*" Options="(SectionForStackBottom)" />
       	</ExecRegion>

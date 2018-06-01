@@ -1,14 +1,14 @@
 <Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>CM3_SecureMonitor</AssemblyName>
+    <AssemblyName>sf2_rot_SecureMonitor</AssemblyName>
     <ProjectGuid>{36101ca5-349a-4471-aeb0-3babba567477}</ProjectGuid>
     <Size>
     </Size>
     <Description>SF2 M2S090 SecureMonitor</Description>
     <Level>HAL</Level>
-    <LibraryFile>CM3_SecureMonitor.$(LIB_EXT)</LibraryFile>
+    <LibraryFile>sf2_rot_SecureMonitor.$(LIB_EXT)</LibraryFile>
     <ProjectPath>$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\SecureMonitor\dotNetMF.proj</ProjectPath>
-    <ManifestFile>CM3_SecureMonitor.$(LIB_EXT).manifest</ManifestFile>
+    <ManifestFile>sf2_rot_SecureMonitor.$(LIB_EXT).manifest</ManifestFile>
     <Groups>Solutions\SmartFusion2</Groups>
     <LibraryCategory>
       <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="SecureMonitor_HAL" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" Conditional="" xmlns="">

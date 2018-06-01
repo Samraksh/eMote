@@ -1,14 +1,14 @@
 ﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>TinyHal</AssemblyName>
+    <AssemblyName>SF2_rot_TinyHal</AssemblyName>
     <ProjectGuid>{8b626ac4-c8ce-48d9-a7db-0d59f0874983}</ProjectGuid>
     <Size>
     </Size>
     <Description>Core HAL library</Description>
     <Level>HAL</Level>
-    <LibraryFile>TinyHal.$(LIB_EXT)</LibraryFile>
+    <LibraryFile>SF2_rot_TinyHal.$(LIB_EXT)</LibraryFile>
     <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cores\arm\dotNetMF.proj</ProjectPath>
-    <ManifestFile>TinyHal.$(LIB_EXT).manifest</ManifestFile>
+    <ManifestFile>SF2_rot_TinyHal.$(LIB_EXT).manifest</ManifestFile>
     <Groups>System</Groups>
     <LibraryCategory>
       <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="TinyHal_HAL" Guid="{37C37BC0-3CA6-4C1C-A26F-4761A7BA3C05}" ProjectPath="" Conditional="" xmlns="">
