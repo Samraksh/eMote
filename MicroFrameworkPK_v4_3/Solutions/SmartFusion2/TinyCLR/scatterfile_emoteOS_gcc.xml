@@ -24,24 +24,26 @@
         <!-- Regular build: -->
         <Set Name="Config_BaseAddress"  Value="0x6007F000"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
         <Set Name="Config_Size"         Value="0x00001000"/><!--        Config_Size MUST MATCH TINYBOOTER SCATTERFILE -->
-        <Set Name="Code_BaseAddress"    Value="0x6000F000"/>
+        <!--<Set Name="Code_BaseAddress"    Value="0x6000F000"/>
 		<Set Name="Code_BaseAddress_Mirror"    Value="0x0000F000"/>
+		-->
         <Set Name="Deploy_BaseAddress"  Value="0x60065800"/>
         <!-- <Set Name="Code_Size"           Value="%Deploy_BaseAddress - Code_BaseAddress%"/> --> 
         
         <Set Name="RoT_BaseAddress"    Value="0x6000F000"/>
         <Set Name="RoT_BaseAddress_Mirror"    Value="0x0000F000"/>
+        <Set Name="RoT_Size"           Value="0x7800"/> <!-- 30KB -->
+		<Set Name="Kernel_Size"           Value="0x10000"/> <!-- 64KB -->
         
-        <Set Name="Kernel_BaseAddress"    Value="0x6001F000"/>
-        <Set Name="Kernel_BaseAddress_Mirror"    Value="0x0001F000"/>
         
-        <Set Name="RunTime_BaseAddress"    Value="0x6003F000"/>		
-		<Set Name="RunTime_BaseAddress_Mirror"    Value="0x0003F000"/>
+        <!--<Set Name="Kernel_BaseAddress"    Value="0x6001F000"/>-->
+        <Set Name="Kernel_BaseAddress"           Value="%RoT_Size% +  %RoT_BaseAddress%"/>
+        <Set Name="Kernel_BaseAddress_Mirror"    Value="%RoT_Size% +  %RoT_BaseAddress_Mirror%"/>
+        
+        <Set Name="RunTime_BaseAddress"    Value="%Kernel_Size% + %RoT_Size% +  %RoT_BaseAddress%"/>		
+		<Set Name="RunTime_BaseAddress_Mirror"    Value="%Kernel_Size% + %RoT_Size% +  %RoT_BaseAddress_Mirror%"/>
 
-
-		<Set Name="RoT_Size"           Value="%Kernel_BaseAddress - RoT_BaseAddress%"/>
-		<Set Name="Kernel_Size"           Value="%RunTime_BaseAddress - Kernel_BaseAddress%"/>
-		<Set Name="RunTime_Size"           Value="%Deploy_BaseAddress - RunTime_BaseAddress%"/>
+		<Set Name="RunTime_Size"           Value="%Deploy_BaseAddress - RunTime_BaseAddress%"/>		
         <Set Name="Code_Size"           Value="%RoT_Size% + %Kernel_Size% + %RunTime_Size%"/> 
         
         <Set Name="Valid"               Value="true"/>
@@ -147,7 +149,7 @@
 		</ExecRegion>
       	
       	<!-- Root of trust execution region -->
-		<ExecRegion Name="Kernel_ER_%TARGETLOCATION%" Options="&gt;Kernel_LR_%TARGETLOCATION%_Mirror AT>kernel_%AltName%">
+		<ExecRegion Name="Kernel_ER_%TARGETLOCATION%" Options="&gt;Kernel_LR_%TARGETLOCATION%_Mirror AT>Kernel_%AltName%">
 		
 			<FileMapping Name="tmp_kernel_tinyclr.lib" Options="(.text*)" />
     	    <FileMapping Name="tmp_kernel_tinyclr.lib" Options="(i.*)" />
@@ -163,17 +165,16 @@
       	
       	<!-- RunTime execution region, include all libs excluding whats included in rot, kernel -->
 		<ExecRegion Name="RunTime_ER_%TARGETLOCATION%" Options="&gt;RunTime_LR_%TARGETLOCATION%_Mirror AT>RunTime_%AltName%">
-			<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(.text*)" />
-    	    <FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(i.*)" />
-        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(t.*)" />
-        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(.rodata*)" />
-        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(rodata)" />
-        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(.constdata*)" />
-        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(.conststring*)" />
+			<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib)" Options=".text*)" />
+    	    <FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib)" Options="i.*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib)" Options="t.*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib)" Options=".rodata*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib)" Options="rodata)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib)" Options=".constdata*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib)" Options=".conststring*)" />
         	<IfNotDefined Name="Data_BaseAddress">
-          		<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib))" Options="(tinyclr_metadata)" />
+          		<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib)" Options="tinyclr_metadata)" />
         	</IfNotDefined>
-		
       	</ExecRegion>
       	
       	<ExecRegion Name="ER_STACK_BOTTOM" Base="%Stack_Bottom%">
@@ -182,7 +183,7 @@
       	<ExecRegion Name="ER_STACK_TOP" Base="%Stack_Top%">
         	<FileMapping Name="*" Options="(SectionForStackTop)" />
       	</ExecRegion>
-      	<ExecRegion Name="ER_RAM_RO" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_%TARGETLOCATION%">
+      	<ExecRegion Name="ER_RAM_RO" Align="0x10" Options="&gt;RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
         	<!--<FileMapping Name="*" Options="(VectorsTrampolines)" />--><!-- if vector table copied to RAM, must also set Vector Table Offset Register-->
         	<!--<Include File="%SPOCLIENT%\Solutions\%PLATFORM%\TinyCLR\scatterfile_ram_functions.xml"/>--><!--CLR RT functions to be placed in SRAM-->
         	<!--<Include File="%SPOCLIENT%\Solutions\%PLATFORM%\TinyCLR\scatterfile_tinyclr_ram_functions.xml"/>--><!--Samraksh HAL functions to be placed in SRAM-->
@@ -190,12 +191,12 @@
           		<FileMapping Name="*" Options="(SectionForFlashOperations)" />       
         	</If>
       	</ExecRegion>      
-      	<ExecRegion Name="ER_RAM_RW" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_%TARGETLOCATION%">
+      	<ExecRegion Name="ER_RAM_RW" Align="0x10" Options="&gt;RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
         	<FileMapping Name="*" Options="(rwdata)" />
         	<FileMapping Name="*" Options="(.data*)" />
         	<FileMapping Name="*" Options="(.zidata*)" />
       	</ExecRegion>      
-      	<ExecRegion Name=".bss" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_%TARGETLOCATION%">
+      	<ExecRegion Name=".bss" Align="0x10" Options="&gt;RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
         	<FileMapping Name="*" Options="(.bss*)" />
         	<FileMapping Name="PROVIDE(__exidx_start = .);" />
         	<FileMapping Name="PROVIDE(__exidx_end = .);" />
@@ -235,14 +236,15 @@
 
     <!-- The following variables are used to simulate the ones autogenerated by RVDS -->
     <!-- The address calculations must follow the desired layout order -->
-    <GlobalVariable Name="Load$$ROT_ER_%TARGETLOCATION%$$Base"          Value="ADDR(ROT_ER_%TARGETLOCATION%)"/>
-    <GlobalVariable Name="Image$$ROT_ER_%TARGETLOCATION%$$Length"       Value="SIZEOF(ROT_ER_%TARGETLOCATION%)"/>
+    <GlobalVariable Name="Load$$ER_%TARGETLOCATION%$$Base"          Value="ADDR(ROT_ER_%TARGETLOCATION%)"/>
+    <GlobalVariable Name="Image$$ER_%TARGETLOCATION%$$Length"       Value="SIZEOF(ROT_ER_%TARGETLOCATION%)"/>
 
- 	<GlobalVariable Name="Load$$Kernel_ER_%TARGETLOCATION%$$Base"          Value="ADDR(Kernel_ER_%TARGETLOCATION%)"/>
+ 	<!--<GlobalVariable Name="Load$$Kernel_ER_%TARGETLOCATION%$$Base"          Value="ADDR(Kernel_ER_%TARGETLOCATION%)"/>
     <GlobalVariable Name="Image$$Kernel_ER_%TARGETLOCATION%$$Length"       Value="SIZEOF(Kernel_ER_%TARGETLOCATION%)"/>
 
 	<GlobalVariable Name="Load$$RunTime_ER_%TARGETLOCATION%$$Base"          Value="ADDR(RunTime_ER_%TARGETLOCATION%)"/>
     <GlobalVariable Name="Image$$RunTime_ER_%TARGETLOCATION%$$Length"       Value="SIZEOF(RunTime_ER_%TARGETLOCATION%)"/>
+    -->
    
     <GlobalVariable Name="Image$$ER_RAM_RO$$Base"                   Value="ADDR(ER_STACK_TOP) + 8"/>
     <GlobalVariable Name="Image$$ER_RAM_RO$$Length"                 Value="ADDR(ER_RAM_RW) - ADDR(ER_RAM_RO)"/>

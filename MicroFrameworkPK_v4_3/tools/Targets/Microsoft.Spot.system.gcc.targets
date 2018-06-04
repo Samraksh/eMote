@@ -374,17 +374,21 @@
         However, we probably want to consider using a BuildTask instead of using the following ugly script. 
     -->
     
-    <Exec command="PrepareLibsForConcat.cmd $(LIB_DIR) @(DriverLibs,' ')" />
-    <Exec Command="$(AR) $(ARFLAGS) $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\tmp\*.$(OBJ_EXT)" />
-    <!--<Exec Command="$(AR) $(ARFLAGS) $(LIB_DIR)\tmp_rot_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\tmp\*rot*.$(OBJ_EXT)" />-->
-    <Exec Command="del $(LIB_DIR)\tmp\*rot*.$(OBJ_EXT)" />
-    <Exec Command="$(AR) $(ARFLAGS) $(LIB_DIR)\tmp_kernel_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\tmp\*.$(OBJ_EXT)" />
     
+    <!--<Exec command="PrepareLibsForConcat.cmd $(LIB_DIR) @(DriverLibs,' ')" />-->
+    <!-- extract all Rot object files to a directory called RoT -->
+    <Exec command="PrepareLibsPatternForConcat.cmd $(LIB_DIR) RoT RoT" />
     
-    <!-- <Exec Command="del $(LIB_DIR)\tmp\*.$(OBJ_EXT)" />
-    <Exec Command="rmdir $(LIB_DIR)\tmp" /> -->
+    <!-- extract all non-Rot(note 1 at end of cmd) object files to a directory called Kernel -->
+    <Exec command="PrepareLibsPatternForConcat.cmd $(LIB_DIR) RoT Kernel 1" />
     
-    <Exec Condition="'$(COMPILER_TOOL)'=='GCC'" Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIB_DIR)\libm.a&#x22; &#x22;$(GNU_LIB_DIR)\libc.a&#x22; &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22; -) -( $(ExtraLibs) -)"/>
+    <Exec Command="$(AR) $(ARFLAGS) $(LIB_DIR)\tmp_rot_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\RoT\*.$(OBJ_EXT)" />
+    <Exec Command="$(AR) $(ARFLAGS) $(LIB_DIR)\tmp_kernel_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\Kernel\*.$(OBJ_EXT)" />
+
+	
+    <!-- <Exec Command="rmdir $(LIB_DIR)\RoT $(LIB_DIR)\Kernel " /> -->    
+    
+    <Exec Condition="'$(COMPILER_TOOL)'=='GCC'" Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_RoT_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\tmp_Kernel_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIB_DIR)\libm.a&#x22; &#x22;$(GNU_LIB_DIR)\libc.a&#x22; &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22; -) -( $(ExtraLibs) -)"/>
     
     <Exec Condition="'$(COMPILER_TOOL)'=='GCCOP'"  Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22;  -) -( $(ExtraLibs) -)"/>
     <Exec Command="del /q $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT)"/>    
@@ -420,6 +424,8 @@
     <Exec Command="$(NM) $(EXEName).axf >> $(EXEName).dump"/>
     <Exec Command="$(CREATESYMDEF)     $(EXEName).dump $(EXEName).symdefs" Condition="EXISTS('$(CREATESYMDEF)')" />
     <Exec Command="$(CREATESYMDEF_ALT) $(EXEName).dump $(EXEName).symdefs" Condition="!EXISTS('$(CREATESYMDEF)')" />
+
+	<Exec Command="del /Q $(LIB_DIR)\RoT\*.* $(LIB_DIR)\Kernel\*.* " />
 
     <!--     echo adding LOAD_IMAGE_CRC value to $*.symdefs -->
    <!--<Exec Condition="'$(ADD_LOAD_IMAGE_CRC)'=='true'" Command="$(TOOLS_DIR)\BuildHelper -hashBuild $(EXEName).bin$(ImageLocation) $(EXEName).symdefs" /> -->
