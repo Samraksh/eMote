@@ -274,7 +274,8 @@
     <EXEName>$(BIN_DIR)\$(AssemblyName)</EXEName>
 
     <TargetRule Condition="'$(OutputType)'=='Library'">ArmBuildLib</TargetRule>
-    <TargetRule Condition="'$(OutputType)'=='Executable'">BuildAXF</TargetRule>
+    <TargetRule Condition="'$(OutputType)'=='Executable' and '$(AssemblyName)'=='tinyclr' ">BuildAXF_SEC</TargetRule>
+    <TargetRule Condition="'$(OutputType)'=='Executable' and '$(AssemblyName)'!='tinyclr'">BuildAXF</TargetRule>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(COMPILER_TOOL)'=='GCC'" >
@@ -369,6 +370,48 @@
   </Target>
 
   <Target Name="BuildAXF" Condition="'$(OutputType)'=='Executable'" DependsOnTargets="ArmCompileCPP;ArmCompileC;ArmAssemble;$(ExtraEXETargets);BuildScatterfile" Inputs="@(EXEInputs);@(InputLibs);@(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)\%(FileName)%(Extension)');@(DriverLibs->'$(LIB_DIR)\%(FileName)%(Extension)');@(EXEScatterFile)" Outputs="@(EXEOutput)">
+    <Exec command="PrepareLibsForConcat.cmd $(LIB_DIR) @(DriverLibs,' ')" />
+    <Exec Command="$(AR) $(ARFLAGS) $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\tmp\*.$(OBJ_EXT)" />
+    <Exec Command="del $(LIB_DIR)\tmp\*.$(OBJ_EXT)" />
+    <Exec Command="rmdir $(LIB_DIR)\tmp" />
+    
+    <Exec Condition="'$(COMPILER_TOOL)'=='GCC'" Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIB_DIR)\libm.a&#x22; &#x22;$(GNU_LIB_DIR)\libc.a&#x22; &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22; -) -( $(ExtraLibs) -)"/>
+    
+    <Exec Condition="'$(COMPILER_TOOL)'=='GCCOP'"  Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22;  -) -( $(ExtraLibs) -)"/>
+    <Exec Command="del /q $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT)"/>    
+    
+    <MakeDir Directories="$(EXEName).bin" Condition="'$(MultipleOutputSections)'=='true' and !Exists('$(EXEName).bin')" />
+    <MakeDir Directories="$(EXEName).hex" Condition="'$(MultipleOutputSections)'=='true' and !Exists('$(EXEName).hex')" />
+    <MakeDir Directories="$(EXEName).ihex" Condition="'$(MultipleOutputSections)'=='true' and '$(IntelHexFormat)'=='true' and !Exists('$(EXEName).ihex')" />
+
+
+    <Exec Command="$(FROMELF) -S -j ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -O binary @(EXEOutput) $(EXEName).bin"                      Condition="'$(MultipleOutputSections)'!='true'" />
+    <Exec Command="$(FROMELF) -S -j ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -O binary @(EXEOutput) $(EXEName).bin\ER_$(TARGETLOCATION)" Condition="'$(MultipleOutputSections)'=='true'" />
+    <Exec Command="$(FROMELF) -S -j ER_DAT                                                                                     -O binary @(EXEOutput) $(EXEName).bin\ER_DAT"               Condition="'$(MultipleOutputSections)'=='true' and '$(ExcludeDatRegion)'!='true' and ('$(FLAVOR)'!='RTM' OR '$(Platform)'=='SAM9261_EK')" />
+    <Exec Command="$(FROMELF) -S -j ER_CONFIG                                                                                  -O binary @(EXEOutput) $(EXEName).bin\ER_CONFIG"            Condition="'$(MultipleOutputSections)'=='true'" />
+
+    <Exec Command="$(FROMELF) -S -j ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O srec --gap-fill 0 --srec-forceS3  @(EXEOutput) $(EXEName).hex"                      Condition="'$(MultipleOutputSections)'!='true'" />
+    <Exec Command="$(FROMELF) -S -j ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O ihex --gap-fill 0                 @(EXEOutput) $(EXEName).ihex"                     Condition="'$(MultipleOutputSections)'!='true' and '$(IntelHexFormat)'=='true'" />
+
+    <Exec Command="$(FROMELF) -S -j ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O srec --gap-fill 0 --srec-forceS3  @(EXEOutput) $(EXEName).hex\ER_$(TARGETLOCATION)" Condition="'$(MultipleOutputSections)'=='true'" />
+    <Exec Command="$(FROMELF) -S -j ER_DAT                                                                                                -O srec              --srec-forceS3  @(EXEOutput) $(EXEName).hex\ER_DAT"               Condition="'$(MultipleOutputSections)'=='true' and '$(ExcludeDatRegion)'!='true' and ('$(FLAVOR)'!='RTM' OR '$(Platform)'=='SAM9261_EK')" />
+    <Exec Command="$(FROMELF) -S -j ER_CONFIG                                                                                             -O srec              --srec-forceS3  @(EXEOutput) $(EXEName).hex\ER_CONFIG"            Condition="'$(MultipleOutputSections)'=='true'" />
+    <Exec Command="$(FROMELF) -S -j ER_IFLASH                                                                                             -O srec              --srec-forceS3  @(EXEOutput) $(EXEName).hex\ER_IFLASH"            Condition="'$(MultipleOutputSections)'=='true'" />
+
+
+    <Exec Command="$(FROMELF) -S -j ER_$(TARGETLOCATION) -j ER_IRAM_TC  -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O ihex --gap-fill 0 @(EXEOutput) $(EXEName).ihex\ER_$(TARGETLOCATION)" Condition="'$(MultipleOutputSections)'=='true' and '$(IntelHexFormat)'=='true'" />
+    <Exec Command="$(FROMELF) -S -j ER_DAT                                                                                                 -O ihex              @(EXEOutput) $(EXEName).ihex\ER_DAT"               Condition="'$(MultipleOutputSections)'=='true' and '$(IntelHexFormat)'=='true' and ('$(FLAVOR)'!='RTM' OR '$(Platform)'=='SAM9261_EK') " />
+    <Exec Command="$(FROMELF) -S -j ER_CONFIG                                                                                              -O ihex              @(EXEOutput) $(EXEName).ihex\ER_CONFIG"            Condition="'$(MultipleOutputSections)'=='true' and '$(IntelHexFormat)'=='true'" />
+    <Exec Command="$(FROMELF) -S -j ER_IFLASH                                                                                              -O ihex              @(EXEOutput) $(EXEName).ihex\ER_IFLASH"            Condition="'$(MultipleOutputSections)'=='true' and '$(IntelHexFormat)'=='true'" />
+
+
+    <Exec Command="$(NM) $(EXEName).axf >> $(EXEName).dump"/>
+    <Exec Command="$(CREATESYMDEF)     $(EXEName).dump $(EXEName).symdefs" Condition="EXISTS('$(CREATESYMDEF)')" />
+    <Exec Command="$(CREATESYMDEF_ALT) $(EXEName).dump $(EXEName).symdefs" Condition="!EXISTS('$(CREATESYMDEF)')" />
+
+  </Target>
+  
+  <Target Name="BuildAXF_SEC" Condition="'$(OutputType)'=='Executable'" DependsOnTargets="ArmCompileCPP;ArmCompileC;ArmAssemble;$(ExtraEXETargets);BuildScatterfile" Inputs="@(EXEInputs);@(InputLibs);@(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)\%(FileName)%(Extension)');@(DriverLibs->'$(LIB_DIR)\%(FileName)%(Extension)');@(EXEScatterFile)" Outputs="@(EXEOutput)">
     <!-- 
         The GCC archiver does not support concatening libraries into a single one. The only way is to extract all the obj files then rearchive them altogether. 
         However, we probably want to consider using a BuildTask instead of using the following ugly script. 
@@ -401,15 +444,21 @@
     <MakeDir Directories="$(EXEName).ihex" Condition="'$(MultipleOutputSections)'=='true' and '$(IntelHexFormat)'=='true' and !Exists('$(EXEName).ihex')" />
 
 
-    <Exec Command="$(FROMELF) -S -j ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -O binary @(EXEOutput) $(EXEName).bin"                      Condition="'$(MultipleOutputSections)'!='true'" />
-    <Exec Command="$(FROMELF) -S -j ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -O binary @(EXEOutput) $(EXEName).bin\ER_$(TARGETLOCATION)" Condition="'$(MultipleOutputSections)'=='true'" />
+    <Exec Command="$(FROMELF) -S -j ROT_ER_$(TARGETLOCATION) -j Kernel_ER_$(TARGETLOCATION) -j RunTime_ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -O binary @(EXEOutput) $(EXEName).bin"                      Condition="'$(MultipleOutputSections)'!='true'" />
+    <Exec Command="$(FROMELF) -S -j ROT_ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -O binary @(EXEOutput) $(EXEName).bin\ROT_ER_$(TARGETLOCATION)" Condition="'$(MultipleOutputSections)'=='true'" /> 
+    <Exec Command="$(FROMELF) -S -j Kernel_ER_$(TARGETLOCATION)   -O binary @(EXEOutput) $(EXEName).bin\Kernel_ER_$(TARGETLOCATION)" Condition="'$(MultipleOutputSections)'=='true'" />
+    <Exec Command="$(FROMELF) -S -j RunTime_ER_$(TARGETLOCATION)   -O binary @(EXEOutput) $(EXEName).bin\RunTime_ER_$(TARGETLOCATION)" Condition="'$(MultipleOutputSections)'=='true'" />
+    
     <Exec Command="$(FROMELF) -S -j ER_DAT                                                                                     -O binary @(EXEOutput) $(EXEName).bin\ER_DAT"               Condition="'$(MultipleOutputSections)'=='true' and '$(ExcludeDatRegion)'!='true' and ('$(FLAVOR)'!='RTM' OR '$(Platform)'=='SAM9261_EK')" />
     <Exec Command="$(FROMELF) -S -j ER_CONFIG                                                                                  -O binary @(EXEOutput) $(EXEName).bin\ER_CONFIG"            Condition="'$(MultipleOutputSections)'=='true'" />
 
-    <Exec Command="$(FROMELF) -S -j ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O srec --gap-fill 0 --srec-forceS3  @(EXEOutput) $(EXEName).hex"                      Condition="'$(MultipleOutputSections)'!='true'" />
-    <Exec Command="$(FROMELF) -S -j ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O ihex --gap-fill 0                 @(EXEOutput) $(EXEName).ihex"                     Condition="'$(MultipleOutputSections)'!='true' and '$(IntelHexFormat)'=='true'" />
+    <Exec Command="$(FROMELF) -S -j ROT_ER_$(TARGETLOCATION) -j Kernel_ER_$(TARGETLOCATION) -j RunTime_ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O srec --gap-fill 0 --srec-forceS3  @(EXEOutput) $(EXEName).hex"                      Condition="'$(MultipleOutputSections)'!='true'" />
+    <Exec Command="$(FROMELF) -S -j ROT_ER_$(TARGETLOCATION) -j Kernel_ER_$(TARGETLOCATION) -j RunTime_ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O ihex --gap-fill 0                 @(EXEOutput) $(EXEName).ihex"                     Condition="'$(MultipleOutputSections)'!='true' and '$(IntelHexFormat)'=='true'" />
 
-    <Exec Command="$(FROMELF) -S -j ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O srec --gap-fill 0 --srec-forceS3  @(EXEOutput) $(EXEName).hex\ER_$(TARGETLOCATION)" Condition="'$(MultipleOutputSections)'=='true'" />
+    <Exec Command="$(FROMELF) -S -j ROT_ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O srec --gap-fill 0 --srec-forceS3  @(EXEOutput) $(EXEName).hex\ROT_ER_$(TARGETLOCATION)" Condition="'$(MultipleOutputSections)'=='true'" />
+    <Exec Command="$(FROMELF) -S -j Kernel_ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O srec --gap-fill 0 --srec-forceS3  @(EXEOutput) $(EXEName).hex\kernel_ER_$(TARGETLOCATION)" Condition="'$(MultipleOutputSections)'=='true'" />
+    <Exec Command="$(FROMELF) -S -j RunTime_ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O srec --gap-fill 0 --srec-forceS3  @(EXEOutput) $(EXEName).hex\RunTime_ER_$(TARGETLOCATION)" Condition="'$(MultipleOutputSections)'=='true'" />
+    
     <Exec Command="$(FROMELF) -S -j ER_DAT                                                                                                -O srec              --srec-forceS3  @(EXEOutput) $(EXEName).hex\ER_DAT"               Condition="'$(MultipleOutputSections)'=='true' and '$(ExcludeDatRegion)'!='true' and ('$(FLAVOR)'!='RTM' OR '$(Platform)'=='SAM9261_EK')" />
     <Exec Command="$(FROMELF) -S -j ER_CONFIG                                                                                             -O srec              --srec-forceS3  @(EXEOutput) $(EXEName).hex\ER_CONFIG"            Condition="'$(MultipleOutputSections)'=='true'" />
     <Exec Command="$(FROMELF) -S -j ER_IFLASH                                                                                             -O srec              --srec-forceS3  @(EXEOutput) $(EXEName).hex\ER_IFLASH"            Condition="'$(MultipleOutputSections)'=='true'" />

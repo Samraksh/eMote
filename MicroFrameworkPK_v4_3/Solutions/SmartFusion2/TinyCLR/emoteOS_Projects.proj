@@ -392,7 +392,7 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\loadTarget\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="SmartFusion2_usart.$(LIB_EXT)" />
+    <DriverLibs Include="SF2_usart.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\usart\dotNetMF.proj" />
   </ItemGroup>
  <!-- <ItemGroup>

@@ -10,7 +10,7 @@
   <!-- Hal and pal stuff needed by Rot -->
   
   <ItemGroup>
-    <DriverLibs Include="SmartFusion2_bootstrap.$(LIB_EXT)" />
+    <DriverLibs Include="SF2_rot_bootstrap.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bootstrap\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
@@ -18,7 +18,7 @@
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\Initialization\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="TinyHal.$(LIB_EXT)" />
+    <DriverLibs Include="SF2_rot_TinyHal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\cores\arm\dotNetMF.proj" />
   </ItemGroup>
   
@@ -119,7 +119,7 @@
     <DriverLibs Include="COM_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\dotNetMF.proj" />
   
-    <DriverLibs Include="SmartFusion2_usart.$(LIB_EXT)" />
+    <DriverLibs Include="SF2_usart.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\usart\dotNetMF.proj" />
    
     <DriverLibs Include="usb_pal_stubs.$(LIB_EXT)" />
@@ -157,7 +157,7 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\cores\arm\Common\GlobalLock\gcc-thumb2\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="SmartFusion2_SimplePower.$(LIB_EXT)" />
+    <DriverLibs Include="SF2_SimplePower.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\SimplePower\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
@@ -166,7 +166,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <DriverLibs Include="SmartFusion2_eNVM.$(LIB_EXT)" />
+    <DriverLibs Include="SF2_rot_eNVM.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\eNVM\dotNetMF.proj" />
   </ItemGroup>
     
@@ -182,20 +182,15 @@
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer\dotNetMF.proj" />
-    <DriverLibs Include="SmartFusion2_timer.$(LIB_EXT)" />
+    <DriverLibs Include="SF2_rot_timer.$(LIB_EXT)" />
   </ItemGroup>
   
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bl\dotNetMF.proj" />
-    <DriverLibs Include="SF2_M2S090_bl.$(LIB_EXT)" />
+    <DriverLibs Include="SF2_rot_bl.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer\dotNetMF.proj" />
-    <DriverLibs Include="SmartFusion2_timer.$(LIB_EXT)" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <DriverLibs Include="M2SXXX.$(LIB_EXT)" />
+    <DriverLibs Include="SF2_rot_M2SXXX.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\microsemi_lib\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
