@@ -32,19 +32,25 @@
         
         <Set Name="RoT_BaseAddress"    Value="0x6000F000"/>
         <Set Name="RoT_BaseAddress_Mirror"    Value="0x0000F000"/>
-        <Set Name="RoT_Size"           Value="0x7800"/> <!-- 30KB -->
-		<Set Name="Kernel_Size"           Value="0x10000"/> <!-- 64KB -->
+        
+        <!-- The below for parameters are important, will have to be adjusted based on compilation output, if a section overflows -->
+        <Set Name="RoT_Code_Size"           Value="0x7800"/> <!-- 30KB -->
+		<Set Name="Kernel_Code_Size"           Value="0x10000"/> <!-- 64KB -->
+        
+        <!-- <Set Name="RoT_RAM_Base" 			Value="%Stack_Top% + 8"/> -->
+        <Set Name="RoT_RAM_Size"           Value="0x800"/> <!-- 2KB -->
+		<Set Name="Kernel_RAM_Size"           Value="0x2000"/> <!-- 8KB -->
         
         
         <!--<Set Name="Kernel_BaseAddress"    Value="0x6001F000"/>-->
-        <Set Name="Kernel_BaseAddress"           Value="%RoT_Size% +  %RoT_BaseAddress%"/>
-        <Set Name="Kernel_BaseAddress_Mirror"    Value="%RoT_Size% +  %RoT_BaseAddress_Mirror%"/>
+        <Set Name="Kernel_BaseAddress"           Value="%RoT_Code_Size% +  %RoT_BaseAddress%"/>
+        <Set Name="Kernel_BaseAddress_Mirror"    Value="%RoT_Code_Size% +  %RoT_BaseAddress_Mirror%"/>
         
-        <Set Name="RunTime_BaseAddress"    Value="%Kernel_Size% + %RoT_Size% +  %RoT_BaseAddress%"/>		
-		<Set Name="RunTime_BaseAddress_Mirror"    Value="%Kernel_Size% + %RoT_Size% +  %RoT_BaseAddress_Mirror%"/>
+        <Set Name="RunTime_BaseAddress"    Value="%Kernel_Code_Size% + %RoT_Code_Size% +  %RoT_BaseAddress%"/>		
+		<Set Name="RunTime_BaseAddress_Mirror"    Value="%Kernel_Code_Size% + %RoT_Code_Size% +  %RoT_BaseAddress_Mirror%"/>
 
-		<Set Name="RunTime_Size"           Value="%Deploy_BaseAddress - RunTime_BaseAddress%"/>		
-        <Set Name="Code_Size"           Value="%RoT_Size% + %Kernel_Size% + %RunTime_Size%"/> 
+		<Set Name="RunTime_Code_Size"           Value="%Deploy_BaseAddress - RunTime_BaseAddress%"/>		
+        <Set Name="Code_Size"           Value="%RoT_Code_Size% + %Kernel_Code_Size% + %RunTime_Code_Size%"/> 
         
         <Set Name="Valid"               Value="true"/>
 		<Set Name="AltName"		Value="LR_FLASH"/> 
@@ -79,14 +85,14 @@
     <!-- we start at 0x10080000 since PortBooter lives at 0x10000000 -->
 
     <NamedGroup Name="MEMORY">
-      <LoadRegion Name="ROT_LR_%TARGETLOCATION%" Base="%RoT_BaseAddress%" Size="%RoT_Size%"/>
-	  <LoadRegion Name="ROT_LR_%TARGETLOCATION%_Mirror" Base="%RoT_BaseAddress_Mirror%" Size="%RoT_Size%"/>
+      <LoadRegion Name="ROT_LR_%TARGETLOCATION%" Base="%RoT_BaseAddress%" Size="%RoT_Code_Size%"/>
+	  <LoadRegion Name="ROT_LR_%TARGETLOCATION%_Mirror" Base="%RoT_BaseAddress_Mirror%" Size="%RoT_Code_Size%"/>
 	  
-	  <LoadRegion Name="Kernel_LR_%TARGETLOCATION%" Base="%Kernel_BaseAddress%" Size="%Kernel_Size%"/>
-	  <LoadRegion Name="Kernel_LR_%TARGETLOCATION%_Mirror" Base="%Kernel_BaseAddress_Mirror%" Size="%Kernel_Size%"/>
+	  <LoadRegion Name="Kernel_LR_%TARGETLOCATION%" Base="%Kernel_BaseAddress%" Size="%Kernel_Code_Size%"/>
+	  <LoadRegion Name="Kernel_LR_%TARGETLOCATION%_Mirror" Base="%Kernel_BaseAddress_Mirror%" Size="%Kernel_Code_Size%"/>
 	  
-	  <LoadRegion Name="RunTime_LR_%TARGETLOCATION%" Base="%RunTime_BaseAddress%" Size="%RunTime_Size%"/>
-	  <LoadRegion Name="RunTime_LR_%TARGETLOCATION%_Mirror" Base="%RunTime_BaseAddress_Mirror%" Size="%RunTime_Size%"/>
+	  <LoadRegion Name="RunTime_LR_%TARGETLOCATION%" Base="%RunTime_BaseAddress%" Size="%RunTime_Code_Size%"/>
+	  <LoadRegion Name="RunTime_LR_%TARGETLOCATION%_Mirror" Base="%RunTime_BaseAddress_Mirror%" Size="%RunTime_Code_Size%"/>
 	  
       <LoadRegion Name="STACK" Base="%Stack_Bottom%" Size="%Stack_Top - Stack_Bottom% + 1"/>
       <LoadRegion Name="HEAP" Base="%Heap_Begin%" Size="%Heap_End - Heap_Begin% + 1"/>
@@ -97,7 +103,10 @@
       <IfDefined Name="Data_BaseAddress">
         <LoadRegion Name="LR_DAT" Base="%Data_BaseAddress%" Size="%Data_Size%"/>
       </IfDefined>
-      <LoadRegion Name="RELOC_RAM" Base="%Stack_Top% + 8" Size="%Heap_Begin - Stack_Top%"/>
+      <LoadRegion Name="ROT_RELOC_RAM" Base="%Stack_Top% + 8" Size="%RoT_RAM_Size%"/>
+      <LoadRegion Name="Kernel_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size%" Size="%Kernel_RAM_Size%"/>
+      <LoadRegion Name="RunTime_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size% + %Kernel_RAM_Size%" Size="%Heap_Begin - Stack_Top% - %RoT_RAM_Size% - %Kernel_RAM_Size% - 8"/>
+      
     </NamedGroup>
 
 
@@ -177,37 +186,65 @@
         	</IfNotDefined>
       	</ExecRegion>
       	
+      	<!--               RAM Sections configuration follows               -->
+      	
+      	
       	<ExecRegion Name="ER_STACK_BOTTOM" Base="%Stack_Bottom%">
         	<FileMapping Name="*" Options="(SectionForStackBottom)" />
       	</ExecRegion>
       	<ExecRegion Name="ER_STACK_TOP" Base="%Stack_Top%">
         	<FileMapping Name="*" Options="(SectionForStackTop)" />
       	</ExecRegion>
-      	<ExecRegion Name="ER_RAM_RO" Align="0x10" Options="&gt;RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
-        	<!--<FileMapping Name="*" Options="(VectorsTrampolines)" />--><!-- if vector table copied to RAM, must also set Vector Table Offset Register-->
-        	<!--<Include File="%SPOCLIENT%\Solutions\%PLATFORM%\TinyCLR\scatterfile_ram_functions.xml"/>--><!--CLR RT functions to be placed in SRAM-->
-        	<!--<Include File="%SPOCLIENT%\Solutions\%PLATFORM%\TinyCLR\scatterfile_tinyclr_ram_functions.xml"/>--><!--Samraksh HAL functions to be placed in SRAM-->
-        	<If Name="TARGETLOCATION" In="FLASH">     
+      	
+      	<!-- Mukundan: We dont have this section in our clr build -->
+      	 <ExecRegion Name="ER_RAM_RO" Align="0x10" Options="&gt;ROT_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
+           	<If Name="TARGETLOCATION" In="FLASH">     
           		<FileMapping Name="*" Options="(SectionForFlashOperations)" />       
         	</If>
+      	</ExecRegion>    
+      	
+      	  
+      	<ExecRegion Name="ROT_ER_RAM_RW" Align="0x10" Options="&gt;ROT_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
+        	<FileMapping Name="tmp_rot_tinyclr.lib" Options="(rwdata)" />
+        	<FileMapping Name="tmp_rot_tinyclr.lib" Options="(.data*)" />
+        	<FileMapping Name="tmp_rot_tinyclr.lib" Options="(.zidata*)" />
       	</ExecRegion>      
-      	<ExecRegion Name="ER_RAM_RW" Align="0x10" Options="&gt;RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
-        	<FileMapping Name="*" Options="(rwdata)" />
-        	<FileMapping Name="*" Options="(.data*)" />
-        	<FileMapping Name="*" Options="(.zidata*)" />
-      	</ExecRegion>      
-      	<ExecRegion Name=".bss" Align="0x10" Options="&gt;RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
-        	<FileMapping Name="*" Options="(.bss*)" />
+      	<ExecRegion Name=".bss" Align="0x10" Options="&gt;ROT_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
+        	<FileMapping Name="tmp_rot_tinyclr.lib" Options="(.bss*)" />
         	<FileMapping Name="PROVIDE(__exidx_start = .);" />
         	<FileMapping Name="PROVIDE(__exidx_end = .);" />
       	</ExecRegion>
+      	
+      	<ExecRegion Name="Kernel_ER_RAM_RW" Align="0x10" Options="&gt;Kernel_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
+        	<FileMapping Name="tmp_kernel_tinyclr.lib" Options="(rwdata)" />
+        	<FileMapping Name="tmp_kernel_tinyclr.lib" Options="(.data*)" />
+        	<FileMapping Name="tmp_kernel_tinyclr.lib" Options="(.zidata*)" />
+      	</ExecRegion>      
+      	<ExecRegion Name=".bss.kernel" Align="0x10" Options="&gt;Kernel_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
+        	<FileMapping Name="tmp_kernel_tinyclr.lib" Options="(.bss*)" />
+        	<FileMapping Name="PROVIDE(__exidx_start = .);" />
+        	<FileMapping Name="PROVIDE(__exidx_end = .);" />
+      	</ExecRegion>
+      	
+      	<ExecRegion Name="RunTime_ER_RAM_RW" Align="0x10" Options="&gt;RunTime_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib)" Options="rwdata)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib)" Options=".data*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib)" Options=".zidata*)" />
+      	</ExecRegion>      
+      	<ExecRegion Name=".bss.runtime" Align="0x10" Options="&gt;RunTime_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_rot_tinyclr.lib tmp_kernel_tinyclr.lib)" Options=".bss*)" />
+        	<FileMapping Name="PROVIDE(__exidx_start = .);" />
+        	<FileMapping Name="PROVIDE(__exidx_end = .);" />
+      	</ExecRegion>
+      	
+      	
       	<ExecRegion Name="/DISCARD/">
         	<FileMapping Name="*" Options="(.glue*)" />
         	<FileMapping Name="*" Options="(.vfp11*)" />
         	<FileMapping Name="*" Options="(.ARM.exidx*)" />
         	<FileMapping Name="*" Options="(.ARM.extab*)" />
       	</ExecRegion>
-      	<ExecRegion Name="ER_HEAP_BEGIN" Align="0x10" Options="&gt;RELOC_RAM"> <!-- Base="%Heap_Begin%"> --><!-- experimental: let the linker choose the heap start address -->
+      	<ExecRegion Name="ER_HEAP_BEGIN" Align="0x10" Options="&gt;ROT_RELOC_RAM"> <!-- Base="%Heap_Begin%"> --><!-- experimental: let the linker choose the heap start address -->
         	<FileMapping Name="*" Options="(SectionForHeapBegin)" />
       	</ExecRegion>
       	<ExecRegion Name="ER_HEAP_END" Base="%Heap_End%">
@@ -247,13 +284,28 @@
     -->
    
     <GlobalVariable Name="Image$$ER_RAM_RO$$Base"                   Value="ADDR(ER_STACK_TOP) + 8"/>
-    <GlobalVariable Name="Image$$ER_RAM_RO$$Length"                 Value="ADDR(ER_RAM_RW) - ADDR(ER_RAM_RO)"/>
+    <GlobalVariable Name="Image$$ER_RAM_RO$$Length"                 Value="ADDR(ROT_ER_RAM_RW) - ADDR(ER_RAM_RO)"/>
     <GlobalVariable Name="Load$$ER_RAM_RO$$Base"                    Value="LOADADDR(ER_RAM_RO)"/>
-    <GlobalVariable Name="Image$$ER_RAM_RW$$Base"                   Value="ADDR(ER_RAM_RW)"/>
-    <GlobalVariable Name="Image$$ER_RAM_RW$$Length"                 Value="(ADDR(.bss) + SIZEOF(.bss)) - ADDR(ER_RAM_RW)"/>
-    <GlobalVariable Name="Load$$ER_RAM_RW$$Base"                    Value="LOADADDR(ER_RAM_RO) + (ADDR(ER_RAM_RW) - ADDR(ER_RAM_RO))"/>
-    <GlobalVariable Name="Image$$ER_RAM_RW$$ZI$$Base"               Value="ADDR(.bss)"/>
-    <GlobalVariable Name="Image$$ER_RAM_RW$$ZI$$Length"             Value="SIZEOF(.bss)"/>
+    
+    <GlobalVariable Name="Image$$ROT_ER_RAM_RW$$Base"                   Value="ADDR(ROT_ER_RAM_RW)"/>
+    <GlobalVariable Name="Image$$Kernel_ER_RAM_RW$$Base"                   Value="ADDR(ROT_ER_RAM_RW)"/>
+    <GlobalVariable Name="Image$$RunTime_ER_RAM_RW$$Base"                   Value="ADDR(ROT_ER_RAM_RW)"/>
+    
+    <!-- <GlobalVariable Name="Image$$ER_RAM_RW$$Length"                 Value="(ADDR(.bss) + SIZEOF(.bss)) - ADDR(ER_RAM_RW)"/> -->
+    <GlobalVariable Name="Image$$ROT_ER_RAM_RW$$Length"                 Value="(ADDR(.bss) + SIZEOF(.bss)) - ADDR(ROT_ER_RAM_RW)"/>
+    <GlobalVariable Name="Image$$Kernel_ER_RAM_RW$$Length"                 Value="(ADDR(.bss) + SIZEOF(.bss)) - ADDR(ROT_ER_RAM_RW)"/>
+    <GlobalVariable Name="Image$$RunTime_ER_RAM_RW$$Length"                 Value="(ADDR(.bss) + SIZEOF(.bss)) - ADDR(ROT_ER_RAM_RW)"/>
+    
+    
+    <GlobalVariable Name="Image$$RoT_ER_RAM_RW$$ZI$$Base"               Value="ADDR(.bss)"/>
+    <GlobalVariable Name="Image$$RoT_ER_RAM_RW$$ZI$$Length"             Value="SIZEOF(.bss)"/>
+    
+    <GlobalVariable Name="Image$$Kernel_ER_RAM_RW$$ZI$$Base"               Value="ADDR(.bss)"/>
+    <GlobalVariable Name="Image$$Kernel_ER_RAM_RW$$ZI$$Length"             Value="SIZEOF(.bss)"/>
+    
+    <GlobalVariable Name="Image$$RunTime_ER_RAM_RW$$ZI$$Base"               Value="ADDR(.bss)"/>
+    <GlobalVariable Name="Image$$RunTime_ER_RAM_RW$$ZI$$Length"             Value="SIZEOF(.bss)"/>
+    
     <GlobalVariable Name="__use_no_semihosting_swi"                 Value="0"/>
 
 </ScatterFile>

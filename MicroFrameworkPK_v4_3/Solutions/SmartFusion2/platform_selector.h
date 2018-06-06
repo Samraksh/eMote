@@ -26,8 +26,10 @@ typedef uint16_t ushort;
 //#define SAMRAKSH_UPDATE_EXT
 
 
-#define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
+//#define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
 
+//build a RoT, Kernel and RunTime version of eMote with distinct security regions
+#define SECURE_EMOTE 1
 
 #if defined(PLATFORM_ARM_SmartFusion2)
 #define HAL_SYSTEM_NAME                     "SmartFusion2"

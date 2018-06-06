@@ -69,9 +69,41 @@ UINT32 Stack_MaxUsed()
 //--//
 // this is the first C function called after bootstrapping ourselves into ram
 
+#if defined(SECURE_EMOTE)
+// these define the region to zero initialize
+extern UINT32 Image$$RoT_ER_RAM_RW$$ZI$$Base;
+extern UINT32 Image$$RoT_ER_RAM_RW$$ZI$$Length;
+extern UINT32 Image$$Kernel_ER_RAM_RW$$ZI$$Base;
+extern UINT32 Image$$Kernel_ER_RAM_RW$$ZI$$Length;
+extern UINT32 Image$$RunTime_ER_RAM_RW$$ZI$$Base;
+extern UINT32 Image$$RunTime_ER_RAM_RW$$ZI$$Length;
+
+// here is the execution address/length of data to move from FLASH to RAM
+extern UINT32 Image$$RoT_ER_RAM_RW$$Base;
+extern UINT32 Image$$RoT_ER_RAM_RW$$Length;
+extern UINT32 Image$$Kernel_ER_RAM_RW$$Base;
+extern UINT32 Image$$Kernel_ER_RAM_RW$$Length;
+extern UINT32 Image$$RunTime_ER_RAM_RW$$Base;
+extern UINT32 Image$$RunTime_ER_RAM_RW$$Length;
+
+extern UINT32 Load$$RoT_ER_RAM_RW$$Base;
+extern UINT32 Load$$Kernel_ER_RAM_RW$$Base;
+extern UINT32 Load$$RunTime_ER_RAM_RW$$Base;
+
+
+
+#else
 // these define the region to zero initialize
 extern UINT32 Image$$ER_RAM_RW$$ZI$$Base;
 extern UINT32 Image$$ER_RAM_RW$$ZI$$Length;
+
+
+// here is the execution address/length of data to move from FLASH to RAM
+extern UINT32 Image$$ER_RAM_RW$$Base;
+extern UINT32 Image$$ER_RAM_RW$$Length;
+extern UINT32 Load$$ER_RAM_RW$$Base;
+
+#endif
 
 // here is the execution address/length of code to move from FLASH to RAM
 #define IMAGE_RAM_RO_BASE   Image$$ER_RAM_RO$$Base
@@ -80,15 +112,9 @@ extern UINT32 Image$$ER_RAM_RW$$ZI$$Length;
 extern UINT32 IMAGE_RAM_RO_BASE;
 extern UINT32 IMAGE_RAM_RO_LENGTH;
 
-// here is the execution address/length of data to move from FLASH to RAM
-extern UINT32 Image$$ER_RAM_RW$$Base;
-extern UINT32 Image$$ER_RAM_RW$$Length;
-
 // here is the load address of the RAM code/data
 #define LOAD_RAM_RO_BASE Load$$ER_RAM_RO$$Base
-
 extern UINT32 LOAD_RAM_RO_BASE;
-extern UINT32 Load$$ER_RAM_RW$$Base;
 
 //--//
 
@@ -178,6 +204,58 @@ static void __section(SectionForBootstrapOperations) Prepare_Zero( UINT32* dst, 
     }
 }
 
+#if defined(SECURE_EMOTE)
+void __section(SectionForBootstrapOperations) PrepareImageRegions()
+{
+    //
+    // Copy RAM RO regions into proper location.
+    //
+    {
+        UINT32* src = (UINT32*)&LOAD_RAM_RO_BASE;
+        UINT32* dst = (UINT32*)&IMAGE_RAM_RO_BASE;
+        UINT32  len = (UINT32 )&IMAGE_RAM_RO_LENGTH;
+
+        Prepare_Copy( src, dst, len );
+    }
+
+    //
+    // Copy RAM RW regions into proper location.
+    //
+    {
+        UINT32* src = (UINT32*)&Load$$ROT_ER_RAM_RW$$Base;
+        UINT32* dst = (UINT32*)&Image$$ROT_ER_RAM_RW$$Base;
+        UINT32  len =  (UINT32)&Image$$ROT_ER_RAM_RW$$Length;
+        Prepare_Copy( src, dst, len );
+
+        UINT32* src = (UINT32*)&Load$$Kernel_ER_RAM_RW$$Base;
+		UINT32* dst = (UINT32*)&Image$$Kernel_ER_RAM_RW$$Base;
+		UINT32  len =  (UINT32)&Image$$Kernel_ER_RAM_RW$$Length;
+		Prepare_Copy( src, dst, len );
+
+		UINT32* src = (UINT32*)&Load$$RunTime_ER_RAM_RW$$Base;
+		UINT32* dst = (UINT32*)&Image$$RunTime_ER_RAM_RW$$Base;
+		UINT32  len =  (UINT32)&Image$$RunTime_ER_RAM_RW$$Length;
+		Prepare_Copy( src, dst, len );
+
+    }
+    //
+    // Initialize RAM Zero Initialized regions.
+    //
+    {
+        UINT32* dst = (UINT32*)&Image$$ROT_ER_RAM_RW$$ZI$$Base;
+        UINT32  len = (UINT32 )&Image$$ROT_ER_RAM_RW$$ZI$$Length;
+        Prepare_Zero( dst, len );
+
+        dst = (UINT32*)&Image$$Kernel_ER_RAM_RW$$ZI$$Base;
+		len = (UINT32 )&Image$$Kernel_ER_RAM_RW$$ZI$$Length;
+		Prepare_Zero( dst, len );
+
+		dst = (UINT32*)&Image$$RunTime_ER_RAM_RW$$ZI$$Base;
+		len = (UINT32 )&Image$$RunTime_ER_RAM_RW$$ZI$$Length;
+		Prepare_Zero( dst, len );
+    }
+}
+#else
 void __section(SectionForBootstrapOperations) PrepareImageRegions()
 {
     //
@@ -211,6 +289,9 @@ void __section(SectionForBootstrapOperations) PrepareImageRegions()
         Prepare_Zero( dst, len );
     }
 }
+#endif
+
+
 
 #pragma arm section code
 
