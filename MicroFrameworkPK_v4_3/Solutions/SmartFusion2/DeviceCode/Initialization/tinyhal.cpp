@@ -90,8 +90,6 @@ extern UINT32 Load$$RoT_ER_RAM_RW$$Base;
 extern UINT32 Load$$Kernel_ER_RAM_RW$$Base;
 extern UINT32 Load$$RunTime_ER_RAM_RW$$Base;
 
-
-
 #else
 // these define the region to zero initialize
 extern UINT32 Image$$ER_RAM_RW$$ZI$$Base;
@@ -222,19 +220,19 @@ void __section(SectionForBootstrapOperations) PrepareImageRegions()
     // Copy RAM RW regions into proper location.
     //
     {
-        UINT32* src = (UINT32*)&Load$$ROT_ER_RAM_RW$$Base;
-        UINT32* dst = (UINT32*)&Image$$ROT_ER_RAM_RW$$Base;
-        UINT32  len =  (UINT32)&Image$$ROT_ER_RAM_RW$$Length;
+        UINT32* src = (UINT32*)&Load$$RoT_ER_RAM_RW$$Base;
+        UINT32* dst = (UINT32*)&Image$$RoT_ER_RAM_RW$$Base;
+        UINT32  len =  (UINT32)&Image$$RoT_ER_RAM_RW$$Length;
         Prepare_Copy( src, dst, len );
 
-        UINT32* src = (UINT32*)&Load$$Kernel_ER_RAM_RW$$Base;
-		UINT32* dst = (UINT32*)&Image$$Kernel_ER_RAM_RW$$Base;
-		UINT32  len =  (UINT32)&Image$$Kernel_ER_RAM_RW$$Length;
+        src = (UINT32*)&Load$$Kernel_ER_RAM_RW$$Base;
+		dst = (UINT32*)&Image$$Kernel_ER_RAM_RW$$Base;
+		len =  (UINT32)&Image$$Kernel_ER_RAM_RW$$Length;
 		Prepare_Copy( src, dst, len );
 
-		UINT32* src = (UINT32*)&Load$$RunTime_ER_RAM_RW$$Base;
-		UINT32* dst = (UINT32*)&Image$$RunTime_ER_RAM_RW$$Base;
-		UINT32  len =  (UINT32)&Image$$RunTime_ER_RAM_RW$$Length;
+		src = (UINT32*)&Load$$RunTime_ER_RAM_RW$$Base;
+		dst = (UINT32*)&Image$$RunTime_ER_RAM_RW$$Base;
+		len =  (UINT32)&Image$$RunTime_ER_RAM_RW$$Length;
 		Prepare_Copy( src, dst, len );
 
     }
@@ -242,8 +240,8 @@ void __section(SectionForBootstrapOperations) PrepareImageRegions()
     // Initialize RAM Zero Initialized regions.
     //
     {
-        UINT32* dst = (UINT32*)&Image$$ROT_ER_RAM_RW$$ZI$$Base;
-        UINT32  len = (UINT32 )&Image$$ROT_ER_RAM_RW$$ZI$$Length;
+        UINT32* dst = (UINT32*)&Image$$RoT_ER_RAM_RW$$ZI$$Base;
+        UINT32  len = (UINT32 )&Image$$RoT_ER_RAM_RW$$ZI$$Length;
         Prepare_Zero( dst, len );
 
         dst = (UINT32*)&Image$$Kernel_ER_RAM_RW$$ZI$$Base;
@@ -666,7 +664,11 @@ mipi_dsi_shutdown();
 
     InitCRuntime();
 
+#if defined(SECURE_EMOTE)
+    LOAD_IMAGE_Length += (UINT32)&IMAGE_RAM_RO_LENGTH + (UINT32)&Image$$RoT_ER_RAM_RW$$Length + (UINT32)&Image$$Kernel_ER_RAM_RW$$Length + (UINT32)&Image$$RunTime_ER_RAM_RW$$Length;
+#else
     LOAD_IMAGE_Length += (UINT32)&IMAGE_RAM_RO_LENGTH + (UINT32)&Image$$ER_RAM_RW$$Length;
+#endif
 
 #if !defined(BUILD_RTM) && defined(DEBUG)
     g_Boot_RAMConstants_CRC = Checksum_RAMConstants();

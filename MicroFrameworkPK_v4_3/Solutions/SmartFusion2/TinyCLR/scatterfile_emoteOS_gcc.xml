@@ -287,24 +287,28 @@
     <GlobalVariable Name="Image$$ER_RAM_RO$$Length"                 Value="ADDR(ROT_ER_RAM_RW) - ADDR(ER_RAM_RO)"/>
     <GlobalVariable Name="Load$$ER_RAM_RO$$Base"                    Value="LOADADDR(ER_RAM_RO)"/>
     
-    <GlobalVariable Name="Image$$ROT_ER_RAM_RW$$Base"                   Value="ADDR(ROT_ER_RAM_RW)"/>
+    <GlobalVariable Name="Image$$RoT_ER_RAM_RW$$Base"                   Value="ADDR(ROT_ER_RAM_RW)"/>
     <GlobalVariable Name="Image$$Kernel_ER_RAM_RW$$Base"                   Value="ADDR(ROT_ER_RAM_RW)"/>
     <GlobalVariable Name="Image$$RunTime_ER_RAM_RW$$Base"                   Value="ADDR(ROT_ER_RAM_RW)"/>
     
     <!-- <GlobalVariable Name="Image$$ER_RAM_RW$$Length"                 Value="(ADDR(.bss) + SIZEOF(.bss)) - ADDR(ER_RAM_RW)"/> -->
-    <GlobalVariable Name="Image$$ROT_ER_RAM_RW$$Length"                 Value="(ADDR(.bss) + SIZEOF(.bss)) - ADDR(ROT_ER_RAM_RW)"/>
+    
+    <GlobalVariable Name="Image$$RoT_ER_RAM_RW$$Length"                 Value="(ADDR(.bss) + SIZEOF(.bss)) - ADDR(ROT_ER_RAM_RW)"/>
     <GlobalVariable Name="Image$$Kernel_ER_RAM_RW$$Length"                 Value="(ADDR(.bss) + SIZEOF(.bss)) - ADDR(ROT_ER_RAM_RW)"/>
     <GlobalVariable Name="Image$$RunTime_ER_RAM_RW$$Length"                 Value="(ADDR(.bss) + SIZEOF(.bss)) - ADDR(ROT_ER_RAM_RW)"/>
     
     
     <GlobalVariable Name="Image$$RoT_ER_RAM_RW$$ZI$$Base"               Value="ADDR(.bss)"/>
     <GlobalVariable Name="Image$$RoT_ER_RAM_RW$$ZI$$Length"             Value="SIZEOF(.bss)"/>
+    <GlobalVariable Name="Load$$RoT_ER_RAM_RW$$Base"                    Value="LOADADDR(ROT_ER_RAM_RW)"/>
     
     <GlobalVariable Name="Image$$Kernel_ER_RAM_RW$$ZI$$Base"               Value="ADDR(.bss)"/>
     <GlobalVariable Name="Image$$Kernel_ER_RAM_RW$$ZI$$Length"             Value="SIZEOF(.bss)"/>
+    <GlobalVariable Name="Load$$Kernel_ER_RAM_RW$$Base"                    Value="LOADADDR(Kernel_ER_RAM_RW)"/>
     
     <GlobalVariable Name="Image$$RunTime_ER_RAM_RW$$ZI$$Base"               Value="ADDR(.bss)"/>
     <GlobalVariable Name="Image$$RunTime_ER_RAM_RW$$ZI$$Length"             Value="SIZEOF(.bss)"/>
+    <GlobalVariable Name="Load$$RunTime_ER_RAM_RW$$Base"                    Value="LOADADDR(RunTime_ER_RAM_RW)"/>
     
     <GlobalVariable Name="__use_no_semihosting_swi"                 Value="0"/>
 
