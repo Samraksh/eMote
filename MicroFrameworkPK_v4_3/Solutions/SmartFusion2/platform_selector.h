@@ -5,7 +5,7 @@
 #ifndef _PLATFORM_SmartFusion2_SELECTOR_H_
 #define _PLATFORM_SmartFusion2_SELECTOR_H_ 1
 
-#define MIN_NATIVE_BUILD
+
 
 // Properly declare them since they are not ANSI
 // Previously declared by accident in compiler setup because we used _GNU_SOURCE (default)
@@ -29,7 +29,11 @@ typedef uint16_t ushort;
 //#define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
 
 //build a RoT, Kernel and RunTime version of eMote with distinct security regions
+
+//#define IBL
+#if !defined(IBL)
 #define SECURE_EMOTE 1
+#endif
 
 #if defined(PLATFORM_ARM_SmartFusion2)
 #define HAL_SYSTEM_NAME                     "SmartFusion2"
@@ -100,7 +104,7 @@ typedef uint16_t ushort;
 #define ASSERT_IRQ_MUST_BE_ON()
 #endif
 
-#if defined(MIN_NATIVE_BUILD)
+#if defined(IBL)
 #define INTERRUPT_START GLOBAL_LOCK(x)
 #define INTERRUPT_END
 
@@ -109,7 +113,7 @@ typedef uint16_t ushort;
                         SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 #define INTERRUPT_END   SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); \
                         SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
-#endif
+#endif //IBL
 
 
 

@@ -69,7 +69,7 @@ UINT32 Stack_MaxUsed()
 //--//
 // this is the first C function called after bootstrapping ourselves into ram
 
-#if defined(SECURE_EMOTE)
+#if defined(SECURE_EMOTE) && !defined(IBL)
 // these define the region to zero initialize
 extern UINT32 Image$$RoT_ER_RAM_RW$$ZI$$Base;
 extern UINT32 Image$$RoT_ER_RAM_RW$$ZI$$Length;
@@ -202,7 +202,7 @@ static void __section(SectionForBootstrapOperations) Prepare_Zero( UINT32* dst, 
     }
 }
 
-#if defined(SECURE_EMOTE)
+#if defined(SECURE_EMOTE) && !defined(IBL)
 void __section(SectionForBootstrapOperations) PrepareImageRegions()
 {
     //
@@ -485,7 +485,7 @@ void HAL_Initialize()
         CPU_InitializeCommunication();
     //#endif
 
-#ifndef MIN_NATIVE_BUILD
+#ifndef IBL
     //FS_Initialize();
 
     FileSystemVolumeList::Initialize();
@@ -513,7 +513,7 @@ void HAL_Initialize()
    // Gesture_Initialize();
     //Ink_Initialize();
     TimeService_Initialize();
-#endif //end MIN_NATIVE_BUILD
+#endif //end IBL
 
 #if defined(ENABLE_NATIVE_PROFILER)
     Native_Profiler_Init();
@@ -664,7 +664,7 @@ mipi_dsi_shutdown();
 
     InitCRuntime();
 
-#if defined(SECURE_EMOTE)
+#if defined(SECURE_EMOTE) && !defined(IBL)
     LOAD_IMAGE_Length += (UINT32)&IMAGE_RAM_RO_LENGTH + (UINT32)&Image$$RoT_ER_RAM_RW$$Length + (UINT32)&Image$$Kernel_ER_RAM_RW$$Length + (UINT32)&Image$$RunTime_ER_RAM_RW$$Length;
 #else
     LOAD_IMAGE_Length += (UINT32)&IMAGE_RAM_RO_LENGTH + (UINT32)&Image$$ER_RAM_RW$$Length;
@@ -749,7 +749,7 @@ mipi_dsi_shutdown();
 	}*/
 
 #endif
-#ifndef MIN_NATIVE_BUILD
+#if defined(SEC_EMOTE) && defined(CP_LOAD_TEST)
     loadArduinoSPI((uint8_t*)0xF000,1932);
 #endif
 

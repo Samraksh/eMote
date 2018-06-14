@@ -394,7 +394,7 @@ void HAL_Initialize()
 
     // have to initialize the blockstorage first, as the USB device needs to update the configure block
 
-#ifndef MIN_NATIVE_BUILD
+#ifndef IBL
     Time_Initialize();
 
     BlockStorageList::Initialize();
