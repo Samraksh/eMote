@@ -38,8 +38,8 @@
 		<Set Name="Kernel_Code_Size"           Value="0x5900"/> 
         
         <!-- <Set Name="RoT_RAM_Base" 			Value="%Stack_Top% + 8"/> -->
-        <Set Name="RoT_RAM_Size"           Value="0x800"/> <!-- 2KB -->
-		<Set Name="Kernel_RAM_Size"           Value="0x2000"/> <!-- 8KB -->
+        <Set Name="RoT_RAM_Size"           Value="0x200"/> <!-- 512 B -->
+		<Set Name="Kernel_RAM_Size"           Value="0x1000"/> <!-- 4KB -->
         
         
         <!--<Set Name="Kernel_BaseAddress"    Value="0x6001F000"/>-->
@@ -245,6 +245,7 @@
         	<FileMapping Name="*" Options="(.ARM.extab*)" />
       	</ExecRegion>
       	<!-- <ExecRegion Name="ER_HEAP_BEGIN" Align="0x10" Options="&gt;ROT_RELOC_RAM"> --> <!-- Base="%Heap_Begin%"> --> <!-- experimental: let the linker choose the heap start address -->
+      	<!-- Mukundan: Above automatic heap start address does not work in SF2 with multiple mem regions. Runtime crashes while initializing, looks like some address mismatch somewhere -->
       	<ExecRegion Name="ER_HEAP_BEGIN" Base="%Heap_Begin%">
         	<FileMapping Name="*" Options="(SectionForHeapBegin)" />
       	</ExecRegion>
