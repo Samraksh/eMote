@@ -200,6 +200,7 @@ static void __section(SectionForBootstrapOperations) Prepare_Zero( UINT32* dst, 
 
         extraLen--;
     }
+    memset(dst,0,len);
 }
 
 #if defined(SECURE_EMOTE) && !defined(IBL)
