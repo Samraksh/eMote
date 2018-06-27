@@ -55,49 +55,6 @@ void CPU_mpu_init(void)
     /* Enable MemManage faults. */
     SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;
 
-    /* NULL pointer protection, highest priority. */
-    mpu_configure_region(7, NULL, 5, AP_NO_NO, false);
-
-    /* Mark RAM as non executable. Using lowest priority means explicitely
-     * allowing a RAM region to be executable is possible.
-     *
-     * We can use a fixed address range for RAM because it is a standard define
-     * by ARM. */
-    void *ram_base = (void *)0x20000000;
-    int ram_size_pow2 = 29; /* 2^29 = 0.5GB. */
-    mpu_configure_region(0, ram_base, ram_size_pow2, AP_RW_RW, false);
-
     mpu_enable();
 }
 
-void MemManage_Handler(void)
-{
-    static char msg[128];
-    struct port_extctx ctx;
-
-    uint32_t MMFSR;
-
-    /* Setup default error message. */
-    strcpy(msg, __FUNCTION__);
-
-    /* Get context info */
-    memcpy(&ctx, (void*)__get_PSP(), sizeof(struct port_extctx));
-
-    /* Get Memory Managment fault adress register */
-    MMFSR = SCB->CFSR & SCB_CFSR_MEMFAULTSR_Msk;
-
-    /* Data access violation */
-    if (MMFSR & (1 << 1)) {
-        snprintf(msg, sizeof(msg),
-                 "Invalid access to %p (pc=%p)", (void *)SCB->MMFAR, ctx.pc);
-    }
-
-    /* Instruction address violation. */
-    if (MMFSR & (1 << 0)) {
-        snprintf(msg, sizeof(msg),
-                 "Jumped to XN region %p (lr_thd=%p)",
-                    (void *)SCB->MMFAR, ctx.lr_thd);
-    }
-
-    chSysHalt(msg);
-}

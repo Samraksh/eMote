@@ -16,6 +16,7 @@ https://github.com/cvra/arm-cortex-mpu/blob/master/mpu.h
 extern "C" {
 #endif
 
+
 typedef enum {
     AP_NO_NO=0x0,
     AP_RW_NO=0x1,

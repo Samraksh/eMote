@@ -1,5 +1,5 @@
-#ifndef _CM_MPU_H_
-#define _CM_MPU_H_
+#ifndef _SECURE_MONITOR_H_
+#define _SECURE_MONITOR_H_
 
 #include <tinyhal_types.h>
 
@@ -11,6 +11,12 @@ https://github.com/cvra/arm-cortex-mpu/blob/master/mpu.h
 extern "C" {
 #endif
 
+void SetupSecureEmoteRegions();
+void MemManage_Handler(void);
+void SecureMonitor_Initialize();
+
+
+/*
 typedef enum {
     AP_NO_NO=0x0,
     AP_RW_NO=0x1,
@@ -32,11 +38,11 @@ void CPU_mpu_disable(void);
 void CPU_mpu_configure_region(UINT8 region, void *addr, UINT8 log2_len,
                           mem_access_permission_t ap, bool executable);
 
-
+*/
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //_CM_MPU_H_
+#endif //_SECURE_MONITOR_H_
