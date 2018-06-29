@@ -37,24 +37,25 @@ void SetupSecureEmoteRegions(){
 	//Ram regions
 	//Region 0: on RAM, System Stack, Runtime heap, Ram,
 	//Set entire ram as this region, other specific regions else can be set on top of this
-	void *ram_base = (void *)ERAM_ORIGIN;
-	UINT32 ram_size = ERAM_SIZE_POWER;
-	CPU_mpu_configure_region(0, ram_base, ram_size, AP_RW_RO, false);
+	void *mem_base = (void *)ERAM_ORIGIN;
+	UINT32 mem_size = ERAM_SIZE_POWER;
+	CPU_mpu_configure_region(0, mem_base, mem_size, AP_RW_RO, false);
 
 	//Region 2: Kernel Ram
-	ram_base=(void*)Image$$Kernel_ER_RAM_RW$$ZI$$Base;
-	ram_size=Image$$Kernel_ER_RAM_RW$$ZI$$Length;
-	CPU_mpu_configure_region(2, ram_base, ram_size, AP_RW_RO, false);
+	mem_base=(void*)Image$$Kernel_ER_RAM_RW$$ZI$$Base;
+	mem_size=Image$$Kernel_ER_RAM_RW$$ZI$$Length;
+	CPU_mpu_configure_region(2, mem_base, mem_size, AP_RW_RO, false);
 
 	//Region 4: RoT Ram
-	ram_base=(void*)Image$$RoT_ER_RAM_RW$$ZI$$Base;
-	ram_size=Image$$RoT_ER_RAM_RW$$ZI$$Length;
-	CPU_mpu_configure_region(4, ram_base, ram_size, AP_RW_RO, false);
+	mem_base=(void*)Image$$RoT_ER_RAM_RW$$ZI$$Base;
+	mem_size=Image$$RoT_ER_RAM_RW$$ZI$$Length;
+	CPU_mpu_configure_region(4, mem_base, mem_size, AP_RW_RO, false);
 
 	//Flash regions
 	//Region 1: Setup entire Flash as this region.
-	void *ram_base = (void *)EFLASH_ORIGIN;
-	CPU_mpu_configure_region(1, ram_base, EFLASH_SIZE_POWER, AP_RW_RO, true);
+	mem_base = (void *)EFLASH_ORIGIN;
+	mem_size = EFLASH_SIZE_POWER;
+	CPU_mpu_configure_region(1, mem_base, mem_size, AP_RW_RO, true);
 
 
 
