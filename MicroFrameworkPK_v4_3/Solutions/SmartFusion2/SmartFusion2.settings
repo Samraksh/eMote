@@ -19,6 +19,7 @@
     <IncludePaths Include="Solutions\SmartFusion2" />
     <IncludePaths Include="DeviceCode\Targets\Native\SmartFusion2\DeviceCode\microsemi_lib" />
     <IncludePaths Include="DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers" />
+    <IncludePaths Include="DeviceCode\Targets\Native\CortexM\drivers" />
     <!-- <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers" />
     <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\processor" />
     -->

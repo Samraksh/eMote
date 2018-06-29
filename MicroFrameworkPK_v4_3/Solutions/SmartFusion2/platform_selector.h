@@ -113,6 +113,7 @@ typedef uint16_t ushort;
                         SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 #define INTERRUPT_END   SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); \
                         SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
+
 #endif //IBL
 
 

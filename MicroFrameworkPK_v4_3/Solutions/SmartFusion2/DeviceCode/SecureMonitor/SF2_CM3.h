@@ -16,4 +16,4 @@
 
 //#define FLASH_OFFSET 0x0
 
-#endif _SF2_CM3_H_
+#endif //_SF2_CM3_H_

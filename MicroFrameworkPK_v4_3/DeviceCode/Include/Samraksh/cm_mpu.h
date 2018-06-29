@@ -34,7 +34,7 @@ void CPU_mpu_enable(void);
 
 void CPU_mpu_disable(void);
 
-void CPU_mpu_configure_region(int region, void *addr, size_t log2_len,
+void CPU_mpu_configure_region(UINT8 region, void *addr, UINT8 log2_len,
                           mem_access_permission_t ap, bool executable);
 
 

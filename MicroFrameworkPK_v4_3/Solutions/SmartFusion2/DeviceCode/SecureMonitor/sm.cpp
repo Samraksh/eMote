@@ -1,10 +1,13 @@
 #include "sm.h"
 
 #include <Samraksh/cm_mpu.h>
-
-
+#include <cmsis/m2sxxx.h>
+#include <DeviceCode/stmlib/core_cm3.h>
+#include <DeviceCode/stmlib/exc_return.h>
+#include <mpu/cmx_ctx.h>
 #include "SF2_CM3.h"
-
+//#include <string.h>
+#include <tinyhal.h>
 
 void SecureMonitor_Initialize(){
 	SetupSecureEmoteRegions();
@@ -17,7 +20,7 @@ void SetupSecureEmoteRegions(){
 	//Region 0: on RAM, System Stack, Runtime heap, Ram,
 	//Set entire ram as this region, other specific regions else can be set on top of this
 	void *ram_base = (void *)ERAM_ORIGIN;
-	mpu_configure_region(0, ram_base, ERAM_SIZE_POWER, AP_RW_RW, false);
+	CPU_mpu_configure_region(0, ram_base, ERAM_SIZE_POWER, AP_RW_RW, false);
 
 	//Region 1: Setup entire Flash as this region.
 
@@ -26,7 +29,7 @@ void SetupSecureEmoteRegions(){
 	//Flash regions
 
 	// NULL pointer protection, highest priority.
-	mpu_configure_region(7, NULL, 5, AP_NO_NO, false);
+	CPU_mpu_configure_region(7, NULL, 5, AP_NO_NO, false);
 
 	/* Mark RAM as non executable. Using lowest priority means explicitely
 	 * allowing a RAM region to be executable is possible.
@@ -50,34 +53,38 @@ void MPU_Init(){
 }
 
 
-void MemManage_Handler(void)
+void MemManage_Handler(UINT32 lr, UINT32 msp)
 {
     static char msg[128];
     struct port_extctx ctx;
 
-    uint32_t MMFSR;
+    UINT32 MMFSR;
 
     /* Setup default error message. */
-    strcpy(msg, __FUNCTION__);
+    memcpy((void*)msg, (void*)__FUNCTION__, 128);
 
-    /* Get context info */
-    memcpy(&ctx, (void*)__get_PSP(), sizeof(struct port_extctx));
+    // Get context info
+
+    // Determine the origin of the exception.
+    bool from_psp = EXC_FROM_PSP(lr);
+    UINT32 sp = from_psp ? __get_PSP() : msp;
+    memcpy(&ctx, (void*)sp, sizeof(struct port_extctx));
 
     /* Get Memory Managment fault adress register */
     MMFSR = SCB->CFSR & SCB_CFSR_MEMFAULTSR_Msk;
 
     /* Data access violation */
     if (MMFSR & (1 << 1)) {
-        snprintf(msg, sizeof(msg),
+        debug_printf(msg, sizeof(msg),
                  "Invalid access to %p (pc=%p)", (void *)SCB->MMFAR, ctx.pc);
     }
 
     /* Instruction address violation. */
     if (MMFSR & (1 << 0)) {
-        snprintf(msg, sizeof(msg),
+        debug_printf(msg, sizeof(msg),
                  "Jumped to XN region %p (lr_thd=%p)",
                     (void *)SCB->MMFAR, ctx.lr_thd);
     }
 
-    chSysHalt(msg);
+    //chSysHalt(msg);
 }
