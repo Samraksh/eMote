@@ -6,6 +6,7 @@
 
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/MAC_decl.h>
+#include <Samraksh/sm.h>
 
 #if defined(PLATFORM_ARM_SOC_ADAPT)
 #include "..\Targets\Native\Krait\DeviceCode\Krait_TIMER\Krait__TIMER.h"
@@ -454,6 +455,10 @@ bool g_fDoNotUninitializeDebuggerPort = false;
 
 void HAL_Initialize()
 {    
+
+#if defined(SECURE_EMOTE) && !defined(IBL)
+	SecureMonitor_Initialize();
+#endif
 
     HAL_CONTINUATION::InitializeList();
     HAL_COMPLETION  ::InitializeList();

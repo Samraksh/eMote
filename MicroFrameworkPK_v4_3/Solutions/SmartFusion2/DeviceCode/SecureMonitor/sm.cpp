@@ -1,4 +1,4 @@
-#include "sm.h"
+#include "../../../../DeviceCode/Include/Samraksh/sm.h"
 
 #include <Samraksh/cm_mpu.h>
 #include <cmsis/m2sxxx.h>
@@ -9,7 +9,25 @@
 //#include <string.h>
 #include <tinyhal.h>
 
+// these define the region to zero initialize
+extern UINT32 Image$$RoT_ER_RAM_RW$$ZI$$Base;
+extern UINT32 Image$$RoT_ER_RAM_RW$$ZI$$Length;
+extern UINT32 Image$$Kernel_ER_RAM_RW$$ZI$$Base;
+extern UINT32 Image$$Kernel_ER_RAM_RW$$ZI$$Length;
+extern UINT32 Image$$RunTime_ER_RAM_RW$$ZI$$Base;
+extern UINT32 Image$$RunTime_ER_RAM_RW$$ZI$$Length;
+
+// here is the execution address/length of data to move from FLASH to RAM
+extern UINT32 Image$$RoT_ER_RAM_RW$$Base;
+extern UINT32 Image$$RoT_ER_RAM_RW$$Length;
+extern UINT32 Image$$Kernel_ER_RAM_RW$$Base;
+extern UINT32 Image$$Kernel_ER_RAM_RW$$Length;
+extern UINT32 Image$$RunTime_ER_RAM_RW$$Base;
+extern UINT32 Image$$RunTime_ER_RAM_RW$$Length;
+
+
 void SecureMonitor_Initialize(){
+	CPU_mpu_init();
 	SetupSecureEmoteRegions();
 }
 void SetupSecureEmoteRegions(){
@@ -20,13 +38,27 @@ void SetupSecureEmoteRegions(){
 	//Region 0: on RAM, System Stack, Runtime heap, Ram,
 	//Set entire ram as this region, other specific regions else can be set on top of this
 	void *ram_base = (void *)ERAM_ORIGIN;
-	CPU_mpu_configure_region(0, ram_base, ERAM_SIZE_POWER, AP_RW_RW, false);
+	UINT32 ram_size = ERAM_SIZE_POWER;
+	CPU_mpu_configure_region(0, ram_base, ram_size, AP_RW_RO, false);
 
-	//Region 1: Setup entire Flash as this region.
+	//Region 2: Kernel Ram
+	ram_base=(void*)Image$$Kernel_ER_RAM_RW$$ZI$$Base;
+	ram_size=Image$$Kernel_ER_RAM_RW$$ZI$$Length;
+	CPU_mpu_configure_region(2, ram_base, ram_size, AP_RW_RO, false);
 
-
+	//Region 4: RoT Ram
+	ram_base=(void*)Image$$RoT_ER_RAM_RW$$ZI$$Base;
+	ram_size=Image$$RoT_ER_RAM_RW$$ZI$$Length;
+	CPU_mpu_configure_region(4, ram_base, ram_size, AP_RW_RO, false);
 
 	//Flash regions
+	//Region 1: Setup entire Flash as this region.
+	void *ram_base = (void *)EFLASH_ORIGIN;
+	CPU_mpu_configure_region(1, ram_base, EFLASH_SIZE_POWER, AP_RW_RO, true);
+
+
+
+
 
 	// NULL pointer protection, highest priority.
 	CPU_mpu_configure_region(7, NULL, 5, AP_NO_NO, false);
