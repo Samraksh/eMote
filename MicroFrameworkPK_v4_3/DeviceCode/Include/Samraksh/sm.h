@@ -11,24 +11,26 @@ https://github.com/cvra/arm-cortex-mpu/blob/master/mpu.h
 extern "C" {
 #endif
 
+
+typedef enum {
+    GP_RAM=0,
+    GP_CODE=1,
+    GP_IO=2,
+    Kernel_RAM=3,
+    Kernel_CODE=4,
+    RoT_RAM=5,
+    RoT_CODE=6,
+	Reserve=7
+} MemRegions_t;
+
 void SetupSecureEmoteRegions();
 void MemManage_Handler(void);
 void SecureMonitor_Initialize();
 
 
+MemRegions_t SecureMonitor_FindFaultRegion(UINT32 fault_addr);
+
 /*
-typedef enum {
-    AP_NO_NO=0x0,
-    AP_RW_NO=0x1,
-    AP_RW_RO=0x2,
-    AP_RW_RW=0x3,
-    AP_RESERVED=0x4,
-    AP_RO_NO=0x5,
-    AP_RO_RO=0x6,
-} mem_access_permission_t;
-
-
-
 void CPU_mpu_init(void);
 
 void CPU_mpu_enable(void);

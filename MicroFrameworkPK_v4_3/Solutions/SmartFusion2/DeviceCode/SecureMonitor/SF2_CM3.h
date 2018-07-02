@@ -14,6 +14,7 @@
 #define EFLASH_SIZE 0x100000 //1MB
 #define EFLASH_SIZE_POWER 20 //2^20 is 1MB
 
-//#define FLASH_OFFSET 0x0
+#define IO_ORIGIN 0x40000000
+#define IO_SIZE 0x20000000
 
 #endif //_SF2_CM3_H_

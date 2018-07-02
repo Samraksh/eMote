@@ -311,7 +311,11 @@
     <GlobalVariable Name="Image$$RunTime_Total_RAM_RW$$Length"             Value="SIZEOF(RunTime_ER_RAM_RW)+ SIZEOF(.bss.runtime)"/>
     -->
     
-    
+    <GlobalVariable Name="Image$$Kernel_ER_FLASH$$Base"                   Value="ADDR(Kernel_ER_FLASH)"/>
+    <GlobalVariable Name="Image$$Kernel_ER_FLASH$$Length"                 Value="SIZEOF(Kernel_ER_FLASH)"/>
+        
+    <GlobalVariable Name="Image$$RoT_ER_FLASH$$Base"                   Value="ADDR(ROT_ER_FLASH)"/>
+    <GlobalVariable Name="Image$$RoT_ER_FLASH$$Length"                 Value="SIZEOF(ROT_ER_FLASH)"/>
         
     <GlobalVariable Name="__use_no_semihosting_swi"                 Value="0"/>
 

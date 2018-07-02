@@ -30,6 +30,10 @@
 
 #define DEFINE_IRQ(index, priority) { priority, { NULL, (void*)(size_t)index } }
 
+#if defined(SECURE_EMOTE)
+extern void MemManage_Handler(UINT32 lr, UINT32 msp);
+#endif
+
 SF2_AITC_Driver::IRQ_VECTORING __section(rwdata) SF2_AITC_Driver::s_IsrTable[] =
 {
 	DEFINE_IRQ(VectorIndex::c_IRQ_INDEX_WWDG			, SF2_AITC::c_IRQ_Priority_15),
