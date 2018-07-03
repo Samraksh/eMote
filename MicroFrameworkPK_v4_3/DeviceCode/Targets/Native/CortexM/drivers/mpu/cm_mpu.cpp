@@ -3,6 +3,8 @@
 #include <cmsis/m2sxxx.h>
 #include <core_cm3.h>
 
+MpuRegion_t g_memRegions[8];
+
 void CPU_mpu_enable(void)
 {
     MPU->CTRL |= MPU_CTRL_ENABLE_Msk;
@@ -58,3 +60,16 @@ void CPU_mpu_init(void)
     mpu_enable();
 }
 
+MpuRegion_t* CPU_mpu_FindRegion(UINT32 fault_addr) {
+	int count=7;
+	MpuRegion * region;
+
+	region =memRegions;
+	for (; count > 0; count--) {
+		if (vmpu_value_in_range(region->start, region->end, address)) {
+			return region;
+		}
+	}
+
+	return NULL;
+}

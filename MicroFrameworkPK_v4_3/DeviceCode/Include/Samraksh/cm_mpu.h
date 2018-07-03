@@ -25,8 +25,16 @@ typedef enum {
     AP_RESERVED=0x4,
     AP_RO_NO=0x5,
     AP_RO_RO=0x6,
-} mem_access_permission_t;
+} MpuMemPermission_t;
 
+
+typedef struct
+{
+    uint32_t start;     /**< Start address of the MPU region. */
+    uint32_t end;       /**< End address of the MPU region. */
+    //uint32_t config;    /**< MPU specific config data (permissions, subregions, etc). */
+    MpuMemPermission_t acl;   /**< Original box ACL. */
+} MpuRegion_t;
 
 void CPU_mpu_init(void);
 

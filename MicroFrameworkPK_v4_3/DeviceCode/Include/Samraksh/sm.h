@@ -21,7 +21,7 @@ typedef enum {
     RoT_RAM=5,
     RoT_CODE=6,
 	Reserve=7
-} MemRegions_t;
+} SM_MemNames;
 
 void SetupSecureEmoteRegions();
 void MemManage_Handler(void);
