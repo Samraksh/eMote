@@ -30,7 +30,7 @@ typedef uint16_t ushort;
 
 //build a RoT, Kernel and RunTime version of eMote with distinct security regions
 
-//#define IBL
+#define IBL
 #if !defined(IBL)
 #define SECURE_EMOTE 1
 #endif
