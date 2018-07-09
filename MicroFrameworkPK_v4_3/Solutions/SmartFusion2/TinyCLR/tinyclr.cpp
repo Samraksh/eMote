@@ -4,10 +4,13 @@
 
 #include <tinyclr_application.h>
 #include <tinyhal.h>
+#include <grenadeFunction/grenadeFunction.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 void ApplicationEntryPoint()
 {
+	//hal_printf("testing CLR\r\n");
+	//while (1) {codeIntegrityCheck( 0,0);}
     CLR_SETTINGS clrSettings;
 
     memset(&clrSettings, 0, sizeof(CLR_SETTINGS));

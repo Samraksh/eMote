@@ -5,7 +5,7 @@
 
 #include "Core.h" 
 #include <TinyCLR_Debugging.h>
-
+#include <grenadeFunction/grenadeFunction.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1414,6 +1414,7 @@ HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
             TINYCLR_SET_AND_LEAVE(CLR_S_NO_READY_THREADS);
         }
 
+		codeIntegrityCheck( 0,0);
         ::Watchdog_ResetCounter();
 
         {
