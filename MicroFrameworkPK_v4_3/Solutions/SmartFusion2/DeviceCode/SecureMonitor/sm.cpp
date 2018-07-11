@@ -126,3 +126,10 @@ void MemManage_Handler(UINT32 lr, UINT32 msp)
 
     //chSysHalt(msg);
 }
+
+
+SM_MemNames SecureMonitor_FindFaultRegion(UINT32 fault_addr){
+	MpuRegion_t* mpuRegionPtr = CPU_mpu_findRegion(fault_addr);
+	if(mpuRegionPtr==NULL) return INVALID;
+	return (SM_MemNames)mpuRegionPtr->regionNo;
+}

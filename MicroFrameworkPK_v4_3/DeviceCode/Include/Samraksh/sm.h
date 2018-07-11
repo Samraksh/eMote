@@ -2,6 +2,7 @@
 #define _SECURE_MONITOR_H_
 
 #include <tinyhal_types.h>
+#include <Samraksh/cm_mpu.h>
 
 /*based on examples at
 https://github.com/cvra/arm-cortex-mpu/blob/master/mpu.h
@@ -11,8 +12,9 @@ https://github.com/cvra/arm-cortex-mpu/blob/master/mpu.h
 extern "C" {
 #endif
 
-
+//higher number, higher previledge
 typedef enum {
+	INVALID=-1,
     GP_RAM=0,
     GP_CODE=1,
     GP_IO=2,
@@ -28,7 +30,7 @@ void MemManage_Handler(void);
 void SecureMonitor_Initialize();
 
 
-MemRegions_t SecureMonitor_FindFaultRegion(UINT32 fault_addr);
+SM_MemNames SecureMonitor_FindFaultRegion(UINT32 fault_addr);
 
 /*
 void CPU_mpu_init(void);
