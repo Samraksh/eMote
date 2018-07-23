@@ -181,6 +181,7 @@ static uint8_t execute_service
     uint8_t status;
     uint16_t actual_response_length;
     
+	hal_printf("ex1\r\n");
     signal_request_start();
     
     MSS_COMBLK_send_cmd_with_ptr(cmd_opcode,                    /* cmd_opcode */
@@ -189,7 +190,9 @@ static uint8_t execute_service
                                  response_length,               /* response_size */
                                  request_completion_handler);   /* completion_handler */
     
+	hal_printf("ex2\r\n");
     actual_response_length = wait_for_request_completion();
+	hal_printf("ex3\r\n");
     
     if((response_length == actual_response_length) && (cmd_opcode == response[0]))
     {
@@ -274,6 +277,7 @@ void MSS_COMBLK_init
     uint8_t* p_response
 )
 {
+	hal_printf("MSS_COMBLK_init\r\n");
     /*
      * Disable and clear previous interrupts.
      */
@@ -360,6 +364,7 @@ void MSS_COMBLK_send_cmd_with_ptr
     /*--------------------------------------------------------------------------
      * Send command opcode as a single byte write to the Tx FIFO.
      */
+	hal_printf("send1\r\n");
     send_cmd_opcode(g_comblk_cmd_opcode);
     
     /*--------------------------------------------------------------------------
@@ -368,6 +373,7 @@ void MSS_COMBLK_send_cmd_with_ptr
      */
     COMBLK->CONTROL |= CR_SIZETX_MASK;
     
+	hal_printf("send2\r\n");
     /* Wait for space to become available in Tx FIFO. */
     do {
         tx_okay = COMBLK->STATUS & TXTOKAY_MASK;
@@ -380,11 +386,13 @@ void MSS_COMBLK_send_cmd_with_ptr
     
     g_comblk_state = COMBLK_WAIT_RESPONSE;
     
+	hal_printf("send3\r\n");
     /*--------------------------------------------------------------------------
      * Enable interrupt.
      */
     COMBLK->INT_ENABLE |= RCVOKAY_MASK;
     NVIC_EnableIRQ(ComBlk_IRQn);
+	hal_printf("send4\r\n");
 }
 
 void MSS_COMBLK_send_cmd
@@ -473,6 +481,7 @@ static void request_completion_handler
     uint16_t response_size
 )
 {
+	hal_printf("request_completion_handler\r\n");
     g_request_in_progress = 0u;
     g_last_response_length = response_size;
 }
@@ -660,6 +669,7 @@ void ISR_ComBlk( void* Param ){
 
 void MSS_SYS_init(sys_serv_async_event_handler_t event_handler){
 	//MSS_SYS_init(MSS_SYS_NO_EVENT_HANDLER);
+	hal_printf("MSS_SYS_init\r\n");
 	g_event_handler = event_handler;
 	g_last_response_length = 0u;
 	g_request_in_progress = 0u;
@@ -2374,6 +2384,7 @@ uint8_t MSS_SYS_clear_mesh_short
 
 static void abort_current_cmd(void)
 {
+	hal_printf("abort_current_cmd\r\n");
     if(g_request_in_progress)
     {
         uint32_t flush_in_progress;
@@ -2448,6 +2459,7 @@ static void complete_request
     uint16_t response_length
 )
 {
+	hal_printf("complete_request\r\n");
     if(g_comblk_completion_handler != 0)
     {
         g_comblk_completion_handler(g_comblk_p_response, response_length);

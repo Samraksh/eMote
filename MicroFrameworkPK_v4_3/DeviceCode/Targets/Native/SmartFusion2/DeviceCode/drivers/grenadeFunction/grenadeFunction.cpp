@@ -7,7 +7,7 @@
 #include <crypto.h>
 #include "../microsemi_lib/CMSIS/mss_assert.h"
 
-#define KERNEL_SIZE 349428
+#define KERNEL_SIZE 50000
 #define SIGSIZE 32
 #define eNVMAddress 0x60000000
 #define RoT_Offset 0x0F000
@@ -109,10 +109,10 @@ int codeIntegrityCheck(uint8_t* memory, uint32_t memorySize){
 	memset((uint8_t*)mSig, 0, SIGSIZE);
 	int status=0;
 	hal_printf("mSig %d\r\n", mSig);
-	//status = generate_hmac(dKey, (uint8_t*)eNVMAddress+RoT_Offset, KERNEL_SIZE, (uint8_t*)mSig);
-	status = generate_hmac(dKey, (uint8_t*)eNVMAddress, KERNEL_SIZE, (uint8_t*)mSig);
+	status = generate_hmac(dKey, (uint8_t*)eNVMAddress+RoT_Offset, KERNEL_SIZE, (uint8_t*)mSig);
+	//status = generate_hmac(dKey, (uint8_t*)eNVMAddress, KERNEL_SIZE, (uint8_t*)mSig);
 	//while(1){	
-		//PrintHex((uint8_t*)mSig, SIGSIZE);
+	PrintHex((uint8_t*)mSig, SIGSIZE);
 	//}
 	//wait_for_request_completion();
 
