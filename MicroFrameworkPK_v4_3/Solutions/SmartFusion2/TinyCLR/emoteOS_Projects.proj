@@ -9,12 +9,12 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\BlockStorage.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\Debugger.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\Diagnostics.featureproj" />
-  <Import Project="$(SPOCLIENT)\Framework\Features\I2C.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\Framework\Features\I2C.featureproj" />-->
   <Import Project="$(SPOCLIENT)\Framework\Features\InterruptHandler.featureproj" />
-  <Import Project="$(SPOCLIENT)\Framework\Features\MFUpdate.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\Framework\Features\MFUpdate.featureproj" />-->
   <!--Import Project="$(SPOCLIENT)\Framework\Features\PWM.featureproj" /-->
-  <Import Project="$(SPOCLIENT)\Framework\Features\SD.featureproj" />
-  <Import Project="$(SPOCLIENT)\Framework\Features\SPI.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\Framework\Features\SD.featureproj" />-->
+  <!--<Import Project="$(SPOCLIENT)\Framework\Features\SPI.featureproj" />-->
   <Import Project="$(SPOCLIENT)\Framework\Features\serial_port.featureproj" Condition="'$(SERIAL_PORT_FEATUREPROJ)'==''" />
   <Import Project="$(SPOCLIENT)\Framework\Features\SerialPort.featureproj" />
   <!--Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" Condition="'$(USB_PORT_FEATUREPROJ)'==''" /-->
