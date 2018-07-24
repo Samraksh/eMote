@@ -666,8 +666,29 @@ uint8_t generate_hmac
 }
 
 void ISR_ComBlk( void* Param ){
-	uint8_t* intParam = (uint8_t*)Param;
-	asynchronous_event_handler(*intParam);
+	//uint8_t* intParam = (uint8_t*)Param;
+	//asynchronous_event_handler(*intParam);
+	uint8_t status;
+    uint8_t tx_okay;
+    uint8_t rcv_okay;
+    
+    status = (uint8_t)COMBLK->STATUS;
+    
+    /* Mask off interrupt that are not enabled.*/
+    status &= COMBLK->INT_ENABLE;
+    
+    rcv_okay = status & RCVOKAY_MASK;
+    
+    if(rcv_okay)
+    {
+        handle_rx_okay_irq();
+    }
+        
+    tx_okay = status & TXTOKAY_MASK;
+    if(tx_okay)
+    {
+        handle_tx_okay_irq();
+    }
 }
 
 void MSS_SYS_init(sys_serv_async_event_handler_t event_handler){
@@ -2471,3 +2492,275 @@ static void complete_request
     }
 }
 
+static void handle_tx_okay_irq(void)
+{
+    switch(g_comblk_state)
+    {
+        /*----------------------------------------------------------------------
+         * The TX_OKAY interrupt should only be enabled for states COMBLK_TX_CMD
+         * and COMBLK_TX_DATA.
+         */
+        case COMBLK_TX_CMD:
+            if(g_comblk_cmd_size > 0u)
+            {
+                uint32_t size_sent;
+                size_sent = fill_tx_fifo(g_comblk_p_cmd, g_comblk_cmd_size);
+                if(size_sent < g_comblk_cmd_size)
+                {
+                    g_comblk_cmd_size = g_comblk_cmd_size - (uint16_t)size_sent;
+                    g_comblk_p_cmd = &g_comblk_p_cmd[size_sent];
+                }
+                else
+                {
+                    g_comblk_cmd_size = 0u;
+                    if(g_comblk_data_size > 0u)
+                    {
+                        g_comblk_state = COMBLK_TX_DATA;
+                    }
+                    else
+                    {
+                        g_comblk_state = COMBLK_WAIT_RESPONSE;
+                    }
+                }
+            }
+            else
+            {
+                /*
+                 * This is an invalid situation indicating a bug in the driver
+                 * or corrupted memory.
+                 */
+                ASSERT(0);
+                abort_current_cmd();
+            }
+        break;
+            
+        case COMBLK_TX_DATA:
+            if(g_comblk_data_size > 0u)
+            {
+                uint32_t size_sent;
+                size_sent = fill_tx_fifo(g_comblk_p_data, g_comblk_data_size);
+                if(size_sent < g_comblk_data_size)
+                {
+                    g_comblk_data_size = g_comblk_data_size - size_sent;
+                    g_comblk_p_data = &g_comblk_p_data[size_sent];
+                }
+                else
+                {
+                    COMBLK->INT_ENABLE &= ~TXTOKAY_MASK;
+                    g_comblk_state = COMBLK_WAIT_RESPONSE;
+                }
+            }
+            else
+            {
+                /*
+                 * This is an invalid situation indicating a bug in the driver
+                 * or corrupted memory.
+                 */
+                ASSERT(0);
+                abort_current_cmd();
+            }
+        break;
+           
+        case COMBLK_TX_PAGED_DATA:
+            /*
+             * Read a page of data if required.
+             */
+            if(0u == g_comblk_data_size)
+            {
+                if(g_comblk_page_handler != 0)
+                {
+                    g_comblk_data_size = g_comblk_page_handler(&g_comblk_p_data);
+                    if(0u == g_comblk_data_size)
+                    {
+                        COMBLK->INT_ENABLE &= ~TXTOKAY_MASK;
+                        g_comblk_state = COMBLK_WAIT_RESPONSE;
+                    }
+                }
+                else
+                {
+                    ASSERT(0);
+                    abort_current_cmd();
+                }
+            }
+            
+            /*
+             * Transmit the page data or move to COMBLK_WAIT_RESPONSE state if
+             * no further page data could be obtained by the call to the page
+             * handler above.
+             */
+            if(0u == g_comblk_data_size)
+            {
+                COMBLK->INT_ENABLE &= ~TXTOKAY_MASK;
+                g_comblk_state = COMBLK_WAIT_RESPONSE;
+            }
+            else
+            {
+                uint32_t size_sent;
+                size_sent = fill_tx_fifo(g_comblk_p_data, g_comblk_data_size);
+                g_comblk_data_size = g_comblk_data_size - size_sent;
+                g_comblk_p_data = &g_comblk_p_data[size_sent];
+            }
+        break;
+            
+        /*----------------------------------------------------------------------
+         * The TX_OKAY interrupt should NOT be enabled for states COMBLK_IDLE,
+         * COMBLK_WAIT_RESPONSE and COMBLK_RX_RESPONSE.
+         */
+        case COMBLK_IDLE:
+            /* Fall through */
+        case COMBLK_WAIT_RESPONSE:
+            /* Fall through */
+        case COMBLK_RX_RESPONSE:
+            /* Fall through */
+        default:
+            COMBLK->INT_ENABLE &= ~TXTOKAY_MASK;
+            complete_request(0u);
+            g_comblk_state = COMBLK_IDLE;
+        break;
+    }
+}
+
+/*==============================================================================
+ *
+ */
+static void handle_rx_okay_irq(void)
+{
+    uint16_t data16;
+    uint16_t is_command;
+    uint8_t data8;
+    
+    data16 = (uint16_t)COMBLK->DATA8;
+    is_command = data16 & DATA8_COMMAND_MASK;
+    data8 = (uint8_t)data16;
+            
+    switch(g_comblk_state)
+    {
+        /*----------------------------------------------------------------------
+        * MSS_COMBLK_init() enables the RCV_OKAY interrupt for the COMBLK_IDLE
+        * state to receive the asynchronous power-on-reset from the system
+        * controller.
+        */
+        case COMBLK_IDLE:
+            if(is_command)
+            {
+                if(data8 != POR_DIGEST_ERROR_OPCODE)
+                {
+                    uint8_t rxed_opcode;
+                    rxed_opcode = data8;
+                    process_sys_ctrl_command(rxed_opcode);
+                }
+                else
+                {  
+                    g_comblk_response_idx = 0;
+                    g_comblk_p_response[g_comblk_response_idx] = data8;
+                    g_comblk_response_idx++;
+                    g_comblk_p_response[g_comblk_response_idx] = 0x00u;                
+                    g_comblk_state = COMBLK_RX_RESPONSE;
+                }
+            }
+        break;
+       
+        /*----------------------------------------------------------------------
+         * The RCV_OKAY interrupt should only be enabled for states
+         * COMBLK_WAIT_RESPONSE and COMBLK_RX_RESPONSE. 
+         */
+        case COMBLK_WAIT_RESPONSE:
+            if(is_command)
+            {
+                uint8_t rxed_opcode;
+                rxed_opcode = data8;
+                if(rxed_opcode == g_comblk_cmd_opcode)
+                {
+                    g_comblk_response_idx = 0u;
+                    g_comblk_p_response[g_comblk_response_idx] = rxed_opcode;
+                    ++g_comblk_response_idx;
+                    g_comblk_state = COMBLK_RX_RESPONSE;
+                }
+                else
+                {
+                    process_sys_ctrl_command(rxed_opcode);
+                }
+            }
+        break;
+            
+        case COMBLK_RX_RESPONSE:
+            if(is_command)
+            {
+                uint8_t rxed_opcode;
+                rxed_opcode = data8;
+                process_sys_ctrl_command(rxed_opcode);
+            }
+            else
+            {
+                if( g_comblk_p_response[g_comblk_response_idx-1] == POR_DIGEST_ERROR_OPCODE)
+                {
+                    g_comblk_p_response[g_comblk_response_idx] = data8;
+                    process_sys_ctrl_command(g_comblk_p_response[g_comblk_response_idx-1]);
+                    g_comblk_state = COMBLK_IDLE;
+                }
+                else
+                {
+                    if(g_comblk_response_idx < g_comblk_response_size)
+                    {
+                        uint8_t rxed_data;
+                        
+                        rxed_data = data8;
+                        g_comblk_p_response[g_comblk_response_idx] = rxed_data;
+                        ++g_comblk_response_idx;
+                    }
+                    
+                    if(g_comblk_response_idx == g_comblk_response_size)
+                    {
+                        complete_request(g_comblk_response_idx);
+                        g_comblk_state = COMBLK_IDLE;
+                    }
+                }
+            }
+        break;
+            
+        /*----------------------------------------------------------------------
+         * The RCV_OKAY interrupt should NOT be enabled for states
+         * COMBLK_IDLE, COMBLK_TX_CMD and COMBLK_TX_DATA.
+         */
+        case COMBLK_TX_PAGED_DATA:
+            /* This is needed because when there is an error, we need to terminate loading the data */
+            if(!is_command)
+            {
+                g_comblk_p_response[1] = data8;
+                complete_request(2u);
+                g_comblk_state = COMBLK_IDLE;
+            }
+            else
+            {
+                uint8_t rxed_opcode;
+                rxed_opcode = data8;
+                process_sys_ctrl_command(rxed_opcode);
+            }
+        break;
+        
+        case COMBLK_TX_CMD:
+            /* Fall through */
+        case COMBLK_TX_DATA:
+            /* Fall through */
+            if(is_command)
+            {
+                uint8_t rxed_opcode;
+                rxed_opcode = data8;
+                process_sys_ctrl_command(rxed_opcode);
+            }
+        break;
+        
+        default:
+            complete_request(0u);
+            g_comblk_state = COMBLK_IDLE;
+        break;
+    }
+}
+
+static void process_sys_ctrl_command(uint8_t cmd_opcode)
+{
+    if(g_async_event_handler != 0)
+    {
+        g_async_event_handler(cmd_opcode);
+    }
+}
