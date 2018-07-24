@@ -549,6 +549,7 @@ static void write_array_into_ptr_value
 
 static void asynchronous_event_handler(uint8_t event_opcode)
 {
+	hal_printf("asynchronous_event_handler\r\n");
     if (event_opcode == FLASH_FREEZE_SHUTDOWN_OPCODE)
     {
         uint32_t running_on_standby_clock;
@@ -611,12 +612,13 @@ static void asynchronous_event_handler(uint8_t event_opcode)
     }
     else
     {
-        if ((event_opcode == POR_DIGEST_ERROR_OPCODE) || \
+		hal_printf("asynchronous_event_handler2\r\n");
+        /*if ((event_opcode == POR_DIGEST_ERROR_OPCODE) || \
             ((event_opcode >= TAMPER_ATTEMPT_DETECT_OPCODE_RANGE_MIN) && \
             (event_opcode <= TAMPER_FAILURE_DETECT_OPCODE_RANGE_MAX)) || \
             (event_opcode == TAMPER_CLOCK_MONITOR_ERROR_OPCODE) || \
             ((event_opcode >= TAMPER_HARDWARE_MONITOR_ERROR_OPCODE_RANGE_MIN) && \
-            (event_opcode <= TAMPER_HARDWARE_MONITOR_ERROR_OPCODE_RANGE_MAX)))
+            (event_opcode <= TAMPER_HARDWARE_MONITOR_ERROR_OPCODE_RANGE_MAX)))*/
         {
             /* 
              * Inform to the application that new asynchronous message is received, 
@@ -625,6 +627,7 @@ static void asynchronous_event_handler(uint8_t event_opcode)
              */
             if(g_event_handler != 0)
             {
+				hal_printf("asynchronous_event_handler3\r\n");
                 /* Call the user's event handler. */
                 g_event_handler(event_opcode, g_response[1]);
             }
