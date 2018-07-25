@@ -1,5 +1,3 @@
-/*--------- Includes ----------- */
-
 #include <tinyhal.h>
 #include <cmsis/m2sxxx.h>
 #include <drivers/mss_spi/mss_spi.h>
@@ -47,67 +45,7 @@ void PrintHex(uint8_t* data, int size){
 
 static volatile uint8_t mSig[SIGSIZE];
 
-/*==============================================================================
- *
- */
-
-/*static void request_completion_handler_no_block
-(
-    uint8_t * p_response,
-    uint16_t response_size
-)
-{
-    g_request_in_progress = 0u;
-    g_last_response_length = response_size;
-
-	hal_printf("ending comblk %d\r\n", mSig);
-    
-    if((service_response_length == g_last_response_length) && (service_cmd_opcode == service_response[0]))
-    {
-        service_status = service_response[1];
-    }
-    else
-    {
-        service_status = MSS_SYS_UNEXPECTED_ERROR;
-    }    
-	hal_printf("\r\n ------------- signature ------------ \r\n");
-	PrintHex((uint8_t*)mSig, SIGSIZE);
-	hal_printf("\r\n------------------------------------- \r\n");
-}
-
-static uint8_t execute_service_no_block
-(
-    uint8_t cmd_opcode,
-    uint8_t * cmd_params_ptr,
-    uint8_t * response,
-    uint16_t response_length
-)
-{
-	hal_printf("starting comblk\r\n");
-    signal_request_start();
-    
-	service_response_length = response_length;
-	service_response = response;
-	service_cmd_opcode = cmd_opcode;
-
-    MSS_COMBLK_send_cmd_with_ptr(service_cmd_opcode,                    // cmd_opcode 
-                                 (uint32_t)cmd_params_ptr,      // cmd_params_ptr 
-                                 service_response,                      // p_response 
-                                 service_response_length,               // response_size 
-                                 request_completion_handler_no_block);   // completion_handler_no_block 
-
-	wait_for_request_completion();
-
-    return NULL;
-}
-
-*/
-
 int codeIntegrityCheck(uint8_t* memory, uint32_t memorySize){
-	//if (g_request_in_progress){
-	//	hal_printf("request in progress\r\n");
-	//} else {
-	
 	int status=0;
 	
 	status = generate_hmac(dKey, (uint8_t*)eNVMAddress, KERNEL_SIZE, (uint8_t*)mSig);
@@ -115,14 +53,7 @@ int codeIntegrityCheck(uint8_t* memory, uint32_t memorySize){
 		PrintHex((uint8_t*)mSig, SIGSIZE);
 		memset((uint8_t*)mSig, 0, SIGSIZE);
 	}
-	//status = generate_hmac(dKey, (uint8_t*)eNVMAddress, KERNEL_SIZE, (uint8_t*)mSig);
-	//while(1){	
-	//PrintHex((uint8_t*)mSig, SIGSIZE);
-	//}
-	//wait_for_request_completion();
 
-	//CRYPTO_RESULT m_res = Crypto_GetHMAC(,  , dKey, mSig, SIGSIZE);
-	//}
 	return 0;
 }
 

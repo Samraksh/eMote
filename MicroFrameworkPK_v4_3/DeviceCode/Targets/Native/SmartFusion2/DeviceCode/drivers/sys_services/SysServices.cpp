@@ -659,7 +659,8 @@ uint8_t generate_hmac
 	testingNum++;
 	if (testingNum == 30){
 		hal_printf("NVM_write\r\n");
-		//NVM_write(0x60000000, eNVM_write_buff, 5, NVM_DO_NOT_LOCK_PAGE);
+		NVM_write(0x60000000, eNVM_write_buff, 5, NVM_DO_NOT_LOCK_PAGE);
+		return 0;
 	}
     
     memcpy(&params[0], key, HMAC_KEY_LENGTH);
