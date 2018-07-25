@@ -658,8 +658,10 @@ uint8_t generate_hmac
 	}
 	testingNum++;
 	if (testingNum == 30){
-		hal_printf("NVM_write\r\n");
+		hal_printf("NVM_write\r\n");		
 		NVM_write(0x60000000, eNVM_write_buff, 5, NVM_DO_NOT_LOCK_PAGE);
+		eNVM_write_buff[0]++;
+		testingNum = 0;
 		return 0;
 	}
     
