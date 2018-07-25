@@ -7,6 +7,7 @@
 #include <TinyCLR_Debugging.h>
 #include <grenadeFunction/grenadeFunction.h>
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //#define DEBUG_CLR 1
@@ -1294,6 +1295,8 @@ void CLR_DebuggerBreak()
     }
 }
     
+
+
 HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
 {
     NATIVE_PROFILE_CLR_CORE();
@@ -1415,6 +1418,7 @@ HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
         }
 
 		codeIntegrityCheck( 0,0);
+
         ::Watchdog_ResetCounter();
 
         {

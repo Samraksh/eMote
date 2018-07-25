@@ -9,6 +9,7 @@
 #include "SysServices.h"
 #include <intc/VectorIndex.h>
 #include "mss_sys_services.h"
+#include <eNVM/eNVM.h>
 
 #define DEVICE_CERTIFICATE_REQUEST_CMD                  0u
 #define SERIAL_NUMBER_REQUEST_CMD                       1u
@@ -118,7 +119,7 @@
 #define HMAC_REQUEST_CMD                                12u
 
 #define PORDIGEST_CHECK_SERV_RESP_LENGTH                2u
-static volatile uint8_t g_request_in_progress = 0u;
+volatile uint8_t g_request_in_progress = 0u;
 static volatile uint16_t g_last_response_length = 0u;
 static sys_serv_async_event_handler_t g_event_handler = 0;
 static uint8_t g_response[PORDIGEST_CHECK_SERV_RESP_LENGTH] = {0u};
@@ -191,7 +192,7 @@ static uint8_t execute_service
                                  request_completion_handler);   /* completion_handler */
     
 	hal_printf("ex2\r\n");
-    actual_response_length = wait_for_request_completion();
+    //actual_response_length = wait_for_request_completion();
 	hal_printf("ex3\r\n");
     
     if((response_length == actual_response_length) && (cmd_opcode == response[0]))
@@ -506,6 +507,7 @@ static void signal_request_start(void)
  */
 static uint16_t wait_for_request_completion(void)
 {
+	hal_printf("wait_for_request_completion\r\n");
     while(g_request_in_progress)
     {
         ;
@@ -635,6 +637,9 @@ static void asynchronous_event_handler(uint8_t event_opcode)
     }
 }
 
+static int testingNum = 0;
+uint8_t eNVM_write_buff[5];
+
 uint8_t generate_hmac
 (
     const uint8_t * key,
@@ -646,6 +651,16 @@ uint8_t generate_hmac
     uint8_t response[STANDARD_SERV_RESP_LENGTH];
     uint8_t params[58];
     uint8_t status;
+	
+	if(g_request_in_progress){
+		hal_printf("g_request_in_progress\r\n");
+		return 0;
+	}
+	testingNum++;
+	if (testingNum == 30){
+		hal_printf("NVM_write\r\n");
+		//NVM_write(0x60000000, eNVM_write_buff, 5, NVM_DO_NOT_LOCK_PAGE);
+	}
     
     memcpy(&params[0], key, HMAC_KEY_LENGTH);
     
