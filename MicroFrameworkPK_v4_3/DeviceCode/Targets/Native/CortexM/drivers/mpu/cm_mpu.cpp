@@ -1,8 +1,21 @@
 #include <tinyhal_types.h>
+#include <SmartPtr_irq.h>
 #include <Samraksh/cm_mpu.h>
 #include <cmsis/m2sxxx.h>
 #include <cmsis/mss_assert.h>
 #include <core_cm3.h>
+
+
+//redefinition here. This is usually done on platform_selector.h, but since this is sort of a chip file,
+//need to do this again here
+#ifndef GLOBAL_LOCK
+#define GLOBAL_LOCK(x)	SmartPtr_IRQ x
+#define DISABLE_INTERRUPTS()       SmartPtr_IRQ::ForceDisabled()
+#define ENABLE_INTERRUPTS()        SmartPtr_IRQ::ForceEnabled()
+#define INTERRUPTS_ENABLED_STATE() SmartPtr_IRQ::GetState()
+#define GLOBAL_LOCK_SOCKETS(x)     SmartPtr_IRQ x
+#endif
+
 
 MpuRegion_t g_mpuRegions[8];
 
@@ -25,7 +38,7 @@ void CPU_mpu_configure_region(UINT8 region, void *addr, UINT8 len,
 
     // Extract region and address information.
     region = region & MPU_RBAR_REGION_Msk;
-    addr = (void *)((uint32_t)addr & MPU_RBAR_ADDR_Msk);
+    addr = (void *)((UINT32)addr & MPU_RBAR_ADDR_Msk);
 
     // If the region is not executable add the eXecute Never flag.
     if (!executable) {
@@ -33,11 +46,12 @@ void CPU_mpu_configure_region(UINT8 region, void *addr, UINT8 len,
     }
 
     // Construct the Region Attributes and Size Register value.
+    UINT32 size = ((len - 1) << MPU_RASR_SIZE_Pos);
     rasr += (ap << MPU_RASR_AP_Pos);
-    rasr += ((len - 1) << MPU_RASR_SIZE_Pos);
+    rasr += size;
     rasr += MPU_RASR_ENA_Msk;
 
-    GLOBAL_LOCK();
+    GLOBAL_LOCK(irq);
 
     // Update the MPU settings
     MPU->RBAR = (uintptr_t)addr + region + MPU_RBAR_VALID_Msk;
@@ -49,9 +63,10 @@ void CPU_mpu_configure_region(UINT8 region, void *addr, UINT8 len,
     __ISB();
     __DSB();
 
+
     //store region information
-    g_mpuRegions[region].start=(UINT32)addr;
-    g_mpuRegions[region].end=(UINT32)(addr+size);
+    g_mpuRegions[region].start=addr;
+    g_mpuRegions[region].end=(void*)((uint)addr+size);
     g_mpuRegions[region].regionNo= region;
     g_mpuRegions[region].acl = ap;
 }
@@ -70,7 +85,7 @@ void CPU_mpu_init(void)
 //Note: Finds the first region to which address belongs; Overlapping regions could be a problem.
 //Because faults are likely to happen to lesser previleged region,
 //search needs to happen in the order where we start from least previledged region.
-MpuRegion_t* CPU_mpu_findRegion(UINT32 addr) {
+MpuRegion_t* CPU_mpu_findRegion(void* addr) {
 	MpuRegion_t *region;
 	region =g_mpuRegions;
 	for (int count=7; count >= 0; count--) {
@@ -83,10 +98,10 @@ MpuRegion_t* CPU_mpu_findRegion(UINT32 addr) {
 }
 
 
-uint32_t CPU_mpu_region_translate_acl(MpuRegion * const region, uint32_t start, uint32_t size,
-		MpuMemPermission_t acl, uint32_t acl_hw_spec)
+UINT32 CPU_mpu_region_translate_acl(MpuRegion_t * const region, void* start, UINT32 size,
+		MpuMemPermission_t acl, UINT32 acl_hw_spec)
 {
-    uint32_t config, bits, mask, size_rounded, subregions;
+    UINT32 config, bits, mask, size_rounded, subregions;
 
     /* verify region alignment */
     bits = vmpu_region_bits(size);
@@ -120,7 +135,7 @@ uint32_t CPU_mpu_region_translate_acl(MpuRegion * const region, uint32_t start, 
     subregions = (acl_hw_spec << MPU_RASR_SRD_Pos) & MPU_RASR_SRD_Msk;
 
     /* enable region & add size */
-    region->config = config | MPU_RASR_ENABLE_Msk | ((uint32_t) (bits - 1) << MPU_RASR_SIZE_Pos) | subregions;
+    region->config = config | MPU_RASR_ENABLE_Msk | ((UINT32) (bits - 1) << MPU_RASR_SIZE_Pos) | subregions;
     region->start = start;
     region->end = start + size_rounded;
     region->acl = acl;
@@ -128,7 +143,7 @@ uint32_t CPU_mpu_region_translate_acl(MpuRegion * const region, uint32_t start, 
     return size_rounded;
 }
 
-uint8_t CPU_mpu_region_bits(uint32_t size)
+uint8_t CPU_mpu_region_bits(UINT32 size)
 {
     assert(0 != size);
 
