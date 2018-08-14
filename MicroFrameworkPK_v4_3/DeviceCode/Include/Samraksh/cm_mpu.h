@@ -34,6 +34,49 @@
     28:(((x)<=536870912UL)?29:(((x)<=1073741824UL)?30:(((x)<=2147483648UL)?\
     31:32)))))))))))))))))))))))))))
 
+
+/* The maximum box namespace length is 37 so that it is exactly big enough for
+ * a human-readable hex string GUID (as formatted by RFC 4122) followed by a
+ * terminating NULL. */
+#define MPU_MAX_BOX_NAMESPACE_LENGTH 37
+
+/** Invalid box id for use in marking objects with invalid ownership. */
+#define MPU_BOX_ID_INVALID ((uint8_t) -1)
+
+/* supervisor user access modes */
+#define MPU_TACL_UEXECUTE        0x0001UL
+#define MPU_TACL_UWRITE          0x0002UL
+#define MPU_TACL_UREAD           0x0004UL
+#define MPU_TACL_UACL            (MPU_TACL_UREAD          |\
+                                     MPU_TACL_UWRITE         |\
+                                     MPU_TACL_UEXECUTE)
+
+/* supervisor access modes */
+#define MPU_TACL_SEXECUTE        0x0008UL
+#define MPU_TACL_SWRITE          0x0010UL
+#define MPU_TACL_SREAD           0x0020UL
+#define MPU_TACL_SACL            (MPU_TACL_SREAD          |\
+                                     MPU_TACL_SWRITE         |\
+                                     MPU_TACL_SEXECUTE)
+
+#define MPU_TACL_EXECUTE         (MPU_TACL_UEXECUTE       |\
+                                     MPU_TACL_SEXECUTE)
+
+/* all possible access control flags */
+#define MPU_TACL_ACCESS          (MPU_TACL_UACL           |\
+                                     MPU_TACL_SACL)
+
+/* various modes */
+#define MPU_TACL_STACK           0x0040UL
+#define MPU_TACL_SIZE_ROUND_UP   0x0080UL
+#define MPU_TACL_SIZE_ROUND_DOWN 0x0100UL
+#define MPU_TACL_PERIPHERAL      0x0200UL
+#define MPU_TACL_SHARED          0x0400UL
+#define MPU_TACL_USER            0x0800UL
+#define MPU_TACL_IRQ             0x1000UL
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -73,6 +116,8 @@ MpuRegion_t* CPU_mpu_findRegion(void* addr);
 UINT32 CPU_mpu_region_translate_acl(MpuRegion_t * const region, void* start, UINT32 size,
 		MpuMemPermission_t acl, UINT32 acl_hw_spec);
 
+
+void debug_printf( const char *format, ... );
 
 #ifdef __cplusplus
 }

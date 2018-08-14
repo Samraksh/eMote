@@ -19,6 +19,34 @@
 
 MpuRegion_t g_mpuRegions[8];
 
+static inline int vmpu_bits(UINT32 size)
+{
+    /* If size is 0, the result of __builtin_clz is undefined */
+    return (0 == size) ? 0: 32 - __builtin_clz(size);
+}
+
+
+uint8_t vmpu_region_bits(UINT32 size)
+{
+    assert(0 != size);
+
+    uint8_t bits = vmpu_bits(size) - 1;
+
+    /* round up if needed */
+    if((1UL << bits) != size) {
+        bits++;
+    }
+
+    /* minimum region size is 32 bytes */
+    if(bits < ARMv7M_MPU_ALIGNMENT_BITS) {
+        bits = ARMv7M_MPU_ALIGNMENT_BITS;
+    }
+
+    assert(bits == MPU_REGION_BITS(size));
+    return bits;
+}
+
+
 void CPU_mpu_enable(void)
 {
     MPU->CTRL |= MPU_CTRL_ENABLE_Msk;
@@ -66,7 +94,7 @@ void CPU_mpu_configure_region(UINT8 region, void *addr, UINT8 len,
 
     //store region information
     g_mpuRegions[region].start=addr;
-    g_mpuRegions[region].end=(void*)((uint)addr+size);
+    g_mpuRegions[region].end=(void*)((UINT32)addr+size);
     g_mpuRegions[region].regionNo= region;
     g_mpuRegions[region].acl = ap;
 }
@@ -108,14 +136,14 @@ UINT32 CPU_mpu_region_translate_acl(MpuRegion_t * const region, void* start, UIN
     size_rounded = 1UL << bits;
 
     if(size_rounded != size) {
-        if ((acl & (UVISOR_TACL_SIZE_ROUND_UP | UVISOR_TACL_SIZE_ROUND_DOWN)) == 0) {
-            HALT_ERROR(SANITY_CHECK_FAILED, "box size (%i) not rounded, rounding disabled (rounded=%i)\n", size, size_rounded);
+        if ((acl & (MPU_TACL_SIZE_ROUND_UP | MPU_TACL_SIZE_ROUND_DOWN)) == 0) {
+            debug_printf("SANITY_CHECK_FAILED: box size (%i) not rounded, rounding disabled (rounded=%i)\n", size, size_rounded);
         }
 
-        if (acl & UVISOR_TACL_SIZE_ROUND_DOWN) {
+        if (acl & MPU_TACL_SIZE_ROUND_DOWN) {
             bits--;
             if(bits < ARMv7M_MPU_ALIGNMENT_BITS) {
-                HALT_ERROR(SANITY_CHECK_FAILED, "region size (%i) can't be rounded down\n", size);
+                debug_printf("SANITY_CHECK_FAILED: region size (%i) can't be rounded down\n", size);
             }
             size_rounded = 1UL << bits;
         }
@@ -124,8 +152,8 @@ UINT32 CPU_mpu_region_translate_acl(MpuRegion_t * const region, void* start, UIN
     /* check for correctly aligned base address */
     mask = size_rounded - 1;
 
-    if(start & mask) {
-        HALT_ERROR(SANITY_CHECK_FAILED, "start address 0x%08X and size (%i) are inconsistent\n", start, size);
+    if((UINT32)start & mask) {
+        debug_printf("SANITY_CHECK_FAILED: start address 0x%08X and size (%i) are inconsistent\n", start, size);
     }
 
     /* map generic ACL's to internal ACL's */
