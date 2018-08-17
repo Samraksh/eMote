@@ -12,7 +12,7 @@
 typedef unsigned uint;
 typedef uint16_t ushort;
 
-#include "testDefines.h"
+//#include "testDefines.h"
 
 /////////////////////////////////////////////////////////
 //
