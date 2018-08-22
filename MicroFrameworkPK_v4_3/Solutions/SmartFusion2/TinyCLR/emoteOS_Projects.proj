@@ -472,7 +472,7 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\VirtualTimer\dotNetMF.proj" />
     <DriverLibs Include="VirtualTimer.$(LIB_EXT)" />
   </ItemGroup>
-  <!--<ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\dotNetMF.proj" />
     <DriverLibs Include="mac_pal.$(LIB_EXT)" />
   </ItemGroup>
@@ -480,7 +480,7 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\CSMAMAC\dotNetMF.proj" />
     <DriverLibs Include="csma_pal.$(LIB_EXT)" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\OMAC\dotNetMF.proj" />
     <DriverLibs Include="omac_pal.$(LIB_EXT)" />
   </ItemGroup>-->
@@ -499,10 +499,10 @@
     <DriverLibs Include="STM32F10x_radio_rf231.$(LIB_EXT)" />
 	<DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />
   </ItemGroup>-->
-  <!--ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />
-  </ItemGroup-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\radio\dotNetMF.proj" />
+	<DriverLibs Include="SmartFusion2_radio_si446x.$(LIB_EXT)" />
+  </ItemGroup>
 
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\dotNetMF.proj" />

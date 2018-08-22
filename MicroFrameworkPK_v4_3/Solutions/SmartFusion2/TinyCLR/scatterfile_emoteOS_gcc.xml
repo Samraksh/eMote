@@ -35,7 +35,7 @@
         
         <!-- The below for parameters are important, will have to be adjusted based on compilation output, if a section overflows -->
         <Set Name="RoT_Code_Size"           Value="0x1a00"/> <!-- 30KB -->
-		<Set Name="Kernel_Code_Size"           Value="0x6700"/> 
+		<Set Name="Kernel_Code_Size"           Value="0x6900"/> 
         
         <!-- <Set Name="RoT_RAM_Base" 			Value="%Stack_Top% + 8"/> -->
         <Set Name="RoT_RAM_Size"           Value="0x200"/> <!-- 512 B -->
