@@ -17,8 +17,8 @@
 #undef  DEBUG_TRACE
 #define DEBUG_TRACE (TRACE_ALWAYS)
 
-#define INTERRUPT_START GLOBAL_LOCK(x)
-#define INTERRUPT_END
+//#define INTERRUPT_START GLOBAL_LOCK(x)
+//#define INTERRUPT_END
 
 ////////////////////////////////////////////////////////////////////////////////
 
