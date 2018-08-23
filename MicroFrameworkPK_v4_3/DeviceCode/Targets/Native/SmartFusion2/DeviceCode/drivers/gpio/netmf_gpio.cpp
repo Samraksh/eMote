@@ -114,6 +114,16 @@ BOOL   CPU_GPIO_GetPinState    ( GPIO_PIN Pin )
 	else 
 		return FALSE;
 }
+
+void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction )
+{
+	
+}
+
+BOOL CPU_GPIO_EnableInputPin( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
+{
+	return FALSE;
+}
 /*-------------------------------------------------------------------------*//**
  * Lookup table of GPIO configuration registers address indexed on GPIO ID.
  */

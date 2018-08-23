@@ -440,19 +440,21 @@ static void GetCPUSerial(uint8_t * ptr, unsigned num_of_bytes ){
 
 // Temporary hack.
 static unsigned get_APB1_clock() {
-	RCC_ClocksTypeDef RCC_Clocks;
-	RCC_GetClocksFreq(&RCC_Clocks);
-	return RCC_Clocks.PCLK1_Frequency;
+	//RCC_ClocksTypeDef RCC_Clocks;
+	//RCC_GetClocksFreq(&RCC_Clocks);
+	//return RCC_Clocks.PCLK1_Frequency;
+	return 0;
 }
 
 static unsigned get_APB2_clock() {
-	RCC_ClocksTypeDef RCC_Clocks;
-	RCC_GetClocksFreq(&RCC_Clocks);
-	return RCC_Clocks.PCLK2_Frequency;
+	//RCC_ClocksTypeDef RCC_Clocks;
+	//RCC_GetClocksFreq(&RCC_Clocks);
+	//return RCC_Clocks.PCLK2_Frequency;
+	return 0;
 }
 
 static void initSPI2() {
-	GPIO_InitTypeDef GPIO_InitStructure;
+	/*GPIO_InitTypeDef GPIO_InitStructure;
 	unsigned int baud;
 	unsigned SpiBusClock;
 	SPI_InitTypeDef SPI_InitStruct;
@@ -505,11 +507,11 @@ static void initSPI2() {
 	else {
 		si446x_debug_print(DEBUG02,"SPI??? up CPOL: %d CPHA: %d Baud: %d kHz (%d kHz bus)\r\n",
 			SPI_InitStruct.SPI_CPOL, SPI_InitStruct.SPI_CPHA, baud, SpiBusClock/1000);
-	}
+	}*/
 }
 
 static void init_si446x_pins() {
-	GPIO_InitTypeDef GPIO_InitStructure;
+	/*GPIO_InitTypeDef GPIO_InitStructure;
 
 	SI446X_pin_setup_t *config = &SI446X_pin_setup;
 
@@ -541,31 +543,32 @@ static void init_si446x_pins() {
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_InitStructure.GPIO_Pin = config->cs_pin;
 	GPIO_WriteBit(config->cs_port, config->cs_pin, Bit_SET); // Set
-	GPIO_Init(config->cs_port, &GPIO_InitStructure);
+	GPIO_Init(config->cs_port, &GPIO_InitStructure);*/
 }
 
 // TODO: Pass control struct with function pointers instead of direct linking
 void radio_spi_sel_assert() {
-	GPIO_WriteBit(SI446X_pin_setup.cs_port, SI446X_pin_setup.cs_pin, Bit_RESET); // chip select
+	//GPIO_WriteBit(SI446X_pin_setup.cs_port, SI446X_pin_setup.cs_pin, Bit_RESET); // chip select
 	__NOP();
 }
 
 void radio_spi_sel_no_assert() {
-	GPIO_WriteBit(SI446X_pin_setup.cs_port, SI446X_pin_setup.cs_pin, Bit_SET); // chip select
+	//GPIO_WriteBit(SI446X_pin_setup.cs_port, SI446X_pin_setup.cs_pin, Bit_SET); // chip select
 }
 
 uint8_t radio_spi_go(uint8_t data) {
-	while( SPI_I2S_GetFlagStatus(SI446X_pin_setup.spi_base, SPI_I2S_FLAG_TXE) == RESET ) ; // spin
+/*	while( SPI_I2S_GetFlagStatus(SI446X_pin_setup.spi_base, SPI_I2S_FLAG_TXE) == RESET ) ; // spin
 	SPI_I2S_SendData(SI446X_pin_setup.spi_base, data);
 	while( SPI_I2S_GetFlagStatus(SI446X_pin_setup.spi_base, SPI_I2S_FLAG_RXNE) == RESET ) ; // spin
-	return SPI_I2S_ReceiveData(SI446X_pin_setup.spi_base);
+	return SPI_I2S_ReceiveData(SI446X_pin_setup.spi_base);*/
+	return 0;
 }
 
 void radio_shutdown(int go) {
-	if (go) // turn off the radio
-		GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_SET);
-	else
-		GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_RESET);
+	//if (go) // turn off the radio
+		//GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_SET);
+	//else
+		//GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_RESET);
 }
 
 // Returns TRUE if IRQ is asserted
@@ -585,9 +588,9 @@ static bool is_radio_asleep(void) {
 static void set_radio_power_pwm(int go) {
 #if defined(PLATFORM_ARM_WLN) && !defined(PLATFORM_ARM_AUSTERE) // WLN alone is probably sufficient
 	if (go)
-		GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_SET);
+		//GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_SET);
 	else
-		GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_RESET);
+		//GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_RESET);
 #else
 	return;
 #endif
@@ -629,7 +632,7 @@ static int am_i_wwf(void) {
 }
 
 static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
-	if (isWWF == 1) {	// First test half-integrated board
+/*	if (isWWF == 1) {	// First test half-integrated board
 		config->spi_base 		= SPI2;
 		config->spi_port 		= GPIOB;
 		config->nirq_port		= GPIOB;
@@ -718,7 +721,7 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		config->sdn_pin			= GPIO_Pin_2;
 		config->spi_rcc			= RCC_APB1Periph_SPI2;
 		si446x_debug_print(DEBUG03, "SI446X: Using .NOW Hardware Config\r\n");
-	}
+	}*/
 }
 
 // FIXME: Hard-coded to si4468 and SPI2 for the moment.

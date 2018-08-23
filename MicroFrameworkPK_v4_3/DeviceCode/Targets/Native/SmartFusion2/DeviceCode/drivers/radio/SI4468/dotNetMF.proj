@@ -45,6 +45,7 @@
 	<HFiles Include="radio_config_Si4468.h" />
 	<Compile Include="si4468_driver.cpp" />
 	<Compile Include="si446x.cpp" />	
+	<Compile Include="..\netmf_radio.cpp" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

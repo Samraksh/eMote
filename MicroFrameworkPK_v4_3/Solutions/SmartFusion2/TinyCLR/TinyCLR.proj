@@ -49,5 +49,6 @@
   <Import Project="$(SPOCLIENT)\Solutions\SmartFusion2\TinyCLR\emoteOS_Projects.proj" />
   
   
+
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

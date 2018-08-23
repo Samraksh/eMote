@@ -34,12 +34,13 @@
         <Set Name="RoT_BaseAddress_Mirror"    Value="0x0000F000"/>
         
         <!-- The below for parameters are important, will have to be adjusted based on compilation output, if a section overflows -->
-        <Set Name="RoT_Code_Size"           Value="0x1a00"/> <!-- 30KB -->
-		<Set Name="Kernel_Code_Size"           Value="0x6900"/> 
+        <Set Name="RoT_Code_Size"           Value="0x1A00"/> <!-- 30KB -->
+		<Set Name="Kernel_Code_Size"           Value="0xBC00"/> 
         
         <!-- <Set Name="RoT_RAM_Base" 			Value="%Stack_Top% + 8"/> -->
-        <Set Name="RoT_RAM_Size"           Value="0x200"/> <!-- 512 B -->
-		<Set Name="Kernel_RAM_Size"           Value="0x1000"/> <!-- 4KB -->
+        <Set Name="RoT_RAM_Size"           Value="0x200"/>
+		<Set Name="Kernel_RAM_Size"           Value="0x2500"/> 
+		<Set Name="RunTime_RAM_Size"           Value="0x2E00"/>
         
         
         <!--<Set Name="Kernel_BaseAddress"    Value="0x6001F000"/>-->
@@ -105,10 +106,9 @@
       </IfDefined>
       <LoadRegion Name="ROT_RELOC_RAM" Base="%Stack_Top% + 8" Size="%RoT_RAM_Size%"/>
       <LoadRegion Name="Kernel_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size%" Size="%Kernel_RAM_Size%"/>
-      <LoadRegion Name="RunTime_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size% + %Kernel_RAM_Size%" Size="%Heap_Begin - Stack_Top% - %RoT_RAM_Size% - %Kernel_RAM_Size% - 8"/>
-      
+	  <!--<LoadRegion Name="RunTime_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size% + %Kernel_RAM_Size%" Size="%RunTime_RAM_Size%"/>-->
+	  <LoadRegion Name="RunTime_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size% + %Kernel_RAM_Size%" Size="%Heap_Begin - Stack_Top% - %RoT_RAM_Size% - %Kernel_RAM_Size% - 8"/>
     </NamedGroup>
-
 
 	<!--<FileMapping Name="PROVIDE (__main_stack_start = RAM_START_ADDRESS + RAM_SIZE);"/>
 	<FileMapping Name="PROVIDE (__process_stack_start = __main_stack_start - MAIN_STACK_SIZE);" />
