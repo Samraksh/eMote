@@ -466,7 +466,7 @@
   
   <ItemGroup>
   	<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Samraksh_eMote_Net\dotNetMF.proj" />
-  	<DriverLibs Include="Samraksh_eMote_NET.$(LIB_EXT)" />
+  	<DriverLibs Include="Samraksh_eMote_Net.$(LIB_EXT)" />
   </ItemGroup>
   
   <ItemGroup>

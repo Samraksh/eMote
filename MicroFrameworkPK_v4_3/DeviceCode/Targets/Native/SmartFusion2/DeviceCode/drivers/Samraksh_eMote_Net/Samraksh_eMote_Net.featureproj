@@ -11,10 +11,9 @@
     <DriverLibs Include="Samraksh_eMote_Net.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_eMote_Net" />
     <InteropFeature Include="MACCallback" />
-    <InteropFeature Include="OMACCallback" />
 	<InteropFeature Include="CSMACallback" />
     <InteropFeature Include="RadioCallback_802_15_4" />
-    <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_eMote_Net.pe" />-->
+    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_eMote_Net.pe" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Samraksh_eMote_Net\dotnetmf.proj" />
   </ItemGroup>
 </Project>
