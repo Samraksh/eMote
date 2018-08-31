@@ -2,11 +2,11 @@
 #include <tinyhal.h>
 #include <Samraksh\Message.h>
 #include <string.h>
-
+#include <cmsis/m2sxxx.h>
+#include <drivers/mss_spi/mss_spi.h>
 #include "si446x.h"
 
 // Hardware stuff
-#include <stm32f10x.h>
 
 // Automatically moves the radio to RX after a transmit instead of sleeping.
 // Comment out below line to disable and use default ('0')
@@ -51,7 +51,7 @@ const char wwf2_serial_numbers[serial_max_wwf2][serial_per]     = { "05de0033303
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
-const unsigned si4468x_debug_level = ERR100; // CHANGE ME.
+const unsigned si4468x_debug_level = DEBUG01; // CHANGE ME.
 
 // Pin list used in setup.
 static SI446X_pin_setup_t SI446X_pin_setup;
@@ -548,20 +548,24 @@ static void init_si446x_pins() {
 
 // TODO: Pass control struct with function pointers instead of direct linking
 void radio_spi_sel_assert() {
-	//GPIO_WriteBit(SI446X_pin_setup.cs_port, SI446X_pin_setup.cs_pin, Bit_RESET); // chip select
-	__NOP();
+	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 }
 
 void radio_spi_sel_no_assert() {
-	//GPIO_WriteBit(SI446X_pin_setup.cs_port, SI446X_pin_setup.cs_pin, Bit_SET); // chip select
+	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 }
 
 uint8_t radio_spi_go(uint8_t data) {
-/*	while( SPI_I2S_GetFlagStatus(SI446X_pin_setup.spi_base, SPI_I2S_FLAG_TXE) == RESET ) ; // spin
-	SPI_I2S_SendData(SI446X_pin_setup.spi_base, data);
-	while( SPI_I2S_GetFlagStatus(SI446X_pin_setup.spi_base, SPI_I2S_FLAG_RXNE) == RESET ) ; // spin
-	return SPI_I2S_ReceiveData(SI446X_pin_setup.spi_base);*/
-	return 0;
+	uint8_t spi_tx_buff[1];
+	uint8_t spi_rx_buff[1];
+	uint16_t size;
+	spi_tx_buff[0] = data;
+	size  = 1;
+	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, size );
+
+	if (spi_rx_buff[0]==0xff)
+		hal_printf("send: %d ret: %d\r\n", spi_tx_buff[0], spi_rx_buff[0]);
+	return spi_rx_buff[0];
 }
 
 void radio_shutdown(int go) {
@@ -732,6 +736,23 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	uint8_t temp;
 	radio_lock_id_t owner;
 
+	/*uint8_t spi_tx_buff[16];
+	uint16_t size;
+
+	while (1){
+	spi_tx_buff[0] = 0xAC;
+	spi_tx_buff[1] = 0x53;
+	spi_tx_buff[2] = 0xaf;
+	spi_tx_buff[3] = 0xf5;
+	size = 4;
+	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, 0, 0 );
+	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+
+	HAL_Time_Sleep_MicroSeconds(100);
+	}
+
+	return ret;*/
 	/*
 	CPU_GPIO_EnableOutputPin(SI4468_HANDLE_INTERRUPT_TX, TRUE);
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, FALSE );
@@ -759,7 +780,10 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	CPU_GPIO_EnableOutputPin(SI4468_Radio_TX_Instance_NOTS, TRUE);
 	CPU_GPIO_SetPinState( SI4468_Radio_TX_Instance_NOTS, FALSE );
 	*/
-
+	CPU_GPIO_EnableOutputPin(0, FALSE);
+	CPU_GPIO_EnableOutputPin(1, FALSE);
+		CPU_GPIO_SetPinState(0, FALSE);
+		CPU_GPIO_SetPinState(1, FALSE);
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_init()\r\n");
@@ -769,15 +793,15 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 		return DS_Fail;
 	}
 
-	choose_hardware_config(am_i_wwf(), &SI446X_pin_setup);
+	//choose_hardware_config(am_i_wwf(), &SI446X_pin_setup);
 
 	// Default settings
 	si446x_channel = si446x_default_channel;
 	tx_power = si446x_default_power;
 	tx_msg_ptr = &tx_msg;
 	rx_msg_ptr = &rx_msg;
-	initSPI2();
-	init_si446x_pins();
+	//initSPI2();
+	//init_si446x_pins();
 
 	si446x_reset();
 	reset_errors  = si446x_part_info();

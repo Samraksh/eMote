@@ -21,6 +21,14 @@ BOOL CPU_SPI_Initialize ()
 		256u,
 		MSS_SPI_BLOCK_TRANSFER_FRAME_SIZE
 	);
+	MSS_SPI_configure_master_mode
+	(
+		&g_mss_spi0,
+		MSS_SPI_SLAVE_1,
+		MSS_SPI_MODE0,
+		256u,
+		MSS_SPI_BLOCK_TRANSFER_FRAME_SIZE
+	);
 	return TRUE;
 }
 

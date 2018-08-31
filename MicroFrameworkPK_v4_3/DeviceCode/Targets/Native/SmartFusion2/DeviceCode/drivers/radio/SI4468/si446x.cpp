@@ -1,12 +1,11 @@
 #include <stdint.h>
 #include <stdarg.h>
-#include "si446x.h"
+#include <cmsis/m2sxxx.h>
 
 // TODO allow selection of other 446x chips
 #include "radio_config_Si4468.h"
 
 #include "si446x_cmd.h"
-#include <stm32f10x.h>
 
 // Unknown reasons, modem_pend does not mask INVALID_PREAMBLE as expected.
 // Masking manually for now. --NPS

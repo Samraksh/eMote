@@ -14,6 +14,7 @@
  */
 
 #pragma once
+#include "si446x.h"
 
 /* This section contains command map declarations */
 struct si446x_reply_GENERIC_map {
@@ -41,12 +42,12 @@ struct si446x_reply_GET_PROPERTY_map {
         U8  DATA[16];
 };
 
-struct si446x_reply_GPIO_PIN_CFG_map {
+/*struct si446x_reply_GPIO_PIN_CFG_map {
         U8  GPIO[4];
         U8  NIRQ;
         U8  SDO;
         U8  GEN_CONFIG;
-};
+};*/
 
 struct si446x_reply_FIFO_INFO_map {
         U8  RX_FIFO_COUNT;
@@ -150,7 +151,6 @@ union si446x_cmd_reply_union {
         struct si446x_reply_PART_INFO_map                                PART_INFO;
         struct si446x_reply_FUNC_INFO_map                                FUNC_INFO;
         struct si446x_reply_GET_PROPERTY_map                             GET_PROPERTY;
-        struct si446x_reply_GPIO_PIN_CFG_map                             GPIO_PIN_CFG;
         struct si446x_reply_FIFO_INFO_map                                FIFO_INFO;
         struct si446x_reply_GET_INT_STATUS_map                           GET_INT_STATUS;
         struct si446x_reply_REQUEST_DEVICE_STATE_map                     REQUEST_DEVICE_STATE;
