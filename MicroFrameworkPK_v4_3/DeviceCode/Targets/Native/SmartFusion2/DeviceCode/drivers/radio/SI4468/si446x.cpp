@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <cmsis/m2sxxx.h>
+#include <drivers/mss_spi/mss_spi.h>
+#include "si446x.h"
 
 // TODO allow selection of other 446x chips
 #include "radio_config_Si4468.h"
@@ -46,18 +48,6 @@ static uint8_t Pro2Cmd[16]; // Tx Command Buffer
 
 
 // Static Helper Functions
-
-static void spi_read_bytes(unsigned count, uint8_t *buf) {
-	for(unsigned i=0; i<count; i++) {
-		buf[i] = radio_spi_go(0);
-	}
-}
-
-static void spi_write_bytes(unsigned count, const uint8_t *buf) {
-	for(unsigned i=0; i<count; i++) {
-		radio_spi_go(buf[i]);
-	}
-}
 
 // Hopefully would allow to optimize release case? Check it.
 static void blank_debug(int x, const char *fmt, ...) {
@@ -146,10 +136,18 @@ void si446x_reset(void)
 	current_state = SI_STATE_BOOT;
 	// End state cleanup
 
-	radio_shutdown(1);
-	for(volatile int i=0; i<CTS_TIMEOUT; i++) ; // spin, replace with real delay, 10us+
+	uint8_t spi_tx_buff[16];
+	uint8_t spi_rx_buff[16];
+	uint16_t size;
+
+	/*radio_shutdown(1);
+	HAL_Time_Sleep_MicroSeconds(50000);
 	radio_shutdown(0);
-	for(volatile int i=0; i<CTS_TIMEOUT; i++) ; // spin, replace with real delay, 10us+
+	HAL_Time_Sleep_MicroSeconds(50000);
+	*/
+
+
+	
 	
 	radio_comm_PollCTS();
 	
@@ -167,7 +165,7 @@ void si446x_reset(void)
 			size = init_commands[index++];
 			num_commands++;
 		}
-		si446x_debug_print(DEBUG01, "\tSI446x config sequence complete, %d commands %d bytes\r\n", num_commands, bytes);
+		hal_printf("\tSI446x config sequence complete, %d commands %d bytes\r\n", num_commands, bytes);
 	}
 	si446x_change_state(SI_STATE_READY); // Move us to READY state, otherwise depends on init.
 
@@ -741,9 +739,11 @@ int si446x_get_packet_info(U8 FIELD_NUMBER_MASK, U16 LEN, int16_t DIFF_LEN )
 
 void radio_comm_SendCmd(unsigned byteCount, const uint8_t* pData) {
 	radio_comm_PollCTS();
-	radio_spi_sel_assert();
-	spi_write_bytes(byteCount, pData);
-	radio_spi_sel_no_assert();
+
+	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	MSS_SPI_transfer_block(&g_mss_spi0, pData, byteCount, 0, 0 );
+	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	
 	ctsWentHigh = 0;
 }
 
@@ -757,6 +757,7 @@ void radio_comm_SendCmd(unsigned byteCount, const uint8_t* pData) {
  */
 void radio_comm_WriteData(uint8_t cmd, unsigned pollCts, uint8_t byteCount, uint8_t* pData)
 {
+	uint8_t spi_tx_buff[16];
     if(pollCts)
     {
         while(!ctsWentHigh)
@@ -764,11 +765,11 @@ void radio_comm_WriteData(uint8_t cmd, unsigned pollCts, uint8_t byteCount, uint
             radio_comm_PollCTS();
         }
     }
-	radio_spi_sel_assert();
-	radio_spi_go(cmd);
-	spi_write_bytes(byteCount, pData);
-	radio_spi_sel_no_assert();
-	
+	spi_tx_buff[0] = cmd;
+	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, 1, 0, 0 );
+	MSS_SPI_transfer_block(&g_mss_spi0, pData, byteCount, 0, 0 );
+	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
     //radio_hal_ClearNsel();
     //radio_hal_SpiWriteByte(cmd);
     //radio_hal_SpiWriteData(byteCount, pData);
@@ -778,49 +779,53 @@ void radio_comm_WriteData(uint8_t cmd, unsigned pollCts, uint8_t byteCount, uint
 }
 
 void radio_comm_ReadData(uint8_t cmd, unsigned pollCts, uint8_t byteCount, uint8_t* pData) {
+	uint8_t spi_tx_buff[16];
+	uint8_t spi_rx_buff[16];
 	if (pollCts) { // Not sure of case where you wouldn't want to do this
 		radio_comm_PollCTS();
 	}
-	radio_spi_sel_assert();
-	radio_spi_go(cmd);
-	spi_read_bytes(byteCount, pData);
-	radio_spi_sel_no_assert();
+
+	spi_tx_buff[0] = cmd;
+	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, 1, 0, 0 );
+	MSS_SPI_transfer_block(&g_mss_spi0, 0, 0, pData, byteCount );
+	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+
 	ctsWentHigh = 0;
 }
 
 uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData) {
 	unsigned ctsVal;
 	unsigned timeout=0;
-	
-	radio_spi_sel_assert();
-	radio_spi_go(0x44); //read CMD buffer
-	ctsVal = radio_spi_go(0);
+
+	uint8_t spi_tx_buff[16];
+	uint8_t spi_rx_buff[16];
+	uint16_t size;
 
 	while(ctsVal != 0xFF && timeout++ <= CTS_TIMEOUT) {
-		radio_spi_sel_no_assert();
-		//for(unsigned i=0; i<CTS_WAIT; i++) ; // spin
-		// Looking for at least 150ns, or likely even half that would be enough.
-		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-		radio_spi_sel_assert();
-		radio_spi_go(0x44); //read CMD buffer
-		ctsVal = radio_spi_go(0);
+		spi_tx_buff[0] = SI446X_CMD_ID_READ_CMD_BUFF;
+		size = 1;
+		MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+		MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
+		ctsVal = spi_rx_buff[0];
+		MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+
+		HAL_Time_Sleep_MicroSeconds(1000);
 	}
 	
 	if (ctsVal != 0xFF) {
-		radio_spi_sel_no_assert();
 		SI_ASSERT(0, "Fatal: CTS Timeout waiting for response\r\n");
 		return 0;
 	}
 	else {
+		hal_printf("found cts\r\n");
 		ctsWentHigh = 1;
 	}
 	
 	if (byteCount) {
-		spi_read_bytes(byteCount, pData);
+		MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+		MSS_SPI_transfer_block(&g_mss_spi0, 0, 0, pData, byteCount );
 	}
-	radio_spi_sel_no_assert();
 	
 	return ctsVal;
 }

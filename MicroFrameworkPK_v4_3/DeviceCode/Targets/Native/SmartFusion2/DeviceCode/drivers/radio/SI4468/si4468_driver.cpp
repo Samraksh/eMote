@@ -556,7 +556,7 @@ void radio_spi_sel_no_assert() {
 }
 
 uint8_t radio_spi_go(uint8_t data) {
-	uint8_t spi_tx_buff[1];
+	/*uint8_t spi_tx_buff[1];
 	uint8_t spi_rx_buff[1];
 	uint16_t size;
 	spi_tx_buff[0] = data;
@@ -565,14 +565,34 @@ uint8_t radio_spi_go(uint8_t data) {
 
 	if (spi_rx_buff[0]==0xff)
 		hal_printf("send: %d ret: %d\r\n", spi_tx_buff[0], spi_rx_buff[0]);
-	return spi_rx_buff[0];
+	return spi_rx_buff[0];*/
+	uint8_t spi_tx_buff[16];
+	uint8_t spi_rx_buff[16];
+	uint16_t size;
+
+	while (1){
+	spi_tx_buff[0] = 0x44;
+	size = 1;
+	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
+	if (spi_rx_buff[0] == 0xff){
+		hal_printf("1 found 0xff\r\n");
+	}
+	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
+	if (spi_rx_buff[0] == 0xff){
+		hal_printf("2 found 0xff\r\n");
+	}
+	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+
+	HAL_Time_Sleep_MicroSeconds(1000);
+	}
 }
 
 void radio_shutdown(int go) {
-	//if (go) // turn off the radio
-		//GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_SET);
-	//else
-		//GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_RESET);
+	if (go) // turn off the radio
+		CPU_GPIO_SetPinState(1, TRUE);
+	else
+		CPU_GPIO_SetPinState(1, FALSE);
 }
 
 // Returns TRUE if IRQ is asserted
@@ -782,8 +802,31 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	*/
 	CPU_GPIO_EnableOutputPin(0, FALSE);
 	CPU_GPIO_EnableOutputPin(1, FALSE);
-		CPU_GPIO_SetPinState(0, FALSE);
-		CPU_GPIO_SetPinState(1, FALSE);
+	CPU_GPIO_SetPinState(0, FALSE);
+	CPU_GPIO_SetPinState(1, FALSE);
+
+	/*uint8_t spi_tx_buff[16];
+	uint8_t spi_rx_buff[16];
+	uint16_t size;
+
+	while (1){
+	spi_tx_buff[0] = 0x44;
+	size = 1;
+	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
+	if (spi_rx_buff[0] == 0xff){
+		hal_printf("1 found 0xff\r\n");
+	}
+	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
+	if (spi_rx_buff[0] == 0xff){
+		hal_printf("2 found 0xff\r\n");
+	}
+	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+
+	HAL_Time_Sleep_MicroSeconds(1000);
+	}
+
+	return ret;*/
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_init()\r\n");
@@ -792,6 +835,8 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_init() FAIL, SPI busy: %s\r\n", print_lock(owner));
 		return DS_Fail;
 	}
+
+	
 
 	//choose_hardware_config(am_i_wwf(), &SI446X_pin_setup);
 
