@@ -853,6 +853,7 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 		si446x_debug_print(ERR100, "SI446X: si446x_hal_init(): MAC init failed.\r\n");
 		goto si446x_hal_init_CLEANUP;
 	}
+	hal_printf("mac init passed\r\n");
 
 	{
 		//Get cpu serial and hash it to use as node id. THIS IS NOT A DRIVER FUNCTION. MOVE TO MAC LAYER.
@@ -867,7 +868,8 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 		radio_si446x_spi2.SetAddress(tempNum);
 		si446x_debug_print(DEBUG02, "SI446X: CPU Serial Hash: 0x%.4X\r\n", tempNum);
 	}
-hal_printf("here\r\n");
+
+
 	// Init Continuations and interrupts
 	// Leave these last in case something above fails.
 	CPU_GPIO_EnableInputPin( 2, FALSE, si446x_spi2_handle_interrupt, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED);
@@ -880,6 +882,7 @@ si446x_hal_init_CLEANUP:
 	si446x_radio_unlock();
 	si446x_spi_unlock();
 
+	hal_printf("si4468 hal init finished\r\n");
 	return ret;
 }
 

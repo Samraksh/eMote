@@ -799,19 +799,19 @@ uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData) {
 	uint8_t spi_rx_buff[16];
 	uint16_t size;
 
+	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 	while(ctsVal != 0xFF && timeout++ <= CTS_TIMEOUT) {
 		spi_tx_buff[0] = SI446X_CMD_ID_READ_CMD_BUFF;
 		size = 1;
-		MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 		MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
 		ctsVal = spi_rx_buff[0];
-		MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 
 		//HAL_Time_Sleep_MicroSeconds(1000);
 	}
 	
 	if (ctsVal != 0xFF) {
 		SI_ASSERT(0, "Fatal: CTS Timeout waiting for response\r\n");
+		MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 		return 0;
 	}
 	else {
@@ -819,13 +819,13 @@ uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData) {
 	}
 	
 	if (byteCount) {
-		MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 		MSS_SPI_transfer_block(&g_mss_spi0, 0, 0, pData, byteCount );
 		MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 		hal_printf("get resp %d %d\r\n", byteCount, pData[0]);
 		return pData[0];
 	}
 	
+	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 	return ctsVal;
 }
 
@@ -852,14 +852,35 @@ unsigned int radio_comm_PollCTS() {
 }
 
 uint8_t radio_comm_SendCmdGetResp(uint8_t cmdByteCount, uint8_t* pCmdData, uint8_t respByteCount, uint8_t* pRespData) {
-	uint8_t spi_rx_buff[16];
+	uint8_t spi_tx_buff[16];
+	uint8_t spi_rx_buff[respByteCount + 1];
+	unsigned ctsVal;
+	unsigned timeout=0;
+	int i;
+
+	hal_printf("\r\n");
+	for (i = 0 ; i < cmdByteCount; i++){
+		hal_printf("%x ", pCmdData[i]);
+	}
+	hal_printf(": ");
     radio_comm_SendCmd(cmdByteCount, pCmdData);
-	/*HAL_Time_Sleep_MicroSeconds(50000);
+
 	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
-	MSS_SPI_transfer_block(&g_mss_spi0, 0, 0, spi_rx_buff, 2 );
+	spi_tx_buff[0] = SI446X_CMD_ID_READ_CMD_BUFF;
+
+	while(ctsVal != 0xFF && timeout++ <= CTS_TIMEOUT) {
+		MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, 1, spi_rx_buff, respByteCount + 1 );
+		ctsVal = spi_rx_buff[0];
+	}
+
 	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
-	hal_printf("get resp %d %d\r\n", spi_rx_buff[0], spi_rx_buff[1]);*/
-    return radio_comm_GetResp(respByteCount, pRespData);
+	for (i = 0 ; i < respByteCount; i++){
+		pRespData[i] = spi_rx_buff[i+1];
+		hal_printf("%x ", pRespData[i]);
+	}
+	hal_printf("\r\n");
+	return pRespData[0];
+    //return radio_comm_GetResp(respByteCount, pRespData);
 }
 
 // END RADIO COMMON
