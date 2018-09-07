@@ -140,13 +140,10 @@ void si446x_reset(void)
 	uint8_t spi_rx_buff[16];
 	uint16_t size;
 
-	/*radio_shutdown(1);
+	radio_shutdown(1);
 	HAL_Time_Sleep_MicroSeconds(50000);
 	radio_shutdown(0);
 	HAL_Time_Sleep_MicroSeconds(50000);
-	*/
-
-
 	
 	
 	radio_comm_PollCTS();
@@ -217,16 +214,16 @@ int si446x_part_info()
     Si446xCmd.PART_INFO.CUSTOMER        = Pro2Cmd[6];
     Si446xCmd.PART_INFO.ROMID           = Pro2Cmd[7];
 	
-	si446x_debug_print(DEBUG01, "\tCHIPREV %d\r\n",	Si446xCmd.PART_INFO.CHIPREV);
-	si446x_debug_print(DEBUG01, "\tPART 0x%.4X\r\n",	Si446xCmd.PART_INFO.PART); // This is best shown in hex
-	si446x_debug_print(DEBUG01, "\tPBUILD %d\r\n",	Si446xCmd.PART_INFO.PBUILD);
-	si446x_debug_print(DEBUG01, "\tID %d\r\n",		Si446xCmd.PART_INFO.ID);
-	si446x_debug_print(DEBUG01, "\tCUSTOMER %d\r\n",	Si446xCmd.PART_INFO.CUSTOMER);
-	si446x_debug_print(DEBUG01, "\tROMID %d\r\n",	Si446xCmd.PART_INFO.ROMID); // ROMID=03 means you have a revB1B chip. ROMID of revC2A is 06.
+	hal_printf( "\tCHIPREV %d\r\n",	Si446xCmd.PART_INFO.CHIPREV);
+	hal_printf( "\tPART 0x%.4X\r\n",	Si446xCmd.PART_INFO.PART); // This is best shown in hex
+	hal_printf( "\tPBUILD %d\r\n",	Si446xCmd.PART_INFO.PBUILD);
+	hal_printf( "\tID %d\r\n",		Si446xCmd.PART_INFO.ID);
+	hal_printf( "\tCUSTOMER %d\r\n",	Si446xCmd.PART_INFO.CUSTOMER);
+	hal_printf( "\tROMID %d\r\n",	Si446xCmd.PART_INFO.ROMID); // ROMID=03 means you have a revB1B chip. ROMID of revC2A is 06.
 	
 	// RF4463PRO board from niceRF has ROMID 6 == revC2A
 	// Unfortunately it looks like different chip revs need different treatment. So must verify ROMID
-	si446x_debug_print(DEBUG01, "\nROMID = %d\n", Si446xCmd.PART_INFO.ROMID);
+	hal_printf( "\nROMID = %d\n", Si446xCmd.PART_INFO.ROMID);
 	ret += SI_ASSERT(Si446xCmd.PART_INFO.ROMID == ROMC2A, "Fatal: Bad ROMID\r\n");
 	ret += SI_ASSERT(Si446xCmd.PART_INFO.PART  == PART_SI446X, "Fatal: Bad Part\r\n");
 	
@@ -810,7 +807,7 @@ uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData) {
 		ctsVal = spi_rx_buff[0];
 		MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 
-		HAL_Time_Sleep_MicroSeconds(1000);
+		//HAL_Time_Sleep_MicroSeconds(1000);
 	}
 	
 	if (ctsVal != 0xFF) {
@@ -818,13 +815,15 @@ uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData) {
 		return 0;
 	}
 	else {
-		hal_printf("found cts\r\n");
 		ctsWentHigh = 1;
 	}
 	
 	if (byteCount) {
 		MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 		MSS_SPI_transfer_block(&g_mss_spi0, 0, 0, pData, byteCount );
+		MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+		hal_printf("get resp %d %d\r\n", byteCount, pData[0]);
+		return pData[0];
 	}
 	
 	return ctsVal;
@@ -853,7 +852,13 @@ unsigned int radio_comm_PollCTS() {
 }
 
 uint8_t radio_comm_SendCmdGetResp(uint8_t cmdByteCount, uint8_t* pCmdData, uint8_t respByteCount, uint8_t* pRespData) {
+	uint8_t spi_rx_buff[16];
     radio_comm_SendCmd(cmdByteCount, pCmdData);
+	/*HAL_Time_Sleep_MicroSeconds(50000);
+	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	MSS_SPI_transfer_block(&g_mss_spi0, 0, 0, spi_rx_buff, 2 );
+	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	hal_printf("get resp %d %d\r\n", spi_rx_buff[0], spi_rx_buff[1]);*/
     return radio_comm_GetResp(respByteCount, pRespData);
 }
 

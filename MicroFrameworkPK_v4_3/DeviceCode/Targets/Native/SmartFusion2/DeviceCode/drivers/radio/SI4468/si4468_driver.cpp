@@ -556,36 +556,15 @@ void radio_spi_sel_no_assert() {
 }
 
 uint8_t radio_spi_go(uint8_t data) {
-	/*uint8_t spi_tx_buff[1];
-	uint8_t spi_rx_buff[1];
-	uint16_t size;
-	spi_tx_buff[0] = data;
-	size  = 1;
-	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, size );
-
-	if (spi_rx_buff[0]==0xff)
-		hal_printf("send: %d ret: %d\r\n", spi_tx_buff[0], spi_rx_buff[0]);
-	return spi_rx_buff[0];*/
 	uint8_t spi_tx_buff[16];
 	uint8_t spi_rx_buff[16];
 	uint16_t size;
-
-	while (1){
-	spi_tx_buff[0] = 0x44;
-	size = 1;
+	spi_tx_buff[0] = data;
+	size  = 1;
 	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
-	if (spi_rx_buff[0] == 0xff){
-		hal_printf("1 found 0xff\r\n");
-	}
-	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
-	if (spi_rx_buff[0] == 0xff){
-		hal_printf("2 found 0xff\r\n");
-	}
 	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
-
-	HAL_Time_Sleep_MicroSeconds(1000);
-	}
+	return spi_rx_buff[0];
 }
 
 void radio_shutdown(int go) {
@@ -756,23 +735,23 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	uint8_t temp;
 	radio_lock_id_t owner;
 
-	/*uint8_t spi_tx_buff[16];
+
+/*	uint8_t spi_tx_buff[16];
+	uint8_t spi_rx_buff[16];
 	uint16_t size;
 
 	while (1){
-	spi_tx_buff[0] = 0xAC;
-	spi_tx_buff[1] = 0x53;
-	spi_tx_buff[2] = 0xaf;
-	spi_tx_buff[3] = 0xf5;
-	size = 4;
+	spi_tx_buff[0] = 0x44;
+	size = 1;
 	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
-	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, 0, 0 );
+	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
 	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 
 	HAL_Time_Sleep_MicroSeconds(100);
 	}
 
 	return ret;*/
+
 	/*
 	CPU_GPIO_EnableOutputPin(SI4468_HANDLE_INTERRUPT_TX, TRUE);
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, FALSE );
@@ -805,28 +784,6 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	CPU_GPIO_SetPinState(0, FALSE);
 	CPU_GPIO_SetPinState(1, FALSE);
 
-	/*uint8_t spi_tx_buff[16];
-	uint8_t spi_rx_buff[16];
-	uint16_t size;
-
-	while (1){
-	spi_tx_buff[0] = 0x44;
-	size = 1;
-	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
-	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
-	if (spi_rx_buff[0] == 0xff){
-		hal_printf("1 found 0xff\r\n");
-	}
-	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
-	if (spi_rx_buff[0] == 0xff){
-		hal_printf("2 found 0xff\r\n");
-	}
-	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
-
-	HAL_Time_Sleep_MicroSeconds(1000);
-	}
-
-	return ret;*/
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_init()\r\n");
@@ -868,12 +825,16 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	if (temp != RF_GLOBAL_CONFIG_1_1) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_init GLOBAL_CONFIG Setting Looks Wrong... Overriding...\r\n");
 		si446x_set_property( 0x00, 0x01, 0x03, RF_GLOBAL_CONFIG_1_1 );
+	} else {
+		hal_printf("rf global config good\r\n");
 	}
 
 	temp = si446x_get_property(0x12, 0x01, 0x08);
 	if (temp != PKT_LEN) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_init PKT_LEN Setting Looks Wrong...Overriding...\r\n");
 		si446x_set_property( 0x12, 0x01, 0x08, PKT_LEN );
+	} else {
+		hal_printf("pkt len good\r\n");
 	}
 
 	temp = si446x_get_property(0x12, 0x01, 0x12);
@@ -906,10 +867,10 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 		radio_si446x_spi2.SetAddress(tempNum);
 		si446x_debug_print(DEBUG02, "SI446X: CPU Serial Hash: 0x%.4X\r\n", tempNum);
 	}
-
+hal_printf("here\r\n");
 	// Init Continuations and interrupts
 	// Leave these last in case something above fails.
-	CPU_GPIO_EnableInputPin( SI446X_pin_setup.nirq_mf_pin, FALSE, si446x_spi2_handle_interrupt, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED);
+	CPU_GPIO_EnableInputPin( 2, FALSE, si446x_spi2_handle_interrupt, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED);
 	tx_callback_continuation.InitializeCallback(tx_cont_do, NULL);
 	rx_callback_continuation.InitializeCallback(rx_cont_do, NULL);
 	int_defer_continuation.InitializeCallback(int_cont_do, NULL);
