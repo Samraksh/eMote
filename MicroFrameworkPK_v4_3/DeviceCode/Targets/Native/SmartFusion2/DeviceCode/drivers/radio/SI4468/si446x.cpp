@@ -743,9 +743,11 @@ void radio_comm_SendCmd(unsigned byteCount, const uint8_t* pData) {
 		hal_printf("%x ", pData[i]);
 	}
 	hal_printf("\r\n");
-	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	CPU_GPIO_SetPinState( 3, FALSE );
+	//MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 	MSS_SPI_transfer_block(&g_mss_spi0, pData, byteCount, 0, 0 );
-	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	CPU_GPIO_SetPinState( 3, TRUE );
+	//MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 	
 	ctsWentHigh = 0;
 }
@@ -778,9 +780,11 @@ void radio_comm_WriteData(uint8_t cmd, unsigned pollCts, uint8_t byteCount, uint
 	}
 	hal_printf("\r\n");
 
-	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	CPU_GPIO_SetPinState( 3, FALSE );
+	//MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, byteCount + 1, 0, 0 );
-	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	CPU_GPIO_SetPinState( 3, TRUE );
+	//MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
     //radio_hal_ClearNsel();
     //radio_hal_SpiWriteByte(cmd);
     //radio_hal_SpiWriteData(byteCount, pData);
@@ -797,22 +801,25 @@ void radio_comm_ReadData(uint8_t cmd, unsigned pollCts, uint8_t byteCount, uint8
 	}
 
 	spi_tx_buff[0] = cmd;
-	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	CPU_GPIO_SetPinState( 3, FALSE );
+	//MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, 1, pData, byteCount );
-	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	CPU_GPIO_SetPinState( 3, TRUE );
+	//MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 
 	ctsWentHigh = 0;
 }
 
 uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData) {
-	unsigned ctsVal;
+	/*unsigned ctsVal;
 	unsigned timeout=0;
 
 	uint8_t spi_tx_buff[16];
 	uint8_t spi_rx_buff[16];
 	uint16_t size;
 
-	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	CPU_GPIO_SetPinState( 3, FALSE );
+	//MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 	while(ctsVal != 0xFF && timeout++ <= CTS_TIMEOUT) {
 		spi_tx_buff[0] = SI446X_CMD_ID_READ_CMD_BUFF;
 		size = 1;
@@ -824,7 +831,8 @@ uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData) {
 	
 	if (ctsVal != 0xFF) {
 		SI_ASSERT(0, "Fatal: CTS Timeout waiting for response\r\n");
-		MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+		CPU_GPIO_SetPinState( 3, TRUE );
+		//MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 		return 0;
 	}
 	else {
@@ -833,13 +841,60 @@ uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData) {
 	
 	if (byteCount) {
 		MSS_SPI_transfer_block(&g_mss_spi0, 0, 0, pData, byteCount );
-		MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+		CPU_GPIO_SetPinState( 3, TRUE );
+		//MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 		hal_printf("get resp %d %d\r\n", byteCount, pData[0]);
 		return pData[0];
 	}
 	
-	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	CPU_GPIO_SetPinState( 3, TRUE );
+	//MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	return ctsVal;*/
+	unsigned ctsVal;
+	unsigned timeout=0;
+	uint8_t spi_tx_buff[16];
+	uint8_t spi_rx_buff[16];
+	uint16_t size;
+	
+	CPU_GPIO_SetPinState( 3, FALSE );
+	spi_tx_buff[0] = SI446X_CMD_ID_READ_CMD_BUFF;
+	size = 1;
+	//radio_spi_sel_assert();
+	//radio_spi_go(0x44); //read CMD buffer
+	//ctsVal = radio_spi_go(0);
+	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
+	ctsVal = spi_rx_buff[0];
+
+	while(ctsVal != 0xFF && timeout++ <= CTS_TIMEOUT) {
+		CPU_GPIO_SetPinState( 3, TRUE );
+		//radio_spi_sel_no_assert();
+		//for(unsigned i=0; i<CTS_WAIT; i++) ; // spin
+		// Looking for at least 150ns, or likely even half that would be enough.
+		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+		CPU_GPIO_SetPinState( 3, FALSE );
+		MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
+		ctsVal = spi_rx_buff[0];
+	}
+	
+	if (ctsVal != 0xFF) {
+		CPU_GPIO_SetPinState( 3, TRUE );
+		SI_ASSERT(0, "Fatal: CTS Timeout waiting for response\r\n");
+		return 0;
+	}
+	else {
+		ctsWentHigh = 1;
+	}
+	
+	if (byteCount) {
+		MSS_SPI_transfer_block(&g_mss_spi0, 0, 0, pData, byteCount );
+		//spi_read_bytes(byteCount, pData);
+	}
+	CPU_GPIO_SetPinState( 3, TRUE );
+	
 	return ctsVal;
+	
 }
 
 unsigned int radio_comm_PollCTS() {
@@ -865,7 +920,7 @@ unsigned int radio_comm_PollCTS() {
 }
 
 uint8_t radio_comm_SendCmdGetResp(uint8_t cmdByteCount, uint8_t* pCmdData, uint8_t respByteCount, uint8_t* pRespData) {
-	uint8_t spi_tx_buff[16];
+	/*uint8_t spi_tx_buff[16];
 	uint8_t spi_rx_buff[respByteCount + 1];
 	unsigned ctsVal;
 	unsigned timeout=0;
@@ -878,7 +933,8 @@ uint8_t radio_comm_SendCmdGetResp(uint8_t cmdByteCount, uint8_t* pCmdData, uint8
 	hal_printf(": ");
     radio_comm_SendCmd(cmdByteCount, pCmdData);
 
-	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	CPU_GPIO_SetPinState( 3, FALSE );
+	//MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 	spi_tx_buff[0] = SI446X_CMD_ID_READ_CMD_BUFF;
 
 	while(ctsVal != 0xFF && timeout++ <= CTS_TIMEOUT) {
@@ -886,14 +942,18 @@ uint8_t radio_comm_SendCmdGetResp(uint8_t cmdByteCount, uint8_t* pCmdData, uint8
 		ctsVal = spi_rx_buff[0];
 	}
 
-	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
+	CPU_GPIO_SetPinState( 3, TRUE );
+	//MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 	for (i = 0 ; i < respByteCount; i++){
 		pRespData[i] = spi_rx_buff[i+1];
 		hal_printf("%x ", pRespData[i]);
 	}
 	hal_printf("\r\n");
 	return pRespData[0];
-    //return radio_comm_GetResp(respByteCount, pRespData);
+    //return radio_comm_GetResp(respByteCount, pRespData);*/
+	radio_comm_SendCmd(cmdByteCount, pCmdData);
+    return radio_comm_GetResp(respByteCount, pRespData);
+	
 }
 
 // END RADIO COMMON

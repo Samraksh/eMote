@@ -781,8 +781,10 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	*/
 	CPU_GPIO_EnableOutputPin(0, FALSE);
 	CPU_GPIO_EnableOutputPin(1, FALSE);
+	CPU_GPIO_EnableOutputPin(3, TRUE);
 	CPU_GPIO_SetPinState(0, FALSE);
 	CPU_GPIO_SetPinState(1, FALSE);
+	CPU_GPIO_SetPinState(3, TRUE);
 
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
