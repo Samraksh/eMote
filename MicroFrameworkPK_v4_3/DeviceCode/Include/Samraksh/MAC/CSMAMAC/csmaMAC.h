@@ -47,7 +47,7 @@ extern Buffer_15_4_t g_send_buffer;
 extern Buffer_15_4_t g_receive_buffer;
 extern NeighborTable g_NeighborTable;
 
-//#define DEBUG_CSMAMAC 1
+#define DEBUG_CSMAMAC 1
 
 #if defined(DEBUG_CSMAMAC)
 #define ENABLE_PIN_CSMA(x,y) CPU_GPIO_EnableOutputPin(x,y)

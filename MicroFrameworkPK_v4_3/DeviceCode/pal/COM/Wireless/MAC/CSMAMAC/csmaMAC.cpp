@@ -63,7 +63,7 @@ DeviceStatus csmaMAC::SetConfig(MACConfig *config){
 	//MyConfig.RadioType  = config->RadioType;
 	MyConfig.NeighborLivenessDelay = config->NeighborLivenessDelay;
 
-	DEBUG_PRINTF_CSMA("SetConfig: %d %d %d %d %d %d %d %d\r\n",MyConfig.BufferSize,MyConfig.CCA,MyConfig.CCASenseTime,MyConfig.RadioID,MyConfig.FCF,MyConfig.DestPAN,MyConfig.Network,MyConfig.NeighborLivelinessDelay);
+	//DEBUG_PRINTF_CSMA("SetConfig: %d %d %d %d %d %d %d %d\r\n",MyConfig.BufferSize,MyConfig.CCA,MyConfig.CCASenseTime,MyConfig.RadioID,MyConfig.FCF,MyConfig.DestPAN,MyConfig.Network,MyConfig.NeighborLivelinessDelay);
 
 	return DS_Success;
 }
@@ -321,7 +321,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 		payload[i] = lmsg[i];
 	}
 
-	DEBUG_PRINTF_CSMA("CSMA Sending: dest: %d, src: %d, network: %d, mac_id: %d, type: %d\r\n",dest, GetMyAddress(),MyConfig.Network,this->macName,dataType);
+	DEBUG_PRINTF_CSMA("CSMA Sending: dest: %d, src: %d, network: %d, type: %d\r\n",dest, GetMyAddress(),this->macName,dataType);
 
 	// Check if the circular buffer is full
 	//if(!g_send_buffer.Store((void *) &msg_carrier, metadata->GetLength())){

@@ -292,6 +292,7 @@ DeviceStatus MAC_SendTimeStamped(UINT16 destAddress, UINT8 dataType, void * msg,
 DeviceStatus MAC_Send(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size){
 	//msg is just the payload,
 
+	hal_printf("MAC_Send\r\n");
 	BOOL status = FALSE;
 	if(currentMacName == CSMAMAC){
 		status = g_csmaMacObject.Send(destAddress, dataType, msg, size);
@@ -303,10 +304,12 @@ DeviceStatus MAC_Send(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 siz
 	if(status != TRUE)
 		return DS_Fail;
 
+	hal_printf("send success\r\n");
 	return DS_Success;
 }
 
 PacketID_T MAC_EnqueueToSend(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size){
+	hal_printf("MAC_EnqueueToSend\r\n");
 	if(currentMacName == CSMAMAC){
 		return INVALID_PACKET_ID;
 	}
