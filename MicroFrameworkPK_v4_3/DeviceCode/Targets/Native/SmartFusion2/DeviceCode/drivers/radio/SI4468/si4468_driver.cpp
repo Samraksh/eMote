@@ -859,7 +859,8 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 		//Get cpu serial and hash it to use as node id. THIS IS NOT A DRIVER FUNCTION. MOVE TO MAC LAYER.
 		UINT8 cpuserial[serial_size];
 		memset(cpuserial, 0, serial_size);
-		GetCPUSerial(cpuserial, serial_size);
+		//GetCPUSerial(cpuserial, serial_size);
+		cpuserial[0] = 1;
 		UINT16 tempNum=0;
 		UINT16 * temp = (UINT16 *) cpuserial;
 		for (int i=0; i< 6; i++){

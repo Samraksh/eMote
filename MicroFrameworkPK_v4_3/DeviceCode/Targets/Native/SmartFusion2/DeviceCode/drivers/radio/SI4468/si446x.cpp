@@ -735,8 +735,14 @@ int si446x_get_packet_info(U8 FIELD_NUMBER_MASK, U16 LEN, int16_t DIFF_LEN )
 // RADIO COMMON
 
 void radio_comm_SendCmd(unsigned byteCount, const uint8_t* pData) {
+	int i;
 	radio_comm_PollCTS();
-
+	
+	hal_printf("\r\n");
+	for (i = 0 ; i < byteCount; i++){
+		hal_printf("%x ", pData[i]);
+	}
+	hal_printf("\r\n");
 	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 	MSS_SPI_transfer_block(&g_mss_spi0, pData, byteCount, 0, 0 );
 	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
@@ -754,7 +760,8 @@ void radio_comm_SendCmd(unsigned byteCount, const uint8_t* pData) {
  */
 void radio_comm_WriteData(uint8_t cmd, unsigned pollCts, uint8_t byteCount, uint8_t* pData)
 {
-	uint8_t spi_tx_buff[16];
+	int i;
+	uint8_t spi_tx_buff[byteCount+1];
     if(pollCts)
     {
         while(!ctsWentHigh)
@@ -762,10 +769,17 @@ void radio_comm_WriteData(uint8_t cmd, unsigned pollCts, uint8_t byteCount, uint
             radio_comm_PollCTS();
         }
     }
+
+	hal_printf("\r\n");
 	spi_tx_buff[0] = cmd;
+	for (i = 0 ; i < byteCount; i++){
+		spi_tx_buff[i+1] = pData[i];
+		hal_printf("%x ", pData[i]);
+	}
+	hal_printf("\r\n");
+
 	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
-	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, 1, 0, 0 );
-	MSS_SPI_transfer_block(&g_mss_spi0, pData, byteCount, 0, 0 );
+	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, byteCount + 1, 0, 0 );
 	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
     //radio_hal_ClearNsel();
     //radio_hal_SpiWriteByte(cmd);
@@ -784,8 +798,7 @@ void radio_comm_ReadData(uint8_t cmd, unsigned pollCts, uint8_t byteCount, uint8
 
 	spi_tx_buff[0] = cmd;
 	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
-	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, 1, 0, 0 );
-	MSS_SPI_transfer_block(&g_mss_spi0, 0, 0, pData, byteCount );
+	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, 1, pData, byteCount );
 	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 
 	ctsWentHigh = 0;
