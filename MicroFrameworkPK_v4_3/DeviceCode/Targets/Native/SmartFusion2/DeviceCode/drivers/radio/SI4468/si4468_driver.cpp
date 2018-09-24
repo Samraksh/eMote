@@ -245,7 +245,7 @@ static Message_15_4_t* rx_msg_ptr;
 static void int_cont_do(void *arg) {
 	si446x_debug_print(DEBUG02,"SI446X: int_cont_do()\r\n");
 	SI446x_INT_MODE_CHECK();
-	si446x_spi2_handle_interrupt( SI446X_pin_setup.nirq_mf_pin, false, NULL );
+	si446x_spi2_handle_interrupt( 2, false, NULL );
 }
 
 static void sendSoftwareAck(UINT16 dest){
@@ -903,7 +903,7 @@ DeviceStatus si446x_hal_uninitialize(UINT8 radio) {
 	isInit = 0;
 	radio_shutdown(1);
 
-	CPU_GPIO_DisablePin(SI446X_pin_setup.nirq_mf_pin, RESISTOR_DISABLED, 0, GPIO_ALT_PRIMARY); // Only PIN matters
+	CPU_GPIO_DisablePin(2, RESISTOR_DISABLED, 0, GPIO_ALT_PRIMARY); // Only PIN matters
 	radio_si446x_spi2.SetInitialized(FALSE);
 
 	rx_callback = NULL;
@@ -1520,7 +1520,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	int_ts = HAL_Time_CurrentTicks(); // Log RX time.
 	irq.Release(); // Unlock after timestamp.
 
-	if (Pin != SI446X_pin_setup.nirq_mf_pin) { return; }
+	if (Pin != 2) { return; }
 
 	si446x_debug_print(DEBUG02, "SI446X: INT\r\n");
 
