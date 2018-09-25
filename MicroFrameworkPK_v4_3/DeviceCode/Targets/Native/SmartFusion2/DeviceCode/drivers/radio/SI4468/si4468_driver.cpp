@@ -824,9 +824,9 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	si446x_debug_print(DEBUG01, "SI446X: Radio Interrupts Cleared\r\n");
 
 	temp = si446x_get_property(0x00, 0x01, 0x03);
-	if (temp != RF_GLOBAL_CONFIG_1_1) {
+	if (temp != RF_GLOBAL_CONFIG_1_1_REG) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_init GLOBAL_CONFIG Setting Looks Wrong... Overriding...\r\n");
-		si446x_set_property( 0x00, 0x01, 0x03, RF_GLOBAL_CONFIG_1_1 );
+		si446x_set_property( 0x00, 0x01, 0x03, RF_GLOBAL_CONFIG_1_1_REG );
 	} else {
 		hal_printf("rf global config good\r\n");
 	}

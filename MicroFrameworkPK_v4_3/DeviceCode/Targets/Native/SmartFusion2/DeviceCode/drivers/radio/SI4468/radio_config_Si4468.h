@@ -429,7 +429,7 @@
 #define RF_GLOBAL_CLK_CFG_1 0x11, 0x00, 0x01, 0x01, 0x00
 
 /*
-// Set properties:           RF_GLOBAL_CONFIG_1_1
+// Set properties:           RF_GLOBAL_CONFIG_1_1_CFG
 // Number of properties:     1
 // Group ID:                 0x00
 // Start ID:                 0x03
@@ -437,7 +437,7 @@
 // Descriptions:
 //   GLOBAL_CONFIG - Global configuration settings.
 */
-//#define RF_GLOBAL_CONFIG_1_1 0x11, 0x00, 0x01, 0x03, 0x20
+#define RF_GLOBAL_CONFIG_1_1_CFG 0x11, 0x00, 0x01, 0x03, 0x20
 
 /*
 // Set properties:           RF_INT_CTL_ENABLE_3
@@ -997,7 +997,7 @@
         0x05, RF_IRCAL, \
         0x05, RF_IRCAL_1, \
         0x05, RF_GLOBAL_CLK_CFG_1, \
-        0x05, RF_GLOBAL_CONFIG_1_1, \
+        0x05, RF_GLOBAL_CONFIG_1_1_CFG, \
         0x07, RF_INT_CTL_ENABLE_3, \
         0x08, RF_FRR_CTL_A_MODE_4, \
         0x0D, RF_PREAMBLE_TX_LENGTH_9, \
