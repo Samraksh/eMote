@@ -55,13 +55,13 @@ static void blank_debug(int x, const char *fmt, ...) {
 }
 
 
-static my_debug_print_t si446x_debug_print;
+/*static my_debug_print_t si446x_debug_print;
 void si446x_set_debug_print(my_debug_print_t f, unsigned level) {
 	if (level != 0)
 		si446x_debug_print = f;
 	else
 		si446x_debug_print = blank_debug;
-}
+}*/
 
 static void radio_error() {
 	//__ASM volatile ("bkpt"); // TURN ME OFF FOR RELEASE !!!!!!
@@ -71,7 +71,7 @@ static void radio_error() {
 
 static int SI_ASSERT(int x, const char *err) {
 	if (!x) {
-		si446x_debug_print(ERR100, "%s", err);
+		//si446x_debug_print(ERR100, "%s", err);
 		radio_error();
 		return 1;
 	}
@@ -162,7 +162,7 @@ void si446x_reset(void)
 			size = init_commands[index++];
 			num_commands++;
 		}
-		hal_printf("\tSI446x config sequence complete, %d commands %d bytes\r\n", num_commands, bytes);
+		//hal_printf("\tSI446x config sequence complete, %d commands %d bytes\r\n", num_commands, bytes);
 	}
 	si446x_change_state(SI_STATE_READY); // Move us to READY state, otherwise depends on init.
 
@@ -214,7 +214,7 @@ int si446x_part_info()
     Si446xCmd.PART_INFO.CUSTOMER        = Pro2Cmd[6];
     Si446xCmd.PART_INFO.ROMID           = Pro2Cmd[7];
 	
-	hal_printf( "\tCHIPREV %d\r\n",	Si446xCmd.PART_INFO.CHIPREV);
+	/*hal_printf( "\tCHIPREV %d\r\n",	Si446xCmd.PART_INFO.CHIPREV);
 	hal_printf( "\tPART 0x%.4X\r\n",	Si446xCmd.PART_INFO.PART); // This is best shown in hex
 	hal_printf( "\tPBUILD %d\r\n",	Si446xCmd.PART_INFO.PBUILD);
 	hal_printf( "\tID %d\r\n",		Si446xCmd.PART_INFO.ID);
@@ -223,7 +223,7 @@ int si446x_part_info()
 	
 	// RF4463PRO board from niceRF has ROMID 6 == revC2A
 	// Unfortunately it looks like different chip revs need different treatment. So must verify ROMID
-	hal_printf( "\nROMID = %d\n", Si446xCmd.PART_INFO.ROMID);
+	hal_printf( "\nROMID = %d\n", Si446xCmd.PART_INFO.ROMID);*/
 	ret += SI_ASSERT(Si446xCmd.PART_INFO.ROMID == ROMC2A, "Fatal: Bad ROMID\r\n");
 	ret += SI_ASSERT(Si446xCmd.PART_INFO.PART  == PART_SI446X, "Fatal: Bad Part\r\n");
 	
@@ -250,11 +250,11 @@ int si446x_func_info()
     Si446xCmd.FUNC_INFO.PATCH          |= (U16)Pro2Cmd[4] & 0x00FF;
     Si446xCmd.FUNC_INFO.FUNC            = Pro2Cmd[5];
 	
-	si446x_debug_print(DEBUG01, "\tREVEXT %d\r\n",	Si446xCmd.FUNC_INFO.REVEXT);
-	si446x_debug_print(DEBUG01, "\tREVBRANCH %d\r\n",	Si446xCmd.FUNC_INFO.REVBRANCH);
-	si446x_debug_print(DEBUG01, "\tREVINT %d\r\n",	Si446xCmd.FUNC_INFO.REVINT);
-	si446x_debug_print(DEBUG01, "\tPATCH 0x%.4X\r\n",	Si446xCmd.FUNC_INFO.PATCH);
-	si446x_debug_print(DEBUG01, "\tFUNC %d\r\n",		Si446xCmd.FUNC_INFO.FUNC);
+	//si446x_debug_print(DEBUG01, "\tREVEXT %d\r\n",	Si446xCmd.FUNC_INFO.REVEXT);
+	//si446x_debug_print(DEBUG01, "\tREVBRANCH %d\r\n",	Si446xCmd.FUNC_INFO.REVBRANCH);
+	//si446x_debug_print(DEBUG01, "\tREVINT %d\r\n",	Si446xCmd.FUNC_INFO.REVINT);
+	//si446x_debug_print(DEBUG01, "\tPATCH 0x%.4X\r\n",	Si446xCmd.FUNC_INFO.PATCH);
+	//si446x_debug_print(DEBUG01, "\tFUNC %d\r\n",		Si446xCmd.FUNC_INFO.FUNC);
 	
 	ret += SI_ASSERT(Si446xCmd.FUNC_INFO.PATCH  == PATCHID, "Fatal: Patch Failed\r\n");
 	
@@ -738,11 +738,11 @@ void radio_comm_SendCmd(unsigned byteCount, const uint8_t* pData) {
 	int i;
 	radio_comm_PollCTS();
 	
-	hal_printf("\r\n");
+	/*hal_printf("\r\n");
 	for (i = 0 ; i < byteCount; i++){
 		hal_printf("%x ", pData[i]);
 	}
-	hal_printf("\r\n");
+	hal_printf("\r\n");*/
 	CPU_GPIO_SetPinState( 3, FALSE );
 	//MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );
 	MSS_SPI_transfer_block(&g_mss_spi0, pData, byteCount, 0, 0 );
@@ -772,13 +772,13 @@ void radio_comm_WriteData(uint8_t cmd, unsigned pollCts, uint8_t byteCount, uint
         }
     }
 
-	hal_printf("\r\n");
+	//hal_printf("\r\n");
 	spi_tx_buff[0] = cmd;
 	for (i = 0 ; i < byteCount; i++){
 		spi_tx_buff[i+1] = pData[i];
-		hal_printf("%x ", pData[i]);
+		//hal_printf("%x ", pData[i]);
 	}
-	hal_printf("\r\n");
+	//hal_printf("\r\n");
 
 	CPU_GPIO_SetPinState( 3, FALSE );
 	//MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_1 );

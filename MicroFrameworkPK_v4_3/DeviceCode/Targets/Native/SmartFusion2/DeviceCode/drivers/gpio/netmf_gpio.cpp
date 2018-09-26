@@ -395,7 +395,7 @@ void MSS_GPIO_config
     {
         *(g_config_reg_lut[gpio_idx]) = config;
     }
-	hal_printf("MSS_GPIO_config %d 0x%x\r\n", port_id, config);
+	//hal_printf("MSS_GPIO_config %d 0x%x\r\n", port_id, config);
 }
 
 /*-------------------------------------------------------------------------*//**
@@ -498,7 +498,7 @@ void MSS_GPIO_enable_irq
         *(g_config_reg_lut[gpio_idx]) = (cfg_value | GPIO_INT_ENABLE_MASK);
         NVIC_EnableIRQ(g_gpio_irqn_lut[gpio_idx]);
     }
-	hal_printf("MSS_GPIO_enable_irq %d\r\n", port_id);
+	//hal_printf("MSS_GPIO_enable_irq %d\r\n", port_id);
 }
 
 /*-------------------------------------------------------------------------*//**

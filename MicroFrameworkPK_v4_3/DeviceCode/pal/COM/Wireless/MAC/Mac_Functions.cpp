@@ -21,7 +21,7 @@ UINT8 currentMacName;
 
 //#define DEBUG_MACFUNCTIONS 1
 
-#if defined(DEBUG_MACFUNCTIONS)
+/*#if defined(DEBUG_MACFUNCTIONS)
 #define ENABLE_PIN_MAC(x,y) CPU_GPIO_EnableOutputPin(x,y)
 #define SET_PIN(x,y) CPU_GPIO_SetPinState(x,y)
 #define DEBUG_PRINTF_MAC(x) CLR_Debug::Printf(x)
@@ -30,7 +30,7 @@ UINT8 currentMacName;
 #define SET_PIN(x,y)
 #define DEBUG_PRINTF_MAC(x)
 #endif
-
+*/
 
 //Basic functions
 //UINT8 MacName = 0;
@@ -227,9 +227,9 @@ DeviceStatus MAC_GetNextPacket(UINT8 **managedBuffer)
 
 		UINT32 eventTime = (EventTime & 0xffffffff);
 
-#ifdef DEBUG_MACFUNCTIONS
-		hal_printf("The Snap Shot in native is %u\n", eventTime);
-#endif
+//#ifdef DEBUG_MACFUNCTIONS
+		//hal_printf("The Snap Shot in native is %u\n", eventTime);
+//#endif
 
 		(*managedBuffer)[9 + Size] = (EventTime & 0xff);
 		(*managedBuffer)[10 + Size] = (EventTime >> 8) & 0xff;
@@ -292,7 +292,7 @@ DeviceStatus MAC_SendTimeStamped(UINT16 destAddress, UINT8 dataType, void * msg,
 DeviceStatus MAC_Send(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size){
 	//msg is just the payload,
 
-	hal_printf("MAC_Send\r\n");
+	//hal_printf("MAC_Send\r\n");
 	BOOL status = FALSE;
 	if(currentMacName == CSMAMAC){
 		status = g_csmaMacObject.Send(destAddress, dataType, msg, size);
@@ -304,12 +304,12 @@ DeviceStatus MAC_Send(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 siz
 	if(status != TRUE)
 		return DS_Fail;
 
-	hal_printf("send success\r\n");
+	//hal_printf("send success\r\n");
 	return DS_Success;
 }
 
 PacketID_T MAC_EnqueueToSend(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size){
-	hal_printf("MAC_EnqueueToSend\r\n");
+	//hal_printf("MAC_EnqueueToSend\r\n");
 	if(currentMacName == CSMAMAC){
 		return INVALID_PACKET_ID;
 	}
@@ -336,7 +336,7 @@ DeviceStatus MAC_GetNeighborList(UINT16 *buffer)
 {
 	UINT8 neighborCount = 0;
 
-	DEBUG_PRINTF_MAC("[NATIVE] : Calling GetNeighbor List\n");
+	//DEBUG_PRINTF_MAC("[NATIVE] : Calling GetNeighbor List\n");
 
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
@@ -353,7 +353,7 @@ DeviceStatus MAC_GetNeighborList(UINT16 *buffer)
 
 	if(neighborCount == 0)
 	{
-		DEBUG_PRINTF_MAC("[NATIVE] : Neighbor Count is 0\n");
+		//DEBUG_PRINTF_MAC("[NATIVE] : Neighbor Count is 0\n");
 		buffer[0] = 0;
 	}
 
@@ -363,7 +363,7 @@ DeviceStatus MAC_GetMACNeighborList(UINT16 *buffer)
 {
 	UINT8 neighborCount = 0;
 
-	DEBUG_PRINTF_MAC("[NATIVE] : Calling GetNeighbor List\n");
+	//DEBUG_PRINTF_MAC("[NATIVE] : Calling GetNeighbor List\n");
 
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
@@ -380,7 +380,7 @@ DeviceStatus MAC_GetMACNeighborList(UINT16 *buffer)
 
 	if(neighborCount == 0)
 	{
-		DEBUG_PRINTF_MAC("[NATIVE] : Neighbor Count is 0\n");
+		//DEBUG_PRINTF_MAC("[NATIVE] : Neighbor Count is 0\n");
 		buffer[0] = 0;
 	}
 
