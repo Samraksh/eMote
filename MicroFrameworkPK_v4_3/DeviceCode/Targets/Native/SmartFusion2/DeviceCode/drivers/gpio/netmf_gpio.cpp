@@ -34,7 +34,7 @@ static void GPIO2_IRQ_HANDLER(void *args);
 
 static void handle_exti(unsigned int pin)
 {
-	hal_printf("hexti %d\r\n", pin);
+		MSS_GPIO_clear_irq((mss_gpio_id_t)pin);
 		GPIO_INTERRUPT_SERVICE_ROUTINE my_isr;
 		void *parm;
 
@@ -58,7 +58,6 @@ static void handle_exti(unsigned int pin)
 
 BOOL CPU_GPIO_Initialize()
 {
-	hal_printf("CPU_GPIO_Initialize\r\n");
 	MSS_GPIO_init();
 	return TRUE;
 }
@@ -189,7 +188,6 @@ UINT8 CPU_GPIO_GetSupportedInterruptModes( GPIO_PIN pin )
 
 BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, void* ISR_Param, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
 {
-	hal_printf("CPU_GPIO_EnableInputPin2 %d\r\n", Pin);
 	if(Pin > GPIO_PINS)
 	{
 		return FALSE;
@@ -259,7 +257,6 @@ void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Dire
 
 BOOL CPU_GPIO_EnableInputPin( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
 {
-	hal_printf("CPU_GPIO_EnableInputPin %d\r\n", Pin);
 	if(Pin > GPIO_PINS)
 	{
 		return FALSE;
@@ -548,18 +545,15 @@ void MSS_GPIO_clear_irq
 
 void GPIO0_IRQ_HANDLER(void *args)
 {
-	hal_printf("GPIO0_IRQ_HANDLER\r\n");
 	handle_exti(0);
 }
 
 void GPIO1_IRQ_HANDLER(void *args)
 {
-	hal_printf("GPIO1_IRQ_HANDLER\r\n");
 	handle_exti(1);
 }
 
 void GPIO2_IRQ_HANDLER(void *args)
 {
-	hal_printf("GPIO2_IRQ_HANDLER\r\n");
 	handle_exti(2);
 }

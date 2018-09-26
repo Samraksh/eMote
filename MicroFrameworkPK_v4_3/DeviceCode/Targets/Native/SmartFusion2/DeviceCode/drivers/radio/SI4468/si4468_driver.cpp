@@ -266,12 +266,12 @@ static void sendSoftwareAck(UINT16 dest){
 // I agree its questionable that I'm being too complicated with continuation stuff... --NPS.
 // TX CALLBACK
 static void tx_cont_do(void *arg) {
+	si446x_debug_print(DEBUG02,"SI446X: tx_cont_do()\r\n");
 	if (tx_callback != NULL)
 		tx_callback();
 
 	SI446x_INT_MODE_CHECK();
 
-	si446x_debug_print(DEBUG02,"SI446X: tx_cont_do()\r\n");
 
 	SendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
 	(*AckHandler)(tx_msg_ptr, si446x_packet_size, NetworkOperations_Success, SI_DUMMY);
@@ -283,6 +283,7 @@ static void tx_cont_do(void *arg) {
 
 // Returns true if a continuation is linked and needs service.
 static bool cont_busy(void) {
+	hal_printf("cbusy\r\n");
 	return (tx_callback_continuation.IsLinked() || rx_callback_continuation.IsLinked() || int_defer_continuation.IsLinked());
 }
 
@@ -1477,6 +1478,7 @@ UINT32 si446x_hal_get_rssi(UINT8 radioID) {
 static void si446x_pkt_tx_int() {
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_tx_int()\r\n");
 	set_radio_power_pwm(0); // TX done, idle power supply
+	hal_printf("tx enqueue\r\n");
 	tx_callback_continuation.Enqueue();
 }
 
