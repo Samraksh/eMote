@@ -16,8 +16,82 @@
 #define GLOBAL_LOCK_SOCKETS(x)     SmartPtr_IRQ x
 #endif
 
+/* various MPU flags */
+#define MPU_RASR_AP_PNO_UNO (0x00UL<<MPU_RASR_AP_Pos)
+#define MPU_RASR_AP_PRW_UNO (0x01UL<<MPU_RASR_AP_Pos)
+#define MPU_RASR_AP_PRW_URO (0x02UL<<MPU_RASR_AP_Pos)
+#define MPU_RASR_AP_PRW_URW (0x03UL<<MPU_RASR_AP_Pos)
+#define MPU_RASR_AP_PRO_UNO (0x05UL<<MPU_RASR_AP_Pos)
+#define MPU_RASR_AP_PRO_URO (0x06UL<<MPU_RASR_AP_Pos)
+
+#define MPU_RASR_XN         (0x01UL<<MPU_RASR_XN_Pos)
+#define MPU_RASR_CB_NOCACHE (0x00UL<<MPU_RASR_B_Pos)
+#define MPU_RASR_CB_WB_WRA  (0x01UL<<MPU_RASR_B_Pos)
+#define MPU_RASR_CB_WT      (0x02UL<<MPU_RASR_B_Pos)
+#define MPU_RASR_CB_WB      (0x03UL<<MPU_RASR_B_Pos)
+#define MPU_RASR_SRD(x)     (((uint32_t)(x))<<MPU_RASR_SRD_Pos)
+
 
 MpuRegion_t g_mpuRegions[8];
+
+//Takes mpu permissions and returns the mpu flags to be set
+static uint32_t mpu_map_acl(MpuMemPermission_t acl, bool exec)
+{
+    uint32_t flags;
+    uint32_t acl_res;
+
+    /* Map generic ACLs to internal ACLs. */
+
+    switch(acl){
+		case AP_NO_NO:
+			flags = MPU_RASR_AP_PNO_UNO;
+			acl_res =  0;
+			break;
+		case AP_RO_NO:
+			flags = MPU_RASR_AP_PRO_UNO;
+			acl_res = MPU_TACL_SREAD;
+			break;
+		case AP_RO_RO:
+			flags = MPU_RASR_AP_PRO_URO;
+			acl_res = MPU_TACL_SREAD | MPU_TACL_UREAD;
+			break;
+		case AP_RW_NO:
+			flags = MPU_RASR_AP_PRW_UNO;
+			acl_res = MPU_TACL_SREAD | MPU_TACL_SWRITE;
+			break;
+		case AP_RW_RO:
+			flags = MPU_RASR_AP_PRW_URO;
+			acl_res = MPU_TACL_SREAD | MPU_TACL_SWRITE | MPU_TACL_UREAD;
+			break;
+		case AP_RW_RW:
+			flags = MPU_RASR_AP_PRW_URW;
+			acl_res =  MPU_TACL_UREAD | MPU_TACL_UWRITE |
+			           MPU_TACL_SREAD | MPU_TACL_SWRITE;
+			break;
+		case AP_RESERVED:
+		default:
+			flags = 0;
+			break;
+    }
+
+
+    // Handle code-execute flag.
+    if( exec ) {
+        /* Can't distinguish between user & supervisor execution. */
+        acl_res |= MPU_TACL_UEXECUTE | MPU_TACL_SEXECUTE;
+    }
+    else {
+        flags |= MPU_RASR_XN;
+    }
+
+    // Mukundan:We dont have a way to check this
+    /*if( acl_res != (acl & MPU_TACL_ACCESS) ) {
+        HALT_ERROR(SANITY_CHECK_FAILED, "inferred ACL's (0x%04X) don't match exptected ACL's (0x%04X)\n", acl_res, (acl & MPU_TACL_ACCESS));
+    }*/
+
+    return flags;
+}
+
 
 static inline int vmpu_bits(UINT32 size)
 {
@@ -127,7 +201,7 @@ MpuRegion_t* CPU_mpu_findRegion(void* addr) {
 
 
 UINT32 CPU_mpu_region_translate_acl(MpuRegion_t * const region, void* start, UINT32 size,
-		MpuMemPermission_t acl, UINT32 acl_hw_spec)
+		MpuMemPermission_t acl, bool acl_exec, UINT32 acl_hw_spec)
 {
     UINT32 config, bits, mask, size_rounded, subregions;
 
@@ -149,23 +223,23 @@ UINT32 CPU_mpu_region_translate_acl(MpuRegion_t * const region, void* start, UIN
         }
     }
 
-    /* check for correctly aligned base address */
+    // check for correctly aligned base address
     mask = size_rounded - 1;
 
     if((UINT32)start & mask) {
         debug_printf("SANITY_CHECK_FAILED: start address 0x%08X and size (%i) are inconsistent\n", start, size);
     }
 
-    /* map generic ACL's to internal ACL's */
-    config = vmpu_map_acl(acl);
+    // map generic permissions to mpu internal ACLs
+    config = mpu_map_acl(acl, acl_exec);
 
-    /* calculate subregions from hw-specific ACL */
+    // calculate subregions from hw-specific ACL
     subregions = (acl_hw_spec << MPU_RASR_SRD_Pos) & MPU_RASR_SRD_Msk;
 
     /* enable region & add size */
-    region->config = config | MPU_RASR_ENABLE_Msk | ((UINT32) (bits - 1) << MPU_RASR_SIZE_Pos) | subregions;
+    region->config = config | MPU_RASR_ENA_Msk | ((UINT32) (bits - 1) << MPU_RASR_SIZE_Pos) | subregions;
     region->start = start;
-    region->end = start + size_rounded;
+    region->end = (void*)((uint32_t)start + size_rounded);
     region->acl = acl;
 
     return size_rounded;
