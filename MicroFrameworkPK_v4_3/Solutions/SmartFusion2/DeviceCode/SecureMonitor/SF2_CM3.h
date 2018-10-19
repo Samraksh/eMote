@@ -10,11 +10,17 @@
 //#define ERAM_OFFSET 0x0
 
 //Embedded Flash
-#define EFLASH_ORIGIN 0x10000000 //On SF2 the internal flash actually starts at 0x8000000, but it gets mapped to 0x1000000 at run time
-#define EFLASH_SIZE 0x100000 //1MB
-#define EFLASH_SIZE_POWER 20 //2^20 is 1MB
+#define EFLASH_ORIGIN 0x00000000 //On SF2 the internal flash actually starts at 0x8000000, but it gets mapped to 0x1000000 at run time
+#define EFLASH_SIZE 0x80000 //512K
+#define EFLASH_SIZE_POWER 19 //2^20 is 512K
+
+
+#define ROT_SIZE 0x11200
+#define KERNEL_SIZE 0x5900
+#define RUNTIME_SIZE 0x4E000
 
 #define IO_ORIGIN 0x40000000
 #define IO_SIZE 0x20000000
+#define IO_SIZE_POWER 29
 
 #endif //_SF2_CM3_H_

@@ -1,7 +1,7 @@
 
 /*
 
-STM32F1x Microframework power HAL driver
+Microframework power HAL driver
 
 Nathan Stohs
 nathan.stohs@samraksh.com
@@ -41,8 +41,28 @@ static void restart_peripherals(void) {
 	// Nothing needed for TB
 }
 
-/*
 
+void PWR_EnterSTANDBYMode(void)
+{
+
+  //The code below is from STM32, this is dummy function needs to be implemented
+  /*// Clear Wake-up flag
+  PWR->CR |= PWR_CR_CWUF;
+  // Select STANDBY mode
+  PWR->CR |= PWR_CR_PDDS;
+  // Set SLEEPDEEP bit of Cortex System Control Register
+  SCB->SCR |= SCB_SCR_SLEEPDEEP;
+  // This option is used to ensure that store operations are completed
+#if defined ( __CC_ARM   )
+  __force_stores();
+#endif
+
+*/
+  // Request Wait For Interrupt
+  __WFI();
+}
+
+/*
 void Low_Power() {
 
 	// Make sure actually changing
@@ -191,6 +211,7 @@ void High_Power() {
 */
 
 
+
 // Note: This is never called
 void Sleep() {
 	__DSB();
@@ -211,7 +232,10 @@ void Reset() {
 
 void Shutdown() {
     SOFT_BREAKPOINT();
-	while(1) { PWR_EnterSTANDBYMode(); }
+	while(1)
+	{
+		//PWR_EnterSTANDBYMode();
+	}
 }
 
 void HAL_AssertEx() {

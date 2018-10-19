@@ -222,16 +222,26 @@ extern "C"
 
 
 	#if defined(DEBUG)
-	// help GDB inspect CMSIS register definitions in core_cm3.h
-	volatile NVIC_Type*          pNVIC      = NVIC;
-	volatile SCB_Type*           pSCB       = SCB;
-	volatile SysTick_Type*       pSysTick   = SysTick;
-	volatile ITM_Type*           pITM       = ITM;
-	volatile InterruptType_Type* pInterruptType = InterruptType;
-	volatile MPU_Type*           pMPU       = MPU;
-	volatile CoreDebug_Type*     pCoreDebug = CoreDebug;
+		#if __CM3_CMSIS_VERSION < 0x2000
+			// help GDB inspect CMSIS register definitions in core_cm3.h
+			volatile NVIC_Type*          pNVIC      = NVIC;
+			volatile SCB_Type*           pSCB       = SCB;
+			volatile SysTick_Type*       pSysTick   = SysTick;
+			volatile ITM_Type*           pITM       = ITM;
+			volatile InterruptType_Type* pInterruptType = InterruptType;
+			volatile MPU_Type*           pMPU       = MPU;
+			volatile CoreDebug_Type*     pCoreDebug = CoreDebug;
+		#else
+			// help GDB inspect CMSIS register definitions in core_cm3.h
+			volatile NVIC_Type*          pNVIC      = NVIC;
+			volatile SCB_Type*           pSCB       = SCB;
+			volatile SysTick_Type*       pSysTick   = SysTick;
+			volatile ITM_Type*           pITM       = ITM;
+			volatile SCnSCB_Type* pInterruptType = SCnSCB;
+			volatile MPU_Type*           pMPU       = MPU;
+			volatile CoreDebug_Type*     pCoreDebug = CoreDebug;
+		#endif
 	#endif
-
 
 __attribute__((optimize("O0")))
 void HardFault_HandlerC(unsigned long *hardfault_args)
@@ -341,7 +351,11 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
     pSCB       = SCB;
     pSysTick   = SysTick;
     pITM       = ITM;
+#if __CM3_CMSIS_VERSION < 0x2000
     pInterruptType = InterruptType;
+#else
+    pInterruptType = SCnSCB;
+#endif
     pMPU       = MPU;
     pCoreDebug = CoreDebug;
 #endif // defined(DEBUG)

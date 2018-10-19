@@ -93,10 +93,10 @@ typedef enum {
 } MpuMemPermission_t;
 
 
-typedef struct
+typedef struct MpuRegion
 {
-    void *start;     // Start address of the MPU region.
-    void *end;       // End address of the MPU region.
+    UINT32 start;     // Start address of the MPU region.
+    UINT32 end;       // End address of the MPU region.
     UINT32 regionNo;    // MPU specific config data (permissions, subregions, etc)
     UINT32 config;
     MpuMemPermission_t acl;   //region permissions
@@ -108,12 +108,12 @@ void CPU_mpu_enable(void);
 
 void CPU_mpu_disable(void);
 
-void CPU_mpu_configure_region(UINT8 region, void *addr, UINT8 log2_len,
+void CPU_mpu_configure_region(UINT8 region, UINT32 addr, UINT32 regionSize,
                           MpuMemPermission_t ap, bool executable);
 
 MpuRegion_t* CPU_mpu_findRegion(void* addr);
 
-UINT32 CPU_mpu_region_translate_acl(MpuRegion_t * const region, void* start, UINT32 size,
+UINT32 CPU_mpu_region_translate_acl(MpuRegion_t * const region, UINT32 startAddr, UINT32 size,
 		MpuMemPermission_t acl, UINT32 acl_hw_spec);
 
 

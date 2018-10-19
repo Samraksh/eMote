@@ -306,10 +306,9 @@
     <GlobalVariable Name="Image$$RunTime_ER_RAM_RW$$ZI$$Base"               Value="ADDR(.bss.runtime)"/>
     <GlobalVariable Name="Image$$RunTime_ER_RAM_RW$$ZI$$Length"             Value="SIZEOF(.bss.runtime)"/>
     
-    <!-- <GlobalVariable Name="Image$$RoT_Total_RAM_RW$$Length"             Value="SIZEOF(ROT_ER_RAM_RW)+ SIZEOF(.bss)"/>
+    <GlobalVariable Name="Image$$RoT_Total_RAM_RW$$Length"                Value="SIZEOF(ROT_ER_RAM_RW)+ SIZEOF(.bss)"/>
     <GlobalVariable Name="Image$$Kernel_Total_RAM_RW$$Length"             Value="SIZEOF(Kernel_ER_RAM_RW)+ SIZEOF(.bss.kernel)"/>
-    <GlobalVariable Name="Image$$RunTime_Total_RAM_RW$$Length"             Value="SIZEOF(RunTime_ER_RAM_RW)+ SIZEOF(.bss.runtime)"/>
-    -->
+    <GlobalVariable Name="Image$$RunTime_Total_RAM_RW$$Length"            Value="SIZEOF(RunTime_ER_RAM_RW)+ SIZEOF(.bss.runtime)"/>
     
     <GlobalVariable Name="Image$$Kernel_ER_FLASH$$Base"                   Value="ADDR(Kernel_ER_FLASH)"/>
     <GlobalVariable Name="Image$$Kernel_ER_FLASH$$Length"                 Value="SIZEOF(Kernel_ER_FLASH)"/>

@@ -27,5 +27,8 @@
   </PropertyGroup>
   <ItemGroup>
     <IncludePaths Include="devicecode\Targets\Native\STM32F10x" />
+    <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis" />
+    <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\stmlib" />
+    <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\fsmc\P30BF65NOR" />
   </ItemGroup>
 </Project>

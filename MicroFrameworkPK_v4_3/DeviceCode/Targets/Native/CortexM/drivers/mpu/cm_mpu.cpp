@@ -4,6 +4,7 @@
 #include <cmsis/m2sxxx.h>
 #include <cmsis/mss_assert.h>
 #include <core_cm3.h>
+#include <cmsis_gcc.h>
 
 
 //redefinition here. This is usually done on platform_selector.h, but since this is sort of a chip file,
@@ -29,16 +30,19 @@
 #define MPU_RASR_CB_WB_WRA  (0x01UL<<MPU_RASR_B_Pos)
 #define MPU_RASR_CB_WT      (0x02UL<<MPU_RASR_B_Pos)
 #define MPU_RASR_CB_WB      (0x03UL<<MPU_RASR_B_Pos)
-#define MPU_RASR_SRD(x)     (((uint32_t)(x))<<MPU_RASR_SRD_Pos)
+#define MPU_RASR_SRD(x)     (((UINT32)(x))<<MPU_RASR_SRD_Pos)
+
+#define MPU_RBAR(region,addr)   (((UINT32)(region))|MPU_RBAR_VALID_Msk|addr)
+#define MPU_RBAR_RNR(addr)     (addr)
 
 
 MpuRegion_t g_mpuRegions[8];
 
 //Takes mpu permissions and returns the mpu flags to be set
-static uint32_t mpu_map_acl(MpuMemPermission_t acl, bool exec)
+static UINT32 mpu_map_acl(MpuMemPermission_t acl, bool exec)
 {
-    uint32_t flags;
-    uint32_t acl_res;
+    UINT32 flags;
+    UINT32 acl_res;
 
     /* Map generic ACLs to internal ACLs. */
 
@@ -100,7 +104,7 @@ static inline int vmpu_bits(UINT32 size)
 }
 
 
-uint8_t vmpu_region_bits(UINT32 size)
+uint8_t mpu_region_bits(UINT32 size)
 {
     assert(0 != size);
 
@@ -120,6 +124,31 @@ uint8_t vmpu_region_bits(UINT32 size)
     return bits;
 }
 
+/// Compute the MPU region size for the given BSS sections and stack sizes.
+/// The function also updates the region_start parameter to meet the alignment
+/// requirements of the MPU.
+static UINT32 mpu_sram_region_size(UINT32 * region_start, UINT32 const bss_size, UINT32 const stack_size)
+{
+    /// Ensure that 2/8th are available for protecting the stack from the BSS
+    /// sections. One subregion will separate the 2 areas, another one is needed
+    /// to include a margin for rounding errors.
+    int bits = mpu_region_bits(((stack_size + bss_size) * 8) / 6);
+
+    /// Calculate the whole MPU region size.
+    /// Note: In order to support subregions the region size is at least 2**8.
+    if (bits < 8) {
+        bits = 8;
+    }
+    UINT32 region_size = 1UL << bits;
+
+    /// Ensure that the MPU region is aligned to a multiple of its size.
+    if ((*region_start & (region_size - 1)) != 0) {
+        *region_start = (*region_start & ~(region_size - 1)) + region_size;
+    }
+
+    return region_size;
+}
+
 
 void CPU_mpu_enable(void)
 {
@@ -131,57 +160,78 @@ void CPU_mpu_disable(void)
     MPU->CTRL &= ~MPU_CTRL_ENABLE_Msk;
 }
 
-void CPU_mpu_configure_region(UINT8 region, void *addr, UINT8 len,
+void CPU_mpu_configure_region(UINT8 regionNo, UINT32 startAddr, UINT32 regionSize,
                           MpuMemPermission_t ap, bool executable)
 {
-    int32_t rasr = 0;
+	bool priv=false;
+	//check for priviledged mode
+	if (__get_IPSR() || !(__get_CONTROL() & 0x1))
+	{
+		priv=true;
+	}
+	// You need to be in Privilged mode to make changes to MPU.
+	ASSERT(priv);
 
-    ASSERT(len >= 5); // "region too small"
+	UINT32 sizePow =  mpu_sram_region_size(&startAddr, regionSize, 0);
+
+    ASSERT(sizePow >= 5); // "region too small"
 
     // Extract region and address information.
-    region = region & MPU_RBAR_REGION_Msk;
-    addr = (void *)((UINT32)addr & MPU_RBAR_ADDR_Msk);
+    regionNo = regionNo & MPU_RBAR_REGION_Msk;
+    UINT32 addr = (startAddr & MPU_RBAR_ADDR_Msk);
 
     // If the region is not executable add the eXecute Never flag.
-    if (!executable) {
-        rasr += MPU_RASR_XN_Msk;
-    }
+    //if (!executable) {
+    //    rasr += MPU_RASR_XN_Msk;
+    //}
 
+    UINT32 rasr = mpu_map_acl(ap,executable);
     // Construct the Region Attributes and Size Register value.
-    UINT32 size = ((len - 1) << MPU_RASR_SIZE_Pos);
-    rasr += (ap << MPU_RASR_AP_Pos);
-    rasr += size;
-    rasr += MPU_RASR_ENA_Msk;
+    UINT32 size = ((UINT32)(sizePow - 1) << MPU_RASR_SIZE_Pos);
+    rasr= rasr | MPU_RASR_ENABLE_Msk | size;
+
+
+    /* more complicated uvisor type calculation
+    UINT32 regionSize=mpu_sram_region_size(startAddr, size);
+    MpuRegion_t *region = &g_mpuRegions[regionIndex];
+    UINT32 rounded_size = CPU_mpu_region_translate_acl(&region, startAddr, regionSize,
+        acl, 0);
+
+    // apply RASR & RBAR
+    MPU->RBAR = MPU_RBAR(regionIndex, region->start);
+    MPU->RASR = region->config;
+    */
 
     GLOBAL_LOCK(irq);
-
-    // Update the MPU settings
-    MPU->RBAR = (uintptr_t)addr + region + MPU_RBAR_VALID_Msk;
-    MPU->RASR = rasr;
-
     //chSysUnlock();
 
     // Make sure the memory barriers are correct.
-    __ISB();
-    __DSB();
+    __ISB(); //sync instruction access
+    __DSB(); // sync data access
 
+    // Update MPU region attributes
+    //MPU->RBAR = (uintptr_t)addr + regionNo + MPU_RBAR_VALID_Msk;
+    MPU->RBAR=MPU_RBAR(regionNo,addr);
+    MPU->RASR = rasr;
 
-    //store region information
-    g_mpuRegions[region].start=addr;
-    g_mpuRegions[region].end=(void*)((UINT32)addr+size);
-    g_mpuRegions[region].regionNo= region;
-    g_mpuRegions[region].acl = ap;
+    //update global region state
+    g_mpuRegions[regionNo].start=addr;
+    g_mpuRegions[regionNo].end=addr+regionSize;
+    g_mpuRegions[regionNo].regionNo= regionNo;
+    g_mpuRegions[regionNo].acl = ap;
+    g_mpuRegions[regionNo].config = rasr;
+
 }
 
 void CPU_mpu_init(void)
 {
-    /* Enable default memory permissions for priviledged code. */
+	// Enable default memory permissions for priviledged code.
     MPU->CTRL |= MPU_CTRL_PRIVDEFENA_Msk;
 
-    /* Enable MemManage faults. */
-    SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;
-
     CPU_mpu_enable();
+
+    // Enable MemManage faults.
+    SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;
 }
 
 //Note: Finds the first region to which address belongs; Overlapping regions could be a problem.
@@ -192,7 +242,7 @@ MpuRegion_t* CPU_mpu_findRegion(void* addr) {
 	region =g_mpuRegions;
 	for (int count=7; count >= 0; count--) {
 		region =&g_mpuRegions[count];
-		if (region->start <= addr && addr < region->end) {
+		if (region->start <= (UINT32)addr && (UINT32)addr < region->end) {
 			return region;
 		}
 	}
@@ -200,13 +250,13 @@ MpuRegion_t* CPU_mpu_findRegion(void* addr) {
 }
 
 
-UINT32 CPU_mpu_region_translate_acl(MpuRegion_t * const region, void* start, UINT32 size,
+UINT32 CPU_mpu_region_translate_acl(MpuRegion_t * const region, UINT32 startAddr, UINT32 size,
 		MpuMemPermission_t acl, bool acl_exec, UINT32 acl_hw_spec)
 {
     UINT32 config, bits, mask, size_rounded, subregions;
 
     /* verify region alignment */
-    bits = vmpu_region_bits(size);
+    bits = mpu_region_bits(size);
     size_rounded = 1UL << bits;
 
     if(size_rounded != size) {
@@ -226,8 +276,8 @@ UINT32 CPU_mpu_region_translate_acl(MpuRegion_t * const region, void* start, UIN
     // check for correctly aligned base address
     mask = size_rounded - 1;
 
-    if((UINT32)start & mask) {
-        debug_printf("SANITY_CHECK_FAILED: start address 0x%08X and size (%i) are inconsistent\n", start, size);
+    if(startAddr & mask) {
+        debug_printf("SANITY_CHECK_FAILED: start address 0x%08X and size (%i) are inconsistent\n", startAddr, size);
     }
 
     // map generic permissions to mpu internal ACLs
@@ -236,10 +286,11 @@ UINT32 CPU_mpu_region_translate_acl(MpuRegion_t * const region, void* start, UIN
     // calculate subregions from hw-specific ACL
     subregions = (acl_hw_spec << MPU_RASR_SRD_Pos) & MPU_RASR_SRD_Msk;
 
-    /* enable region & add size */
-    region->config = config | MPU_RASR_ENA_Msk | ((UINT32) (bits - 1) << MPU_RASR_SIZE_Pos) | subregions;
-    region->start = start;
-    region->end = (void*)((uint32_t)start + size_rounded);
+    // enable region & add size
+    //region->config = config | MPU_RASR_ENA_Msk | ((UINT32) (bits - 1) << MPU_RASR_SIZE_Pos) | subregions;
+    region->config = config | MPU_RASR_ENABLE_Msk | ((UINT32) (bits - 1) << MPU_RASR_SIZE_Pos) ;
+    region->start = startAddr;
+    region->end = startAddr + size_rounded;
     region->acl = acl;
 
     return size_rounded;
