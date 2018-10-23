@@ -58,7 +58,7 @@ void SetupSecureEmoteRegions(){
 	//Region 0: on RAM, System Stack, Runtime heap, Ram,
 	//Set entire ram as this region, other specific regions else can be set on top of this
 	UINT32 mem_base = (UINT32)ERAM_ORIGIN;
-	UINT32 mem_size = ERAM_SIZE_POWER;
+	UINT32 mem_size = ERAM_SIZE;
 	CPU_mpu_configure_region(GP_RAM, mem_base, mem_size, AP_RW_RO, false);
 
 	//Region 2: Kernel Ram
@@ -95,11 +95,14 @@ void SetupSecureEmoteRegions(){
 	//Region 6:
 	mem_base = (UINT32)EFLASH_ORIGIN;
 	//mem_size = (UINT32)Image$$RoT_ER_FLASH$$Length;
-	mem_size = (UINT32)0x11200;
+	mem_size = (UINT32)ROT_SIZE;
 	CPU_mpu_configure_region(RoT_CODE, mem_base, mem_size, AP_RO_NO, true);
 
 	// NULL pointer protection, highest priority.
 	//CPU_mpu_configure_region(Reserve, 0, 5, AP_NO_NO, false);
+
+	//Done configuring all regions. Enable and lock mpu
+	CPU_mpu_lock();
 
 }
 

@@ -127,12 +127,10 @@ uint8_t mpu_region_bits(UINT32 size)
 /// Compute the MPU region size for the given BSS sections and stack sizes.
 /// The function also updates the region_start parameter to meet the alignment
 /// requirements of the MPU.
-static UINT32 mpu_sram_region_size(UINT32 * region_start, UINT32 const bss_size, UINT32 const stack_size)
+//static UINT32 mpu_sram_region_size(UINT32 * region_start, UINT32 const bss_size, UINT32 const stack_size)
+static UINT32 mpu_align_region_size(UINT32 * region_start, UINT32 const requestedsize)
 {
-    /// Ensure that 2/8th are available for protecting the stack from the BSS
-    /// sections. One subregion will separate the 2 areas, another one is needed
-    /// to include a margin for rounding errors.
-    int bits = mpu_region_bits(((stack_size + bss_size) * 8) / 6);
+    int bits = mpu_region_bits(requestedsize);
 
     /// Calculate the whole MPU region size.
     /// Note: In order to support subregions the region size is at least 2**8.
@@ -146,7 +144,7 @@ static UINT32 mpu_sram_region_size(UINT32 * region_start, UINT32 const bss_size,
         *region_start = (*region_start & ~(region_size - 1)) + region_size;
     }
 
-    return region_size;
+    return bits;
 }
 
 
@@ -172,7 +170,7 @@ void CPU_mpu_configure_region(UINT8 regionNo, UINT32 startAddr, UINT32 regionSiz
 	// You need to be in Privilged mode to make changes to MPU.
 	ASSERT(priv);
 
-	UINT32 sizePow =  mpu_sram_region_size(&startAddr, regionSize, 0);
+	UINT32 sizePow =  mpu_align_region_size(&startAddr, regionSize);
 
     ASSERT(sizePow >= 5); // "region too small"
 
@@ -202,18 +200,6 @@ void CPU_mpu_configure_region(UINT8 regionNo, UINT32 startAddr, UINT32 regionSiz
     MPU->RASR = region->config;
     */
 
-    GLOBAL_LOCK(irq);
-    //chSysUnlock();
-
-    // Make sure the memory barriers are correct.
-    __ISB(); //sync instruction access
-    __DSB(); // sync data access
-
-    // Update MPU region attributes
-    //MPU->RBAR = (uintptr_t)addr + regionNo + MPU_RBAR_VALID_Msk;
-    MPU->RBAR=MPU_RBAR(regionNo,addr);
-    MPU->RASR = rasr;
-
     //update global region state
     g_mpuRegions[regionNo].start=addr;
     g_mpuRegions[regionNo].end=addr+regionSize;
@@ -221,17 +207,27 @@ void CPU_mpu_configure_region(UINT8 regionNo, UINT32 startAddr, UINT32 regionSiz
     g_mpuRegions[regionNo].acl = ap;
     g_mpuRegions[regionNo].config = rasr;
 
+    CPU_mpu_set_acl(regionNo,&g_mpuRegions[regionNo]);
+
 }
 
 void CPU_mpu_init(void)
 {
-	// Enable default memory permissions for priviledged code.
-    MPU->CTRL |= MPU_CTRL_PRIVDEFENA_Msk;
+	uint32_t aligment_mask;
 
-    CPU_mpu_enable();
+	// Disable the MPU.
+	MPU->CTRL = 0;
+	// Check MPU region alignment using region number zero.
+	MPU->RNR = 0;
+	MPU->RBAR = MPU_RBAR_ADDR_Msk;
+	aligment_mask = ~MPU->RBAR;
+	MPU->RBAR = 0;
 
-    // Enable MemManage faults.
-    SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;
+	// Enable mem, bus and usage faults.
+	SCB->SHCSR |= (SCB_SHCSR_USGFAULTENA_Msk) |
+				  (SCB_SHCSR_BUSFAULTENA_Msk) |
+				  (SCB_SHCSR_MEMFAULTENA_Msk);
+
 }
 
 //Note: Finds the first region to which address belongs; Overlapping regions could be a problem.
@@ -314,4 +310,38 @@ uint8_t CPU_mpu_region_bits(UINT32 size)
 
     assert(bits == MPU_REGION_BITS(size));
     return bits;
+}
+
+void CPU_mpu_lock(void){
+	// DMB to ensure MPU update after all transfer to memory completed
+	__DMB();
+
+	// Finally enable the MPU.
+	MPU->CTRL = MPU_CTRL_ENABLE_Msk | MPU_CTRL_PRIVDEFENA_Msk;
+
+	// DSB & ISB to ensure subsequent data & instruction transfers are using updated MPU settings
+	__DSB();
+	__ISB();
+}
+
+void CPU_mpu_invalidate_region(UINT8 regionNo){
+	MPU->RNR = regionNo;
+	MPU->RASR = 0;
+	MPU->RBAR = 0;
+}
+
+void CPU_mpu_set_acl(UINT8 regionNo, MpuRegion_t* region){
+	//disable interrupts
+	GLOBAL_LOCK(irq);
+
+	// Make sure the memory barriers are correct.
+	__ISB(); //sync instruction access
+	__DSB(); // sync data access
+
+	// Update MPU region attributes
+
+	//MPU->RNR=regionNo;
+	//No need to set the region number register (rnr). It will be set through rbar
+	MPU->RBAR=MPU_RBAR(regionNo,region->start);
+	MPU->RASR = region->config;
 }

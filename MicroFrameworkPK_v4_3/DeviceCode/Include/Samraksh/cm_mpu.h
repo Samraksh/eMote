@@ -75,12 +75,12 @@
 #define MPU_TACL_USER            0x0800UL
 #define MPU_TACL_IRQ             0x1000UL
 
-
+/*
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+*/
 
 typedef enum {
     AP_NO_NO=0x0,
@@ -108,6 +108,12 @@ void CPU_mpu_enable(void);
 
 void CPU_mpu_disable(void);
 
+void CPU_mpu_lock(void);
+
+void CPU_mpu_invalidate_region(UINT8 regionNo);
+
+void CPU_mpu_set_acl(UINT8 index, MpuRegion_t* region);
+
 void CPU_mpu_configure_region(UINT8 region, UINT32 addr, UINT32 regionSize,
                           MpuMemPermission_t ap, bool executable);
 
@@ -116,11 +122,13 @@ MpuRegion_t* CPU_mpu_findRegion(void* addr);
 UINT32 CPU_mpu_region_translate_acl(MpuRegion_t * const region, UINT32 startAddr, UINT32 size,
 		MpuMemPermission_t acl, UINT32 acl_hw_spec);
 
-
+extern "C" {
 void debug_printf( const char *format, ... );
+}
 
-#ifdef __cplusplus
+/*#ifdef __cplusplus
 }
 #endif
+*/
 
 #endif //_CM_MPU_H_
