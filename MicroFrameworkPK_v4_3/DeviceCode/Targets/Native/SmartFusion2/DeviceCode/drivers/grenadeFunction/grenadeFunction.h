@@ -1,5 +1,5 @@
-#ifndef __NETMFSPI_H__
-#define __NETMFSPI_H__
+#ifndef __GRENADEFUNCTION_H__
+#define __GRENADEFUNCTION_H__
 
 #include <tinyhal.h>
 #include <cmsis/m2sxxx.h>

@@ -1,5 +1,5 @@
-#ifndef __NETMFSPI_H__
-#define __NETMFSPI_H__
+#ifndef __LOADTARGET_H__
+#define __LOADTARGET_H__
 
 #include <tinyhal.h>
 #include <cmsis/m2sxxx.h>

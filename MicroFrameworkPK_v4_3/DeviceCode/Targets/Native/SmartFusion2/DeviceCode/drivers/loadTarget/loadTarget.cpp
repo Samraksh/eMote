@@ -27,9 +27,9 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 	spi_tx_buff[2] = 0x00;
 	spi_tx_buff[3] = 0x00;
 	size = 4;
-	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
-	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, 0, 0 );
-	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
+	MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+	MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, 0, 0 );
+	MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
 
 	HAL_Time_Sleep_MicroSeconds(100);
 
@@ -39,9 +39,9 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 	spi_tx_buff[1] = 0x00;
 	spi_tx_buff[2] = 0x00;
 	size = 3;
-	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
-	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
-	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
+	MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+	MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, spi_rx_buff, 1 );
+	MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
 	if (spi_rx_buff[0] != 0x1E){
 		return 1;
 	}
@@ -53,9 +53,9 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 	spi_tx_buff[1] = 0x00;
 	spi_tx_buff[2] = 0x01;
 	size = 3;
-	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
-	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
-	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
+	MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+	MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, spi_rx_buff, 1 );
+	MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
 	if (spi_rx_buff[0] != 0x95){
 			return 1;
 	}
@@ -67,9 +67,9 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 	spi_tx_buff[1] = 0x00;
 	spi_tx_buff[2] = 0x02;
 	size = 3;
-	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
-	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
-	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
+	MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+	MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, spi_rx_buff, 1 );
+	MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
 	if (spi_rx_buff[0] != 0x0F){
 			return 1;
 	}
@@ -83,9 +83,9 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 	spi_tx_buff[2] = 0x00;
 	spi_tx_buff[3] = 0x00;
 	size = 4;
-	MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
-	MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, 0, 0 );
-	MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
+	MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+	MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, 0, 0 );
+	MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
 
 	HAL_Time_Sleep_MicroSeconds(20000);
 
@@ -116,9 +116,9 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 			spi_tx_buff[2] = burning_location & 0xFF;
 			spi_tx_buff[3] = eNVM_read_buff[i];
 			size = 4;
-			MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
-			MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, 0, 0 );
-			MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
+			MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+			MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, 0, 0 );
+			MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
 
 			HAL_Time_Sleep_MicroSeconds(100);
 
@@ -128,9 +128,9 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 			spi_tx_buff[2] = burning_location & 0xFF;
 			spi_tx_buff[3] = eNVM_read_buff[i+1];
 			size = 4;
-			MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
-			MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, 0, 0 );
-			MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
+			MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+			MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, 0, 0 );
+			MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
 
 			HAL_Time_Sleep_MicroSeconds(400);
 
@@ -145,9 +145,9 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 		spi_tx_buff[2] = burn_command_location & 0xFF;
 		spi_tx_buff[3] = 0x00;
 		size = 4;
-		MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
-		MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, 0, 0 );
-		MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
+		MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+		MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, 0, 0 );
+		MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
 
 		HAL_Time_Sleep_MicroSeconds(5000);
 
@@ -180,9 +180,9 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 			spi_tx_buff[1] = (burning_location & 0xFF00 ) >> 8;
 			spi_tx_buff[2] = burning_location & 0xFF;
 			size = 3;
-			MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
-			MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
-			MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
+			MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+			MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, spi_rx_buff, 1 );
+			MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
 			if (spi_rx_buff[0] != eNVM_read_buff[i]){
 				return 1;
 			}
@@ -192,9 +192,9 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 			spi_tx_buff[1] = (burning_location & 0xFF00 ) >> 8;
 			spi_tx_buff[2] = burning_location & 0xFF;
 			size = 3;
-			MSS_SPI_set_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
-			MSS_SPI_transfer_block(&g_mss_spi0, spi_tx_buff, size, spi_rx_buff, 1 );
-			MSS_SPI_clear_slave_select( &g_mss_spi0, MSS_SPI_SLAVE_0 );
+			MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+			MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, spi_rx_buff, 1 );
+			MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
 			if (spi_rx_buff[0] != eNVM_read_buff[i+1]){
 				return 1;
 			}

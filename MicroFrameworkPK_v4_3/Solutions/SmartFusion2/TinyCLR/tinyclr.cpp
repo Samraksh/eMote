@@ -5,11 +5,12 @@
 #include <tinyclr_application.h>
 #include <tinyhal.h>
 #include <grenadeFunction/grenadeFunction.h>
+#include <loadTarget/loadTarget.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 void ApplicationEntryPoint()
 {
-	//hal_printf("testing CLR\r\n");
+	loadArduinoSPI((uint8_t*)0xE000,1016);
 	//while (1) {codeIntegrityCheck( 0,0);}
     CLR_SETTINGS clrSettings;
 
