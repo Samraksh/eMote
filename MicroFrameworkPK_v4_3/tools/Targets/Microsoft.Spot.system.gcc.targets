@@ -72,9 +72,8 @@
 
 	<!-- <CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) -mabi=aapcs -ffunction-sections -fomit-frame-pointer -mlong-calls -fdollars-in-identifiers -fshort-wchar -fno-exceptions  -funsigned-char -mstructure-size-boundary=8</CC_CPP_COMMON_FLAGS> -->
 	<POS_INDEPENDENT>-mapcs -mabi=aapcs -fPIC -mno-apcs-stack-check </POS_INDEPENDENT>
-	<!--<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'=='5.4.1'">$(CC_CPP_COMMON_FLAGS) -DSAMRAKSH_CUSTOM_NEWLIB -mslow-flash-data -fdata-sections -ffunction-sections -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m3 -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS> -->
-	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'=='5.4.1'">$(CC_CPP_COMMON_FLAGS) -DSAMRAKSH_CUSTOM_NEWLIB -mslow-flash-data -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m3 -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
-	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'!='5.4.1'">$(CC_CPP_COMMON_FLAGS) -mslow-flash-data -fdata-sections -ffunction-sections -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m3 -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
+	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'=='5.4.1'">$(CC_CPP_COMMON_FLAGS) -DSAMRAKSH_CUSTOM_NEWLIB -mslow-flash-data -fdata-sections -ffunction-sections -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m3 -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
+	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'!='5.4.1'">$(CC_CPP_COMMON_FLAGS) -mslow-flash-data -fdollars-in-identifiers -fno-exceptions -mcpu=cortex-m3 -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_COMMON_FLAGS) -ffunction-sections -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mfpu=neon-vfpv4 </CC_CPP_COMMON_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='RTM'     and '$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_TARGETTYPE_FLAGS) -Os -fno-strict-aliasing </CC_CPP_TARGETTYPE_FLAGS>
     <!--<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0 -femit-class-debug-always</CC_CPP_TARGETTYPE_FLAGS>-->
@@ -84,7 +83,8 @@
 	<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release' and '$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_TARGETTYPE_FLAGS) -O1 </CC_CPP_TARGETTYPE_FLAGS>
 
     <CC_FLAGS>$(CC_FLAGS)-xc </CC_FLAGS>
-    <CPP_FLAGS>$(CPP_FLAGS)-xc++ -D_ISOC99_SOURCE -Wno-invalid-offsetof -fcheck-new </CPP_FLAGS>
+    <!-- <CPP_FLAGS>$(CPP_FLAGS)-xc++ -D_ISOC99_SOURCE -Wno-invalid-offsetof -fcheck-new </CPP_FLAGS>-->
+    <CPP_FLAGS>$(CPP_FLAGS)-xc++ </CPP_FLAGS>
     <CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
     <CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-M3'"> -mfloat-abi=soft </FLOATING_POINT_FLAG>
@@ -435,7 +435,7 @@
     <Exec Condition="'$(COMPILER_TOOL)'=='GCC'" Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_RoT_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\tmp_Kernel_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIB_DIR)\libm.a&#x22; &#x22;$(GNU_LIB_DIR)\libc.a&#x22; &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22; -) -( $(ExtraLibs) -)"/>
     
     <Exec Condition="'$(COMPILER_TOOL)'=='GCCOP'"  Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22;  -) -( $(ExtraLibs) -)"/>
-    <Exec Command="del /q $(LIB_DIR)\tmp_rot_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\tmp_kernel_$(AssemblyName).$(LIB_EXT)"/>    
+    <!-- <Exec Command="del /q $(LIB_DIR)\tmp_rot_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\tmp_kernel_$(AssemblyName).$(LIB_EXT)"/>-->    
 
 
     <!--<Exec Command="$(OBJDUMP) -S -D -EL @(EXEOutput) > $(EXEName).axfdump" />-->

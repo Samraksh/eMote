@@ -1,21 +1,22 @@
 #include <tinyhal_types.h>
-#include <SmartPtr_irq.h>
+//#include <SmartPtr_irq.h>
 #include <Samraksh/cm_mpu.h>
-#include <cmsis/m2sxxx.h>
 #include <cmsis/mss_assert.h>
+#include <cmsis/m2sxxx.h>
 #include <core_cm3.h>
 #include <cmsis_gcc.h>
 
 
 //redefinition here. This is usually done on platform_selector.h, but since this is sort of a chip file,
 //need to do this again here
-#ifndef GLOBAL_LOCK
+/*#ifndef GLOBAL_LOCK
 #define GLOBAL_LOCK(x)	SmartPtr_IRQ x
 #define DISABLE_INTERRUPTS()       SmartPtr_IRQ::ForceDisabled()
 #define ENABLE_INTERRUPTS()        SmartPtr_IRQ::ForceEnabled()
 #define INTERRUPTS_ENABLED_STATE() SmartPtr_IRQ::GetState()
 #define GLOBAL_LOCK_SOCKETS(x)     SmartPtr_IRQ x
 #endif
+*/
 
 /* various MPU flags */
 #define MPU_RASR_AP_PNO_UNO (0x00UL<<MPU_RASR_AP_Pos)
@@ -39,7 +40,7 @@
 MpuRegion_t g_mpuRegions[8];
 
 //Takes mpu permissions and returns the mpu flags to be set
-static UINT32 mpu_map_acl(MpuMemPermission_t acl, bool exec)
+static UINT32 mpu_map_acl(MpuMemPermission_t acl, BOOL exec)
 {
     UINT32 flags;
     UINT32 acl_res;
@@ -159,13 +160,13 @@ void CPU_mpu_disable(void)
 }
 
 void CPU_mpu_configure_region(UINT8 regionNo, UINT32 startAddr, UINT32 regionSize,
-                          MpuMemPermission_t ap, bool executable)
+                          MpuMemPermission_t ap, BOOL executable)
 {
-	bool priv=false;
+	BOOL priv=FALSE;
 	//check for priviledged mode
 	if (__get_IPSR() || !(__get_CONTROL() & 0x1))
 	{
-		priv=true;
+		priv=TRUE;
 	}
 	// You need to be in Privilged mode to make changes to MPU.
 	ASSERT(priv);
@@ -247,7 +248,7 @@ MpuRegion_t* CPU_mpu_findRegion(void* addr) {
 
 
 UINT32 CPU_mpu_region_translate_acl(MpuRegion_t * const region, UINT32 startAddr, UINT32 size,
-		MpuMemPermission_t acl, bool acl_exec, UINT32 acl_hw_spec)
+		MpuMemPermission_t acl, BOOL acl_exec, UINT32 acl_hw_spec)
 {
     UINT32 config, bits, mask, size_rounded, subregions;
 
@@ -332,7 +333,7 @@ void CPU_mpu_invalidate_region(UINT8 regionNo){
 
 void CPU_mpu_set_acl(UINT8 regionNo, MpuRegion_t* region){
 	//disable interrupts
-	GLOBAL_LOCK(irq);
+	 __disable_irq();
 
 	// Make sure the memory barriers are correct.
 	__ISB(); //sync instruction access
@@ -344,4 +345,6 @@ void CPU_mpu_set_acl(UINT8 regionNo, MpuRegion_t* region){
 	//No need to set the region number register (rnr). It will be set through rbar
 	MPU->RBAR=MPU_RBAR(regionNo,region->start);
 	MPU->RASR = region->config;
+
+	 __enable_irq();
 }

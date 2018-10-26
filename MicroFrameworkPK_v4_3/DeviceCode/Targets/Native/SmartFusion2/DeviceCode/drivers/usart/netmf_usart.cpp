@@ -164,6 +164,18 @@ BOOL CPU_USART_TxBufferEmpty( int ComPortNum )
 	return TRUE;
 }
 
+void CPU_USART_ProtectPins( int ComPortNum, BOOL On )
+{
+	// Nothing needed here.
+}
+
+BOOL CPU_USB_ProtectPins( int ComPortNum, BOOL On )
+{
+	// Nothing needed here.
+	return false;
+}
+
+
 void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 {
 	uint8_t characterToSend[1];
