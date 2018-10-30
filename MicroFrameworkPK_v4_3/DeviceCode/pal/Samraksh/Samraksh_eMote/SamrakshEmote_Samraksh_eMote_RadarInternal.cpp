@@ -44,27 +44,9 @@ INT8 RadarInternal::CurrentDetectionFinished( CLR_RT_HeapBlock* pMngObj, HRESULT
     return HAL_RADAR_DRIVER::getDetectionFinished();
 }
 
-INT32 RadarInternal::GetNetDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr )
+INT32 RadarInternal::GetDisplacement( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    return HAL_RADAR_DRIVER::getNetDisplacement(portion);
-}
-
-INT32 RadarInternal::GetAbsoluteDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr )
-{
-    return HAL_RADAR_DRIVER::getAbsoluteDisplacement(portion);
-}
-
-INT32 RadarInternal::GetDisplacementRange( CLR_RT_HeapBlock* pMngObj, INT32 portion, HRESULT &hr )
-{
-    return HAL_RADAR_DRIVER::getDisplacementRange(portion);
-}
-
-INT32 RadarInternal::GetCountOverTarget( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-	//INT32 x = HAL_RADAR_DRIVER::getCountOverTarget();
-	//hal_printf( "RadarInternal::GetCountOverTarget() = %d \r\n", x );
-    //return x;
-	return HAL_RADAR_DRIVER::getCountOverTarget();
+    return HAL_RADAR_DRIVER::getDisplacement();
 }
 
 void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr )

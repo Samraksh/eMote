@@ -441,6 +441,26 @@
             </summary>
             <returns>Success / failure status</returns>
         </member>
+        <member name="P:Samraksh.eMote.NonVolatileMemory.DataReference.getDataReferenceType">
+            <summary>
+            Return data reference type 
+            </summary>
+        </member>
+        <member name="P:Samraksh.eMote.NonVolatileMemory.DataReference.Type">
+            <summary>
+            Return data reference type 
+            </summary>
+        </member>
+        <member name="P:Samraksh.eMote.NonVolatileMemory.DataReference.getDataReferenceSize">
+            <summary>
+            Return data reference size 
+            </summary>
+        </member>
+        <member name="P:Samraksh.eMote.NonVolatileMemory.DataReference.Size">
+            <summary>
+            Return data reference size 
+            </summary>
+        </member>
         <member name="M:Samraksh.eMote.NonVolatileMemory.DataReference.GetDataReference(System.UInt32)">
             <summary>
             Get data reference for specified data ID from DataStore
@@ -519,26 +539,6 @@
             <param name="dataId"></param>
             Write data array to DataStore starting from specified offset
         </member>
-        <member name="P:Samraksh.eMote.NonVolatileMemory.DataReference.getDataReferenceType">
-            <summary>
-            Return data reference type 
-            </summary>
-        </member>
-        <member name="P:Samraksh.eMote.NonVolatileMemory.DataReference.Type">
-            <summary>
-            Return data reference type 
-            </summary>
-        </member>
-        <member name="P:Samraksh.eMote.NonVolatileMemory.DataReference.getDataReferenceSize">
-            <summary>
-            Return data reference size 
-            </summary>
-        </member>
-        <member name="P:Samraksh.eMote.NonVolatileMemory.DataReference.Size">
-            <summary>
-            Return data reference size 
-            </summary>
-        </member>
         <member name="T:Samraksh.eMote.NonVolatileMemory.DataStore">
             <summary>
             DataStore class to store data. 
@@ -582,6 +582,26 @@
             </summary>
             <param name="storageType">Storage type</param>
             <param name="eraseDataStore">Should datastore be erased?</param>
+        </member>
+        <member name="P:Samraksh.eMote.NonVolatileMemory.DataStore.MaxAllocationSize">
+            <summary>
+            Maximum allocation size possible in bytes
+            </summary>
+        </member>
+        <member name="P:Samraksh.eMote.NonVolatileMemory.DataStore.Size">
+            <summary>
+            Size of DataStore in bytes
+            </summary>
+        </member>
+        <member name="P:Samraksh.eMote.NonVolatileMemory.DataStore.UsedBytes">
+            <summary>
+            Number of bytes of space already occupied by data
+            </summary>
+        </member>
+        <member name="P:Samraksh.eMote.NonVolatileMemory.DataStore.FreeBytes">
+            <summary>
+            Number of bytes of space available to store data
+            </summary>
         </member>
         <member name="M:Samraksh.eMote.NonVolatileMemory.DataStore.ReadAllDataReferences(Samraksh.eMote.NonVolatileMemory.DataReference[],System.Int32)">
             <summary>
@@ -853,26 +873,6 @@
             <param name="storageType">Block storage type</param>
             <returns>Number of bytes read; -1 if operation fails</returns>
         </member>
-        <member name="P:Samraksh.eMote.NonVolatileMemory.DataStore.MaxAllocationSize">
-            <summary>
-            Maximum allocation size possible in bytes
-            </summary>
-        </member>
-        <member name="P:Samraksh.eMote.NonVolatileMemory.DataStore.Size">
-            <summary>
-            Size of DataStore in bytes
-            </summary>
-        </member>
-        <member name="P:Samraksh.eMote.NonVolatileMemory.DataStore.UsedBytes">
-            <summary>
-            Number of bytes of space already occupied by data
-            </summary>
-        </member>
-        <member name="P:Samraksh.eMote.NonVolatileMemory.DataStore.FreeBytes">
-            <summary>
-            Number of bytes of space available to store data
-            </summary>
-        </member>
         <member name="T:Samraksh.eMote.NonVolatileMemory.StorageType">
             <summary>
             Block device type
@@ -963,6 +963,39 @@
             
             </summary>
         </member>
+        <member name="M:Samraksh.eMote.RadarInterface.ConfigureFPGADetection(System.UInt16[],System.UInt16[],System.UInt32,Samraksh.eMote.RadarCallBack)">
+            <summary> Turns on the Radar </summary>
+            <param name="sampleBuffI">Buffer for samples</param>
+            <param name="sampleBuff1">Buffer for samples</param>
+            <param name="numSamples">Number of samples</param>
+            <param name="callback">Method to call when numSamples collected</param>
+            <returns>True if operation success</returns>
+            <returns>The result of turning on the radar: Success, Fail</returns>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInterface.GetWindowOverThreshold">
+            <summary>
+            Request whether the last window's displacement was over the threshold
+            </summary>
+            <returns>Returns true if last window's displacement was over the threshold and false if not.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInterface.CurrentDetectionFinished">
+            <summary>
+            Request whether the current detection has finished
+            </summary>
+            <returns>Returns true if the current detection is finished and false if not.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInterface.GetDisplacement">
+            <summary>
+            Request the window's displacement.
+            </summary>
+            <returns>Returns the window's displacement.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInterface.SetProcessingInProgress(System.Boolean)">
+            <summary>
+            Inform firmware of status of data processing
+            </summary>
+            <returns>Nothing returned</returns>
+        </member>
         <member name="M:Samraksh.eMote.RadarInterface.InternalCallback(System.UInt32,System.UInt32,System.DateTime)">
             <summary>
             Native Radar driver callback
@@ -1038,29 +1071,11 @@
             </summary>
             <returns>Returns true if the current detection is finished and false if not.</returns>
         </member>
-        <member name="M:Samraksh.eMote.RadarInternal.GetNetDisplacement(Samraksh.eMote.SAMPLE_WINDOW_PORTION)">
+        <member name="M:Samraksh.eMote.RadarInternal.GetDisplacement">
             <summary>
-            Request the window's net displacement
+            Request the total displacement over the window
             </summary>
-            <returns>Returns the window's net displacement.</returns>
-        </member>
-        <member name="M:Samraksh.eMote.RadarInternal.GetAbsoluteDisplacement(Samraksh.eMote.SAMPLE_WINDOW_PORTION)">
-            <summary>
-            Request the window's absolute displacement.
-            </summary>
-            <returns>Returns the window's absolute displacement.</returns>
-        </member>
-        <member name="M:Samraksh.eMote.RadarInternal.GetDisplacementRange(Samraksh.eMote.SAMPLE_WINDOW_PORTION)">
-            <summary>
-            Request the window's displacement range.
-            </summary>
-            <returns>Returns the window's displacement range.</returns>
-        </member>
-        <member name="M:Samraksh.eMote.RadarInternal.GetCountOverTarget">
-            <summary>
-            Request the window's count of samples over classifierTargetFilter parameter.
-            </summary>
-            <returns>Returns the window's count of samples over target.</returns>
+            <returns>Returns the window's displacement.</returns>
         </member>
         <member name="M:Samraksh.eMote.RadarInternal.SetProcessingInProgress(System.Boolean)">
             <summary>

@@ -10,6 +10,8 @@ namespace Samraksh.eMote
     /// </summary>
     public delegate void RadarCallBack(long time);
 
+
+
     public class RadarInterface
     {
         /// <summary>
@@ -79,6 +81,16 @@ namespace Samraksh.eMote
         }
 
         /// <summary>
+        /// Request the window's displacement.
+        /// </summary>
+        /// <returns>Returns the window's displacement.</returns>
+        public int GetDisplacement()
+        {
+            return _radarInternal.GetDisplacement();
+        }
+
+
+        /*/// <summary>
         /// Request the window's net displacement
         /// </summary>
         /// <returns>Returns the window's net displacement.</returns>
@@ -101,7 +113,8 @@ namespace Samraksh.eMote
         public int GetDisplacementRange(SAMPLE_WINDOW_PORTION portion)
         {
             return _radarInternal.GetDisplacementRange(portion);
-        }
+        }*/
+
         /// <summary>
         /// Inform firmware of status of data processing
         /// </summary>
@@ -110,8 +123,10 @@ namespace Samraksh.eMote
         {
             _radarInternal.SetProcessingInProgress(status);
         }
+        
 
-        /// <summary>
+
+       /* /// <summary>
         /// Request the window's count of samples over classifierTargetFilter parameter.
         /// </summary>
         /// <returns>Returns the window's count of samples over target.</returns>
@@ -120,7 +135,7 @@ namespace Samraksh.eMote
             //var x = _radarInternal.GetCountOverTarget();
             //Debug.Print("C#RadarInterface::GetCountOverTarget()" + x);
             return _radarInternal.GetCountOverTarget();
-        }
+        }*/
 
         /// <summary>
         /// Native Radar driver callback
@@ -216,12 +231,25 @@ namespace Samraksh.eMote
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         public extern bool CurrentDetectionFinished();
 
+
         /// <summary>
+        /// Request the total displacement over the window
+        /// </summary>
+        /// <returns>Returns the window's displacement.</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern int GetDisplacement();
+        /// <summary>
+        /// Request the window's displacement range.
+        /// </summary>
+        /// <returns>Returns the window's displacement range.</returns>
+        /// 
+       /*/// <summary>
         /// Request the window's net displacement
         /// </summary>
         /// <returns>Returns the window's net displacement.</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         public extern int GetNetDisplacement(SAMPLE_WINDOW_PORTION portion);
+
 
         /// <summary>
         /// Request the window's absolute displacement.
@@ -242,7 +270,7 @@ namespace Samraksh.eMote
         /// <returns>Returns the window's count of samples over target.</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         public extern int GetCountOverTarget();
-
+        */
         /// <summary>
         /// Inform firmware of status of data processing
         /// </summary>

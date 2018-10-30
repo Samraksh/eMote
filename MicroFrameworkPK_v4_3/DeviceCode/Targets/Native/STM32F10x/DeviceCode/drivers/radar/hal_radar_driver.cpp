@@ -16,22 +16,12 @@ static bool detectionFinished = false;
 static bool processingInProgress = false;
 static int continueToSendCount = 0;
 static int unwrapSigned = 0;
-static UINT16 countOverTarget = 0;
-static int maxCountOverTarget = 0;
-static int displacementFirstHalf = 0;
-static int displacementSecondHalf = 0;
 
-static int absoluteDisplFirstHalf = 0;
-static int absoluteDisplSecondHalf = 0;
-static int absoluteDisplEntire = 0;
+const int lookaheadwindows = 6;
 
-static int minDisplacementFirstHalf = 0;
-static int minDisplacementSecondHalf = 0;
-static int minDisplacementEntire = 0;
+static INT16 qdDiffMovSum = 0;
+static INT16 displacement = 0;
 
-static int maxDisplacementFirstHalf = 0;
-static int maxDisplacementSecondHalf = 0;
-static int maxDisplacementEntire = 0;
 
 static bool alertInterruptActive = false;
 
@@ -146,25 +136,9 @@ void Radar_Handler(void *arg)
 	int assumedDetect = 0;
 	int detect = 0;
 	int tmpPos;
+	int unwrapdiff = 0;
 
-	//hal_printf("Radar_Handler START Clear variables \r\n ");
-	maxCountOverTarget = 0;
-
-	displacementFirstHalf = 0;
-	displacementSecondHalf = 0;
-
-	absoluteDisplFirstHalf = 0;
-	absoluteDisplSecondHalf = 0;
-	absoluteDisplEntire = 0;
-
-	minDisplacementFirstHalf = 0;
-	minDisplacementSecondHalf = 0;
-	minDisplacementEntire = 0;
-
-	maxDisplacementFirstHalf = 0;
-	maxDisplacementSecondHalf = 0;
-	maxDisplacementEntire = 0;
-
+	unwrapSigned = 0;
 	//hal_printf("Radar_Handler START Clear variables: maxDisplacementEntire = %d , maxCountOverTarget = %d, assumedDetect = %d \r\n"
 	//		, maxDisplacementEntire, maxCountOverTarget, assumedDetect);
 
@@ -173,57 +147,28 @@ void Radar_Handler(void *arg)
 		tmpPos = i*6;
 		g_radarUserBufferChannel1Ptr[i] = (UINT16)(((UINT16)(rxData[tmpPos+2]) << 4) | (((UINT16)(rxData[tmpPos+1])&0xf0) >> 4));
 		g_radarUserBufferChannel2Ptr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+1])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)])));
-		unwrap = (UINT16)((((UINT16)(rxData[(tmpPos)+5])&0x0f) << 4) | (((UINT16)(rxData[(tmpPos)+4])&0xf0)>>4));
-		countOverTarget = (UINT16)((((UINT16)(rxData[(tmpPos)+4])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)+3])));
-		detect = (UINT16)(((UINT16)(rxData[(tmpPos)+5])&0xf0) >> 4);
-		if (unwrap & 0x80) {
-			unwrapSigned = 0 - (256 - unwrap);
-		} else {
-			unwrapSigned = unwrap;
+		//MofNCount = (UINT16)((((UINT16)(rxData[(tmpPos)+5])&0x0f) << 4) | (((UINT16)(rxData[(tmpPos)+4])&0xf0)>>4));
+
+		unwrapdiff = (UINT16)(((UINT16)(rxData[(tmpPos)+5])&0x70) >> 4);
+		if (unwrapdiff & 0x04) {
+			unwrapdiff = 0 - (8 - unwrapdiff);
 		}
-
-
-		//if (radarGarbagePurged == 4) hal_printf("%d %d %x\r\n",unwrapSigned ,countOverTarget, detect);
-		//if (radarGarbagePurged == 4) hal_printf("%d %d %d %d %d %x\r\n", i, g_radarUserBufferChannel1Ptr[i], g_radarUserBufferChannel2Ptr[i],unwrapSigned ,countOverTarget, detect);
-
-		//BK: this is targeting frame mismatch problem. Assumed value of the buffer is assumedDetect which is detect(1bit) + m/n(3 bits)
-		//if (detect > assumedDetect){
-		//	assumedDetect = detect;
+		//else {
+		//	unwrapdiff = unwrapdiff;
 		//}
-		if(tmpPos == bytesToRead - 6 ){
-			assumedDetect = detect;
-		}
-
-		if ((int)countOverTarget > maxCountOverTarget){
-			maxCountOverTarget = (int)countOverTarget;
-
-		}
-		if (i < bytesToRead/12){
-			displacementFirstHalf = unwrapSigned;
-			absoluteDisplFirstHalf = abs(unwrapSigned);
-			if (unwrapSigned < minDisplacementFirstHalf)
-				minDisplacementFirstHalf = unwrapSigned;
-			if (unwrapSigned > maxDisplacementFirstHalf)
-				maxDisplacementFirstHalf = unwrapSigned;
-		}
-		if (i >= bytesToRead/12){
-			displacementSecondHalf = unwrapSigned;
-			absoluteDisplSecondHalf = abs(unwrapSigned);
-			if (unwrapSigned < minDisplacementFirstHalf)
-				minDisplacementSecondHalf = unwrapSigned;
-			if (unwrapSigned > maxDisplacementFirstHalf)
-				maxDisplacementSecondHalf = unwrapSigned;
-		}
-		// calculating data for entire window
-		absoluteDisplEntire = abs(unwrapSigned);
-		if (unwrapSigned < minDisplacementEntire)
-			minDisplacementEntire = unwrapSigned;
-		if (unwrapSigned > maxDisplacementEntire){
-			maxDisplacementEntire = unwrapSigned;
-		}
+		unwrapSigned = unwrapSigned + unwrapdiff;
+		detect = (UINT16)(((UINT16)(rxData[(tmpPos)+5])&0x80) >> 8);
+		//qdDiffMovSum = (UINT16)((((UINT16)(rxData[(tmpPos)+4])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)+3])));
+		//if (qdDiffMovSum & (UINT16)0x800) {
+		//	qdDiffMovSum = 0 - (4096 - qdDiffMovSum);
+		//} else {
+		//	unwrapSigned = unwrap;
+		//}
 
 	}
 
+	if (detect) windowOverThreshold = true;
+	else windowOverThreshold = false;
 
 	if (radarGarbagePurged != 4) {
 		interruptServiceInProcess = false;
@@ -245,25 +190,11 @@ void Radar_Handler(void *arg)
 		}
 
 
-		// we'll send a few more frames to close out the human detector logic
-//		if ((assumedDetect) != 0) {
-//			continueToSendCount = 2;
-//			windowOverThreshold = true;
-//			detectionFinished = false;
-//		}
-//		else {
-//			if (continueToSendCount > 0)
-//				continueToSendCount--;
-//			windowOverThreshold = false;
-//			detectionFinished = true;
-//		}
-		if(assumedDetect & 0x08){ //If M/N successful somewhere in the current buffer, send the data to the application
-			continueToSendCount = 2;
-			windowOverThreshold = true;
+		if(windowOverThreshold){
+			continueToSendCount = lookaheadwindows;
 		}
 		else{
 			--continueToSendCount;
-			windowOverThreshold = false;
 		}
 		if(continueToSendCount > 0){
 			detectionFinished = false;
@@ -273,13 +204,6 @@ void Radar_Handler(void *arg)
 		}
 
 
-		//if ((assumedDetect != 0) | (continueToSendCount > 0)) {
-
-		//if ((assumedDetect & 0x8) != 0) {
-		//	hal_printf("--- fpga detection ---\r\n");
-		//}
-
-		hal_printf("--- Enqueing radar data to C# windowOverThreshold = %u, maxCountOverTarget = %u --- \r\n",windowOverThreshold,maxCountOverTarget);
 		g_radarUserData = HAL_Time_CurrentTicks();
 		processingInProgress = true;
 				GLOBAL_LOCK(irq);
@@ -394,51 +318,8 @@ INT8 getDetectionFinished(){
 	return detectionFinished;
 }
 
-INT32 getNetDisplacement(INT32 portion){
-	if (portion == SAMPLE_WINDOW_FULL){
-		return (unwrapSigned);
-	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
-		return (displacementFirstHalf);
-	} else {
-		// SAMPLE_WINDOW_SECOND_HALF
-		return (displacementSecondHalf);
-	}
-}
-
-INT32 getAbsoluteDisplacement(INT32 portion){
-	if (portion == SAMPLE_WINDOW_FULL){
-		if (abs(minDisplacementEntire) > maxDisplacementEntire)
-			return abs(maxDisplacementEntire);
-		else
-			return maxDisplacementEntire;
-	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
-		if (abs(minDisplacementFirstHalf) > maxDisplacementFirstHalf)
-			return abs(minDisplacementFirstHalf);
-		else
-			return maxDisplacementFirstHalf;
-	} else {
-		// SAMPLE_WINDOW_SECOND_HALF
-		if (abs(minDisplacementSecondHalf) > maxDisplacementSecondHalf)
-			return abs(minDisplacementSecondHalf);
-		else
-			return maxDisplacementSecondHalf;
-	}
-}
-
-INT32 getDisplacementRange(INT32 portion){
-	if (portion == SAMPLE_WINDOW_FULL){
-		return (maxDisplacementEntire + abs(minDisplacementEntire));
-	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
-		return (maxDisplacementFirstHalf + abs(minDisplacementFirstHalf));
-	} else {
-		// SAMPLE_WINDOW_SECOND_HALF
-		return (maxDisplacementSecondHalf + abs(minDisplacementSecondHalf));
-	}
-}
-
-INT32 getCountOverTarget(){
-	//hal_printf( "hal_radar_driver.cpp getCountOverTarget() = %d \r\n", maxCountOverTarget );
-	return maxCountOverTarget;
+INT32 getDisplacement(){
+	return unwrapSigned;
 }
 
 void setProcessingInProgress(int state){

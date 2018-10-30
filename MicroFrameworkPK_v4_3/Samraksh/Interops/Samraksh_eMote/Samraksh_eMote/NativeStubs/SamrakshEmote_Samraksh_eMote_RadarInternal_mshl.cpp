@@ -70,7 +70,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::CurrentDetectionFini
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetNetDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetDisplacement___I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -78,80 +78,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetNetDisplacement__
 
         FAULT_ON_NULL(pMngObj);
 
-        INT32 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
-
-        INT32 retVal = RadarInternal::GetNetDisplacement( pMngObj,  param0, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetAbsoluteDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        INT32 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
-
-        INT32 retVal = RadarInternal::GetAbsoluteDisplacement( pMngObj,  param0, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetDisplacementRange___I4__SamraksheMoteSAMPLEWINDOWPORTION( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        INT32 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
-
-        INT32 retVal = RadarInternal::GetDisplacementRange( pMngObj,  param0, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetCountOverTarget___I4( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        INT32 retVal = RadarInternal::GetCountOverTarget( pMngObj,  hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetDetectionFinished___I4( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        INT32 retVal = RadarInternal::GetDetectionFinished( pMngObj,  hr );
+        INT32 retVal = RadarInternal::GetDisplacement( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
