@@ -152,15 +152,19 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
     Library_SamrakshEmote_Samraksh_eMote_RadarInterface::TurnOn___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_RadarInterface::TurnOff___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_RadarInterface::Blind___BOOLEAN,
     NULL,
     NULL,
-    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::ConfigureFPGADetectionPrivate___BOOLEAN__SZARRAY_U2__SZARRAY_U2__U4,
-    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetWindowOverThreshold___BOOLEAN,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::ConfigureFPGADetectionPrivate___BOOLEAN__SZARRAY_U2__SZARRAY_U2__SZARRAY_I2__SZARRAY_I2__SZARRAY_I2__SZARRAY_BOOLEAN__U4,
     Library_SamrakshEmote_Samraksh_eMote_RadarInternal::CurrentDetectionFinished___BOOLEAN,
-    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetDisplacement___I4,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::setContinueToSendCount___VOID__U2,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::getContinueToSendCount___U2,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::setNumLookAheadWindows___VOID__U2,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::getNumLookAheadWindows___U2,
     Library_SamrakshEmote_Samraksh_eMote_RadarInternal::SetProcessingInProgress___VOID__BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_RadarInternal::Init___STATIC__I4__I4,
     Library_SamrakshEmote_Samraksh_eMote_RadarInternal::Uninit___STATIC__BOOLEAN,
@@ -169,7 +173,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote =
 {
     "Samraksh_eMote", 
-    0xF406D628,
+    0x835D382B,
     method_lookup
 };
 

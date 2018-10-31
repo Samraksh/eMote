@@ -16,13 +16,7 @@
 
 using namespace Samraksh::eMote;
 
-INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, HRESULT &hr )
-{
-    INT8 retVal = 0; 
-    return retVal;
-}
-
-INT8 RadarInternal::GetWindowOverThreshold( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, CLR_RT_TypedArray_INT16 param2, CLR_RT_TypedArray_INT16 param3, CLR_RT_TypedArray_INT16 param4, CLR_RT_TypedArray_INT8 param5, UINT32 param6, HRESULT &hr )
 {
     INT8 retVal = 0; 
     return retVal;
@@ -34,9 +28,23 @@ INT8 RadarInternal::CurrentDetectionFinished( CLR_RT_HeapBlock* pMngObj, HRESULT
     return retVal;
 }
 
-INT32 RadarInternal::GetDisplacement( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+void RadarInternal::setContinueToSendCount( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
 {
-    INT32 retVal = 0; 
+}
+
+UINT16 RadarInternal::getContinueToSendCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    UINT16 retVal = 0; 
+    return retVal;
+}
+
+void RadarInternal::setNumLookAheadWindows( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
+{
+}
+
+UINT16 RadarInternal::getNumLookAheadWindows( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    UINT16 retVal = 0; 
     return retVal;
 }
 

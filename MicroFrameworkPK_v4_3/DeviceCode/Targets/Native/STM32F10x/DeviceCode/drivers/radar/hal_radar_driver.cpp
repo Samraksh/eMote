@@ -14,13 +14,9 @@ BOOL g_Radar_Driver_Initialized = FALSE;
 static bool windowOverThreshold = false;
 static bool detectionFinished = false;
 static bool processingInProgress = false;
-static int continueToSendCount = 0;
-static int unwrapSigned = 0;
+static UINT16 continueToSendCount = 0;
 
-const int lookaheadwindows = 6;
-
-static INT16 qdDiffMovSum = 0;
-static INT16 displacement = 0;
+static UINT16 numlookaheadwindows = 6;
 
 
 static bool alertInterruptActive = false;
@@ -50,6 +46,10 @@ enum SAMPLE_WINDOW_PORTION
 
 UINT16 *g_radarUserBufferChannel1Ptr = NULL;
 UINT16 *g_radarUserBufferChannel2Ptr = NULL;
+INT16 *g_radarUserBuffersampleqdiffPtr = NULL;
+INT16 *g_radarUserBuffersampleqdiffMovSumPtr = NULL;
+INT16 *g_radarUserBuffersampleMofNCountPtr = NULL;
+INT8 *g_radarUserBuffersampleqDetectPtr = NULL;
 UINT32 g_radarBufferSize = 0;
 
 void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
@@ -66,7 +66,7 @@ void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	}
 	//Radar_Handler((GPIO_PIN) 33, TRUE, NULL);
 	interruptServiceInProcess = true;
-	continueToSendCount = 6;
+	continueToSendCount = numlookaheadwindows;
 	radarHandler_continuation.Enqueue();
 }
 
@@ -84,6 +84,7 @@ void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	interruptServiceInProcess = true;
 	radarHandler_continuation.Enqueue();
 }
+
 
 
 
@@ -134,11 +135,10 @@ void Radar_Handler(void *arg)
 	}
 	CPU_GPIO_SetPinState(8, FALSE);
 	int assumedDetect = 0;
-	int detect = 0;
-	int tmpPos;
-	int unwrapdiff = 0;
 
-	unwrapSigned = 0;
+	int tmpPos;
+
+
 	//hal_printf("Radar_Handler START Clear variables: maxDisplacementEntire = %d , maxCountOverTarget = %d, assumedDetect = %d \r\n"
 	//		, maxDisplacementEntire, maxCountOverTarget, assumedDetect);
 
@@ -147,28 +147,29 @@ void Radar_Handler(void *arg)
 		tmpPos = i*6;
 		g_radarUserBufferChannel1Ptr[i] = (UINT16)(((UINT16)(rxData[tmpPos+2]) << 4) | (((UINT16)(rxData[tmpPos+1])&0xf0) >> 4));
 		g_radarUserBufferChannel2Ptr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+1])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)])));
-		//MofNCount = (UINT16)((((UINT16)(rxData[(tmpPos)+5])&0x0f) << 4) | (((UINT16)(rxData[(tmpPos)+4])&0xf0)>>4));
+		g_radarUserBuffersampleMofNCountPtr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+5])&0x0f) << 4) | (((UINT16)(rxData[(tmpPos)+4])&0xf0)>>4));
 
-		unwrapdiff = (UINT16)(((UINT16)(rxData[(tmpPos)+5])&0x70) >> 4);
-		if (unwrapdiff & 0x04) {
-			unwrapdiff = 0 - (8 - unwrapdiff);
+		g_radarUserBuffersampleqdiffPtr[i]  = (UINT16)(((UINT16)(rxData[(tmpPos)+5])&0x70) >> 4);
+		if (g_radarUserBuffersampleqdiffPtr[i]  & 0x04) {
+			g_radarUserBuffersampleqdiffPtr[i]  = 0 - (8 - g_radarUserBuffersampleqdiffPtr[i] );
 		}
-		//else {
-		//	unwrapdiff = unwrapdiff;
-		//}
-		unwrapSigned = unwrapSigned + unwrapdiff;
-		detect = (UINT16)(((UINT16)(rxData[(tmpPos)+5])&0x80) >> 8);
-		//qdDiffMovSum = (UINT16)((((UINT16)(rxData[(tmpPos)+4])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)+3])));
-		//if (qdDiffMovSum & (UINT16)0x800) {
-		//	qdDiffMovSum = 0 - (4096 - qdDiffMovSum);
-		//} else {
-		//	unwrapSigned = unwrap;
-		//}
+
+		g_radarUserBuffersampleqDetectPtr[i] = (UINT16)(((UINT16)(rxData[(tmpPos)+5])&0x80) >> 8);
+
+		g_radarUserBuffersampleqdiffMovSumPtr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+4])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)+3])));
+		if (g_radarUserBuffersampleqdiffMovSumPtr[i] & (UINT16)0x800) {
+			g_radarUserBuffersampleqdiffMovSumPtr[i] = 0 - (4096 - g_radarUserBuffersampleqdiffMovSumPtr[i]);
+		}
+
+		if (g_radarUserBuffersampleqDetectPtr[i] ) {
+			windowOverThreshold = true;
+			++assumedDetect;
+		}
+		else windowOverThreshold = false;
 
 	}
 
-	if (detect) windowOverThreshold = true;
-	else windowOverThreshold = false;
+
 
 	if (radarGarbagePurged != 4) {
 		interruptServiceInProcess = false;
@@ -191,7 +192,7 @@ void Radar_Handler(void *arg)
 
 
 		if(windowOverThreshold){
-			continueToSendCount = lookaheadwindows;
+			continueToSendCount = numlookaheadwindows;
 		}
 		else{
 			--continueToSendCount;
@@ -250,13 +251,18 @@ void Radar_Handler(void *arg)
 	return;
 }
 
-INT8 FPGA_RadarInit(UINT16 *chan1Ptr, UINT16 *chan2Ptr, UINT32 size){
+INT8 FPGA_RadarInit(UINT16 *chan1Ptr, UINT16 *chan2Ptr, INT16 *sampleqdiff, INT16 *sampleqdiffMovSum, INT16* sampleMofNCount, INT8* sampleDetect, UINT32 size){
 	INT8 retVal = 0; 
 	g_Radar_Driver_Initialized = TRUE;
 	radarGarbagePurged = 0;
 
 	g_radarUserBufferChannel1Ptr = chan1Ptr;
 	g_radarUserBufferChannel2Ptr = chan2Ptr;
+	g_radarUserBuffersampleqdiffPtr = sampleqdiff;
+	g_radarUserBuffersampleqdiffMovSumPtr = sampleqdiffMovSum;
+	g_radarUserBuffersampleMofNCountPtr = sampleMofNCount;
+	g_radarUserBuffersampleqDetectPtr = sampleDetect;
+
 	g_radarBufferSize = size;
 
 	CPU_SPI_Initialize();
@@ -309,18 +315,26 @@ INT8 FPGA_RadarInit(UINT16 *chan1Ptr, UINT16 *chan2Ptr, UINT32 size){
 	return 0;
 }	
 
-INT8 getWindowOverThreshold(){
-	//hal_printf( "getWindowOverThreshold() = %d \r\n", windowOverThreshold );
-	return windowOverThreshold;
-}
 
 INT8 getDetectionFinished(){
 	return detectionFinished;
 }
 
-INT32 getDisplacement(){
-	return unwrapSigned;
+
+void setContinueToSendCount(UINT16 s){
+	continueToSendCount = s;
 }
+UINT16 getContinueToSendCount(){
+	return continueToSendCount;
+}
+
+void setNumLookAheadWindows(UINT16 s){
+	numlookaheadwindows = s;
+}
+UINT16 getNumLookAheadWindows(){
+	return numlookaheadwindows;
+}
+
 
 void setProcessingInProgress(int state){
 	processingInProgress = state;

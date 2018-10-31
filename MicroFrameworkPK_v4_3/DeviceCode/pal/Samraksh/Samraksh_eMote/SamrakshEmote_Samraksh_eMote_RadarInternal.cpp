@@ -25,30 +25,35 @@ UINT64 g_radarUserData = 0;
 extern BOOL g_Radar_Driver_Initialized = FALSE;
 static BOOL g_radarInterruptEnabled = TRUE;
 
-INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, HRESULT &hr )
+INT8 RadarInternal::ConfigureFPGADetectionPrivate( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, CLR_RT_TypedArray_INT16 param2, CLR_RT_TypedArray_INT16 param3, CLR_RT_TypedArray_INT16 param4, CLR_RT_TypedArray_INT8 param5, UINT32 param6, HRESULT &hr )
 {
-	INT8 retVal = HAL_RADAR_DRIVER::FPGA_RadarInit(param0.GetBuffer(), param1.GetBuffer(), param2);
+	INT8 retVal = HAL_RADAR_DRIVER::FPGA_RadarInit(param0.GetBuffer(), param1.GetBuffer(), param2.GetBuffer(),param3.GetBuffer(),param4.GetBuffer(),param5.GetBuffer(), param6);
     return retVal;
 }
-
-INT8 RadarInternal::GetWindowOverThreshold( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-	//INT8 x = HAL_RADAR_DRIVER::getWindowOverThreshold();
-	//hal_printf( "RadarInternal::GetWindowOverThreshold() = %d \r\n", x );
-    //return x;
-	return HAL_RADAR_DRIVER::getWindowOverThreshold();
-}
-
 INT8 RadarInternal::CurrentDetectionFinished( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     return HAL_RADAR_DRIVER::getDetectionFinished();
 }
 
-INT32 RadarInternal::GetDisplacement( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+void RadarInternal::setContinueToSendCount( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
 {
-    return HAL_RADAR_DRIVER::getDisplacement();
+	HAL_RADAR_DRIVER::setContinueToSendCount(param0);
 }
 
+UINT16 RadarInternal::getContinueToSendCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+	return HAL_RADAR_DRIVER::getContinueToSendCount();
+}
+
+void RadarInternal::setNumLookAheadWindows( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
+{
+	HAL_RADAR_DRIVER::setNumLookAheadWindows(param0);
+}
+
+UINT16 RadarInternal::getNumLookAheadWindows( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+	return HAL_RADAR_DRIVER::getNumLookAheadWindows();
+}
 void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr )
 {
 	HAL_RADAR_DRIVER::setProcessingInProgress(param0);

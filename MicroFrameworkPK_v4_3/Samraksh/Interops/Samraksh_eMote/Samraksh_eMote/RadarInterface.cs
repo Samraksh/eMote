@@ -11,7 +11,9 @@ namespace Samraksh.eMote
     public delegate void RadarCallBack(long time);
 
 
-
+    /// <summary>
+    /// The public interface for the radar
+    /// </summary>
     public class RadarInterface
     {
         /// <summary>
@@ -45,30 +47,25 @@ namespace Samraksh.eMote
 
         /// <summary> Turns on the Radar </summary>
         /// <param name="sampleBuffI">Buffer for samples</param>
-        /// <param name="sampleBuff1">Buffer for samples</param>
+        /// <param name="sampleBuffQ">Buffer for samples</param>
+        /// <param name="sampleqdiff">Buffer for samples</param>
+        /// <param name="sampleqdiffMovSum">Buffer for samples</param>
+        /// <param name="sampleMofNCOunt">Buffer for samples</param>
+        /// <param name="sampleDetect">Buffer for samples</param>
         /// <param name="numSamples">Number of samples</param>
         /// <param name="callback">Method to call when numSamples collected</param>
         /// <returns>True if operation success</returns>
         /// <returns>The result of turning on the radar: Success, Fail</returns>
-        public bool ConfigureFPGADetection(ushort[] sampleBuffI, ushort[] sampleBuffQ, uint numSamples, RadarCallBack callback)
+        public bool ConfigureFPGADetection(ushort[] sampleBuffI, ushort[] sampleBuffQ, Int16[] sampleqdiff, Int16[] sampleqdiffMovSum, Int16[] sampleMofNCOunt, bool[] sampleDetect,  uint numSamples, RadarCallBack callback)
         {
             _myCallback = callback;
             var eventHandler = new NativeEventHandler(InternalCallback);
             _radarInternal.OnInterrupt += eventHandler;
 
-            if (_radarInternal.ConfigureFPGADetectionPrivate(sampleBuffI, sampleBuffQ, numSamples))
+            if (_radarInternal.ConfigureFPGADetectionPrivate(sampleBuffI, sampleBuffQ, sampleqdiff, sampleqdiffMovSum, sampleMofNCOunt, sampleDetect,numSamples))
                 return true;
             else
                 return false;
-        }
-
-        /// <summary>
-        /// Request whether the last window's displacement was over the threshold
-        /// </summary>
-        /// <returns>Returns true if last window's displacement was over the threshold and false if not.</returns>
-        public bool GetWindowOverThreshold()
-        {
-            return _radarInternal.GetWindowOverThreshold();
         }
 
         /// <summary>
@@ -81,41 +78,6 @@ namespace Samraksh.eMote
         }
 
         /// <summary>
-        /// Request the window's displacement.
-        /// </summary>
-        /// <returns>Returns the window's displacement.</returns>
-        public int GetDisplacement()
-        {
-            return _radarInternal.GetDisplacement();
-        }
-
-
-        /*/// <summary>
-        /// Request the window's net displacement
-        /// </summary>
-        /// <returns>Returns the window's net displacement.</returns>
-        public int GetNetDisplacement(SAMPLE_WINDOW_PORTION portion)
-        {
-            return _radarInternal.GetNetDisplacement(portion);
-        }
-        /// <summary>
-        /// Request the window's absolute displacement.
-        /// </summary>
-        /// <returns>Returns the window's absolute displacement.</returns>
-        public int GetAbsoluteDisplacement(SAMPLE_WINDOW_PORTION portion)
-        {
-            return _radarInternal.GetAbsoluteDisplacement(portion);
-        }
-        /// <summary>
-        /// Request the window's displacement range.
-        /// </summary>
-        /// <returns>Returns the window's displacement range.</returns>
-        public int GetDisplacementRange(SAMPLE_WINDOW_PORTION portion)
-        {
-            return _radarInternal.GetDisplacementRange(portion);
-        }*/
-
-        /// <summary>
         /// Inform firmware of status of data processing
         /// </summary>
         /// <returns>Nothing returned</returns>
@@ -123,19 +85,40 @@ namespace Samraksh.eMote
         {
             _radarInternal.SetProcessingInProgress(status);
         }
-        
 
-
-       /* /// <summary>
-        /// Request the window's count of samples over classifierTargetFilter parameter.
+        /// <summary>
+        /// Ask FPGA to continue sending a number of buffers after last detect. The default value is 6. 
         /// </summary>
-        /// <returns>Returns the window's count of samples over target.</returns>
-        public int GetCountOverTarget()
+        /// <returns>Nothing returned</returns>
+        public void setContinueToSendCount(UInt16 s)
         {
-            //var x = _radarInternal.GetCountOverTarget();
-            //Debug.Print("C#RadarInterface::GetCountOverTarget()" + x);
-            return _radarInternal.GetCountOverTarget();
-        }*/
+            _radarInternal.setContinueToSendCount(s);
+        }
+
+        /// <summary>
+        /// Gets remainng count for the FPGA to send after the last detect. 
+        /// </summary>
+        public UInt16 getContinueToSendCount()
+        {
+            return _radarInternal.getContinueToSendCount();
+        }
+
+        /// <summary>
+        /// Ask FPGA to continue sending a number of buffers after last detect. The default value is 6. 
+        /// </summary>
+        /// <returns>Nothing returned</returns>
+        public void setNumLookAheadWindows(UInt16 s)
+        {
+            _radarInternal.setNumLookAheadWindows(s);
+        }
+
+        /// <summary>
+        /// Gets remainng count for the FPGA to send after the last detect. 
+        /// </summary>
+        public UInt16 getNumLookAheadWindows()
+        {
+            return _radarInternal.getNumLookAheadWindows();
+        }
 
         /// <summary>
         /// Native Radar driver callback
@@ -209,20 +192,17 @@ namespace Samraksh.eMote
         /// Turns on the Radar
         /// </summary>
         /// <param name="sampleBuffI">Buffer for samples</param>
-        /// <param name="sampleBuff1">Buffer for samples</param>
+        /// <param name="sampleBuffQ">Buffer for samples</param>
+        /// <param name="sampleqdiff">Buffer for samples</param>
+        /// <param name="sampleqdiffMovSum">Buffer for samples</param>
+        /// <param name="sampleMofNCOunt">Buffer for samples</param>
+        /// <param name="sampleDetect">Buffer for samples</param>
         /// <param name="numSamples">Number of samples</param>
-        /// <param name="callback">Method to call when numSamples collected</param>
         /// <returns>True if operation success</returns>
         /// <returns>The result of turning on the radar: Success, Fail</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern bool ConfigureFPGADetectionPrivate(ushort[] sampleBuffI, ushort[] sampleBuffQ, uint numSamples);
+        public extern bool ConfigureFPGADetectionPrivate(ushort[] sampleBuffI, ushort[] sampleBuffQ, Int16[] sampleqdiff, Int16[] sampleqdiffMovSum, Int16[] sampleMofNCOunt, bool[] sampleDetect, uint numSamples);
 
-        /// <summary>
-        /// Request whether the last window's displacement was over the threshold
-        /// </summary>
-        /// <returns>Returns true if last window's displacement was over the threshold and false if not.</returns>
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        public extern bool GetWindowOverThreshold();
 
         /// <summary>
         /// Request whether the current detection has finished
@@ -231,7 +211,20 @@ namespace Samraksh.eMote
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         public extern bool CurrentDetectionFinished();
 
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern void setContinueToSendCount(UInt16 s);
 
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern UInt16 getContinueToSendCount();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern void setNumLookAheadWindows(UInt16 s);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern UInt16 getNumLookAheadWindows();
+
+
+        /*
         /// <summary>
         /// Request the total displacement over the window
         /// </summary>
@@ -243,7 +236,7 @@ namespace Samraksh.eMote
         /// </summary>
         /// <returns>Returns the window's displacement range.</returns>
         /// 
-       /*/// <summary>
+       /// <summary>
         /// Request the window's net displacement
         /// </summary>
         /// <returns>Returns the window's net displacement.</returns>
