@@ -6,5 +6,6 @@
 #include <drivers/mss_spi/mss_spi.h>
 
 int loadArduinoSPI( uint8_t* address, uint16_t binarySize);
+int verifyArduinoSPI( uint8_t* address, uint16_t binarySize);
 
 #endif

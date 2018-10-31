@@ -599,10 +599,8 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	uint8_t temp;
 	radio_lock_id_t owner;
 
-	CPU_GPIO_EnableOutputPin(0, FALSE);
 	CPU_GPIO_EnableOutputPin(1, FALSE);
 	CPU_GPIO_EnableOutputPin(3, TRUE);
-	CPU_GPIO_SetPinState(0, FALSE);
 	CPU_GPIO_SetPinState(1, FALSE);
 	CPU_GPIO_SetPinState(3, TRUE);
 
