@@ -134,13 +134,9 @@ void Radar_Handler(void *arg)
 		rxData[i] = SPI_I2S_ReceiveData(SPIy);
 	}
 	CPU_GPIO_SetPinState(8, FALSE);
-	int assumedDetect = 0;
+	int numDetectSamples = 0;
 
 	int tmpPos;
-
-
-	//hal_printf("Radar_Handler START Clear variables: maxDisplacementEntire = %d , maxCountOverTarget = %d, assumedDetect = %d \r\n"
-	//		, maxDisplacementEntire, maxCountOverTarget, assumedDetect);
 
 
 	for (i=0;i<bytesToRead/6;i++){
@@ -163,7 +159,7 @@ void Radar_Handler(void *arg)
 
 		if (g_radarUserBuffersampleqDetectPtr[i] ) {
 			windowOverThreshold = true;
-			++assumedDetect;
+			++numDetectSamples;
 		}
 		else windowOverThreshold = false;
 
@@ -183,11 +179,11 @@ void Radar_Handler(void *arg)
 	UINT32 FPGAIQRejection;
 	if ((CPU_GPIO_GetPinState(33) == TRUE) | (continueToSendCount > 0)  ){
 		if (alertInterruptActive == false){
-			hal_printf("enabling data pull; cont: %d detect: %x\r\n", continueToSendCount, assumedDetect);
+			hal_printf("enabling data pull; cont: %d detect: %d\r\n", continueToSendCount, numDetectSamples);
 			CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 			alertInterruptActive = true;
 		} else {
-			hal_printf("cont: %d detect: %x\r\n", continueToSendCount, assumedDetect);
+			hal_printf("cont: %d detect: %d\r\n", continueToSendCount, numDetectSamples);
 		}
 
 
