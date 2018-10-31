@@ -154,7 +154,7 @@ void Radar_Handler(void *arg)
 			g_radarUserBuffersampleqdiffPtr[i]  = 0 - (8 - g_radarUserBuffersampleqdiffPtr[i] );
 		}
 
-		g_radarUserBuffersampleqDetectPtr[i] = (UINT16)(((UINT16)(rxData[(tmpPos)+5])&0x80) >> 8);
+		g_radarUserBuffersampleqDetectPtr[i] = (UINT16)(((UINT16)(rxData[(tmpPos)+5])&0x80) >> 7);
 
 		g_radarUserBuffersampleqdiffMovSumPtr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+4])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)+3])));
 		if (g_radarUserBuffersampleqdiffMovSumPtr[i] & (UINT16)0x800) {
