@@ -7,11 +7,13 @@
 /*--------- Macros ----------- */
 
 /*--------- Global Variables ----------- */
-mss_spi_instance_t * const gp_my_spi = &g_mss_spi0;
+mss_spi_instance_t * const gp_my_spi0 = &g_mss_spi0;
+mss_spi_instance_t * const gp_my_spi1 = &g_mss_spi1;
 
 BOOL CPU_SPI_Initialize ()
 {
-	MSS_SPI_init(gp_my_spi);
+	MSS_SPI_init(gp_my_spi0);
+	MSS_SPI_init(gp_my_spi1);
 
 	MSS_SPI_configure_master_mode
 	(
