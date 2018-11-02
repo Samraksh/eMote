@@ -33,6 +33,8 @@
 #define MPU_RASR_CB_WB      (0x03UL<<MPU_RASR_B_Pos)
 #define MPU_RASR_SRD(x)     (((UINT32)(x))<<MPU_RASR_SRD_Pos)
 
+#define MPU_MTYPE_NORMAL          (8 << 16)
+
 #define MPU_RBAR(region,addr)   (((UINT32)(region))|MPU_RBAR_VALID_Msk|addr)
 #define MPU_RBAR_RNR(addr)     (addr)
 
@@ -171,7 +173,7 @@ void CPU_mpu_configure_region(UINT8 regionNo, UINT32 startAddr, UINT32 regionSiz
 	// You need to be in Privilged mode to make changes to MPU.
 	ASSERT(priv);
 
-	UINT32 sizePow =  mpu_align_region_size(&startAddr, regionSize);
+	volatile UINT32 sizePow =  mpu_align_region_size(&startAddr, regionSize);
 
     ASSERT(sizePow >= 5); // "region too small"
 
@@ -188,7 +190,7 @@ void CPU_mpu_configure_region(UINT8 regionNo, UINT32 startAddr, UINT32 regionSiz
     // Construct the Region Attributes and Size Register value.
     UINT32 size = ((UINT32)(sizePow - 1) << MPU_RASR_SIZE_Pos);
     rasr= rasr | MPU_RASR_ENABLE_Msk | size;
-
+    rasr=rasr | MPU_MTYPE_NORMAL;
 
     /* more complicated uvisor type calculation
     UINT32 regionSize=mpu_sram_region_size(startAddr, size);
@@ -319,6 +321,7 @@ void CPU_mpu_lock(void){
 
 	// Finally enable the MPU.
 	MPU->CTRL = MPU_CTRL_ENABLE_Msk | MPU_CTRL_PRIVDEFENA_Msk;
+	MPU->CTRL = MPU_CTRL_ENABLE_Msk;
 
 	// DSB & ISB to ensure subsequent data & instruction transfers are using updated MPU settings
 	__DSB();
@@ -333,11 +336,11 @@ void CPU_mpu_invalidate_region(UINT8 regionNo){
 
 void CPU_mpu_set_acl(UINT8 regionNo, MpuRegion_t* region){
 	//disable interrupts
-	 __disable_irq();
+	 //__disable_irq();
 
 	// Make sure the memory barriers are correct.
-	__ISB(); //sync instruction access
-	__DSB(); // sync data access
+	//__ISB(); //sync instruction access
+	//__DSB(); // sync data access
 
 	// Update MPU region attributes
 
@@ -346,5 +349,5 @@ void CPU_mpu_set_acl(UINT8 regionNo, MpuRegion_t* region){
 	MPU->RBAR=MPU_RBAR(regionNo,region->start);
 	MPU->RASR = region->config;
 
-	 __enable_irq();
+	 //__enable_irq();
 }

@@ -5,7 +5,9 @@
 
 //Embedded sram RAM
 #define ERAM_ORIGIN 0x20000000
-#define ERAM_SIZE 0x18000 //96KB
+//#define ERAM_SIZE 0x18000 //96KB
+//96KB is the actual size, but not a power of 2 so we are going up to the next power of 2, which is 128 KB
+#define ERAM_SIZE 0x20000 //128KB
 #define ERAM_SIZE_POWER 17 //This 2^17 is 128KB, but has a power of 2 will cover entier RAM
 //#define ERAM_OFFSET 0x0
 
