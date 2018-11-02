@@ -14,6 +14,44 @@ int loadArduinoSPI( uint8_t* address, uint16_t binarySize){
 	uint16_t size, burning_location, reading_location, burn_command_location;
 	uint8_t i,j,k;
 
+	/*
+	 // test code for demo 2 arduino slave
+while (1){
+	// L ON
+	spi_tx_buff[0] = 0x4E;
+	size = 1;
+	MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+	MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, 0, 0 );
+	HAL_Time_Sleep_MicroSeconds(100000);
+	MSS_SPI_transfer_block(&g_mss_spi1, 0, 0, spi_rx_buff, 1 );
+	MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+
+	HAL_Time_Sleep_MicroSeconds(100000);
+
+	// L ON
+	spi_tx_buff[0] = 0x46;
+	size = 1;
+	MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+	MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, 0, 0 );
+	HAL_Time_Sleep_MicroSeconds(100000);
+	MSS_SPI_transfer_block(&g_mss_spi1, 0, 0, spi_rx_buff, 1 );
+	MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+
+	HAL_Time_Sleep_MicroSeconds(100000);
+
+	// L ON
+	spi_tx_buff[0] = 0x49;
+	size = 1;
+	MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+	MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, 0, 0 );
+	HAL_Time_Sleep_MicroSeconds(100000);
+	MSS_SPI_transfer_block(&g_mss_spi1, 0, 0, spi_rx_buff, 1 );
+	MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+
+	HAL_Time_Sleep_MicroSeconds(100000);	
+}*/
+
+
 	// put Arduino into reset
 	CPU_GPIO_EnableOutputPin(0, FALSE);
 	HAL_Time_Sleep_MicroSeconds(50000);
