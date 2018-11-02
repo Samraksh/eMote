@@ -152,8 +152,18 @@ void KEEP_THE_LINKER_HAPPY_SINCE_KEEP_IS_NOT_WORKING()
 
 #pragma arm section code = "SectionForBootstrapOperations"
 
+//increments to the next even number if input is odd
+static UINT32 __section(SectionForBootstrapOperations) MakeEven(UINT32 ulen){
+	ulen++;
+	UINT32 ret= ulen & 0xFFFFFFFE;
+	return ret;
+}
+
+
 static void __section(SectionForBootstrapOperations) Prepare_Copy( UINT32* src, UINT32* dst, UINT32 len )
 {
+	len=MakeEven(len);
+
     if(dst != src)
     {
         INT32 extraLen = len & 0x00000003;
@@ -179,8 +189,10 @@ static void __section(SectionForBootstrapOperations) Prepare_Copy( UINT32* src, 
     }
 }
 
-static void __section(SectionForBootstrapOperations) Prepare_Zero( UINT32* dst, UINT32 len )
+
+static void __section(SectionForBootstrapOperations) Prepare_Zero( UINT32* dst, UINT32 ulen )
 {
+	UINT32 len=MakeEven(ulen);
     INT32 extraLen = len & 0x00000003;
     len            = len & 0xFFFFFFFC;
 

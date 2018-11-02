@@ -43,8 +43,8 @@ extern UINT32 Image$$Kernel_ER_FLASH$$Base;
 extern UINT32 Image$$Kernel_ER_FLASH$$Length;
 
 void SecureMonitor_Initialize(){
-	//CPU_mpu_init();
-	//SetupSecureEmoteRegions();
+	CPU_mpu_init();
+	SetupSecureEmoteRegions();
 }
 
 
