@@ -37,11 +37,11 @@
         <!-- The below for parameters are important, will have to be adjusted based on compilation output, if a section overflows -->
         <!-- <Set Name="RoT_Code_Size"           Value="0x2200"/>  30KB -->
         <Set Name="RoT_Code_Size"           Value="0x3200"/> <!-- 30KB -->
-		<Set Name="Kernel_Code_Size"           Value="0x13000"/> 
+		<Set Name="Kernel_Code_Size"           Value="0x10000"/> 
         
         <!-- <Set Name="RoT_RAM_Base" 			Value="%Stack_Top% + 8"/> -->
         <Set Name="RoT_RAM_Size"           Value="0x300"/> <!-- 512 B -->
-		<Set Name="Kernel_RAM_Size"           Value="0x2F00"/> <!-- 4KB -->
+		<Set Name="Kernel_RAM_Size"           Value="0xF00"/> <!-- 4KB -->
         
         
         <!--<Set Name="Kernel_BaseAddress"    Value="0x6001F000"/>-->
@@ -140,70 +140,85 @@
         	<FileMapping Name="*" Options="(i.EntryPoint)" />
         	<FileMapping Name="*" Options="(SectionForBootstrapOperations)" />
         	
-        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:*" Options="(.text*)" />     	      
-        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:*" Options="(.rodata*)" />
-        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:*" Options="(.ARM.attributes)" />
+        	<FileMapping Name="tmp_RoT_tinyclr.lib" Options="(.text*)" />     	      
+        	<FileMapping Name="tmp_RoT_tinyclr.lib" Options="(.rodata*)" />
+        	<!--<FileMapping Name="tmp_RoT_tinyclr.lib" Options="(.ARM.attributes)" />-->
         
         	<!-- libc thinks that it needs these routines, but they are never called -->
         	<Include File="%SPOCLIENT%\Solutions\%PLATFORM%\scatterfile_gcc_missing_symbols.xml"/>
 		</ExecRegion>
-		<!-- Ram RW segments of all three regions are placed at the end of RoT regions flash, to be loaded into Ram at runtime-->
+		
+      	<!-- Kernel execution region -->
+		<ExecRegion Name="Kernel_ER_%TARGETLOCATION%" Options="&gt;Kernel_LR_%TARGETLOCATION%_Mirror AT>Kernel_%AltName%">
+		
+			<FileMapping Name="tmp_Kernel_tinyclr.lib" Options="(.text*)" />
+    	    <FileMapping Name="tmp_Kernel_tinyclr.lib" Options="(.rodata*)" />	    
+        	<!--<FileMapping Name="tmp_Kernel_tinyclr.lib" Options="(.ARM.attributes)" />-->        	        
+
+        	     	
+      	</ExecRegion>
+      	      	
+      <!-- RunTime execution region, include all libs excluding whats included in rot, kernel -->
+		<ExecRegion Name="RunTime_ER_%TARGETLOCATION%" Options="&gt;RunTime_LR_%TARGETLOCATION%_Mirror AT>RunTime_%AltName%">
+			<FileMapping Name="*(EXCLUDE_FILE(tmp_RoT_tinyclr.lib tmp_Kernel_tinyclr.lib)" Options=".text*)" />		        
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_RoT_tinyclr.lib tmp_Kernel_tinyclr.lib)" Options=".rodata*)" />
+        	<!--<FileMapping Name="*(EXCLUDE_FILE(tmp_RoT_tinyclr.lib tmp_Kernel_tinyclr.lib)" Options=".ARM.attributes)" />-->
+			
+			<FileMapping Name="*\libgcc.a:*"  Options="(.text* .rodata*)" />
+        	<FileMapping Name="*\libc.a:*"  Options="(.text* .rodata*)" />
+        	<FileMapping Name="*\libm.a:*"  Options="(.text* .rodata*)" />
+
+        	<IfNotDefined Name="Data_BaseAddress">
+          		<FileMapping Name="*(EXCLUDE_FILE(tmp_RoT_tinyclr.lib tmp_Kernel_tinyclr.lib)" Options="tinyclr_metadata)" />
+        	</IfNotDefined>
+      	</ExecRegion>
+            	
+      	<!--               RAM Sections configuration follows               -->
+      	
+      	<!-- Ram RW segments of all three regions are placed at the end of RoT regions flash, to be loaded into Ram at runtime-->
       	<ExecRegion Name="ER_RAM_RO" Align="0x10" Options="&gt;ROT_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
            	<If Name="TARGETLOCATION" In="FLASH">     
           		<FileMapping Name="*" Options="(SectionForFlashOperations)" />       
         	</If>
       	</ExecRegion>    
       	<ExecRegion Name="ROT_ER_RAM_RW" Align="0x10" Options="&gt;ROT_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
-        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:*" Options="(rwdata)" />
-        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:*" Options="(.data*)" />
-        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:*" Options="(.zidata*)" />
+        	<FileMapping Name="tmp_RoT_tinyclr.lib" Options="(rwdata)" />
+        	<FileMapping Name="tmp_RoT_tinyclr.lib" Options="(.data*)" />
+        	<FileMapping Name="tmp_RoT_tinyclr.lib" Options="(.zidata*)" />
       	</ExecRegion>      
       	<ExecRegion Name=".bss" Align="0x10" Options="&gt;ROT_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
-        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:*" Options="(.bss*)" />
+        	<FileMapping Name="tmp_RoT_tinyclr.lib" Options="(.bss*)" />
         	<FileMapping Name="PROVIDE(__exidx_start = .);" />
         	<FileMapping Name="PROVIDE(__exidx_end = .);" />
       	</ExecRegion>
       	<ExecRegion Name="Kernel_ER_RAM_RW" Align="0x10" Options="&gt;Kernel_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
-        	<FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(rwdata)" />
-        	<FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.data*)" />
-        	<FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.zidata*)" />
+        	<FileMapping Name="tmp_Kernel_tinyclr.lib" Options="(rwdata)" />
+        	<FileMapping Name="tmp_Kernel_tinyclr.lib" Options="(.data*)" />
+        	<FileMapping Name="tmp_Kernel_tinyclr.lib" Options="(.zidata*)" />
+        	          	
       	</ExecRegion>      
       	<ExecRegion Name=".bss.kernel" Align="0x10" Options="&gt;Kernel_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
-        	<FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.bss*)" />
+        	<FileMapping Name="tmp_Kernel_tinyclr.lib" Options="(.bss*)" />
+        	
+        	
       	</ExecRegion>
       	<ExecRegion Name="RunTime_ER_RAM_RW" Align="0x10" Options="&gt;RunTime_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
-        	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:*)" Options="rwdata)" />
-        	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:*)" Options=".data*)" />
-        	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:*)" Options=".zidata*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_RoT_tinyclr.lib tmp_Kernel_tinyclr.lib)" Options="rwdata)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_RoT_tinyclr.lib tmp_Kernel_tinyclr.lib)" Options=".data*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_RoT_tinyclr.lib tmp_Kernel_tinyclr.lib)" Options=".zidata*)" />
+        	
+        	<FileMapping Name="*\libgcc.a:*"  Options="(rwdata* .data* .zidata*)" />
+        	<FileMapping Name="*\libc.a:*"  Options="(rwdata* .data* .zidata*)" />
+        	<FileMapping Name="*\libm.a:*"  Options="(rwdata* .data* .zidata*)" />
       	</ExecRegion>      
       	<ExecRegion Name=".bss.runtime" Align="0x10" Options="&gt;RunTime_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
-        	<FileMapping Name="*(EXCLUDE_FILE(tmp_RoT_tinyclr.lib *\tmp_Kernel_tinyclr.lib:*)" Options=".bss*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_RoT_tinyclr.lib tmp_Kernel_tinyclr.lib)" Options=".bss*)" />
+        	
+        	<FileMapping Name="*\libgcc.a:*"  Options="(.bss*)" />
+        	<FileMapping Name="*\libc.a:*"  Options="(.bss*)" />
+        	<FileMapping Name="*\libm.a:*"  Options="(.bss*)" />
       	</ExecRegion>
       	
-      	<!-- Kernel execution region -->
-		<ExecRegion Name="Kernel_ER_%TARGETLOCATION%" Options="&gt;Kernel_LR_%TARGETLOCATION%_Mirror AT>Kernel_%AltName%">
-		
-			<FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.text*)" />
-    	    <FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.rodata*)" />	    
-        	<FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.ARM.attributes)" />        	        
-
-        	<FileMapping Name="*\libgcc.a:*"  Options="(.text* .rodata*)" />
-        	<FileMapping Name="*\libc.a:*"  Options="(.text* .rodata*)" />
-        	<FileMapping Name="*\libm.a:*"  Options="(.text* .rodata*)" />     	
-      	</ExecRegion>
-      	      	
-      <!-- RunTime execution region, include all libs excluding whats included in rot, kernel -->
-		<ExecRegion Name="RunTime_ER_%TARGETLOCATION%" Options="&gt;RunTime_LR_%TARGETLOCATION%_Mirror AT>RunTime_%AltName%">
-			<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:*)" Options=".text*)" />		        
-        	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:*)" Options=".rodata*)" />
-        	<!--<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:*)" Options=".ARM.attributes)" />-->
-
-        	<IfNotDefined Name="Data_BaseAddress">
-          		<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:*)" Options="tinyclr_metadata)" />
-        	</IfNotDefined>
-      	</ExecRegion>
-            	
-      	<!--               RAM Sections configuration follows               -->
       	
       	<ExecRegion Name="ER_STACK_BOTTOM" Base="%Stack_Bottom%">
         	<FileMapping Name="*" Options="(SectionForStackBottom)" />
@@ -213,10 +228,10 @@
       	</ExecRegion>      	
       	
       	<ExecRegion Name="/DISCARD/">
-      		<!--<FileMapping Name="*" Options="(.ARM*)" />-->
+      		<!--<FileMapping Name="*" Options="(.ARM*)" />
       		<FileMapping Name="*" Options="(.v4_bx*)" />
       		<FileMapping Name="*" Options="(.iplt*)" />
-      		<FileMapping Name="*" Options="(.igot.iplt*)" />
+      		<FileMapping Name="*" Options="(.igot.iplt*)" />-->
       		<FileMapping Name="*" Options="(.rel.dyn*)" />
         	<FileMapping Name="*" Options="(.glue*)" />
         	<FileMapping Name="*" Options="(.vfp11*)" />
@@ -263,15 +278,18 @@
     <GlobalVariable Name="Load$$ER_RAM_RO$$Base"                    Value="LOADADDR(ER_RAM_RO)"/>
 
     <GlobalVariable Name="Image$$RoT_ER_RAM_RW$$Base"                   Value="ADDR(ROT_ER_RAM_RW)"/>
-    <GlobalVariable Name="Image$$RoT_ER_RAM_RW$$Length"                 Value="ADDR(.bss) + SIZEOF(.bss) - ADDR(ROT_ER_RAM_RW)"/>
+    <!--<GlobalVariable Name="Image$$RoT_ER_RAM_RW$$Length"                 Value="ADDR(.bss) + SIZEOF(.bss) - ADDR(ROT_ER_RAM_RW)"/>-->
+    <GlobalVariable Name="Image$$RoT_ER_RAM_RW$$Length"                 Value="SIZEOF(ROT_ER_RAM_RW)"/>
     <GlobalVariable Name="Load$$RoT_ER_RAM_RW$$Base"                    Value="LOADADDR(ROT_ER_RAM_RW)"/>
         
     <GlobalVariable Name="Image$$Kernel_ER_RAM_RW$$Base"                   Value="ADDR(Kernel_ER_RAM_RW)"/>
-    <GlobalVariable Name="Image$$Kernel_ER_RAM_RW$$Length"                 Value="ADDR(.bss.kernel) + SIZEOF(.bss.kernel) - ADDR(Kernel_ER_RAM_RW)"/>
+    <!--<GlobalVariable Name="Image$$Kernel_ER_RAM_RW$$Length"                 Value="ADDR(.bss.kernel) + SIZEOF(.bss.kernel) - ADDR(Kernel_ER_RAM_RW)"/>-->
+    <GlobalVariable Name="Image$$Kernel_ER_RAM_RW$$Length"                 Value="SIZEOF(Kernel_ER_RAM_RW)"/>
     <GlobalVariable Name="Load$$Kernel_ER_RAM_RW$$Base"                    Value="LOADADDR(Kernel_ER_RAM_RW)"/>
     
     <GlobalVariable Name="Image$$RunTime_ER_RAM_RW$$Base"                   Value="ADDR(RunTime_ER_RAM_RW)"/>
-    <GlobalVariable Name="Image$$RunTime_ER_RAM_RW$$Length"                 Value="ADDR(.bss.runtime) + SIZEOF(.bss.runtime) - ADDR(RunTime_ER_RAM_RW)"/>
+    <!--<GlobalVariable Name="Image$$RunTime_ER_RAM_RW$$Length"                 Value="ADDR(.bss.runtime) + SIZEOF(.bss.runtime) - ADDR(RunTime_ER_RAM_RW)"/>-->
+    <GlobalVariable Name="Image$$RunTime_ER_RAM_RW$$Length"                 Value="SIZEOF(RunTime_ER_RAM_RW)"/>
     <GlobalVariable Name="Load$$RunTime_ER_RAM_RW$$Base"                    Value="LOADADDR(RunTime_ER_RAM_RW)"/>
     
     <GlobalVariable Name="Image$$RoT_ER_RAM_RW$$ZI$$Base"               Value="ADDR(.bss)"/>

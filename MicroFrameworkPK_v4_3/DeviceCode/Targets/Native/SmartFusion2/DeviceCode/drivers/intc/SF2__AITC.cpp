@@ -4,6 +4,7 @@
 
 #include <tinyhal.h>
 #include <cmsis/m2sxxx.h>
+#include <cmsis_gcc.h>
 //#include <led/SF2f10x_led.h>
 //#include <gpio/SF2f10x_gpio.h>
 #include "SF2.h"
@@ -33,6 +34,19 @@
 #if defined(SECURE_EMOTE)
 extern void MemManage_Handler(UINT32 lr, UINT32 msp);
 #endif
+
+///
+///brief Get Link Register
+///details Returns the current value of the Link Register (LR).
+///return LR Register value
+__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_LR(void)
+{
+  register uint32_t result;
+
+  __ASM volatile ("MOV %0, LR\n" : "=r" (result) );
+  return(result);
+}
+
 
 SF2_AITC_Driver::IRQ_VECTORING __section(rwdata) SF2_AITC_Driver::s_IsrTable[] =
 {
@@ -243,6 +257,14 @@ extern "C"
 		#endif
 	#endif
 
+
+void __irq HardFault_Handler(){
+	UINT32 lr, msp;
+	lr= __get_LR();
+	msp=__get_MSP();
+	MemManage_Handler(lr, msp);
+}
+
 __attribute__((optimize("O0")))
 void HardFault_HandlerC(unsigned long *hardfault_args)
 {
@@ -375,9 +397,9 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 }
 
 
-	void __irq HardFault_Handler()
+	/*void __irq HardFault_Handler()
 	{
-			// This assembly code will find the location of the stack and pass it to a C function hard fault handler (HardFault_HandlerC)
+		// This assembly code will find the location of the stack and pass it to a C function hard fault handler (HardFault_HandlerC)
 			asm(
 				"TST LR, #4 \n"          // Test EXC_RETURN number in LR bit 2 to determine if main stack or program stack is in use.
 				"ITE EQ \n"
@@ -385,7 +407,8 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 				"MRSNE R0, PSP \n"
 				"B HardFault_HandlerC \n"
    			);
-	}
+
+	}*/
 
 
 	void __irq SVC_Handler()
@@ -452,7 +475,8 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 	void __irq Default_Handler()
 	{
-		HARD_BREAKPOINT();
+		//HARD_BREAKPOINT();
+		HardFault_Handler();
 	}
 
 	void __irq RTC_IRQHandler()
