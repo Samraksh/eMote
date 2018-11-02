@@ -182,7 +182,6 @@ static uint8_t execute_service
     uint8_t status;
     uint16_t actual_response_length;
     
-	hal_printf("ex1\r\n");
     signal_request_start();
     
     MSS_COMBLK_send_cmd_with_ptr(cmd_opcode,                    /* cmd_opcode */
@@ -191,9 +190,7 @@ static uint8_t execute_service
                                  response_length,               /* response_size */
                                  request_completion_handler);   /* completion_handler */
     
-	hal_printf("ex2\r\n");
     //actual_response_length = wait_for_request_completion();
-	hal_printf("ex3\r\n");
     
     if((response_length == actual_response_length) && (cmd_opcode == response[0]))
     {
@@ -365,7 +362,6 @@ void MSS_COMBLK_send_cmd_with_ptr
     /*--------------------------------------------------------------------------
      * Send command opcode as a single byte write to the Tx FIFO.
      */
-	hal_printf("send1\r\n");
     send_cmd_opcode(g_comblk_cmd_opcode);
     
     /*--------------------------------------------------------------------------
@@ -374,7 +370,6 @@ void MSS_COMBLK_send_cmd_with_ptr
      */
     COMBLK->CONTROL |= CR_SIZETX_MASK;
     
-	hal_printf("send2\r\n");
     /* Wait for space to become available in Tx FIFO. */
     do {
         tx_okay = COMBLK->STATUS & TXTOKAY_MASK;
@@ -387,13 +382,11 @@ void MSS_COMBLK_send_cmd_with_ptr
     
     g_comblk_state = COMBLK_WAIT_RESPONSE;
     
-	hal_printf("send3\r\n");
     /*--------------------------------------------------------------------------
      * Enable interrupt.
      */
     COMBLK->INT_ENABLE |= RCVOKAY_MASK;
     NVIC_EnableIRQ(ComBlk_IRQn);
-	hal_printf("send4\r\n");
 }
 
 void MSS_COMBLK_send_cmd
@@ -482,7 +475,6 @@ static void request_completion_handler
     uint16_t response_size
 )
 {
-	hal_printf("request_completion_handler\r\n");
     g_request_in_progress = 0u;
     g_last_response_length = response_size;
 }
@@ -507,7 +499,6 @@ static void signal_request_start(void)
  */
 static uint16_t wait_for_request_completion(void)
 {
-	hal_printf("wait_for_request_completion\r\n");
     while(g_request_in_progress)
     {
         ;
@@ -551,7 +542,6 @@ static void write_array_into_ptr_value
 
 static void asynchronous_event_handler(uint8_t event_opcode)
 {
-	hal_printf("asynchronous_event_handler\r\n");
     if (event_opcode == FLASH_FREEZE_SHUTDOWN_OPCODE)
     {
         uint32_t running_on_standby_clock;
@@ -614,7 +604,6 @@ static void asynchronous_event_handler(uint8_t event_opcode)
     }
     else
     {
-		hal_printf("asynchronous_event_handler2\r\n");
         /*if ((event_opcode == POR_DIGEST_ERROR_OPCODE) || \
             ((event_opcode >= TAMPER_ATTEMPT_DETECT_OPCODE_RANGE_MIN) && \
             (event_opcode <= TAMPER_FAILURE_DETECT_OPCODE_RANGE_MAX)) || \
@@ -629,7 +618,6 @@ static void asynchronous_event_handler(uint8_t event_opcode)
              */
             if(g_event_handler != 0)
             {
-				hal_printf("asynchronous_event_handler3\r\n");
                 /* Call the user's event handler. */
                 g_event_handler(event_opcode, g_response[1]);
             }
@@ -653,12 +641,10 @@ uint8_t generate_hmac
     uint8_t status;
 	
 	if(g_request_in_progress){
-		hal_printf("g_request_in_progress\r\n");
 		return 0;
 	}
 	testingNum++;
 	if (testingNum == 30){
-		hal_printf("NVM_write\r\n");		
 		NVM_write(0x60000000, eNVM_write_buff, 5, NVM_DO_NOT_LOCK_PAGE);
 		eNVM_write_buff[0]++;
 		testingNum = 0;
@@ -2426,7 +2412,6 @@ uint8_t MSS_SYS_clear_mesh_short
 
 static void abort_current_cmd(void)
 {
-	hal_printf("abort_current_cmd\r\n");
     if(g_request_in_progress)
     {
         uint32_t flush_in_progress;
@@ -2501,7 +2486,6 @@ static void complete_request
     uint16_t response_length
 )
 {
-	hal_printf("complete_request\r\n");
     if(g_comblk_completion_handler != 0)
     {
         g_comblk_completion_handler(g_comblk_p_response, response_length);
