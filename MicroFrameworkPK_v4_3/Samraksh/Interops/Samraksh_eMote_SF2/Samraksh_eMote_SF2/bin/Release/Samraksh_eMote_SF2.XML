@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Samraksh_eMote_SF2</name>
+    </assembly>
+    <members>
+        <member name="T:Samraksh.eMote.SF2.SPI">
+            <summary>
+            SPI class  
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.SF2.SPI.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.SF2.SPI.Finalize">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.SF2.SPI.SendData(System.Int32,System.Byte[],System.Int32)">
+            <summary>
+            Data is sent across the SPI.
+            </summary>
+            <returns>Returns true if a detection was found, false if no detection was found.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.SF2.SPI.ReceiveData(System.Int32,System.Byte[],System.Int32)">
+            <summary>
+            Data is received across the SPI.
+            </summary>
+            <returns>Returns true if a detection was found, false if no detection was found.</returns>
+        </member>
+    </members>
+</doc>
