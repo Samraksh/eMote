@@ -33,6 +33,12 @@ typedef uint16_t ushort;
 //#define IBL
 #if !defined(IBL)
 #define SECURE_EMOTE 1
+
+//Secure emote specific system wide functions, implementedin tinyhal.cpp
+//should probably be moved to tinyhal.h
+bool IsPrivMode();
+void ChangeExecMode(bool priv);
+
 #endif
 
 #if defined(PLATFORM_ARM_SmartFusion2)

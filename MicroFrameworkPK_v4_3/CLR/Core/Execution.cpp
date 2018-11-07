@@ -3889,6 +3889,13 @@ CLR_UINT32 CLR_RT_ExecutionEngine::WaitSystemEvents( CLR_UINT32 powerLevel, CLR_
 #endif
 
 
+#if defined(SECURE_EMOTE)
+    if(IsPrivMode()){
+       	debug_printf( "In CLR_Execution:: Still in Priviledged Mode... Switching to thread mode.\r\n" );
+       	ChangeExecMode(false);
+    }
+#endif
+
     ::Watchdog_GetSetEnabled( FALSE, TRUE );
     res = ::Events_WaitForEvents( powerLevel, events, timeout );
     ::Watchdog_GetSetEnabled( TRUE, TRUE );

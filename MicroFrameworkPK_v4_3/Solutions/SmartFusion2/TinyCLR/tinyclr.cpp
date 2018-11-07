@@ -6,23 +6,6 @@
 #include <tinyhal.h>
 #include <cmsis_gcc.h>
 ////////////////////////////////////////////////////////////////////////////////
-bool IsPrivMode(){
-	if (__get_IPSR() || !(__get_CONTROL() & 0x1))
-	{
-		return true;
-	}
-	return false;
-}
-
-void ChangeExecMode(bool priv){
-	if(priv){
-
-	}else {
-		UINT32 privMask=0xFFFFFFFE; //clear the CONTROL[0] to enter user mode
-		UINT32 con = __get_CONTROL();
-		__set_CONTROL(privMask & con);
-	}
-}
 
 void ApplicationEntryPoint()
 {

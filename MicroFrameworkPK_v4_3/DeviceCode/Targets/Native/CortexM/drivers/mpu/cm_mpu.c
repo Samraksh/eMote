@@ -18,6 +18,8 @@
 #endif
 */
 
+extern void HardFault_Handler();
+
 /* various MPU flags */
 #define MPU_RASR_AP_PNO_UNO (0x00UL<<MPU_RASR_AP_Pos)
 #define MPU_RASR_AP_PRW_UNO (0x01UL<<MPU_RASR_AP_Pos)
@@ -218,6 +220,12 @@ void CPU_mpu_init(void)
 {
 	uint32_t aligment_mask;
 
+	//first check if an MPU is available on your device
+	if(!MPU->TYPE){
+		debug_printf("NO MPU present;");
+		//call hard fault handler
+		HardFault_Handler();
+	}
 	// Disable the MPU.
 	MPU->CTRL = 0;
 	// Check MPU region alignment using region number zero.
@@ -230,7 +238,6 @@ void CPU_mpu_init(void)
 	SCB->SHCSR |= (SCB_SHCSR_USGFAULTENA_Msk) |
 				  (SCB_SHCSR_BUSFAULTENA_Msk) |
 				  (SCB_SHCSR_MEMFAULTENA_Msk);
-
 }
 
 //Note: Finds the first region to which address belongs; Overlapping regions could be a problem.

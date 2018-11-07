@@ -67,12 +67,12 @@ void SetupSecureEmoteRegions(){
 
 	//mem_base=(void*)Load$$Kernel_ER_RAM_RW$$Base;
 	//mem_size=Image$$Kernel_Total_RAM_RW$$Length;
-	CPU_mpu_configure_region(Kernel_RAM, mem_base, mem_size, AP_RW_RO, false);
+	//CPU_mpu_configure_region(Kernel_RAM, mem_base, mem_size, AP_RW_RO, false);
 
 	//Region 5: RoT Ram
 	mem_base=(UINT32)&Image$$RoT_ER_RAM_RW$$Base;
 	mem_size=(UINT32)&Image$$RoT_ER_RAM_RW$$Length+(UINT32)&Image$$RoT_ER_RAM_RW$$ZI$$Length;
-	CPU_mpu_configure_region(RoT_RAM, mem_base, mem_size, AP_RW_RO, false);
+	//CPU_mpu_configure_region(RoT_RAM, mem_base, mem_size, AP_RW_RO, false);
 
 	//Flash regions
 	//Region 1: Setup entire Flash as this region.
@@ -81,22 +81,28 @@ void SetupSecureEmoteRegions(){
 	CPU_mpu_configure_region(GP_CODE, mem_base, mem_size, AP_RO_RO, true);
 
 	//Region 2: Entire IO is mapped to protect their access. Note: Other than kernel and RoT, nobody else can access IO
-	//mem_base = (UINT32)IO_ORIGIN;
-	//mem_size = IO_SIZE;
-	//CPU_mpu_configure_region(GP_IO, mem_base, mem_size, AP_RW_RO, false);
+	mem_base = (UINT32)IO_ORIGIN;
+	mem_size = IO_SIZE;
+	CPU_mpu_configure_region(GP_IO, mem_base, mem_size, AP_RW_NO, false);
+
+	//Deployment
+	//mem_base = (UINT32)DEPLOY_BASE;
+	//mem_size = DEPLOY_SIZE;
+	//CPU_mpu_configure_region(3, mem_base, mem_size, AP_RW_RW, true);
+
 
 	//Region 4: Kernel code
 	mem_base = (UINT32)EFLASH_ORIGIN + ROT_SIZE;
 	//mem_size = (UINT32)&Image$$Kernel_ER_FLASH$$Length;
-	mem_size = (UINT32)&Image$$Kernel_ER_FLASH$$Length;
+	mem_size = (UINT32)KERNEL_SIZE;
 
-	CPU_mpu_configure_region(Kernel_CODE, mem_base, mem_size, AP_RO_NO, true);
+	CPU_mpu_configure_region(Kernel_CODE, mem_base, mem_size, AP_RO_RO, true);
 
 	//Region 6:
 	mem_base = (UINT32)EFLASH_ORIGIN;
 	//mem_size = (UINT32)Image$$RoT_ER_FLASH$$Length;
 	mem_size = (UINT32)ROT_SIZE;
-	CPU_mpu_configure_region(RoT_CODE, mem_base, mem_size, AP_RO_NO, true);
+	CPU_mpu_configure_region(RoT_CODE, mem_base, mem_size, AP_RO_RO, true);
 
 	// NULL pointer protection, highest priority.
 	//CPU_mpu_configure_region(Reserve, 0, 5, AP_NO_NO, false);
@@ -112,7 +118,7 @@ void MPU_Init(){
 }
 
 
-void MemManage_Handler(UINT32 lr, UINT32 msp)
+void MemManage_HandlerC(UINT32 lr, UINT32 msp)
 {
     static char msg[128];
     struct port_extctx ctx;
@@ -134,15 +140,12 @@ void MemManage_Handler(UINT32 lr, UINT32 msp)
 
     /* Data access violation */
     if (MMFSR & (1 << 1)) {
-        debug_printf(msg, sizeof(msg),
-                 "Invalid access to %p (pc=%p)", (void *)SCB->MMFAR, ctx.pc);
+        debug_printf("MemManage Handler: Data access violation to %p (pc=%p)", (void *)SCB->MMFAR, ctx.pc);
     }
 
     /* Instruction address violation. */
     if (MMFSR & (1 << 0)) {
-        debug_printf(msg, sizeof(msg),
-                 "Jumped to XN region %p (lr_thd=%p)",
-                    (void *)SCB->MMFAR, ctx.lr_thd);
+        debug_printf("MemManage Handler: Jumped to XN region %p (lr_thd=%p)", (void *)SCB->MMFAR, ctx.lr_thd);
     }
 
     //chSysHalt(msg);

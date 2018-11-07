@@ -256,7 +256,7 @@ ARM_Vectors:
 
   /* For some reason weak aliases are not working here*/
 
-
+/*
   .weak  MemManage_Handler
   .thumb_set MemManage_Handler,Default_Handler
 
@@ -265,6 +265,7 @@ ARM_Vectors:
 
   .weak  UsageFault_Handler
   .thumb_set UsageFault_Handler,Default_Handler
+*/
 
 /*
   .weak  SVC_Handler
