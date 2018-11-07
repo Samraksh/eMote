@@ -54,6 +54,16 @@ UINT16 RadarInternal::getNumLookAheadWindows( CLR_RT_HeapBlock* pMngObj, HRESULT
 {
 	return HAL_RADAR_DRIVER::getNumLookAheadWindows();
 }
+UINT16 RadarInternal::getNumDetectionsInWindow( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+return HAL_RADAR_DRIVER::getNumDetectionsInWindow();
+}
+
+INT16 RadarInternal::getTotalRotationsofWindow( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+return HAL_RADAR_DRIVER::getTotalRotationsofWindow();
+}
+
 void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr )
 {
 	HAL_RADAR_DRIVER::setProcessingInProgress(param0);

@@ -132,6 +132,38 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::getNumLookAheadWindo
     TINYCLR_NOCLEANUP();
 }
 
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::getNumDetectionsInWindow___U2( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        UINT16 retVal = RadarInternal::getNumDetectionsInWindow( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_UINT16( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::getTotalRotationsofWindow___I2( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT16 retVal = RadarInternal::getTotalRotationsofWindow( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT16( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
 HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::SetProcessingInProgress___VOID__BOOLEAN( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;

@@ -48,6 +48,18 @@ UINT16 RadarInternal::getNumLookAheadWindows( CLR_RT_HeapBlock* pMngObj, HRESULT
     return retVal;
 }
 
+UINT16 RadarInternal::getNumDetectionsInWindow( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    UINT16 retVal = 0; 
+    return retVal;
+}
+
+INT16 RadarInternal::getTotalRotationsofWindow( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    INT16 retVal = 0; 
+    return retVal;
+}
+
 void RadarInternal::SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr )
 {
 }

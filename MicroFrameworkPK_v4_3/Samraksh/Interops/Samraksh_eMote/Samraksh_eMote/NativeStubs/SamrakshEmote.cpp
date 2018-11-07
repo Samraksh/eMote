@@ -68,6 +68,18 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::GetDataReference___I4__U4,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::GetDataLocation___I4__U4,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::LookupDataType___I4__U4,
@@ -154,9 +166,11 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
     Library_SamrakshEmote_Samraksh_eMote_RadarInterface::TurnOn___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_RadarInterface::TurnOff___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_RadarInterface::Blind___BOOLEAN,
+    NULL,
     NULL,
     NULL,
     Library_SamrakshEmote_Samraksh_eMote_RadarInternal::ConfigureFPGADetectionPrivate___BOOLEAN__SZARRAY_U2__SZARRAY_U2__SZARRAY_I2__SZARRAY_I2__SZARRAY_I2__SZARRAY_BOOLEAN__U4,
@@ -165,6 +179,8 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_SamrakshEmote_Samraksh_eMote_RadarInternal::getContinueToSendCount___U2,
     Library_SamrakshEmote_Samraksh_eMote_RadarInternal::setNumLookAheadWindows___VOID__U2,
     Library_SamrakshEmote_Samraksh_eMote_RadarInternal::getNumLookAheadWindows___U2,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::getNumDetectionsInWindow___U2,
+    Library_SamrakshEmote_Samraksh_eMote_RadarInternal::getTotalRotationsofWindow___I2,
     Library_SamrakshEmote_Samraksh_eMote_RadarInternal::SetProcessingInProgress___VOID__BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_RadarInternal::Init___STATIC__I4__I4,
     Library_SamrakshEmote_Samraksh_eMote_RadarInternal::Uninit___STATIC__BOOLEAN,
@@ -173,7 +189,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote =
 {
     "Samraksh_eMote", 
-    0x835D382B,
+    0x3B9CDB8D,
     method_lookup
 };
 

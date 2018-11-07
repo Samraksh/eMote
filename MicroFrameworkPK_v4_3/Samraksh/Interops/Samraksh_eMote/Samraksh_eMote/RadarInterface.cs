@@ -14,7 +14,7 @@ namespace Samraksh.eMote
     /// <summary>
     /// The public interface for the radar
     /// </summary>
-    public class RadarInterface
+    public class RadarInterface : IRadarInterface
     {
         /// <summary>
         /// ADC internal class 
@@ -120,6 +120,23 @@ namespace Samraksh.eMote
             return _radarInternal.getNumLookAheadWindows();
         }
 
+
+        /// <summary>
+        /// Gets remainng count for the FPGA to send after the last detect. 
+        /// </summary>
+        public UInt16 getNumDetectionsInWindow()
+        {
+            return _radarInternal.getNumDetectionsInWindow();
+        }
+
+        /// <summary>
+        /// Gets remainng count for the FPGA to send after the last detect. 
+        /// </summary>
+        public Int16 getTotalRotationsofWindow()
+        {
+            return _radarInternal.getTotalRotationsofWindow();
+        }
+
         /// <summary>
         /// Native Radar driver callback
         /// </summary>
@@ -223,6 +240,13 @@ namespace Samraksh.eMote
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         public extern UInt16 getNumLookAheadWindows();
 
+
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern UInt16 getNumDetectionsInWindow();
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern Int16 getTotalRotationsofWindow();
+        
 
         /*
         /// <summary>

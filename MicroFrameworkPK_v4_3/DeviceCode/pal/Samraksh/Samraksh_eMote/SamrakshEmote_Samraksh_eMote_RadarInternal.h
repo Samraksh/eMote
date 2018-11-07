@@ -28,6 +28,8 @@ namespace Samraksh
             static UINT16 getContinueToSendCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
             static void setNumLookAheadWindows( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr );
             static UINT16 getNumLookAheadWindows( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+            static UINT16 getNumDetectionsInWindow( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+            static INT16 getTotalRotationsofWindow( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );			 
             static void SetProcessingInProgress( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr );
             static INT32 Init( INT32 param0, HRESULT &hr );
             static INT8 Uninit( HRESULT &hr );

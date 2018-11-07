@@ -35,6 +35,7 @@
     <Compile Include="Algorithm.cs" />
     <Compile Include="DataReference.cs" />
     <Compile Include="DataStore.cs" />
+    <Compile Include="IRadarInterface.cs" />
     <Compile Include="NonVolatileMemory.cs" />
     <Compile Include="Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

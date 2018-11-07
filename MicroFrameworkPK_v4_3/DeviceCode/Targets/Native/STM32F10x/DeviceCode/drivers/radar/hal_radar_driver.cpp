@@ -11,13 +11,14 @@ extern UINT64 g_radarUserData;
 namespace HAL_RADAR_DRIVER{
 
 BOOL g_Radar_Driver_Initialized = FALSE;
+static UINT16 numDetectSamples = 0;
 static bool windowOverThreshold = false;
 static bool detectionFinished = false;
 static bool processingInProgress = false;
 static UINT16 continueToSendCount = 0;
 
 static UINT16 numlookaheadwindows = 6;
-
+static INT16 totalRots = 0;
 
 static bool alertInterruptActive = false;
 
@@ -54,10 +55,10 @@ UINT32 g_radarBufferSize = 0;
 
 void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	if (interruptServiceInProcess == true){
-		hal_printf("#!detect interruptServiceInProcess\r\n");
+		//hal_printf("#!detect interruptServiceInProcess\r\n");
 		return;
 	}
-	hal_printf("\r\n detect\r\n");
+	//hal_printf("\r\n detect\r\n");
 	// checking to make sure we have enough data to pull
 	// this could occur if we are currently pulling data (per continuations) and a detection occurs
 	if (CPU_GPIO_GetPinState(33) == FALSE){
@@ -97,7 +98,7 @@ void Radar_Handler(void *arg)
 
 	// if we are already processing data, we need to wait
 	if (processingInProgress == true){
-		hal_printf("@!Radar_Handler processingInProgress\r\n");
+		//hal_printf("@!Radar_Handler processingInProgress\r\n");
 		interruptServiceInProcess = false;
 		return;
 	}
@@ -134,11 +135,12 @@ void Radar_Handler(void *arg)
 		rxData[i] = SPI_I2S_ReceiveData(SPIy);
 	}
 	CPU_GPIO_SetPinState(8, FALSE);
-	int numDetectSamples = 0;
 
 	int tmpPos;
 
-
+	totalRots = 0;
+	numDetectSamples = 0;
+	windowOverThreshold = false;
 	for (i=0;i<bytesToRead/6;i++){
 		tmpPos = i*6;
 		g_radarUserBufferChannel1Ptr[i] = (UINT16)(((UINT16)(rxData[tmpPos+2]) << 4) | (((UINT16)(rxData[tmpPos+1])&0xf0) >> 4));
@@ -149,6 +151,7 @@ void Radar_Handler(void *arg)
 		if (g_radarUserBuffersampleqdiffPtr[i]  & 0x04) {
 			g_radarUserBuffersampleqdiffPtr[i]  = 0 - (8 - g_radarUserBuffersampleqdiffPtr[i] );
 		}
+		totalRots = totalRots + g_radarUserBuffersampleqdiffPtr[i];
 
 		g_radarUserBuffersampleqDetectPtr[i] = (UINT16)(((UINT16)(rxData[(tmpPos)+5])&0x80) >> 7);
 
@@ -161,7 +164,6 @@ void Radar_Handler(void *arg)
 			windowOverThreshold = true;
 			++numDetectSamples;
 		}
-		else windowOverThreshold = false;
 
 	}
 
@@ -179,11 +181,11 @@ void Radar_Handler(void *arg)
 	UINT32 FPGAIQRejection;
 	if ((CPU_GPIO_GetPinState(33) == TRUE) | (continueToSendCount > 0)  ){
 		if (alertInterruptActive == false){
-			hal_printf("enabling data pull; cont: %d detect: %d\r\n", continueToSendCount, numDetectSamples);
+			//hal_printf("enabling data pull; cont: %d detect: %d\r\n", continueToSendCount, numDetectSamples);
 			CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 			alertInterruptActive = true;
 		} else {
-			hal_printf("cont: %d detect: %d\r\n", continueToSendCount, numDetectSamples);
+			//hal_printf("cont: %d detect: %d\r\n", continueToSendCount, numDetectSamples);
 		}
 
 
@@ -237,7 +239,7 @@ void Radar_Handler(void *arg)
 	}  else {
 		// if there is a current detection or we  are pulling out continuation data the we allow the data alert pulse to call this interrupt
 		// we need to exit this interrupt after every block of data to allow user processing time
-		hal_printf("disabling data pull\r\n");
+		//hal_printf("disabling data pull\r\n");
 		CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
 		alertInterruptActive = false;
 		interruptServiceInProcess = false;
@@ -306,7 +308,7 @@ INT8 FPGA_RadarInit(UINT16 *chan1Ptr, UINT16 *chan2Ptr, INT16 *sampleqdiff, INT1
 	CPU_GPIO_SetPinState(32, TRUE);
 	interruptServiceInProcess = false;
 	radarHandler_continuation.InitializeCallback(Radar_Handler, NULL);
-	hal_printf("radar initialized\r\n");
+	//hal_printf("radar initialized\r\n");
 
 	return 0;
 }	
@@ -331,6 +333,13 @@ UINT16 getNumLookAheadWindows(){
 	return numlookaheadwindows;
 }
 
+UINT16 getNumDetectionsInWindow(){
+	return numDetectSamples;
+
+}
+INT16 getTotalRotationsofWindow(){
+	return totalRots;
+}
 
 void setProcessingInProgress(int state){
 	processingInProgress = state;

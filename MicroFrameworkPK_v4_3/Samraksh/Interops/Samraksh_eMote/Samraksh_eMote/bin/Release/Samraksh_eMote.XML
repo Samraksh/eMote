@@ -918,6 +918,86 @@
             
             </summary>
         </member>
+        <member name="T:Samraksh.eMote.IRadarInterface">
+            <summary>
+            The public interface for the radar
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.IRadarInterface.Blind">
+            <summary>
+            Blinds the Radar
+            </summary>
+            <returns>The result of blinding the radar: Success, Fail</returns>
+        </member>
+        <member name="M:Samraksh.eMote.IRadarInterface.ConfigureFPGADetection(System.UInt16[],System.UInt16[],System.Int16[],System.Int16[],System.Int16[],System.Boolean[],System.UInt32,Samraksh.eMote.RadarCallBack)">
+            <summary> Turns on the Radar </summary>
+            <param name="sampleBuffI">Buffer for samples</param>
+            <param name="sampleBuffQ">Buffer for samples</param>
+            <param name="sampleqdiff">Buffer for samples</param>
+            <param name="sampleqdiffMovSum">Buffer for samples</param>
+            <param name="sampleMofNCOunt">Buffer for samples</param>
+            <param name="sampleDetect">Buffer for samples</param>
+            <param name="numSamples">Number of samples</param>
+            <param name="callback">Method to call when numSamples collected</param>
+            <returns>True if operation success</returns>
+            <returns>The result of turning on the radar: Success, Fail</returns>
+        </member>
+        <member name="M:Samraksh.eMote.IRadarInterface.CurrentDetectionFinished">
+            <summary>
+            Request whether the current detection has finished
+            </summary>
+            <returns>Returns true if the current detection is finished and false if not.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.IRadarInterface.getContinueToSendCount">
+            <summary>
+            Gets remainng count for the FPGA to send after the last detect. 
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.IRadarInterface.getNumDetectionsInWindow">
+            <summary>
+            Gets remainng count for the FPGA to send after the last detect. 
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.IRadarInterface.getNumLookAheadWindows">
+            <summary>
+            Gets remainng count for the FPGA to send after the last detect. 
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.IRadarInterface.getTotalRotationsofWindow">
+            <summary>
+            Gets remainng count for the FPGA to send after the last detect. 
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.IRadarInterface.setContinueToSendCount(System.UInt16)">
+            <summary>
+            Ask FPGA to continue sending a number of buffers after last detect. The default value is 6. 
+            </summary>
+            <returns>Nothing returned</returns>
+        </member>
+        <member name="M:Samraksh.eMote.IRadarInterface.setNumLookAheadWindows(System.UInt16)">
+            <summary>
+            Ask FPGA to continue sending a number of buffers after last detect. The default value is 6. 
+            </summary>
+            <returns>Nothing returned</returns>
+        </member>
+        <member name="M:Samraksh.eMote.IRadarInterface.SetProcessingInProgress(System.Boolean)">
+            <summary>
+            Inform firmware of status of data processing
+            </summary>
+            <returns>Nothing returned</returns>
+        </member>
+        <member name="M:Samraksh.eMote.IRadarInterface.TurnOff">
+            <summary>
+            Turns off the Radar
+            </summary>
+            <returns>The result of turning off the radar: Success, Fail</returns>
+        </member>
+        <member name="M:Samraksh.eMote.IRadarInterface.TurnOn">
+            <summary>
+            Turns on the Radar
+            </summary>
+            <returns>The result of turning on the radar: Success, Fail</returns>
+        </member>
         <member name="T:Samraksh.eMote.PLATFORM_TYPE">
             <summary>
             Types of hardware platforms  
@@ -1011,6 +1091,16 @@
             <returns>Nothing returned</returns>
         </member>
         <member name="M:Samraksh.eMote.RadarInterface.getNumLookAheadWindows">
+            <summary>
+            Gets remainng count for the FPGA to send after the last detect. 
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInterface.getNumDetectionsInWindow">
+            <summary>
+            Gets remainng count for the FPGA to send after the last detect. 
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.RadarInterface.getTotalRotationsofWindow">
             <summary>
             Gets remainng count for the FPGA to send after the last detect. 
             </summary>
