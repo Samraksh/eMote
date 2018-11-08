@@ -9,6 +9,8 @@
     <Set Name="Heap_End"            Value="%SAM_HEAP_END%"/>
     <Set Name="Stack_Bottom"        Value="%SAM_STACK_BOTTOM%"/>
     <Set Name="Stack_Top"           Value="%SAM_STACK_TOP%"/>
+    <Set Name="User_Stack_Bottom"        Value="%SAM_USER_STACK_BOTTOM%"/>
+    <Set Name="User_Stack_Top"           Value="%SAM_USER_STACK_TOP%"/>
     <Set Name="Custom_Heap_Begin"   Value="%SAM_CUSTOM_HEAP_BEGIN%"/><!-- Graphics, WearLeveling, and LargeBuffer use SimpleHeap Library that uses CustomHeap location-->
     <Set Name="Custom_Heap_End"     Value="%SAM_CUSTOM_HEAP_END%"/>
     <IfDefined Name="PROFILE_BUILD">
@@ -218,6 +220,13 @@
         	<FileMapping Name="*\libc.a:*"  Options="(.bss*)" />
         	<FileMapping Name="*\libm.a:*"  Options="(.bss*)" />
       	</ExecRegion>
+      	
+      	<ExecRegion Name="ER_USER_STACK_BOTTOM" Base="%User_Stack_Bottom%">
+        	<FileMapping Name="*" Options="(SectionForUserStackBottom)" />
+      	</ExecRegion>
+      	<ExecRegion Name="ER_USER_STACK_TOP" Base="%User_Stack_Top%">
+        	<FileMapping Name="*" Options="(SectionForUserStackTop)" />
+      	</ExecRegion>      	
       	
       	
       	<ExecRegion Name="ER_STACK_BOTTOM" Base="%Stack_Bottom%">

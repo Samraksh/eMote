@@ -225,14 +225,31 @@ bool IsPrivMode(){
 	return false;
 }
 
-void ChangeExecMode(bool priv){
-	if(priv){
+void SetupUserStack(){
+	__set_PSP(SAM_USER_STACK_TOP);
+}
 
-	}else {
-		UINT32 privMask=0xFFFFFFFE; //clear the CONTROL[0] to enter user mode
-		UINT32 con = __get_CONTROL();
-		__set_CONTROL(privMask & con);
-	}
+//Only last 2 bits of control register are used in CortexM
+void SwitchToPriviledgeMode(){
+	//unset bit 0 of control to change to unpriviledge mode
+	//unset bit 1 of control to change to psp.
+	__set_CONTROL(0x0);
+}
+
+void SwitchToUserMode(){
+	//set bit 0 of control to change to unpriviledge mode
+	//set bit 1 of control to change to psp.
+	__set_CONTROL(0x3);
+}
+
+void kernel_call(void (*func)(void*), void* arg0){
+     //by convention func is in r0 and args is in r1
+     asm volatile("svc 0");
+}
+
+void kernel_call(void (*func)(void*), void* arg0, void* arg1){
+     //by convention func is in r0 and args is in r1
+     asm volatile("svc 1");
 }
 
 

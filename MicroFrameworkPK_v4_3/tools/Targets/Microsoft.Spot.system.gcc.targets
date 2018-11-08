@@ -132,6 +132,8 @@
     <AS_FLAGS Condition="'$(SamAppName)'!=''"      >$(AS_FLAGS) --defsym SAM_APP_$(SamAppName)=1 </AS_FLAGS>
     <AS_FLAGS Condition="'$(SAM_STACK_BOTTOM)'!=''"     >$(AS_FLAGS) --defsym SAM_STACK_BOTTOM=$(SAM_STACK_BOTTOM) </AS_FLAGS>
     <AS_FLAGS Condition="'$(SAM_STACK_TOP)'!=''"        >$(AS_FLAGS) --defsym SAM_STACK_TOP=$(SAM_STACK_TOP) </AS_FLAGS>
+    <AS_FLAGS Condition="'$(SAM_USER_STACK_BOTTOM)'!=''"     >$(AS_FLAGS) --defsym SAM_USER_STACK_BOTTOM=$(SAM_USER_STACK_BOTTOM) </AS_FLAGS>
+    <AS_FLAGS Condition="'$(SAM_USER_STACK_TOP)'!=''"        >$(AS_FLAGS) --defsym SAM_USER_STACK_TOP=$(SAM_USER_STACK_TOP) </AS_FLAGS>
     <AS_FLAGS Condition="'$(SAM_HEAP_BEGIN)'!=''"       >$(AS_FLAGS) --defsym SAM_HEAP_BEGIN=$(SAM_HEAP_BEGIN) </AS_FLAGS>
     <AS_FLAGS Condition="'$(SAM_HEAP_END)'!=''"         >$(AS_FLAGS) --defsym SAM_HEAP_END=$(SAM_HEAP_END) </AS_FLAGS>
     <AS_FLAGS Condition="'$(SAM_CUSTOM_HEAP_BEGIN)'!=''">$(AS_FLAGS) --defsym SAM_CUSTOM_HEAP_BEGIN=$(SAM_CUSTOM_HEAP_BEGIN) </AS_FLAGS>
@@ -200,6 +202,8 @@
 
     <CC_CPP_COMMON_FLAGS Condition="'$(SAM_STACK_BOTTOM)'!=''"     >$(CC_CPP_COMMON_FLAGS) -DSAM_STACK_BOTTOM=$(SAM_STACK_BOTTOM) </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(SAM_STACK_TOP)'!=''"        >$(CC_CPP_COMMON_FLAGS) -DSAM_STACK_TOP=$(SAM_STACK_TOP) </CC_CPP_COMMON_FLAGS>
+    <CC_CPP_COMMON_FLAGS Condition="'$(SAM_USER_STACK_BOTTOM)'!=''"     >$(CC_CPP_COMMON_FLAGS) -DSAM_USER_STACK_BOTTOM=$(SAM_USER_STACK_BOTTOM) </CC_CPP_COMMON_FLAGS>
+    <CC_CPP_COMMON_FLAGS Condition="'$(SAM_USER_STACK_TOP)'!=''"        >$(CC_CPP_COMMON_FLAGS) -DSAM_USER_STACK_TOP=$(SAM_USER_STACK_TOP) </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(SAM_HEAP_BEGIN)'!=''"       >$(CC_CPP_COMMON_FLAGS) -DSAM_HEAP_BEGIN=$(SAM_HEAP_BEGIN) </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(SAM_HEAP_END)'!=''"         >$(CC_CPP_COMMON_FLAGS) -DSAM_HEAP_END=$(SAM_HEAP_END) </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(SAM_CUSTOM_HEAP_BEGIN)'!=''">$(CC_CPP_COMMON_FLAGS) -DSAM_CUSTOM_HEAP_BEGIN=$(SAM_CUSTOM_HEAP_BEGIN) </CC_CPP_COMMON_FLAGS>
@@ -554,6 +558,8 @@
     <BuildScatterFileProperties Include="SAM_HEAP_END=$(SAM_HEAP_END)" Condition="'$(SAM_HEAP_END)'!=''"/>
     <BuildScatterFileProperties Include="SAM_STACK_BOTTOM=$(SAM_STACK_BOTTOM)" Condition="'$(SAM_STACK_BOTTOM)'!=''"/>
     <BuildScatterFileProperties Include="SAM_STACK_TOP=$(SAM_STACK_TOP)" Condition="'$(SAM_STACK_TOP)'!=''"/>
+    <BuildScatterFileProperties Include="SAM_USER_STACK_BOTTOM=$(SAM_USER_STACK_BOTTOM)" Condition="'$(SAM_USER_STACK_BOTTOM)'!=''"/>
+    <BuildScatterFileProperties Include="SAM_USER_STACK_TOP=$(SAM_USER_STACK_TOP)" Condition="'$(SAM_USER_STACK_TOP)'!=''"/>
     <BuildScatterFileProperties Include="SAM_CUSTOM_HEAP_BEGIN=$(SAM_CUSTOM_HEAP_BEGIN)" Condition="'$(SAM_CUSTOM_HEAP_BEGIN)'!=''"/>
     <BuildScatterFileProperties Include="SAM_CUSTOM_HEAP_END=$(SAM_CUSTOM_HEAP_END)" Condition="'$(SAM_CUSTOM_HEAP_END)'!=''"/>
     <BuildScatterFileProperties Include="SAM_PROFILER_BUFFER_BEGIN=$(SAM_PROFILER_BUFFER_BEGIN)" Condition="'$(SAM_PROFILER_BUFFER_BEGIN)'!=''"/>

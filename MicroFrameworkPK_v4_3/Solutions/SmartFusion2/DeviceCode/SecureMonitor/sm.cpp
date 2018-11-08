@@ -59,7 +59,7 @@ void SetupSecureEmoteRegions(){
 	//Set entire ram as this region, other specific regions else can be set on top of this
 	UINT32 mem_base = (UINT32)ERAM_ORIGIN;
 	UINT32 mem_size = ERAM_SIZE;
-	CPU_mpu_configure_region(GP_RAM, mem_base, mem_size, AP_RW_RO, false);
+	CPU_mpu_configure_region(GP_RAM, mem_base, mem_size, AP_RW_RW, false);
 
 	//Region 2: Kernel Ram
 	mem_base=(UINT32)&Image$$Kernel_ER_RAM_RW$$Base;
@@ -115,6 +115,34 @@ void SetupSecureEmoteRegions(){
 
 void MPU_Init(){
 
+}
+
+typedef void (*svcall0_t)(void*);
+typedef void (*svcall1_t)(void*, void*);
+
+
+void SVCall_Handler(void){
+	uint32_t svcNumber;
+	register uint32_t * frame;
+	register void *arg0, *arg1;
+	asm volatile ("MRS %0, psp\n\t" : "=r" (frame) ); //assumes PSP in use when service_call() invoked
+	svcNumber=  ((char *)frame[6])[-2];
+
+	arg0 = (void*)(frame[1]);
+	switch(svcNumber){
+		case 1:
+		{
+			arg1 = (void*)(frame[2]);
+			register svcall1_t call1 = (svcall1_t)frame[0];
+			call1(arg0,arg1);
+			break;
+		}
+		case 0:{}
+		default:
+			register svcall0_t call0 = (svcall0_t)frame[0];
+			call0(arg0);
+			break;
+	}
 }
 
 

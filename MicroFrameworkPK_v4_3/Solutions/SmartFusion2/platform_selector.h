@@ -37,7 +37,13 @@ typedef uint16_t ushort;
 //Secure emote specific system wide functions, implementedin tinyhal.cpp
 //should probably be moved to tinyhal.h
 bool IsPrivMode();
-void ChangeExecMode(bool priv);
+//void ChangeExecMode(bool priv);
+void SwitchToUserMode();
+
+//we need to decrease the optimization so the the compiler
+//does not ignore func and args
+void __attribute__((optimize("1")))  kernel_call(void (*func)(void*), void* arg0);
+void __attribute__((optimize("1")))  kernel_call(void (*func)(void*), void* arg0, void* arg1 );
 
 #endif
 

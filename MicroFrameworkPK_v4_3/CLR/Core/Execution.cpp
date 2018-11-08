@@ -3891,9 +3891,14 @@ CLR_UINT32 CLR_RT_ExecutionEngine::WaitSystemEvents( CLR_UINT32 powerLevel, CLR_
 
 #if defined(SECURE_EMOTE)
     if(IsPrivMode()){
-       	debug_printf( "In CLR_Execution:: Still in Priviledged Mode... Switching to thread mode.\r\n" );
-       	ChangeExecMode(false);
+       	debug_printf( "In CLR_Execution 1:: Still in Priviledged Mode... Switching to thread mode.\r\n" );
+       	SwitchToUserMode();
     }
+    if(IsPrivMode()){
+		debug_printf( "In CLR_Execution 2:: Still in Priviledged Mode... Switching to thread mode.\r\n" );
+		SwitchToUserMode();
+	}
+
 #endif
 
     ::Watchdog_GetSetEnabled( FALSE, TRUE );

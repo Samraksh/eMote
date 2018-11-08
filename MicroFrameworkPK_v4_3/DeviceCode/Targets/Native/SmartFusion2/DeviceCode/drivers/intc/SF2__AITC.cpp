@@ -23,7 +23,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//#define DEBUG_DOTNOW_ISR
+//#define DEBUG_SF2_ISR
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
 #pragma arm section rwdata = "s_IsrTable_SF2"
@@ -33,10 +33,9 @@
 
 #if defined(SECURE_EMOTE)
 extern void MemManage_HandlerC(UINT32 lr, UINT32 msp);
+extern void SVCall_Handler(void);
 #endif
 
-///
-///brief Get Link Register
 ///details Returns the current value of the Link Register (LR).
 ///return LR Register value
 __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_LR(void)
@@ -167,7 +166,7 @@ void SF2_AITC_Driver::Initialize()
     // // set all priorities to the lowest
      IRQ_VECTORING* IsrVector = s_IsrTable;
 	 
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 	memset(interrupt_count, 0, 4*64);
 #endif
 
@@ -424,7 +423,11 @@ void __irq UsageFault_Handler()
 
 
 
-	void __irq SVC_Handler()
+void __irq SVC_Handler(){
+	SVCall_Handler();
+}
+
+	/*void __irq SVC_Handler()
 	{
 		SF2_AITC& AITC = SF2::AITC();
 
@@ -432,7 +435,7 @@ void __irq UsageFault_Handler()
 		INTERRUPT_START;
 
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_SVCall]++;
 #endif
 
@@ -446,9 +449,7 @@ void __irq UsageFault_Handler()
 		//ISR_PendSV_Handler(NULL);
 
 		INTERRUPT_END
-
-
-	}
+	}*/
 
 	//This is needed to support realtime timer, this is incomplete
 	void __irq PendSV_Handler()
@@ -462,7 +463,7 @@ void __irq UsageFault_Handler()
 		INTERRUPT_START;
 
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_PendSV]++;
 #endif
 
@@ -504,7 +505,7 @@ void __irq UsageFault_Handler()
 
 		irq.Release();
 
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_RTC]++;
 #endif
 
@@ -528,7 +529,7 @@ void __irq UsageFault_Handler()
 		INTERRUPT_START;
 
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_FLASH]++;
 #endif
 
@@ -553,7 +554,7 @@ void __irq UsageFault_Handler()
 		INTERRUPT_START;
 
 
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_TIM1_CC]++;
 #endif
 
@@ -573,7 +574,7 @@ void __irq UsageFault_Handler()
 		INTERRUPT_START;
 
 
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_TIM1_CC]++;
 #endif
 
@@ -596,7 +597,7 @@ void __irq UsageFault_Handler()
 		INTERRUPT_START;
 
 
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 	interrupt_count[c_IRQ_INDEX_USART1]++;
 #endif
 
@@ -621,7 +622,7 @@ void __irq USB_IRQHandler()
 		INTERRUPT_START;
 
 
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_USB_LP_CAN_RX0]++;
 #endif
 
@@ -648,7 +649,7 @@ void __irq USB_IRQHandler()
 
 		irq.Release();
 
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL1]++;
 #endif
 
@@ -672,7 +673,7 @@ void __irq USB_IRQHandler()
 		INTERRUPT_START;
 
 
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_ComBlk]++;
 #endif
 

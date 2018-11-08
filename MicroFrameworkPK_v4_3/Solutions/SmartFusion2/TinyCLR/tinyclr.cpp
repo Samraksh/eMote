@@ -20,7 +20,7 @@ void ApplicationEntryPoint()
 
     if(IsPrivMode()){
     	debug_printf( "Still in Priviledged Mode... Switching to thread mode.\r\n" );
-    	ChangeExecMode(false);
+    	SwitchToUserMode();
     }
 
     ClrStartup( clrSettings );
