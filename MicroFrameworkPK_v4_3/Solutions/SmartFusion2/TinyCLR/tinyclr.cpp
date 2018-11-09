@@ -10,9 +10,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 void ApplicationEntryPoint()
 {
-	loadArduinoSPI((uint8_t*)0xE000,1016);
+	loadArduinoSPI((uint8_t*)0xE000,2800);
 	HAL_Time_Sleep_MicroSeconds(50000);
-	verifyArduinoSPI((uint8_t*)0xE000,1016);
+	verifyArduinoSPI((uint8_t*)0xE000,2800);
 	//while (1) {codeIntegrityCheck( 0,0);}
     CLR_SETTINGS clrSettings;
 

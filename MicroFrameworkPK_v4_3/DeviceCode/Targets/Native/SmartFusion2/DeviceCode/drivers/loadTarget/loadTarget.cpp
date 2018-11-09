@@ -130,6 +130,20 @@ while (1){
 	burning_location = 0;
 	reading_location = 0;
 
+	HAL_Time_Sleep_MicroSeconds(5000);
+
+	// writing EEPROM location zero
+	spi_tx_buff[0] = 0xC0;
+	spi_tx_buff[1] = 0x00;
+	spi_tx_buff[2] = 0x00;
+	spi_tx_buff[3] = 0x00;
+	size = 4;
+	MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+	MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, 0, 0 );
+	MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+
+	HAL_Time_Sleep_MicroSeconds(5000);
+
 	// writing the memory
 	while (reading_location < binarySize){
 		if ( (reading_location + eNVM_read_size) < binarySize){
@@ -227,6 +241,23 @@ int verifyArduinoSPI( uint8_t* address, uint16_t binarySize){
 	burning_location = 0;
 	reading_location = 0;
 
+	HAL_Time_Sleep_MicroSeconds(5000);
+
+	// Read EEPROM address 0
+	spi_tx_buff[0] = 0xA0;
+	spi_tx_buff[1] = 0x00;
+	spi_tx_buff[2] = 0x00;
+	size = 3;
+	MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+	MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, spi_rx_buff, 1 );
+	MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+	if (spi_rx_buff[0] != 0x00){
+			//hal_printf("EEPROM Failed to read 00\r\n");
+			return 1;
+	}
+
+	HAL_Time_Sleep_MicroSeconds(5000);
+
 	// verifying the memory
 	while (reading_location < binarySize){
 		if ( (reading_location + eNVM_read_size) < binarySize){
@@ -256,6 +287,7 @@ int verifyArduinoSPI( uint8_t* address, uint16_t binarySize){
 			MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, spi_rx_buff, 1 );
 			MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
 			if (spi_rx_buff[0] != eNVM_read_buff[i]){
+				hal_printf("Arduino failed to verify!\r\n");
 				return 1;
 			}
 
@@ -268,6 +300,7 @@ int verifyArduinoSPI( uint8_t* address, uint16_t binarySize){
 			MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, spi_rx_buff, 1 );
 			MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
 			if (spi_rx_buff[0] != eNVM_read_buff[i+1]){
+				hal_printf("Arduino failed to verify!\r\n");
 				return 1;
 			}
 
