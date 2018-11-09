@@ -96,13 +96,13 @@ void SetupSecureEmoteRegions(){
 	//mem_size = (UINT32)&Image$$Kernel_ER_FLASH$$Length;
 	mem_size = (UINT32)KERNEL_SIZE;
 
-	CPU_mpu_configure_region(Kernel_CODE, mem_base, mem_size, AP_RO_RO, true);
+	CPU_mpu_configure_region(Kernel_CODE, mem_base, mem_size, AP_RO_NO, true);
 
 	//Region 6:
 	mem_base = (UINT32)EFLASH_ORIGIN;
 	//mem_size = (UINT32)Image$$RoT_ER_FLASH$$Length;
 	mem_size = (UINT32)ROT_SIZE;
-	CPU_mpu_configure_region(RoT_CODE, mem_base, mem_size, AP_RO_RO, true);
+	CPU_mpu_configure_region(RoT_CODE, mem_base, mem_size, AP_RO_NO, true);
 
 	// NULL pointer protection, highest priority.
 	//CPU_mpu_configure_region(Reserve, 0, 5, AP_NO_NO, false);
@@ -121,32 +121,55 @@ typedef void (*svcall0_t)(void*);
 typedef void (*svcall1_t)(void*, void*);
 
 
-void SVCall_Handler(void){
-	uint32_t svcNumber;
-	register uint32_t * frame;
-	register void *arg0, *arg1;
-	asm volatile ("MRS %0, psp\n\t" : "=r" (frame) ); //assumes PSP in use when service_call() invoked
-	svcNumber=  ((char *)frame[6])[-2];
 
-	arg0 = (void*)(frame[1]);
+//parameter is the caller's stack frame pointer
+void SVCall_HandlerC(UINT32 sp){
+	UINT32 svcNumber;
+	UINT32 *frame=(UINT32*)sp;
+	//register uint32_t * frame;
+	register void *arg0, *arg1;
+	//asm volatile ("MRS %0, psp\n\t" : "=r" (frame) ); //assumes PSP in use when service_call() invoked
+	svcNumber=  ((char *)frame[7])[-2];
+
+	arg0 = (void*)(frame[2]);
 	switch(svcNumber){
 		case 1:
 		{
-			arg1 = (void*)(frame[2]);
-			register svcall1_t call1 = (svcall1_t)frame[0];
+			arg1 = (void*)(frame[3]);
+			register svcall1_t call1 = (svcall1_t)frame[1];
 			call1(arg0,arg1);
 			break;
 		}
 		case 0:{}
 		default:
-			register svcall0_t call0 = (svcall0_t)frame[0];
+			register svcall0_t call0 = (svcall0_t)frame[1];
 			call0(arg0);
 			break;
 	}
 }
 
+//Checks execution mode of caller and gets the appropriate stack
+//then calls the C handler with the stack pointer
+/*void SVCall_Handler(void){
+	/*asm volatile(
+		"tst lr, #4\t\n" // Check EXC_RETURN[2]
+		"ite eq\t\n"
+		"mrseq r0, msp\t\n"
+		"mrsne r0, psp\t\n"
+		"b %[SVCall_HandlerC]\t\n"
+		: //no output
+		: [SVCall_HandlerC] "i" (SVCall_HandlerC) //input
+		: "r0" //clobber
+	);
+	*/
+/*	bool from_psp = EXC_FROM_PSP(__get_LR());
+	UINT32 sp = from_psp ? __get_PSP() : __get_MSP();
+	SVCall_HandlerC(sp);
+}
+*/
 
-void MemManage_HandlerC(UINT32 lr, UINT32 msp)
+//void __irq MemManage_Handler(UINT32 lr, UINT32 msp)
+void __irq MemManage_Handler()
 {
     static char msg[128];
     struct port_extctx ctx;
@@ -157,23 +180,34 @@ void MemManage_HandlerC(UINT32 lr, UINT32 msp)
     memcpy((void*)msg, (void*)__FUNCTION__, 128);
 
     // Get context info
+    UINT32 lr;
+    lr= __get_LR();
 
     // Determine the origin of the exception.
     bool from_psp = EXC_FROM_PSP(lr);
-    UINT32 sp = from_psp ? __get_PSP() : msp;
+    UINT32 sp = from_psp ? __get_PSP() : __get_MSP();
+
     memcpy(&ctx, (void*)sp, sizeof(struct port_extctx));
 
     /* Get Memory Managment fault adress register */
     MMFSR = SCB->CFSR & SCB_CFSR_MEMFAULTSR_Msk;
+    UINT32 faultAddress=SCB->MMFAR;
 
     /* Data access violation */
     if (MMFSR & (1 << 1)) {
-        debug_printf("MemManage Handler: Data access violation to %p (pc=%p)", (void *)SCB->MMFAR, ctx.pc);
+        //debug_printf("MemManage Handler: Data access violation to %08X (pc=%p)", faultAddress, ctx.pc);
     }
 
     /* Instruction address violation. */
     if (MMFSR & (1 << 0)) {
-        debug_printf("MemManage Handler: Jumped to XN region %p (lr_thd=%p)", (void *)SCB->MMFAR, ctx.lr_thd);
+        //debug_printf("MemManage Handler: Jumped to XN region %08X, %p  (lr_thd=%p)", faultAddress,(void*)SCB->MMFAR, ctx.lr_thd);
+
+        //if calling from user space into kernel space code//
+        //Then switch stacks execute code and then return
+        if(from_psp && (faultAddress >= ROT_BASE &&  faultAddress <= KERNEL_END)){
+        	debug_printf("MemManage Handler: Ok this a call into kernel, lets do it\n");
+        }
+
     }
 
     //chSysHalt(msg);

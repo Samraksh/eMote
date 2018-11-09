@@ -217,6 +217,16 @@ static void __section(SectionForBootstrapOperations) Prepare_Zero( UINT32* dst, 
 }
 
 #if defined(SECURE_EMOTE) && !defined(IBL)
+
+///return LR Register value
+uint  __attribute__(( always_inline )) __get_LR(void)
+{
+  register uint32_t result;
+
+  __ASM volatile ("MOV %0, LR\n" : "=r" (result) );
+  return(result);
+}
+
 bool IsPrivMode(){
 	if (__get_IPSR() || !(__get_CONTROL() & 0x1))
 	{

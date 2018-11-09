@@ -45,6 +45,8 @@ void SwitchToUserMode();
 void __attribute__((optimize("1")))  kernel_call(void (*func)(void*), void* arg0);
 void __attribute__((optimize("1")))  kernel_call(void (*func)(void*), void* arg0, void* arg1 );
 
+uint __get_LR(void);
+
 #endif
 
 #if defined(PLATFORM_ARM_SmartFusion2)

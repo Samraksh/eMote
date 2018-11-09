@@ -33,18 +33,9 @@
 
 #if defined(SECURE_EMOTE)
 extern void MemManage_HandlerC(UINT32 lr, UINT32 msp);
-extern void SVCall_Handler(void);
+//extern void SVCall_Handler(void);
 #endif
 
-///details Returns the current value of the Link Register (LR).
-///return LR Register value
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_LR(void)
-{
-  register uint32_t result;
-
-  __ASM volatile ("MOV %0, LR\n" : "=r" (result) );
-  return(result);
-}
 
 
 SF2_AITC_Driver::IRQ_VECTORING __section(rwdata) SF2_AITC_Driver::s_IsrTable[] =
@@ -402,13 +393,13 @@ void __irq HardFault_Handler()
 }
 
 
-void __irq MemManage_Handler(){
+/*void __irq MemManage_Handler(){
 	UINT32 lr, msp;
 	lr= __get_LR();
 	msp=__get_MSP();
 	MemManage_HandlerC(lr, msp);
 }
-
+*/
 void __irq BusFault_Handler()
 {
 	HARD_BREAKPOINT();
@@ -421,10 +412,21 @@ void __irq UsageFault_Handler()
 	//HardFault_Handler();
 }
 
-
-
+extern void SVCall_HandlerC(UINT32 sp);
 void __irq SVC_Handler(){
-	SVCall_Handler();
+
+	//SVCall_Handler();
+	asm(
+		"TST LR, #4 \n"          // Test EXC_RETURN number in LR bit 2 to determine if main stack or program stack is in use.
+		"ITE EQ \n"
+		"MRSEQ R0, MSP \n"
+		"MRSNE R0, PSP \n"
+		"B %[SVCall_HandlerC] \n"
+		: // no output
+		: [SVCall_HandlerC] "i" (SVCall_HandlerC) // input
+		: "r0" // clobber
+	);
+
 }
 
 	/*void __irq SVC_Handler()

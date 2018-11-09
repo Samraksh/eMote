@@ -205,11 +205,12 @@ void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 		break;
 	}
 
-	UartTxCnxt_t ctx;
+	/*UartTxCnxt_t ctx;
 	ctx.uart=gp_my_uart;
 	ctx.pbuff=characterToSend;
 	ctx.tx_size=1;
-	kernel_call(KernelCall_UART_polled_tx,(void*)&ctx);
+	kernel_call(KernelCall_UART_polled_tx,(void*)&ctx);*/
+	MSS_UART_polled_tx(gp_my_uart,characterToSend,1);
 }
 
 void CPU_USART_WriteStringToTxBuffer( int ComPortNum, char* Data, size_t size )
@@ -226,12 +227,13 @@ void CPU_USART_WriteStringToTxBuffer( int ComPortNum, char* Data, size_t size )
 		break;
 	}
 	const uint8_t * DataToSend = (const uint8_t *)Data;
-
+	/*
 	UartTxCnxt_t ctx;
 	ctx.uart=gp_my_uart;
 	ctx.pbuff=DataToSend;
 	ctx.tx_size=size;
-	kernel_call(KernelCall_UART_polled_tx,(void*)&ctx);
+	kernel_call(KernelCall_UART_polled_tx,(void*)&ctx);*/
+	MSS_UART_polled_tx(gp_my_uart,DataToSend,size);
 
 }
 

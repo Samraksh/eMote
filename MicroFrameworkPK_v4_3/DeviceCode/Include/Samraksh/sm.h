@@ -28,7 +28,7 @@ typedef enum {
 void SetupSecureEmoteRegions();
 void MemManage_Handler(void);
 void SecureMonitor_Initialize();
-
+void SVCall_HandlerC(UINT32 sp);
 
 SM_MemNames SecureMonitor_FindFaultRegion(UINT32 fault_addr);
 
