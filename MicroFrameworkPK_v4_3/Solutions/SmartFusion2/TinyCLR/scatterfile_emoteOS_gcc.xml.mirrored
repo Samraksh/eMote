@@ -25,9 +25,7 @@
         <!-- THIS MUST MATCH THE BLOCK STORAGE DRIVER! -->
         <!-- Regular build: -->
         <Set Name="Config_BaseAddress"  Value="0x6007F000"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
-        <Set Name="Config_BaseAddress_Mirror"  Value="0x0007F000"/>
         <Set Name="Config_Size"         Value="0x00001000"/><!--        Config_Size MUST MATCH TINYBOOTER SCATTERFILE -->
- 
         <!--<Set Name="Code_BaseAddress"    Value="0x6000F000"/>
 		<Set Name="Code_BaseAddress_Mirror"    Value="0x0000F000"/>
 		-->
@@ -105,7 +103,6 @@
       <LoadRegion Name="CUSTOMHEAP" Base="%Custom_Heap_Begin%" Size="%Custom_Heap_End - Custom_Heap_Begin% + 1"/>
       <IfDefined Name="Config_BaseAddress">
         <LoadRegion Name="LR_CONFIG" Base="%Config_BaseAddress%" Size="%Config_Size%"/>
-        <LoadRegion Name="LR_CONFIG_Mirror" Base="%Config_BaseAddress_Mirror%" Size="%Config_Size%"/>
       </IfDefined>
       <IfDefined Name="Data_BaseAddress">
         <LoadRegion Name="LR_DAT" Base="%Data_BaseAddress%" Size="%Data_Size%"/>
@@ -268,7 +265,7 @@
       	</IfDefined>
 
     	<IfDefined Name="Config_BaseAddress">         
-      		<ExecRegion Name="ER_CONFIG" Options="&gt;LR_CONFIG_Mirror  AT&gt;LR_CONFIG">
+      		<ExecRegion Name="ER_CONFIG" Options="&gt;LR_CONFIG">
         		<FileMapping Name="*" Options="(SectionForConfig)" />
       		</ExecRegion>
     	</IfDefined>    

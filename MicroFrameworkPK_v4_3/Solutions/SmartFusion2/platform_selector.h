@@ -34,9 +34,9 @@ typedef uint16_t ushort;
 #if !defined(IBL)
 #define SECURE_EMOTE 1
 
-//Secure emote specific system wide functions, implementedin tinyhal.cpp
+/*//Secure emote specific system wide functions, implementedin tinyhal.cpp
 //should probably be moved to tinyhal.h
-bool IsPrivMode();
+uint GetExeMode();
 //void ChangeExecMode(bool priv);
 void SwitchToUserMode();
 
@@ -46,8 +46,8 @@ void __attribute__((optimize("1")))  kernel_call(void (*func)(void*), void* arg0
 void __attribute__((optimize("1")))  kernel_call(void (*func)(void*), void* arg0, void* arg1 );
 
 uint __get_LR(void);
-
-#endif
+*/
+#endif //end SECURE_EMOTE
 
 #if defined(PLATFORM_ARM_SmartFusion2)
 #define HAL_SYSTEM_NAME                     "SmartFusion2"

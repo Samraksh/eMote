@@ -218,50 +218,6 @@ static void __section(SectionForBootstrapOperations) Prepare_Zero( UINT32* dst, 
 
 #if defined(SECURE_EMOTE) && !defined(IBL)
 
-///return LR Register value
-uint  __attribute__(( always_inline )) __get_LR(void)
-{
-  register uint32_t result;
-
-  __ASM volatile ("MOV %0, LR\n" : "=r" (result) );
-  return(result);
-}
-
-bool IsPrivMode(){
-	if (__get_IPSR() || !(__get_CONTROL() & 0x1))
-	{
-		return true;
-	}
-	return false;
-}
-
-void SetupUserStack(){
-	__set_PSP(SAM_USER_STACK_TOP);
-}
-
-//Only last 2 bits of control register are used in CortexM
-void SwitchToPriviledgeMode(){
-	//unset bit 0 of control to change to unpriviledge mode
-	//unset bit 1 of control to change to psp.
-	__set_CONTROL(0x0);
-}
-
-void SwitchToUserMode(){
-	//set bit 0 of control to change to unpriviledge mode
-	//set bit 1 of control to change to psp.
-	__set_CONTROL(0x3);
-}
-
-void kernel_call(void (*func)(void*), void* arg0){
-     //by convention func is in r0 and args is in r1
-     asm volatile("svc 0");
-}
-
-void kernel_call(void (*func)(void*), void* arg0, void* arg1){
-     //by convention func is in r0 and args is in r1
-     asm volatile("svc 1");
-}
-
 
 void __section(SectionForBootstrapOperations) PrepareImageRegions()
 {

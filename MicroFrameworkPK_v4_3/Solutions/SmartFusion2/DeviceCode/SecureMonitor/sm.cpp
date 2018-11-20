@@ -59,7 +59,7 @@ void SetupSecureEmoteRegions(){
 	//Set entire ram as this region, other specific regions else can be set on top of this
 	UINT32 mem_base = (UINT32)ERAM_ORIGIN;
 	UINT32 mem_size = ERAM_SIZE;
-	CPU_mpu_configure_region(GP_RAM, mem_base, mem_size, AP_RW_RW, false);
+	CPU_mpu_configure_region(GP_RAM, mem_base, mem_size, AP_RW_RW, MemType_Normal,false);
 
 	//Region 2: Kernel Ram
 	mem_base=(UINT32)&Image$$Kernel_ER_RAM_RW$$Base;
@@ -67,23 +67,32 @@ void SetupSecureEmoteRegions(){
 
 	//mem_base=(void*)Load$$Kernel_ER_RAM_RW$$Base;
 	//mem_size=Image$$Kernel_Total_RAM_RW$$Length;
-	//CPU_mpu_configure_region(Kernel_RAM, mem_base, mem_size, AP_RW_RO, false);
+	//CPU_mpu_configure_region(Kernel_RAM, mem_base, mem_size, AP_RW_RO,MemType_Normal, false);
 
 	//Region 5: RoT Ram
 	mem_base=(UINT32)&Image$$RoT_ER_RAM_RW$$Base;
 	mem_size=(UINT32)&Image$$RoT_ER_RAM_RW$$Length+(UINT32)&Image$$RoT_ER_RAM_RW$$ZI$$Length;
-	//CPU_mpu_configure_region(RoT_RAM, mem_base, mem_size, AP_RW_RO, false);
+	//CPU_mpu_configure_region(RoT_RAM, mem_base, mem_size, AP_RW_RO,MemType_Normal, false);
 
 	//Flash regions
 	//Region 1: Setup entire Flash as this region.
 	mem_base = (UINT32)EFLASH_ORIGIN;
 	mem_size = EFLASH_SIZE;
-	CPU_mpu_configure_region(GP_CODE, mem_base, mem_size, AP_RO_RO, true);
+	CPU_mpu_configure_region(GP_CODE, mem_base, mem_size, AP_RW_RO, MemType_Normal, true);
+	//mem_base = (UINT32)EFLASH_MIRROR_ORIGIN;
+	//CPU_mpu_configure_region(6, mem_base, mem_size, AP_RW_RO, MemType_Normal, true);
 
 	//Region 2: Entire IO is mapped to protect their access. Note: Other than kernel and RoT, nobody else can access IO
 	mem_base = (UINT32)IO_ORIGIN;
 	mem_size = IO_SIZE;
-	CPU_mpu_configure_region(GP_IO, mem_base, mem_size, AP_RW_NO, false);
+	CPU_mpu_configure_region(GP_IO, mem_base, mem_size, AP_RW_RO, MemType_Device_NonSharable, false);
+
+
+	//Region 2: Entire IO is mapped to protect their access. Note: Other than kernel and RoT, nobody else can access IO
+	mem_base = (UINT32)CPU_PPB_BASE;
+	mem_size = CPU_PPB_SIZE;
+	//CPU_mpu_configure_region(CPU_PPB, mem_base, mem_size, AP_RW_RW, MemType_StronglyOrdered, false);
+	CPU_mpu_configure_region(CPU_PPB, mem_base, mem_size, AP_RW_RW, MemType_Device_Sharable, false);
 
 	//Deployment
 	//mem_base = (UINT32)DEPLOY_BASE;
@@ -96,13 +105,13 @@ void SetupSecureEmoteRegions(){
 	//mem_size = (UINT32)&Image$$Kernel_ER_FLASH$$Length;
 	mem_size = (UINT32)KERNEL_SIZE;
 
-	CPU_mpu_configure_region(Kernel_CODE, mem_base, mem_size, AP_RO_NO, true);
+	CPU_mpu_configure_region(Kernel_CODE, mem_base, mem_size, AP_RO_NO, MemType_Normal, true);
 
 	//Region 6:
 	mem_base = (UINT32)EFLASH_ORIGIN;
 	//mem_size = (UINT32)Image$$RoT_ER_FLASH$$Length;
 	mem_size = (UINT32)ROT_SIZE;
-	CPU_mpu_configure_region(RoT_CODE, mem_base, mem_size, AP_RO_NO, true);
+	CPU_mpu_configure_region(RoT_CODE, mem_base, mem_size, AP_RO_NO, MemType_Normal, true);
 
 	// NULL pointer protection, highest priority.
 	//CPU_mpu_configure_region(Reserve, 0, 5, AP_NO_NO, false);
@@ -191,16 +200,28 @@ void __irq MemManage_Handler()
 
     /* Get Memory Managment fault adress register */
     MMFSR = SCB->CFSR & SCB_CFSR_MEMFAULTSR_Msk;
-    UINT32 faultAddress=SCB->MMFAR;
+    UINT32 faultAddress=*(SCB->MMFAR);
 
-    /* Data access violation */
+    if (MMFSR & (1 << 5)) {
+               debug_printf("MemManage Handler: A MemManage fault occurred during FP lazy state preservation, in exec mode: %p at address %p (pc=%p)", lr, faultAddress, ctx.pc);
+    }
+
+    if (MMFSR & (1 << 4)) {
+               debug_printf("MemManage Handler: A derived MemManage fault occurred on exception entry, in exec mode: %p at address %p (pc=%p)", lr, faultAddress, ctx.pc);
+    }
+
+    if (MMFSR & (1 << 3)) {
+           debug_printf("MemManage Handler: A derived MemManage fault occurred on exception return, in exec mode: %p at address %p (pc=%p)", lr, faultAddress, ctx.pc);
+    }
+
+    // Data access violation
     if (MMFSR & (1 << 1)) {
-        //debug_printf("MemManage Handler: Data access violation to %08X (pc=%p)", faultAddress, ctx.pc);
+        debug_printf("MemManage Handler: Data access violation in exec mode: %p at address %p (pc=%p)", lr, faultAddress, ctx.pc);
     }
 
     /* Instruction address violation. */
     if (MMFSR & (1 << 0)) {
-        //debug_printf("MemManage Handler: Jumped to XN region %08X, %p  (lr_thd=%p)", faultAddress,(void*)SCB->MMFAR, ctx.lr_thd);
+        debug_printf("MemManage Handler: MPU or Execute Never (XN) default map fault in  exec mode: %p at address %08X, %p  (lr_thd=%p)",lr, faultAddress,(void*)SCB->MMFAR, ctx.lr_thd);
 
         //if calling from user space into kernel space code//
         //Then switch stacks execute code and then return
@@ -219,3 +240,71 @@ SM_MemNames SecureMonitor_FindFaultRegion(UINT32 fault_addr){
 	if(mpuRegionPtr==NULL) return INVALID;
 	return (SM_MemNames)mpuRegionPtr->regionNo;
 }
+
+
+//Misc HAL layer helper functions
+
+
+
+///return LR Register value
+static UINT32  __attribute__(( always_inline )) __get_LR(void)
+{
+  register uint32_t result;
+
+  __ASM volatile ("MOV %0, LR\n" : "=r" (result) );
+  return(result);
+}
+
+//returns the exec mode value in mode.
+// 1 is priv_interrupt, 2 is priv_thread, 3 is unpriv_thread
+UINT32 GetExecMode(){
+	UINT32 mode=0;
+	if (__get_IPSR())
+	{
+		mode=1;
+	}
+	else if( !(__get_CONTROL() & 0x1)){
+		mode=2;
+	}
+	else {
+		mode=3;
+	}
+	return mode;
+}
+
+void SetupUserStack(){
+	__set_PSP(SAM_USER_STACK_TOP);
+}
+
+//Only last 2 bits of control register are used in CortexM
+void SwitchToPriviledgeMode(){
+	//unset bit 0 of control to change to unpriviledge mode
+	//unset bit 1 of control to change to psp.
+	__set_CONTROL(0x0);
+}
+
+void SwitchToUserMode(){
+	//set bit 0 of control to change to unpriviledge mode
+	//set bit 1 of control to change to psp.
+	//__set_CONTROL(0x3);
+	__set_CONTROL(0x1);
+	__ISB();
+	//SetupUserStack();
+
+	/*asm(
+		"MOVS R0, #0x3 \n"
+		"MSR CONTROL, R0 \n" //Switch to non-privileged state
+		"ISB \n" //Instruction Synchronization Barrier
+	);*/
+}
+
+void kernel_call0(void (*func)(void*), void* arg0){
+     //by convention func is in r0 and args is in r1
+     asm volatile("svc 0");
+}
+
+void kernel_call1(void (*func)(void*), void* arg0, void* arg1){
+     //by convention func is in r0 and args is in r1
+     asm volatile("svc 1");
+}
+

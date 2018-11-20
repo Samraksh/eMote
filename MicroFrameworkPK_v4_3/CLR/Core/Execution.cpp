@@ -6,6 +6,9 @@
 #include "Core.h" 
 #include <TinyCLR_Debugging.h>
 
+#if defined(SECURE_EMOTE)
+#include <Samraksh/sm.h>
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -3890,11 +3893,11 @@ CLR_UINT32 CLR_RT_ExecutionEngine::WaitSystemEvents( CLR_UINT32 powerLevel, CLR_
 
 
 #if defined(SECURE_EMOTE)
-    if(IsPrivMode()){
+    if(GetExecMode() > 2){
        	debug_printf( "In CLR_Execution 1:: Still in Priviledged Mode... Switching to thread mode.\r\n" );
        	SwitchToUserMode();
     }
-    if(IsPrivMode()){
+    if(GetExecMode() > 2){
 		debug_printf( "In CLR_Execution 2:: Still in Priviledged Mode... Switching to thread mode.\r\n" );
 		SwitchToUserMode();
 	}

@@ -7,6 +7,11 @@
 #ifndef _CM_MPU_H_
 #define _CM_MPU_H_
 
+//#include <cmsis/mss_assert.h>
+#include <cmsis/m2sxxx.h>
+#include <core_cm3.h>
+#include <cmsis_gcc.h>
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,7 +61,7 @@ extern "C" {
                                      MPU_TACL_UWRITE         |\
                                      MPU_TACL_UEXECUTE)
 
-/* supervisor access modes */
+// supervisor access modes
 #define MPU_TACL_SEXECUTE        0x0008UL
 #define MPU_TACL_SWRITE          0x0010UL
 #define MPU_TACL_SREAD           0x0020UL
@@ -79,6 +84,42 @@ extern "C" {
 #define MPU_TACL_SHARED          0x0400UL
 #define MPU_TACL_USER            0x0800UL
 #define MPU_TACL_IRQ             0x1000UL
+
+
+//To understand MPU memory type and attributes
+//Look at http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/ka16220.html
+
+// various MPU flags
+#define MPU_RASR_AP_PNO_UNO (0x00UL<<MPU_RASR_AP_Pos)
+#define MPU_RASR_AP_PRW_UNO (0x01UL<<MPU_RASR_AP_Pos)
+#define MPU_RASR_AP_PRW_URO (0x02UL<<MPU_RASR_AP_Pos)
+#define MPU_RASR_AP_PRW_URW (0x03UL<<MPU_RASR_AP_Pos)
+#define MPU_RASR_AP_PRO_UNO (0x05UL<<MPU_RASR_AP_Pos)
+#define MPU_RASR_AP_PRO_URO (0x06UL<<MPU_RASR_AP_Pos)
+
+#define MPU_RASR_XN         (0x01UL<<MPU_RASR_XN_Pos)
+#define MPU_RASR_CB_NOCACHE (0x00UL<<MPU_RASR_B_Pos)
+#define MPU_RASR_CB_WB_WRA  (0x01UL<<MPU_RASR_B_Pos)
+#define MPU_RASR_CB_WT      (0x02UL<<MPU_RASR_B_Pos)
+#define MPU_RASR_CB_WB      (0x03UL<<MPU_RASR_B_Pos)
+
+#define MPU_RASR_S_S      (0x01UL<<MPU_RASR_S_Pos) //shareable
+
+#define MPU_RASR_SRD(x)     (((UINT32)(x))<<MPU_RASR_SRD_Pos)
+
+//These defines set tex, s,c,b at the same time. Better to use these defines
+#define MPU_MTYPE_NORMAL          (0x8<<MPU_RASR_B_Pos)
+#define MPU_MTYPE_STONGLYORDERED  (0x0 << MPU_RASR_B_Pos)// all bits between 16 and 21 are set 0 for strongly ordered
+#define MPU_MTYPE_DEVICE_SHAREABLE (0x05 << MPU_RASR_B_Pos)
+#define MPU_MTYPE_DEVICE_NONSHAREABLE (0x10 << MPU_RASR_B_Pos)
+
+
+typedef enum {
+	MemType_Normal=MPU_MTYPE_NORMAL, //data or code,e.g. flash or sram
+	MemType_Device_Sharable=MPU_MTYPE_DEVICE_SHAREABLE, //Memmapped IO
+	MemType_Device_NonSharable=MPU_MTYPE_DEVICE_NONSHAREABLE, //Memmapped IO
+	MemType_StronglyOrdered=(MPU_MTYPE_STONGLYORDERED |MPU_RASR_S_S) //EBI or TCM
+}MpuMemType_t;
 
 
 typedef enum {
@@ -114,7 +155,7 @@ void CPU_mpu_invalidate_region(UINT8 regionNo);
 void CPU_mpu_set_acl(UINT8 index, MpuRegion_t* region);
 
 void CPU_mpu_configure_region(UINT8 region, UINT32 addr, UINT32 regionSize,
-                          MpuMemPermission_t ap, BOOL executable);
+                          MpuMemPermission_t ap, MpuMemType_t mtype, BOOL executable);
 
 MpuRegion_t* CPU_mpu_findRegion(void* addr);
 

@@ -2,9 +2,9 @@
 //#include <SmartPtr_irq.h>
 #include <Samraksh/cm_mpu.h>
 #include <cmsis/mss_assert.h>
-#include <cmsis/m2sxxx.h>
-#include <core_cm3.h>
-#include <cmsis_gcc.h>
+//#include <cmsis/m2sxxx.h>
+//#include <core_cm3.h>
+//#include <cmsis_gcc.h>
 
 
 //redefinition here. This is usually done on platform_selector.h, but since this is sort of a chip file,
@@ -20,28 +20,15 @@
 
 extern void HardFault_Handler();
 
-/* various MPU flags */
-#define MPU_RASR_AP_PNO_UNO (0x00UL<<MPU_RASR_AP_Pos)
-#define MPU_RASR_AP_PRW_UNO (0x01UL<<MPU_RASR_AP_Pos)
-#define MPU_RASR_AP_PRW_URO (0x02UL<<MPU_RASR_AP_Pos)
-#define MPU_RASR_AP_PRW_URW (0x03UL<<MPU_RASR_AP_Pos)
-#define MPU_RASR_AP_PRO_UNO (0x05UL<<MPU_RASR_AP_Pos)
-#define MPU_RASR_AP_PRO_URO (0x06UL<<MPU_RASR_AP_Pos)
 
-#define MPU_RASR_XN         (0x01UL<<MPU_RASR_XN_Pos)
-#define MPU_RASR_CB_NOCACHE (0x00UL<<MPU_RASR_B_Pos)
-#define MPU_RASR_CB_WB_WRA  (0x01UL<<MPU_RASR_B_Pos)
-#define MPU_RASR_CB_WT      (0x02UL<<MPU_RASR_B_Pos)
-#define MPU_RASR_CB_WB      (0x03UL<<MPU_RASR_B_Pos)
-#define MPU_RASR_SRD(x)     (((UINT32)(x))<<MPU_RASR_SRD_Pos)
 
-#define MPU_MTYPE_NORMAL          (8 << 16)
+
 
 #define MPU_RBAR(region,addr)   (((UINT32)(region))|MPU_RBAR_VALID_Msk|addr)
 #define MPU_RBAR_RNR(addr)     (addr)
 
 
-MpuRegion_t g_mpuRegions[8];
+MpuRegion_t g_mpuRegions[ARMv7M_MPU_REGIONS];
 
 //Takes mpu permissions and returns the mpu flags to be set
 static UINT32 mpu_map_acl(MpuMemPermission_t acl, BOOL exec)
@@ -164,7 +151,7 @@ void CPU_mpu_disable(void)
 }
 
 void CPU_mpu_configure_region(UINT8 regionNo, UINT32 startAddr, UINT32 regionSize,
-                          MpuMemPermission_t ap, BOOL executable)
+                          MpuMemPermission_t ap, MpuMemType_t mtype, BOOL executable)
 {
 	BOOL priv=FALSE;
 	//check for priviledged mode
@@ -192,7 +179,7 @@ void CPU_mpu_configure_region(UINT8 regionNo, UINT32 startAddr, UINT32 regionSiz
     // Construct the Region Attributes and Size Register value.
     UINT32 size = ((UINT32)(sizePow - 1) << MPU_RASR_SIZE_Pos);
     rasr= rasr | MPU_RASR_ENABLE_Msk | size;
-    rasr=rasr | MPU_MTYPE_NORMAL;
+    rasr=rasr | mtype;
 
     /* more complicated uvisor type calculation
     UINT32 regionSize=mpu_sram_region_size(startAddr, size);
@@ -234,10 +221,17 @@ void CPU_mpu_init(void)
 	aligment_mask = ~MPU->RBAR;
 	MPU->RBAR = 0;
 
+	//clear all region configurations
+	for (UINT8 i=0; i < ARMv7M_MPU_REGIONS; i++){
+		CPU_mpu_invalidate_region(i);
+	}
+
 	// Enable mem, bus and usage faults.
 	SCB->SHCSR |= (SCB_SHCSR_USGFAULTENA_Msk) |
 				  (SCB_SHCSR_BUSFAULTENA_Msk) |
 				  (SCB_SHCSR_MEMFAULTENA_Msk);
+
+
 }
 
 //Note: Finds the first region to which address belongs; Overlapping regions could be a problem.
@@ -328,7 +322,7 @@ void CPU_mpu_lock(void){
 
 	// Finally enable the MPU.
 	MPU->CTRL = MPU_CTRL_ENABLE_Msk | MPU_CTRL_PRIVDEFENA_Msk;
-	MPU->CTRL = MPU_CTRL_ENABLE_Msk;
+	//MPU->CTRL = MPU_CTRL_ENABLE_Msk;
 
 	// DSB & ISB to ensure subsequent data & instruction transfers are using updated MPU settings
 	__DSB();
