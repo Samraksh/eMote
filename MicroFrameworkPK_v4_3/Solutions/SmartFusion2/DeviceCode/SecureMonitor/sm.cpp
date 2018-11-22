@@ -1,4 +1,4 @@
-#include "../../../../DeviceCode/Include/Samraksh/sm.h"
+#include <Samraksh/sm.h>
 
 #include <Samraksh/cm_mpu.h>
 #include <cmsis/m2sxxx.h>
@@ -181,7 +181,7 @@ void SVCall_HandlerC(UINT32 sp){
 void __irq MemManage_Handler()
 {
     static char msg[128];
-    struct port_extctx ctx;
+    struct task_ctx ctx;
 
     UINT32 MMFSR;
 
@@ -196,11 +196,11 @@ void __irq MemManage_Handler()
     bool from_psp = EXC_FROM_PSP(lr);
     UINT32 sp = from_psp ? __get_PSP() : __get_MSP();
 
-    memcpy(&ctx, (void*)sp, sizeof(struct port_extctx));
+    memcpy(&ctx, (void*)sp, sizeof(struct task_ctx));
 
     /* Get Memory Managment fault adress register */
     MMFSR = SCB->CFSR & SCB_CFSR_MEMFAULTSR_Msk;
-    UINT32 faultAddress=*(SCB->MMFAR);
+    UINT32 faultAddress=*(UINT32*)(SCB->MMFAR);
 
     if (MMFSR & (1 << 5)) {
                debug_printf("MemManage Handler: A MemManage fault occurred during FP lazy state preservation, in exec mode: %p at address %p (pc=%p)", lr, faultAddress, ctx.pc);
@@ -255,22 +255,6 @@ static UINT32  __attribute__(( always_inline )) __get_LR(void)
   return(result);
 }
 
-//returns the exec mode value in mode.
-// 1 is priv_interrupt, 2 is priv_thread, 3 is unpriv_thread
-UINT32 GetExecMode(){
-	UINT32 mode=0;
-	if (__get_IPSR())
-	{
-		mode=1;
-	}
-	else if( !(__get_CONTROL() & 0x1)){
-		mode=2;
-	}
-	else {
-		mode=3;
-	}
-	return mode;
-}
 
 void SetupUserStack(){
 	__set_PSP(SAM_USER_STACK_TOP);
@@ -286,8 +270,7 @@ void SwitchToPriviledgeMode(){
 void SwitchToUserMode(){
 	//set bit 0 of control to change to unpriviledge mode
 	//set bit 1 of control to change to psp.
-	//__set_CONTROL(0x3);
-	__set_CONTROL(0x1);
+	__set_CONTROL(0x3);
 	__ISB();
 	//SetupUserStack();
 

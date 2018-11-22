@@ -33,7 +33,7 @@ void SVCall_HandlerC(UINT32 sp);
 
 SM_MemNames SecureMonitor_FindFaultRegion(UINT32 fault_addr);
 
-UINT32 GetExecMode();
+//UINT32 GetExecMode();
 //void ChangeExecMode(bool priv);
 void SetupUserStack();
 void SwitchToUserMode();

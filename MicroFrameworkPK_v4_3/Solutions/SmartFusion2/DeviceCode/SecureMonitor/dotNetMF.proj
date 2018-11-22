@@ -41,6 +41,9 @@
   <ItemGroup>
 	<HFiles Include="SF2_CM3.h" />
 	<Compile Include="sm.cpp" />	
+	
+	<HFiles Include="os_scheduler.h" />
+	<Compile Include="os_scheduler.c" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

@@ -6,7 +6,8 @@
 
 typedef volatile UINT32 regarm_t;
 
-struct port_extctx {
+//Cortex M3 cpu task/process context
+struct task_ctx {
   regarm_t      r0;
   regarm_t      r1;
   regarm_t      r2;

@@ -5,28 +5,26 @@
 #include <tinyclr_application.h>
 #include <tinyhal.h>
 #include <cmsis_gcc.h>
+#include <Samraksh/os_scheduler.h>
 #include <Samraksh/sm.h>
 ////////////////////////////////////////////////////////////////////////////////
 
-void ApplicationEntryPoint()
-{
-    CLR_SETTINGS clrSettings;
 
+
+void UserThreadStop(){
+	while(1){
+	    	debug_printf( "UserThreadStop: User thread finished... Nothing to do. \r\n");
+	 }
+}
+
+
+void CLRApplication(){
+    CLR_SETTINGS clrSettings;
     memset(&clrSettings, 0, sizeof(CLR_SETTINGS));
 
     clrSettings.MaxContextSwitches         = 50;
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
-    uint mode = GetExecMode();
-    if(mode < 3){
-    	debug_printf( "ApplicationEntryPoint: In Priviledged Mode %d... Setting up User Stack.\r\n",mode );
-    	SetupUserStack();
-    }
-    mode = GetExecMode();
-    if(mode < 3){
-    	debug_printf( "ApplicationEntryPoint: Still in Priviledged Mode %d... Switching to thread mode.\r\n",mode );
-    	SwitchToUserMode();
-    }
 
     ClrStartup( clrSettings );
 
@@ -35,6 +33,14 @@ void ApplicationEntryPoint()
 #else
     ::CPU_Reset();
 #endif
+}
+
+
+
+
+void ApplicationEntryPoint()
+{
+    StartUserTask((HandlerFuncPtr)CLRApplication);
 }
 
 
