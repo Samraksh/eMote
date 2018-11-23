@@ -8,11 +8,11 @@
 float DecisionFunction::rho = (float)-417.4166f;
 float DecisionFunction::gamma = (float)0.0625;
 float* DecisionFunction::weight = NULL;
-UINT16 DecisionFunction::nSV = 77;
-UINT16 DecisionFunction::nFeature = 13;
+UINT16 DecisionFunction::nSV = 77;//77
+UINT16 DecisionFunction::nFeature = 13;//13
 float* DecisionFunction::feature_min = NULL;
 float* DecisionFunction::scalingFactors = NULL;
-const UINT32 dataVectors[nSV*nFeature] = {
+const UINT32 dataVectors[77*13] = {
 180061, 16, 1868, 2288, 447071, 341395, 292626, 4315, 0, 0, 0, 0, 0,
 294639, 48, 14483, 3018, 447071, 430807, 373912, 0, 0, 0, 0, 0, 0,
 164050, 19, 235615, 83882, 804719, 455197, 430807, 0, 0, 0, 0, 0, 0,
