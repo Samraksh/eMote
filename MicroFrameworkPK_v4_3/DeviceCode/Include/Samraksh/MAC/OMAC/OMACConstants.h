@@ -520,7 +520,7 @@ UINT32 ArbiterP_Timing;
 /*
  * Prime numbers used in determining DISCO period of a node
  */
-#define EXPECTED_DISCOVERY_TIME_FOR_A_SINGLE_SAMPLE_IN_HOURS 3
+#define EXPECTED_DISCOVERY_TIME_FOR_A_SINGLE_SAMPLE_IN_HOURS 152 //Max(CONTROL_P1*ControlP1) * 15ms
 
 #define EXPECTED_DISCOVERY_TIME_FOR_A_SINGLE_SAMPLE_IN_TICKS EXPECTED_DISCOVERY_TIME_FOR_A_SINGLE_SAMPLE_IN_HOURS*3600*1000*1000*8
 
@@ -536,8 +536,9 @@ UINT32 ArbiterP_Timing;
 //UINT16 CONTROL_P3[] = {911, 727, 787, 769, 773, 853, 797};
 //UINT16 CONTROL_P4[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
 
-UINT16 CONTROL_P3[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
-UINT16 CONTROL_P4[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
+//Expected Disco Time (2 disco receptions) 28.21hours,  Typical MaxDiscoTime Time (2 disco receptions) 37.62h, MaxDiscoTime = 151.6hours
+UINT16 CONTROL_P3[] = {2099, 2111, 2113, 2129, 2131, 2137, 2153};
+UINT16 CONTROL_P4[] = {8627, 8623, 8467, 8447, 8443, 8429, 8419};
 //UINT16 CONTROL_P1[] = {197, 157, 151, 163, 211, 113, 127};
 //UINT16 CONTROL_P2[] = {911, 727, 787, 769, 773, 853, 797};
 
@@ -549,8 +550,9 @@ UINT16 CONTROL_P4[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
 //UINT16 CONTROL_P1[] = {47, 37, 43, 37, 53, 29, 31};
 //UINT16 CONTROL_P2[] = {227, 181, 197, 191, 211, 199};
 
-UINT16 CONTROL_P1[] = {67, 71, 79, 83, 89, 97};
-UINT16 CONTROL_P2[] = {227, 229, 233, 239, 241, 251};
+//Expected disco time(2 disco receptions) 2.63 mins, Typical MaxDiscoTime Time (2 disco receptions) 3.51 mins, Non typical MaxDiscoTime = 11.46 mins
+UINT16 CONTROL_P1[] = { 67,  71,  79,  83,  89,  97, 101};
+UINT16 CONTROL_P2[] = {257, 251, 241, 239, 233, 229, 227};
 
 
 //Define total size of a Disco packet with piggybacking
