@@ -211,6 +211,49 @@ void High_Power() {
 */
 
 
+extern "C"
+{
+void HARD_Breakpoint_Handler(UINT32 *registers);
+void assert(BOOL CHECK);
+}
+
+void HARD_Breakpoint()
+{
+	HARD_Breakpoint_Handler(NULL);
+}
+
+void HARD_Breakpoint_Handler(UINT32 *registers)
+{
+#if !defined(BUILD_RTM)
+	// No crash : software generated hard break point
+	//Fault_Handler_Display(registers, 0);
+	CPU_Halt();
+#else
+
+    CPU_Reset();
+
+#endif  // !defined(BUILD_RTM)
+}
+
+void assert(BOOL CHECK)  {
+    do {
+        if (!(CHECK))
+        {
+            HARD_Breakpoint();
+        }
+    } while (0);
+}
+
+
+void SOFT_Breakpoint()
+{
+#if defined(DEBUG)
+    if(JTAG_Attached()) {
+        __ASM volatile("bkpt");
+    }
+#endif  // defined(DEBUG)
+}
+
 
 // Note: This is never called
 void Sleep() {

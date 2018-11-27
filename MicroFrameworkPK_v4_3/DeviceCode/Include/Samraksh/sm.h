@@ -43,7 +43,7 @@ void SwitchToUserMode();
 void __attribute__((optimize("1")))  kernel_call0(void (*func)(void*), void* arg0);
 void __attribute__((optimize("1")))  kernel_call1(void (*func)(void*), void* arg0, void* arg1 );
 
-static UINT32 __attribute__(( always_inline )) __get_LR(void);
+static UINT32 inline __get_LR(void);
 
 
 

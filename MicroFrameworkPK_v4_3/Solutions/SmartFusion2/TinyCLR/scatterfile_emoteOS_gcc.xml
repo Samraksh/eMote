@@ -145,8 +145,8 @@
         	<FileMapping Name="*" Options="(i.EntryPoint)" />
         	<FileMapping Name="*" Options="(SectionForBootstrapOperations)" />
         	
-        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:*" Options="(.text*)" />     	      
-        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:*" Options="(.rodata*)" />
+        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:* *\tinyclr.obj" Options="(.text*)" />     	      
+        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:* *\tinyclr.obj" Options="(.rodata*)" />
         	<!--<FileMapping Name="*\tmp_RoT_tinyclr.lib:*" Options="(.ARM.attributes)" />-->
         
         	<!-- libc thinks that it needs these routines, but they are never called -->
@@ -157,7 +157,10 @@
 		<ExecRegion Name="Kernel_ER_%TARGETLOCATION%" Options="&gt;Kernel_LR_%TARGETLOCATION%_Mirror AT>Kernel_%AltName%">
 		
 			<FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.text*)" />
-    	    <FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.rodata*)" />	    
+    	    <FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.rodata*)" />
+    	    	    
+    	    <!-- <FileMapping Name="*\tinyclr*.obj" Options="(.text*)" />
+    	    <FileMapping Name="*\tinyclr*.obj" Options="(.rodata*)" /> -->
         	<!--<FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.ARM.attributes)" />-->        	        
 
         	     	
@@ -165,8 +168,8 @@
       	      	
       <!-- RunTime execution region, include all libs excluding whats included in rot, kernel -->
 		<ExecRegion Name="RunTime_ER_%TARGETLOCATION%" Options="&gt;RunTime_LR_%TARGETLOCATION%_Mirror AT>RunTime_%AltName%">
-			<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:*)" Options=".text*)" />		        
-        	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:*)" Options=".rodata*)" />
+			<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:* )" Options=".text*)" />		        
+        	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:* )" Options=".rodata*)" />
         	<!--<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:*)" Options=".ARM.attributes)" />-->
 			
 			<FileMapping Name="*\libgcc.a:*"  Options="(.text* .rodata*)" />
@@ -176,6 +179,9 @@
         	<IfNotDefined Name="Data_BaseAddress">
           		<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:*)" Options="tinyclr_metadata)" />
         	</IfNotDefined>
+      	</ExecRegion>
+      	<ExecRegion Name="DebugRegion" Align="0x10" Options="&gt;RunTime_LR_%TARGETLOCATION%_Mirror AT>RunTime_%AltName%">
+        	<FileMapping Name="*"  Options="(.debug*)" />
       	</ExecRegion>
             	
       	<!--               RAM Sections configuration follows               -->
@@ -223,6 +229,7 @@
         	<FileMapping Name="*\libc.a:*"  Options="(.bss*)" />
         	<FileMapping Name="*\libm.a:*"  Options="(.bss*)" />
       	</ExecRegion>
+      	
       	
       	<ExecRegion Name="ER_USER_STACK_BOTTOM" Base="%User_Stack_Bottom%">
         	<FileMapping Name="*" Options="(SectionForUserStackBottom)" />

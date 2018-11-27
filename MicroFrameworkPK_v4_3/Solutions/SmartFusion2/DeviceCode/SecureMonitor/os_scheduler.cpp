@@ -1,7 +1,7 @@
-#include <tinyhal.h>
 #include <Samraksh/os_scheduler.h>
 #include <string.h>
 #include <cmsis_gcc.h>
+
 
 static struct OS_Task_Table m_task_table;
 volatile os_task_t *os_curr_task;
@@ -24,14 +24,14 @@ void os_init(void)
 
 BOOL os_task_init(HandlerFuncPtr fptr, os_stack_t *p_stack, UINT32 stack_size)
 {
-	if (m_task_table.size >= MAX_OS_TASKS-1)
+	if (m_task_table.size > MAX_OS_TASKS-1)
 		return FALSE;
 
 	// Initialize the task structure and set SP to the top of the stack
 	//minus 16 words (64 bytes) to leave space for storing 16 registers:
 	os_task_t *p_task = &m_task_table.tasks[m_task_table.size];
 	p_task->handler = fptr;
-	p_task->sp = (UINT32)(p_stack+stack_size-16);
+	p_task->sp = ((UINT32)p_stack+stack_size-16);
 	p_task->status = OS_TASK_STATUS_IDLE;
 
 	// Save special registers which will be restored on exc. return:
@@ -64,8 +64,14 @@ BOOL os_task_init(HandlerFuncPtr fptr, os_stack_t *p_stack, UINT32 stack_size)
 	return TRUE;
 }
 
-BOOL SetupUserStack( os_task_t *os_curr_task){
-	__set_PSP(os_curr_task->sp+64); // Set PSP to the top of task's stack
+BOOL SetupUserStack(volatile os_task_t *os_curr_task){
+	//ARm implements a full descending stack. That is it points to the last stack frame.
+	//so for the very first user frame, it actually points outside of the stack
+
+	//__set_PSP(os_curr_task->sp+64); // Set PSP to the top of task's stack
+	__set_PSP(os_curr_task->sp); // Set PSP to the top of task's stack
+
+
 	__set_CONTROL(0x03); // Switch to PSP, unprivilleged mode
 	__ISB(); // Exec. ISB after changing CONTORL (recommended)
 }
@@ -84,7 +90,7 @@ BOOL StartUserTask(HandlerFuncPtr fptr)
 	os_init();
 	userStack=(os_stack_t*)SAM_USER_STACK_TOP;
 	m_task_table.current_task=0;
-	os_task_init(fptr,userStack, (SAM_USER_STACK_TOP-SAM_USER_STACK_BOTTOM));
+	os_task_init(fptr,userStack, (SAM_USER_STACK_BOTTOM-SAM_USER_STACK_TOP));
 
 	UINT32 mode = GetExecMode();
 	if(mode < 3){

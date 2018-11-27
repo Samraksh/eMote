@@ -1,11 +1,13 @@
 #ifndef _OS_SCHEDULER_H_
 #define _OS_SCHEDULER_H_
-#include <tinyhal_types.h>
+
+#include <tinyhal.h>
 #include <stdint.h>
 
 
 //Based on code at https://github.com/adamheinrich/os.h/tree/blog_2016_07/src
 //Task and process means the same
+//extern void debug_printf( const char *format, ... );
 
 typedef UINT32 os_stack_t;
 typedef void (*HandlerFuncPtr)(void);
@@ -42,10 +44,6 @@ void os_init(void);
 BOOL os_task_init(HandlerFuncPtr fptr, os_stack_t *p_stack, UINT32 stack_size);
 //BOOL os_start(UINT32 systick_ticks);
 BOOL StartUserTask(HandlerFuncPtr fptr);
-
-
-
-
 UINT32 GetExecMode();
 
 #endif //_OS_SCHEDULER_H_

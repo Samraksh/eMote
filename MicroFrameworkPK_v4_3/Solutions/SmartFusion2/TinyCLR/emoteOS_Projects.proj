@@ -330,10 +330,10 @@
     <DriverLibs Include="piezo_config_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Piezo\stubs\config\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="cpu_power_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_power\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="cpu_prestackinit_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\Processor\stubs_PreStackInit\dotNetMF.proj" />

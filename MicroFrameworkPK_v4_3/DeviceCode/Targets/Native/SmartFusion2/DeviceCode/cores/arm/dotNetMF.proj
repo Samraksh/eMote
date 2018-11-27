@@ -52,7 +52,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(INSTRUCTION_SET)'=='thumb2'">
-  	 <Compile Include="Diagnostics\Aborts.cpp" />
+  	 <!--<Compile Include="Diagnostics\Aborts.cpp" />-->
      <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\FirstEntry.s" />
      <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\IDelayLoop.s" />
      <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\VectorsTrampolines.s" />
@@ -78,8 +78,8 @@
      <LIB_FIRSTENTRY_OBJ Include="$(OBJ_DIR)\FirstEntry.$(OBJ_EXT)" />
    </ItemGroup>
    
-  <ItemGroup>
+  <!--<ItemGroup>
     <ExtraProjects Include="dotNetMF_loader.proj" Condition="'$(PLATFORM_FAMILY)'=='arm'" />
-  </ItemGroup>
+  </ItemGroup>-->
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

@@ -78,7 +78,7 @@ void SetupSecureEmoteRegions(){
 	//Region 1: Setup entire Flash as this region.
 	mem_base = (UINT32)EFLASH_ORIGIN;
 	mem_size = EFLASH_SIZE;
-	CPU_mpu_configure_region(GP_CODE, mem_base, mem_size, AP_RW_RO, MemType_Normal, true);
+	CPU_mpu_configure_region(GP_CODE, mem_base, mem_size, AP_RO_RO, MemType_Normal, true);
 	//mem_base = (UINT32)EFLASH_MIRROR_ORIGIN;
 	//CPU_mpu_configure_region(6, mem_base, mem_size, AP_RW_RO, MemType_Normal, true);
 
@@ -101,7 +101,7 @@ void SetupSecureEmoteRegions(){
 
 
 	//Region 4: Kernel code
-	mem_base = (UINT32)EFLASH_ORIGIN + ROT_SIZE;
+	mem_base = (UINT32)EFLASH_ORIGIN + ROT_BASE+ ROT_SIZE;
 	//mem_size = (UINT32)&Image$$Kernel_ER_FLASH$$Length;
 	mem_size = (UINT32)KERNEL_SIZE;
 
@@ -110,7 +110,7 @@ void SetupSecureEmoteRegions(){
 	//Region 6:
 	mem_base = (UINT32)EFLASH_ORIGIN;
 	//mem_size = (UINT32)Image$$RoT_ER_FLASH$$Length;
-	mem_size = (UINT32)ROT_SIZE;
+	mem_size = (UINT32)ROT_SIZE + ROT_BASE;
 	CPU_mpu_configure_region(RoT_CODE, mem_base, mem_size, AP_RO_NO, MemType_Normal, true);
 
 	// NULL pointer protection, highest priority.
@@ -219,9 +219,14 @@ void __irq MemManage_Handler()
         debug_printf("MemManage Handler: Data access violation in exec mode: %p at address %p (pc=%p)", lr, faultAddress, ctx.pc);
     }
 
-    /* Instruction address violation. */
+    // Instruction address violation.
     if (MMFSR & (1 << 0)) {
-        debug_printf("MemManage Handler: MPU or Execute Never (XN) default map fault in  exec mode: %p at address %08X, %p  (lr_thd=%p)",lr, faultAddress,(void*)SCB->MMFAR, ctx.lr_thd);
+    	if(MMFSR & (1 << 7)){
+    		debug_printf("MemManage Handler: Execute Never (XN) or instruciton fault, mmfar is valide. in  exec mode: %p at address %08X, %p,  lr_thd=%p, pc=%p, ",lr, faultAddress,(void*)SCB->MMFAR, ctx.lr_thd, ctx.pc);
+
+    	}else {
+    		debug_printf("MemManage Handler: Execute Never (XN) or instruciton fault, mmfar is NOT valid. LR: %p,  lr_thd=%p, pc=%p, ",lr, ctx.lr_thd, ctx.pc);
+    	}
 
         //if calling from user space into kernel space code//
         //Then switch stacks execute code and then return
@@ -247,7 +252,7 @@ SM_MemNames SecureMonitor_FindFaultRegion(UINT32 fault_addr){
 
 
 ///return LR Register value
-static UINT32  __attribute__(( always_inline )) __get_LR(void)
+static UINT32  inline __get_LR(void)
 {
   register uint32_t result;
 
