@@ -36,7 +36,7 @@ typedef uint16_t ushort;
 //#define COMPILE_CUSTOMER_RELEASE 1
 
 
-
+#define POWER_PROFILE_HACK
 
 //
 // processor and features
