@@ -401,6 +401,19 @@
   </ItemGroup>-->
   
   <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer\dotNetMF.proj" />
+    <DriverLibs Include="SF2_timer.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="SF2_eNVM.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\eNVM\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bl\dotNetMF.proj" />
+    <DriverLibs Include="SF2_bl.$(LIB_EXT)" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <DriverLibs Include="Time_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Time\dotNetMF.proj" />
   </ItemGroup>
@@ -541,21 +554,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\cores\arm\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="SF2_rot_eNVM.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\eNVM\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bl\dotNetMF.proj" />
-    <DriverLibs Include="SF2_rot_bl.$(LIB_EXT)" />
-  </ItemGroup>
-  <ItemGroup>
     <DriverLibs Include="SF2_rot_M2SXXX.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\microsemi_lib\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer\dotNetMF.proj" />
-    <DriverLibs Include="SF2_rot_timer.$(LIB_EXT)" />
-  </ItemGroup>
+
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\Crypto\SecureBoot\dotNetMF.proj" />
     <DriverLibs Include="rot_SecureBoot.$(LIB_EXT)" />

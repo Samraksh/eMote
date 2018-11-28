@@ -43,7 +43,7 @@ struct OS_Task_Table{
 void os_init(void);
 BOOL os_task_init(HandlerFuncPtr fptr, os_stack_t *p_stack, UINT32 stack_size);
 //BOOL os_start(UINT32 systick_ticks);
-BOOL StartUserTask(HandlerFuncPtr fptr);
+volatile os_task_t* SetupUserTask(HandlerFuncPtr fptr);
 UINT32 GetExecMode();
 
 #endif //_OS_SCHEDULER_H_

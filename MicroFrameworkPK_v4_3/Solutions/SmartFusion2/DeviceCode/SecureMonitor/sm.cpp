@@ -78,13 +78,15 @@ void SetupSecureEmoteRegions(){
 	//Region 1: Setup entire Flash as this region.
 	mem_base = (UINT32)EFLASH_ORIGIN;
 	mem_size = EFLASH_SIZE;
-	CPU_mpu_configure_region(GP_CODE, mem_base, mem_size, AP_RO_RO, MemType_Normal, true);
+	debug_printf("Secure Monitor: BG_code: Mem base: %X, mem_size: %X, AP_RW_RO\n",mem_base, mem_size);
+	CPU_mpu_configure_region(GP_CODE, mem_base, mem_size, AP_RW_RO, MemType_Normal, true);
 	//mem_base = (UINT32)EFLASH_MIRROR_ORIGIN;
 	//CPU_mpu_configure_region(6, mem_base, mem_size, AP_RW_RO, MemType_Normal, true);
 
 	//Region 2: Entire IO is mapped to protect their access. Note: Other than kernel and RoT, nobody else can access IO
 	mem_base = (UINT32)IO_ORIGIN;
 	mem_size = IO_SIZE;
+	debug_printf("Secure Monitor: BG_IO: Mem base: %X, mem_size: %X, AP_RW_RO\n",mem_base, mem_size);
 	CPU_mpu_configure_region(GP_IO, mem_base, mem_size, AP_RW_RO, MemType_Device_NonSharable, false);
 
 
@@ -92,6 +94,7 @@ void SetupSecureEmoteRegions(){
 	mem_base = (UINT32)CPU_PPB_BASE;
 	mem_size = CPU_PPB_SIZE;
 	//CPU_mpu_configure_region(CPU_PPB, mem_base, mem_size, AP_RW_RW, MemType_StronglyOrdered, false);
+	debug_printf("Secure Monitor: CPU_PPB: Mem base: %X, mem_size: %X, AP_RW_RW\n",mem_base, mem_size);
 	CPU_mpu_configure_region(CPU_PPB, mem_base, mem_size, AP_RW_RW, MemType_Device_Sharable, false);
 
 	//Deployment
@@ -105,12 +108,14 @@ void SetupSecureEmoteRegions(){
 	//mem_size = (UINT32)&Image$$Kernel_ER_FLASH$$Length;
 	mem_size = (UINT32)KERNEL_SIZE;
 
+	debug_printf("Secure Monitor: ker_code: Mem base: %X, mem_size: %X, AP_RO_NO\n",mem_base, mem_size);
 	CPU_mpu_configure_region(Kernel_CODE, mem_base, mem_size, AP_RO_NO, MemType_Normal, true);
 
 	//Region 6:
 	mem_base = (UINT32)EFLASH_ORIGIN;
 	//mem_size = (UINT32)Image$$RoT_ER_FLASH$$Length;
 	mem_size = (UINT32)ROT_SIZE + ROT_BASE;
+	debug_printf("Secure Monitor: Rot_code: Mem base: %X, mem_size: %X, AP_RO_NO\n",mem_base, mem_size);
 	CPU_mpu_configure_region(RoT_CODE, mem_base, mem_size, AP_RO_NO, MemType_Normal, true);
 
 	// NULL pointer protection, highest priority.

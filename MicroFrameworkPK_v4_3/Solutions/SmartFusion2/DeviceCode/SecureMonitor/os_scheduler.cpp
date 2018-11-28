@@ -63,21 +63,21 @@ BOOL os_task_init(HandlerFuncPtr fptr, os_stack_t *p_stack, UINT32 stack_size)
 
 	return TRUE;
 }
-
+/*
 BOOL SetupUserStack(volatile os_task_t *os_curr_task){
 	//ARm implements a full descending stack. That is it points to the last stack frame.
 	//so for the very first user frame, it actually points outside of the stack
 
 	//__set_PSP(os_curr_task->sp+64); // Set PSP to the top of task's stack
-	__set_PSP(os_curr_task->sp); // Set PSP to the top of task's stack
 
-
-	__set_CONTROL(0x03); // Switch to PSP, unprivilleged mode
 	__ISB(); // Exec. ISB after changing CONTORL (recommended)
+	__set_PSP(os_curr_task->sp+64); // Set PSP to the top of task's stack
+	__set_CONTROL(0x03); // Switch to PSP, unprivilleged mode
+
 }
+*/
 
-
-BOOL StartUserTask(HandlerFuncPtr fptr)
+volatile os_task_t* SetupUserTask(HandlerFuncPtr fptr)
 {
 	//NVIC_SetPriority(PendSV_IRQn, 0xff); // Lowest possible priority
 	//NVIC_SetPriority(SysTick_IRQn, 0x00); // Highest possible priority
@@ -96,13 +96,12 @@ BOOL StartUserTask(HandlerFuncPtr fptr)
 	if(mode < 3){
 		debug_printf( "ApplicationEntryPoint: In Priviledged Mode %d... Setting up User Stack.\r\n",mode );
 		os_curr_task = &m_task_table.tasks[m_task_table.current_task];
-		SetupUserStack(os_curr_task);
+		//SetupUserStack(os_curr_task);
 	}
 
 	// Start the first task:
-	os_curr_task->handler();
-
-	return TRUE;
+	//os_curr_task->handler();
+	return os_curr_task;
 }
 
 /*

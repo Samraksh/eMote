@@ -36,11 +36,29 @@ void CLRApplication(){
 }
 
 
+void SwitchToUserStack(volatile os_task_t *os_curr_task){
+	//ARm implements a full descending stack. That is it points to the last stack frame.
+	//so for the very first user frame, it actually points outside of the stack
 
+	//__set_PSP(os_curr_task->sp+64); // Set PSP to the top of task's stack
+
+	__ISB(); // instruction barrier. Make sure everything till now is done
+	__set_PSP(os_curr_task->sp+64); // Set PSP to the top of task's stack
+	//__set_CONTROL(0x03); // Switch to PSP, unprivilleged mode
+	__ASM volatile ("MSR control, %0" : : "r" (3) : "memory");
+}
 
 void ApplicationEntryPoint()
 {
-    StartUserTask((HandlerFuncPtr)CLRApplication);
+	//Setup the function that should run as user task
+	volatile os_task_t* userTask =SetupUserTask((HandlerFuncPtr)CLRApplication);
+	ASSERT(userTask);
+
+	//Everything is setup; switch to user stack
+	SwitchToUserStack(userTask);
+
+	//now execute the user task
+	userTask->handler();
 }
 
 

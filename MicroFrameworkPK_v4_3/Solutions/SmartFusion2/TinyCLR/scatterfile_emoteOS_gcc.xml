@@ -145,8 +145,8 @@
         	<FileMapping Name="*" Options="(i.EntryPoint)" />
         	<FileMapping Name="*" Options="(SectionForBootstrapOperations)" />
         	
-        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:* *\tinyclr.obj" Options="(.text*)" />     	      
-        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:* *\tinyclr.obj" Options="(.rodata*)" />
+        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:* " Options="(.text*)" />     	      
+        	<FileMapping Name="*\tmp_RoT_tinyclr.lib:* " Options="(.rodata*)" />
         	<!--<FileMapping Name="*\tmp_RoT_tinyclr.lib:*" Options="(.ARM.attributes)" />-->
         
         	<!-- libc thinks that it needs these routines, but they are never called -->
@@ -159,8 +159,6 @@
 			<FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.text*)" />
     	    <FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.rodata*)" />
     	    	    
-    	    <!-- <FileMapping Name="*\tinyclr*.obj" Options="(.text*)" />
-    	    <FileMapping Name="*\tinyclr*.obj" Options="(.rodata*)" /> -->
         	<!--<FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.ARM.attributes)" />-->        	        
 
         	     	
@@ -180,9 +178,9 @@
           		<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:*)" Options="tinyclr_metadata)" />
         	</IfNotDefined>
       	</ExecRegion>
-      	<ExecRegion Name="DebugRegion" Align="0x10" Options="&gt;RunTime_LR_%TARGETLOCATION%_Mirror AT>RunTime_%AltName%">
+      	<!--<ExecRegion Name="DebugRegion" Align="0x10" Options="&gt;RunTime_LR_%TARGETLOCATION%_Mirror AT>RunTime_%AltName%">
         	<FileMapping Name="*"  Options="(.debug*)" />
-      	</ExecRegion>
+      	</ExecRegion>-->
             	
       	<!--               RAM Sections configuration follows               -->
       	
@@ -256,6 +254,7 @@
         	<FileMapping Name="*" Options="(.vfp11*)" />
         	<FileMapping Name="*" Options="(.ARM.exidx*)" />
         	<FileMapping Name="*" Options="(.ARM.extab*)" />
+        	<!--<FileMapping Name="*" Options="(.debug_str*)" />-->
       	</ExecRegion>
       	<!-- <ExecRegion Name="ER_HEAP_BEGIN" Align="0x10" Options="&gt;ROT_RELOC_RAM"> --> <!-- Base="%Heap_Begin%"> --> <!-- experimental: let the linker choose the heap start address -->
       	<!-- Mukundan: Above automatic heap start address does not work in SF2 with multiple mem regions. Runtime crashes while initializing, looks like some address mismatch somewhere -->
