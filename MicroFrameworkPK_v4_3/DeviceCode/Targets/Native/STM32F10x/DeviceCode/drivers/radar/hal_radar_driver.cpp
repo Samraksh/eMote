@@ -64,7 +64,7 @@ UINT32 g_radarBufferSize = 0;
 
 void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	if (interruptServiceInProcess == true){
-		hal_printf("#!detect interruptServiceInProcess\r\n");
+		//hal_printf("#!detect interruptServiceInProcess\r\n");
 		return;
 	}
 	hal_printf("\r\n detect\r\n");
@@ -82,11 +82,11 @@ void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 
 void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	if (interruptServiceInProcess == true){
-		hal_printf("#!alert interruptServiceInProcess\r\n");
+		//hal_printf("#!alert interruptServiceInProcess\r\n");
 		return;
 	}
 	if (CPU_GPIO_GetPinState(33) == FALSE){
-		hal_printf("#!alert but not enough data\r\n");
+		//hal_printf("#!alert but not enough data\r\n");
 		return;
 	}
 	//hal_printf("alert\r\n");
@@ -106,7 +106,7 @@ void Radar_Handler(void *arg)
 
 	// if we are already processing data, we need to wait
 	if (processingInProgress == true){
-		hal_printf("@!Radar_Handler processingInProgress\r\n");
+		//hal_printf("@!Radar_Handler processingInProgress\r\n");
 		interruptServiceInProcess = false;
 		return;
 	}
@@ -237,11 +237,11 @@ void Radar_Handler(void *arg)
 	UINT32 FPGAIQRejection;
 	if ((CPU_GPIO_GetPinState(33) == TRUE) | (continueToSendCount > 0)  ){
 		if (alertInterruptActive == false){
-			hal_printf("enabling data pull; cont: %d detect: %x\r\n", continueToSendCount, assumedDetect);
+			//hal_printf("enabling data pull; cont: %d detect: %x\r\n", continueToSendCount, assumedDetect);
 			CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 			alertInterruptActive = true;
 		} else {
-			hal_printf("cont: %d detect: %x\r\n", continueToSendCount, assumedDetect);
+			//hal_printf("cont: %d detect: %x\r\n", continueToSendCount, assumedDetect);
 		}
 
 
@@ -279,10 +279,16 @@ void Radar_Handler(void *arg)
 		//	hal_printf("--- fpga detection ---\r\n");
 		//}
 
-		hal_printf("--- Enqueing radar data to C# windowOverThreshold = %u, maxCountOverTarget = %u --- \r\n",windowOverThreshold,maxCountOverTarget);
+		//hal_printf("--- Enqueing radar data to C# windowOverThreshold = %u, maxCountOverTarget = %u --- \r\n",windowOverThreshold,maxCountOverTarget);
 		g_radarUserData = HAL_Time_CurrentTicks();
 		processingInProgress = true;
 				GLOBAL_LOCK(irq);
+				hal_printf("break\r\n");
+		int breakMe = 0;
+		int jB, kB;
+		for (breakMe = 0; breakMe < 10000000; breakMe++){
+			jB = kB * breakMe;
+		}
 		SaveNativeEventToHALQueue( g_radarContext, UINT32(g_radarUserData >> 32), UINT32(g_radarUserData & 0xFFFFFFFF) );
 				irq.Release();
 
