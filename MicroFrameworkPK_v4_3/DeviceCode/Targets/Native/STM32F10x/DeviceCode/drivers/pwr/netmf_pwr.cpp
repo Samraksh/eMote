@@ -67,9 +67,8 @@ static void print_power_event(power_event_t e) {
 // Only do this on wakeup for known state
 static void print_all_power_events() {
 	//TIM_Cmd(TIM1, DISABLE);
-	SOFT_BREAKPOINT();
+	//SOFT_BREAKPOINT();
 	__enable_irq();
-	//hal_printf("size of power_event_t: %d\r\n", sizeof(power_event_t));
 	for(int i=0; i<POWER_EVENTS_SIZE; i++) {
 		print_power_event(power_events[i]);
 	}
@@ -160,8 +159,6 @@ enum wakeup_ticks{
 	SLEEP_PADDING_LOW_POWER = 6,
 };
 
-//#define NATHAN_DEBUG_SLEEP // DELETE ME
-
 #ifdef PLATFORM_ARM_AUSTERE
 #include <stm32f10x.h>
 #endif
@@ -177,14 +174,6 @@ static void power_supply_reset() {
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-#ifdef NATHAN_DEBUG_SLEEP
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3; // PPS debug pin
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_RESET);
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-#endif
 
   // Configure Inputs
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_12;
@@ -232,16 +221,6 @@ static void radio_shutdown(int go) {
 	else
 		GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_RESET);
 }
-static void set_debug_pin(int go) {
-#ifdef NATHAN_DEBUG_SLEEP
-	if (go)
-		GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_SET);
-	else
-		GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_RESET);
-#endif
-}
-#else
-#define set_debug_pin(x)
 #endif // PLATFORM_ARM_AUSTERE
 
 
@@ -840,14 +819,12 @@ void Sleep() {
 		NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
 		__SEV();
 		__WFE();
-#ifdef POWER_PROFILE_HACK
 		if ( wakeup_time < now ) {
-			power_event_add(now, TIMEWARP, now-wakeup_time, -1);
-			// --- DELETE ME ---
-			hal_printf("%d %d TIMEWARP_32 0\r\n", now, wakeup_time);
-			print_all_power_events();
-			// --- DELETE ME ---
+			SOFT_BREAKPOINT(); // If you hit this, VT is setting bad wakeup timers.
 		}
+#ifdef POWER_PROFILE_HACK
+		if ( wakeup_time < now )
+			power_event_add(now, TIMEWARP, now-wakeup_time, -1);
 		else
 			power_event_add(now, TOO_SHORT, wakeup_time-now, -1);
 #endif
@@ -858,12 +835,6 @@ void Sleep() {
 	power_event_sleep(now, wakeup_time-now, stm_power_state);
 #endif
 
-#ifdef NATHAN_DEBUG_SLEEP
-	// DEBUGGING ONLY. Alert if sleep time is longer than 1 minute
-	if (wakeup_time - now >= 1966080) {
-		SOFT_BREAKPOINT();
-	}
-#endif
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
@@ -911,10 +882,8 @@ void Sleep() {
 
 #ifdef POWER_PROFILE_HACK
 	power_event_wakeup(aft);
-	if (aft > 60*32768) {
-		debug_wakeup = aft + POWER_DEBUG_WAKEUP;
-		RTC_SetAlarm(debug_wakeup); // watch dog alarm in case we never sleep again.
-	}
+	debug_wakeup = aft + POWER_DEBUG_WAKEUP;
+	RTC_SetAlarm(debug_wakeup); // watch dog alarm in case we never sleep again.
 #endif
 
 	// Main system timer does not run during sleep so we have to fix up clock afterwards.
