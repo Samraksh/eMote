@@ -167,6 +167,15 @@ BOOL VirtualTimerMapper::ChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 
 	return TRUE;
 }
 
+#ifdef VT_UPDATE_ISSUE_DELETE_ME
+#include <Timer/netmf_rtc/netmf_rtc.h>
+static bool check_pending_isr(void) {
+	const volatile unsigned icsr = *((volatile unsigned *)0xE000ED04);
+	const unsigned ISRPENDING_MASK = 1<<22;
+	return (icsr & ISRPENDING_MASK);
+}
+#endif
+
 
 // This function takes a timer id as input and changes the state to running or returns false
 // if the timer you specified does not exist
@@ -195,6 +204,13 @@ BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
 	// check to see if we are already running
 	if (g_VirtualTimerInfo[VTimerIndex].get_m_is_running() == TRUE) {
 		DEBUG_VT_ASSERT_ANAL(0);
+#ifdef VT_UPDATE_ISSUE_DELETE_ME
+		volatile UINT32 now = g_STM32F10x_RTC.GetCounter();
+		volatile UINT32 wake = g_STM32F10x_RTC.GetCompare();
+		if ( wake < now && timer_id == 6 && !check_pending_isr() ) SOFT_BREAKPOINT();
+		// if wake time is in past, timer is RTC, and no interrupt is pending
+		// Meaning in hardware, the timer will never fire, but VT is expecting it to due to _is_running
+#endif
 		return TRUE;
 	}
 
