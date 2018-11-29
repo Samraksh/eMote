@@ -59,6 +59,7 @@ void SetupSecureEmoteRegions(){
 	//Set entire ram as this region, other specific regions else can be set on top of this
 	UINT32 mem_base = (UINT32)ERAM_ORIGIN;
 	UINT32 mem_size = ERAM_SIZE;
+	debug_printf("Secure Monitor: BG_ram: Mem base: %X, mem_size: %X, AP_RW_RW\n",mem_base, mem_size);
 	CPU_mpu_configure_region(GP_RAM, mem_base, mem_size, AP_RW_RW, MemType_Normal,false);
 
 	//Region 2: Kernel Ram
@@ -79,7 +80,7 @@ void SetupSecureEmoteRegions(){
 	mem_base = (UINT32)EFLASH_ORIGIN;
 	mem_size = EFLASH_SIZE;
 	debug_printf("Secure Monitor: BG_code: Mem base: %X, mem_size: %X, AP_RW_RO\n",mem_base, mem_size);
-	CPU_mpu_configure_region(GP_CODE, mem_base, mem_size, AP_RW_RO, MemType_Normal, true);
+	CPU_mpu_configure_region(GP_CODE, mem_base, mem_size, AP_RO_RO, MemType_Normal, true);
 	//mem_base = (UINT32)EFLASH_MIRROR_ORIGIN;
 	//CPU_mpu_configure_region(6, mem_base, mem_size, AP_RW_RO, MemType_Normal, true);
 
@@ -103,20 +104,22 @@ void SetupSecureEmoteRegions(){
 	//CPU_mpu_configure_region(3, mem_base, mem_size, AP_RW_RW, true);
 
 
-	//Region 4: Kernel code
-	mem_base = (UINT32)EFLASH_ORIGIN + ROT_BASE+ ROT_SIZE;
+	//Region : Kernel code: Rot + Kernel is just one region now. so permissions can be set as such
+	//Plus include the IBL too for convinience
+	mem_base = (UINT32)EFLASH_ORIGIN ;
 	//mem_size = (UINT32)&Image$$Kernel_ER_FLASH$$Length;
-	mem_size = (UINT32)KERNEL_SIZE;
+	mem_size = (UINT32) (ROT_BASE+ ROT_SIZE+KERNEL_SIZE);
 
 	debug_printf("Secure Monitor: ker_code: Mem base: %X, mem_size: %X, AP_RO_NO\n",mem_base, mem_size);
-	CPU_mpu_configure_region(Kernel_CODE, mem_base, mem_size, AP_RO_NO, MemType_Normal, true);
+	CPU_mpu_configure_region(Kernel_CODE, mem_base, mem_size, AP_RW_NO, MemType_Normal, true);
 
-	//Region 6:
-	mem_base = (UINT32)EFLASH_ORIGIN;
+
+	/*mem_base = (UINT32)EFLASH_ORIGIN;
 	//mem_size = (UINT32)Image$$RoT_ER_FLASH$$Length;
 	mem_size = (UINT32)ROT_SIZE + ROT_BASE;
 	debug_printf("Secure Monitor: Rot_code: Mem base: %X, mem_size: %X, AP_RO_NO\n",mem_base, mem_size);
-	CPU_mpu_configure_region(RoT_CODE, mem_base, mem_size, AP_RO_NO, MemType_Normal, true);
+	CPU_mpu_configure_region(RoT_CODE, mem_base, mem_size, AP_RW_NO, MemType_Normal, true);
+	*/
 
 	// NULL pointer protection, highest priority.
 	//CPU_mpu_configure_region(Reserve, 0, 5, AP_NO_NO, false);
@@ -134,6 +137,29 @@ void MPU_Init(){
 typedef void (*svcall0_t)(void*);
 typedef void (*svcall1_t)(void*, void*);
 
+
+void SwitchBackTOUserMode(task_ctx_t ctx){
+
+
+}
+
+
+//This executes in interrupt mode
+//Setup the fuction that should execute in MSP and exit
+void SwitchToKernelModel(task_ctx_t ctx){
+	//interrupt handler hardware stacks exeception frame (xPSR, PC, LR, r12 and r3-r0)
+
+	//Manually stack remaining registers r4-r11 on the Process Stack
+	//Save current task’s PSP to memory
+	//Load next task’s stack pointer and assign it to PSP
+	//Manually unstack registers r4-r11
+	//Call bx 0xfffffffD which makes the processor switch to Unprivileged Handler Mode, unstack next task’s exception frame and continue on its PC.
+
+
+	UINT32 msp = __get_MSP();
+	memcpy((void*)msp, &ctx, sizeof(task_ctx_t));
+
+}
 
 
 //parameter is the caller's stack frame pointer
@@ -186,7 +212,7 @@ void SVCall_HandlerC(UINT32 sp){
 void __irq MemManage_Handler()
 {
     static char msg[128];
-    struct task_ctx ctx;
+    task_ctx_t ctx;
 
     UINT32 MMFSR;
 
@@ -201,7 +227,7 @@ void __irq MemManage_Handler()
     bool from_psp = EXC_FROM_PSP(lr);
     UINT32 sp = from_psp ? __get_PSP() : __get_MSP();
 
-    memcpy(&ctx, (void*)sp, sizeof(struct task_ctx));
+    memcpy(&ctx, (void*)sp, sizeof(task_ctx_t));
 
     /* Get Memory Managment fault adress register */
     MMFSR = SCB->CFSR & SCB_CFSR_MEMFAULTSR_Msk;
@@ -227,18 +253,18 @@ void __irq MemManage_Handler()
     // Instruction address violation.
     if (MMFSR & (1 << 0)) {
     	if(MMFSR & (1 << 7)){
-    		debug_printf("MemManage Handler: Execute Never (XN) or instruciton fault, mmfar is valide. in  exec mode: %p at address %08X, %p,  lr_thd=%p, pc=%p, ",lr, faultAddress,(void*)SCB->MMFAR, ctx.lr_thd, ctx.pc);
+    		debug_printf("MemManage Handler: instruciton fault, PSP: %d, mmfar is valide. in  exec mode: %p at address %08X, %p,  lr_thd=%p, pc=%p, ",from_psp,lr, faultAddress,(void*)SCB->MMFAR, ctx.lr_thd, ctx.pc);
 
     	}else {
-    		debug_printf("MemManage Handler: Execute Never (XN) or instruciton fault, mmfar is NOT valid. LR: %p,  lr_thd=%p, pc=%p, ",lr, ctx.lr_thd, ctx.pc);
+    		debug_printf("MemManage Handler: instruciton fault, PSP: %d, mmfar is NOT valid. LR: %p,  lr_thd=%p, pc=%p, ",from_psp,lr, ctx.lr_thd, ctx.pc);
+
+			//if calling from user space into kernel space code//
+			//Then switch stacks execute code and then return
+			if(from_psp && (ctx.pc >= ROT_BASE &&  ctx.pc <= KERNEL_END)){
+				debug_printf("MemManage Handler: Ok this a call into kernel, lets Switch the stack and return to %p\n", ctx.lr_thd);
+			}
+
     	}
-
-        //if calling from user space into kernel space code//
-        //Then switch stacks execute code and then return
-        if(from_psp && (faultAddress >= ROT_BASE &&  faultAddress <= KERNEL_END)){
-        	debug_printf("MemManage Handler: Ok this a call into kernel, lets do it\n");
-        }
-
     }
 
     //chSysHalt(msg);

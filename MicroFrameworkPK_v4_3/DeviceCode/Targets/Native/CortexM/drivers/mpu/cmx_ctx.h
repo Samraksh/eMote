@@ -7,7 +7,7 @@
 typedef volatile UINT32 regarm_t;
 
 //Cortex M3 cpu task/process context
-struct task_ctx {
+typedef struct {
   regarm_t      r0;
   regarm_t      r1;
   regarm_t      r2;
@@ -36,7 +36,7 @@ struct task_ctx {
   regarm_t      fpscr;
   regarm_t      reserved;
 #endif /* CORTEX_USE_FPU */
-};
+} task_ctx_t ;
 
 
 #endif

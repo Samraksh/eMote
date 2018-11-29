@@ -166,6 +166,12 @@ void CPU_mpu_configure_region(UINT8 regionNo, UINT32 startAddr, UINT32 regionSiz
 
     ASSERT(sizePow >= 5); // "region too small"
 
+    UINT32 settingsize = (0x1<<sizePow);
+    if(settingsize > regionSize){
+    	debug_printf("MPU_configure: WARNING: Setting Up RASR region size bigger than intended as 2**%d\n",sizePow);
+    }else {
+    	debug_printf("MPU_configure: Setting RASR region size as 2**%d\n",sizePow);
+    }
     // Extract region and address information.
     regionNo = regionNo & MPU_RBAR_REGION_Msk;
     UINT32 addr = (startAddr & MPU_RBAR_ADDR_Msk);

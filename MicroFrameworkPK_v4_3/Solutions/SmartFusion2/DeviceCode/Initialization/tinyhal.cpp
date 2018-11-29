@@ -470,6 +470,10 @@ bool g_fDoNotUninitializeDebuggerPort = false;
 void HAL_Initialize()
 {    
 
+	//#if !defined(HAL_REDUCESIZE)
+		CPU_InitializeCommunication();
+	//#endif
+
 #if defined(SECURE_EMOTE) && !defined(IBL)
 	SecureMonitor_Initialize();
 #endif
@@ -500,10 +504,6 @@ void HAL_Initialize()
 
     BlockStorageList::InitializeDevices();
 
-
-    //#if !defined(HAL_REDUCESIZE)
-        CPU_InitializeCommunication();
-    //#endif
 
 #ifndef IBL
     //FS_Initialize();
