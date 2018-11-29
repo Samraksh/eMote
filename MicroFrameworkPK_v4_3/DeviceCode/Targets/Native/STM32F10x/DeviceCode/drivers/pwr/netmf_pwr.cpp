@@ -14,12 +14,12 @@ nathan.stohs@samraksh.com
 #include "../Timer/netmf_rtc/netmf_rtc.h"
 
 #ifdef POWER_PROFILE_HACK
+#define POWER_PROFILE_RTC_WARN
 #define POWER_TABLE_WRAP
 #define FILTER_WAKELOCK_DENY
 #define FILTER_LOCKONOFF
 #define FILTER_TOO_SHORT
 #define FILTER_SNOOZE
-#define POWER_DEBUG_WAKEUP (4*32768) // Dump debug if we don't wakeup for X seconds.
 #define POWER_EVENTS_SIZE 32
 #define POWER_COUNT_INIT 0
 
@@ -43,8 +43,6 @@ typedef struct {
 
 static power_event_t power_events[POWER_EVENTS_SIZE];
 static int power_count = POWER_COUNT_INIT;
-static uint32_t debug_wakeup = 0xFFFFFFFF;
-static HAL_CONTINUATION power_debug_continuation;
 
 static const char* power_evt_to_string(power_event_enum_t x) {
 	switch (x) {
@@ -143,9 +141,15 @@ static void power_event_wakeup(uint32_t now) {
 #endif
 }
 
+#endif
+
+#ifdef POWER_PROFILE_RTC_WARN
+#define POWER_DEBUG_WAKEUP (4*32768) // Dump debug if we don't wakeup for X seconds.
+static uint32_t debug_wakeup = 0xFFFFFFFF;
+static HAL_CONTINUATION power_debug_continuation;
 static void power_debug_dump(void *arg) {
-	hal_printf("Power Debug Watchdog activated, %d seconds passed without sleep\r\n", POWER_DEBUG_WAKEUP/32768);
-	print_all_power_events();
+	hal_printf("Power Debug Watchdog: %d seconds passed without sleep\r\n", POWER_DEBUG_WAKEUP/32768);
+	SOFT_BREAKPOINT();
 }
 #endif
 
@@ -312,7 +316,7 @@ void __irq RTCAlarm_IRQHandler(void) {
 #endif
 	RTC_ClearITPendingBit(RTC_IT_ALR);
 	EXTI_ClearITPendingBit(EXTI_Line17);
-#ifdef POWER_PROFILE_HACK
+#ifdef POWER_PROFILE_RTC_WARN
 	if ( RTC_GetCounter() >= debug_wakeup ) {
 		power_debug_continuation.Enqueue();
 	}
@@ -407,7 +411,7 @@ void PowerInit() {
 	RTC_wakeup_init();
 
 	WakeLockInit();
-#ifdef POWER_PROFILE_HACK
+#ifdef POWER_PROFILE_RTC_WARN
 	power_debug_continuation.InitializeCallback(power_debug_dump, NULL);
 #endif
 }
@@ -880,8 +884,10 @@ void Sleep() {
 	__SEV();
 	__WFE();
 
+#ifdef POWER_PROFILE_RTC_WARN
 #ifdef POWER_PROFILE_HACK
 	power_event_wakeup(aft);
+#endif
 	debug_wakeup = aft + POWER_DEBUG_WAKEUP;
 	RTC_SetAlarm(debug_wakeup); // watch dog alarm in case we never sleep again.
 #endif
