@@ -28,6 +28,7 @@ typedef uint16_t ushort;
 //#define AUSTERE_NO_CAP_TIMEOUT // Disabled by default. Disables capacitor timeout. Need timeout because "good" signal is unreliable.
 //#define EMOTE_COMPLETIONS_STARTUP_WAIT // Only allow snooze mode for 1 minute after boot.
 #define EMOTE_DEEP_SLEEP_MIN 5000 // microseconds. Sleep intervals less than this will only snooze
+#define EMOTE_DEEP_SLEEP_MAX (60*1000*1000) // microseconds. Longest sleep interval allowed, max 0xFFFF_FFFF
 
 #if defined(PLATFORM_ARM_AUSTERE)
 #define HAL_SYSTEM_NAME                     "Austere"
