@@ -96,6 +96,12 @@ define restore_sram
 monitor load_image dump_sram.bin 0x20000000 bin
 end
 
+define erase_tinyclr
+mrh
+monitor flash erase_address 0x8020000 659456
+mrh
+end
+
 alias rsb = restore_sector_boot
 alias rsu = restore_sector_update
 alias rsd = restore_sector_deploy
