@@ -510,7 +510,28 @@ void HAL_Uninitialize()
     HAL_CONTINUATION::Uninitialize();
     HAL_COMPLETION  ::Uninitialize();
 }
+void Timer_0_Handler(void *arg)
+{
+	static bool pinState0 = false;
 
+	if (pinState0 == false)
+		pinState0 = true;
+	else 
+		pinState0 = false;
+
+	//CPU_GPIO_SetPinState((GPIO_PIN) 29, pinState0);
+}
+void Timer_1_Handler(void *arg)
+{
+	static bool pinState0 = false;
+
+	if (pinState0 == false)
+		pinState0 = true;
+	else 
+		pinState0 = false;
+
+	//CPU_GPIO_SetPinState((GPIO_PIN) 29, pinState0);
+}
 extern "C"
 {
 
@@ -639,6 +660,19 @@ mipi_dsi_shutdown();
 			 now = HAL_Time_CurrentTicks();
 		}
 	}
+	CPU_GPIO_EnableOutputPin (24, FALSE);
+	CPU_GPIO_EnableOutputPin (25, FALSE);
+	CPU_GPIO_EnableOutputPin (29, FALSE);
+	CPU_GPIO_SetPinState( 24, TRUE);
+	CPU_GPIO_SetPinState( 25, TRUE);
+	CPU_GPIO_SetPinState( 29, TRUE);
+	CPU_GPIO_SetPinState( 24, FALSE);
+	CPU_GPIO_SetPinState( 25, FALSE);
+	CPU_GPIO_SetPinState( 29, FALSE);
+	//VirtTimer_SetTimer(2, 0, 53000, FALSE, FALSE, Timer_0_Handler, RTC_32BIT );
+	//VirtTimer_SetTimer(3, 0, 100000, FALSE, FALSE, Timer_1_Handler, RTC_32BIT );
+	//VirtTimer_Start(2);
+	//VirtTimer_Start(3);
 #endif
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();

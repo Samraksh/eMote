@@ -283,12 +283,7 @@ void Radar_Handler(void *arg)
 		g_radarUserData = HAL_Time_CurrentTicks();
 		processingInProgress = true;
 				GLOBAL_LOCK(irq);
-				hal_printf("break\r\n");
-		int breakMe = 0;
-		int jB, kB;
-		for (breakMe = 0; breakMe < 10000000; breakMe++){
-			jB = kB * breakMe;
-		}
+				
 		SaveNativeEventToHALQueue( g_radarContext, UINT32(g_radarUserData >> 32), UINT32(g_radarUserData & 0xFFFFFFFF) );
 				irq.Release();
 

@@ -864,6 +864,7 @@ void Sleep() {
 		SOFT_BREAKPOINT();
 	}
 #endif
+	CPU_GPIO_SetPinState( 25, TRUE);
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
@@ -909,6 +910,7 @@ void Sleep() {
 	__SEV();
 	__WFE();
 
+	CPU_GPIO_SetPinState( 25, FALSE);
 #ifdef POWER_PROFILE_HACK
 	power_event_wakeup(aft);
 	if (aft > 60*32768) {

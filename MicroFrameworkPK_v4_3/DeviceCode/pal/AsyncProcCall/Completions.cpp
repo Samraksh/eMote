@@ -190,9 +190,10 @@ void HAL_COMPLETION::Abort()
 #if 1
 static UINT64 waitTime = 0;
 #endif
-
+#pragma optimize("", off)
 void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64 wakeEvents )
 {
+	volatile UINT64 orig_Expire = Expire;
     NATIVE_PROFILE_PAL_ASYNC_PROC_CALL();
     const int c_SetCompare   = 1;
     const int c_ResetCompare = 2;
@@ -215,6 +216,9 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
     {
         state = 0;
     }
+	CPU_GPIO_SetPinState( 24, TRUE);
+	CPU_GPIO_SetPinState( 29, TRUE);
+	CPU_GPIO_SetPinState( 29, FALSE);
 #ifndef DISABLE_SLEEP
 #if defined( SAM_APP_TINYCLR )
 #ifndef EMOTE_DEEP_SLEEP_MIN
@@ -226,24 +230,28 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 		// If we ever attempt to enter deep sleep then we are not able to program, so for now, since wakelock is not sufficient, we wait a minute before attempting sleep allowing the user time to reprogram.
 		waitTime = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * 60 * 1);
 	} else {
-		UINT64 now = HAL_Time_CurrentTicks();
+		volatile UINT64 now = HAL_Time_CurrentTicks();
 		if (now > waitTime) {
+	CPU_GPIO_SetPinState( 29, TRUE);
+	CPU_GPIO_SetPinState( 29, FALSE);
 			UINT64 sleepTime = 0;
 			UINT32 sleepTimeMicroseconds = 100;
 
 			// Here we check to see when the next VT timer will go off.
 			// Currently we only check the same timer that the system time is based off of
 			// TODO: check all hardware timers (which each has a different system time and thus we need to figure out when to wake up)
-			UINT64 nextVtAlarm = VirtTimer_GetNextAlarm();			
+			volatile UINT64 nextVtAlarm = VirtTimer_GetNextAlarm();			
 			// If the next alarm is earlier than Expire, we set Expire to be the wakeup alarm
 			// The alarms will be updated after sleep
 			if (nextVtAlarm < Expire)
 				Expire = nextVtAlarm;
 
 			if (Expire > now) {
+	
 				sleepTime = Expire - now;
 				sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(sleepTime));
 			 
+				//sleepTimeMicroseconds = 5000;
 				if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
 					if(state & c_SetCompare){
 						HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );
@@ -254,7 +262,14 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 					if(state & c_SetCompare) HAL_Time_SetCompare( Expire  );
 						CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
 				}
+			} else {
+				hal_printf("orig: %llu now: %llu nxtVt: %llu\r\n", orig_Expire, now, nextVtAlarm);
+	nextVtAlarm = VirtTimer_GetNextAlarm();
+	Expire           = HAL_Time_CurrentTicks();
+	CPU_GPIO_SetPinState( 29, TRUE);
+	CPU_GPIO_SetPinState( 29, FALSE);
 			}
+
 		} else {
 			if(state & c_SetCompare) {
 				HAL_Time_SetCompare( Expire );
@@ -292,6 +307,7 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 	}
 #endif
 #endif
+	CPU_GPIO_SetPinState( 24, FALSE);
 
     if(state & (c_ResetCompare | c_NilCompare))
     {
