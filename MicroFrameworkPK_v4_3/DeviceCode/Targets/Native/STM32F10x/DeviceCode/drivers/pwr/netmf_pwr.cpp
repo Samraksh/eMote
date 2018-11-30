@@ -145,6 +145,8 @@ static void power_event_wakeup(uint32_t now) {
 
 #ifdef POWER_PROFILE_RTC_WARN
 #define POWER_DEBUG_WAKEUP (4*32768) // Dump debug if we don't wakeup for X seconds.
+#define POWER_DEBUG_WAKEUP_OFFSET (32768*60*15) // 15 minutes
+static uint32_t startup_time;
 static uint32_t debug_wakeup = 0xFFFFFFFF;
 static HAL_CONTINUATION power_debug_continuation;
 static void power_debug_dump(void *arg) {
@@ -413,6 +415,7 @@ void PowerInit() {
 	WakeLockInit();
 #ifdef POWER_PROFILE_RTC_WARN
 	power_debug_continuation.InitializeCallback(power_debug_dump, NULL);
+	startup_time = RTC_GetCounter();
 #endif
 }
 
@@ -769,6 +772,24 @@ static bool check_pending_isr(void) {
 	return (icsr & ISRPENDING_MASK);
 }
 
+static bool usart_tx_busy(void) {
+	bool ret = false;
+	for (int i=0; i<TOTAL_USART_PORT; i++) {
+		ret = ret | CPU_USART_TxBufferEmptyInterruptState(i);
+	}
+	return ret;
+}
+
+// Returns the first IRQn which is active.
+// *probably* the one that woke us up, but impossible to tell.
+static IRQn_Type get_first_irq(void) {
+	for (int i=0; i<60; i++) {
+		if (NVIC_GetPendingIRQ((IRQn_Type)i) == 1)
+			return (IRQn_Type)i;
+	}
+	return (IRQn_Type)0xFFFF; // not valid
+}
+
 // Only to be called with interrupts disabled
 static uint32_t align_to_rtc2(void) {
 	uint32_t now = RTC_GetCounter();
@@ -788,6 +809,14 @@ void Snooze() {
 // TODO: Need to clean this up...
 void Sleep() {
 
+	//USART_Flush(0); // Doesn't work when we're locked, derp
+	// No deep sleep while TX bytes are in the queue.
+	if ( usart_tx_busy() ) {
+		__DSB();
+		__WFI();
+		return;
+	}
+
 #ifdef EMOTE_WAKELOCKS
 	if ( GetWakeLocked() ) { // If wakelocked, use snooze mode.
 #ifdef POWER_PROFILE_HACK
@@ -799,7 +828,6 @@ void Sleep() {
 	}
 #endif // EMOTE_WAKELOCKS
 
-	USART_Flush(0); // Flush USART1 / COM0 before we sleep
 	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, ENABLE);
 	ASSERT_IRQ_MUST_BE_OFF();
 	//GLOBAL_LOCK(irq); // Should already be locked from caller
@@ -883,13 +911,13 @@ void Sleep() {
 	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
 	__SEV();
 	__WFE();
-
-#ifdef POWER_PROFILE_RTC_WARN
 #ifdef POWER_PROFILE_HACK
 	power_event_wakeup(aft);
 #endif
+#ifdef POWER_PROFILE_RTC_WARN
 	debug_wakeup = aft + POWER_DEBUG_WAKEUP;
-	RTC_SetAlarm(debug_wakeup); // watch dog alarm in case we never sleep again.
+	if (debug_wakeup > startup_time + POWER_DEBUG_WAKEUP_OFFSET)
+		RTC_SetAlarm(debug_wakeup); // watch dog alarm in case we never sleep again.
 #endif
 
 	// Main system timer does not run during sleep so we have to fix up clock afterwards.
