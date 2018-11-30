@@ -140,6 +140,24 @@ typedef void (*svcall1_t)(void*, void*);
 
 void SwitchBackTOUserMode(task_ctx_t ctx){
 
+	/* Save registers R4-R11 (32 bytes) onto current PSP (process stack
+		   pointer) and make the PSP point to the last stacked register (R8):
+		   - The MRS/MSR instruction is for loading/saving a special registers.
+		   - The STMIA inscruction can only save low registers (R0-R7), it is
+		     therefore necesary to copy registers R8-R11 into R4-R7 and call
+		     STMIA twice. */
+		asm(
+		"mrs	r0, psp"
+		subs	r0, #16
+		stmia	r0!,{r4-r7}
+		mov	r4, r8
+		mov	r5, r9
+		mov	r6, r10
+		mov	r7, r11
+		subs	r0, #32
+		stmia	r0!,{r4-r7}
+		subs	r0, #16
+		);
 
 }
 
@@ -156,7 +174,10 @@ void SwitchToKernelModel(task_ctx_t ctx){
 	//Call bx 0xfffffffD which makes the processor switch to Unprivileged Handler Mode, unstack next task’s exception frame and continue on its PC.
 
 
-	UINT32 msp = __get_MSP();
+	//UINT32 msp = __get_MSP();
+
+
+
 	memcpy((void*)msp, &ctx, sizeof(task_ctx_t));
 
 }

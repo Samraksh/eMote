@@ -40,7 +40,16 @@ extern void MemManage_HandlerC(UINT32 lr, UINT32 msp);
 
 SF2_AITC_Driver::IRQ_VECTORING __section(rwdata) SF2_AITC_Driver::s_IsrTable[] =
 {
-	DEFINE_IRQ(VectorIndex::c_IRQ_INDEX_WWDG			, SF2_AITC::c_IRQ_Priority_15),
+	//MemManageInt Added by Mukundan
+	//In the secure version of the emote, the entire kernel and RoT code is going to run inside of
+	//the memmanage interrupt. Hence it should have the lowest priority. If a realtime timer is used with PendSV
+	//that should priority must be higher than MemManage. Kernel+RoT should idealy be run under PendSV, instead directly of running under MemMange.
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_MemoryManagementInt, SF2_AITC::c_IRQ_Priority_15),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_PendSV          ,SF2_AITC::c_IRQ_Priority_15 ), //Mukundan
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_SVCall        ,SF2_AITC::c_IRQ_Priority_5  ),
+
+
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_WWDG			, SF2_AITC::c_IRQ_Priority_15),
     DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_RTC          ,SF2_AITC::c_IRQ_Priority_15  ),
     DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_SPI0            ,SF2_AITC::c_IRQ_Priority_15  ),
     DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_SPI1     ,SF2_AITC::c_IRQ_Priority_15  ),
@@ -123,8 +132,6 @@ SF2_AITC_Driver::IRQ_VECTORING __section(rwdata) SF2_AITC_Driver::s_IsrTable[] =
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO30       ,SF2_AITC::c_IRQ_Priority_15 ),
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO31       ,SF2_AITC::c_IRQ_Priority_15 ),
 
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_PendSV          ,SF2_AITC::c_IRQ_Priority_15 ), //Mukundan
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_SVCall        ,SF2_AITC::c_IRQ_Priority_5  ),
 };
 
 #undef DEFINE_IRQ
