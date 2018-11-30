@@ -33,4 +33,6 @@ void Reset() __attribute__ ((noreturn));
 void Shutdown() __attribute__ ((noreturn));
 void CalibrateHSI();
 
+UINT8 Get_CurrentPower();
+
 #endif // #ifndef _NETMF_POWER_H_

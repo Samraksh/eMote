@@ -11,27 +11,14 @@ extern UINT64 g_radarUserData;
 namespace HAL_RADAR_DRIVER{
 
 BOOL g_Radar_Driver_Initialized = FALSE;
+static UINT16 numDetectSamples = 0;
 static bool windowOverThreshold = false;
 static bool detectionFinished = false;
 static bool processingInProgress = false;
-static int continueToSendCount = 0;
-static int unwrapSigned = 0;
-static UINT16 countOverTarget = 0;
-static int maxCountOverTarget = 0;
-static int displacementFirstHalf = 0;
-static int displacementSecondHalf = 0;
+static UINT16 continueToSendCount = 0;
 
-static int absoluteDisplFirstHalf = 0;
-static int absoluteDisplSecondHalf = 0;
-static int absoluteDisplEntire = 0;
-
-static int minDisplacementFirstHalf = 0;
-static int minDisplacementSecondHalf = 0;
-static int minDisplacementEntire = 0;
-
-static int maxDisplacementFirstHalf = 0;
-static int maxDisplacementSecondHalf = 0;
-static int maxDisplacementEntire = 0;
+static UINT16 numlookaheadwindows = 6;
+static INT16 totalRots = 0;
 
 static bool alertInterruptActive = false;
 
@@ -60,14 +47,18 @@ enum SAMPLE_WINDOW_PORTION
 
 UINT16 *g_radarUserBufferChannel1Ptr = NULL;
 UINT16 *g_radarUserBufferChannel2Ptr = NULL;
+INT16 *g_radarUserBuffersampleqdiffPtr = NULL;
+INT16 *g_radarUserBuffersampleqdiffMovSumPtr = NULL;
+INT16 *g_radarUserBuffersampleMofNCountPtr = NULL;
+INT8 *g_radarUserBuffersampleqDetectPtr = NULL;
 UINT32 g_radarBufferSize = 0;
 
 void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	if (interruptServiceInProcess == true){
-		//hal_printf("#detect\r\n");
+		//hal_printf("#!detect interruptServiceInProcess\r\n");
 		return;
 	}
-	hal_printf("\r\n detect\r\n");
+	//hal_printf("\r\n detect\r\n");
 	// checking to make sure we have enough data to pull
 	// this could occur if we are currently pulling data (per continuations) and a detection occurs
 	if (CPU_GPIO_GetPinState(33) == FALSE){
@@ -76,23 +67,25 @@ void detectHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	}
 	//Radar_Handler((GPIO_PIN) 33, TRUE, NULL);
 	interruptServiceInProcess = true;
+	continueToSendCount = numlookaheadwindows;
 	radarHandler_continuation.Enqueue();
 }
 
 void dataAlertHandler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	if (interruptServiceInProcess == true){
-		//hal_printf("#alert\r\n");
+		hal_printf("#!alert interruptServiceInProcess\r\n");
+		return;
+	}
+	if (CPU_GPIO_GetPinState(33) == FALSE){
+		hal_printf("#!alert but not enough data\r\n");
 		return;
 	}
 	//hal_printf("alert\r\n");
-	if (CPU_GPIO_GetPinState(33) == FALSE){
-		hal_printf("alert but not enough data\r\n");
-		return;
-	}
 	//Radar_Handler((GPIO_PIN) 33, TRUE, NULL);
 	interruptServiceInProcess = true;
 	radarHandler_continuation.Enqueue();
 }
+
 
 
 
@@ -105,7 +98,7 @@ void Radar_Handler(void *arg)
 
 	// if we are already processing data, we need to wait
 	if (processingInProgress == true){
-		//hal_printf("@\r\n");
+		//hal_printf("@!Radar_Handler processingInProgress\r\n");
 		interruptServiceInProcess = false;
 		return;
 	}
@@ -142,113 +135,73 @@ void Radar_Handler(void *arg)
 		rxData[i] = SPI_I2S_ReceiveData(SPIy);
 	}
 	CPU_GPIO_SetPinState(8, FALSE);
-	int maxDetect = 0;
-	int detect = 0;
+
 	int tmpPos;
 
-	//hal_printf("Radar_Handler START Clear variables \r\n ");
-	maxCountOverTarget = 0;
-
-	displacementFirstHalf = 0;
-	displacementSecondHalf = 0;
-
-	absoluteDisplFirstHalf = 0;
-	absoluteDisplSecondHalf = 0;
-	absoluteDisplEntire = 0;
-
-	minDisplacementFirstHalf = 0;
-	minDisplacementSecondHalf = 0;
-	minDisplacementEntire = 0;
-
-	maxDisplacementFirstHalf = 0;
-	maxDisplacementSecondHalf = 0;
-	maxDisplacementEntire = 0;
-
-	//hal_printf("Radar_Handler START Clear variables: maxDisplacementEntire = %d , maxCountOverTarget = %d, maxDetect = %d \r\n"
-	//		, maxDisplacementEntire, maxCountOverTarget, maxDetect);
-
-
+	totalRots = 0;
+	numDetectSamples = 0;
+	windowOverThreshold = false;
 	for (i=0;i<bytesToRead/6;i++){
 		tmpPos = i*6;
 		g_radarUserBufferChannel1Ptr[i] = (UINT16)(((UINT16)(rxData[tmpPos+2]) << 4) | (((UINT16)(rxData[tmpPos+1])&0xf0) >> 4));
 		g_radarUserBufferChannel2Ptr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+1])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)])));
-		unwrap = (UINT16)((((UINT16)(rxData[(tmpPos)+5])&0x0f) << 4) | (((UINT16)(rxData[(tmpPos)+4])&0xf0)>>4));
-		countOverTarget = (UINT16)((((UINT16)(rxData[(tmpPos)+4])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)+3])));
-		detect = (UINT16)(((UINT16)(rxData[(tmpPos)+5])&0xf0) >> 4);
-		if (unwrap & 0x80) {
-			unwrapSigned = 0 - (256 - unwrap);
-		} else {
-			unwrapSigned = unwrap;
-		}
-		//if (radarGarbagePurged == 4) hal_printf("%d %d %x\r\n",unwrapSigned ,countOverTarget, detect);
-		//if (radarGarbagePurged == 4) hal_printf("%d %d %d %d %d %x\r\n", i, g_radarUserBufferChannel1Ptr[i], g_radarUserBufferChannel2Ptr[i],unwrapSigned ,countOverTarget, detect);
-		if (detect > maxDetect){
-			maxDetect = detect;
-		}
-		if ((int)countOverTarget > maxCountOverTarget){
-			maxCountOverTarget = (int)countOverTarget;
+		g_radarUserBuffersampleMofNCountPtr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+5])&0x0f) << 4) | (((UINT16)(rxData[(tmpPos)+4])&0xf0)>>4));
 
+		g_radarUserBuffersampleqdiffPtr[i]  = (UINT16)(((UINT16)(rxData[(tmpPos)+5])&0x70) >> 4);
+		if (g_radarUserBuffersampleqdiffPtr[i]  & 0x04) {
+			g_radarUserBuffersampleqdiffPtr[i]  = 0 - (8 - g_radarUserBuffersampleqdiffPtr[i] );
 		}
-		if (i < bytesToRead/12){
-			displacementFirstHalf = unwrapSigned;
-			absoluteDisplFirstHalf = abs(unwrapSigned);
-			if (unwrapSigned < minDisplacementFirstHalf)
-				minDisplacementFirstHalf = unwrapSigned;
-			if (unwrapSigned > maxDisplacementFirstHalf)
-				maxDisplacementFirstHalf = unwrapSigned;
+		totalRots = totalRots + g_radarUserBuffersampleqdiffPtr[i];
+
+		g_radarUserBuffersampleqDetectPtr[i] = (UINT16)(((UINT16)(rxData[(tmpPos)+5])&0x80) >> 7);
+
+		g_radarUserBuffersampleqdiffMovSumPtr[i] = (UINT16)((((UINT16)(rxData[(tmpPos)+4])&0x0f) << 8) | ((UINT16)(rxData[(tmpPos)+3])));
+		if (g_radarUserBuffersampleqdiffMovSumPtr[i] & (UINT16)0x800) {
+			g_radarUserBuffersampleqdiffMovSumPtr[i] = 0 - (4096 - g_radarUserBuffersampleqdiffMovSumPtr[i]);
 		}
-		if (i >= bytesToRead/12){
-			displacementSecondHalf = unwrapSigned;
-			absoluteDisplSecondHalf = abs(unwrapSigned);
-			if (unwrapSigned < minDisplacementFirstHalf)
-				minDisplacementSecondHalf = unwrapSigned;
-			if (unwrapSigned > maxDisplacementFirstHalf)
-				maxDisplacementSecondHalf = unwrapSigned;
-		}
-		// calculating data for entire window
-		absoluteDisplEntire = abs(unwrapSigned);
-		if (unwrapSigned < minDisplacementEntire)
-			minDisplacementEntire = unwrapSigned;
-		if (unwrapSigned > maxDisplacementEntire){
-			maxDisplacementEntire = unwrapSigned;
+
+		if (g_radarUserBuffersampleqDetectPtr[i] ) {
+			windowOverThreshold = true;
+			++numDetectSamples;
 		}
 
 	}
 
-	//hal_printf("Radar_Handler: maxDisplacementEntire = %d , maxCountOverTarget = %d, maxDetect = %d \r\n"
-	//		, maxDisplacementEntire, maxCountOverTarget, maxDetect);
+
 
 	if (radarGarbagePurged != 4) {
 		interruptServiceInProcess = false;
 		return;
 	}
 
+
+
+
+
 	UINT32 FPGAIQRejection;
-	if ((CPU_GPIO_GetPinState(33) == TRUE) | (continueToSendCount > 0)){
+	if ((CPU_GPIO_GetPinState(33) == TRUE) | (continueToSendCount > 0)  ){
 		if (alertInterruptActive == false){
-			//hal_printf("enabling data pull; cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
+			//hal_printf("enabling data pull; cont: %d detect: %d\r\n", continueToSendCount, numDetectSamples);
 			CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 			alertInterruptActive = true;
 		} else {
-			//hal_printf("cont: %d detect: %x\r\n", continueToSendCount, maxDetect);
+			//hal_printf("cont: %d detect: %d\r\n", continueToSendCount, numDetectSamples);
 		}
 
-		// we'll send a few more frames to close out the human detector logic
-		if ((maxDetect) != 0) {
-			continueToSendCount = 6;
-			windowOverThreshold = true;
+
+		if(windowOverThreshold){
+			continueToSendCount = numlookaheadwindows;
+		}
+		else{
+			--continueToSendCount;
+		}
+		if(continueToSendCount > 0){
 			detectionFinished = false;
-		} else {
-			if (continueToSendCount > 0)
-				continueToSendCount--;
-			windowOverThreshold = false;
+		}
+		else{
 			detectionFinished = true;
 		}
-		//if ((maxDetect != 0) | (continueToSendCount > 0)) {
 
-		//if ((maxDetect & 0x8) != 0) {
-		//	hal_printf("--- fpga detection ---\r\n");
-		//}
 
 		g_radarUserData = HAL_Time_CurrentTicks();
 		processingInProgress = true;
@@ -296,13 +249,18 @@ void Radar_Handler(void *arg)
 	return;
 }
 
-INT8 FPGA_RadarInit(UINT16 *chan1Ptr, UINT16 *chan2Ptr, UINT32 size){
+INT8 FPGA_RadarInit(UINT16 *chan1Ptr, UINT16 *chan2Ptr, INT16 *sampleqdiff, INT16 *sampleqdiffMovSum, INT16* sampleMofNCount, INT8* sampleDetect, UINT32 size){
 	INT8 retVal = 0; 
 	g_Radar_Driver_Initialized = TRUE;
 	radarGarbagePurged = 0;
 
 	g_radarUserBufferChannel1Ptr = chan1Ptr;
 	g_radarUserBufferChannel2Ptr = chan2Ptr;
+	g_radarUserBuffersampleqdiffPtr = sampleqdiff;
+	g_radarUserBuffersampleqdiffMovSumPtr = sampleqdiffMovSum;
+	g_radarUserBuffersampleMofNCountPtr = sampleMofNCount;
+	g_radarUserBuffersampleqDetectPtr = sampleDetect;
+
 	g_radarBufferSize = size;
 
 	CPU_SPI_Initialize();
@@ -350,71 +308,44 @@ INT8 FPGA_RadarInit(UINT16 *chan1Ptr, UINT16 *chan2Ptr, UINT32 size){
 	CPU_GPIO_SetPinState(32, TRUE);
 	interruptServiceInProcess = false;
 	radarHandler_continuation.InitializeCallback(Radar_Handler, NULL);
-	hal_printf("radar initialized\r\n");
+	//hal_printf("radar initialized\r\n");
 
 	return 0;
 }	
 
-INT8 getWindowOverThreshold(){
-	//hal_printf( "getWindowOverThreshold() = %d \r\n", windowOverThreshold );
-	return windowOverThreshold;
-}
 
 INT8 getDetectionFinished(){
 	return detectionFinished;
 }
 
-INT32 getNetDisplacement(INT32 portion){
-	if (portion == SAMPLE_WINDOW_FULL){
-		return (unwrapSigned);
-	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
-		return (displacementFirstHalf);
-	} else {
-		// SAMPLE_WINDOW_SECOND_HALF
-		return (displacementSecondHalf);
-	}
+
+void setContinueToSendCount(UINT16 s){
+	continueToSendCount = s;
+}
+UINT16 getContinueToSendCount(){
+	return continueToSendCount;
 }
 
-INT32 getAbsoluteDisplacement(INT32 portion){
-	if (portion == SAMPLE_WINDOW_FULL){
-		if (abs(minDisplacementEntire) > maxDisplacementEntire)
-			return abs(maxDisplacementEntire);
-		else
-			return maxDisplacementEntire;
-	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
-		if (abs(minDisplacementFirstHalf) > maxDisplacementFirstHalf)
-			return abs(minDisplacementFirstHalf);
-		else
-			return maxDisplacementFirstHalf;
-	} else {
-		// SAMPLE_WINDOW_SECOND_HALF
-		if (abs(minDisplacementSecondHalf) > maxDisplacementSecondHalf)
-			return abs(minDisplacementSecondHalf);
-		else
-			return maxDisplacementSecondHalf;
-	}
+void setNumLookAheadWindows(UINT16 s){
+	numlookaheadwindows = s;
+}
+UINT16 getNumLookAheadWindows(){
+	return numlookaheadwindows;
 }
 
-INT32 getDisplacementRange(INT32 portion){
-	if (portion == SAMPLE_WINDOW_FULL){
-		return (maxDisplacementEntire + abs(minDisplacementEntire));
-	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
-		return (maxDisplacementFirstHalf + abs(minDisplacementFirstHalf));
-	} else {
-		// SAMPLE_WINDOW_SECOND_HALF
-		return (maxDisplacementSecondHalf + abs(minDisplacementSecondHalf));
-	}
-}
+UINT16 getNumDetectionsInWindow(){
+	return numDetectSamples;
 
-INT32 getCountOverTarget(){
-	//hal_printf( "hal_radar_driver.cpp getCountOverTarget() = %d \r\n", maxCountOverTarget );
-	return maxCountOverTarget;
+}
+INT16 getTotalRotationsofWindow(){
+	return totalRots;
 }
 
 void setProcessingInProgress(int state){
 	processingInProgress = state;
 	//hal_printf("PiP set to %d\r\n",processingInProgress);
-	if ((state == FALSE) & (CPU_GPIO_GetPinState(33) == TRUE)){
+	if ( ((state == FALSE) & (CPU_GPIO_GetPinState(33) == TRUE))
+	){
 		//hal_printf("calling data pull\r\n");
 		Radar_Handler(NULL);
 	}

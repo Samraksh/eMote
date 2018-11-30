@@ -259,7 +259,7 @@ bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 	}
 	if( header->payloadType == MFM_OMAC_TIMESYNCREQ && !(header->flags & MFM_DISCOVERY_FLAG) && (header->payloadType != MFM_OMAC_DISCOVERY)) {
 		Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(header->dest);
-		if(header->dest != 0 && header->dest != RADIO_BROADCAST_ADDRESS && neigh_ptr!= NULL && neigh_ptr->IsInitializationTimeSamplesNeeded() ){
+		if(header->dest != 0 && header->dest != RADIO_BROADCAST_ADDRESS && neigh_ptr!= NULL && neigh_ptr->IsSendingMyScheduleNeeded() ){
 			rv =  PiggybackDiscoMessage(msg, size) || rv;
 		}
 	}
@@ -380,7 +380,8 @@ bool RadioControl_t::PiggybackEntendedMACInfoMsg(Message_15_4_t* msg, UINT16 &si
 					macinfo_msg->MACAddress 						=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].MACAddress;
 					macinfo_msg->neighborStatus 					=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].neighborStatus;
 					macinfo_msg->IsAvailableForUpperLayers 			=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].IsAvailableForUpperLayers;
-					macinfo_msg->NumTimeSyncMessagesSent 			=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].NumTimeSyncMessagesSent;
+					macinfo_msg->IsMyScheduleKnown 				=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].IsMyScheduleKnown;
+					macinfo_msg->NumInitializationMessagesSent 		=  g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].NumInitializationMessagesSent;
 					macinfo_msg->NumTimeSyncMessagesRecv 			=  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[next_piggybacked_extendedneighborinfo_index].MACAddress) ;
 					size += sizeof(MACNeighborInfo);
 					++tmsg->NumEntriesInMsg;

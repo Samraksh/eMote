@@ -13,7 +13,7 @@
 using namespace Samraksh::eMote;
 
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::ConfigureFPGADetectionPrivate___BOOLEAN__SZARRAY_U2__SZARRAY_U2__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::ConfigureFPGADetectionPrivate___BOOLEAN__SZARRAY_U2__SZARRAY_U2__SZARRAY_I2__SZARRAY_I2__SZARRAY_I2__SZARRAY_BOOLEAN__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -27,26 +27,22 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::ConfigureFPGADetecti
         CLR_RT_TypedArray_UINT16 param1;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16_ARRAY( stack, 2, param1 ) );
 
-        UINT32 param2;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 3, param2 ) );
+        CLR_RT_TypedArray_INT16 param2;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT16_ARRAY( stack, 3, param2 ) );
 
-        INT8 retVal = RadarInternal::ConfigureFPGADetectionPrivate( pMngObj,  param0, param1, param2, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
+        CLR_RT_TypedArray_INT16 param3;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT16_ARRAY( stack, 4, param3 ) );
 
-    }
-    TINYCLR_NOCLEANUP();
-}
+        CLR_RT_TypedArray_INT16 param4;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT16_ARRAY( stack, 5, param4 ) );
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetWindowOverThreshold___BOOLEAN( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+        CLR_RT_TypedArray_INT8 param5;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT8_ARRAY( stack, 6, param5 ) );
 
-        FAULT_ON_NULL(pMngObj);
+        UINT32 param6;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 7, param6 ) );
 
-        INT8 retVal = RadarInternal::GetWindowOverThreshold( pMngObj,  hr );
+        INT8 retVal = RadarInternal::ConfigureFPGADetectionPrivate( pMngObj,  param0, param1, param2, param3, param4, param5, param6, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 
@@ -70,7 +66,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::CurrentDetectionFini
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetNetDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::setContinueToSendCount___VOID__U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -78,18 +74,32 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetNetDisplacement__
 
         FAULT_ON_NULL(pMngObj);
 
-        INT32 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
+        UINT16 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 1, param0 ) );
 
-        INT32 retVal = RadarInternal::GetNetDisplacement( pMngObj,  param0, hr );
+        RadarInternal::setContinueToSendCount( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::getContinueToSendCount___U2( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        UINT16 retVal = RadarInternal::getContinueToSendCount( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_UINT16( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetAbsoluteDisplacement___I4__SamraksheMoteSAMPLEWINDOWPORTION( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::setNumLookAheadWindows___VOID__U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -97,18 +107,32 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetAbsoluteDisplacem
 
         FAULT_ON_NULL(pMngObj);
 
-        INT32 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
+        UINT16 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 1, param0 ) );
 
-        INT32 retVal = RadarInternal::GetAbsoluteDisplacement( pMngObj,  param0, hr );
+        RadarInternal::setNumLookAheadWindows( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::getNumLookAheadWindows___U2( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        UINT16 retVal = RadarInternal::getNumLookAheadWindows( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_UINT16( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetDisplacementRange___I4__SamraksheMoteSAMPLEWINDOWPORTION( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::getNumDetectionsInWindow___U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -116,18 +140,15 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetDisplacementRange
 
         FAULT_ON_NULL(pMngObj);
 
-        INT32 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
-
-        INT32 retVal = RadarInternal::GetDisplacementRange( pMngObj,  param0, hr );
+        UINT16 retVal = RadarInternal::getNumDetectionsInWindow( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
+        SetResult_UINT16( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetCountOverTarget___I4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::getTotalRotationsofWindow___I2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -135,9 +156,9 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_RadarInternal::GetCountOverTarget__
 
         FAULT_ON_NULL(pMngObj);
 
-        INT32 retVal = RadarInternal::GetCountOverTarget( pMngObj,  hr );
+        INT16 retVal = RadarInternal::getTotalRotationsofWindow( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
+        SetResult_INT16( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();

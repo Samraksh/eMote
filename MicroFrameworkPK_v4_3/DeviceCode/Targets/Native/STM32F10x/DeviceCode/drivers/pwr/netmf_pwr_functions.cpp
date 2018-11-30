@@ -16,16 +16,23 @@ void CPU_ChangePowerLevel(POWER_LEVEL level) {
     switch(level)
     {
         case POWER_LEVEL__HIGH_POWER:
+			hal_printf("POWER LEVEL: HIGH\r\n");
 			High_Power();
 			break;
 		case POWER_LEVEL__MID_POWER:
+			hal_printf("POWER LEVEL: MID \r\n");
 			Mid_Power();
 			break;
 		case POWER_LEVEL__LOW_POWER:
         default:
+			hal_printf("POWER LEVEL: LOW \r\n");
 			Low_Power();
             break;
     }
+}
+
+UINT8 CPU_GetCurrentPowerLevel(){
+	return Get_CurrentPower();
 }
 
 BOOL CPU_Sleep_WakeLock_Status() {

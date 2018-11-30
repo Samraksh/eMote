@@ -276,6 +276,7 @@ void PowerInit() {
 	High_Power();
 #endif
 
+	hal_printf("POWER LEVEL: HIGH\r\n");
 	RCC_LSICmd(DISABLE);
 	RTC_wakeup_init();
 
@@ -626,6 +627,9 @@ void High_Power() {
 	USART_reinit(); // Clock sensitive. Must redo.
 }
 
+UINT8 Get_CurrentPower(){
+	return stm_power_state;
+}
 static bool check_pending_isr(void) {
 	const volatile unsigned icsr = *((volatile unsigned *)0xE000ED04);
 	const unsigned ISRPENDING_MASK = 1<<22;
