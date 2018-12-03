@@ -804,7 +804,7 @@ void Snooze() {
 // Exit in the same power state as we entered.
 // TODO: Need to clean this up...
 void Sleep() {
-	CPU_GPIO_SetPinState( 25, TRUE);
+	//CPU_GPIO_SetPinState( 25, TRUE);
 	CPU_GPIO_SetPinState( 23, TRUE);
 	CPU_GPIO_SetPinState(23, FALSE);
 
@@ -818,7 +818,7 @@ void Sleep() {
 		__DSB();
 		__WFI();
 		CPU_GPIO_SetPinState(23, FALSE);
-		CPU_GPIO_SetPinState( 25, FALSE);
+		//CPU_GPIO_SetPinState( 25, FALSE);
 		return; // Sleep completed, done here.
 	}
 #endif // EMOTE_WAKELOCKS
@@ -835,7 +835,7 @@ void Sleep() {
 		__SEV();
 		__WFE();
 		CPU_GPIO_SetPinState(23, FALSE);
-		CPU_GPIO_SetPinState( 25, FALSE);
+		//CPU_GPIO_SetPinState( 25, FALSE);
 		return;
 	}
 	CPU_GPIO_SetPinState(23, FALSE);
@@ -855,6 +855,8 @@ void Sleep() {
 		__WFE();
 #ifdef POWER_PROFILE_HACK
 		if ( wakeup_time < now ) {
+			CPU_GPIO_SetPinState( 24, TRUE);
+			CPU_GPIO_SetPinState( 24, FALSE);
 			power_event_add(now, TIMEWARP, now-wakeup_time, -1);
 			// --- DELETE ME ---
 			hal_printf("%d %d TIMEWARP_32 0\r\n", now, wakeup_time);
@@ -865,7 +867,7 @@ void Sleep() {
 			power_event_add(now, TOO_SHORT, wakeup_time-now, -1);
 #endif
 	CPU_GPIO_SetPinState(23, FALSE);
-		CPU_GPIO_SetPinState( 25, FALSE);
+		//CPU_GPIO_SetPinState( 25, FALSE);
 		return;
 	}
 	CPU_GPIO_SetPinState(23, FALSE);
@@ -881,6 +883,7 @@ void Sleep() {
 	}
 #endif
 	CPU_GPIO_SetPinState( 23, TRUE);
+	CPU_GPIO_SetPinState( 25, TRUE);
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
@@ -926,6 +929,7 @@ void Sleep() {
 	__SEV();
 	__WFE();
 
+	CPU_GPIO_SetPinState( 25, FALSE);
 	CPU_GPIO_SetPinState(23, FALSE);
 #ifdef POWER_PROFILE_HACK
 	power_event_wakeup(aft);
@@ -961,7 +965,6 @@ void Sleep() {
 	// Then again, the HSI contributes too and is something like 50,000 ppm so this is fundamentally broken anyway
 
 	//irq.Release(); // Should already be locked from caller
-	CPU_GPIO_SetPinState( 25, FALSE);
 }
 
 // Shouldn't be used, possibly for unrecoverable error in debug mode.
