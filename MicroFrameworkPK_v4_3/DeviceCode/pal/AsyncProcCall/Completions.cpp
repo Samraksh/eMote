@@ -221,6 +221,10 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 #define EMOTE_DEEP_SLEEP_MIN 5000
 #endif
 //#ifdef EMOTE_COMPLETIONS_STARTUP_WAIT
+#ifndef EMOTE_DEEP_SLEEP_MAX
+#define EMOTE_DEEP_SLEEP_MAX (60*1000*1000) // microseconds, never bigger than 0xFFFFFFFF
+#endif
+//
 #if 1
 	if (waitTime == 0){
 		// If we ever attempt to enter deep sleep then we are not able to program, so for now, since wakelock is not sufficient, we wait a minute before attempting sleep allowing the user time to reprogram.
@@ -229,6 +233,7 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 		UINT64 now = HAL_Time_CurrentTicks();
 		if (now > waitTime) {
 			UINT64 sleepTime = 0;
+			UINT64 ticks_to_micro;
 			UINT32 sleepTimeMicroseconds = 100;
 
 			// Here we check to see when the next VT timer will go off.
@@ -242,7 +247,14 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 
 			if (Expire > now) {
 				sleepTime = Expire - now;
-				sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(sleepTime));
+				ticks_to_micro = HAL_Time_TicksToMicroseconds(sleepTime);
+			 
+				if (ticks_to_micro > EMOTE_DEEP_SLEEP_MAX) {
+					sleepTimeMicroseconds = EMOTE_DEEP_SLEEP_MAX;
+				} else {
+					sleepTimeMicroseconds = ticks_to_micro;
+				}
+				
 			 
 				if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
 					if(state & c_SetCompare){
