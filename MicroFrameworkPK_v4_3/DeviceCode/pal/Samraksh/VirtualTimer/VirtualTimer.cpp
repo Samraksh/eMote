@@ -193,10 +193,10 @@ BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
 	}
 
 	// check to see if we are already running
-	if (g_VirtualTimerInfo[VTimerIndex].get_m_is_running() == TRUE) {
-		DEBUG_VT_ASSERT_ANAL(0);
-		return TRUE;
-	}
+	//if (g_VirtualTimerInfo[VTimerIndex].get_m_is_running() == TRUE) {
+	//	DEBUG_VT_ASSERT_ANAL(0);
+	//	return TRUE;
+	//}
 
 	// Initializing timer
 	g_VirtualTimerInfo[VTimerIndex].set_m_ticks_when_match_(VirtTimer_GetTicks(timer_id)  + g_VirtualTimerInfo[VTimerIndex].get_m_period() + g_VirtualTimerInfo[VTimerIndex].get_m_start_delay());

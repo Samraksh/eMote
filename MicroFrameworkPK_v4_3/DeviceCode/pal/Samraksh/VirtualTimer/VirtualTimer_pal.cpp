@@ -233,7 +233,8 @@ UINT32 VirtTimer_GetMaxTicks(UINT8 timer_id)
 
 UINT64 VirtTimer_GetNextAlarm()
 {
-	UINT64 nextAlarm = VirtTimer_GetMaxTicks(g_HardwareTimerIDs[0]);
+	//UINT64 nextAlarm = VirtTimer_GetMaxTicks(g_HardwareTimerIDs[0]);
+	UINT64 nextAlarm = 0xFFFFFFFFFFFFFFFFull;
 	UINT64 retTime = 0;
 	UINT16 i = 0;
 	// This only works for the timer that uses the same system time as the Expire time in completions.cpp

@@ -216,25 +216,32 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
     {
         state = 0;
     }
-	CPU_GPIO_SetPinState( 24, TRUE);
-	CPU_GPIO_SetPinState( 29, TRUE);
-	CPU_GPIO_SetPinState( 29, FALSE);
+	//CPU_GPIO_SetPinState( 22, TRUE);
+	//CPU_GPIO_SetPinState( 24, TRUE);
+	//CPU_GPIO_SetPinState( 24, FALSE);
 #ifndef DISABLE_SLEEP
 #if defined( SAM_APP_TINYCLR )
 #ifndef EMOTE_DEEP_SLEEP_MIN
 #define EMOTE_DEEP_SLEEP_MIN 5000
 #endif
 //#ifdef EMOTE_COMPLETIONS_STARTUP_WAIT
+#ifndef EMOTE_DEEP_SLEEP_MAX
+#define EMOTE_DEEP_SLEEP_MAX (60*1000*1000) // microseconds, never bigger than 0xFFFFFFFF
+#endif
+//
 #if 1
 	if (waitTime == 0){
 		// If we ever attempt to enter deep sleep then we are not able to program, so for now, since wakelock is not sufficient, we wait a minute before attempting sleep allowing the user time to reprogram.
 		waitTime = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT32)1000000 * 60 * 1);
 	} else {
+		//CPU_GPIO_SetPinState( 24, TRUE);
+		//CPU_GPIO_SetPinState( 24, FALSE);
 		volatile UINT64 now = HAL_Time_CurrentTicks();
 		if (now > waitTime) {
-	CPU_GPIO_SetPinState( 29, TRUE);
-	CPU_GPIO_SetPinState( 29, FALSE);
+			//CPU_GPIO_SetPinState( 24, TRUE);
+			//CPU_GPIO_SetPinState( 24, FALSE);
 			UINT64 sleepTime = 0;
+			UINT64 ticks_to_micro;
 			UINT32 sleepTimeMicroseconds = 100;
 
 			// Here we check to see when the next VT timer will go off.
@@ -247,13 +254,26 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 				Expire = nextVtAlarm;
 
 			if (Expire > now) {
+				//CPU_GPIO_SetPinState( 24, TRUE);
+				//CPU_GPIO_SetPinState( 24, FALSE);
 	
 				sleepTime = Expire - now;
-				sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(sleepTime));
+				ticks_to_micro = HAL_Time_TicksToMicroseconds(sleepTime);
+
+				if (ticks_to_micro > EMOTE_DEEP_SLEEP_MAX) {
+					sleepTimeMicroseconds = EMOTE_DEEP_SLEEP_MAX;
+				} else {
+					sleepTimeMicroseconds = ticks_to_micro;
+				}
+				
 			 
 				//sleepTimeMicroseconds = 5000;
 				if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
+					//CPU_GPIO_SetPinState( 24, TRUE);
+					//CPU_GPIO_SetPinState( 24, FALSE);
 					if(state & c_SetCompare){
+						//CPU_GPIO_SetPinState( 24, TRUE);
+						//CPU_GPIO_SetPinState( 24, FALSE);	
 						HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );
 						CPU_Sleep( SLEEP_LEVEL__DEEP_SLEEP, wakeEvents );
 					}
@@ -262,12 +282,6 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 					if(state & c_SetCompare) HAL_Time_SetCompare( Expire  );
 						CPU_Sleep( SLEEP_LEVEL__SLEEP, wakeEvents );
 				}
-			} else {
-				hal_printf("orig: %llu now: %llu nxtVt: %llu\r\n", orig_Expire, now, nextVtAlarm);
-	nextVtAlarm = VirtTimer_GetNextAlarm();
-	Expire           = HAL_Time_CurrentTicks();
-	CPU_GPIO_SetPinState( 29, TRUE);
-	CPU_GPIO_SetPinState( 29, FALSE);
 			}
 
 		} else {
@@ -307,7 +321,6 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 	}
 #endif
 #endif
-	CPU_GPIO_SetPinState( 24, FALSE);
 
     if(state & (c_ResetCompare | c_NilCompare))
     {

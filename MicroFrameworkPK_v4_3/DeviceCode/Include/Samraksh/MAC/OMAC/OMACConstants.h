@@ -288,11 +288,7 @@ typedef OFProv<UINT64> OMACTicks;
 
 #define HIGH_DISCO_PERIOD_IN_SLOTS_CONSTANT 50000 //This is setting the length of high disco period after start up. Note that the length of disco slot is different than the length of data slots. The ratio is determined by DISCOPERIODINSLOTS. Note that this is a convention and there is no direct relationship limiting the ratio between the data slots and the discovery slots.
 //#define HIGH_DISCO_PERIOD_IN_SLOTS_CONSTANT 0
-#ifdef PLATFORM_ARM_EmoteDotNow
-#define HIGH_DISCO_PERIOD_ALWAYS_ON 1
-#else
 #define HIGH_DISCO_PERIOD_ALWAYS_ON 0
-#endif
 
 //#define RANDOM_BACKOFF_COUNT_MAX	4
 //#define RANDOM_BACKOFF_COUNT_MIN	1

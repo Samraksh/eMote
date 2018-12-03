@@ -804,7 +804,12 @@ void Snooze() {
 // Exit in the same power state as we entered.
 // TODO: Need to clean this up...
 void Sleep() {
+	CPU_GPIO_SetPinState( 25, TRUE);
+	CPU_GPIO_SetPinState( 23, TRUE);
+	CPU_GPIO_SetPinState(23, FALSE);
 
+	
+	CPU_GPIO_SetPinState( 23, TRUE);
 #ifdef EMOTE_WAKELOCKS
 	if ( GetWakeLocked() ) { // If wakelocked, use snooze mode.
 #ifdef POWER_PROFILE_HACK
@@ -812,10 +817,14 @@ void Sleep() {
 #endif
 		__DSB();
 		__WFI();
+		CPU_GPIO_SetPinState(23, FALSE);
+		CPU_GPIO_SetPinState( 25, FALSE);
 		return; // Sleep completed, done here.
 	}
 #endif // EMOTE_WAKELOCKS
+	CPU_GPIO_SetPinState(23, FALSE);
 
+	CPU_GPIO_SetPinState( 23, TRUE);
 	USART_Flush(0); // Flush USART1 / COM0 before we sleep
 	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, ENABLE);
 	ASSERT_IRQ_MUST_BE_OFF();
@@ -825,13 +834,17 @@ void Sleep() {
 		NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
 		__SEV();
 		__WFE();
+		CPU_GPIO_SetPinState(23, FALSE);
+		CPU_GPIO_SetPinState( 25, FALSE);
 		return;
 	}
+	CPU_GPIO_SetPinState(23, FALSE);
 
 	uint32_t now; // 32-bits can store about 90 days worth of ticks
 	uint32_t aft; // post sleep RTC time;
 	uint32_t wakeup_time; // when the RTC is supposed to wake us up.
 
+	CPU_GPIO_SetPinState( 23, TRUE);
 	// Abort if our wakeup time is too soon
 	now = RTC_GetCounter();
 	wakeup_time = g_STM32F10x_RTC.GetCompare();
@@ -851,8 +864,11 @@ void Sleep() {
 		else
 			power_event_add(now, TOO_SHORT, wakeup_time-now, -1);
 #endif
+	CPU_GPIO_SetPinState(23, FALSE);
+		CPU_GPIO_SetPinState( 25, FALSE);
 		return;
 	}
+	CPU_GPIO_SetPinState(23, FALSE);
 
 #ifdef POWER_PROFILE_HACK
 	power_event_sleep(now, wakeup_time-now, stm_power_state);
@@ -864,7 +880,7 @@ void Sleep() {
 		SOFT_BREAKPOINT();
 	}
 #endif
-	CPU_GPIO_SetPinState( 25, TRUE);
+	CPU_GPIO_SetPinState( 23, TRUE);
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
@@ -910,7 +926,7 @@ void Sleep() {
 	__SEV();
 	__WFE();
 
-	CPU_GPIO_SetPinState( 25, FALSE);
+	CPU_GPIO_SetPinState(23, FALSE);
 #ifdef POWER_PROFILE_HACK
 	power_event_wakeup(aft);
 	if (aft > 60*32768) {
@@ -945,6 +961,7 @@ void Sleep() {
 	// Then again, the HSI contributes too and is something like 50,000 ppm so this is fundamentally broken anyway
 
 	//irq.Release(); // Should already be locked from caller
+	CPU_GPIO_SetPinState( 25, FALSE);
 }
 
 // Shouldn't be used, possibly for unrecoverable error in debug mode.

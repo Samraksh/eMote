@@ -420,6 +420,10 @@ DeviceStatus RadioControl_t::Stop(){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, TRUE );
 #endif
+	CPU_GPIO_SetPinState( 24, TRUE);
+	CPU_GPIO_SetPinState( 24, FALSE);
+	CPU_GPIO_SetPinState( 24, TRUE);
+	CPU_GPIO_SetPinState( 24, FALSE);
 		WakeUnlock(WLO_OMAC);
 		DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
 
@@ -450,6 +454,8 @@ DeviceStatus RadioControl_t::StartRx(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, TRUE );
 #endif
+	CPU_GPIO_SetPinState( 24, TRUE);
+	CPU_GPIO_SetPinState( 24, FALSE);
 	WakeLock(WLO_OMAC);
 	DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
 	if(returnVal == DS_Success){
