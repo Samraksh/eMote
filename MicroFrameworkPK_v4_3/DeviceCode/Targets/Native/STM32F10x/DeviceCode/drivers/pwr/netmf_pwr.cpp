@@ -848,12 +848,10 @@ void Sleep() {
 	wakeup_time = g_STM32F10x_RTC.GetCompare();
 	if(wakeup_time < now+MIN_SLEEP_TICKS) {
 		// Abort!
+		SOFT_BREAKPOINT();
 		NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
 		__SEV();
 		__WFE();
-		if ( wakeup_time < now ) {
-			SOFT_BREAKPOINT(); // If you hit this, VT is setting bad wakeup timers.
-		}
 #ifdef POWER_PROFILE_HACK
 		if ( wakeup_time < now )
 			power_event_add(now, TIMEWARP, now-wakeup_time, -1);
