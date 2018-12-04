@@ -38,7 +38,7 @@ typedef uint16_t ushort;
 
 
 //#define POWER_PROFILE_HACK
-#define POWER_PROFILE_RTC_WARN
+//#define POWER_PROFILE_RTC_WARN
 
 //
 // processor and features
