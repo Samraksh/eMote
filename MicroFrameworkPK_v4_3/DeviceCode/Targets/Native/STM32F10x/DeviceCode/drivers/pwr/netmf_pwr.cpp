@@ -144,7 +144,7 @@ static void power_event_wakeup(uint32_t now) {
 #endif
 
 #ifdef POWER_PROFILE_RTC_WARN
-#define POWER_DEBUG_WAKEUP (4*32768) // Dump debug if we don't wakeup for X seconds.
+#define POWER_DEBUG_WAKEUP (8*32768) // Dump debug if we don't wakeup for X seconds.
 #define POWER_DEBUG_WAKEUP_OFFSET (32768*60*15) // 15 minutes
 static uint32_t startup_time;
 static uint32_t debug_wakeup = 0xFFFFFFFF;
@@ -352,6 +352,7 @@ static void RTC_wakeup_init(void) {
 void PowerInit() {
 	GLOBAL_LOCK(irq);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+	BKP_DeInit();
 
 #if !defined(BUILD_RTM) // For non-RTM flavors (e.g. Release, Debug), do not artificially raise lowest power mode. But, in flavors Debug, Instrumented ...
 	if(JTAG_Attached() > 0) // ... when JTAG is attached, artificially raise lowest power mode to support JTAG connection.
