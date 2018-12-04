@@ -194,6 +194,14 @@ BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
 	// check to see if we are already running
 	if (g_VirtualTimerInfo[VTimerIndex].get_m_is_running() == TRUE) {
 		DEBUG_VT_ASSERT_ANAL(0);
+#ifdef _DEBUG
+		// Double check that the timer isn't in the past and we are ignoring it at our peril.
+		// Add a little buffer (64 ticks) in case the interrupt just recently went pending (valid).
+		// This is mostly for the sleep clock. Rollover will break this check.
+		UINT32 cnt = VirtTimer_GetCounter(timer_id);
+		UINT32 mth = g_VirtualTimerInfo[VTimerIndex].get_m_ticks_when_match_() & 0xFFFFFFFF;
+		if ( mth+64 < cnt ) SOFT_BREAKPOINT();
+#endif
 		return TRUE;
 	}
 
