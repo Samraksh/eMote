@@ -13,18 +13,157 @@ nathan.stohs@samraksh.com
 #include "../usart/sam_usart.h"
 #include "../Timer/netmf_rtc/netmf_rtc.h"
 
+#ifdef POWER_PROFILE_HACK
+#define POWER_PROFILE_RTC_WARN
+#define POWER_TABLE_WRAP
+#define FILTER_WAKELOCK_DENY
+#define FILTER_LOCKONOFF
+#define FILTER_TOO_SHORT
+#define FILTER_SNOOZE
+#define POWER_EVENTS_SIZE 32
+#define POWER_COUNT_INIT 0
+
+typedef __attribute__ ((packed)) enum {
+	GOING_TO_SLEEP,
+	WAKEUP,
+	TOO_SHORT,
+	WAKELOCK_ON,
+	WAKELOCK_OFF,
+	WAKELOCK_DENY,
+	TIMEWARP,
+	SNOOZE,
+} power_event_enum_t;
+
+typedef struct {
+	uint32_t time;
+	uint16_t data16;
+	//int8_t misc1;
+	power_event_enum_t evt;
+} power_event_t;
+
+static power_event_t power_events[POWER_EVENTS_SIZE];
+static int power_count = POWER_COUNT_INIT;
+
+static const char* power_evt_to_string(power_event_enum_t x) {
+	switch (x) {
+		case GOING_TO_SLEEP:	return "SLEEP";
+		case WAKEUP:			return "WAKEUP";
+		case TOO_SHORT: 		return "TOO_SHORT";
+		case WAKELOCK_ON: 		return "LOCK_ON";
+		case WAKELOCK_OFF: 		return "LOCK_OFF";
+		case WAKELOCK_DENY: 	return "WAKELOCK_DENY";
+		case TIMEWARP: 			return "TIMEWARP";
+		case SNOOZE:			return "SNOOZE";
+		default:				return "UNKNOWN";
+	}
+}
+
+static void print_power_event(power_event_t e) {
+	hal_printf("%d %d %s 0\r\n", e.time, e.data16, power_evt_to_string(e.evt) /*, e.misc1*/);
+}
+
+// Only do this on wakeup for known state
+static void print_all_power_events() {
+	//TIM_Cmd(TIM1, DISABLE);
+	//SOFT_BREAKPOINT();
+	__enable_irq();
+	for(int i=0; i<POWER_EVENTS_SIZE; i++) {
+		print_power_event(power_events[i]);
+	}
+	while(1); // never return;
+}
+
+static void power_event_sleep(uint32_t now, uint16_t wakeup, enum stm_power_modes power_state) {
+	if (power_count < 0) { power_count++; return; }
+	if (power_count >= POWER_EVENTS_SIZE) { return; }
+	power_events[power_count].time = now;
+	power_events[power_count].data16 = wakeup;
+	power_events[power_count].evt = GOING_TO_SLEEP;
+
+	// int8_t misc1;
+	// switch(power_state) {
+		// case POWER_STATE_DEFAULT: 		misc1 = 0; break;
+		// case POWER_STATE_LOW:			misc1 = 1; break;
+		// case POWER_STATE_MID:			misc1 = 2; break;
+		// case POWER_STATE_HIGH:			misc1 = 3; break;
+		// case POWER_STATE_GOING_SLEEP:	misc1 = 4; break;
+		// default:						misc1 = 5; break;
+	// }
+	// power_events[power_count].misc1 = misc1;
+	power_count++;
+#ifdef POWER_TABLE_WRAP
+	if (power_count >= POWER_EVENTS_SIZE)
+		power_count=0;
+#endif
+}
+
+static void power_event_add(uint32_t now, power_event_enum_t evt, uint16_t data16, int8_t extra) {
+	if (power_count < 0 || power_count >= POWER_EVENTS_SIZE) { return; }
+	
+	switch (evt) {
+#ifdef FILTER_WAKELOCK_DENY
+		case WAKELOCK_DENY:
+#endif
+#ifdef FILTER_LOCKONOFF
+		case WAKELOCK_ON:
+		case WAKELOCK_OFF:
+#endif
+#ifdef FILTER_TOO_SHORT
+		case TOO_SHORT:
+#endif
+#ifdef FILTER_SNOOZE
+		case SNOOZE:
+#endif
+		return;
+		default: break;
+	}
+
+	power_events[power_count].time = now;
+	power_events[power_count].data16 = data16;
+	power_events[power_count].evt = evt;
+	//power_events[power_count].misc1 = extra;
+	power_count++;
+#ifdef POWER_TABLE_WRAP
+	if (power_count >= POWER_EVENTS_SIZE)
+		power_count=0;
+#endif
+}
+
+static void power_event_wakeup(uint32_t now) {
+	if (power_count < 0) { power_count++; return; }
+	if (power_count >= POWER_EVENTS_SIZE) { print_all_power_events(); return; }
+	power_events[power_count].time = now;
+	power_events[power_count].evt = WAKEUP;
+	power_count++;
+#ifdef POWER_TABLE_WRAP
+	if (power_count >= POWER_EVENTS_SIZE)
+		power_count=0;
+#endif
+}
+
+#endif
+
+#ifdef POWER_PROFILE_RTC_WARN
+#define POWER_DEBUG_WAKEUP (8*32768) // Dump debug if we don't wakeup for X seconds.
+#define POWER_DEBUG_WAKEUP_OFFSET (32768*60*15) // 15 minutes
+static uint32_t startup_time;
+static uint32_t debug_wakeup = 0xFFFFFFFF;
+static HAL_CONTINUATION power_debug_continuation;
+static void power_debug_dump(void *arg) {
+	hal_printf("Power Debug Watchdog: %d seconds passed without sleep\r\n", POWER_DEBUG_WAKEUP/32768);
+	SOFT_BREAKPOINT();
+}
+#endif
 
 // Number of RTC ticks it takes to wakeup from each power level.
 // So wakeup early by this amount plus some slop
 enum wakeup_ticks{
 	MIN_SLEEP_TICKS = 33,
-	SLEEP_EXTRA_PAD = 1,
-	SLEEP_PADDING_HIGH_POWER = 8,
-	SLEEP_PADDING_MID_POWER = 8,
+	SLEEP_EXTRA_PAD = 2,
+	SLEEP_PADDING_HIGH_POWER = 9,
+	SLEEP_PADDING_MID_POWER = 9,
 	SLEEP_PADDING_LOW_POWER = 6,
 };
-
-//#define NATHAN_DEBUG_SLEEP // DELETE ME
 
 #ifdef PLATFORM_ARM_AUSTERE
 #include <stm32f10x.h>
@@ -41,14 +180,6 @@ static void power_supply_reset() {
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-#ifdef NATHAN_DEBUG_SLEEP
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3; // PPS debug pin
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_RESET);
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-#endif
 
   // Configure Inputs
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_12;
@@ -96,16 +227,6 @@ static void radio_shutdown(int go) {
 	else
 		GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_RESET);
 }
-static void set_debug_pin(int go) {
-#ifdef NATHAN_DEBUG_SLEEP
-	if (go)
-		GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_SET);
-	else
-		GPIO_WriteBit(GPIOC, GPIO_Pin_3, Bit_RESET);
-#endif
-}
-#else
-#define set_debug_pin(x)
 #endif // PLATFORM_ARM_AUSTERE
 
 
@@ -123,11 +244,17 @@ void WakeLockInit(void) {
 }
 
 void WakeLock(uint32_t lock) {
+#ifdef POWER_PROFILE_HACK
+	power_event_add(RTC_GetCounter(), WAKELOCK_ON, 0, -1);
+#endif
 	GLOBAL_LOCK(irq);
 	wakelock |= lock;
 }
 
 void WakeUnlock(uint32_t lock) {
+#ifdef POWER_PROFILE_HACK
+	power_event_add(RTC_GetCounter(), WAKELOCK_OFF, 0, -1);
+#endif
 	GLOBAL_LOCK(irq);
 	wakelock &= ~lock;
 }
@@ -191,6 +318,11 @@ void __irq RTCAlarm_IRQHandler(void) {
 #endif
 	RTC_ClearITPendingBit(RTC_IT_ALR);
 	EXTI_ClearITPendingBit(EXTI_Line17);
+#ifdef POWER_PROFILE_RTC_WARN
+	if ( RTC_GetCounter() >= debug_wakeup ) {
+		power_debug_continuation.Enqueue();
+	}
+#endif
 }
 }
 
@@ -220,6 +352,7 @@ static void RTC_wakeup_init(void) {
 void PowerInit() {
 	GLOBAL_LOCK(irq);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+	BKP_DeInit();
 
 #if !defined(BUILD_RTM) // For non-RTM flavors (e.g. Release, Debug), do not artificially raise lowest power mode. But, in flavors Debug, Instrumented ...
 	if(JTAG_Attached() > 0) // ... when JTAG is attached, artificially raise lowest power mode to support JTAG connection.
@@ -281,6 +414,10 @@ void PowerInit() {
 	RTC_wakeup_init();
 
 	WakeLockInit();
+#ifdef POWER_PROFILE_RTC_WARN
+	power_debug_continuation.InitializeCallback(power_debug_dump, NULL);
+	startup_time = RTC_GetCounter();
+#endif
 }
 
 static void do_hsi_measure() {
@@ -636,6 +773,24 @@ static bool check_pending_isr(void) {
 	return (icsr & ISRPENDING_MASK);
 }
 
+static bool usart_tx_busy(void) {
+	bool ret = false;
+	for (int i=0; i<TOTAL_USART_PORT; i++) {
+		ret = ret | CPU_USART_TxBufferEmptyInterruptState(i);
+	}
+	return ret;
+}
+
+// Returns the first IRQn which is active.
+// *probably* the one that woke us up, but impossible to tell.
+static IRQn_Type get_first_irq(void) {
+	for (int i=0; i<60; i++) {
+		if (NVIC_GetPendingIRQ((IRQn_Type)i) == 1)
+			return (IRQn_Type)i;
+	}
+	return (IRQn_Type)0xFFFF; // not valid
+}
+
 // Only to be called with interrupts disabled
 static uint32_t align_to_rtc2(void) {
 	uint32_t now = RTC_GetCounter();
@@ -644,6 +799,9 @@ static uint32_t align_to_rtc2(void) {
 }
 
 void Snooze() {
+#ifdef POWER_PROFILE_HACK
+	power_event_add(RTC_GetCounter(), SNOOZE, 0, -1);
+#endif
 	__DSB();
 	__WFI();
 }
@@ -652,15 +810,25 @@ void Snooze() {
 // TODO: Need to clean this up...
 void Sleep() {
 
+	//USART_Flush(0); // Doesn't work when we're locked, derp
+	// No deep sleep while TX bytes are in the queue.
+	if ( usart_tx_busy() ) {
+		__DSB();
+		__WFI();
+		return;
+	}
+
 #ifdef EMOTE_WAKELOCKS
 	if ( GetWakeLocked() ) { // If wakelocked, use snooze mode.
+#ifdef POWER_PROFILE_HACK
+		power_event_add(RTC_GetCounter(), WAKELOCK_DENY, 0, -1);
+#endif
 		__DSB();
 		__WFI();
 		return; // Sleep completed, done here.
 	}
 #endif // EMOTE_WAKELOCKS
 
-	USART_Flush(0); // Flush USART1 / COM0 before we sleep
 	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, ENABLE);
 	ASSERT_IRQ_MUST_BE_OFF();
 	//GLOBAL_LOCK(irq); // Should already be locked from caller
@@ -681,17 +849,23 @@ void Sleep() {
 	wakeup_time = g_STM32F10x_RTC.GetCompare();
 	if(wakeup_time < now+MIN_SLEEP_TICKS) {
 		// Abort!
+		SOFT_BREAKPOINT();
 		NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
 		__SEV();
 		__WFE();
+#ifdef POWER_PROFILE_HACK
+		if ( wakeup_time < now )
+			power_event_add(now, TIMEWARP, now-wakeup_time, -1);
+		else
+			power_event_add(now, TOO_SHORT, wakeup_time-now, -1);
+#endif
 		return;
 	}
-#ifdef NATHAN_DEBUG_SLEEP
-	// DEBUGGING ONLY. Alert if sleep time is longer than 1 minute
-	if (wakeup_time - now >= 1966080) {
-		SOFT_BREAKPOINT();
-	}
+
+#ifdef POWER_PROFILE_HACK
+	power_event_sleep(now, wakeup_time-now, stm_power_state);
 #endif
+
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
@@ -736,6 +910,14 @@ void Sleep() {
 	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
 	__SEV();
 	__WFE();
+#ifdef POWER_PROFILE_HACK
+	power_event_wakeup(aft);
+#endif
+#ifdef POWER_PROFILE_RTC_WARN
+	debug_wakeup = aft + POWER_DEBUG_WAKEUP;
+	if (debug_wakeup > startup_time + POWER_DEBUG_WAKEUP_OFFSET)
+		RTC_SetAlarm(debug_wakeup); // watch dog alarm in case we never sleep again.
+#endif
 
 	// Main system timer does not run during sleep so we have to fix up clock afterwards.
 	// Do a three iteration floor estimate for the clock conversion.

@@ -11,8 +11,18 @@ BOOL CPU_JTAG_Attached(){
 	return JTAG_Attached();
 }
 
+static bool usart_tx_busy(void) {
+	bool ret = false;
+	for (int i=0; i<TOTAL_USART_PORT; i++) {
+		ret = ret | CPU_USART_TxBufferEmptyInterruptState(i);
+	}
+	return ret;
+}
+
 void CPU_ChangePowerLevel(POWER_LEVEL level) {
+	bool flag;
 	GLOBAL_LOCK(irq);
+	flag = usart_tx_busy(); // We need to turn the TXE back on when done
     switch(level)
     {
         case POWER_LEVEL__HIGH_POWER:
@@ -29,6 +39,10 @@ void CPU_ChangePowerLevel(POWER_LEVEL level) {
 			Low_Power();
             break;
     }
+	if (flag) {
+		CPU_USART_TxBufferEmptyInterruptEnable(0, ENABLE);
+		CPU_USART_TxBufferEmptyInterruptEnable(1, ENABLE);
+	}
 }
 
 UINT8 CPU_GetCurrentPowerLevel(){

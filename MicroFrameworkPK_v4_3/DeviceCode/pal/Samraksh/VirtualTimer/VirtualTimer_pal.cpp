@@ -233,7 +233,8 @@ UINT32 VirtTimer_GetMaxTicks(UINT8 timer_id)
 
 UINT64 VirtTimer_GetNextAlarm()
 {
-	UINT64 nextAlarm = VirtTimer_GetMaxTicks(g_HardwareTimerIDs[0]);
+	//UINT64 nextAlarm = VirtTimer_GetMaxTicks(g_HardwareTimerIDs[0]);
+	UINT64 nextAlarm = 0xFFFFFFFFFFFFFFFFull;
 	UINT64 retTime = 0;
 	UINT16 i = 0;
 	// This only works for the timer that uses the same system time as the Expire time in completions.cpp
@@ -244,6 +245,15 @@ UINT64 VirtTimer_GetNextAlarm()
 			if (retTime < nextAlarm)
 				nextAlarm = retTime;
 	}
+#ifdef PLATFORM_ARM_AUSTERE // this is really a generic VT bug, but limiting scope until a real fix is tested
+	{
+		UINT32 retTime_RTC = gVirtualTimerObject.virtualTimerMapper[1].GetNextAlarm();
+		UINT64 rtc_us = VirtTimer_TicksToMicroseconds(2, retTime_RTC);
+		UINT64 rtc_ticks = CPU_MicrosecondsToTicks(rtc_us, 1);
+		if (rtc_ticks < nextAlarm)
+			nextAlarm = rtc_ticks;
+	}
+#endif
 	return nextAlarm;
 }
 

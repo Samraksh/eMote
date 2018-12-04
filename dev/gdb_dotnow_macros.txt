@@ -1,4 +1,3 @@
-
 define trl
 set remotetimeout 10000
 target remote localhost:3333
@@ -113,6 +112,13 @@ end
 
 define kill_tinyclr
 monitor flash erase_address 0x08020000 2048
+end
+
+define erase_tinyclr
+mrh
+monitor flash erase_address 0x8020000 659456
+#monitor flash erase_address 0x8000000 790528
+mrh
 end
 
 alias rsb = restore_sector_boot

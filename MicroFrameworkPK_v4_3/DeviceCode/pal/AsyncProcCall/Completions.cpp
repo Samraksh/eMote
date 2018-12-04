@@ -218,7 +218,10 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 #ifndef DISABLE_SLEEP
 #if defined( SAM_APP_TINYCLR )
 #ifndef EMOTE_DEEP_SLEEP_MIN
-#define EMOTE_DEEP_SLEEP_MIN 5000
+#define EMOTE_DEEP_SLEEP_MIN (20*1000)
+#endif
+#ifndef EMOTE_DEEP_SLEEP_MAX
+#define EMOTE_DEEP_SLEEP_MAX (60*1000*1000) // microseconds, never bigger than 0xFFFFFFFF
 #endif
 //#ifdef EMOTE_COMPLETIONS_STARTUP_WAIT
 #if 1
@@ -228,8 +231,9 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 	} else {
 		UINT64 now = HAL_Time_CurrentTicks();
 		if (now > waitTime) {
-			UINT64 sleepTime = 0;
-			UINT32 sleepTimeMicroseconds = 100;
+			UINT64 sleepTime;
+			UINT64 ticks_to_micro;
+			UINT32 sleepTimeMicroseconds;
 
 			// Here we check to see when the next VT timer will go off.
 			// Currently we only check the same timer that the system time is based off of
@@ -242,8 +246,14 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 
 			if (Expire > now) {
 				sleepTime = Expire - now;
-				sleepTimeMicroseconds = (HAL_Time_TicksToMicroseconds(sleepTime));
-			 
+				ticks_to_micro = HAL_Time_TicksToMicroseconds(sleepTime);
+
+				if (ticks_to_micro > EMOTE_DEEP_SLEEP_MAX) {
+					sleepTimeMicroseconds = EMOTE_DEEP_SLEEP_MAX;
+				} else {
+					sleepTimeMicroseconds = ticks_to_micro;
+				}
+
 				if (sleepTimeMicroseconds >= EMOTE_DEEP_SLEEP_MIN) {
 					if(state & c_SetCompare){
 						HAL_Time_SetCompare_Sleep_Clock_MicroSeconds( sleepTimeMicroseconds );

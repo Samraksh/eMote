@@ -27,7 +27,8 @@ typedef uint16_t ushort;
 // #define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
 //#define AUSTERE_NO_CAP_TIMEOUT // Disabled by default. Disables capacitor timeout. Need timeout because "good" signal is unreliable.
 //#define EMOTE_COMPLETIONS_STARTUP_WAIT // Only allow snooze mode for 1 minute after boot.
-#define EMOTE_DEEP_SLEEP_MIN 5000 // microseconds. Sleep intervals less than this will only snooze
+#define EMOTE_DEEP_SLEEP_MIN (20*1000) 		// microseconds. Sleep intervals less than this will only snooze
+#define EMOTE_DEEP_SLEEP_MAX (60*1000*1000) // microseconds. Longest sleep interval allowed, max 0xFFFF_FFFF
 
 #if defined(PLATFORM_ARM_AUSTERE)
 #define HAL_SYSTEM_NAME                     "Austere"
@@ -36,7 +37,8 @@ typedef uint16_t ushort;
 //#define COMPILE_CUSTOMER_RELEASE 1
 
 
-
+//#define POWER_PROFILE_HACK
+//#define POWER_PROFILE_RTC_WARN
 
 //
 // processor and features
