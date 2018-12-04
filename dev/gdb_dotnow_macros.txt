@@ -99,6 +99,7 @@ end
 define erase_tinyclr
 mrh
 monitor flash erase_address 0x8020000 659456
+#monitor flash erase_address 0x8000000 790528
 mrh
 end
 
