@@ -23,8 +23,7 @@ typedef enum {
 
 typedef struct {
 	/* The stack pointer (sp) has to be the first element as it is located
-	   at the same address as the structure itself (which makes it possible
-	   to locate it safely from assembly implementation of PendSV_Handler).
+	   at the same address as the structure itself.
 	   The compiler might add padding between other structure elements. */
 	volatile UINT32 sp;
 	void (*handler)(void);
@@ -41,7 +40,7 @@ struct OS_Task_Table{
 
 
 void os_init(void);
-BOOL os_task_init(HandlerFuncPtr fptr, os_stack_t *p_stack, UINT32 stack_size);
+BOOL os_task_init(HandlerFuncPtr start_fptr, HandlerFuncPtr end_fptr, os_stack_t *p_stack, UINT32 stack_size);
 //BOOL os_start(UINT32 systick_ticks);
 volatile os_task_t* SetupUserTask(HandlerFuncPtr fptr);
 UINT32 GetExecMode();

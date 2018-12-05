@@ -22,7 +22,18 @@ void os_init(void)
 	memset(&m_task_table, 0, sizeof(m_task_table));
 }
 
-BOOL os_task_init(HandlerFuncPtr fptr, os_stack_t *p_stack, UINT32 stack_size)
+void init_stack(HandlerFuncPtr start_fptr, HandlerFuncPtr end_fptr, os_stack_t *p_stack, UINT32 stack_size){
+	// Save special registers which will be restored on exc. return:
+	//   - XPSR: Default value (0x01000000)
+	//   - PC: Point to the handler function
+	//   - LR: Point to a function to be called when the handler returns
+	p_stack[stack_size-1] = 0x01000000;
+	p_stack[stack_size-2] = (UINT32)start_fptr;
+	p_stack[stack_size-3] = (UINT32)end_fptr;
+}
+
+
+BOOL os_task_init(HandlerFuncPtr start_fptr, HandlerFuncPtr end_fptr, os_stack_t *p_stack, UINT32 stack_size)
 {
 	if (m_task_table.size > MAX_OS_TASKS-1)
 		return FALSE;
@@ -30,17 +41,12 @@ BOOL os_task_init(HandlerFuncPtr fptr, os_stack_t *p_stack, UINT32 stack_size)
 	// Initialize the task structure and set SP to the top of the stack
 	//minus 16 words (64 bytes) to leave space for storing 16 registers:
 	os_task_t *p_task = &m_task_table.tasks[m_task_table.size];
-	p_task->handler = fptr;
+	p_task->handler = start_fptr;
 	p_task->sp = ((UINT32)p_stack+stack_size-16);
 	p_task->status = OS_TASK_STATUS_IDLE;
 
-	// Save special registers which will be restored on exc. return:
-	//   - XPSR: Default value (0x01000000)
-	//   - PC: Point to the handler function
-	//   - LR: Point to a function to be called when the handler returns
-	p_stack[stack_size-1] = 0x01000000;
-	p_stack[stack_size-2] = (UINT32)fptr;
-	p_stack[stack_size-3] = (UINT32) &task_finished;
+	if(end_fptr==NULL) end_fptr= &task_finished;
+	init_stack(start_fptr,end_fptr,p_stack,stack_size);
 
 #ifdef OS_CONFIG_DEBUG
 	UINT32 base = (m_task_table.size+1)*1000;
@@ -90,7 +96,7 @@ volatile os_task_t* SetupUserTask(HandlerFuncPtr fptr)
 	os_init();
 	userStack=(os_stack_t*)SAM_USER_STACK_TOP;
 	m_task_table.current_task=0;
-	os_task_init(fptr,userStack, (SAM_USER_STACK_BOTTOM-SAM_USER_STACK_TOP));
+	os_task_init(fptr,NULL, userStack, (SAM_USER_STACK_BOTTOM-SAM_USER_STACK_TOP));
 
 	UINT32 mode = GetExecMode();
 	if(mode < 3){
