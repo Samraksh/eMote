@@ -23,11 +23,11 @@ nathan.stohs@samraksh.com
 #define FILTER_LOCKON
 #define FILTER_LOCKOFF
 //#define FILTER_TOO_SHORT
-#define FILTER_SNOOZE
+//#define FILTER_SNOOZE
 #define FILTER_USART
 
-#define POWER_EVENTS_SIZE 1152
-#define POWER_COUNT_INIT -32
+#define POWER_EVENTS_SIZE 64
+#define POWER_COUNT_INIT -48
 
 static IRQn_Type get_first_irq(void);
 
@@ -82,6 +82,7 @@ static void print_all_power_events() {
 	for(int i=0; i<POWER_EVENTS_SIZE; i++) {
 		print_power_event(power_events[i]);
 	}
+	hal_printf("%d\r\n", RTC_GetCounter());
 	while(1); // never return;
 }
 
@@ -185,7 +186,7 @@ static void power_debug_dump(void *arg) {
 // };
 enum wakeup_ticks{
 	MIN_SLEEP_TICKS = 17,
-	SLEEP_EXTRA_PAD = 1,
+	SLEEP_EXTRA_PAD = 2,
 	SLEEP_PADDING_HIGH_POWER = 5,
 	SLEEP_PADDING_MID_POWER = 5,
 	SLEEP_PADDING_LOW_POWER = 3,
@@ -352,6 +353,24 @@ void __irq RTCAlarm_IRQHandler(void) {
 }
 }
 
+static void rtc_alr_evt_enable(void) {
+	EXTI_InitTypeDef EXTI_InitStruct;
+	EXTI_InitStruct.EXTI_Line = EXTI_Line17;
+	EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Event;
+	EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
+	EXTI_InitStruct.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&EXTI_InitStruct);
+}
+
+static void rtc_alr_evt_disable(void) {
+	EXTI_InitTypeDef EXTI_InitStruct;
+	EXTI_InitStruct.EXTI_Line = EXTI_Line17;
+	EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Event;
+	EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
+	EXTI_InitStruct.EXTI_LineCmd = DISABLE;
+	EXTI_Init(&EXTI_InitStruct);
+}
+
 static void RTC_wakeup_init(void) {
 	EXTI_InitTypeDef EXTI_InitStruct;
 	NVIC_InitTypeDef NVIC_InitStruct;
@@ -360,12 +379,11 @@ static void RTC_wakeup_init(void) {
 	EXTI_DeInit();
 
 	EXTI_ClearITPendingBit(EXTI_Line17);
-	EXTI_InitStruct.EXTI_Line = EXTI_Line17;
-	//EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Event;
-	EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
-	EXTI_InitStruct.EXTI_LineCmd = ENABLE;
-	EXTI_Init(&EXTI_InitStruct);
+	// EXTI_InitStruct.EXTI_Line = EXTI_Line17;
+	// EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Event;
+	// EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
+	// EXTI_InitStruct.EXTI_LineCmd = DISABLE;
+	// EXTI_Init(&EXTI_InitStruct);
 
 	// Setup RTC Alarm interrupt (for wakeup)
 	// NVIC_InitStruct.NVIC_IRQChannel = RTCAlarm_IRQn;
@@ -808,15 +826,33 @@ static bool usart_tx_busy(void) {
 	return ret;
 }
 
+static uint32_t check_all_exti(void) {
+	uint32_t ret = 0;
+	uint32_t line = EXTI_Line0;
+	for (uint32_t line = EXTI_Line0; line < EXTI_Line18; line = line << 1) {
+		if (EXTI_GetFlagStatus(line) == SET || EXTI_GetITStatus(line) == SET)
+			ret += line;
+	}
+	return ret;
+}
+
 // Returns the first IRQn which is active.
 // *probably* the one that woke us up, but impossible to tell.
 static IRQn_Type get_first_irq(void) {
 	if (RTC_GetFlagStatus(RTC_FLAG_ALR) == SET )
 		return RTCAlarm_IRQn; // Alarm is an event so it doesn't show up as IRQ. If its set, we assume this woke us up.
+
+	int exti =  check_all_exti();
+	if (exti > 0) {
+		//SOFT_BREAKPOINT();
+		return (IRQn_Type)(EXTI_Line18+exti);
+	}
+
 	for (int i=0; i<60; i++) {
 		if (NVIC_GetPendingIRQ((IRQn_Type)i) == 1)
 			return (IRQn_Type)i;
 	}
+
 	return (IRQn_Type)0xFFFF; // Shouldn't happen???
 }
 
@@ -861,9 +897,11 @@ void Sleep() {
 	}
 #endif // EMOTE_WAKELOCKS
 
-	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, ENABLE);
+	// Dummy event, to make sure we are clear
 	ASSERT_IRQ_MUST_BE_OFF();
-	//GLOBAL_LOCK(irq); // Should already be locked from caller
+	__SEV();
+	__WFE();
+	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, ENABLE);
 
 	if (check_pending_isr()) { // Must ensure something didn't slip in
 		NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
@@ -910,6 +948,7 @@ void Sleep() {
 			now = align_to_rtc2();
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
+			rtc_alr_evt_enable();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
 			RTC_WaitForSynchro();
 			aft = RTC_GetCounter(); // align_to_rtc2() not needed because redundant with WaitForSyncrho() but ONLY FOR LOW-POWER CASE
@@ -923,6 +962,7 @@ void Sleep() {
 			now = align_to_rtc2();
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
+			rtc_alr_evt_enable();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
 			Mid_Power();
 			RTC_WaitForSynchro();
@@ -936,6 +976,7 @@ void Sleep() {
 			now = align_to_rtc2();
 			TIM_Cmd(TIM1, DISABLE);
 			Sleep_Power();
+			rtc_alr_evt_enable();
 			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFE);
 			High_Power();
 			RTC_WaitForSynchro();
@@ -944,13 +985,17 @@ void Sleep() {
 			break;
 	}
 
+	rtc_alr_evt_disable();
+
+#ifdef POWER_PROFILE_HACK
+	power_event_wakeup(aft);
+#endif
+
 	// Disable SEVONPEND and create-consume a dummy event.
 	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
 	__SEV();
 	__WFE();
-#ifdef POWER_PROFILE_HACK
-	power_event_wakeup(aft);
-#endif
+
 #ifdef POWER_PROFILE_RTC_WARN
 	debug_wakeup = aft + POWER_DEBUG_WAKEUP;
 	if (debug_wakeup > startup_time + POWER_DEBUG_WAKEUP_OFFSET)
@@ -973,7 +1018,7 @@ void Sleep() {
 	ticks_extra += (ticks_extra+ticks_carried3)/128 * 23;
 	ticks_carried3 = (ticks_extra+ticks_carried3) % 128;
 	// Add it up
-	ticks = (ticks+ticks_extra) * 305 * 2;
+	ticks = (ticks+ticks_extra) * 305 * 2; // *2 because of change from 32k to 16k
 	// Punch it in
 	HAL_Time_AddClockTime(ticks);
 
