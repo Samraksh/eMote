@@ -13,17 +13,25 @@ nathan.stohs@samraksh.com
 #include "../usart/sam_usart.h"
 #include "../Timer/netmf_rtc/netmf_rtc.h"
 
-#ifdef POWER_PROFILE_HACK
-#define POWER_PROFILE_RTC_WARN
-#define POWER_TABLE_WRAP
-#define FILTER_WAKELOCK_DENY
-#define FILTER_LOCKONOFF
-#define FILTER_TOO_SHORT
-#define FILTER_SNOOZE
-#define POWER_EVENTS_SIZE 32
-#define POWER_COUNT_INIT 0
+//#undef POWER_PROFILE_HACK
 
-typedef __attribute__ ((packed)) enum {
+#ifdef POWER_PROFILE_HACK
+//#define POWER_PROFILE_RTC_WARN
+//#define POWER_TABLE_WRAP
+
+#define FILTER_WAKELOCK_DENY
+#define FILTER_LOCKON
+#define FILTER_LOCKOFF
+//#define FILTER_TOO_SHORT
+#define FILTER_SNOOZE
+#define FILTER_USART
+
+#define POWER_EVENTS_SIZE 1152
+#define POWER_COUNT_INIT -32
+
+static IRQn_Type get_first_irq(void);
+
+typedef enum __attribute__ ((packed)) {
 	GOING_TO_SLEEP,
 	WAKEUP,
 	TOO_SHORT,
@@ -32,9 +40,11 @@ typedef __attribute__ ((packed)) enum {
 	WAKELOCK_DENY,
 	TIMEWARP,
 	SNOOZE,
+	BUSY_ISR,
+	BUSY_USART,
 } power_event_enum_t;
 
-typedef struct {
+typedef struct __attribute__ ((packed)) {
 	uint32_t time;
 	uint16_t data16;
 	//int8_t misc1;
@@ -54,6 +64,8 @@ static const char* power_evt_to_string(power_event_enum_t x) {
 		case WAKELOCK_DENY: 	return "WAKELOCK_DENY";
 		case TIMEWARP: 			return "TIMEWARP";
 		case SNOOZE:			return "SNOOZE";
+		case BUSY_ISR:			return "BUSY_ISR";
+		case BUSY_USART:		return "BUSY_USART";
 		default:				return "UNKNOWN";
 	}
 }
@@ -99,20 +111,26 @@ static void power_event_sleep(uint32_t now, uint16_t wakeup, enum stm_power_mode
 
 static void power_event_add(uint32_t now, power_event_enum_t evt, uint16_t data16, int8_t extra) {
 	if (power_count < 0 || power_count >= POWER_EVENTS_SIZE) { return; }
+	if (power_count >= POWER_EVENTS_SIZE) { print_all_power_events(); return; }
 	
 	switch (evt) {
 #ifdef FILTER_WAKELOCK_DENY
 		case WAKELOCK_DENY:
 #endif
-#ifdef FILTER_LOCKONOFF
-		case WAKELOCK_ON:
+#ifdef FILTER_LOCKOFF
 		case WAKELOCK_OFF:
+#endif
+#ifdef FILTER_LOCKON
+		case WAKELOCK_ON:
 #endif
 #ifdef FILTER_TOO_SHORT
 		case TOO_SHORT:
 #endif
 #ifdef FILTER_SNOOZE
 		case SNOOZE:
+#endif
+#ifdef FILTER_USART
+		case BUSY_USART:
 #endif
 		return;
 		default: break;
@@ -134,6 +152,7 @@ static void power_event_wakeup(uint32_t now) {
 	if (power_count >= POWER_EVENTS_SIZE) { print_all_power_events(); return; }
 	power_events[power_count].time = now;
 	power_events[power_count].evt = WAKEUP;
+	power_events[power_count].data16 = (uint16_t)get_first_irq();
 	power_count++;
 #ifdef POWER_TABLE_WRAP
 	if (power_count >= POWER_EVENTS_SIZE)
@@ -342,24 +361,25 @@ static void RTC_wakeup_init(void) {
 
 	EXTI_ClearITPendingBit(EXTI_Line17);
 	EXTI_InitStruct.EXTI_Line = EXTI_Line17;
-	EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
-	//EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Event;
+	//EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
+	EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Event;
 	EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising;
 	EXTI_InitStruct.EXTI_LineCmd = ENABLE;
 	EXTI_Init(&EXTI_InitStruct);
 
 	// Setup RTC Alarm interrupt (for wakeup)
-	NVIC_InitStruct.NVIC_IRQChannel = RTCAlarm_IRQn;
-	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0;
-	NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStruct);
+	// NVIC_InitStruct.NVIC_IRQChannel = RTCAlarm_IRQn;
+	// NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0;
+	// NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
+	// NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+	// NVIC_Init(&NVIC_InitStruct);
 }
 
 void PowerInit() {
 	GLOBAL_LOCK(irq);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
 	BKP_DeInit();
+
 
 #if !defined(BUILD_RTM) // For non-RTM flavors (e.g. Release, Debug), do not artificially raise lowest power mode. But, in flavors Debug, Instrumented ...
 	if(JTAG_Attached() > 0) // ... when JTAG is attached, artificially raise lowest power mode to support JTAG connection.
@@ -791,11 +811,13 @@ static bool usart_tx_busy(void) {
 // Returns the first IRQn which is active.
 // *probably* the one that woke us up, but impossible to tell.
 static IRQn_Type get_first_irq(void) {
+	if (RTC_GetFlagStatus(RTC_FLAG_ALR) == SET )
+		return RTCAlarm_IRQn; // Alarm is an event so it doesn't show up as IRQ. If its set, we assume this woke us up.
 	for (int i=0; i<60; i++) {
 		if (NVIC_GetPendingIRQ((IRQn_Type)i) == 1)
 			return (IRQn_Type)i;
 	}
-	return (IRQn_Type)0xFFFF; // not valid
+	return (IRQn_Type)0xFFFF; // Shouldn't happen???
 }
 
 // Only to be called with interrupts disabled
@@ -820,6 +842,9 @@ void Sleep() {
 	//USART_Flush(0); // Doesn't work when we're locked, derp
 	// No deep sleep while TX bytes are in the queue.
 	if ( usart_tx_busy() ) {
+#ifdef POWER_PROFILE_HACK
+		power_event_add(RTC_GetCounter(), BUSY_USART, 0, -1);
+#endif
 		__DSB();
 		__WFI();
 		return;
@@ -844,6 +869,9 @@ void Sleep() {
 		NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
 		__SEV();
 		__WFE();
+#ifdef POWER_PROFILE_HACK
+		power_event_add(RTC_GetCounter(), BUSY_ISR, (uint16_t)get_first_irq(), -1);
+#endif
 		return;
 	}
 
@@ -876,6 +904,7 @@ void Sleep() {
 	switch(stm_power_state) {
 		default:
 		case POWER_STATE_LOW:
+			RTC_WaitForLastTask();
 			RTC_SetAlarm(wakeup_time-SLEEP_EXTRA_PAD-SLEEP_PADDING_LOW_POWER);
 			RTC_WaitForLastTask();
 			now = align_to_rtc2();
@@ -888,6 +917,7 @@ void Sleep() {
 			stm_power_state = POWER_STATE_LOW; // Low_Power is basically identical to Sleep_Power, so basically a no-op.
 			break;
 		case POWER_STATE_MID:
+			RTC_WaitForLastTask();
 			RTC_SetAlarm(wakeup_time-SLEEP_EXTRA_PAD-SLEEP_PADDING_MID_POWER);
 			RTC_WaitForLastTask();
 			now = align_to_rtc2();
@@ -900,6 +930,7 @@ void Sleep() {
 			TIM_Cmd(TIM1, ENABLE);
 			break;
 		case POWER_STATE_HIGH:
+			RTC_WaitForLastTask();
 			RTC_SetAlarm(wakeup_time-SLEEP_EXTRA_PAD-SLEEP_PADDING_HIGH_POWER);
 			RTC_WaitForLastTask();
 			now = align_to_rtc2();
