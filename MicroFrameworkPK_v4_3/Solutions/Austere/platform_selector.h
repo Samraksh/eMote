@@ -38,8 +38,7 @@ typedef uint16_t ushort;
 
 #define REBOOT_RTC_RESET_ZERO	// Resets the RTC to zero after a reboot.
 
-//#define POWER_PROFILE_HACK
-//#define POWER_PROFILE_RTC_WARN
+#define POWER_PROFILE_HACK
 
 //
 // processor and features

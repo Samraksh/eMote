@@ -16,18 +16,17 @@ nathan.stohs@samraksh.com
 //#undef POWER_PROFILE_HACK
 
 #ifdef POWER_PROFILE_HACK
-//#define POWER_PROFILE_RTC_WARN
 //#define POWER_TABLE_WRAP
 
-#define FILTER_WAKELOCK_DENY
+//#define FILTER_WAKELOCK_DENY
 #define FILTER_LOCKON
 #define FILTER_LOCKOFF
 //#define FILTER_TOO_SHORT
 //#define FILTER_SNOOZE
 #define FILTER_USART
 
-#define POWER_EVENTS_SIZE 64
-#define POWER_COUNT_INIT -48
+#define POWER_EVENTS_SIZE 80
+#define POWER_COUNT_INIT -56
 
 static IRQn_Type get_first_irq(void);
 
@@ -161,18 +160,6 @@ static void power_event_wakeup(uint32_t now) {
 #endif
 }
 
-#endif
-
-#ifdef POWER_PROFILE_RTC_WARN
-#define POWER_DEBUG_WAKEUP (8*32768) // Dump debug if we don't wakeup for X seconds.
-#define POWER_DEBUG_WAKEUP_OFFSET (32768*60*15) // 15 minutes
-static uint32_t startup_time;
-static uint32_t debug_wakeup = 0xFFFFFFFF;
-static HAL_CONTINUATION power_debug_continuation;
-static void power_debug_dump(void *arg) {
-	hal_printf("Power Debug Watchdog: %d seconds passed without sleep\r\n", POWER_DEBUG_WAKEUP/32768);
-	SOFT_BREAKPOINT();
-}
 #endif
 
 // Number of RTC ticks it takes to wakeup from each power level.
@@ -345,11 +332,6 @@ void __irq RTCAlarm_IRQHandler(void) {
 #endif
 	RTC_ClearITPendingBit(RTC_IT_ALR);
 	EXTI_ClearITPendingBit(EXTI_Line17);
-#ifdef POWER_PROFILE_RTC_WARN
-	if ( RTC_GetCounter() >= debug_wakeup ) {
-		power_debug_continuation.Enqueue();
-	}
-#endif
 }
 }
 
@@ -459,10 +441,6 @@ void PowerInit() {
 	RTC_wakeup_init();
 
 	WakeLockInit();
-#ifdef POWER_PROFILE_RTC_WARN
-	power_debug_continuation.InitializeCallback(power_debug_dump, NULL);
-	startup_time = RTC_GetCounter();
-#endif
 }
 
 static void do_hsi_measure() {
@@ -995,12 +973,6 @@ void Sleep() {
 	NVIC_SystemLPConfig(NVIC_LP_SEVONPEND, DISABLE);
 	__SEV();
 	__WFE();
-
-#ifdef POWER_PROFILE_RTC_WARN
-	debug_wakeup = aft + POWER_DEBUG_WAKEUP;
-	if (debug_wakeup > startup_time + POWER_DEBUG_WAKEUP_OFFSET)
-		RTC_SetAlarm(debug_wakeup); // watch dog alarm in case we never sleep again.
-#endif
 
 	// Main system timer does not run during sleep so we have to fix up clock afterwards.
 	// Do a three iteration floor estimate for the clock conversion.
