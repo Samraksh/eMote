@@ -157,12 +157,19 @@ static void power_debug_dump(void *arg) {
 
 // Number of RTC ticks it takes to wakeup from each power level.
 // So wakeup early by this amount plus some slop
+// enum wakeup_ticks{
+	// MIN_SLEEP_TICKS = 33,
+	// SLEEP_EXTRA_PAD = 2,
+	// SLEEP_PADDING_HIGH_POWER = 9,
+	// SLEEP_PADDING_MID_POWER = 9,
+	// SLEEP_PADDING_LOW_POWER = 6,
+// };
 enum wakeup_ticks{
-	MIN_SLEEP_TICKS = 33,
-	SLEEP_EXTRA_PAD = 2,
-	SLEEP_PADDING_HIGH_POWER = 9,
-	SLEEP_PADDING_MID_POWER = 9,
-	SLEEP_PADDING_LOW_POWER = 6,
+	MIN_SLEEP_TICKS = 17,
+	SLEEP_EXTRA_PAD = 1,
+	SLEEP_PADDING_HIGH_POWER = 5,
+	SLEEP_PADDING_MID_POWER = 5,
+	SLEEP_PADDING_LOW_POWER = 3,
 };
 
 #ifdef PLATFORM_ARM_AUSTERE
@@ -935,7 +942,7 @@ void Sleep() {
 	ticks_extra += (ticks_extra+ticks_carried3)/128 * 23;
 	ticks_carried3 = (ticks_extra+ticks_carried3) % 128;
 	// Add it up
-	ticks = (ticks+ticks_extra) * 305;
+	ticks = (ticks+ticks_extra) * 305 * 2;
 	// Punch it in
 	HAL_Time_AddClockTime(ticks);
 

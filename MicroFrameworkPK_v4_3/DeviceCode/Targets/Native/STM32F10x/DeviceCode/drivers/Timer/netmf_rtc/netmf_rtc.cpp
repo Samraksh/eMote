@@ -8,7 +8,7 @@ STM32F10x_RTC g_STM32F10x_RTC;
 void ISR_RTC_ALARM(void* Param);
 
 //const uint16_t TIME_CUSHION = (uint16_t)(0.000015 * g_HardwareTimerFrequency[0]); // 15us @ 8 MHz
-const UINT64 TIME_CUSHION = 7;
+const UINT64 TIME_CUSHION = 4;
 
 UINT32 STM32F10x_RTC::SetCounter(UINT32 counterValue)
 {
@@ -93,7 +93,7 @@ DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, U
 	// First make sure the RTC is running, we will use that to measure.
 	RCC_APB1PeriphClockCmd( RCC_APB1Periph_BKP, ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
-	RTC_SetPrescaler(0); 
+	RTC_SetPrescaler(1);
 #if defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_AUSTERE)
 	RCC_LSEConfig(RCC_LSE_Bypass);
 #else
