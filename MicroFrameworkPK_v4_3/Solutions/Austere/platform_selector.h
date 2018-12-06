@@ -36,6 +36,7 @@ typedef uint16_t ushort;
 #define TINYBOOTER_REVISION 2
 //#define COMPILE_CUSTOMER_RELEASE 1
 
+#define REBOOT_RTC_RESET_ZERO	// Resets the RTC to zero after a reboot.
 
 //#define POWER_PROFILE_HACK
 //#define POWER_PROFILE_RTC_WARN

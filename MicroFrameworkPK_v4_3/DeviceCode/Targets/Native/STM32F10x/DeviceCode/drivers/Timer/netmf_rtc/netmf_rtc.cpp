@@ -104,6 +104,13 @@ DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, U
 			return DS_Fail; // Crystal not starting. Give up.
 		}
 	}
+
+#ifdef REBOOT_RTC_RESET_ZERO
+	RTC_WaitForLastTask();
+	RTC_SetCounter(0);
+	RTC_WaitForLastTask();
+#endif
+
 	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 	RCC_RTCCLKCmd(ENABLE);
 	RTC_WaitForLastTask();
