@@ -130,7 +130,7 @@ BOOL VirtualTimerMapper::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 per
 	g_VirtualTimerInfo[VTimerIndex].set_m_reserved(_isreserved);
 	g_VirtualTimerInfo[VTimerIndex].set_m_start_delay(ticksStartDelay);
 	g_VirtualTimerInfo[VTimerIndex].set_m_timer_id(timer_id);
-	g_VirtualTimerInfo[VTimerIndex].set_m_ticks_when_match_(HAL_Time_CurrentTicks() + ticksPeriod + ticksStartDelay);
+	g_VirtualTimerInfo[VTimerIndex].set_m_ticks_when_match_(VirtTimer_GetTicks(timer_id)  + g_VirtualTimerInfo[VTimerIndex].get_m_period() + g_VirtualTimerInfo[VTimerIndex].get_m_start_delay());
 
 	return TRUE;
 }
@@ -192,7 +192,7 @@ BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
 	}
 
 	// check to see if we are already running
-	if (g_VirtualTimerInfo[VTimerIndex].get_m_is_running() == TRUE) {
+	/*if (g_VirtualTimerInfo[VTimerIndex].get_m_is_running() == TRUE) {
 		DEBUG_VT_ASSERT_ANAL(0);
 #ifdef _DEBUG
 		// Double check that the timer isn't in the past and we are ignoring it at our peril.
@@ -203,7 +203,7 @@ BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
 		if ( mth+64 < cnt ) SOFT_BREAKPOINT();
 #endif
 		return TRUE;
-	}
+	}*/
 
 	// Initializing timer
 	g_VirtualTimerInfo[VTimerIndex].set_m_ticks_when_match_(VirtTimer_GetTicks(timer_id)  + g_VirtualTimerInfo[VTimerIndex].get_m_period() + g_VirtualTimerInfo[VTimerIndex].get_m_start_delay());
