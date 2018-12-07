@@ -13,7 +13,7 @@ nathan.stohs@samraksh.com
 #include "../usart/sam_usart.h"
 #include "../Timer/netmf_rtc/netmf_rtc.h"
 
-#undef POWER_PROFILE_HACK
+//#undef POWER_PROFILE_HACK
 
 #ifdef POWER_PROFILE_HACK
 //#define POWER_TABLE_WRAP
@@ -22,28 +22,18 @@ nathan.stohs@samraksh.com
 #define FILTER_LOCKON
 #define FILTER_LOCKOFF
 //#define FILTER_TOO_SHORT
-#define FILTER_SNOOZE
+//#define FILTER_SNOOZE
 #define FILTER_USART
+#define FILTER_GC_RELOC
 
-#define POWER_EVENTS_SIZE 192
+#define POWER_MERGE_MANAGED
+#define POWER_MERGE_GC
+
+#define POWER_EVENTS_SIZE 256
 #define POWER_COUNT_INIT 0
 #define POWER_COUNT_TIME (90*16384) // Don't start logging until RTC is X
 
 static IRQn_Type get_first_irq(void);
-
-typedef enum __attribute__ ((packed)) {
-	GOING_TO_SLEEP,
-	WAKEUP,
-	TOO_SHORT,
-	WAKELOCK_ON,
-	WAKELOCK_OFF,
-	WAKELOCK_DENY_START,
-	WAKELOCK_DENY_END,
-	TIMEWARP,
-	SNOOZE,
-	BUSY_ISR,
-	BUSY_USART,
-} power_event_enum_t;
 
 typedef struct __attribute__ ((packed)) {
 	uint32_t time;
@@ -68,6 +58,12 @@ static const char* power_evt_to_string(power_event_enum_t x) {
 		case SNOOZE:			return "SNOOZE";
 		case BUSY_ISR:			return "BUSY_ISR";
 		case BUSY_USART:		return "BUSY_USART";
+		case MANAGED_ENTER:		return "MANAGED_ENTER";
+		case MANAGED_EXIT:		return "MANAGED_EXIT";
+		case GC_START:			return "GC_START";
+		case GC_END:			return "GC_END";
+		case GC_RELOC_START:	return "GC_RELOC_START";
+		case GC_RELOC_END:		return "GC_RELOC_END";
 		default:				return "UNKNOWN";
 	}
 }
@@ -119,6 +115,10 @@ static void power_event_add(uint32_t now, power_event_enum_t evt, uint16_t data1
 	if (power_count >= POWER_EVENTS_SIZE) { print_all_power_events(); return; }
 	
 	switch (evt) {
+#ifdef FILTER_GC_RELOC
+		case GC_RELOC_START:
+		case GC_RELOC_END:
+#endif
 #ifdef FILTER_WAKELOCK_DENY
 		case WAKELOCK_DENY_START:
 		case WAKELOCK_DENY_END:
@@ -142,6 +142,21 @@ static void power_event_add(uint32_t now, power_event_enum_t evt, uint16_t data1
 		default: break;
 	}
 
+	// If we just exited but are entering again, forget the last exit and this entrance
+#ifdef POWER_MERGE_MANAGED
+	if (power_count > 0 && evt == MANAGED_ENTER && power_events[power_count-1].evt == MANAGED_EXIT) {
+		power_count--;
+		return;
+	}
+#endif
+
+#ifdef POWER_MERGE_GC
+	if (power_count > 0 && evt == GC_START && power_events[power_count-1].evt == GC_END) {
+		power_count--;
+		return;
+	}
+#endif
+
 	power_events[power_count].time = now;
 	power_events[power_count].data16 = data16;
 	power_events[power_count].evt = evt;
@@ -151,6 +166,10 @@ static void power_event_add(uint32_t now, power_event_enum_t evt, uint16_t data1
 	if (power_count >= POWER_EVENTS_SIZE)
 		power_count=0;
 #endif
+}
+
+void power_event_add_now(power_event_enum_t evt, uint16_t data16, int8_t extra) {
+	power_event_add(RTC_GetCounter(), evt, data16, extra);
 }
 
 static void power_event_wakeup(uint32_t now) {
@@ -266,7 +285,7 @@ void WakeLockInit(void) {
 
 void WakeLock(uint32_t lock) {
 #ifdef POWER_PROFILE_HACK
-	power_event_add(RTC_GetCounter(), WAKELOCK_ON, 0, -1);
+	power_event_add(RTC_GetCounter(), WAKELOCK_ON, lock, -1);
 #endif
 	GLOBAL_LOCK(irq);
 	wakelock |= lock;
@@ -274,7 +293,7 @@ void WakeLock(uint32_t lock) {
 
 void WakeUnlock(uint32_t lock) {
 #ifdef POWER_PROFILE_HACK
-	power_event_add(RTC_GetCounter(), WAKELOCK_OFF, 0, -1);
+	power_event_add(RTC_GetCounter(), WAKELOCK_OFF, lock, -1);
 #endif
 	GLOBAL_LOCK(irq);
 	wakelock &= ~lock;
@@ -853,10 +872,14 @@ static uint32_t align_to_rtc2(void) {
 
 void Snooze() {
 #ifdef POWER_PROFILE_HACK
-	power_event_add(RTC_GetCounter(), SNOOZE, 0, -1);
+	uint32_t now = RTC_GetCounter();
 #endif
 	__DSB();
 	__WFI();
+#ifdef POWER_PROFILE_HACK
+	uint32_t later = RTC_GetCounter();
+	power_event_add(now, SNOOZE, later-now, 0);
+#endif
 }
 
 // Exit in the same power state as we entered.

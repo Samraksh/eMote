@@ -12,6 +12,29 @@
 #define PWR_HSI_TRIM_MIN_OR_MAX(x) (x == 0 || x == 31)
 #define PWR_HSI_TRIM_VALID(x) (x<=31)
 
+#ifdef POWER_PROFILE_HACK
+typedef enum __attribute__ ((packed)) {
+	GOING_TO_SLEEP,
+	WAKEUP,
+	TOO_SHORT,
+	WAKELOCK_ON,
+	WAKELOCK_OFF,
+	WAKELOCK_DENY_START,
+	WAKELOCK_DENY_END,
+	TIMEWARP,
+	SNOOZE,
+	BUSY_ISR,
+	BUSY_USART,
+	MANAGED_ENTER,
+	MANAGED_EXIT,
+	GC_START,
+	GC_END,
+	GC_RELOC_START,
+	GC_RELOC_END,
+} power_event_enum_t;
+extern void power_event_add_now(power_event_enum_t evt, uint16_t data16, int8_t extra);
+#endif
+
 enum stm_power_modes {
 	POWER_STATE_DEFAULT,
 	POWER_STATE_LOW,

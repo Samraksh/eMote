@@ -6,6 +6,11 @@
 #include "Core.h" 
 #include <TinyCLR_Debugging.h>
 
+#if defined(POWER_PROFILE_HACK) && defined(PLATFORM_ARM_AUSTERE)
+#include <pwr/netmf_pwr.h>
+#else
+#define power_event_add_now(x) ((void )0)
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -447,6 +452,7 @@ void CLR_RT_ExecutionEngine::ExecutionConstraint_Resume()
 
 CLR_UINT32 CLR_RT_ExecutionEngine::PerformGarbageCollection()
 {
+	power_event_add_now(GC_START, 0, 0);
 #ifdef DEBUG_CLR
 	CPU_GPIO_SetPinState( 0, TRUE);
 #endif
@@ -468,11 +474,13 @@ CLR_UINT32 CLR_RT_ExecutionEngine::PerformGarbageCollection()
 #ifdef DEBUG_CLR
     CPU_GPIO_SetPinState( 0, FALSE);
 #endif
+	power_event_add_now(GC_END, 0, 0);
     return freeMem;
 }
 
 void CLR_RT_ExecutionEngine::PerformHeapCompaction()
 {
+	power_event_add_now(GC_START, 0, 0);
 #ifdef DEBUG_CLR
 	CPU_GPIO_SetPinState( 4, TRUE);
 #endif
@@ -487,10 +495,12 @@ void CLR_RT_ExecutionEngine::PerformHeapCompaction()
 #ifdef DEBUG_CLR
     CPU_GPIO_SetPinState( 4, FALSE);
 #endif
+	power_event_add_now(GC_END, 0, 0);
 }
 
 void CLR_RT_ExecutionEngine::Relocate()
 {
+	power_event_add_now(GC_RELOC_START, 0, 0);
     NATIVE_PROFILE_CLR_CORE();
 #if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
     CLR_RT_GarbageCollector::Heap_Relocate( (void**)&m_scratchPadArray );
@@ -506,6 +516,7 @@ void CLR_RT_ExecutionEngine::Relocate()
     m_weakReferences.Relocate();
 
     g_CLR_RT_Persistence_Manager.Relocate();
+	power_event_add_now(GC_RELOC_END, 0, 0);
 }
 
 //--//
@@ -1426,7 +1437,9 @@ HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
 			// sure we don't run any managed code if we have erased the FLASH.
 			// This variable will be set to false upon reboot or continuation of debugging (usually by getting a PING debug message)
 			if (CLR_DBG_Debugger::debuggerErasedFlash == false){
+				power_event_add_now(MANAGED_ENTER, 0, 0);
 				hr = th->Execute();
+				power_event_add_now(MANAGED_EXIT,  0, 0);
         	}
 #ifdef DEBUG_CLR
 			CPU_GPIO_SetPinState( 8, FALSE);
