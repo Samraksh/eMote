@@ -13,7 +13,7 @@ nathan.stohs@samraksh.com
 #include "../usart/sam_usart.h"
 #include "../Timer/netmf_rtc/netmf_rtc.h"
 
-//#undef POWER_PROFILE_HACK
+#undef POWER_PROFILE_HACK
 
 #ifdef POWER_PROFILE_HACK
 //#define POWER_TABLE_WRAP
@@ -22,11 +22,12 @@ nathan.stohs@samraksh.com
 #define FILTER_LOCKON
 #define FILTER_LOCKOFF
 //#define FILTER_TOO_SHORT
-//#define FILTER_SNOOZE
+#define FILTER_SNOOZE
 #define FILTER_USART
 
-#define POWER_EVENTS_SIZE 80
-#define POWER_COUNT_INIT -56
+#define POWER_EVENTS_SIZE 192
+#define POWER_COUNT_INIT 0
+#define POWER_COUNT_TIME (90*16384) // Don't start logging until RTC is X
 
 static IRQn_Type get_first_irq(void);
 
@@ -36,7 +37,8 @@ typedef enum __attribute__ ((packed)) {
 	TOO_SHORT,
 	WAKELOCK_ON,
 	WAKELOCK_OFF,
-	WAKELOCK_DENY,
+	WAKELOCK_DENY_START,
+	WAKELOCK_DENY_END,
 	TIMEWARP,
 	SNOOZE,
 	BUSY_ISR,
@@ -60,7 +62,8 @@ static const char* power_evt_to_string(power_event_enum_t x) {
 		case TOO_SHORT: 		return "TOO_SHORT";
 		case WAKELOCK_ON: 		return "LOCK_ON";
 		case WAKELOCK_OFF: 		return "LOCK_OFF";
-		case WAKELOCK_DENY: 	return "WAKELOCK_DENY";
+		case WAKELOCK_DENY_START: 	return "WAKELOCK_DENY_START";
+		case WAKELOCK_DENY_END: 	return "WAKELOCK_DENY_END";
 		case TIMEWARP: 			return "TIMEWARP";
 		case SNOOZE:			return "SNOOZE";
 		case BUSY_ISR:			return "BUSY_ISR";
@@ -86,6 +89,7 @@ static void print_all_power_events() {
 }
 
 static void power_event_sleep(uint32_t now, uint16_t wakeup, enum stm_power_modes power_state) {
+	if (RTC_GetCounter() < POWER_COUNT_TIME) { return; }
 	if (power_count < 0) { power_count++; return; }
 	if (power_count >= POWER_EVENTS_SIZE) { return; }
 	power_events[power_count].time = now;
@@ -110,12 +114,14 @@ static void power_event_sleep(uint32_t now, uint16_t wakeup, enum stm_power_mode
 }
 
 static void power_event_add(uint32_t now, power_event_enum_t evt, uint16_t data16, int8_t extra) {
+	if (RTC_GetCounter() < POWER_COUNT_TIME) { return; }
 	if (power_count < 0 || power_count >= POWER_EVENTS_SIZE) { return; }
 	if (power_count >= POWER_EVENTS_SIZE) { print_all_power_events(); return; }
 	
 	switch (evt) {
 #ifdef FILTER_WAKELOCK_DENY
-		case WAKELOCK_DENY:
+		case WAKELOCK_DENY_START:
+		case WAKELOCK_DENY_END:
 #endif
 #ifdef FILTER_LOCKOFF
 		case WAKELOCK_OFF:
@@ -148,6 +154,7 @@ static void power_event_add(uint32_t now, power_event_enum_t evt, uint16_t data1
 }
 
 static void power_event_wakeup(uint32_t now) {
+	if (RTC_GetCounter() < POWER_COUNT_TIME) { return; }
 	if (power_count < 0) { power_count++; return; }
 	if (power_count >= POWER_EVENTS_SIZE) { print_all_power_events(); return; }
 	power_events[power_count].time = now;
@@ -817,6 +824,9 @@ static uint32_t check_all_exti(void) {
 // Returns the first IRQn which is active.
 // *probably* the one that woke us up, but impossible to tell.
 static IRQn_Type get_first_irq(void) {
+	if (NVIC_GetPendingIRQ(RTC_IRQn) == 1)
+		return RTC_IRQn;	// This is what we want to see.
+
 	if (RTC_GetFlagStatus(RTC_FLAG_ALR) == SET )
 		return RTCAlarm_IRQn; // Alarm is an event so it doesn't show up as IRQ. If its set, we assume this woke us up.
 
@@ -867,10 +877,13 @@ void Sleep() {
 #ifdef EMOTE_WAKELOCKS
 	if ( GetWakeLocked() ) { // If wakelocked, use snooze mode.
 #ifdef POWER_PROFILE_HACK
-		power_event_add(RTC_GetCounter(), WAKELOCK_DENY, 0, -1);
+		power_event_add(RTC_GetCounter(), WAKELOCK_DENY_START, 0, -1);
 #endif
 		__DSB();
 		__WFI();
+#ifdef POWER_PROFILE_HACK
+		power_event_add(RTC_GetCounter(), WAKELOCK_DENY_END, (uint16_t)get_first_irq(), -1);
+#endif
 		return; // Sleep completed, done here.
 	}
 #endif // EMOTE_WAKELOCKS
