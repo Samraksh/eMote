@@ -385,6 +385,13 @@ bool queueVTCallback(VirtualTimerInfo* runningTimer){
 	return false;
 }
 
+bool VTCallbackQueueHasItem(void) {
+	for (int i=0; i<VT_CALLBACK_CONTINUATION_MAX; i++) {
+		if ( vtCallbackContinuationArray[i].IsLinked() ) return true;
+	}
+	return false;
+}
+
 // Algorithm for the callback:
 // All system timers (except C# user timers) will run through the Virtual timer. Each timer keeps track of the time at which it will fire
 // The timer that will fire soonest has its time set in the timer comparator and upon the timer matching, this callback will be called.

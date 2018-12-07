@@ -237,6 +237,10 @@ UINT64 VirtTimer_GetNextAlarm()
 	UINT64 nextAlarm = 0xFFFFFFFFFFFFFFFFull;
 	UINT64 retTime = 0;
 	UINT16 i = 0;
+
+	if ( VTCallbackQueueHasItem() )
+		return 0;
+
 	// This only works for the timer that uses the same system time as the Expire time in completions.cpp
 	// other timers have different system clocks and this function will have to be expanded in the future to accomodate them
 	//for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)

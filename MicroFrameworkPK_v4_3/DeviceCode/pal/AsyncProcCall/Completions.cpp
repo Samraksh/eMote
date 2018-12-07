@@ -241,6 +241,12 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 			UINT64 nextVtAlarm = VirtTimer_GetNextAlarm();			
 			// If the next alarm is earlier than Expire, we set Expire to be the wakeup alarm
 			// The alarms will be updated after sleep
+
+			// Abort if a task is hanging in the VT queue.
+			// Honestly I don't know if flat out returning is the right thing... --NPS
+			if (nextVtAlarm == 0)
+				return;
+
 			if (nextVtAlarm < Expire)
 				Expire = nextVtAlarm;
 

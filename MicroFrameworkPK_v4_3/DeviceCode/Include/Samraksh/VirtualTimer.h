@@ -17,6 +17,7 @@
 #include "Time_decl.h"
 #endif
 
+bool VTCallbackQueueHasItem(void);
 
 // Defines the number of virtual timers in the system. Increasing this number is fine if you have a large amount of RAM
 
