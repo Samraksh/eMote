@@ -236,20 +236,22 @@ UINT64 VirtTimer_GetNextAlarm()
 	//UINT64 nextAlarm = VirtTimer_GetMaxTicks(g_HardwareTimerIDs[0]);
 	UINT64 nextAlarm = 0xFFFFFFFFFFFFFFFFull;
 	UINT64 retTime = 0;
-	UINT16 i = 0;
 
 	if ( VTCallbackQueueHasItem() )
 		return 0;
 
 	// This only works for the timer that uses the same system time as the Expire time in completions.cpp
 	// other timers have different system clocks and this function will have to be expanded in the future to accomodate them
-	//for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
+	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
 	{
+			// retTime is based on ticks from its own timer
 			retTime = gVirtualTimerObject.virtualTimerMapper[i].GetNextAlarm();
+			// convert to system time clock
+			retTime = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks(CPU_TicksToMicroseconds(retTime - CPU_Timer_CurrentTicks(i),i),DEFAULT_TIMER);
 			if (retTime < nextAlarm)
 				nextAlarm = retTime;
 	}
-#ifdef PLATFORM_ARM_AUSTERE // this is really a generic VT bug, but limiting scope until a real fix is tested
+/*#ifdef PLATFORM_ARM_AUSTERE // this is really a generic VT bug, but limiting scope until a real fix is tested
 	{
 		UINT32 retTime_RTC = gVirtualTimerObject.virtualTimerMapper[1].GetNextAlarm();
 		UINT64 rtc_us = VirtTimer_TicksToMicroseconds(2, retTime_RTC);
@@ -257,8 +259,18 @@ UINT64 VirtTimer_GetNextAlarm()
 		if (rtc_ticks < nextAlarm)
 			nextAlarm = rtc_ticks;
 	}
-#endif
+#endif*/
 	return nextAlarm;
+}
+
+void VirtTimer_FireExpiredTimer(){
+	bool timerFired = true;
+
+	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
+	{
+		timerFired = gVirtualTimerObject.virtualTimerMapper[i].FireTimer(i);
+		if (timerFired == true) return;
+	}
 }
 
 void VirtTimer_UpdateAlarms()

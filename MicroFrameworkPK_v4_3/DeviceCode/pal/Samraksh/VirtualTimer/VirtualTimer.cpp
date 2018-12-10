@@ -385,13 +385,30 @@ bool queueVTCallback(VirtualTimerInfo* runningTimer){
 	return false;
 }
 
+// returns false if vt has a callback to run
+// returns true if vt has nothing to do
 bool VTCallbackQueueHasItem(void) {
+	// calling this from a non-interrupt context (for example right before we sleep)
+	// checking to see if there are any continuation callbacks that need to be run
 	for (int i=0; i<VT_CALLBACK_CONTINUATION_MAX; i++) {
 		if ( vtCallbackContinuationArray[i].IsLinked() ) return true;
 	}
 	return false;
 }
 
+bool FireTimer(UINT8 timer_id) {
+	int i;
+
+	for(i = 0; i < m_current_timer_cnt_; i++) {
+		if(g_VirtualTimerInfo[i].get_m_is_running() && (runningTimer->get_m_ticks_when_match_() < VirtTimer_GetTicks(timer_id)))
+		{
+			(runningTimer->get_m_callback())(NULL);
+			return true;
+		}
+	}
+	
+	return false;
+}
 // Algorithm for the callback:
 // All system timers (except C# user timers) will run through the Virtual timer. Each timer keeps track of the time at which it will fire
 // The timer that will fire soonest has its time set in the timer comparator and upon the timer matching, this callback will be called.
