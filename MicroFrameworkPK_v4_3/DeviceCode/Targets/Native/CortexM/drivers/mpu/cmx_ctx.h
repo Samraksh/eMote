@@ -16,6 +16,14 @@ typedef struct {
   regarm_t      lr_thd;
   regarm_t      pc;
   regarm_t      xpsr;
+  regarm_t      r4;
+  regarm_t      r5;
+  regarm_t      r6;
+  regarm_t      r7;
+  regarm_t      r8;
+  regarm_t      r9;
+  regarm_t      r10;
+  regarm_t      r11;
   regarm_t		stackframefp;
   //volatile UINT8 r4_r11[32];
 #if CORTEX_USE_FPU

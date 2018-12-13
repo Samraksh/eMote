@@ -423,7 +423,7 @@ extern void SVCall_HandlerC(UINT32 sp);
 void __irq SVC_Handler(){
 
 	//SVCall_Handler();
-	asm(
+	asm volatile (
 		"TST LR, #4 \n"          // Test EXC_RETURN number in LR bit 2 to determine if main stack or program stack is in use.
 		"ITE EQ \n"
 		"MRSEQ R0, MSP \n"

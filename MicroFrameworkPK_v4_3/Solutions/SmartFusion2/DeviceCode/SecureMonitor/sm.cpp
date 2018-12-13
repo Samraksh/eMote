@@ -10,6 +10,7 @@
 #include <tinyhal.h>
 
 
+
 extern UINT32 Load$$RoT_ER_FLASH$$Base;
 extern UINT32 Load$$Kernel_ER_FLASH$$Base;
 extern UINT32 Load$$RunTime_ER_FLASH$$Base;
@@ -43,6 +44,14 @@ extern UINT32 Image$$Kernel_ER_FLASH$$Base;
 extern UINT32 Image$$Kernel_ER_FLASH$$Length;
 
 
+typedef void (*svcall0_t)(void*);
+typedef void (*svcall1_t)(void*, void*);
+
+task_ctx_t *userCallCtx;
+task_ctx_t memFault_ctx;
+UINT32* interruptMSP;
+
+
 ///return LR Register value
 static UINT32  inline __get_LR(void)
 {
@@ -61,6 +70,7 @@ static inline void __set_LR(uint32_t lr)
 void SecureMonitor_Initialize(){
 	CPU_mpu_init();
 	SetupSecureEmoteRegions();
+	memset(&memFault_ctx, 0, sizeof(task_ctx_t));
 }
 
 
@@ -150,11 +160,6 @@ void MPU_Init(){
 
 }
 
-typedef void (*svcall0_t)(void*);
-typedef void (*svcall1_t)(void*, void*);
-
-task_ctx_t *userCallCtx;
-UINT32* interruptMSP;
 
 void SwitchBackToUserMode(task_ctx_t ctx){
 
@@ -261,7 +266,8 @@ void SwitchToKernelThreadMode(void){
 
 	//stackSize units are just added to  enable array bases alocation, the stack size is essentially set by
 	//boot up process
-	UINT32 stackSize=128;
+	UINT32 stackGap=128;
+
 	//get msp and decrement it. Remember its a FULL stack.
 
 	//Get current MSP and store it
@@ -271,32 +277,35 @@ void SwitchToKernelThreadMode(void){
 	//UINT32* msp=userCallCtx->stackframefp;
 
 	//Now get a new stack frame
-	//msp-=stackSize; //decrement by 128 bytes, which hopefully covers everthing this method has put on the stack.
+	msp=msp - stackGap; //decrement by 128 bytes, which hopefully covers everthing this method has put on the stack.
 
 
 
 	//just change the LR in the current stack to a different function and just return.
-	msp[5]=(UINT32)&SwitchBackToUserMode;
-	debug_printf("SwitchToKernelThreadMode: MSP is at %p, I want to return to : %p, not to  lr_thd=%p, pc=%p \n",msp, msp[5], userCallCtx->lr_thd, msp[6]);
+	//msp[5]=(UINT32)&SwitchBackToUserMode;
 
 	// This is the kernel function that caused the fault, and should be unchanged.
 	//but double check just to be sure.
-	ASSERT(msp[6]==userCallCtx->pc);
+	//ASSERT(msp[6]==userCallCtx->pc);
 
-	//msp[-1]=  0x01000000; //xPSR
-	//msp[-2]=  userCallCtx->pc; //PC/fuction to be called
-	//msp[-3]=  (UINT32)&SwitchBackTOUserMode; //Link register
+	// when we get out of nvic, the hardware is going to pop 8 addresses
+	//and our task execution will start from where we want the new msp
+	msp = msp - 10;
+
+	//copy ro,r1,r3,r12,LR,pc,xpsr of the registers
+	msp[7]=  0x01000000; //xPSR
+	msp[6]=  userCallCtx->pc; //PC/fuction to be called
+	msp[5]=  (UINT32)&SwitchBackToUserMode; //Link register
+
+	msp[4]= userCallCtx->r12;
+	msp[3]= userCallCtx->r3;
+	msp[2]= userCallCtx->r2;
+	msp[1]= userCallCtx->r1;
+	msp[0]= userCallCtx->r0;
 
 	__ISB(); // instruction barrier. Make sure everything till now is done
-	//__set_MSP(((UINT32)msp+64)); // Set PSP to the top of task's stack
 
-	// Load MSP
-	/*asm(
-		"ldr	r2, =msp\n"
-		"ldr	r1, [r2]\n"
-		"ldr	r0, [r1]\n""
-		);
-	 */
+	__set_MSP((UINT32)msp);
 
 	/*There are just 3 modes in M3.
 	F1- Handler mode
@@ -305,22 +314,35 @@ void SwitchToKernelThreadMode(void){
 	*/
 	//enable interrupts and return to priviledged thread mode
 
-	//becuase we are in a second stack in the interrupt processing, the original
-	//LR has been pushed into the r7 register. change the mode from FD, to F9
+
+	//We need to copy r4-r11 into the registers from call contex, before jumping
+	//UINT32 addr = ((UINT32)userCallCtx) +64;
+	asm("Mov	r0, %0" : : "r"(&userCallCtx->r4));
 	asm(
-		"ldr r7, =0xFFFFFFF9\n"
-		"cpsie	i\n"
-		"bx r7\n"
+		"ldmia	r0!,{r4-r7}\n"
+		"mov	r8, r4\n"
+		"mov	r9, r5\n"
+		"mov	r10, r6\n"
+		"mov	r11, r7\n"
+		//"add	r0, #32\n" //add 32 to address at r0
+		"ldmia	r0!,{r4-r7}\n"
+		//"msr	psp, r0\n"
 	);
 
-	//Not doing anything, but just switching the mode. but now we will return in
-	__ISB();
-	//__set_LR(0xFFFFFFF9);
-	/*asm(
-		"ldr r0, =0xFFFFFFF9\n"
-		"cpsie	i\n"
-		"bx	r0\n"
-	);*/
+	// This section, tries to set up priviledged thread mode
+	__set_LR(0xFFFFFFF9);
+	asm("cpsie	i\n");
+	//This should pop the interrrupt stack
+	//but instead of interrupt stack, it will pop the stack that we just setup.
+	asm("BX LR");
+
+
+	//This continues in interrupt mode
+	//volatile UINT32 addr = userCallCtx->pc;
+	//asm("MOV pc, %0" : : "r"(userCallCtx->pc));
+	//asm("bx	r0\n");
+	//asm("BX %0" : : "r"(userCallCtx->pc));
+
 }
 
 
@@ -344,73 +366,111 @@ void SwitchToKernelThreadMode(void){
 }
 */
 
+
 //void __irq MemManage_Handler(UINT32 lr, UINT32 msp)
 void __irq MemManage_Handler()
 {
-    static char msg[128];
-    task_ctx_t ctx;
 
+    //memcpy(&memFault_ctx, 0, sizeof(task_ctx_t));
+    //store r4-r11 into the context
+    //regarm_t* addr = &memFault_ctx.r4
+    asm("Mov	r0, %0" : : "r"(&memFault_ctx.r4));  //load address in ro
+	asm(
+		"stmia	r0!,{r4-r7}\n" //store r4-r7 at address
+		"mov	r4, r8\n" //move r8-r11 into r4-r7
+		"mov	r5, r9\n"
+		"mov	r6, r10\n"
+		"mov	r7, r11\n"
+		//"add	r0, #32\n" //add 32 to address at r0
+		"stmia	r0!,{r4-r7}\n" // store r4-r7 again
+    );
+
+	__ISB();
+	__DSB();
+    // Get context info
+    UINT32 lr= __get_LR();
+
+    // Determine the origin of the exception.
+
+
+    UINT32* msp =(UINT32*) __get_MSP();
+
+    bool from_psp = EXC_FROM_PSP(lr);
+    UINT32 sp;
+    if(from_psp){
+    	sp= __get_PSP();
+    }
+    else{
+    	//This fault created a new frame. so the original faulting frame was probably before this
+    	sp= (UINT32)msp + 32;
+    }
+
+    memFault_ctx.stackframefp=sp;
+
+    static char msg[128];
     UINT32 MMFSR;
+    //copy only 32 bytes that get pushed by default by the interrupt handler
+    memcpy(&memFault_ctx, (void*)sp, 32);
+
 
     /* Setup default error message. */
     memcpy((void*)msg, (void*)__FUNCTION__, 128);
-
-    // Get context info
-    UINT32 lr;
-    lr= __get_LR();
-
-    // Determine the origin of the exception.
-    bool from_psp = EXC_FROM_PSP(lr);
-    UINT32 sp = from_psp ? __get_PSP() : __get_MSP();
-    UINT32* msp =(UINT32*) __get_MSP();
-    ctx.stackframefp=sp;
-
-    memcpy(&ctx, (void*)sp, sizeof(task_ctx_t));
 
     /* Get Memory Managment fault adress register */
     MMFSR = SCB->CFSR & SCB_CFSR_MEMFAULTSR_Msk;
     UINT32 faultAddress=*(UINT32*)(SCB->MMFAR);
 
+    //clear the interrupt.
+    // one does not have to clear if this needs to be manually cleared.
+    //but just to be sure
+    NVIC_ClearPendingIRQ(MemoryManagement_IRQn); //-12
+
     if (MMFSR & (1 << 5)) {
-               debug_printf("MemManage Handler: A MemManage fault occurred during FP lazy state preservation, in exec mode: %p at address %p (pc=%p)\n", lr, faultAddress, ctx.pc);
+               debug_printf("MemManage Handler: A MemManage fault occurred during FP lazy state preservation, in exec mode: %p at address %p (pc=%p)\n", lr, faultAddress, memFault_ctx.pc);
     }
 
     if (MMFSR & (1 << 4)) {
-               debug_printf("MemManage Handler: A derived MemManage fault occurred on exception entry, in exec mode: %p at address %p (pc=%p)\n", lr, faultAddress, ctx.pc);
+               debug_printf("MemManage Handler: A derived MemManage fault occurred on exception entry, in exec mode: %p at address %p (pc=%p)\n", lr, faultAddress, memFault_ctx.pc);
     }
 
     if (MMFSR & (1 << 3)) {
-           debug_printf("MemManage Handler: A derived MemManage fault occurred on exception return, in exec mode: %p at address %p (pc=%p)\n", lr, faultAddress, ctx.pc);
+           debug_printf("MemManage Handler: A derived MemManage fault occurred on exception return, in exec mode: %p at address %p (pc=%p)\n", lr, faultAddress, memFault_ctx.pc);
     }
 
     // Data access violation
     if (MMFSR & (1 << 1)) {
-        debug_printf("MemManage Handler: Data access violation in exec mode: %p at address %p (pc=%p)\n", lr, faultAddress, ctx.pc);
+        debug_printf("MemManage Handler: Data access violation in exec mode: %p at address %p (pc=%p)\n", lr, faultAddress, memFault_ctx.pc);
     }
 
     // Instruction address violation.
     if (MMFSR & (1 << 0)) {
     	if(MMFSR & (1 << 7)){
-    		debug_printf("MemManage Handler: instruciton fault, PSP: %d, mmfar is valide. in  exec mode: %p at address %08X, %p,  lr_thd=%p, pc=%p\n",from_psp,lr, faultAddress,(void*)SCB->MMFAR, ctx.lr_thd, ctx.pc);
+    		debug_printf("MemManage Handler: instruciton fault, PSP: %d, mmfar is valide. in  exec mode: %p at address %08X, %p,  lr_thd=%p, pc=%p\n",from_psp,lr, faultAddress,(void*)SCB->MMFAR, memFault_ctx.lr_thd, memFault_ctx.pc);
 
     	}else {
-    		debug_printf("MemManage Handler: instruciton fault, PSP: %d, mmfar is NOT valid. LR: %p,  lr_thd=%p, pc=%p\n",from_psp,lr, ctx.lr_thd, ctx.pc);
+    		debug_printf("MemManage Handler: instruciton fault, PSP: %d, mmfar is NOT valid. LR: %p,  lr_thd=%p, pc=%p\n",from_psp,lr, memFault_ctx.lr_thd, memFault_ctx.pc);
 
 			//if calling from user space into kernel space code//
 			//Then switch stacks execute code and then return
-			if(from_psp && (ctx.pc >= ROT_BASE &&  ctx.pc <= KERNEL_END)){
-				debug_printf("MemManage Handler: Ok this a call into kernel, lets Switch the stack and return to %p\n", ctx.lr_thd);
+			if(from_psp && (memFault_ctx.pc >= ROT_BASE &&  memFault_ctx.pc <= KERNEL_END)){
+				debug_printf("MemManage Handler: Ok this a call into kernel, lets Switch the stack and return to %p\n", memFault_ctx.lr_thd);
 				//Save the contex of the usercall stack to global variable and strigger the PendSV
-				userCallCtx=&ctx;
+				userCallCtx=&memFault_ctx;
 				// Trigger PendSV which performs the actual context switch:
 				//SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 
-				//SwitchToKernelThreadMode();
+
+
+				SwitchToKernelThreadMode();
+				/*UINT32 oldLR=msp[5];
 				msp[5]=(UINT32)&SwitchBackToUserMode;
-				debug_printf("SwitchToKernelThreadMode: MSP is at %p, I want to return to : %p, not to  lr_thd=%p, pc=%p\n",msp, msp[5], ctx.lr_thd, msp[6]);
+				debug_printf("SwitchToKernelThreadMode: MSP is at %p, I want to return to : %p, not to  lr_thd=%p, pc=%p\n",msp, msp[5], oldLR, msp[6]);
 				ASSERT(msp[6]==userCallCtx->pc);
-				__set_LR(0xFFFFFFF9);
 				__ISB();
+				__set_LR(0xFFFFFFF9);
+				//asm("ldr r7, =0xFFFFFFF9\n");
+				asm("cpsie	i\n");
+				asm("bx LR\n");*/
 			}
 
     	}
