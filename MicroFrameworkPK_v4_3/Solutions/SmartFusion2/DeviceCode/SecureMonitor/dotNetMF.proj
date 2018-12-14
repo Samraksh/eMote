@@ -42,7 +42,7 @@
 	<HFiles Include="SF2_CM3.h" />
 	<Compile Include="sm.cpp" />	
 	<Compile Include="os_scheduler.cpp" />
-	<Compile Include="pendsv_handler.S" />
+	<!--<Compile Include="pendsv_handler.S" />-->
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

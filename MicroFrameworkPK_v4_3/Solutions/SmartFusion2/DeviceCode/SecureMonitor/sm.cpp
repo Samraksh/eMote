@@ -375,7 +375,8 @@ void SwitchToKernelThreadMode(void){
 	//asm("BX %0" : : "r"(userCallCtx->pc));
 
 }
-/*
+
+
 void  __irq PendSV_Handler(){
 	//We need to copy r4-r11 into the registers from call contex, before jumping
 	asm("Mov	r0, %0" : : "r"(&userCallCtx->r8));
@@ -401,25 +402,26 @@ void  __irq PendSV_Handler(){
 	asm("mov r12, %0" : : "r"(userCallPC));
 	asm("BLX r12");
 
-	///first thing store the returns
-	asm(	"mov	r8, r0\n"
-			"mov	r9, r1\n"
-			"mov	r10, r2\n"
-			"mov	r11, r3\n"
-		);
+	///first thing store the returns on the stack
+	asm("push {r0-r3}");
 
 
 	//lets manipulate the return address before we jump
 	//In cortexm, memfault always returns to the same address that caused the fault
 	//This is stored as PC, in the stack.
 	//We are overwritting this PC location with LR value, which is in the next place.
-	UINT32 *userStack=(UINT32 *)sp;
-	userStack[6]=userStack[5];
 
+	//UINT32 x=userCallCtx->stackframefp;
+	//UINT32* userStack = (UINT32*) x;
+	//userStack[6]=userStack[5];
+
+	//setup link register to be ready to get out
 	__set_LR(0xFFFFFFFD);
+	//get results back from stack
+	asm("pop {r0-r3}");
 	asm("BX LR");
 }
-*/
+
 
 //Checks execution mode of caller and gets the appropriate stack
 //then calls the C handler with the stack pointer
