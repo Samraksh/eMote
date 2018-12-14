@@ -28,6 +28,7 @@ typedef enum {
 
 void SetupSecureEmoteRegions();
 void MemManage_Handler(void);
+void PendSV_Handler(void);
 void SecureMonitor_Initialize();
 void SVCall_HandlerC(UINT32 sp);
 

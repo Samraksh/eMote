@@ -47,7 +47,7 @@ extern UINT32 Image$$Kernel_ER_FLASH$$Length;
 typedef void (*svcall0_t)(void*);
 typedef void (*svcall1_t)(void*, void*);
 
-task_ctx_t *userCallCtx;
+task_ctx_t *userCallCtx; UINT32 userCallPC;
 task_ctx_t memFault_ctx;
 UINT32* interruptMSP;
 
@@ -160,8 +160,16 @@ void MPU_Init(){
 
 }
 
+void KernFuncTest(char *string){
 
-void SwitchBackToUserMode(task_ctx_t ctx){
+	while(1){
+		volatile UINT32 x=2+3;
+		//debug_printf( "KernFuncTest: Nothing to do... just going to hang out here for a bit. \r\n");
+	}
+}
+
+
+void SwitchBackToUserMode(task_ctx_t *ctx){
 
 	/* Save registers R4-R11 (32 bytes) onto current PSP (process stack
 		   pointer) and make the PSP point to the last stacked register (R8):
@@ -169,7 +177,9 @@ void SwitchBackToUserMode(task_ctx_t ctx){
 		   - The STMIA inscruction can only save low registers (R0-R7), it is
 		     therefore necesary to copy registers R8-R11 into R4-R7 and call
 		     STMIA twice. */
-	asm(
+
+
+	/*asm(
 		"mrs	r0, psp\n"
 		"subs	r0, #16\n"
 		"stmia	r0!,{r4-r7}\n"
@@ -180,7 +190,8 @@ void SwitchBackToUserMode(task_ctx_t ctx){
 		"subs	r0, #32\n"
 		"stmia	r0!,{r4-r7}\n"
 		"subs	r0, #16"
-	);
+	);*/
+
 
 }
 
@@ -290,20 +301,39 @@ void SwitchToKernelThreadMode(void){
 
 	// when we get out of nvic, the hardware is going to pop 8 addresses
 	//and our task execution will start from where we want the new msp
-	msp = msp - 10;
+	msp = msp - 8;
 
 	//copy ro,r1,r3,r12,LR,pc,xpsr of the registers
-	msp[7]=  0x01000000; //xPSR
-	msp[6]=  userCallCtx->pc; //PC/fuction to be called
-	msp[5]=  (UINT32)&SwitchBackToUserMode; //Link register
+	//msp[-1]=  0x01000000; //xPSR
+	//msp[-2]=  userCallCtx->pc; //PC/fuction to be called
+	//msp[-3]=  (UINT32)&SwitchBackToUserMode; //Link register
 
+	msp[7]=  0x01000000; //xPSR
+	//msp[6]=  userCallCtx->pc; //PC/fuction to be called
+	msp[6]=  (UINT32)&KernFuncTest; //pc
+	msp[5]=  (UINT32)&SwitchBackToUserMode; //Link register
 	msp[4]= userCallCtx->r12;
 	msp[3]= userCallCtx->r3;
 	msp[2]= userCallCtx->r2;
 	msp[1]= userCallCtx->r1;
 	msp[0]= userCallCtx->r0;
 
-	__ISB(); // instruction barrier. Make sure everything till now is done
+
+	/*msp[-1]=  0x01000000; //xPSR
+	msp[-2]=  userCallCtx->pc; //PC/fuction to be called
+	msp[-3]=  (UINT32)&SwitchBackToUserMode; //Link register
+	msp[-4]= userCallCtx->r12;
+	msp[-5]= userCallCtx->r3;
+	msp[-6]= userCallCtx->r2;
+	msp[-7]= userCallCtx->r1;
+	msp[-8]= userCallCtx->r0;
+
+	msp = msp - 16;
+	*/
+
+	//debug_printf("SwitchToKernel: Setting up MSP at %p\n", msp);
+
+	//__ISB(); // instruction barrier. Make sure everything till now is done
 
 	__set_MSP((UINT32)msp);
 
@@ -317,7 +347,7 @@ void SwitchToKernelThreadMode(void){
 
 	//We need to copy r4-r11 into the registers from call contex, before jumping
 	//UINT32 addr = ((UINT32)userCallCtx) +64;
-	asm("Mov	r0, %0" : : "r"(&userCallCtx->r4));
+	/*asm("Mov	r0, %0" : : "r"(&userCallCtx->r4));
 	asm(
 		"ldmia	r0!,{r4-r7}\n"
 		"mov	r8, r4\n"
@@ -328,6 +358,7 @@ void SwitchToKernelThreadMode(void){
 		"ldmia	r0!,{r4-r7}\n"
 		//"msr	psp, r0\n"
 	);
+    */
 
 	// This section, tries to set up priviledged thread mode
 	__set_LR(0xFFFFFFF9);
@@ -345,6 +376,41 @@ void SwitchToKernelThreadMode(void){
 
 }
 
+void  __irq PendSV_Handler(){
+	//We need to copy r4-r11 into the registers from call contex, before jumping
+	asm("Mov	r0, %0" : : "r"(&userCallCtx->r8));
+	asm(
+		"ldmia	r0!,{r4-r7}\n"
+		"mov	r8, r4\n"
+		"mov	r9, r5\n"
+		"mov	r10, r6\n"
+		"mov	r11, r7\n"
+		"subs	r0, #32\n" //r0 should now point to after r11, subtract 64 to go address of r4
+		"ldmia	r0!,{r4-r7}\n"
+		//"msr	psp, r0\n"
+	);
+
+	asm("Mov	r12, %0" : : "r"(&userCallCtx->r0));
+	asm("ldmia	r12!,{r0-r3}\n");
+	//asm("Mov	r0, %0" : : "r"(userCallCtx->r0));
+
+	// This section, tries to set up priviledged thread mode
+	//__set_LR(0xFFFFFFF9);
+
+	//This should pop the interrrupt stack
+	//but instead of interrupt stack, it will pop the stack that we just setup.
+	//asm("BX LR");
+
+
+	//This continues in interrupt mode, bit 0 of register needs to be 1 for branch to register
+	//UINT32 addr = ((UINT32)userCallCtx->pc) | 0x1;
+	asm("cpsie	i\n");
+	asm("mov r12, %0" : : "r"(userCallPC));
+	asm("BLX r12");
+
+	__set_LR(0xFFFFFFFD);
+	asm("BX LR");
+}
 
 //Checks execution mode of caller and gets the appropriate stack
 //then calls the C handler with the stack pointer
@@ -456,12 +522,13 @@ void __irq MemManage_Handler()
 				debug_printf("MemManage Handler: Ok this a call into kernel, lets Switch the stack and return to %p\n", memFault_ctx.lr_thd);
 				//Save the contex of the usercall stack to global variable and strigger the PendSV
 				userCallCtx=&memFault_ctx;
+				userCallPC=userCallCtx->pc | 0x1;
 				// Trigger PendSV which performs the actual context switch:
-				//SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+				SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 
 
 
-				SwitchToKernelThreadMode();
+				//SwitchToKernelThreadMode();
 				/*UINT32 oldLR=msp[5];
 				msp[5]=(UINT32)&SwitchBackToUserMode;
 				debug_printf("SwitchToKernelThreadMode: MSP is at %p, I want to return to : %p, not to  lr_thd=%p, pc=%p\n",msp, msp[5], oldLR, msp[6]);

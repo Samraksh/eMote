@@ -34,6 +34,7 @@
 #if defined(SECURE_EMOTE)
 extern void MemManage_HandlerC(UINT32 lr, UINT32 msp);
 //extern void SVCall_Handler(void);
+extern void PendSV_Handler(void);
 #endif
 
 
@@ -461,7 +462,7 @@ void __irq SVC_Handler(){
 	}*/
 
 	//This is needed to support realtime timer, this is incomplete
-	void __irq PendSV_Handler()
+	/*void __irq PendSV_Handler()
 	{
 		//Below line is needed, but commented out
 		//SCB->ICSR |= SCB_ICSR_PENDSVCLR;
@@ -488,7 +489,7 @@ void __irq SVC_Handler(){
 		INTERRUPT_END
 
 	}
-
+*/
 
 	// Stub here to save potential confusion later.
 	void __irq SysTick_Handler()
