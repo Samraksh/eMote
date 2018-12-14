@@ -375,7 +375,7 @@ void SwitchToKernelThreadMode(void){
 	//asm("BX %0" : : "r"(userCallCtx->pc));
 
 }
-
+/*
 void  __irq PendSV_Handler(){
 	//We need to copy r4-r11 into the registers from call contex, before jumping
 	asm("Mov	r0, %0" : : "r"(&userCallCtx->r8));
@@ -394,13 +394,6 @@ void  __irq PendSV_Handler(){
 	asm("ldmia	r12!,{r0-r3}\n");
 	//asm("Mov	r0, %0" : : "r"(userCallCtx->r0));
 
-	// This section, tries to set up priviledged thread mode
-	//__set_LR(0xFFFFFFF9);
-
-	//This should pop the interrrupt stack
-	//but instead of interrupt stack, it will pop the stack that we just setup.
-	//asm("BX LR");
-
 
 	//This continues in interrupt mode, bit 0 of register needs to be 1 for branch to register
 	//UINT32 addr = ((UINT32)userCallCtx->pc) | 0x1;
@@ -408,9 +401,25 @@ void  __irq PendSV_Handler(){
 	asm("mov r12, %0" : : "r"(userCallPC));
 	asm("BLX r12");
 
+	///first thing store the returns
+	asm(	"mov	r8, r0\n"
+			"mov	r9, r1\n"
+			"mov	r10, r2\n"
+			"mov	r11, r3\n"
+		);
+
+
+	//lets manipulate the return address before we jump
+	//In cortexm, memfault always returns to the same address that caused the fault
+	//This is stored as PC, in the stack.
+	//We are overwritting this PC location with LR value, which is in the next place.
+	UINT32 *userStack=(UINT32 *)sp;
+	userStack[6]=userStack[5];
+
 	__set_LR(0xFFFFFFFD);
 	asm("BX LR");
 }
+*/
 
 //Checks execution mode of caller and gets the appropriate stack
 //then calls the C handler with the stack pointer
@@ -523,6 +532,14 @@ void __irq MemManage_Handler()
 				//Save the contex of the usercall stack to global variable and strigger the PendSV
 				userCallCtx=&memFault_ctx;
 				userCallPC=userCallCtx->pc | 0x1;
+
+				//lets manipulate the return address before we jump
+				//In cortexm, memfault always returns to the same address that caused the fault
+				//This is stored as PC, in the stack.
+				//We are overwritting this PC location with LR value, which is in the next place.
+				UINT32 *userStack=(UINT32 *)sp;
+				userStack[6]=userStack[5];
+
 				// Trigger PendSV which performs the actual context switch:
 				SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 
