@@ -159,6 +159,7 @@
 			<FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.text*)" />
     	    <FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.rodata*)" />
     	    	    
+    	    <!--<FileMapping Name="*(EXCLUDE_FILE(*\tinycrt_pal.lib:* )" Options=" .text* .rodata*)" />-->
         	<!--<FileMapping Name="*\tmp_Kernel_tinyclr.lib:*" Options="(.ARM.attributes)" />-->        	        
 
         	     	
@@ -169,6 +170,7 @@
 			<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:* )" Options=".text*)" />		        
         	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:* )" Options=".rodata*)" />
         	<!--<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_tinyclr.lib:* *\tmp_Kernel_tinyclr.lib:*)" Options=".ARM.attributes)" />-->
+			<FileMapping Name="*\tinycrt_pal.lib:*" Options="( .text* .rodata*)" />
 			
 			<FileMapping Name="*\libgcc.a:*"  Options="(.text* .rodata*)" />
         	<FileMapping Name="*\libc.a:*"  Options="(.text* .rodata*)" />

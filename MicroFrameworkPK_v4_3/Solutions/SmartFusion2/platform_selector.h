@@ -33,7 +33,7 @@ typedef uint16_t ushort;
 //#define IBL
 #if !defined(IBL)
 #define SECURE_EMOTE 1
-
+#define KERNEL_LOG 1
 /*//Secure emote specific system wide functions, implementedin tinyhal.cpp
 //should probably be moved to tinyhal.h
 uint GetExeMode();

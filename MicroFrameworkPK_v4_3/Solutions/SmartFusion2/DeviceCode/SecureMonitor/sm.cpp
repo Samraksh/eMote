@@ -376,6 +376,14 @@ void SwitchToKernelThreadMode(void){
 
 }
 
+void copyResult(UINT32* sp){
+	//Lets copy the results back into the user stack
+	//get the user register address and copy stuff from our current stack.
+	//UINT32* ra= ((UINT32*)userCallCtx) +16;
+	UINT32* ra= ((UINT32*)userCallCtx->stackframefp);
+	memcpy((void*)ra,sp,16); //copy stuff.
+}
+
 
 void  __irq PendSV_Handler(){
 	//We need to copy r4-r11 into the registers from call contex, before jumping
@@ -393,31 +401,27 @@ void  __irq PendSV_Handler(){
 
 	asm("Mov	r12, %0" : : "r"(&userCallCtx->r0));
 	asm("ldmia	r12!,{r0-r3}\n");
-	//asm("Mov	r0, %0" : : "r"(userCallCtx->r0));
-
-
-	//This continues in interrupt mode, bit 0 of register needs to be 1 for branch to register
-	//UINT32 addr = ((UINT32)userCallCtx->pc) | 0x1;
+	asm("push	{r3}\n");
+	asm("mov r3, %0" :: "r"(userCallPC));
+	asm("mov r12,r3");
+	asm("pop	{r3}\n");
 	asm("cpsie	i\n");
-	asm("mov r12, %0" : : "r"(userCallPC));
+
+	//At this point all registers except r12 should be in same state, when the kernel function was called
+	//r12 is supposed ot be function scractch, hence ok to use for bx
 	asm("BLX r12");
 
 	///first thing store the returns on the stack
 	asm("push {r0-r3}");
 
+	copyResult((UINT32*)__get_MSP());
 
-	//lets manipulate the return address before we jump
-	//In cortexm, memfault always returns to the same address that caused the fault
-	//This is stored as PC, in the stack.
-	//We are overwritting this PC location with LR value, which is in the next place.
+	//We wont manipulate the return address here. Thats already been done in MemManage Handler
 
-	//UINT32 x=userCallCtx->stackframefp;
-	//UINT32* userStack = (UINT32*) x;
-	//userStack[6]=userStack[5];
 
 	//setup link register to be ready to get out
 	__set_LR(0xFFFFFFFD);
-	//get results back from stack
+	//get results back from stack, so that stack address are not messed up.
 	asm("pop {r0-r3}");
 	asm("BX LR");
 }
@@ -525,12 +529,15 @@ void __irq MemManage_Handler()
     		debug_printf("MemManage Handler: instruciton fault, PSP: %d, mmfar is valide. in  exec mode: %p at address %08X, %p,  lr_thd=%p, pc=%p\n",from_psp,lr, faultAddress,(void*)SCB->MMFAR, memFault_ctx.lr_thd, memFault_ctx.pc);
 
     	}else {
-    		debug_printf("MemManage Handler: instruciton fault, PSP: %d, mmfar is NOT valid. LR: %p,  lr_thd=%p, pc=%p\n",from_psp,lr, memFault_ctx.lr_thd, memFault_ctx.pc);
+
+    		//debug_printf("MemManage Handler: instruciton fault, PSP: %d, mmfar is NOT valid. LR: %p,  lr_thd=%p, pc=%p\n",from_psp,lr, memFault_ctx.lr_thd, memFault_ctx.pc);
 
 			//if calling from user space into kernel space code//
 			//Then switch stacks execute code and then return
 			if(from_psp && (memFault_ctx.pc >= ROT_BASE &&  memFault_ctx.pc <= KERNEL_END)){
-				debug_printf("MemManage Handler: Ok this a call into kernel, lets Switch the stack and return to %p\n", memFault_ctx.lr_thd);
+#if KERNEL_LOG==1
+				debug_printf("\nKernel Call: To address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
+#endif
 				//Save the contex of the usercall stack to global variable and strigger the PendSV
 				userCallCtx=&memFault_ctx;
 				userCallPC=userCallCtx->pc | 0x1;
