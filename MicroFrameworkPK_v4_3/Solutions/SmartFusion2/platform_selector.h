@@ -33,23 +33,17 @@ typedef uint16_t ushort;
 //#define IBL
 #if !defined(IBL)
 #define SECURE_EMOTE 1
-#define KERNEL_LOG 1
-/*//Secure emote specific system wide functions, implementedin tinyhal.cpp
-//should probably be moved to tinyhal.h
-uint GetExeMode();
-//void ChangeExecMode(bool priv);
-void SwitchToUserMode();
+#define KERNEL_LOG 0
+//boolen flag to check if kernel functions are executing in PendSV handler
+static bool inPendSV_irq;
+static void Set_InPendSV(bool x){inPendSV_irq=x;}
 
-//we need to decrease the optimization so the the compiler
-//does not ignore func and args
-void __attribute__((optimize("1")))  kernel_call(void (*func)(void*), void* arg0);
-void __attribute__((optimize("1")))  kernel_call(void (*func)(void*), void* arg0, void* arg1 );
-
-uint __get_LR(void);
-*/
 #endif //end SECURE_EMOTE
 
 #if defined(PLATFORM_ARM_SmartFusion2)
+#ifndef PLATFORM_ARM
+#define PLATFORM_ARM 1
+#endif
 #define HAL_SYSTEM_NAME                     "SmartFusion2"
 #define SAM_VERSION_REVISION 1
 #define TINYBOOTER_REVISION 1
@@ -111,7 +105,7 @@ uint __get_LR(void);
 #define GLOBAL_LOCK_SOCKETS(x)     SmartPtr_IRQ x
 
 #if defined(_DEBUG)
-#define ASSERT_IRQ_MUST_BE_OFF()   ASSERT(!SmartPtr_IRQ::GetState())
+#define ASSERT_IRQ_MUST_BE_OFF()   ASSERT(!SmartPtr_IRQ::GetState() || inPendSV_irq)
 #define ASSERT_IRQ_MUST_BE_ON()    ASSERT( SmartPtr_IRQ::GetState())
 #else
 #define ASSERT_IRQ_MUST_BE_OFF()

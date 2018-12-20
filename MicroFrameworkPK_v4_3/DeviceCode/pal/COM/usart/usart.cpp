@@ -668,7 +668,7 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 	size_t toWrite, written;
 	UINT8 *dst;
 
-	ASSERT_IRQ_MUST_BE_OFF();
+	//ASSERT_IRQ_MUST_BE_OFF(); //This does not make sense. This function is being called from with uart irq
 	if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) return FALSE;
 	HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
 
@@ -736,7 +736,7 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 
 BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
 {
-    ASSERT_IRQ_MUST_BE_OFF();
+    //ASSERT_IRQ_MUST_BE_OFF();//This does not make sense. This function is being called from with uart irq
 
     if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) return FALSE;
 

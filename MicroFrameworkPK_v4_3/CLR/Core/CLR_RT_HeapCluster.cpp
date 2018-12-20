@@ -92,10 +92,7 @@ CLR_RT_HeapBlock* CLR_RT_HeapCluster::ExtractBlocks( CLR_UINT32 dataType, CLR_UI
             {
                 res->SetDataId( CLR_RT_HEAPBLOCK_RAW_ID(DATATYPE_FREEBLOCK,CLR_RT_HeapBlock::HB_Pinned,available) );
 
-                //res += available;
-                //Mukundan: rewrote above line as below line.
-                //This original code which does pointer was giving a weird result in gcc 5.4.1, probably due to variable res getting optimized.
-                res = (CLR_RT_HeapBlock_Node*)((CLR_UINT32 )res+available);
+                res += available;
             }
             else
             {

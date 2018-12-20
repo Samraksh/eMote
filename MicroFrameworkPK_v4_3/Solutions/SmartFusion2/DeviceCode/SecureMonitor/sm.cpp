@@ -376,16 +376,20 @@ void SwitchToKernelThreadMode(void){
 
 }
 
-void copyResult(UINT32* sp){
+void copyResultAndResetCall(UINT32* sp){
 	//Lets copy the results back into the user stack
 	//get the user register address and copy stuff from our current stack.
 	//UINT32* ra= ((UINT32*)userCallCtx) +16;
 	UINT32* ra= ((UINT32*)userCallCtx->stackframefp);
 	memcpy((void*)ra,sp,16); //copy stuff.
+
+	userCallCtx=0;
+	userCallPC=0;
 }
 
 
 void  __irq PendSV_Handler(){
+	Set_InPendSV(1);
 	//We need to copy r4-r11 into the registers from call contex, before jumping
 	asm("Mov	r0, %0" : : "r"(&userCallCtx->r8));
 	asm(
@@ -411,19 +415,23 @@ void  __irq PendSV_Handler(){
 	//r12 is supposed ot be function scractch, hence ok to use for bx
 	asm("BLX r12");
 
+	asm("cpsid	i\n"); //disable interrupt
 	///first thing store the returns on the stack
 	asm("push {r0-r3}");
 
-	copyResult((UINT32*)__get_MSP());
+	copyResultAndResetCall((UINT32*)__get_MSP());
+
+
 
 	//We wont manipulate the return address here. Thats already been done in MemManage Handler
-
 
 	//setup link register to be ready to get out
 	__set_LR(0xFFFFFFFD);
 	//get results back from stack, so that stack address are not messed up.
 	asm("pop {r0-r3}");
-	asm("BX LR");
+	Set_InPendSV(0);
+	asm("cpsie	i\n"); //enable interrupt
+	//asm("BX LR");
 }
 
 
@@ -539,6 +547,20 @@ void __irq MemManage_Handler()
 				debug_printf("\nKernel Call: To address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
 #endif
 				//Save the contex of the usercall stack to global variable and strigger the PendSV
+
+				if(userCallCtx!=0){
+					debug_printf("\nMemManager Handler Error 0: Something wrong, we are already in a Kernel Call\n");
+					debug_printf("\nMemManager Handler Error 1: Something wrong, we are already in a Kernel Call\n");
+					debug_printf("\nMemManager Handler Error 2: Something wrong, we are already in a Kernel Call\n");
+					debug_printf("\nMemManager Handler Error 3: Something wrong, we are already in a Kernel Call\n");
+					debug_printf("\nMemManager Handler Error 4: Something wrong, we are already in a Kernel Call\n");
+
+
+					debug_printf("\nKernel Call: New call to address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
+					debug_printf("\nKernel Call: New call to address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
+					HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);
+				}
+
 				userCallCtx=&memFault_ctx;
 				userCallPC=userCallCtx->pc | 0x1;
 

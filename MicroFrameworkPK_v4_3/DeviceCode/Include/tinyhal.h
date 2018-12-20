@@ -513,9 +513,15 @@ void HAL_Assert  ( LPCSTR Func, int Line, LPCSTR File );
 // HAL_AssertEx is defined in the processor or platform selector files.
 extern void HAL_AssertEx();
 
+//shorten filepath to filename
+#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+//#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__) //on linix
+
+
 #if defined(PLATFORM_ARM)
     #if !defined(BUILD_RTM) && !defined(NDEBUG)
-        #define       ASSERT(i)  { if(!(i)) HAL_AssertEx(); }
+        //#define       ASSERT(i)  { if(!(i)) HAL_AssertEx(); }
+		#define       ASSERT(i)  { if(!(i)) HAL_Assert(__func__,__LINE__, __FILENAME__); }
         #define _SIDE_ASSERTE(i) { if(!(i)) HAL_AssertEx(); }
         #define     ASSERT_SP(i) { if(!(i)) SOFT_BREAKPOINT();}
     #endif

@@ -282,13 +282,18 @@ void Shutdown() {
 }
 
 void HAL_AssertEx() {
-/*
-// leave commented out because there was no response the pull request on 2014-03-14.
-#if !defined(NDEBUG)
 	if(JTAG_Attached()) {
 		SOFT_BREAKPOINT(); // use SOFT_BREAKPOINT() because there are too many assertions being thrown, and some assertions might be false positives due to other companies submitting junk to CodePlex.
 	}
 	return;
-#endif
-*/
 }
+
+void HAL_Assert( LPCSTR Func, int Line, LPCSTR File )
+{
+    //lcd_printf( "\r\nAssert in\r\n%s\r\nline:%d\r\nfile:%s\r\n", Func, Line, File );
+    debug_printf( "Assert in %s line %d of file %s\r\n"        , Func, Line, File );
+    debug_printf("\n\r");
+    debug_printf("\n\r");
+    CPU_Halt();
+}
+
