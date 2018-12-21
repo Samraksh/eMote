@@ -6,9 +6,9 @@ using Microsoft.SPOT.Cryptoki;
 using System.Threading;
 using System.Text;
 
-namespace Cryptoki
+namespace CryptokiApps
 {
-    public class Program
+    public class Encryption
     {
         const int _keysize = 256;                       // in bits / must be a legal AES key size
        // private const int _iterations = 0x186A0 / 10;   // how many times to run each encryption/decryption run ... 1K by default
@@ -118,9 +118,14 @@ namespace Cryptoki
             return s;
         }
 
-       public void AES_Example()
-       {
+        public void AES_Example()
+        {
+            DateTime start = DateTime.Now;
+            Debug.Print("Boot up time:"+start.ToString()+":"+start.Millisecond);
             Debug.Print("Lets begin the aes example");
+
+            const int LOOP_COUNT = 2000;
+
             //Specify the key size. Native side will figure out the key to use.
             //AesCryptoServiceProvider aes = new AesCryptoServiceProvider(_keysize);
             AesCryptoServiceProvider aes = new AesCryptoServiceProvider(256);
@@ -163,13 +168,17 @@ namespace Cryptoki
             //Encrypt the data
             //TimeSpan s = TimeSpan(DateTime.Now);
             
-            DateTime start = DateTime.Now;
-            byte[] en_bytes = encryptor.TransformFinalBlock(original_data, 0, original_data.Length);
+            //DateTime start = DateTime.Now;
+            byte[] en_bytes = new byte[32];
+            for (int i = 0; i < LOOP_COUNT; i++)
+            {
+                en_bytes = encryptor.TransformFinalBlock(original_data, 0, original_data.Length);
+            }
             TimeSpan encTime = (DateTime.Now - start);
             //string en_s = new string(Encoding.UTF8.GetChars(en_bytes));
             Debug.Print("Data Size= " + original_string.Length + ", Data= " + original_string);
             Debug.Print("Encrypted Data Size: " + en_bytes.Length +", Encrypte Data= "+ ByteArrayToString(en_bytes));
-            Debug.Print("Time to encrypt = " + encTime.ToString());       
+            Debug.Print("Time for " + LOOP_COUNT.ToString() + " encryptions = " + encTime.ToString());       
 
             Debug.Print("Lets create decryptor.... ");
             //Decrypt the data
@@ -177,7 +186,11 @@ namespace Cryptoki
             var decryptor = aes.CreateDecryptor(ckey, IV16);
 
             start = DateTime.Now;
-            byte[] de_bytes = decryptor.TransformFinalBlock(en_bytes,0, en_bytes.Length);
+            byte[] de_bytes = new byte[original_data.Length];
+            for (int i = 0; i < LOOP_COUNT; i++)
+            {
+                de_bytes = decryptor.TransformFinalBlock(en_bytes, 0, en_bytes.Length);
+            }
             TimeSpan decTime = (DateTime.Now - start);
             //print the decrypted data
 
@@ -185,12 +198,12 @@ namespace Cryptoki
             //Debug.Print("Decrypted Data= " + ByteArrayToString(de_bytes));
             Debug.Print("Decrypted String Size= " + decrypted_string.Length 
                 + ", Decrypted String= " + decrypted_string);
-            Debug.Print("Time to decrypt= " + decTime.ToString());
+            Debug.Print("Time for "+LOOP_COUNT.ToString()+" decryptions= " + decTime.ToString());
         }
 
         public static void Main()
         {
-            Program p= new Program();
+            Encryption p= new Encryption();
             //p.RSA_Example();
             p.AES_Example();
             Debug.Print("End of Demo");
