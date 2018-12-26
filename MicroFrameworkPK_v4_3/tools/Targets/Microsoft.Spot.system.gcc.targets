@@ -429,7 +429,8 @@
     <Exec command="PrepareLibsPatternForConcat.cmd $(LIB_DIR) RoT RoT" />
     
     <!-- extract all non-Rot(note 1 at end of cmd) object files to a directory called Kernel -->
-    <Exec command="PrepareLibsPatternForConcat.cmd $(LIB_DIR) RoT Kernel 1" />
+    
+    <Exec command="PrepareKernelLibsForConcat.cmd $(LIB_DIR)" />
     
     <Exec Command="$(AR) $(ARFLAGS) $(LIB_DIR)\tmp_rot_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\RoT\*.$(OBJ_EXT)" />
     <Exec Command="$(AR) $(ARFLAGS) $(LIB_DIR)\tmp_kernel_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\Kernel\*.$(OBJ_EXT)" />

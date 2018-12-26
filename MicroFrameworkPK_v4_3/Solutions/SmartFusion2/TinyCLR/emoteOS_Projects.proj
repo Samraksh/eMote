@@ -24,12 +24,7 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   
   
-  <!--  Kernel modules        -->
   
-  <!--<ItemGroup>
-    <DriverLibs Include="STM32F10x.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\stmlib\dotNetMF.proj" />
-  </ItemGroup>-->
   <ItemGroup>
     <PlatformIndependentLibs Include="Core.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Core\dotNetMF.proj" />
@@ -50,6 +45,7 @@
     <PlatformIndependentLibs Include="SecurityPkcs11.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SecurityPkcs11\dotNetMF.proj" />
   </ItemGroup>
+  
   <ItemGroup>
     <PlatformIndependentLibs Include="SPOT_Update.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Update\dotNetMF.proj" />
@@ -66,26 +62,11 @@
     <PlatformIndependentLibs Include="Graphics_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Graphics\dotNetMF_stub.proj" />
   </ItemGroup>
-  <!--<ItemGroup>
-    <DriverLibs Include="onewire_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\OneWire\dotNetMF.proj" />
-  </ItemGroup>-->
-  <ItemGroup>
-    <DriverLibs Include="openssl_pal_stubs.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\openssl\stubs\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="batterycharger_hal_stubs.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\BatteryCharger\stubs\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="batterymeasurement_hal_stubs.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\BatteryMeasurement\stubs\dotNetMF.proj" />
-  </ItemGroup>
   <ItemGroup>
     <PlatformIndependentLibs Include="Hardware.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\core\Hardware\dotNetMF.proj" />
   </ItemGroup>
+
   <ItemGroup>
     <PlatformIndependentLibs Include="SPOT_Hardware.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\dotNetMF.proj" />
@@ -93,11 +74,7 @@
   <ItemGroup>
     <PlatformIndependentLibs Include="IOPort.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Core\IOPort\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="blockstorage_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\BlockStorage\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>  
   <ItemGroup>
     <PlatformIndependentLibs Include="Messaging.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Messaging\dotNetMF.proj" />
@@ -115,10 +92,6 @@
     <RequiredProjects Include="$(SPOCLIENT)\CLR\core\I2C\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="i2c_pal_stubs.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\I2C\stubs\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
     <PlatformIndependentLibs Include="InterruptHandler.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Core\Hardware\InterruptHandler\dotNetMF.proj" />
   </ItemGroup>
@@ -127,15 +100,6 @@
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\SPOT_PWM\dotNetMF.proj" />
   </ItemGroup-->
   <ItemGroup>
-    <DriverLibs Include="usart_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USART\dotNetMF.proj" />
-  </ItemGroup>
-  <!--<ItemGroup>
-    <DriverLibs Include="usart_pal_stubs.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USART\stubs\dotNetMF.proj" />
-  </ItemGroup>-->
-  
-  <ItemGroup>
     <PlatformIndependentLibs Include="SPOT_Hardware_SerialPort.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\SPOT_Serial\dotNetMF.proj" />
   </ItemGroup>
@@ -143,22 +107,12 @@
     <PlatformIndependentLibs Include="SPOT_Hardware_OneWire.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\SPOT_OneWire\dotNetMF.proj" />
   </ItemGroup>-->
-  <ItemGroup>
-    <DriverLibs Include="usb_pal_stubs.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USB\stubs\dotNetMF.proj" />
-  </ItemGroup>
+
   <!--ItemGroup>
     <PlatformIndependentLibs Include="SPOT_Hardware_Usb.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\SPOT_Usb\dotNetMF.proj" />
   </ItemGroup-->
-  <ItemGroup>
-    <PlatformIndependentLibs Include="CRC.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Support\CRC\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="diagnostics_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Diagnostics\dotNetMF.proj" />
-  </ItemGroup>
+
   <ItemGroup>
     <PlatformIndependentLibs Include="HeapPersistence_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\core\HeapPersistence\dotNetMF_Stub.proj" />
@@ -175,6 +129,71 @@
     <PlatformIndependentLibs Include="SPOT_Serialization_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT\SPOT_Serialization\dotNetMF_Stub.proj" />
   </ItemGroup>
+  <ItemGroup>
+    <PlatformIndependentLibs Include="Debugger_full.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotnetmf_full.proj" />
+  </ItemGroup>
+
+  <!--<ItemGroup>
+    <DriverLibs Include="clr_tinycrt.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF.proj" />
+  </ItemGroup>
+  -->
+  
+  
+  <!--  Kernel modules        -->
+  
+  <!--<ItemGroup>
+    <DriverLibs Include="STM32F10x.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\stmlib\dotNetMF.proj" />
+  </ItemGroup>-->
+  
+  
+  <!--<ItemGroup>
+    <DriverLibs Include="onewire_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\OneWire\dotNetMF.proj" />
+  </ItemGroup>-->
+  <ItemGroup>
+    <DriverLibs Include="openssl_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\openssl\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="batterycharger_hal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\BatteryCharger\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="batterymeasurement_hal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\BatteryMeasurement\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="blockstorage_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\BlockStorage\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="i2c_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\I2C\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="usart_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USART\dotNetMF.proj" />
+  </ItemGroup>
+  <!--<ItemGroup>
+    <DriverLibs Include="usart_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USART\stubs\dotNetMF.proj" />
+  </ItemGroup>-->
+  <ItemGroup>
+    <PlatformIndependentLibs Include="CRC.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Support\CRC\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="diagnostics_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Diagnostics\dotNetMF.proj" />
+  </ItemGroup>  
+  <ItemGroup>
+    <DriverLibs Include="usb_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USB\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  
   <ItemGroup>
     <PlatformIndependentLibs Include="WireProtocol.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Support\WireProtocol\dotNetMF.proj" />
@@ -222,10 +241,6 @@
   <ItemGroup>
     <DriverLibs Include="Crypto_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Crypto\stubs\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PlatformIndependentLibs Include="Debugger_full.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotnetmf_full.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="cpu_ebiu_stubs.$(LIB_EXT)" />
@@ -347,26 +362,6 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" />
   </ItemGroup>
   
-  <!--ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\exti\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_exti.$(LIB_EXT)" />
-  </ItemGroup-->
-  <!--<ItemGroup>
-    <DriverLibs Include="STM32F10x_sdio.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\sdio\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="STM32F10x_i2c.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\i2c\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="STM32F10x_dac.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\dac\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="STM32F10x_adc.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\adc\dotNetMF.proj" />
-  </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="SmartFusion2_sys_services.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\sys_services\dotNetMF.proj" />
@@ -375,15 +370,7 @@
     <DriverLibs Include="SmartFusion2_intc.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\intc\dotNetMF.proj" />
   </ItemGroup>
-  <!--<ItemGroup>
-    <DriverLibs Include="STM32F10x_math.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\math\dotNetMF.proj" />
-  </ItemGroup>-->
-  <!--<ItemGroup>
-    <DriverLibs Include="STM32F10x_spi.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\spi\dotNetMF.proj" />
-  </ItemGroup>-->
-<ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="sf2_spi.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\spi\dotNetMF.proj" />
   </ItemGroup>
@@ -416,10 +403,6 @@
   <ItemGroup>
     <DriverLibs Include="Time_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Time\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="tinycrt_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="virtualkey_hal_stubs.$(LIB_EXT)" />

@@ -33,7 +33,7 @@ typedef uint16_t ushort;
 //#define IBL
 #if !defined(IBL)
 #define SECURE_EMOTE 1
-#define KERNEL_LOG 0
+#define KERNEL_LOG 1
 //boolen flag to check if kernel functions are executing in PendSV handler
 static bool inPendSV_irq;
 static void Set_InPendSV(bool x){inPendSV_irq=x;}

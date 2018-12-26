@@ -1,4 +1,4 @@
-@echo off
+@echo on
 
 REM 
 REM This script takes lib path and a pattern name. Searches for that pattern and extracts it to said directory name supplied as 3rd param
