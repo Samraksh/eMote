@@ -84,22 +84,22 @@ SF2_AITC_Driver::IRQ_VECTORING __section(rwdata) SF2_AITC_Driver::s_IsrTable[] =
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FAB_PLL_Lock       ,SF2_AITC::c_IRQ_Priority_15 ),
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FAB_PLL_LockLost       ,SF2_AITC::c_IRQ_Priority_15 ),
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FIC64       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq0       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq1       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq2       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq3       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq4       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq5       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq6       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq7       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq8       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq9       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq10       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq11       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq12       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq13       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq14       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq15       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq0       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq1       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq2       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq3       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq4       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq5       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq6       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq7       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq8       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq9       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq10       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq11       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq12       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq13       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq14       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq15       ,SF2_AITC::c_IRQ_Priority_2 ),
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO0       ,SF2_AITC::c_IRQ_Priority_15 ),
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO1       ,SF2_AITC::c_IRQ_Priority_15 ),
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO2       ,SF2_AITC::c_IRQ_Priority_15 ),
@@ -673,8 +673,8 @@ void __irq USB_IRQHandler()
 		irq.Release();
 	}
 
-
-	void __irq ComBlk_IRQHandler()
+//This is defined in \DeviceCode\Targets\Native\SmartFusion2\DeviceCode\microsemi_lib\drivers\mss_sys_services\mss_comblk.c
+	/*void __irq ComBlk_IRQHandler()
 	{
 
 		SF2_AITC& AITC = SF2::AITC();
@@ -697,7 +697,7 @@ void __irq USB_IRQHandler()
 
 		INTERRUPT_END;
 
-	}
+	}*/
 
 
 	void __irq  SPI0_IRQHandler()

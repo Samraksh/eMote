@@ -33,10 +33,9 @@ typedef uint16_t ushort;
 //#define IBL
 #if !defined(IBL)
 #define SECURE_EMOTE 1
-#define KERNEL_LOG 1
+#define KERNEL_LOG 0
 //boolen flag to check if kernel functions are executing in PendSV handler
-static bool inPendSV_irq;
-static void Set_InPendSV(bool x){inPendSV_irq=x;}
+bool inPendSV_irq;
 
 #endif //end SECURE_EMOTE
 
@@ -105,8 +104,10 @@ static void Set_InPendSV(bool x){inPendSV_irq=x;}
 #define GLOBAL_LOCK_SOCKETS(x)     SmartPtr_IRQ x
 
 #if defined(_DEBUG)
-#define ASSERT_IRQ_MUST_BE_OFF()   ASSERT(!SmartPtr_IRQ::GetState() || inPendSV_irq)
+#define ASSERT_IRQ_MUST_BE_OFF()   ASSERT((!SmartPtr_IRQ::GetState()) || inPendSV_irq)
 #define ASSERT_IRQ_MUST_BE_ON()    ASSERT( SmartPtr_IRQ::GetState())
+//#define ASSERT_IRQ_MUST_BE_OFF()
+//#define ASSERT_IRQ_MUST_BE_ON()
 #else
 #define ASSERT_IRQ_MUST_BE_OFF()
 #define ASSERT_IRQ_MUST_BE_ON()

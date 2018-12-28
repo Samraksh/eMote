@@ -8,7 +8,7 @@
 #include "SF2_CM3.h"
 //#include <string.h>
 #include <tinyhal.h>
-
+#include <Samraksh/os_scheduler.h>
 
 
 extern UINT32 Load$$RoT_ER_FLASH$$Base;
@@ -49,8 +49,12 @@ typedef void (*svcall1_t)(void*, void*);
 
 task_ctx_t *userCallCtx; UINT32 userCallPC;
 task_ctx_t memFault_ctx;
-UINT32* interruptMSP;
+UINT32 interruptMSP;
+UINT32 interruptLR;
 
+extern bool inPendSV_irq;
+
+void Set_InPendSV(bool x){inPendSV_irq=x;}
 
 ///return LR Register value
 static UINT32  inline __get_LR(void)
@@ -71,6 +75,8 @@ void SecureMonitor_Initialize(){
 	CPU_mpu_init();
 	SetupSecureEmoteRegions();
 	memset(&memFault_ctx, 0, sizeof(task_ctx_t));
+	NVIC_SetPriority(ComBlk_IRQn, 5);
+	NVIC_SetPriority(PendSV_IRQn, 15);
 }
 
 
@@ -162,85 +168,14 @@ void MPU_Init(){
 
 void KernFuncTest(char *string){
 
+	UINT32 cpuMode=GetExecMode();
 	while(1){
 		volatile UINT32 x=2+3;
-		//debug_printf( "KernFuncTest: Nothing to do... just going to hang out here for a bit. \r\n");
+		debug_printf( "KernFuncTest: Nothing to do... in CPU mode: %d. \r\n", cpuMode);
 	}
 }
 
 
-void SwitchBackToUserMode(task_ctx_t *ctx){
-
-	/* Save registers R4-R11 (32 bytes) onto current PSP (process stack
-		   pointer) and make the PSP point to the last stacked register (R8):
-		   - The MRS/MSR instruction is for loading/saving a special registers.
-		   - The STMIA inscruction can only save low registers (R0-R7), it is
-		     therefore necesary to copy registers R8-R11 into R4-R7 and call
-		     STMIA twice. */
-
-
-	/*asm(
-		"mrs	r0, psp\n"
-		"subs	r0, #16\n"
-		"stmia	r0!,{r4-r7}\n"
-		"mov	r4, r8\n"
-		"mov	r5, r9\n"
-		"mov	r6, r10\n"
-		"mov	r7, r11\n"
-		"subs	r0, #32\n"
-		"stmia	r0!,{r4-r7}\n"
-		"subs	r0, #16"
-	);*/
-
-
-}
-
-
-
-void SwitchToDifferentUserProcess(task_ctx_t *ctx){
-	//interrupt handler hardware stacks exeception frame (xPSR, PC, LR, r12 and r3-r0)
-
-	//Manually stack remaining registers r4-r11 on the Process Stack
-	/*volatile UINT32 r4r11= (UINT32)ctx->r4_r11;
-		asm(
-				"mrs	r0, =r4r11\n"
-				"subs	r0, #16\n"
-				"stmia	r0!,{r4-r7}\n"
-				"mov	r4, r8\n"
-				"mov	r5, r9\n"
-				"mov	r6, r10\n"
-				"mov	r7, r11\n"
-				"subs	r0, #32\n"
-				"stmia	r0!,{r4-r7}\n"
-				"subs	r0, #16\n"
-		);
-	*/
-
-		/* Load registers R4-R11 (32 bytes) from the new PSP and make the PSP
-			   point to the end of the exception stack frame. The NVIC hardware
-			   will restore remaining registers after returning from exception): */
-		asm(
-			"ldmia	r0!,{r4-r7}\n"
-			"mov	r8, r4\n"
-			"mov	r9, r5\n"
-			"mov	r10, r6\n"
-			"mov	r11, r7\n"
-			"ldmia	r0!,{r4-r7}\n"
-			//"msr	psp, r0\n"
-		);
-
-
-
-	//Save current task’s PSP to memory
-	//Load next task’s stack pointer and assign it to PSP
-	//Manually unstack registers r4-r11
-	//Call bx 0xfffffffD which makes the processor switch to Unprivileged Handler Mode, unstack next task’s exception frame and continue on its PC.
-
-
-	//UINT32 msp = __get_MSP();
-	//memcpy((void*)msp, &ctx, sizeof(task_ctx_t));
-
-}
 
 
 //parameter is the caller's stack frame pointer
@@ -269,6 +204,55 @@ void SVCall_HandlerC(UINT32 sp){
 	}
 }
 
+void copyResultAndResetCall(UINT32* sp){
+	//Lets copy the results back into the user stack
+
+	//first copy r0-r3 registers// args 0-3
+	//we push this into the stack, just before this call, so copy from stack.
+	UINT32* usp= ((UINT32*)userCallCtx->stackframefp);
+	memcpy((void*)usp,sp,16); //copy stuff.
+
+	/*
+	//next copy args 4-7 into user stack.
+	//while both ptrs are incremented by 8 its for different reasons
+	usp =usp +8; //this goes back to end of user stack, before the hardware exception stack push
+	sp=sp+4; // this goes back to end of msp when we pushed the args,
+				// add 4 words for r0-r3 registers we pushed after that.
+
+	memcpy((void*)usp,sp,16);
+	*/
+	userCallCtx=0;
+	userCallPC=0;
+}
+
+
+void SwitchBackToUserMode(task_ctx_t *ctx){
+	/* Save registers R4-R11 (32 bytes) onto current PSP (process stack
+		   pointer) and make the PSP point to the last stacked register (R8):
+		   - The MRS/MSR instruction is for loading/saving a special registers.
+		   - The STMIA inscruction can only save low registers (R0-R7), it is
+		     therefore necesary to copy registers R8-R11 into R4-R7 and call
+		     STMIA twice. */
+
+
+	asm("cpsid	i\n"); //disable interrupt
+	///first thing store the returns on the stack
+	asm("push {r0-r3}");
+
+	copyResultAndResetCall((UINT32*)__get_MSP());
+
+	//get results back from stack, so that stack address are not messed up.
+	asm("pop {r0-r3}");
+
+	//go back to interrupt mode and frame and exit.
+	__set_MSP(interruptMSP);
+	__set_LR(interruptLR);
+	asm("cpsie	i\n"); //enable interrupt
+	//asm("BX LR");
+}
+
+
+
 //The PendSV_Handler is going to switch the stack to kernel stack, execute it and return the results
 //presumably we dont have to load and unload the registers because we are just switching stacks. Nothing is in the stacks anyway.
 void SwitchToKernelThreadMode(void){
@@ -282,15 +266,12 @@ void SwitchToKernelThreadMode(void){
 	//get msp and decrement it. Remember its a FULL stack.
 
 	//Get current MSP and store it
-	UINT32* msp = (UINT32*)(__get_MSP());
-	interruptMSP =msp; //we need to return to this, when we finish executing kernel method.
-
-	//UINT32* msp=userCallCtx->stackframefp;
+	//we need to return to this, when we finish executing kernel method.
+	interruptMSP= __get_MSP();
+	UINT32* msp = (UINT32*)interruptMSP;
 
 	//Now get a new stack frame
 	msp=msp - stackGap; //decrement by 128 bytes, which hopefully covers everthing this method has put on the stack.
-
-
 
 	//just change the LR in the current stack to a different function and just return.
 	//msp[5]=(UINT32)&SwitchBackToUserMode;
@@ -309,9 +290,10 @@ void SwitchToKernelThreadMode(void){
 	//msp[-3]=  (UINT32)&SwitchBackToUserMode; //Link register
 
 	msp[7]=  0x01000000; //xPSR
-	//msp[6]=  userCallCtx->pc; //PC/fuction to be called
-	msp[6]=  (UINT32)&KernFuncTest; //pc
-	msp[5]=  (UINT32)&SwitchBackToUserMode; //Link register
+	msp[6]=  ((UINT32)&KernFuncTest) |0x1;
+	//msp[6]=  userCallCtx->pc | 0x1; //PC/fuction to be called
+	//msp[6]=  (UINT32)userCallPC; //pc
+	msp[5]=  ((UINT32)&SwitchBackToUserMode) | 0x1; //Link register
 	msp[4]= userCallCtx->r12;
 	msp[3]= userCallCtx->r3;
 	msp[2]= userCallCtx->r2;
@@ -361,8 +343,9 @@ void SwitchToKernelThreadMode(void){
     */
 
 	// This section, tries to set up priviledged thread mode
+	interruptLR=__get_LR();
 	__set_LR(0xFFFFFFF9);
-	asm("cpsie	i\n");
+	asm("cpsie	i\n");__ISB();
 	//This should pop the interrrupt stack
 	//but instead of interrupt stack, it will pop the stack that we just setup.
 	asm("BX LR");
@@ -376,20 +359,19 @@ void SwitchToKernelThreadMode(void){
 
 }
 
-void copyResultAndResetCall(UINT32* sp){
-	//Lets copy the results back into the user stack
-	//get the user register address and copy stuff from our current stack.
-	//UINT32* ra= ((UINT32*)userCallCtx) +16;
-	UINT32* ra= ((UINT32*)userCallCtx->stackframefp);
-	memcpy((void*)ra,sp,16); //copy stuff.
-
-	userCallCtx=0;
-	userCallPC=0;
-}
-
 
 void  __irq PendSV_Handler(){
+	asm("cpsid	i\n");
+	//first copy args 4-7 into stack, args 0-3 are dealt as registers r0-r3
 	Set_InPendSV(1);
+	asm("Mov	r0, %0" : : "r"(userCallCtx->stackframefp));
+	asm(
+			"add r0, #32\n"
+			"ldmia	r0!,{r4-r7}\n"
+			"push {r4-r7}"
+		);
+
+
 	//We need to copy r4-r11 into the registers from call contex, before jumping
 	asm("Mov	r0, %0" : : "r"(&userCallCtx->r8));
 	asm(
@@ -409,10 +391,11 @@ void  __irq PendSV_Handler(){
 	asm("mov r3, %0" :: "r"(userCallPC));
 	asm("mov r12,r3");
 	asm("pop	{r3}\n");
-	asm("cpsie	i\n");
-
 	//At this point all registers except r12 should be in same state, when the kernel function was called
-	//r12 is supposed ot be function scractch, hence ok to use for bx
+	//r12 is supposed ot be function scractch,
+
+	//enable interrupt and branch
+	asm("cpsie	i\n");__ISB();
 	asm("BLX r12");
 
 	asm("cpsid	i\n"); //disable interrupt
@@ -421,16 +404,16 @@ void  __irq PendSV_Handler(){
 
 	copyResultAndResetCall((UINT32*)__get_MSP());
 
-
-
 	//We wont manipulate the return address here. Thats already been done in MemManage Handler
 
 	//setup link register to be ready to get out
 	__set_LR(0xFFFFFFFD);
 	//get results back from stack, so that stack address are not messed up.
-	asm("pop {r0-r3}");
+	asm("pop {r0-r3}"); //for r0-r3
+
+	asm("pop {r0-r3}"); //for arg 3-7
 	Set_InPendSV(0);
-	asm("cpsie	i\n"); //enable interrupt
+	asm("cpsie	i\n"); __ISB(); //enable interrupt
 	//asm("BX LR");
 }
 
@@ -459,7 +442,7 @@ void  __irq PendSV_Handler(){
 //void __irq MemManage_Handler(UINT32 lr, UINT32 msp)
 void __irq MemManage_Handler()
 {
-
+	asm("cpsid	i\n");
     //memcpy(&memFault_ctx, 0, sizeof(task_ctx_t));
     //store r4-r11 into the context
     //regarm_t* addr = &memFault_ctx.r4
@@ -542,52 +525,54 @@ void __irq MemManage_Handler()
 
 			//if calling from user space into kernel space code//
 			//Then switch stacks execute code and then return
-			if(from_psp && (memFault_ctx.pc >= ROT_BASE &&  memFault_ctx.pc <= KERNEL_END)){
+			if(from_psp ){
+				if(memFault_ctx.pc >= ROT_BASE &&  memFault_ctx.pc <= KERNEL_END){
+
 #if KERNEL_LOG==1
-				debug_printf("\nKernel Call: To address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
+					//debug_printf("\nKernel Call: To address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
 #endif
-				//Save the contex of the usercall stack to global variable and strigger the PendSV
+					//Save the contex of the usercall stack to global variable and strigger the PendSV
 
-				if(userCallCtx!=0){
-					debug_printf("\nMemManager Handler Error 0: Something wrong, we are already in a Kernel Call\n");
-					debug_printf("\nMemManager Handler Error 1: Something wrong, we are already in a Kernel Call\n");
-					debug_printf("\nMemManager Handler Error 2: Something wrong, we are already in a Kernel Call\n");
-					debug_printf("\nMemManager Handler Error 3: Something wrong, we are already in a Kernel Call\n");
-					debug_printf("\nMemManager Handler Error 4: Something wrong, we are already in a Kernel Call\n");
+					if(userCallCtx!=0){
+						debug_printf("\nMemManager Handler Error 0: Something wrong, we are already in a Kernel Call\n");
+						debug_printf("\nMemManager Handler Error 1: Something wrong, we are already in a Kernel Call\n");
+						debug_printf("\nMemManager Handler Error 2: Something wrong, we are already in a Kernel Call\n");
+						debug_printf("\nMemManager Handler Error 3: Something wrong, we are already in a Kernel Call\n");
+						debug_printf("\nMemManager Handler Error 4: Something wrong, we are already in a Kernel Call\n");
 
 
-					debug_printf("\nKernel Call: New call to address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
-					debug_printf("\nKernel Call: New call to address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
-					HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);
+						debug_printf("\nKernel Call: New call to address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
+						debug_printf("\nKernel Call: New call to address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
+						HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);
+					}
+
+					userCallCtx=&memFault_ctx;
+					userCallPC=userCallCtx->pc | 0x1;
+
+					//lets manipulate the return address before we jump
+					//In cortexm, memfault always returns to the same address that caused the fault
+					//This is stored as PC, in the stack.
+					//We are overwritting this PC location with LR value, which is in the next place.
+					UINT32 *userStack=(UINT32 *)sp;
+					userStack[6]=userStack[5];
+
+
+					///Do one of the below, either PendSV or SwitchToKernelThreadMode
+					// Trigger PendSV which performs the actual context switch:
+					SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+					__enable_irq(); __ISB(); //enable interrrupt
+
+					//or this
+					//SwitchToKernelThreadMode();
 				}
-
-				userCallCtx=&memFault_ctx;
-				userCallPC=userCallCtx->pc | 0x1;
-
-				//lets manipulate the return address before we jump
-				//In cortexm, memfault always returns to the same address that caused the fault
-				//This is stored as PC, in the stack.
-				//We are overwritting this PC location with LR value, which is in the next place.
-				UINT32 *userStack=(UINT32 *)sp;
-				userStack[6]=userStack[5];
-
-				// Trigger PendSV which performs the actual context switch:
-				SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
-
-
-
-				//SwitchToKernelThreadMode();
-				/*UINT32 oldLR=msp[5];
-				msp[5]=(UINT32)&SwitchBackToUserMode;
-				debug_printf("SwitchToKernelThreadMode: MSP is at %p, I want to return to : %p, not to  lr_thd=%p, pc=%p\n",msp, msp[5], oldLR, msp[6]);
-				ASSERT(msp[6]==userCallCtx->pc);
-				__ISB();
-				__set_LR(0xFFFFFFF9);
-				//asm("ldr r7, =0xFFFFFFF9\n");
-				asm("cpsie	i\n");
-				asm("bx LR\n");*/
+				else {
+						debug_printf("\nMemManage Fault: Call from User space, but outside kernel code region. Potential hack attempt. To address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
+					}
 			}
-
+			else {
+				debug_printf("MemManage Handler: Not a call from User space. instruciton fault. Weird. PSP: %d, mmfar is NOT valid. LR: %p,  lr_thd=%p, pc=%p\n",from_psp,lr, memFault_ctx.lr_thd, memFault_ctx.pc);
+				//debug_printf("\nMemManage Fault:  To address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
+			}
     	}
     }
 
