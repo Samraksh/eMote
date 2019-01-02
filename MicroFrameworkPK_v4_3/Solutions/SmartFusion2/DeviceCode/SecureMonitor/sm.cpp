@@ -511,14 +511,16 @@ void __irq MemManage_Handler()
 
     // Data access violation
     if (MMFSR & (1 << 1)) {
-        debug_printf("MemManage Handler: Data access violation in exec mode: %p at address %p (pc=%p)\n", lr, faultAddress, memFault_ctx.pc);
+        debug_printf("MemManage Handler: Data access violation. MMFSR %08X, LR : %p at address %p (pc=%p)\n",MMFSR, lr, faultAddress, memFault_ctx.pc);
     }
 
     // Instruction address violation.
     if (MMFSR & (1 << 0)) {
     	if(MMFSR & (1 << 7)){
     		debug_printf("MemManage Handler: instruciton fault, PSP: %d, mmfar is valide. in  exec mode: %p at address %08X, %p,  lr_thd=%p, pc=%p\n",from_psp,lr, faultAddress,(void*)SCB->MMFAR, memFault_ctx.lr_thd, memFault_ctx.pc);
-
+    		debug_printf("\n\r");
+    		debug_printf("\n\r");
+    		debug_printf("\n\r");
     	}else {
 
     		//debug_printf("MemManage Handler: instruciton fault, PSP: %d, mmfar is NOT valid. LR: %p,  lr_thd=%p, pc=%p\n",from_psp,lr, memFault_ctx.lr_thd, memFault_ctx.pc);
