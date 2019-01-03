@@ -362,14 +362,17 @@ void SwitchToKernelThreadMode(void){
 
 void  __irq PendSV_Handler(){
 	asm("cpsid	i\n");
-	//first copy args 4-7 into stack, args 0-3 are dealt as registers r0-r3
+	//first copy args 4-11 into stack, args 0-3 are dealt as registers r0-r3
 	Set_InPendSV(1);
 	asm("Mov	r0, %0" : : "r"(userCallCtx->stackframefp));
 	asm(
-			"add r0, #32\n"
+			"add r0, #32\n" //8 32-bit words were copied into the stack by the hardware exception handler
+			"ldmia	r0!,{r4-r7}\n"
+			"push {r4-r7}\n");
+	/*asm(
 			"ldmia	r0!,{r4-r7}\n"
 			"push {r4-r7}"
-		);
+		);*/
 
 
 	//We need to copy r4-r11 into the registers from call contex, before jumping
@@ -380,7 +383,7 @@ void  __irq PendSV_Handler(){
 		"mov	r9, r5\n"
 		"mov	r10, r6\n"
 		"mov	r11, r7\n"
-		"subs	r0, #32\n" //r0 should now point to after r11, subtract 64 to go address of r4
+		"subs	r0, #32\n" //r0 should now point to after r11, subtract 32 to go address of r4
 		"ldmia	r0!,{r4-r7}\n"
 		//"msr	psp, r0\n"
 	);
@@ -412,6 +415,8 @@ void  __irq PendSV_Handler(){
 	asm("pop {r0-r3}"); //for r0-r3
 
 	asm("pop {r0-r3}"); //for arg 3-7
+	//asm("pop {r0-r3}"); //for arg 8-11
+
 	Set_InPendSV(0);
 	asm("cpsie	i\n"); __ISB(); //enable interrupt
 	//asm("BX LR");
