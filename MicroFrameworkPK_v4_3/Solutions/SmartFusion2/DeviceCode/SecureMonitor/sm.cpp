@@ -366,13 +366,17 @@ void  __irq PendSV_Handler(){
 	Set_InPendSV(1);
 	asm("Mov	r0, %0" : : "r"(userCallCtx->stackframefp));
 	asm(
-			"add r0, #32\n" //8 32-bit words were copied into the stack by the hardware exception handler
+			"add r0, #48\n" //8 32-bit words were copied into the stack by the hardware exception handler
+							//another 4 words for  args4-7, we will copy 8-11 first.
 			"ldmia	r0!,{r4-r7}\n"
 			"push {r4-r7}\n");
-	/*asm(
+
+	asm(
+			"sub r0, #32\n" //go back to the stack pointer just before exception handler.
+							//copy args 4-7 now
 			"ldmia	r0!,{r4-r7}\n"
 			"push {r4-r7}"
-		);*/
+		);
 
 
 	//We need to copy r4-r11 into the registers from call contex, before jumping
@@ -414,8 +418,8 @@ void  __irq PendSV_Handler(){
 	//get results back from stack, so that stack address are not messed up.
 	asm("pop {r0-r3}"); //for r0-r3
 
-	asm("pop {r0-r3}"); //for arg 3-7
-	//asm("pop {r0-r3}"); //for arg 8-11
+	asm("pop {r0-r3}"); //for arg 4-7
+	asm("pop {r0-r3}"); //for arg 8-11
 
 	Set_InPendSV(0);
 	asm("cpsie	i\n"); __ISB(); //enable interrupt
