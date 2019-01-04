@@ -124,7 +124,7 @@ namespace CryptokiApps
             Debug.Print("Boot up time:"+start.ToString()+":"+start.Millisecond);
             Debug.Print("Lets begin the aes example");
 
-            const int LOOP_COUNT = 2000;
+            const int LOOP_COUNT = 10000;
 
             //Specify the key size. Native side will figure out the key to use.
             //AesCryptoServiceProvider aes = new AesCryptoServiceProvider(_keysize);
@@ -172,6 +172,9 @@ namespace CryptokiApps
             byte[] en_bytes = new byte[32];
             for (int i = 0; i < LOOP_COUNT; i++)
             {
+				if(i % 1000 ==0){
+					Debug.Print("Loop count: " + i.ToString());
+				}
                 en_bytes = encryptor.TransformFinalBlock(original_data, 0, original_data.Length);
             }
             TimeSpan encTime = (DateTime.Now - start);
@@ -189,6 +192,9 @@ namespace CryptokiApps
             byte[] de_bytes = new byte[original_data.Length];
             for (int i = 0; i < LOOP_COUNT; i++)
             {
+				if(i % 1000 ==0){
+					Debug.Print("Loop count: " + i.ToString());
+				}
                 de_bytes = decryptor.TransformFinalBlock(en_bytes, 0, en_bytes.Length);
             }
             TimeSpan decTime = (DateTime.Now - start);

@@ -499,7 +499,7 @@ void __irq MemManage_Handler()
 
     /* Get Memory Managment fault adress register */
     MMFSR = SCB->CFSR & SCB_CFSR_MEMFAULTSR_Msk;
-    UINT32 faultAddress=*(UINT32*)(SCB->MMFAR);
+    UINT32 faultAddress=(UINT32)(SCB->MMFAR);
 
     //clear the interrupt.
     // one does not have to clear if this needs to be manually cleared.
