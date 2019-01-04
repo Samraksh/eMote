@@ -72,8 +72,8 @@ static inline void __set_LR(uint32_t lr)
 
 
 void SecureMonitor_Initialize(){
-	CPU_mpu_init();
-	SetupSecureEmoteRegions();
+	//CPU_mpu_init();
+	//SetupSecureEmoteRegions();
 	memset(&memFault_ctx, 0, sizeof(task_ctx_t));
 	NVIC_SetPriority(ComBlk_IRQn, 5);
 	NVIC_SetPriority(PendSV_IRQn, 15);
@@ -581,7 +581,16 @@ void __irq MemManage_Handler()
 					}
 			}
 			else {
-				debug_printf("MemManage Handler: Not a call from User space. instruciton fault. Weird. PSP: %d, mmfar is NOT valid. LR: %p,  lr_thd=%p, pc=%p\n",from_psp,lr, memFault_ctx.lr_thd, memFault_ctx.pc);
+
+
+				debug_printf("MemManage Handler: Not a call from User space. instruciton fault. Potential attack/compromise. PSP: %d, mmfar is NOT valid. LR: %p,  lr_thd=%p, pc=%p\n",from_psp,lr, memFault_ctx.lr_thd, memFault_ctx.pc);
+
+				if(memFault_ctx.pc >= ERAM_ORIGIN &&  memFault_ctx.pc <= (ERAM_ORIGIN+ERAM_SIZE)){
+					debug_printf("\nRAM/Stack Attack: Attempt to execute from RAM in Kernel mode address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
+					debug_printf("\nRAM/Stack Attack: Attempt to execute from RAM in Kernel mode address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
+					debug_printf("\n\r\n\r");
+					HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);
+				}
 				//debug_printf("\nMemManage Fault:  To address %p, return to %p\n", memFault_ctx.pc, memFault_ctx.lr_thd);
 			}
     	}
