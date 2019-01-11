@@ -201,15 +201,28 @@ private:
     static int FindEmptyObjectHandle();
     static OBJECT_DATA s_Objects[SF2_HW_PKCS11_MAX_OBJECT_COUNT];
 };
-/*
-typedef struct _SF2_HWDigestData
+
+
+typedef struct _SF2_HW_DigestData
 {
-    EVP_MD_CTX CurrentCtx;
-    HMAC_CTX   HmacCtx;
+	//sf2_cipher_context_t CurrentCtx;
+	sf2_digest_context_t   HmacCtx;
     KEY_DATA*  HmacKey;
+    CK_BYTE_PTR pDigest;
+    CK_ULONG digestLen; //DigestLen in bytes
     BOOL       IsUpdateInProgress;
-} SF2_HWDigestData;
+} SF2_HW_DigestData;
+
+/*
+uint8_t MSS_SYS_hmac
+(
+    const uint8_t * key,
+    const uint8_t * p_data_in,
+    uint32_t length,
+    uint8_t * p_result
+);
 */
+
 struct SF2_HW_PKCS11_Digest
 {
     static CK_RV DigestInit(Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pMechanism);

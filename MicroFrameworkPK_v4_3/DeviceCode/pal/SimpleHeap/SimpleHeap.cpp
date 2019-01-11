@@ -296,3 +296,33 @@ void* SimpleHeap_ReAllocate( void* ptr, size_t len )
     return p;
 }
 
+#if defined(IBL) && defined(SAMRAKSH_CUSTOM_NEWLIB)
+
+HAL_DECLARE_CUSTOM_HEAP( SimpleHeap_Allocate, SimpleHeap_Release, SimpleHeap_ReAllocate );
+
+void * _malloc_r(struct _reent *s, size_t size) {
+	GLOBAL_LOCK(irq);
+	return SimpleHeap_Allocate(size);
+}
+
+void * _calloc_r(struct _reent *s, size_t nitems, size_t size) {
+	GLOBAL_LOCK(irq);
+	void* mem = _malloc_r(s, size*nitems);
+	memset(mem,0,size*nitems);
+	return mem;
+}
+
+void _free_r(struct _reent *s, void *ptr) {
+	GLOBAL_LOCK(irq);
+	SimpleHeap_Release(ptr);
+}
+
+// Not supported
+void * _realloc_r(struct _reent *s, void *ptr, size_t size) {
+	GLOBAL_LOCK(irq);
+	if (ptr == NULL) return _malloc_r(s, size);
+	else return NULL;
+}
+#endif
+
+

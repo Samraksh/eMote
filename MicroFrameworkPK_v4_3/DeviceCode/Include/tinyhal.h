@@ -513,9 +513,15 @@ void HAL_Assert  ( LPCSTR Func, int Line, LPCSTR File );
 // HAL_AssertEx is defined in the processor or platform selector files.
 extern void HAL_AssertEx();
 
+//shorten filepath to filename
+#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+//#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__) //on linix
+
+
 #if defined(PLATFORM_ARM)
     #if !defined(BUILD_RTM) && !defined(NDEBUG)
-        #define       ASSERT(i)  { if(!(i)) HAL_AssertEx(); }
+        //#define       ASSERT(i)  { if(!(i)) HAL_AssertEx(); }
+		#define       ASSERT(i)  { if(!(i)) HAL_Assert(__func__,__LINE__, __FILENAME__); }
         #define _SIDE_ASSERTE(i) { if(!(i)) HAL_AssertEx(); }
         #define     ASSERT_SP(i) { if(!(i)) SOFT_BREAKPOINT();}
     #endif
@@ -1389,10 +1395,20 @@ struct SECTOR_BIT_FIELD
     volatile     UINT32 BitField[c_MaxFieldUnits];
 };
 
+# define TINYBOOTER_SYMKEY_SIZE 32
+
 struct TINYBOOTER_KEY_CONFIG
 {
-    UINT8  SectorKey[260]; //RSAKey 4 bytes (exponent) + 128 bytes (module) + 128 bytes (exponent)
+    //UINT8  SectorKey[260]; //RSAKey 4 bytes (exponent) + 128 bytes (module) + 128 bytes (exponent)
+    UINT8  SectorKey[TINYBOOTER_SYMKEY_SIZE]; //Samraksh uses 256 bit Symmetric keys
 };
+
+struct TINYBOOTER_HASH_CONFIG
+{
+    //UINT8  SectorKey[260]; //RSAKey 4 bytes (exponent) + 128 bytes (module) + 128 bytes (exponent)
+    UINT8  SectorHash[TINYBOOTER_SYMKEY_SIZE]; //Samraksh uses 256 bit HMAC keys
+};
+
 
 struct CONFIG_SECTOR_VERSION
 {
@@ -1417,7 +1433,7 @@ struct ConfigurationSector
     static const UINT32 c_MaxSignatureCount   = 8;
     static const UINT32 c_BootEntryKey        = ('B' << 24 | 'T' << 16 | 'L' << 8 | 'D');
     static const UINT32 c_DeployKeyCount      = 2;
-    static const  INT32 c_DeployKeyFirmware   = 0;
+    static const  INT32 c_DeployKeyFirmware   = 1;
     static const  INT32 c_DeployKeyDeployment = 1;
 
     static const  UINT8 c_CurrentVersionMajor      = 3;
@@ -1435,6 +1451,8 @@ struct ConfigurationSector
     SECTOR_BIT_FIELD      SignatureCheck[c_MaxSignatureCount]; // 8 changes before erase
 
     TINYBOOTER_KEY_CONFIG DeploymentKeys[c_DeployKeyCount];
+
+    TINYBOOTER_HASH_CONFIG DeploymentHash[c_DeployKeyCount];
 
     OEM_MODEL_SKU         OEM_Model_SKU;
 

@@ -4,6 +4,8 @@ set PORT_BUILD=
 set NO_ADS_WRAPPER=
 SET COMPILER_TOOL=
 
+ECHO "VSPath %COMPILER_TOOL% %VS140COMNTOOLS%"
+
 if NOT "%1"=="" GOTO :ARGSOK
 if NOT "%2"=="" GOTO :ARGSOK
 
@@ -78,26 +80,30 @@ set CURRENTCD=
 rem @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 rem set tool-chains variables 
 
+ECHO "VSPath %COMPILER_TOOL% %VS140COMNTOOLS%"
+
 IF /I NOT "%COMPILER_TOOL%" == "VS" (
-    IF NOT "%VS120COMNTOOLS%" == "" ( 
-        CALL "%VS120COMNTOOLS%vsvars32.bat"
-    ) ELSE (
-        IF NOT "%VS110COMNTOOLS%" == "" (
-            CALL "%VS110COMNTOOLS%vsvars32.bat"
-        ) ELSE (
-            IF NOT "%VS100COMNTOOLS%" == "" (
-            CALL "%VS100COMNTOOLS%vsvars32.bat"
-            ) ELSE (
-                IF NOT "%VS90COMNTOOLS%" == "" (
-                    CALL "%VS90COMNTOOLS%vsvars32.bat"    
-                ) ELSE ( 
-                    @ECHO WARNING: Could not find vsvars32.bat.
-                    @ECHO WARNING: VISUAL C++ DOES NOT APPEAR TO BE INSTALLED ON THIS MACHINE
-                    GOTO :EOF
-                )
-            )
-        )
-    )	
+	ECHO "Checking visual studio version..."
+	
+	IF NOT "%VS120COMNTOOLS%" == "" ( 
+		CALL "%VS120COMNTOOLS%vsvars32.bat"
+	) ELSE (
+		IF NOT "%VS110COMNTOOLS%" == "" (
+			CALL "%VS110COMNTOOLS%vsvars32.bat"
+		) ELSE (
+			IF NOT "%VS100COMNTOOLS%" == "" (
+			CALL "%VS100COMNTOOLS%vsvars32.bat"
+			) ELSE (
+				IF NOT "%VS90COMNTOOLS%" == "" (
+					CALL "%VS90COMNTOOLS%vsvars32.bat"    
+				) ELSE ( 
+					@ECHO WARNING: Could not find vsvars32.bat.
+					@ECHO WARNING: VISUAL C++ DOES NOT APPEAR TO BE INSTALLED ON THIS MACHINE
+					GOTO :EOF
+				)
+			)
+		)
+	)	
 )
 
 set TINYCLR_USE_MSBUILD=1   

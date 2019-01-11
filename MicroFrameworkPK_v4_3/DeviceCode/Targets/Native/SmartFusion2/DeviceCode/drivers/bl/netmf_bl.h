@@ -6,13 +6,14 @@
 #ifndef NETMF_BL_H_
 #define NETMF_BL_H_
 
-#include <stm32f10x.h>
+#include <cmsis/m2sxxx.h>
+//#include <stm32f10x.h>
 
 #define FLASH_BANK1_END_ADDRESS   ((uint32_t)0x0007FFFF)
 #define CR_PG_Set                ((uint32_t)0x00000001)
 #define EraseTimeout          ((uint32_t)0x000B0000)
 
-struct STM32F10x_blDriver
+struct SF2_CM3_blDriver
 {
     static BOOL InitializeDevice( void* context );
     static BOOL UninitializeDevice( void* context );

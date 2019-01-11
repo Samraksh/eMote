@@ -1,0 +1,40 @@
+Execution on SF2:
+===================
+COM0 initialized
+timized, no-size-optimization
+Clock Calibration Not Active
+Starting...
+Started Hardware.
+
+Loading start at 3b628, end 54b34
+Assembly: mscorlib (4.3.1.0)
+Assembly: Microsoft.SPOT.Native (4.3.1.0)
+Assembly: Microsoft.SPOT.Hardware (4.3.1.0)
+Assembly: Microsoft.SPOT.Update (4.3.1.0)
+Assembly: MFUpdate (4.3.1.0)
+Assembly: Microsoft.SPOT.Hardware.SerialPort (4.3.1.0)
+Assembly: Microsoft.SPOT.Security.PKCS11 (4.3.1.0)
+Assembly: System.Security (4.3.1.0)
+Loading Deployment Assemblies.
+
+Assembly: mscorlib (4.3.1.0)
+Assembly: HMAC (1.0.0.0)
+Assembly: Microsoft.SPOT.Native (4.3.1.0)
+Assembly: Microsoft.SPOT.Security.PKCS11 (4.3.1.0)
+Assembly: System.Security (4.3.1.0)
+Assembly: Microsoft.SPOT.Hardware (4.3.1.0) Resolving.
+Ready.
+Hello World!
+Data Size= 124, Data= "Samraksh eMote Cryptoki HMAC Example; Plus the wolf is great, but the fox is grey. The lamb is prey, but its a mountain pro!"
+HMAC Size: 32, HMAC= "0 103 74 155 97 125 27 130 83 111 216 226 156 45 100 50 59 61 228 144 127 39 150 29 253 74 92 188 247 200 88 195 "
+Time for HMAC Sig = 00:00:00.0284817
+End of HMAC example
+
+
+Emulator
+==========================
+Hello World!
+Data Size= 124, Data= "Samraksh eMote Cryptoki HMAC Example; Plus the wolf is great, but the fox is grey. The lamb is prey, but its a mountain pro!"
+HMAC Size: 32, HMAC= "0 103 74 155 97 125 27 130 83 111 216 226 156 45 100 50 59 61 228 144 127 39 150 29 253 74 92 188 247 200 88 195 "
+Time for HMAC Sig = 00:00:00
+End of HMAC example

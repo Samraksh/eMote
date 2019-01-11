@@ -8,11 +8,20 @@
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/MAC_decl.h>
 #endif
+
 #if defined(PLATFORM_ARM_SOC_ADAPT)
 #include "..\Targets\Native\Krait\DeviceCode\Krait_TIMER\Krait__TIMER.h"
 extern Krait_Timer g_Krait_Timer;
 #endif
 
+
+#if defined(PLATFORM_ARM_SmartFusion2)
+#include <drivers/mss_sys_services/mss_sys_services.h>
+#include "..\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer\mss_timer.h"
+#include "..\Targets\Native\SmartFusion2\DeviceCode\drivers\loadTarget\loadTarget.h"
+#include <CMSIS/system_m2sxxx.h>
+#include <DeviceCode/Crypto/aes_test.h>
+#endif
 
 #if !defined(__GNUC__)
 #include <rt_fp.h>
@@ -373,7 +382,7 @@ void HAL_Initialize()
 
     HAL_Init_Custom_Heap();
 
-    Time_Initialize();
+
 
     Events_Initialize();
 
@@ -385,13 +394,16 @@ void HAL_Initialize()
 
     // have to initialize the blockstorage first, as the USB device needs to update the configure block
 
+#ifndef IBL
+    Time_Initialize();
+
     BlockStorageList::Initialize();
 
     BlockStorage_AddDevices();
 
     BlockStorageList::InitializeDevices();
 
-    FS_Initialize();
+    //FS_Initialize();
 
     FileSystemVolumeList::Initialize();
 
@@ -399,7 +411,7 @@ void HAL_Initialize()
 
     FileSystemVolumeList::InitializeVolumes();
 
-    LCD_Initialize();
+    //LCD_Initialize();
 
 //#if !defined(HAL_REDUCESIZE)
     CPU_InitializeCommunication();
@@ -407,21 +419,22 @@ void HAL_Initialize()
 
     //I2C_Initialize(); // FIXME: Is commenting this out a Samraksh policy decision? if so, need soft reboot handler for I2C re-init
 
-    Buttons_Initialize();
+    //Buttons_Initialize();
 
     // Initialize the backlight to a default off state
-    BackLight_Initialize();
+    //BackLight_Initialize();
 
-    Piezo_Initialize();
+    //Piezo_Initialize();
 
-    Battery_Initialize();
+    //Battery_Initialize();
 
-    Charger_Initialize();
+    //Charger_Initialize();
 
     PalEvent_Initialize();
-    Gesture_Initialize();
-    Ink_Initialize();
+   // Gesture_Initialize();
+    //Ink_Initialize();
     TimeService_Initialize();
+#endif
 
 #if defined(ENABLE_NATIVE_PROFILER)
     Native_Profiler_Init();
@@ -479,9 +492,7 @@ void HAL_Uninitialize()
     SOCKETS_CloseConnections();
 
 #if defined(SAM_APP_TINYCLR)
-#	if defined(PLATFORM_ARM_SOC_ADAPT)
-#	warning "STUB: MACLayer_UnInitialize() was not defined on SOC_ADAPT"
-#	else
+#if defined(PLATFORM_ARM_EmoteDotNow)
     MACLayer_UnInitialize();
 #	endif
 #endif
@@ -511,11 +522,17 @@ void HAL_Uninitialize()
     HAL_COMPLETION  ::Uninitialize();
 }
 
+
+
 extern "C"
 {
 
 void BootEntry()
 {
+#if defined(PLATFORM_ARM_SmartFusion2)
+   //aesTest();
+#endif
+
 #if defined(PLATFORM_ARM_SOC_ADAPT)
 mipi_dsi_shutdown();
 #endif
@@ -525,14 +542,14 @@ mipi_dsi_shutdown();
 // it decrements LR at the first instruction of IRQ_handler and then before return, it decrements LR again.
 // temporary fix is at the ARM_Vector ( IRQ), make it jump to 2nd instruction of IRQ_handler to skip teh first subs LR, LR #4;
 //
-    volatile int *ptr;
-    ptr =(int*) 0x28;
-    *ptr = *ptr +4;
+//    volatile int *ptr;
+//    ptr =(int*) 0x28;
+ //   *ptr = *ptr +4;
 #endif
 
 
 #if !defined(BUILD_RTM) && !defined(PLATFORM_ARM_OS_PORT) && defined(DEBUG)
-    {
+   /* {
         int  marker;
         int* ptr = &marker - 1; // This will point to the current top of the stack.
         int* end = &StackBottom;
@@ -547,7 +564,7 @@ mipi_dsi_shutdown();
             // SO DEBUG YOUR CODE INSTEAD OF CHANGING THIS.
             *ptr-- = 0xBAADF00D;
         }
-    }
+    }*/
 #endif
 
     // these are needed for patch access
@@ -586,6 +603,11 @@ mipi_dsi_shutdown();
     HAL_Time_Initialize();
 
     HAL_Initialize();
+	
+	// System Services Driver Initialization
+#if defined(PLATFORM_ARM_SmartFusion2)
+    MSS_SYS_init(MSS_SYS_NO_EVENT_HANDLER);
+#endif
 
 #if !defined(BUILD_RTM)
 #ifdef TINYHAL_BOOTUP_DISPLAY_BUILD_INFO
@@ -629,17 +651,22 @@ mipi_dsi_shutdown();
     Watchdog_GetSetBehavior( WATCHDOG_BEHAVIOR, TRUE );
     Watchdog_GetSetEnabled ( WATCHDOG_ENABLE, TRUE );
 
+
+
+
 #if defined( SAM_APP_TINYCLR )
 	// if we have the JTAG attached we will wait two seconds to allow us to attach a debugger or openOCD
-	if(CPU_JTAG_Attached() > 0)
+	/*if(CPU_JTAG_Attached() > 0)
 	{
 		UINT64 finishConnectionLock = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT64)2000000,ADVTIMER_32BIT);
 		UINT64 now = HAL_Time_CurrentTicks();
 		while (finishConnectionLock > now) {
 			 now = HAL_Time_CurrentTicks();
 		}
-	}
+	}*/
 #endif
+	loadArduinoSPI((uint8_t*)0xF000,1932);
+
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

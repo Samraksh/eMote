@@ -12,7 +12,7 @@
 #include <drivers/mss_sys_services/mss_comblk.h>
 
 void MSS_COMBLK_init (comblk_async_event_handler_t async_event_handler,uint8_t* p_response);
-static void asynchronous_event_handler(uint8_t event_opcode);
+void asynchronous_event_handler(uint8_t event_opcode);
 
 struct SF2_Services {
 

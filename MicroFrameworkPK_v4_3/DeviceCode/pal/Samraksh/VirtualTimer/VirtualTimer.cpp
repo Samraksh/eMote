@@ -10,6 +10,10 @@
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/Hal_util.h>
 
+#if defined(PLATFORM_ARM_SmartFusion2)
+#include "..\..\..\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer\mss_timer.h"
+#endif
+
 #if defined(DEBUG_VT)
 #define DEBUG_VT_ASSERT_ANAL(x) ASSERT(x)
 #else
@@ -401,7 +405,9 @@ void VirtualTimerCallback(void *arg)
 {
 	UINT32 ticks = 0, startDelay = 0;
 	UINT16 i = 0;
-
+#if defined(PLATFORM_ARM_SmartFusion2)
+	MSS_TIM2_clear_irq();
+#endif
 	// the timer used (RTC_32BIT, ADVTIMER_32BIT) is passed as the argument
 	UINT32 currentHardwareTimerId = *(UINT32*)arg;
 	UINT8 currentVTMapper = 0;

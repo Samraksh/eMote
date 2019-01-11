@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+
+  <!--Secure Boot and Higher level stuff-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Application\IBL\dotNetMF.proj" />
+    <DriverLibs Include="IBL.$(LIB_EXT)" />
+  </ItemGroup>
+  
+  <!-- Hal and pal stuff needed by Rot -->
+  
+  <ItemGroup>
+    <DriverLibs Include="SF2_rot_bootstrap.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bootstrap\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\Initialization\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="SF2_rot_TinyHal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\cores\arm\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PlatformIndependentLibs Include="CRC.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Support\CRC\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <DriverLibs Include="tinycrt_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <DriverLibs Include="asyncproccall_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="events_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Events\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="heap_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Heap\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <DriverLibs Include="cpu_cache_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_cache\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <!-- The watchdog has toomuch clr stuff, cant use as it is, needs to rewrite 
+  <ItemGroup>
+    <DriverLibs Include="Watchdog_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Watchdog\dotNetMF.proj" />
+  </ItemGroup>
+  -->
+  
+  <ItemGroup>
+    <DriverLibs Include="cpu_watchdog_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\Processor\stubs_watchdog\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <DriverLibs Include="Watchdog_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Watchdog\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <DriverLibs Include="blockstorage_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\BlockStorage\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>  
+    <DriverLibs Include="SimpleHeap_config.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap_config\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <DriverLibs Include="SimpleHeap.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <!--   Some CLR stuff we might need       --> 
+  <!--
+  <ItemGroup>
+    <PlatformIndependentLibs Include="Messaging.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Messaging\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PlatformIndependentLibs Include="SPOT_Messaging_stub.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT\SPOT_Messaging\dotNetMF_Stub.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PlatformIndependentLibs Include="Diagnostics.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Diagnostics\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="Time_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Time\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="tinycrt_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PlatformIndependentLibs Include="WireProtocol.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Support\WireProtocol\dotNetMF.proj" />
+  </ItemGroup>
+  -->
+  
+  <!--  - - - - - -  - uart, com , debug, only in debug mode  - - - -  -->
+  
+  <ItemGroup Condition="'$(FLAVOR)'=='Debug'">
+    <DriverLibs Include="usart_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USART\dotNetMF.proj" />
+  
+    <DriverLibs Include="COM_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\dotNetMF.proj" />
+  
+    <DriverLibs Include="SF2_usart.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\usart\dotNetMF.proj" />
+   
+    <DriverLibs Include="usb_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USB\stubs\dotNetMF.proj" />
+   
+    <DriverLibs Include="sockets_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" />
+ 
+    <DriverLibs Include="lcd_hal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Display\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(FLAVOR)'!='Debug'">
+    <DriverLibs Include="COM_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <!--<ItemGroup>
+    <DriverLibs Include="SmartFusion2_ID.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\id\dotNetMF.proj" />
+  </ItemGroup>
+  -->
+  
+  
+  <!-- - - - - - - - - -Crypto stuff needed by IBL   -->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\Crypto\nativeCrypto_dotnetmf.proj" />
+    <DriverLibs Include="CryptoNative_SF2.$(LIB_EXT)" />
+  </ItemGroup> 
+  
+  
+  <!-- - - - - - - - - -drivers, be very careful what you include -->
+  <ItemGroup>
+    <DriverLibs Include="GlobalLock_hal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\cores\arm\Common\GlobalLock\gcc-thumb2\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="SF2_SimplePower.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\SimplePower\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="SmartFusion2_gpio.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\gpio\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <DriverLibs Include="SF2_rot_eNVM.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\eNVM\dotNetMF.proj" />
+  </ItemGroup>
+    
+  <!--  Time and Timer drivers  -->  
+  
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\eMote_Time\dotNetMF.proj" />
+    <DriverLibs Include="eMote_time.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\VirtualTimer\dotNetMF.proj" />
+    <DriverLibs Include="VirtualTimer.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer\dotNetMF.proj" />
+    <DriverLibs Include="SF2_rot_timer.$(LIB_EXT)" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bl\dotNetMF.proj" />
+    <DriverLibs Include="SF2_rot_bl.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="SF2_rot_M2SXXX.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\microsemi_lib\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="SmartFusion2_sys_services.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\sys_services\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="SmartFusion2_intc.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\intc\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="sf2_spi.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\spi\dotNetMF.proj" />
+  </ItemGroup>
+  
+ 
+  
+  <!--     - - - - - - - -               Samraksh's Extensions   - - - - - - - -                  -->
+  
+  <!-- 									Samraksh Time Extension        								-->
+   <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\dotNetMF.proj" />
+    <DriverLibs Include="SmartFusion2_driver_control.$(LIB_EXT)" />
+  </ItemGroup>
+  
+  
+  <!--                      	    Wireless Networking Stack ::End                      -->
+  
+  <!--     - - - - - - - -        Samraksh's Extensions   End    - - - - - - - -           -->
+  
+  
+  
+ 
+</Project>

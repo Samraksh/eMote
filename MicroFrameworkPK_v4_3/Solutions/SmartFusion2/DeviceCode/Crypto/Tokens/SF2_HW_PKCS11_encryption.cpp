@@ -278,7 +278,7 @@ CK_RV SF2_HW_PKCS11_Encryption::EncryptFinal(Cryptoki_Session_Context* pSessionC
         //SF2_HW_PKCS11_CHECKRESULT(SF2_Cipher((sf2_cipher_context_t *)pEnc->Key->ctx, pLastEncryptedPart));
         //*pulLastEncryptedPartLen = outLen;
     	if(outLen > 0){
-    		hal_printf("This shouldnt the case, something seems wrong\n");
+    		hal_printf("This shouldnt be the case, something seems wrong\n");
     	}
 
     	//We dont have the concept of EncryptFinal in SF2 aes. Hence This should never be called.

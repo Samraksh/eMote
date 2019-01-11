@@ -24,9 +24,11 @@
         <!-- Regular build: -->
         <Set Name="Config_BaseAddress"  Value="0x6007F000"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
         <Set Name="Config_Size"         Value="0x00001000"/><!--        Config_Size MUST MATCH TINYBOOTER SCATTERFILE -->
-        <Set Name="Code_BaseAddress"    Value="0x60000000"/>
-		<Set Name="Code_BaseAddress_Mirror"    Value="0x00000000"/>
-        <Set Name="Deploy_BaseAddress"  Value="0x60064800"/>
+        <Set Name="Code_BaseAddress"    Value="0x6000F000"/>
+		<Set Name="Code_BaseAddress_Mirror"    Value="0x0000F000"/>
+       <!-- <Set Name="Code_BaseAddress"    Value="0x60000000"/>
+		<Set Name="Code_BaseAddress_Mirror"    Value="0x00000000"/> -->
+        <Set Name="Deploy_BaseAddress"  Value="0x60065800"/>
         <Set Name="Code_Size"           Value="%Deploy_BaseAddress - Code_BaseAddress%"/>
         <Set Name="Valid"               Value="true"/>
 		<Set Name="AltName"		Value="LR_FLASH"/>
@@ -121,62 +123,62 @@
         <!-- libc thinks that it needs these routines, but they are never called -->
         <Include File="%SPOCLIENT%\Solutions\%PLATFORM%\scatterfile_gcc_missing_symbols.xml"/>
 
-      </ExecRegion>
-      <ExecRegion Name="ER_STACK_BOTTOM" Base="%Stack_Bottom%">
-        <FileMapping Name="*" Options="(SectionForStackBottom)" />
-      </ExecRegion>
-      <ExecRegion Name="ER_STACK_TOP" Base="%Stack_Top%">
-        <FileMapping Name="*" Options="(SectionForStackTop)" />
-      </ExecRegion>
-      <ExecRegion Name="ER_RAM_RO" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_%TARGETLOCATION%">
-        <!--<FileMapping Name="*" Options="(VectorsTrampolines)" />--><!-- if vector table copied to RAM, must also set Vector Table Offset Register-->
-        <!--<Include File="%SPOCLIENT%\Solutions\%PLATFORM%\TinyCLR\scatterfile_ram_functions.xml"/>--><!--CLR RT functions to be placed in SRAM-->
-        <!--<Include File="%SPOCLIENT%\Solutions\%PLATFORM%\TinyCLR\scatterfile_tinyclr_ram_functions.xml"/>--><!--Samraksh HAL functions to be placed in SRAM-->
-        <If Name="TARGETLOCATION" In="FLASH">     
-          <FileMapping Name="*" Options="(SectionForFlashOperations)" />       
-        </If>
-      </ExecRegion>      
-      <ExecRegion Name="ER_RAM_RW" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_%TARGETLOCATION%">
-        <FileMapping Name="*" Options="(rwdata)" />
-        <FileMapping Name="*" Options="(.data*)" />
-        <FileMapping Name="*" Options="(.zidata*)" />
-      </ExecRegion>      
-      <ExecRegion Name=".bss" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_%TARGETLOCATION%">
-        <FileMapping Name="*" Options="(.bss*)" />
-        <FileMapping Name="PROVIDE(__exidx_start = .);" />
-        <FileMapping Name="PROVIDE(__exidx_end = .);" />
-      </ExecRegion>
-      <ExecRegion Name="/DISCARD/">
-        <FileMapping Name="*" Options="(.glue*)" />
-        <FileMapping Name="*" Options="(.vfp11*)" />
-        <FileMapping Name="*" Options="(.ARM.exidx*)" />
-        <FileMapping Name="*" Options="(.ARM.extab*)" />
-      </ExecRegion>
-      <ExecRegion Name="ER_HEAP_BEGIN" Align="0x10" Options="&gt;RELOC_RAM"> <!-- Base="%Heap_Begin%"> --><!-- experimental: let the linker choose the heap start address -->
-        <FileMapping Name="*" Options="(SectionForHeapBegin)" />
-      </ExecRegion>
-      <ExecRegion Name="ER_HEAP_END" Base="%Heap_End%">
-        <FileMapping Name="*" Options="(SectionForHeapEnd)" />
-      </ExecRegion>
-      <IfDefined Name="Custom_Heap_Begin">
-        <ExecRegion Name="ER_CUSTOMHEAP_BEGIN" Align="0x10" Base="%Custom_Heap_Begin%">
-            <FileMapping Name="*" Options="(SectionForCustomHeapBegin)" />
-        </ExecRegion>
-        <ExecRegion Name="ER_CUSTOMHEAP_END" Base="%Custom_Heap_End%">
-            <FileMapping Name="*" Options="(SectionForCustomHeapEnd)" />
-        </ExecRegion>
-      </IfDefined>
+		</ExecRegion>
+      	<ExecRegion Name="ER_STACK_BOTTOM" Base="%Stack_Bottom%">
+        	<FileMapping Name="*" Options="(SectionForStackBottom)" />
+      	</ExecRegion>
+      	<ExecRegion Name="ER_STACK_TOP" Base="%Stack_Top%">
+        	<FileMapping Name="*" Options="(SectionForStackTop)" />
+      	</ExecRegion>
+      	<ExecRegion Name="ER_RAM_RO" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_%TARGETLOCATION%">
+        	<!--<FileMapping Name="*" Options="(VectorsTrampolines)" />--><!-- if vector table copied to RAM, must also set Vector Table Offset Register-->
+        	<!--<Include File="%SPOCLIENT%\Solutions\%PLATFORM%\TinyCLR\scatterfile_ram_functions.xml"/>--><!--CLR RT functions to be placed in SRAM-->
+        	<!--<Include File="%SPOCLIENT%\Solutions\%PLATFORM%\TinyCLR\scatterfile_tinyclr_ram_functions.xml"/>--><!--Samraksh HAL functions to be placed in SRAM-->
+        	<If Name="TARGETLOCATION" In="FLASH">     
+          		<FileMapping Name="*" Options="(SectionForFlashOperations)" />       
+        	</If>
+      	</ExecRegion>      
+      	<ExecRegion Name="ER_RAM_RW" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_%TARGETLOCATION%">
+        	<FileMapping Name="*" Options="(rwdata)" />
+        	<FileMapping Name="*" Options="(.data*)" />
+        	<FileMapping Name="*" Options="(.zidata*)" />
+      	</ExecRegion>      
+      	<ExecRegion Name=".bss" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_%TARGETLOCATION%">
+        	<FileMapping Name="*" Options="(.bss*)" />
+        	<FileMapping Name="PROVIDE(__exidx_start = .);" />
+        	<FileMapping Name="PROVIDE(__exidx_end = .);" />
+      	</ExecRegion>
+      	<ExecRegion Name="/DISCARD/">
+        	<FileMapping Name="*" Options="(.glue*)" />
+        	<FileMapping Name="*" Options="(.vfp11*)" />
+        	<FileMapping Name="*" Options="(.ARM.exidx*)" />
+        	<FileMapping Name="*" Options="(.ARM.extab*)" />
+      	</ExecRegion>
+      	<ExecRegion Name="ER_HEAP_BEGIN" Align="0x10" Options="&gt;RELOC_RAM"> <!-- Base="%Heap_Begin%"> --><!-- experimental: let the linker choose the heap start address -->
+        	<FileMapping Name="*" Options="(SectionForHeapBegin)" />
+      	</ExecRegion>
+      	<ExecRegion Name="ER_HEAP_END" Base="%Heap_End%">
+        	<FileMapping Name="*" Options="(SectionForHeapEnd)" />
+      	</ExecRegion>
+      	<IfDefined Name="Custom_Heap_Begin">
+        	<ExecRegion Name="ER_CUSTOMHEAP_BEGIN" Align="0x10" Base="%Custom_Heap_Begin%">
+            	<FileMapping Name="*" Options="(SectionForCustomHeapBegin)" />
+        	</ExecRegion>
+        	<ExecRegion Name="ER_CUSTOMHEAP_END" Base="%Custom_Heap_End%">
+            	<FileMapping Name="*" Options="(SectionForCustomHeapEnd)" />
+        	</ExecRegion>
+      	</IfDefined>
 
-    <IfDefined Name="Config_BaseAddress">         
-      <ExecRegion Name="ER_CONFIG" Options="&gt;LR_CONFIG">
-        <FileMapping Name="*" Options="(SectionForConfig)" />
-      </ExecRegion>
-    </IfDefined>    
-    <IfDefined Name="Data_BaseAddress">      
-      <ExecRegion Name="ER_DAT" Options="&gt;LR_DAT">
-        <FileMapping Name="*" Options="(tinyclr_metadata)" />
-      </ExecRegion>
-    </IfDefined>
+    	<IfDefined Name="Config_BaseAddress">         
+      		<ExecRegion Name="ER_CONFIG" Options="&gt;LR_CONFIG">
+        		<FileMapping Name="*" Options="(SectionForConfig)" />
+      		</ExecRegion>
+    	</IfDefined>    
+    	<IfDefined Name="Data_BaseAddress">      
+      		<ExecRegion Name="ER_DAT" Options="&gt;LR_DAT">
+        		<FileMapping Name="*" Options="(tinyclr_metadata)" />
+      		</ExecRegion>
+    	</IfDefined>
     </NamedGroup>
 
     <!-- The following variables are used to simulate the ones autogenerated by RVDS -->

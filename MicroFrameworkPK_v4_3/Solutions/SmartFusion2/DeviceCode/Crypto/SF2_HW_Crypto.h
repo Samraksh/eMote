@@ -3,8 +3,10 @@
 
 #include <drivers/mss_sys_services/mss_sys_services.h>
 
+
 #define SF2_HW_MAX_IV_LENGTH 32
 #define SF2_HW_MAX_KEY_LENGTH 64 // This is in bytes
+#define SF2_HW_MAX_DIGEST_LENGTH 64 //in bytes
 
 #define SF2_MYSYS_SET_AND_LEAVE(x) \
 	return x
@@ -13,6 +15,9 @@
     if((x) != MSS_SYS_SUCCESS) SF2_MYSYS_SET_AND_LEAVE(x)
 
 
+enum SF2_DigestType{
+	HMAC_SHA256
+};
 
 enum SF2_CipherType{
 	AES_128,
@@ -59,6 +64,13 @@ typedef struct {
 } sf2_cipher_context_t;
 
 
+typedef struct {
+	//uint8_t mode;
+	uint8_t key_byteLen; // Key length to use in bytes
+	unsigned char key[SF2_HW_MAX_KEY_LENGTH];
+	unsigned char digest[SF2_HW_MAX_DIGEST_LENGTH];
+}sf2_digest_context_t;
+
 //function prototypes
 
 ///returns a random seed of size length, using FPGA random functions
@@ -82,5 +94,8 @@ int SF2_Cipher(sf2_cipher_context_t* ctx, uint8_t* data, uint32_t dataSize, uint
 int SF2_GetBlockSize(sf2_cipher_context_t* ctx){
 	return 16;
 }
+
+///main wrapper function for all digest methods
+int SF2_Digest(sf2_digest_context_t* ctx, uint8_t* data, uint32_t dataSize, uint8_t* result, uint32_t *resultSize);
 
 #endif //_SF2_HW_CRYPTO_H_

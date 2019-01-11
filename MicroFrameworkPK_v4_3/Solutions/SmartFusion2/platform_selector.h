@@ -5,6 +5,8 @@
 #ifndef _PLATFORM_SmartFusion2_SELECTOR_H_
 #define _PLATFORM_SmartFusion2_SELECTOR_H_ 1
 
+
+
 // Properly declare them since they are not ANSI
 // Previously declared by accident in compiler setup because we used _GNU_SOURCE (default)
 // In future, prefer not to use.
@@ -24,10 +26,25 @@ typedef uint16_t ushort;
 //#define SAMRAKSH_UPDATE_EXT
 
 
-#define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
+//#define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
 
+//build a RoT, Kernel and RunTime version of eMote with distinct security regions
+
+//#define IBL
+#if !defined(IBL)
+#define SECURE_EMOTE 1
+#define KERNEL_LOG 0
+#define TINYCLR_GC_VERBOSE 1
+
+//boolen flag to check if kernel functions are executing in PendSV handler
+bool inPendSV_irq;
+
+#endif //end SECURE_EMOTE
 
 #if defined(PLATFORM_ARM_SmartFusion2)
+#ifndef PLATFORM_ARM
+#define PLATFORM_ARM 1
+#endif
 #define HAL_SYSTEM_NAME                     "SmartFusion2"
 #define SAM_VERSION_REVISION 1
 #define TINYBOOTER_REVISION 1
@@ -89,12 +106,28 @@ typedef uint16_t ushort;
 #define GLOBAL_LOCK_SOCKETS(x)     SmartPtr_IRQ x
 
 #if defined(_DEBUG)
-#define ASSERT_IRQ_MUST_BE_OFF()   ASSERT(!SmartPtr_IRQ::GetState())
-#define ASSERT_IRQ_MUST_BE_ON()    ASSERT( SmartPtr_IRQ::GetState())
+//#define ASSERT_IRQ_MUST_BE_OFF()   ASSERT((!SmartPtr_IRQ::GetState()) || inPendSV_irq)
+//#define ASSERT_IRQ_MUST_BE_ON()    ASSERT( SmartPtr_IRQ::GetState())
+#define ASSERT_IRQ_MUST_BE_OFF()
+#define ASSERT_IRQ_MUST_BE_ON()
 #else
 #define ASSERT_IRQ_MUST_BE_OFF()
 #define ASSERT_IRQ_MUST_BE_ON()
 #endif
+
+#if defined(IBL)
+#define INTERRUPT_START GLOBAL_LOCK(x)
+#define INTERRUPT_END
+
+#else
+#define INTERRUPT_START SystemState_SetNoLock( SYSTEM_STATE_ISR              );   \
+                        SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+#define INTERRUPT_END   SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); \
+                        SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
+
+#endif //IBL
+
+
 
 //
 // macros
@@ -149,6 +182,12 @@ typedef uint16_t ushort;
 //Our total heap is 48 K bytes
 #define PLATFORM_DEPENDENT_HEAP_SIZE_THRESHOLD  16 * 1024
 #define PLATFORM_DEPENDENT_HEAP_SIZE_THRESHOLD_UPPER 32 * 1024
+
+
+////Crypto definitions
+#define USE_AES 1 //use AES for symmetric cypto
+#define NO_RSA 1 //We dont have RSA support
+
 
 // communication facilities
 /////////////////////////////////////////////////////////

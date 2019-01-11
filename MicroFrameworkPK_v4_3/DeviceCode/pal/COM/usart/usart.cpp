@@ -360,6 +360,11 @@ int USART_Driver::Write( int ComPortNum, const char* Data, size_t size )
         }
     }
 
+    char* DataToSend = (char*)Data;
+    CPU_USART_WriteStringToTxBuffer(ComPortNum, DataToSend, size);
+    totWrite = size;
+
+    /*
     // loop twice if needed because of our implementaition of a circular buffered QUEUE
     for(j=0; (j < 2) && (totWrite < size); j++)
     {
@@ -397,7 +402,7 @@ int USART_Driver::Write( int ComPortNum, const char* Data, size_t size )
             // so we do this once to be efficient in the common case (buffer has room for all chars)
             CPU_USART_TxBufferEmptyInterruptEnable( ComPortNum, TRUE );
         }
-    }
+    }*/
 
     return totWrite;
 }
@@ -663,7 +668,7 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 	size_t toWrite, written;
 	UINT8 *dst;
 
-	ASSERT_IRQ_MUST_BE_OFF();
+	//ASSERT_IRQ_MUST_BE_OFF(); //This does not make sense. This function is being called from with uart irq
 	if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) return FALSE;
 	HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
 
@@ -731,7 +736,7 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 
 BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
 {
-    ASSERT_IRQ_MUST_BE_OFF();
+    //ASSERT_IRQ_MUST_BE_OFF();//This does not make sense. This function is being called from with uart irq
 
     if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) return FALSE;
 

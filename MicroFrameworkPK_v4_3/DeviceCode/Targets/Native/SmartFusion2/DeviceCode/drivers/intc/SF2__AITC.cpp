@@ -4,6 +4,7 @@
 
 #include <tinyhal.h>
 #include <cmsis/m2sxxx.h>
+#include <cmsis_gcc.h>
 //#include <led/SF2f10x_led.h>
 //#include <gpio/SF2f10x_gpio.h>
 #include "SF2.h"
@@ -17,9 +18,12 @@
 #undef  DEBUG_TRACE
 #define DEBUG_TRACE (TRACE_ALWAYS)
 
+//#define INTERRUPT_START GLOBAL_LOCK(x)
+//#define INTERRUPT_END
+
 ////////////////////////////////////////////////////////////////////////////////
 
-//#define DEBUG_DOTNOW_ISR
+//#define DEBUG_SF2_ISR
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
 #pragma arm section rwdata = "s_IsrTable_SF2"
@@ -27,9 +31,26 @@
 
 #define DEFINE_IRQ(index, priority) { priority, { NULL, (void*)(size_t)index } }
 
+#if defined(SECURE_EMOTE)
+extern void MemManage_HandlerC(UINT32 lr, UINT32 msp);
+//extern void SVCall_Handler(void);
+extern void PendSV_Handler(void);
+#endif
+
+
+
 SF2_AITC_Driver::IRQ_VECTORING __section(rwdata) SF2_AITC_Driver::s_IsrTable[] =
 {
-	DEFINE_IRQ(VectorIndex::c_IRQ_INDEX_WWDG			, SF2_AITC::c_IRQ_Priority_15),
+	//MemManageInt Added by Mukundan
+	//In the secure version of the emote, the entire kernel and RoT code is going to run inside of
+	//the memmanage interrupt. Hence it should have the lowest priority. If a realtime timer is used with PendSV
+	//that should priority must be higher than MemManage. Kernel+RoT should idealy be run under PendSV, instead directly of running under MemMange.
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_MemoryManagementInt, SF2_AITC::c_IRQ_Priority_15),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_PendSV          ,SF2_AITC::c_IRQ_Priority_15 ), //Mukundan
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_SVCall        ,SF2_AITC::c_IRQ_Priority_5  ),
+
+
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_WWDG			, SF2_AITC::c_IRQ_Priority_15),
     DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_RTC          ,SF2_AITC::c_IRQ_Priority_15  ),
     DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_SPI0            ,SF2_AITC::c_IRQ_Priority_15  ),
     DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_SPI1     ,SF2_AITC::c_IRQ_Priority_15  ),
@@ -63,22 +84,22 @@ SF2_AITC_Driver::IRQ_VECTORING __section(rwdata) SF2_AITC_Driver::s_IsrTable[] =
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FAB_PLL_Lock       ,SF2_AITC::c_IRQ_Priority_15 ),
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FAB_PLL_LockLost       ,SF2_AITC::c_IRQ_Priority_15 ),
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FIC64       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq0       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq1       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq2       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq3       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq4       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq5       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq6       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq7       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq8       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq9       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq10       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq11       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq12       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq13       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq14       ,SF2_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq15       ,SF2_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq0       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq1       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq2       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq3       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq4       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq5       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq6       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq7       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq8       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq9       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq10       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq11       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq12       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq13       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq14       ,SF2_AITC::c_IRQ_Priority_2 ),
+	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_FabricIrq15       ,SF2_AITC::c_IRQ_Priority_2 ),
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO0       ,SF2_AITC::c_IRQ_Priority_15 ),
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO1       ,SF2_AITC::c_IRQ_Priority_15 ),
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO2       ,SF2_AITC::c_IRQ_Priority_15 ),
@@ -112,8 +133,6 @@ SF2_AITC_Driver::IRQ_VECTORING __section(rwdata) SF2_AITC_Driver::s_IsrTable[] =
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO30       ,SF2_AITC::c_IRQ_Priority_15 ),
 	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_GPIO31       ,SF2_AITC::c_IRQ_Priority_15 ),
 
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_PendSV          ,SF2_AITC::c_IRQ_Priority_15 ), //Mukundan
-	DEFINE_IRQ( VectorIndex::c_IRQ_INDEX_SVCall        ,SF2_AITC::c_IRQ_Priority_5  ),
 };
 
 #undef DEFINE_IRQ
@@ -146,7 +165,7 @@ void SF2_AITC_Driver::Initialize()
     // // set all priorities to the lowest
      IRQ_VECTORING* IsrVector = s_IsrTable;
 	 
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 	memset(interrupt_count, 0, 4*64);
 #endif
 
@@ -215,14 +234,25 @@ extern "C"
 
 
 	#if defined(DEBUG)
-	// help GDB inspect CMSIS register definitions in core_cm3.h
-	volatile NVIC_Type*          pNVIC      = NVIC;
-	volatile SCB_Type*           pSCB       = SCB;
-	volatile SysTick_Type*       pSysTick   = SysTick;
-	volatile ITM_Type*           pITM       = ITM;
-	volatile InterruptType_Type* pInterruptType = InterruptType;
-	volatile MPU_Type*           pMPU       = MPU;
-	volatile CoreDebug_Type*     pCoreDebug = CoreDebug;
+		#if __CM3_CMSIS_VERSION < 0x2000
+			// help GDB inspect CMSIS register definitions in core_cm3.h
+			volatile NVIC_Type*          pNVIC      = NVIC;
+			volatile SCB_Type*           pSCB       = SCB;
+			volatile SysTick_Type*       pSysTick   = SysTick;
+			volatile ITM_Type*           pITM       = ITM;
+			volatile InterruptType_Type* pInterruptType = InterruptType;
+			volatile MPU_Type*           pMPU       = MPU;
+			volatile CoreDebug_Type*     pCoreDebug = CoreDebug;
+		#else
+			// help GDB inspect CMSIS register definitions in core_cm3.h
+			volatile NVIC_Type*          pNVIC      = NVIC;
+			volatile SCB_Type*           pSCB       = SCB;
+			volatile SysTick_Type*       pSysTick   = SysTick;
+			volatile ITM_Type*           pITM       = ITM;
+			volatile SCnSCB_Type* pInterruptType = SCnSCB;
+			volatile MPU_Type*           pMPU       = MPU;
+			volatile CoreDebug_Type*     pCoreDebug = CoreDebug;
+		#endif
 	#endif
 
 
@@ -334,7 +364,11 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
     pSCB       = SCB;
     pSysTick   = SysTick;
     pITM       = ITM;
+#if __CM3_CMSIS_VERSION < 0x2000
     pInterruptType = InterruptType;
+#else
+    pInterruptType = SCnSCB;
+#endif
     pMPU       = MPU;
     pCoreDebug = CoreDebug;
 #endif // defined(DEBUG)
@@ -353,29 +387,65 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	
 }
 
+void __irq HardFault_Handler()
+{
+	// This assembly code will find the location of the stack and pass it to a C function hard fault handler (HardFault_HandlerC)
+		asm(
+			"TST LR, #4 \n"          // Test EXC_RETURN number in LR bit 2 to determine if main stack or program stack is in use.
+			"ITE EQ \n"
+			"MRSEQ R0, MSP \n"
+			"MRSNE R0, PSP \n"
+			"B HardFault_HandlerC \n"
+		);
 
-	void __irq HardFault_Handler()
-	{
-			// This assembly code will find the location of the stack and pass it to a C function hard fault handler (HardFault_HandlerC)
-			asm(
-				"TST LR, #4 \n"          // Test EXC_RETURN number in LR bit 2 to determine if main stack or program stack is in use.
-				"ITE EQ \n"
-				"MRSEQ R0, MSP \n"
-				"MRSNE R0, PSP \n"
-				"B HardFault_HandlerC \n"
-   			);
-	}
+}
 
 
-	void __irq SVC_Handler()
+/*void __irq MemManage_Handler(){
+	UINT32 lr, msp;
+	lr= __get_LR();
+	msp=__get_MSP();
+	MemManage_HandlerC(lr, msp);
+}
+*/
+void __irq BusFault_Handler()
+{
+	HARD_BREAKPOINT();
+	//HardFault_Handler();
+}
+
+void __irq UsageFault_Handler()
+{
+	HARD_BREAKPOINT();
+	//HardFault_Handler();
+}
+
+extern void SVCall_HandlerC(UINT32 sp);
+void __irq SVC_Handler(){
+
+	//SVCall_Handler();
+	asm volatile (
+		"TST LR, #4 \n"          // Test EXC_RETURN number in LR bit 2 to determine if main stack or program stack is in use.
+		"ITE EQ \n"
+		"MRSEQ R0, MSP \n"
+		"MRSNE R0, PSP \n"
+		"B %[SVCall_HandlerC] \n"
+		: // no output
+		: [SVCall_HandlerC] "i" (SVCall_HandlerC) // input
+		: "r0" // clobber
+	);
+
+}
+
+	/*void __irq SVC_Handler()
 	{
 		SF2_AITC& AITC = SF2::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		INTERRUPT_START;
+
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_SVCall]++;
 #endif
 
@@ -388,13 +458,11 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		//ISR_PendSV_Handler(NULL);
 
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
-
-	}
+		INTERRUPT_END
+	}*/
 
 	//This is needed to support realtime timer, this is incomplete
-	void __irq PendSV_Handler()
+	/*void __irq PendSV_Handler()
 	{
 		//Below line is needed, but commented out
 		//SCB->ICSR |= SCB_ICSR_PENDSVCLR;
@@ -402,10 +470,10 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SF2_AITC& AITC = SF2::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		INTERRUPT_START;
+
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_PendSV]++;
 #endif
 
@@ -418,10 +486,10 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		//ISR_PendSV_Handler(NULL);
 
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
-	}
+		INTERRUPT_END
 
+	}
+*/
 
 	// Stub here to save potential confusion later.
 	void __irq SysTick_Handler()
@@ -431,7 +499,8 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 	void __irq Default_Handler()
 	{
-		HARD_BREAKPOINT();
+		//HARD_BREAKPOINT();
+		HardFault_Handler();
 	}
 
 	void __irq RTC_IRQHandler()
@@ -442,11 +511,11 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		GLOBAL_LOCK(irq);
 		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		INTERRUPT_START;
+
 		irq.Release();
 
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_RTC]++;
 #endif
 
@@ -457,8 +526,8 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		IsrVector->Handler.Execute();
 
 		irq.Acquire();
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		INTERRUPT_END
+
 	}
 
 	void __irq ENVM0_IRQHandler()
@@ -467,10 +536,10 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SF2_AITC& AITC = SF2::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		INTERRUPT_START;
+
 		
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_FLASH]++;
 #endif
 
@@ -482,8 +551,8 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		IsrVector->Handler.Execute();
 
 
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		INTERRUPT_END
+
 	}
 
 	void __irq TIM1_CC_IRQHandler()
@@ -492,18 +561,18 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SF2_AITC& AITC = SF2::AITC();
 		GLOBAL_LOCK(irq);
 		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		INTERRUPT_START;
 
-#ifdef DEBUG_DOTNOW_ISR
+
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_TIM1_CC]++;
 #endif
 
 		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_TIM1_CC];
 		IsrVector->Handler.Execute();
 
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		INTERRUPT_END;
+
 	}
 
 	void __irq  TIM2_IRQHandler()
@@ -512,18 +581,18 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SF2_AITC& AITC = SF2::AITC();
 		GLOBAL_LOCK(irq);
 		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		INTERRUPT_START;
 
-#ifdef DEBUG_DOTNOW_ISR
+
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_TIM1_CC]++;
 #endif
 
 		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_TIM2];
 		IsrVector->Handler.Execute();
 
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		INTERRUPT_END;
+
 	}
 
 
@@ -535,10 +604,10 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		SF2_AITC& AITC = SF2::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		INTERRUPT_START;
 
-#ifdef DEBUG_DOTNOW_ISR
+
+#ifdef DEBUG_SF2_ISR
 	interrupt_count[c_IRQ_INDEX_USART1]++;
 #endif
 
@@ -548,8 +617,8 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		IsrVector->Handler.Execute();
 
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		INTERRUPT_END;
+
 	}
 
 void __irq USB_IRQHandler()
@@ -560,10 +629,10 @@ void __irq USB_IRQHandler()
 		//LED_GREEN();
 
 		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		INTERRUPT_START;
 
-#ifdef DEBUG_DOTNOW_ISR
+
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_USB_LP_CAN_RX0]++;
 #endif
 
@@ -574,8 +643,8 @@ void __irq USB_IRQHandler()
 		IsrVector->Handler.Execute();
 
 
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		INTERRUPT_END;
+
 	}
 
 	void __irq DMA_IRQHandler()
@@ -586,11 +655,11 @@ void __irq USB_IRQHandler()
 
 		// set before jumping elsewhere or allowing other interrupts
 		GLOBAL_LOCK(irq);
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		INTERRUPT_START;
+
 		irq.Release();
 
-#ifdef DEBUG_DOTNOW_ISR
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL1]++;
 #endif
 
@@ -599,22 +668,22 @@ void __irq USB_IRQHandler()
 		IsrVector->Handler.Execute();
 
 		irq.Acquire();
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		INTERRUPT_END;
+
 		irq.Release();
 	}
 
-
-	void __irq ComBlk_IRQHandler()
+//This is defined in \DeviceCode\Targets\Native\SmartFusion2\DeviceCode\microsemi_lib\drivers\mss_sys_services\mss_comblk.c
+	/*void __irq ComBlk_IRQHandler()
 	{
 
 		SF2_AITC& AITC = SF2::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		INTERRUPT_START;
 
-#ifdef DEBUG_DOTNOW_ISR
+
+#ifdef DEBUG_SF2_ISR
 		interrupt_count[c_IRQ_INDEX_ComBlk]++;
 #endif
 
@@ -626,9 +695,9 @@ void __irq USB_IRQHandler()
 		IsrVector->Handler.Execute();
 
 
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
-	}
+		INTERRUPT_END;
+
+	}*/
 
 
 	void __irq  SPI0_IRQHandler()

@@ -10,6 +10,11 @@
 #include <pwr/netmf_pwr.h>
 #else
 #define power_event_add_now(x, y, z) ((void)0)
+
+
+#if defined(SECURE_EMOTE)
+#include <Samraksh/sm.h>
+#include <Samraksh/os_scheduler.h>
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3907,6 +3912,18 @@ CLR_UINT32 CLR_RT_ExecutionEngine::WaitSystemEvents( CLR_UINT32 powerLevel, CLR_
     }
 #endif
 
+
+#if defined(SECURE_EMOTE)
+    if(GetExecMode() > 2){
+       	debug_printf( "In CLR_Execution 1:: Still in Priviledged Mode... Switching to thread mode.\r\n" );
+       	SwitchToUserMode();
+    }
+    if(GetExecMode() > 2){
+		debug_printf( "In CLR_Execution 2:: Still in Priviledged Mode... Switching to thread mode.\r\n" );
+		SwitchToUserMode();
+	}
+
+#endif
 
     ::Watchdog_GetSetEnabled( FALSE, TRUE );
 	power_event_add_now(E_WFE_S, 0, 0);
