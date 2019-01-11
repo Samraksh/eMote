@@ -264,8 +264,12 @@ HAL_CALLBACK_FPN GPIO_GetCallBack(GPIO_PIN Pin)
 BOOL CPU_GPIO_Initialize()
 {
 	// Configure clock source for all gpio ports
+#ifndef PLATFORM_ARM_AUSTERE
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
 										RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOF | RCC_APB2Periph_GPIOG | RCC_APB2Periph_AFIO, ENABLE);
+#else
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_AFIO, ENABLE); // Austere only has/uses GPIOs ABC
+#endif // PLATFORM_ARM_AUSTERE
 
 	return TRUE;
 }
@@ -281,6 +285,7 @@ BOOL CPU_GPIO_Uninitialize()
 	//GPIOC
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOC, ENABLE);
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOC, DISABLE);
+#ifndef PLATFORM_ARM_AUSTERE
 	//GPIOD
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOD, ENABLE);
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOD, DISABLE);
@@ -293,6 +298,7 @@ BOOL CPU_GPIO_Uninitialize()
 	//GPIOG
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOG, ENABLE);
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOG, DISABLE);
+#endif
 	//AFIO
 	RCC_APB2PeriphResetCmd(RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB2PeriphResetCmd(RCC_APB2Periph_AFIO, DISABLE);
@@ -352,8 +358,19 @@ void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Dire
 
 	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
 	uint16_t pinInHex = GPIO_GetPin(Pin);
-	GPIO_ConfigurePin(port, pinInHex);
+	GPIO_ConfigurePin(port, pinInHex ); // AIN disables digital input so should prevent interrupts etc.
 	CPU_GPIO_SetPinState(Pin, FALSE);
+
+	if ( gpio_isr[Pin] != NULL ) { // Need to deconfigure its interrupt as well.
+		// Disable in NVIC
+		CPU_INTC_InterruptDisable(GPIO_GetIRQNumber(Pin));
+
+		// Kill EXTI interrupt source
+		EXTI_InitTypeDef EXTI_InitStructure;
+		EXTI_StructInit(&EXTI_InitStructure);
+		EXTI_InitStructure.EXTI_Line = GPIO_GetExtiLine(Pin);
+		EXTI_Init(&EXTI_InitStructure);
+	}
 
 	// Remove any user interrupts
 	gpio_isr[Pin] = NULL;
@@ -369,6 +386,15 @@ void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return;
 	}
+
+	// The interop Samraksh_eMote_DotNow was used in the Fence app which automatically enables pin 28 for the LCD
+	// We need to develop a separate interop for every platform to avoid such problems, however for the Austere, this will work
+	// Don't let that happen
+#ifdef PLATFORM_EMOTE_AUSTERE
+	if (Pin == (GPIO_PIN)28)
+		return;
+#endif
+	
 
 	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
 	uint16_t pinInHex = GPIO_GetPin(Pin);

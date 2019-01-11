@@ -317,29 +317,17 @@ void DataTransmissionHandler::DropPacket(){
 		return;
 	}
 	else {
-		//		neigh_ptr->random_back_off_window_size = 0;
-		//		neigh_ptr->SendLink.RecordPacketSuccess(true);
-		//		#if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
-		//						hal_printf("DropPacket:NetworkOperations_Success dest = %u \r\r\n", m_outgoingEntryPtr->GetHeader()->dest);
-		//		#endif
-		//
-		//		if(m_outgoingEntryPtr->GetHeaderConst()->GetPayloadTypeConst() != MFM_OMAC_TIMESYNCREQ){
-		//			SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_Success, TRAC_STATUS_SUCCESS);
-		//		}
-		//		if(m_outgoingEntryPtr->GetHeaderConst()->GetFlagsConst() & MFM_TIMESYNC_FLAG){
-		//			neigh_ptr->IncrementNumTimeSyncMessagesSent();
-		//		}
-		//
-		//
-		//		ClearMsgContents(m_outgoingEntryPtr);
-		//		g_NeighborTable.DeletePacket(m_outgoingEntryPtr);
-
-
+		if(m_outgoingEntryPtr->GetHeader()->flags & MFM_DISCOVERY_FLAG){
+			neigh_ptr->RecordMyScheduleSent();
+		}
+		if(m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG){
+			neigh_ptr->IncrementNumInitMessagesSent();
+		}
 
 		if(neigh_ptr->IsInitializationTimeSamplesNeeded() && g_NeighborTable.IsThereATSRPacketWithDest(m_outgoingEntryPtr_dest) && m_outgoingEntryPtr == g_NeighborTable.FindTSRPacketForNeighbor(m_outgoingEntryPtr_dest)  ) {
 #if OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
 			hal_printf("Dropping TSR Packet SUCCESS NumTimeSyncMessagesSent = %u < INITIAL_RETRY_BACKOFF_WINDOW_SIZE dest= %u payloadType= %u, flags = %u, Retry Attempts = %u \r\n"
-					, neigh_ptr->NumTimeSyncMessagesSent
+					, neigh_ptr->NumInitializationMessagesSent
 					, m_outgoingEntryPtr->GetHeader()->dest
 					, m_outgoingEntryPtr->GetHeader()->payloadType
 					, m_outgoingEntryPtr->GetHeader()->flags
@@ -349,9 +337,6 @@ void DataTransmissionHandler::DropPacket(){
 			g_NeighborTable.DeletePacket(m_outgoingEntryPtr);
 			//			neigh_ptr->tsr_send_buffer.DropOldest(1);
 			neigh_ptr->SendLink.RecordPacketSuccess(true);
-			neigh_ptr->IncrementNumTimeSyncMessagesSent();
-
-
 		}
 		else if(g_NeighborTable.IsThereAPacketWithDest(m_outgoingEntryPtr_dest) && m_outgoingEntryPtr == g_NeighborTable.FindDataPacketForNeighbor(m_outgoingEntryPtr_dest) ) {
 #if OMAC_DEBUG_PRINTF_PACKETDROP_SUCESS
@@ -372,7 +357,6 @@ void DataTransmissionHandler::DropPacket(){
 				while((g_NeighborTable.IsThereATSRPacketWithDest(m_outgoingEntryPtr_dest))){
 					g_NeighborTable.DeletePacket(g_NeighborTable.FindTSRPacketForNeighbor(m_outgoingEntryPtr_dest));
 				}
-				neigh_ptr->IncrementNumTimeSyncMessagesSent();
 
 			}
 			if(true){
@@ -393,15 +377,9 @@ void DataTransmissionHandler::DropPacket(){
 #endif
 			//			ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
 			//			neigh_ptr->tsr_send_buffer.DropOldest(1);
-			if( (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)){
-				neigh_ptr->IncrementNumTimeSyncMessagesSent();
-			}
 
 			g_NeighborTable.DeletePacket(m_outgoingEntryPtr);
 			neigh_ptr->SendLink.RecordPacketSuccess(true);
-
-
-
 			//neigh_ptr->tsr_send_buffer.ClearBuffer();
 		}
 		else{ // The packet is gone

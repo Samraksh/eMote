@@ -72,9 +72,8 @@ void Tinybooter_PrepareForDecompressedLaunch()
 ////////////////////////////////////////////////////////////////////////////////
 bool WaitForTinyBooterUpload( INT32 &timeout_ms )
 {
-
     bool enterBooterMode = false;
-	
+
 	CPU_GPIO_EnableInputPin3((GPIO_PIN) INPUT_REBOOT_PIN, TRUE, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	
 	if(CPU_GPIO_GetPinState((GPIO_PIN) INPUT_REBOOT_PIN) == FALSE)
@@ -82,34 +81,9 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
 		enterBooterMode = true;
 
 	}
-	
+
 	// Nived.Sivadas - To prevent current drain once the job is over
 	//CPU_GPIO_EnableInputPin3((GPIO_PIN) OUTPUT_REBOOT_PIN, TRUE, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-
-
-#if 0
-    GPIO_BUTTON_CONFIG *  ButtonConfig = &g_GPIO_BUTTON_Config;
-
-// wait forever when using RAM build 
-#if defined(TARGETLOCATION_RAM)
-    enterBooterMode = true;
-    timeout_ms = -1;
-#endif
-
-    // user override (UP+DOWN buttons held)
-    if ((ButtonConfig->Mapping[BUTTON_DOWN_IDX].m_HW != GPIO_PIN_NONE) && (ButtonConfig->Mapping[BUTTON_UP_IDX].m_HW != GPIO_PIN_NONE))
-    {
-        Events_WaitForEvents(0,100); // wait for buttons to init
-        if(!CPU_GPIO_GetPinState( ButtonConfig->Mapping[BUTTON_DOWN_IDX].m_HW ) && !CPU_GPIO_GetPinState( ButtonConfig->Mapping[BUTTON_UP_IDX].m_HW ))
-        {
-            // user override, so lets stay forever
-            timeout_ms = -1;
-            enterBooterMode = true;
-        }
-    }
-#endif
-	
-	
 
     return enterBooterMode;
     //return false;

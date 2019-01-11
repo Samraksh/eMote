@@ -8,6 +8,15 @@
  *
  */
 
+#include <tinyhal.h>
+#ifdef PLATFORM_ARM_AUSTERE // Doesn't use I2C for now. Stub out.
+BOOL  I2C_Internal_Initialize  (                                              ) { return TRUE; }
+BOOL  I2C_Internal_Uninitialize(                                              ) { return TRUE; }
+void  I2C_Internal_XActionStart( I2C_HAL_XACTION* xAction, bool repeatedStart ) { SOFT_BREAKPOINT(); }
+void  I2C_Internal_XActionStop (                                              ) { SOFT_BREAKPOINT(); }
+void  I2C_Internal_GetClockRate( UINT32 rateKhz, UINT8& clockRate, UINT8& clockRate2) { SOFT_BREAKPOINT(); }
+void  I2C_Internal_GetPins     ( GPIO_PIN& scl, GPIO_PIN& sda                 ) { SOFT_BREAKPOINT(); scl=120; sda=120; }
+#else
 #include "..\gpio\netmf_gpio.h"
 #include "netmf_i2c.h"
 
@@ -200,7 +209,6 @@ void I2C_Error_Handler(void  *param)
 
 DeviceStatus STM32F10x_I2C_Driver::XActionStart(I2C_HAL_XACTION* xAction, bool repeatedStart)
 {
-
 	setCurrentXAction(xAction);
 
 	setCurrentXActionUnit(xAction->m_xActionUnits[ xAction->m_current++ ]);
@@ -236,7 +244,6 @@ DeviceStatus STM32F10x_I2C_Driver::XActionStop()
 
 DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 {
-
 		GPIO_InitTypeDef GPIO_InitStructure;
 		I2C_InitTypeDef I2C_InitStruct;
 
@@ -486,3 +493,4 @@ DeviceStatus STM32F10x_I2C_Driver::UnInitialize()
 	return DS_Success;
 
 }
+#endif

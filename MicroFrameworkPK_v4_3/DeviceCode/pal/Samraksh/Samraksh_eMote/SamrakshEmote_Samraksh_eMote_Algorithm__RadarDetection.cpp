@@ -288,12 +288,12 @@ INT8 Algorithm_RadarDetection::Initialize( CLR_RT_HeapBlock* pMngObj, HRESULT &h
     INT8 retVal = 0; 
 
 	if (initialized == false){
-		unwrapMedian = HeapTrackNew(50);
-		unwrapMedianZero = HeapTrackNew(10);
-		unwrapMedianMax = HeapTrackNew(10);
-		radarQ = HeapTrackNew(100);
-		radarI = HeapTrackNew(100);
-		medianRawQ = HeapTrackNew(100);
+		unwrapMedian = HeapTrackNew(1);
+		unwrapMedianZero = HeapTrackNew(1);
+		unwrapMedianMax = HeapTrackNew(1);
+		radarQ = HeapTrackNew(1);
+		radarI = HeapTrackNew(1);
+		medianRawQ = HeapTrackNew(1);
 		initialized = true;
 		HeapTrackInsert(unwrapMedian,0);
 		HeapTrackInsert(unwrapMedianZero,0);

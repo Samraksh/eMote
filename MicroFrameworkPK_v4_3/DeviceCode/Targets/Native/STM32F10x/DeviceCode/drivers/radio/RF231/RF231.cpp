@@ -1572,6 +1572,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		/*************************************************/
 
 		SlptrSet();
+		
+		// TODO: with CSMA do we ever want to sleep?
 		sleep_pending = TRUE;
 		// set software state machine state to sleep
 		state = STATE_SLEEP;

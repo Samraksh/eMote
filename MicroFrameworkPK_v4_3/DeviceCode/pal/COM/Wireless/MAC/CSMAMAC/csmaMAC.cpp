@@ -2,7 +2,7 @@
 #include <Samraksh/VirtualTimer.h>
 #include <Timer/netmf_timers.cpp>
 
-
+ 
 csmaMAC g_csmaMacObject;
 
 volatile UINT32 csmaSendToRadioFailCount = 0;  //!< count DS_Fail from radio during sendToRadio.
@@ -23,7 +23,14 @@ BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param){
 }
 
 void SendFirstPacketToRadio(void * arg){
+	if (g_send_buffer.GetNumberMessagesInBuffer() >= 1){
 	g_csmaMacObject.SendToRadio();
+	} else {
+		//hal_printf("no packets to send...stopping flushbuffer\r\n");
+		if (g_csmaMacObject.flushTimerRunning == true) {
+			VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
+		}
+	}
 }
 
 // Send a beacon everytime this fires
@@ -105,6 +112,9 @@ DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, U
 		}
 
 		SetMyAddress(CPU_Radio_GetAddress(this->radioName));
+
+		// telling the radio to keep the RX on instead of sleeping
+		CPU_Radio_SetDefaultRxState(0);
 
 		// VIRT_TIMER_MAC_SENDPKT is the one-shot resend timer that will be activated if we need to resend a packet
 		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_SENDPKT, 0, 30000, TRUE, TRUE, SendFirstPacketToRadio, ADVTIMER_32BIT) != TimerSupported){ //50 milli sec Timer in micro seconds
@@ -583,7 +593,8 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 				// Attempt to send the next packet out since we have no scheduler
 				if(!g_send_buffer.IsBufferEmpty())
 				{
-					SendFirstPacketToRadio(NULL);
+					VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
+					flushTimerRunning = true;
 				}
 			}
 			break;

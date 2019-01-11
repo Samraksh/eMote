@@ -58,19 +58,13 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	m_num_sleep_retry_attempts = 0;
 
 	firstHighRateDiscoTimeinSlotNum = 0;
-	PermanentlyDecreaseDiscoRate();
-	TempIncreaseDiscoRate();
-	g_OMAC.m_omac_RadioControl.stayOn = true;
-#if OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE
-	hal_printf("Turning ON ALWAYSONMODE \r\n");
-#endif
+	PermanentlyDecreaseDiscoRate(); //Select initial disco parameters
 
 #ifdef OMAC_DEBUG_PRINTF
 	OMAC_HAL_PRINTF("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
 #endif
-	discoInterval = m_period1 * m_period2;	// Initially set to 1 to accelerate self-declaration as root
 #ifdef OMAC_DEBUG_PRINTF
-	OMAC_HAL_PRINTF("discoInterval: %d\r\n", discoInterval);
+	OMAC_HAL_PRINTF("Estimated disco interval : %llu secs\r\n", (UINT64)m_period1*(UINT64)m_period2*(UINT64)g_OMAC.DISCO_SLOT_PERIOD_MICRO/1000000);
 #endif
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, g_OMAC.DISCO_SLOT_PERIOD_MICRO, TRUE, FALSE, PublicBeaconNCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
@@ -98,12 +92,9 @@ UINT64 DiscoveryHandler::NextEvent(){
 
 	if(firstHighRateDiscoTimeinSlotNum == 0) {
 		firstHighRateDiscoTimeinSlotNum = currentSlotNum;
-		PermanentlyDecreaseDiscoRate();
-		TempIncreaseDiscoRate();
-		g_OMAC.m_omac_RadioControl.stayOn = true;
-#if OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE
-		hal_printf("Turning ON ALWAYSONMODE \r\n");
-#endif
+		if(g_OMAC.HIGH_DISCO_PERIOD_IN_SLOTS){
+			TempIncreaseDiscoRate();
+		}
 	}
 
 	if(highdiscorate && ( (currentSlotNum - firstHighRateDiscoTimeinSlotNum) > g_OMAC.HIGH_DISCO_PERIOD_IN_SLOTS ) ) {
@@ -311,12 +302,15 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
+		OMAC_HAL_PRINTF("Disco Message1 Sent\r\n");
 		break;
 	case BEACON2_SEND_START:
 		m_state = BEACON2_SEND_DONE;
+
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  1, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+		OMAC_HAL_PRINTF("Disco Message2 Sent\r\n");
 		break;
 	default:
 #ifdef OMAC_DEBUG_PRINTF
@@ -597,22 +591,33 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	OMAC_CPU_GPIO_SetPinState(DISCO_SYNCSENDPIN, FALSE );
 #endif
 
+
+
 	return retValue;
 }
 
 void DiscoveryHandler::TempIncreaseDiscoRate(){
-	m_period1 = CONTROL_P1[g_OMAC.GetMyAddress() % 7] ;
-	m_period2 = CONTROL_P2[g_OMAC.GetMyAddress() % 7] ;
+	m_period1 = CONTROL_P1[g_OMAC.GetMyAddress() % DISCOVERY_SIZE_OF_PRIME_NUMBER_POOL] ;
+	m_period2 = CONTROL_P2[g_OMAC.GetMyAddress() % DISCOVERY_SIZE_OF_PRIME_NUMBER_POOL] ;
 	highdiscorate = true;
 	firstHighRateDiscoTimeinSlotNum = GetSlotNumber();
+	g_OMAC.m_omac_RadioControl.stayOn = HIGH_DISCO_PERIOD_ALWAYS_ON;
+#if OMAC_DEBUG_PRINTF_HIGH_DISCO_MODE
+	hal_printf("DiscoveryHandler::switching to fast disco mode \r\n");
+	hal_printf("prime 1: %d\tprime 2: %d g_OMAC.m_omac_RadioControl.stayOn : %d \r\n",m_period1, m_period2, g_OMAC.m_omac_RadioControl.stayOn);
+	hal_printf("Estimated disco interval : %llu secs\r\n", (UINT64)m_period1*(UINT64)m_period2*(UINT64)g_OMAC.DISCO_SLOT_PERIOD_MICRO/1000000);
+#endif
+
 }
 
 void DiscoveryHandler::PermanentlyDecreaseDiscoRate(){
-	m_period1 = CONTROL_P3[g_OMAC.GetMyAddress() % 7] ;
-	m_period2 = CONTROL_P4[g_OMAC.GetMyAddress() % 7] ;
+	m_period1 = CONTROL_P3[g_OMAC.GetMyAddress() % DISCOVERY_SIZE_OF_PRIME_NUMBER_POOL] ;
+	m_period2 = CONTROL_P4[g_OMAC.GetMyAddress() % DISCOVERY_SIZE_OF_PRIME_NUMBER_POOL] ;
 	g_OMAC.m_omac_RadioControl.stayOn = false;
-#if OMAC_DEBUG_PRINTF_DISCO_TURN_OFF_ALWAYSONMODE
-	hal_printf("Turning OFF ALWAYSONMODE \r\n");
+#if OMAC_DEBUG_PRINTF_HIGH_DISCO_MODE
+	hal_printf("DiscoveryHandler::switching to slow disco mode \r\n");
+	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
+	hal_printf("Estimated disco interval : %llu secs\r\n", (UINT64)m_period1*(UINT64)m_period2*(UINT64)g_OMAC.DISCO_SLOT_PERIOD_MICRO/1000000);
 #endif
 	highdiscorate = false;
 }

@@ -286,6 +286,14 @@ typedef OFProv<UINT64> OMACTicks;
 #define SLOTRETRYMAXATTEMPT 2
 #define CCA_PERIOD_FRAME_RETRY_MICRO 0 //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 
+#define HIGH_DISCO_PERIOD_IN_SLOTS_CONSTANT 50000 //This is setting the length of high disco period after start up. Note that the length of disco slot is different than the length of data slots. The ratio is determined by DISCOPERIODINSLOTS. Note that this is a convention and there is no direct relationship limiting the ratio between the data slots and the discovery slots.
+//#define HIGH_DISCO_PERIOD_IN_SLOTS_CONSTANT 0
+#ifdef PLATFORM_ARM_EmoteDotNow
+#define HIGH_DISCO_PERIOD_ALWAYS_ON 1
+#else
+#define HIGH_DISCO_PERIOD_ALWAYS_ON 0
+#endif
+
 //#define RANDOM_BACKOFF_COUNT_MAX	4
 //#define RANDOM_BACKOFF_COUNT_MIN	1
 //#define DELAY_DUE_TO_CCA_MICRO	260
@@ -375,19 +383,24 @@ typedef OFProv<UINT64> OMACTicks;
 
 
 #define HFCLOCKID 1
-#define LFCLOCKID 4 // This is the RTC clock
-#define OMACClockSpecifier LFCLOCKID
-#define OMACClockFreq 32
-//#define OMACClocktoSystemClockFreqRatio 250
-#define OMACClocktoSystemClockFreqRatio 244.140625
+//#define LFCLOCKID 4 // This is the RTC clock
+#define LFCLOCKID LOW_DRIFT_TIMER
+#define OMACClockSpecifier LOW_DRIFT_TIMER
+#define OMACClockFreq 16
+#define OMACClocktoSystemClockFreqRatio 488.281250
+//#define OMACClockSpecifier HFCLOCKID
+//#define OMACClockFreq 8000
+//#define OMACClocktoSystemClockFreqRatio 1
 
-#define INITIALIZATION_TIMESYNC_INTERVAL_INMICS 10000000
+#define INITIALIZATION_TIMESYNC_INTERVAL_INMICS 10000000   // Controls the interval during the neighbor intiialization period after a discovery. This interval is faster than the regular intervals in order to fill the neighbor's timesync table with the samples from the current node.
+
+#define OMAC_MAX_WAITING_TIME_FOR_TIMESAMPLES_INMICS  ((UINT64)EXPECTED_DISCOVERY_TIME_FOR_A_SINGLE_SAMPLE_IN_HOURS*(UINT64)3600*(UINT64)1000000) //After discovering a neighbor (ie receiving its schedule) OMAC_waits this much amount of time  to collect enough time samples to predict time before allowing deletion of this neighbor's entry in the neighbor table when a new neighbor is discovered. This is related to the max disco interval since it is the default way of discovering the neighbors.
 
 #if (OMACClockSpecifier==LFCLOCKID)
 //#define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
-#define FORCE_REQUESTTIMESYNC_INMICS 610000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
-//#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  48000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
-#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST_INMICS  600000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
+#define FORCE_REQUESTTIMESYNC_INMICS 6100000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
+//#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST        10000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
+#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST_INMICS  600000000		//z. Sender centric time threshold to send a TImeSync msg.
 ////GUARDTIME_MICRO should be calculated in conjuction with SLOT_PERIOD_MILLI
 //// GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
 ////PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
@@ -410,8 +423,8 @@ typedef OFProv<UINT64> OMACTicks;
 
 #define WAKEUPPERIODINTICKS 8000000
 
-#define DISCOPERIODINSLOTS 2
 #define TIMEITTAKES2TXDISCOPACKETINMICSEC 4096
+#define DISCOPERIODINMILLI 15
 
 //FCF table:
 //15 14 13  12  11  10  9  8  7  6  5  4  3  2  1  0 (bits)
@@ -507,19 +520,25 @@ UINT32 ArbiterP_Timing;
 /*
  * Prime numbers used in determining DISCO period of a node
  */
+#define EXPECTED_DISCOVERY_TIME_FOR_A_SINGLE_SAMPLE_IN_HOURS 152 //Max(CONTROL_P1*ControlP1) * 15ms
 
-UINT16 CONTROL_P1[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
-UINT16 CONTROL_P2[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
-UINT16 CONTROL_P3[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
-UINT16 CONTROL_P4[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
+#define EXPECTED_DISCOVERY_TIME_FOR_A_SINGLE_SAMPLE_IN_TICKS EXPECTED_DISCOVERY_TIME_FOR_A_SINGLE_SAMPLE_IN_HOURS*3600*1000*1000*8
+
+#define DISCOVERY_SIZE_OF_PRIME_NUMBER_POOL 7
+
+//UINT16 CONTROL_P1[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
+//UINT16 CONTROL_P2[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
+//UINT16 CONTROL_P3[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
+//UINT16 CONTROL_P4[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
 
 //UINT16 CONTROL_P1[] = {911, 727, 787, 769, 773, 853, 797};
 //UINT16 CONTROL_P2[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
 //UINT16 CONTROL_P3[] = {911, 727, 787, 769, 773, 853, 797};
 //UINT16 CONTROL_P4[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
 
-//UINT16 CONTROL_P3[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
-//UINT16 CONTROL_P4[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
+//Expected Disco Time (2 disco receptions) 28.21hours,  Typical MaxDiscoTime Time (2 disco receptions) 37.62h, MaxDiscoTime = 151.6hours
+UINT16 CONTROL_P3[] = {2099, 2111, 2113, 2129, 2131, 2137, 2153};
+UINT16 CONTROL_P4[] = {8627, 8623, 8467, 8447, 8443, 8429, 8419};
 //UINT16 CONTROL_P1[] = {197, 157, 151, 163, 211, 113, 127};
 //UINT16 CONTROL_P2[] = {911, 727, 787, 769, 773, 853, 797};
 
@@ -530,5 +549,19 @@ UINT16 CONTROL_P4[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
 
 //UINT16 CONTROL_P1[] = {47, 37, 43, 37, 53, 29, 31};
 //UINT16 CONTROL_P2[] = {227, 181, 197, 191, 211, 199};
+
+//Expected disco time(2 disco receptions) 2.63 mins, Typical MaxDiscoTime Time (2 disco receptions) 3.51 mins, Non typical MaxDiscoTime = 11.46 mins
+UINT16 CONTROL_P1[] = { 67,  71,  79,  83,  89,  97, 101};
+UINT16 CONTROL_P2[] = {257, 251, 241, 239, 233, 229, 227};
+
+
+//Define total size of a Disco packet with piggybacking
+#if OMAC_DEBUG_SEND_EXTENDEDMACINfo
+
+#else
+
+#endif
+
+
 
 #endif /* OMACCONSTANTS_H_ */

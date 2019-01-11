@@ -13,7 +13,9 @@ const UINT64 TIME_CUSHION = 7;
 UINT32 STM32F10x_RTC::SetCounter(UINT32 counterValue)
 {
 	currentCounterValue = counterValue;
+	RTC_EnterConfigMode();
 	RTC_SetCounter(currentCounterValue);
+	RTC_ExitConfigMode();
 	return currentCounterValue;
 }
 
@@ -27,6 +29,12 @@ UINT64 STM32F10x_RTC::Get64Counter()
 	GLOBAL_LOCK(irq);
 	UINT32 currentValue = RTC_GetCounter();
 
+	if (prevCounterValue > currentValue){
+		g_STM32F10x_RTC.m_systemTime += (0x1ull <<32);
+	}
+	prevCounterValue = currentValue;
+	/*RTC_WaitForLastTask();
+	RTC_WaitForSynchro();
 	if(RTC_GetFlagStatus(RTC_FLAG_OW))
 	{
 		RTC_ClearFlag(RTC_FLAG_OW);
@@ -36,7 +44,7 @@ UINT64 STM32F10x_RTC::Get64Counter()
 		RTC_WaitForLastTask();
 		RTC_WaitForSynchro();
 		currentValue = RTC_GetCounter();
-	}
+	}*/
 
 	m_systemTime &= (0xFFFFFFFF00000000ull);
 	m_systemTime |= currentValue;
@@ -78,6 +86,7 @@ DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, U
 		return DS_Success;
 
 	m_systemTime = 0;
+	savedCompare = 0;
 
 	STM32F10x_RTC::initialized = TRUE;
 
@@ -92,8 +101,8 @@ DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, U
 	// First make sure the RTC is running, we will use that to measure.
 	RCC_APB1PeriphClockCmd( RCC_APB1Periph_BKP, ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
-	RTC_SetPrescaler(0); 
-#if defined(PLATFORM_ARM_WLN)
+	RTC_SetPrescaler(1);
+#if defined(PLATFORM_ARM_WLN) || defined(PLATFORM_ARM_AUSTERE)
 	RCC_LSEConfig(RCC_LSE_Bypass);
 #else
 	RCC_LSEConfig(RCC_LSE_ON);
@@ -103,6 +112,9 @@ DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, U
 			return DS_Fail; // Crystal not starting. Give up.
 		}
 	}
+
+
+
 	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 	RCC_RTCCLKCmd(ENABLE);
 	RTC_WaitForLastTask();
@@ -114,6 +126,11 @@ DeviceStatus STM32F10x_RTC::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, U
 	RTC_ITConfig(RTC_IT_ALR, ENABLE);
 	if( !CPU_INTC_ActivateInterrupt(RTC_IRQn, ISR_RTC_ALARM, NULL) )
 		return DS_Fail;
+#ifdef REBOOT_RTC_RESET_ZERO
+	RTC_WaitForLastTask();
+	RTC_SetCounter(0);
+	RTC_WaitForLastTask();
+#endif
 	RTC_ExitConfigMode();
 	//PWR_BackupAccessCmd(DISABLE);
 
@@ -153,7 +170,8 @@ DeviceStatus STM32F10x_RTC::SetCompare(UINT64 compareValue)
 	RTC_WaitForLastTask();
 	RTC_WaitForSynchro();
 	RTC_ClearFlag(RTC_FLAG_ALR);
-	RTC_SetAlarm(compareValue);
+	savedCompare = compareValue&0xFFFFFFFF;
+	RTC_SetAlarm(savedCompare);
 	//PWR_BackupAccessCmd(DISABLE);
 	RTC_WaitForLastTask();
 
@@ -162,19 +180,23 @@ DeviceStatus STM32F10x_RTC::SetCompare(UINT64 compareValue)
 	return DS_Success;
 }
 
+UINT32 STM32F10x_RTC::GetCompare(void) {
+	return savedCompare;
+}
+
 UINT32 STM32F10x_RTC::GetMaxTicks()
 {
 	return (UINT32)0xFFFFFFFF;
 }
 
+// NOTE: This is apparently not actually the RTC_Alarm IRQ, but rather the general RTC_IRQ --NPS
 void ISR_RTC_ALARM(void* Param){
 	// TODO: check for overflow
-	RTC_ClearFlag(RTC_FLAG_ALR);
-	//PWR_BackupAccessCmd(ENABLE);
-	//RTC_WaitForLastTask();
-	RTC_ClearITPendingBit(RTC_IT_ALR);
-	//PWR_BackupAccessCmd(DISABLE);
+	RTC_ClearFlag(RTC_FLAG_ALR); // Magical. I don't know why we need this... --NPS
+	GLOBAL_LOCK(irq);
 	g_STM32F10x_RTC.setCompareRunning = false; // Reset
+	g_STM32F10x_RTC.savedCompare = 0;
+	irq.Release();
 	g_STM32F10x_RTC.callBackISR(&g_STM32F10x_RTC.callBackISR_Param);
 }
 

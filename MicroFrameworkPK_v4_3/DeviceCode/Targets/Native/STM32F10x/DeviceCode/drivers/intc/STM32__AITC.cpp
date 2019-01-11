@@ -1316,7 +1316,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 		}
-#if !defined(PLATFORM_ARM_EmoteDotNow) && !defined(PLATFORM_ARM_WLN)
+#if defined(PLATFORM_ARM_KRAIT)
 		void __irq USART1_IRQHandler()
 		{
 
@@ -1879,9 +1879,11 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		STM32_AITC& AITC = STM32::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
+		GLOBAL_LOCK(irq);
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-		
+		irq.Release();
+
 #ifdef DEBUG_DOTNOW_ISR
 		interrupt_count[c_IRQ_INDEX_EXTI0]++;
 #endif
@@ -1890,9 +1892,10 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		IsrVector->Handler.Execute();
 
-
+		irq.Acquire();
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		irq.Release();
 	}
 
 	void __irq TIM2_IRQHandler()

@@ -1,6 +1,6 @@
-//#include <cores\arm\include\cpu.h>
 #include <tinyhal.h>
 #include "netmf_pwr.h"
+#include "netmf_pwr_wakelock.h"
 
 BOOL CPU_Initialize() {
 	PowerInit();
@@ -11,24 +11,50 @@ BOOL CPU_JTAG_Attached(){
 	return JTAG_Attached();
 }
 
+static bool usart_tx_busy(void) {
+	bool ret = false;
+	for (int i=0; i<TOTAL_USART_PORT; i++) {
+		ret = ret | CPU_USART_TxBufferEmptyInterruptState(i);
+	}
+	return ret;
+}
+
 void CPU_ChangePowerLevel(POWER_LEVEL level) {
+	bool flag;
+	GLOBAL_LOCK(irq);
+	flag = usart_tx_busy(); // We need to turn the TXE back on when done
     switch(level)
     {
         case POWER_LEVEL__HIGH_POWER:
+			hal_printf("POWER LEVEL: HIGH\r\n");
 			High_Power();
 			break;
 		case POWER_LEVEL__MID_POWER:
+			hal_printf("POWER LEVEL: MID \r\n");
 			Mid_Power();
 			break;
 		case POWER_LEVEL__LOW_POWER:
         default:
+			hal_printf("POWER LEVEL: LOW \r\n");
 			Low_Power();
             break;
     }
+	if (flag) {
+		CPU_USART_TxBufferEmptyInterruptEnable(0, ENABLE);
+		CPU_USART_TxBufferEmptyInterruptEnable(1, ENABLE);
+	}
+}
+
+UINT8 CPU_GetCurrentPowerLevel(){
+	return Get_CurrentPower();
+}
+
+BOOL CPU_Sleep_WakeLock_Status() {
+	return GetWakeLocked();
 }
 
 void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents ) {
-#if defined (DISABLE_SLEEP) || defined (SAM_APP_TINYBOOTER) // To make grabbing it with the JTAG easier.
+#if defined (DISABLE_SLEEP) // To make grabbing it with the JTAG easier.
 	return;
 #else
     switch(level)
@@ -38,10 +64,12 @@ void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents ) {
 			break;
 		case SLEEP_LEVEL__DEEP_SLEEP:
 		case SLEEP_LEVEL__SELECTIVE_OFF:
+			Sleep();
+			break;
 		case SLEEP_LEVEL__AWAKE:
 		case SLEEP_LEVEL__SLEEP:
 		default:
-			Sleep();
+			Snooze();
 			break;
     }
 #endif

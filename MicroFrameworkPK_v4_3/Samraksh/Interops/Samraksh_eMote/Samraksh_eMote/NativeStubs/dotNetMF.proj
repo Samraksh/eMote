@@ -31,6 +31,9 @@
 <Compile Include="SamrakshEmote_Samraksh_eMote_RadarInterface_mshl.cpp" />
 <HFile Include="SamrakshEmote_Samraksh_eMote_RadarInterface.h" />
 <Compile Include="SamrakshEmote_Samraksh_eMote_RadarInterface.cpp" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_RadarInternal_mshl.cpp" />
+<HFile Include="SamrakshEmote_Samraksh_eMote_RadarInternal.h" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_RadarInternal.cpp" />
 </ItemGroup>
 <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

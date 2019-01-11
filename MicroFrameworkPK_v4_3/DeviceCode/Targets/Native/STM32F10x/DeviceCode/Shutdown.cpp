@@ -6,6 +6,7 @@
 #include <tinyhal.h>
 #include <stm32f10x.h>
 #include "drivers\adc\hal_adc_driver.h"
+#include "drivers\pwr\netmf_pwr_wakelock.h"
 #include <Samraksh/MAC_decl.h>
 
 /**
@@ -18,6 +19,7 @@ bool ShutdownDrivers(void)
 
 	returnValue = AD_Uninitialize();
 	returnValue &= ( DS_Success == MAC_UnInitialize(/*Mac_GetID()*/) );
+	WakeLock(1);
 
 	return returnValue;
 }
