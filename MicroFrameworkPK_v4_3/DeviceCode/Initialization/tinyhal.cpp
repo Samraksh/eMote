@@ -665,8 +665,9 @@ mipi_dsi_shutdown();
 		}
 	}*/
 #endif
+#if defined(SECURE_EMOTE_TPM)
 	loadArduinoSPI((uint8_t*)0xF000,1932);
-
+#endif
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

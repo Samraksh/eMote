@@ -10,7 +10,7 @@
 #include <pwr/netmf_pwr.h>
 #else
 #define power_event_add_now(x, y, z) ((void)0)
-
+#endif
 
 #if defined(SECURE_EMOTE)
 #include <Samraksh/sm.h>
