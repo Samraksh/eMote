@@ -15,7 +15,7 @@
 //#define APB2PERIPH_BASE       (PERIPH_BASE + 0x10000)
 //#define EXTI_BASE             (APB2PERIPH_BASE + 0x0400)
 #define EXTI                ((EXTI_TypeDef *) EXTI_BASE)
-#define SCS_BASE            (0xE000E000)                              /*!< System Control Space Base Address */
+//#define SCS_BASE            (0xE000E000)                              /*!< System Control Space Base Address */
 
 #ifndef __NVIC_PRIO_BITS
   #define __NVIC_PRIO_BITS    4               /*!< standard definition for NVIC Priority Bits */
@@ -46,7 +46,11 @@ extern volatile NVIC_Type*          pNVIC;
 extern volatile SCB_Type*           pSCB;
 extern volatile SysTick_Type*       pSysTick;
 extern volatile ITM_Type*           pITM;
+#if __CM3_CMSIS_VERSION < 0x2000
 extern volatile InterruptType_Type* pInterruptType;
+#else
+extern volatile SCnSCB_Type* pInterruptType;
+#endif
 extern volatile MPU_Type*           pMPU;
 extern volatile CoreDebug_Type*     pCoreDebug;
 #endif

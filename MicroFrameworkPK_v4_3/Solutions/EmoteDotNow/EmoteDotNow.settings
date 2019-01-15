@@ -17,7 +17,9 @@
   </PropertyGroup>
   <ItemGroup>
     <IncludePaths Include="Solutions\EmoteDotNow" />
-    <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis" />
+    <IncludePaths Include="DeviceCode\Targets\Native\CortexM\cmsis5\CMSIS\Core\Include" />
+    <IncludePaths Include="DeviceCode\Targets\Native\CortexM\cmsis5\" />
+    <!-- <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis" />-->
     <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers" />
     <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\processor" />
   </ItemGroup>

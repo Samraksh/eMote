@@ -202,7 +202,11 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		volatile SCB_Type*           pSCB       = SCB;
 		volatile SysTick_Type*       pSysTick   = SysTick;
 		volatile ITM_Type*           pITM       = ITM;
-		volatile InterruptType_Type* pInterruptType = InterruptType;
+#if __CM3_CMSIS_VERSION < 0x2000
+		extern volatile InterruptType_Type* pInterruptType;
+#else
+		extern volatile SCnSCB_Type* pInterruptType;
+#endif
 		volatile MPU_Type*           pMPU       = MPU;
 		volatile CoreDebug_Type*     pCoreDebug = CoreDebug;
 		#endif
@@ -316,7 +320,11 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
     pSCB       = SCB;
     pSysTick   = SysTick;
     pITM       = ITM;
+#if __CM3_CMSIS_VERSION < 0x2000
     pInterruptType = InterruptType;
+#else
+    volatile SCnSCB_Type* pInterruptType = SCnSCB;
+#endif
     pMPU       = MPU;
     pCoreDebug = CoreDebug;
 #endif // defined(DEBUG)

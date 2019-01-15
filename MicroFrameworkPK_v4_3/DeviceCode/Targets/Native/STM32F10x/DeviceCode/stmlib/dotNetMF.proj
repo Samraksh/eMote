@@ -62,7 +62,7 @@
 	<HFiles Include="stm32f10x_tim.h" />
 	<HFiles Include="stm32f10x_usart.h" />
 	<HFiles Include="stm32f10x_wwdg.h" />
-	<HFiles Include="core_cm3.h" />
+	<!-- <HFiles Include="core_cm3.h" /> -->
     <Compile Include="misc.c" />
     <Compile Include="stm32f10x_adc.c" />
     <Compile Include="stm32f10x_bkp.c" />
@@ -86,7 +86,7 @@
 	<Compile Include="stm32f10x_tim.c" />
 	<Compile Include="stm32f10x_usart.c" />
 	<Compile Include="stm32f10x_wwdg.c" />
-	<Compile Include="core_cm3.c" />
+	<!-- <Compile Include="core_cm3.c" />-->
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
