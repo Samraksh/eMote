@@ -227,10 +227,10 @@
     <DriverLibs Include="COM_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="sockets_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="Analog_DA_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\Analog_DA_HAL\dotNetMF.proj" />
@@ -656,7 +656,7 @@
     <DriverLibs Include="eMote_time.$(LIB_EXT)" />
   </ItemGroup>
     
-  <!-- 									Wireless Stack Start								-->
+  <!-- 									Wireless/Networking Stack Start								-->
   
   <ItemGroup>
   <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Net\dotNetMF.proj" />
@@ -704,12 +704,32 @@
     <DriverLibs Include="STM32F10x_driver_control.$(LIB_EXT)" />
   </ItemGroup>
 
-<ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Algorithms\dotNetMF.proj" />
     <DriverLibs Include="Algorithm_pal.$(LIB_EXT)" />
   </ItemGroup>
   
-  <!--                      	    Wireless Networking Stack ::End                      -->
+  <ItemGroup>
+    
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\dotNetMF.proj" />
+    
+    <DriverLibs Include="sockets_hal_async_LWIP.$(LIB_EXT)" />
+    <DriverLibs Include="sockets_hal_dhcp_LWIP.$(LIB_EXT)" />
+    <DriverLibs Include="sockets_hal_tcp_LWIP.$(LIB_EXT)" />
+    <DriverLibs Include="sockets_hal_udp_LWIP.$(LIB_EXT)" />
+    <DriverLibs Include="sockets_hal_sockets_LWIP.$(LIB_EXT)" />
+    
+    <DriverLibs Include="sockets_lwIP_pal.$(LIB_EXT)" />
+    
+    
+  </ItemGroup>
+  
+  <ItemGroup>
+    <DriverLibs Include="sockets_pal_lwip.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets_lwip\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <!--                      	    Networking Networking Stack ::End                      -->
   
   <!--                      	    Crypto Implementation :: Start                      -->
  <ItemGroup>
