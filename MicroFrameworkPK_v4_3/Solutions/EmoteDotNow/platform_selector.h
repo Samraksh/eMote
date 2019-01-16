@@ -14,6 +14,9 @@ typedef uint16_t ushort;
 
 //#include "testDefines.h"
 
+//needed for dsp/math
+#define ARM_MATH_CM3
+
 /////////////////////////////////////////////////////////
 //
 // processor and features

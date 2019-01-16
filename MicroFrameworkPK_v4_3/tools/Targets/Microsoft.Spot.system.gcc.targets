@@ -306,9 +306,11 @@
     
 	<GNU_LIBGCC_DIR  Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'!='5.4.1'">$(GNU_TOOLS)\lib\gcc\$(GNU_TARGET)\$(GCC_VER)\thumb</GNU_LIBGCC_DIR>
     <GNU_LIBGCC_DIR  Condition="'$(DEVICE_TYPE)'=='Cortex-M3' and '$(GCC_VER)'=='5.4.1'">$(GNU_TOOLS)\lib\gcc\$(GNU_TARGET)\$(GCC_VER)\armv7-m</GNU_LIBGCC_DIR>
+    <LIBMATHGCC_DIR>$(SPOCLIENT)\DeviceCode\Targets\Native\CortexM\cmsis5\CMSIS\Lib\GCC</LIBMATHGCC_DIR>
 
     <LIBGCC >libgcc.a</LIBGCC>
     <LIBCGCC>libc_nano.a</LIBCGCC>
+    <LIBMATHGCC>libarm_cortexM3l_math.a</LIBMATHGCC>
     <!--<LIBCGCC>libc.a</LIBCGCC> -->
   </PropertyGroup>
   
@@ -384,7 +386,7 @@
     <Exec Command="del $(LIB_DIR)\tmp\*.$(OBJ_EXT)" />
     <Exec Command="rmdir $(LIB_DIR)\tmp" />
     
-    <Exec Condition="'$(COMPILER_TOOL)'=='GCC'" Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIB_DIR)\libm.a&#x22; &#x22;$(GNU_LIB_DIR)\libc.a&#x22; &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22; -) -( $(ExtraLibs) -)"/>
+    <Exec Condition="'$(COMPILER_TOOL)'=='GCC'" Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIB_DIR)\libm.a&#x22; &#x22;$(GNU_LIB_DIR)\libc.a&#x22; &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22;  &#x22;$(LIBMATHGCC_DIR)\$(LIBMATHGCC)&#x22; -) -( $(ExtraLibs) -)"/>
     
     <Exec Condition="'$(COMPILER_TOOL)'=='GCCOP'"  Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22;  -) -( $(ExtraLibs) -)"/>
     <Exec Command="del /q $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT)"/>    
