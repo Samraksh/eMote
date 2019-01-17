@@ -709,19 +709,14 @@
     <DriverLibs Include="Algorithm_pal.$(LIB_EXT)" />
   </ItemGroup>
   
-  <ItemGroup>
-    
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\dotNetMF.proj" />
-    
+  <ItemGroup> 
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\dotNetMF.proj" />    
     <DriverLibs Include="sockets_hal_async_LWIP.$(LIB_EXT)" />
     <DriverLibs Include="sockets_hal_dhcp_LWIP.$(LIB_EXT)" />
     <DriverLibs Include="sockets_hal_tcp_LWIP.$(LIB_EXT)" />
     <DriverLibs Include="sockets_hal_udp_LWIP.$(LIB_EXT)" />
-    <DriverLibs Include="sockets_hal_sockets_LWIP.$(LIB_EXT)" />
-    
+    <DriverLibs Include="sockets_hal_sockets_LWIP.$(LIB_EXT)" />    
     <DriverLibs Include="sockets_lwIP_pal.$(LIB_EXT)" />
-    
-    
   </ItemGroup>
   
   <ItemGroup>
