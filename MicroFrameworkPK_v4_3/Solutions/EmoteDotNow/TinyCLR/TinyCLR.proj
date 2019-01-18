@@ -724,6 +724,15 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets_lwip\dotNetMF.proj" />
   </ItemGroup>
   
+  <ItemGroup>
+    <DriverLibs Include="Network_config_COM_net.$(LIB_EXT).$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Network\dotNetMF.proj" />
+  </ItemGroup>
+    <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Network\COM_LWIP\dotnetmf.proj" />
+    <DriverLibs Include="COM_LWIP_config_net.$(LIB_EXT)" />
+  </ItemGroup>
+  
   <!--                      	    Networking Networking Stack ::End                      -->
   
   <!--                      	    Crypto Implementation :: Start                      -->
