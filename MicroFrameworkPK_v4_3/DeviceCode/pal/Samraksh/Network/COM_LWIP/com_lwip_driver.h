@@ -25,8 +25,8 @@ struct COM_LWIP_DRIVER_CONFIG
 
 struct COM_LWIP_DEVICE_CONFIG
 {
-    //COM_LWIP_DRIVER_CONFIG DeviceConfigs[NETWORK_INTERFACE_COUNT];
-
+    COM_LWIP_DRIVER_CONFIG DeviceConfigs[NETWORK_INTERFACE_COUNT];
+	//int comPort;
     static LPCSTR GetDriverName() { return "COM_LWIP"; }
 };
 

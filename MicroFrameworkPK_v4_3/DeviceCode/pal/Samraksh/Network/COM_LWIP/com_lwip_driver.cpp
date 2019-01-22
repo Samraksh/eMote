@@ -1,7 +1,7 @@
 #include <tinyhal.h>
 #include "net_decl_lwip.h"
-#include <USART_decl.h>
 #include "com_lwip_driver.h"
+#include "com_lwip.h"
 
 extern "C"
 {
@@ -9,7 +9,7 @@ extern "C"
 //#include "lwip\dhcp.h"
 #include "lwip\tcpip.h"
 //#include "lwip\dns.h"
-//#include "lwip\ip_addr.h"
+#include "lwip\ip_addr.h"
 }
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
@@ -92,7 +92,7 @@ err_t   COM_ethhw_init( netif * myNetIf)
 {
 #if defined(NETWORK_MEMORY_PROFILE_LWIP__small)
     myNetIf->mtu = MTU_SMALL;
-#else if defined (NETWORK_MEMORY_PROFILE_LWIP__medium)
+#elif defined (NETWORK_MEMORY_PROFILE_LWIP__medium)
     myNetIf->mtu = MTU_MEDIUM;
 #else
     myNetIf->mtu = MTU_BIG;
@@ -110,7 +110,7 @@ err_t   COM_ethhw_init( netif * myNetIf)
     myNetIf->linkoutput = &COM_net_linkoutput;
     myNetIf->status_callback = COM_status_callback;
 
-    COM_lwip_open( myNetIf );
+    com_lwip_open( myNetIf );
 
     return ERR_OK;
 }
@@ -132,7 +132,7 @@ void lwip_network_uptime_completion(void *arg)
 
     struct netif* pNetIf = (struct netif*)arg;
 
-    BOOL status = COM_get_link_status(&g_COM_LWIP_Config.DeviceConfigs[0].SPI_Config);
+    BOOL status = com_get_link_status(&g_COM_LWIP_Config.DeviceConfigs[0].SPI_Config);
 
     if(status != LwipNetworkStatus)
     {
@@ -289,7 +289,7 @@ BOOL COM_LWIP_Driver::Close( COM_LWIP_DRIVER_CONFIG* config, int index )
 
     LwipNetworkStatus = FALSE;
 
-    COM_lwip_close( &g_COM_NetIF );
+    com_lwip_close( &g_COM_NetIF );
 
     memset(&g_COM_NetIF, 0, sizeof(g_COM_NetIF));
 

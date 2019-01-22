@@ -3,7 +3,7 @@
 #define __COM_H__
 
 #include <tinyhal.h>
-#include <com_lwip_driver.h>
+#include "com_lwip_driver.h"
 
 bool        com_lwip_open( struct netif *pNetIF );
 void        com_lwip_close ( struct netif *pNetIF  );

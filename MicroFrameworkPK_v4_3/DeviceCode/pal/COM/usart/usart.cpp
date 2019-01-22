@@ -11,6 +11,7 @@ static const INT8 XOFF_FLAG_FULL  = 0x01;
 static const INT8 XOFF_CLOCK_HALT = 0x02;
 
 //--//
+
 #if !defined(PLATFORM_ARM_KRAIT)
 static int use_com0_managed;
 BOOL USART_InitializeManaged( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
@@ -234,6 +235,12 @@ HAL_USART_STATE Hal_Usart_State[TOTAL_USART_PORT];
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
 #pragma arm section zidata
 #endif
+
+
+BOOL USART_IsInitialized( int ComPortNum){
+	HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
+	return IS_USART_INITIALIZED(State);
+}
 
 //--//
 
