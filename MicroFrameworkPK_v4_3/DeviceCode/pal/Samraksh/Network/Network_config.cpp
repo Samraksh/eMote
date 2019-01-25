@@ -3,7 +3,7 @@
 //--//
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
-#pragma arm section zidata = "g_NetworkConfig_imxs_net"
+#pragma arm section zidata = "g_NetworkConfig_com_net"
 #endif
 
 

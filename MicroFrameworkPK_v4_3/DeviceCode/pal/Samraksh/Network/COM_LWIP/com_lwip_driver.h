@@ -7,6 +7,9 @@
 #ifndef _COM_LWIP_DRIVER_H_
 #define _COM_LWIP_DRIVER_H_ 1
 
+#define START_STOP_BYTES_SIZE 4
+const char START_STOP_BYTES[START_STOP_BYTES_SIZE] = {'8','8','8','8'};
+
 
 #define MTU_SMALL 128
 #define MTU_MEDIUM 256

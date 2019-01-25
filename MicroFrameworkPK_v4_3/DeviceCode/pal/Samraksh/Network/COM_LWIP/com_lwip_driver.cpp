@@ -2,6 +2,7 @@
 #include "net_decl_lwip.h"
 #include "com_lwip_driver.h"
 #include "com_lwip.h"
+#include <USART_decl.h>
 
 extern "C"
 {
@@ -33,14 +34,69 @@ extern NETWORK_CONFIG                g_NetworkConfig;
 
 extern BOOL COM_get_link_status(int comPort);
 
-err_t COM_net_output(struct netif *netif, struct pbuf *p,
+
+
+
+//This is called by the IP stack to send a packet on the net ifterface
+err_t COM_netif_output(struct netif *pNetIF, struct pbuf *pPBuf,
        ip_addr_t *ipaddr){
 
+    NATIVE_PROFILE_HAL_DRIVERS_ETHERNET();
+    UINT16                  length = 0;
+    //UINT8                   perPacketControlByte;
+    //UINT8                   dataByte;
+    //SPI_CONFIGURATION*      SpiConf;
+    //struct pbuf*            pTmp;
+    //UINT8*                  pTx;
+    //int                     idx;
+    //int                     retries = 100;
+
+
+    if ( !pNetIF )
+    {
+        return ERR_ARG;
+    }
+
+    int  comPort = g_COM_LWIP_Config.DeviceConfigs[0].comPort;
+    length = pPBuf->tot_len;
+
+    if (length > COM_IF_MAX_SIZE) // (COM_IF_MAX_SIZE+4))
+    {
+        debug_printf("xmit - length is too large, truncated \r\n" );
+        HAL_ASSERT(FALSE);
+        length = COM_IF_MAX_SIZE; // COM_IF_MAX_SIZE+4;         /* what a terriable hack! */
+    }//
+
+    //idx = 2;
+    //write the startbytes
+    int x;
+    x=USART_Write(comPort, START_STOP_BYTES, START_STOP_BYTES_SIZE);
+    if(x!=START_STOP_BYTES_SIZE){HAL_ASSERT(FALSE);}
+    while(pPBuf)
+    {
+    	x=USART_Write(comPort,(const char*)pPBuf->payload, pPBuf->len);
+    	if(x!=pPBuf->len){HAL_ASSERT(FALSE);}
+        //memcpy(&pTx[idx], pPBuf->payload, pPBuf->len);
+        //idx += pPBuf->len;
+        pPBuf = pPBuf->next;
+    }
+    //write the stopbytes
+    x=USART_Write(comPort, START_STOP_BYTES, START_STOP_BYTES_SIZE);
+    if(x!=START_STOP_BYTES_SIZE){HAL_ASSERT(FALSE);}
+    pbuf_free(pTmp);
+
+    return ERR_OK;
 }
 
-err_t COM_net_linkoutput(struct netif *netif, struct pbuf *p){
+err_t COM_netif_linkoutput(struct netif *netif, struct pbuf *p){
 
 }
+
+//this function will be called when a packet comes in through the com port
+err_t com_netif_input(struct pbuf *p, struct netif *inp){
+
+}
+
 
 void COM_status_callback(struct netif *netif)
 {
@@ -88,7 +144,7 @@ void COM_status_callback(struct netif *netif)
 #endif
 }
 
-err_t   COM_ethhw_init( netif * myNetIf)
+err_t   COM_netif_init( netif * myNetIf)
 {
 #if defined(NETWORK_MEMORY_PROFILE_LWIP__small)
     myNetIf->mtu = MTU_SMALL;
@@ -114,6 +170,7 @@ err_t   COM_ethhw_init( netif * myNetIf)
 
     return ERR_OK;
 }
+
 
 void lwip_interrupt_continuation( )
 {
@@ -231,7 +288,7 @@ int COM_LWIP_Driver::Open( COM_LWIP_DRIVER_CONFIG* config, int index )
 
     memcpy(g_COM_NetIF.hwaddr, iface->macAddressBuffer, len);
 
-    pNetIF = netif_add( &g_COM_NetIF, &ipaddr, &netmask, &gw, NULL, COM_ethhw_init, ethernet_input );
+    pNetIF = netif_add( &g_COM_NetIF, &ipaddr, &netmask, &gw, NULL, COM_netif_init, com_netif_input );
 
     netif_set_default( pNetIF );
 
@@ -239,27 +296,6 @@ int COM_LWIP_Driver::Open( COM_LWIP_DRIVER_CONFIG* config, int index )
 
     /* Initialize the continuation routine for the driver interrupt and receive */
     InitContinuations( pNetIF );
-
-    /* Enable the INTERRUPT pin */
-    if (CPU_GPIO_EnableInputPin2(config->INT_Pin,
-                                 FALSE,                                                         /* Glitch filter enable */
-                                 (GPIO_INTERRUPT_SERVICE_ROUTINE) &COM_lwip_pre_interrupt, /* ISR                  */
-                                 &g_COM_NetIF,                                             /* minor number         */
-                                 GPIO_INT_EDGE_LOW ,                                            /* Interrupt edge       */
-                                 RESISTOR_PULLUP) == FALSE)                                     /* Resistor State       */
-    {
-        return -1;
-    }
-
-    /* Enable the CHIP SELECT pin */
-    if (CPU_GPIO_EnableInputPin (config->SPI_Config.DeviceCS,
-                            FALSE,
-                            NULL,
-                            GPIO_INT_NONE,
-                            RESISTOR_PULLUP) == FALSE)
-    {
-        return -1;
-    }
 
     return g_COM_NetIF.num;
 

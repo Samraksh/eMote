@@ -19,10 +19,10 @@ void        com_lwip_setup_recv_buffer( struct netif *pNetIF, SPI_CONFIGURATION 
 
 /*          STRUCTURES                                                  */
 
-#define ETHERSIZE        ((COM_TRANSMIT_BUFFER_END - COM_TRANSMIT_BUFFER_START)>>1)   /* maximum number of bytes in ETHERNET packet */
+#define COM_IF_MAX_SIZE  1024   /* maximum number of bytes in ETHERNET packet */
                                 /* (used by ethernet drivers)   */
 
-#define ETHER_MIN_LEN    64  /* minimum number of bytes in an ETHERNET */
+#define COM_IF_MIN_LEN    64  /* minimum number of bytes in an ETHERNET */
                              /* packet   */
 
 
@@ -45,12 +45,9 @@ void        com_lwip_setup_recv_buffer( struct netif *pNetIF, SPI_CONFIGURATION 
 #define     COM_PHYID2              0x1400      /* Unique device id */
 
         
-/*              BUFFER ALLOCATION SPACES                                */
 
-#define COM_RECEIVE_BUFFER_START       0x0000
-#define COM_RECEIVE_BUFFER_END         0x0FFF
-#define COM_TRANSMIT_BUFFER_START      0x1000
-#define COM_TRANSMIT_BUFFER_END        0x1FFF
+
+
 
 /*              COM control register banks                         */
 #define COM_CONTROL_REGISTER_BANK0     0
