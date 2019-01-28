@@ -725,7 +725,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <DriverLibs Include="Network_config_COM_net.$(LIB_EXT).$(LIB_EXT)" />
+    <DriverLibs Include="Network_config_COM_net.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Network\dotNetMF.proj" />
   </ItemGroup>
     <ItemGroup>

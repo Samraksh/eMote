@@ -4,6 +4,7 @@
 #include "com_lwip.h"
 #include <USART_decl.h>
 
+
 extern "C"
 {
 //#include "netif\etharp.h"
@@ -29,16 +30,24 @@ static UINT32       LwipLastIpAddress = 0;
 #pragma arm section zidata
 #endif
 
-extern COM_LWIP_DEVICE_CONFIG   g_COM_LWIP_Config;
+COM_LWIP_DEVICE_CONFIG   g_COM_LWIP_Config =
+{
+	{ 	//COM_LWIP_DRIVER_CONFIG
+		{
+			COM_DEBUG,
+		},
+	},
+	NetIfUnInitialized,
+};
 extern NETWORK_CONFIG                g_NetworkConfig;
 
-extern BOOL COM_get_link_status(int comPort);
+extern BOOL com_get_link_status(COM_LWIP_DEVICE_CONFIG  *g_COM_LWIP_Config);
 
 
 
 
 //This is called by the IP stack to send a packet on the net ifterface
-err_t COM_netif_output(struct netif *pNetIF, struct pbuf *pPBuf,
+err_t com_netif_output(struct netif *pNetIF, struct pbuf *pPBuf,
        ip_addr_t *ipaddr){
 
     NATIVE_PROFILE_HAL_DRIVERS_ETHERNET();
@@ -63,7 +72,7 @@ err_t COM_netif_output(struct netif *pNetIF, struct pbuf *pPBuf,
     if (length > COM_IF_MAX_SIZE) // (COM_IF_MAX_SIZE+4))
     {
         debug_printf("xmit - length is too large, truncated \r\n" );
-        HAL_ASSERT(FALSE);
+        HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);
         length = COM_IF_MAX_SIZE; // COM_IF_MAX_SIZE+4;         /* what a terriable hack! */
     }//
 
@@ -71,24 +80,25 @@ err_t COM_netif_output(struct netif *pNetIF, struct pbuf *pPBuf,
     //write the startbytes
     int x;
     x=USART_Write(comPort, START_STOP_BYTES, START_STOP_BYTES_SIZE);
-    if(x!=START_STOP_BYTES_SIZE){HAL_ASSERT(FALSE);}
+    if(x!=START_STOP_BYTES_SIZE){HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);}
     while(pPBuf)
     {
     	x=USART_Write(comPort,(const char*)pPBuf->payload, pPBuf->len);
-    	if(x!=pPBuf->len){HAL_ASSERT(FALSE);}
+    	if(x!=pPBuf->len){HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);}
         //memcpy(&pTx[idx], pPBuf->payload, pPBuf->len);
         //idx += pPBuf->len;
         pPBuf = pPBuf->next;
     }
     //write the stopbytes
     x=USART_Write(comPort, START_STOP_BYTES, START_STOP_BYTES_SIZE);
-    if(x!=START_STOP_BYTES_SIZE){HAL_ASSERT(FALSE);}
-    pbuf_free(pTmp);
+    if(x!=START_STOP_BYTES_SIZE){
+    	HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);
+    }
 
     return ERR_OK;
 }
 
-err_t COM_netif_linkoutput(struct netif *netif, struct pbuf *p){
+err_t com_netif_linkoutput(struct netif *netif, struct pbuf *p){
 
 }
 
@@ -97,12 +107,12 @@ err_t com_netif_input(struct pbuf *p, struct netif *inp){
 
 }
 
-
-void COM_status_callback(struct netif *netif)
+//Mukundan: We are not building the C#/feature project for Net_sockets, so lets not post any
+void com_status_callback(struct netif *netif)
 {
     if(LwipLastIpAddress != netif->ip_addr.addr)
     {
-        Network_PostEvent( NETWORK_EVENT_TYPE_ADDRESS_CHANGED, 0 );
+        //Network_PostEvent( NETWORK_EVENT_TYPE_ADDRESS_CHANGED, 0 );
         LwipLastIpAddress = netif->ip_addr.addr;
     }
 
@@ -144,7 +154,12 @@ void COM_status_callback(struct netif *netif)
 #endif
 }
 
-err_t   COM_netif_init( netif * myNetIf)
+/*
+void Init_structs(){
+
+}
+*/
+err_t   com_netif_init( netif * myNetIf)
 {
 #if defined(NETWORK_MEMORY_PROFILE_LWIP__small)
     myNetIf->mtu = MTU_SMALL;
@@ -162,9 +177,9 @@ err_t   COM_netif_init( netif * myNetIf)
     // (this function is assigned to netif.input and should be called by the hardware driver)
 
     // Assign the xmit routine to the stack's netif and call the driver's Open
-    myNetIf->output = &COM_net_output;
-    myNetIf->linkoutput = &COM_net_linkoutput;
-    myNetIf->status_callback = COM_status_callback;
+    myNetIf->output = &com_netif_output;
+    myNetIf->linkoutput = &com_netif_linkoutput;
+    myNetIf->status_callback = &com_status_callback;
 
     com_lwip_open( myNetIf );
 
@@ -189,7 +204,7 @@ void lwip_network_uptime_completion(void *arg)
 
     struct netif* pNetIf = (struct netif*)arg;
 
-    BOOL status = com_get_link_status(&g_COM_LWIP_Config.DeviceConfigs[0].SPI_Config);
+    BOOL status = com_get_link_status(g_COM_LWIP_Config.DeviceConfigs[0].comPort);
 
     if(status != LwipNetworkStatus)
     {
@@ -198,14 +213,14 @@ void lwip_network_uptime_completion(void *arg)
             tcpip_callback((sys_timeout_handler)netif_set_link_up, (void*)pNetIf);
             tcpip_callback((sys_timeout_handler)netif_set_up, (void*)pNetIf);
 
-            Network_PostEvent( NETWORK_EVENT_TYPE__AVAILABILITY_CHANGED, NETWORK_EVENT_FLAGS_IS_AVAILABLE );
+            //Network_PostEvent( NETWORK_EVENT_TYPE__AVAILABILITY_CHANGED, NETWORK_EVENT_FLAGS_IS_AVAILABLE );
         }
         else
         {
             tcpip_callback((sys_timeout_handler)netif_set_link_down, (void*)pNetIf);
             tcpip_callback((sys_timeout_handler)netif_set_down, (void*)pNetIf);
 
-            Network_PostEvent( NETWORK_EVENT_TYPE__AVAILABILITY_CHANGED, 0);
+            //Network_PostEvent( NETWORK_EVENT_TYPE__AVAILABILITY_CHANGED, 0);
         }
 
         Events_Set(SYSTEM_EVENT_FLAG_SOCKET);
@@ -219,7 +234,7 @@ void lwip_network_uptime_completion(void *arg)
 
 void InitContinuations( struct netif* pNetIf )
 {
-    InterruptTaskContinuation.InitializeCallback( (HAL_CALLBACK_FPN)COM_lwip_interrupt, &g_COM_NetIF );
+    InterruptTaskContinuation.InitializeCallback( (HAL_CALLBACK_FPN)com_lwip_interrupt, &g_COM_NetIF );
 
     LwipUpTimeCompletion.InitializeForUserMode( (HAL_CALLBACK_FPN)lwip_network_uptime_completion, pNetIf );
 
@@ -288,11 +303,11 @@ int COM_LWIP_Driver::Open( COM_LWIP_DRIVER_CONFIG* config, int index )
 
     memcpy(g_COM_NetIF.hwaddr, iface->macAddressBuffer, len);
 
-    pNetIF = netif_add( &g_COM_NetIF, &ipaddr, &netmask, &gw, NULL, COM_netif_init, com_netif_input );
+    pNetIF = netif_add( &g_COM_NetIF, &ipaddr, &netmask, &gw, NULL, com_netif_init, com_netif_input );
 
     netif_set_default( pNetIF );
 
-    LwipNetworkStatus = COM_get_link_status(&config->SPI_Config);
+    LwipNetworkStatus = com_get_link_status(config->comPort);
 
     /* Initialize the continuation routine for the driver interrupt and receive */
     InitContinuations( pNetIF );
@@ -312,14 +327,6 @@ BOOL COM_LWIP_Driver::Close( COM_LWIP_DRIVER_CONFIG* config, int index )
     netif_set_link_down( &g_COM_NetIF );
     netif_set_down( &g_COM_NetIF );
     netif_remove( &g_COM_NetIF );
-
-    /* Disable the INTERRUPT pin */
-    CPU_GPIO_EnableInputPin2(config->INT_Pin,
-                              FALSE,                         /* Glitch filter enable */
-                              NULL,                          /* ISR                  */
-                              0,                             /* minor number         */
-                              GPIO_INT_NONE,                 /* Interrupt edge       */
-                              RESISTOR_PULLUP);              /* Resistor State       */
 
     InterruptTaskContinuation.Abort();
 

@@ -11,6 +11,7 @@
 #include "lwip\mem.h"
 
 #include <USART_decl.h>
+#include "com_lwip.h"
 
 extern void lwip_interrupt_continuation( void );
 
@@ -69,8 +70,8 @@ short   com_lwip_read_phy_register(int ComPortNum,
 
 
 // keep track of the receive pointer
-static unsigned short s_COM_TRANSMIT_BUFFER_START = COM_TRANSMIT_BUFFER_START;
-static unsigned short s_COM_RECEIVE_BUFFER_START  = COM_RECEIVE_BUFFER_START;
+//static unsigned short s_COM_TRANSMIT_BUFFER_START = COM_TRANSMIT_BUFFER_START;
+//static unsigned short s_COM_RECEIVE_BUFFER_START  = COM_RECEIVE_BUFFER_START;
 
 
 /* ********************************************************************
@@ -105,7 +106,7 @@ void com_lwip_close( struct netif *pNetIF )
 {
     NATIVE_PROFILE_HAL_DRIVERS_ETHERNET();
 
-    int  comPort = &g_COM_LWIP_Config.DeviceConfigs[0].comPort;
+    int  comPort = g_COM_LWIP_Config.DeviceConfigs[0].comPort;
 
     com_lwip_write_com(comPort, COM_SPI_BIT_FIELD_CLEAR_OPCODE, COM_EIE, (UINT8)((1 << COM_EIE_INTIE_BIT) | (1 << COM_EIE_PKTIE_BIT) | (1 << COM_EIE_TXIE_BIT) |(1 << COM_EIE_TXERIE_BIT)));
 }
@@ -119,14 +120,9 @@ static UINT8 s_retriesTransmit = TRANSMIT_RETRIES;
 static UINT8 s_receiveRetries = 10;
 
 
-BOOL com_get_link_status(SPI_CONFIGURATION* spiConf)
+BOOL com_get_link_status(COM_LWIP_DEVICE_CONFIG  *g_COM_LWIP_Config)
 {
-    GLOBAL_LOCK(irq);
-
-    UINT16 phyStat = com_lwip_read_phy_register(spiConf, COM_PHSTAT2);
-
-    // linkstatus bit
-    return (0 != (phyStat & (1ul << COM_PHSTAT2_LSTAT_BIT)));
+    return (g_COM_LWIP_Config->ifStatus==NetIfActive);
 }
 
 bool com_lwip_setup_device( struct netif *pNetIF )
@@ -141,11 +137,11 @@ bool com_lwip_setup_device( struct netif *pNetIF )
 
     int comPort;
 
-    comPort = &g_COM_LWIP_Config.DeviceConfigs[0].comPort;
+    comPort = g_COM_LWIP_Config.DeviceConfigs[0].comPort;
 
 
     /* ---------------------------------------------------------------------------------------------------- */
-    /*                                          CHECK IF THE PHY IS READY                                   */
+    //                                          CHECK IF THE PHY IS READY
 
     //We expect the debug com_port to be already initialized. otherwise give an error. We dont want to
     //initialize debug port with different values

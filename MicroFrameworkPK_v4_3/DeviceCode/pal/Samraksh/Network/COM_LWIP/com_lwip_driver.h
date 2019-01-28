@@ -15,6 +15,11 @@ const char START_STOP_BYTES[START_STOP_BYTES_SIZE] = {'8','8','8','8'};
 #define MTU_MEDIUM 256
 #define MTU_BIG 512
 
+enum COM_NetIf_Status{
+	NetIfActive,
+	NetIfUnInitialized
+};
+
 struct COM_LWIP_DRIVER_CONFIG
 {
     //SPI_CONFIGURATION   SPI_Config;
@@ -29,7 +34,7 @@ struct COM_LWIP_DRIVER_CONFIG
 struct COM_LWIP_DEVICE_CONFIG
 {
     COM_LWIP_DRIVER_CONFIG DeviceConfigs[NETWORK_INTERFACE_COUNT];
-	//int comPort;
+    COM_NetIf_Status ifStatus;
     static LPCSTR GetDriverName() { return "COM_LWIP"; }
 };
 

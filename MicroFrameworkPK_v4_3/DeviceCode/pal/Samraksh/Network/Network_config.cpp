@@ -31,7 +31,7 @@ NETWORK_CONFIG g_NetworkConfig =
     },
 };
 
-/*
+//we dont have wireless, yet, the lwip_sockets needs a wireless config, so providing a dumpy one
 WIRELESS_CONFIG g_WirelessConfig = 
 {
     /// This is a sample only.
@@ -63,7 +63,7 @@ WIRELESS_CONFIG g_WirelessConfig =
         },
     },
 };
-*/
+
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
 #pragma arm section zidata
