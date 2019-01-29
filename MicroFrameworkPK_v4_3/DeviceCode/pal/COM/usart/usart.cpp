@@ -237,7 +237,7 @@ HAL_USART_STATE Hal_Usart_State[TOTAL_USART_PORT];
 #endif
 
 
-BOOL USART_IsInitialized( int ComPortNum){
+BOOL USART_IsComPortInitialized( int ComPortNum){
 	HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
 	return IS_USART_INITIALIZED(State);
 }

@@ -22,11 +22,11 @@ extern void lwip_interrupt_continuation( void );
    
 extern  NETWORK_CONFIG                   g_NetworkConfig;
 extern  COM_LWIP_DEVICE_CONFIG      g_COM_LWIP_Config;
-
+char pUsartRcvContext[128];
 
 /* Function Prototypes */
 
-void    com_lwip_soft_reset(int ComPortNum);
+//void    com_lwip_soft_reset(int ComPortNum);
 
 /*
 void    com_lwip_write_com(int ComPortNum,
@@ -108,7 +108,8 @@ void com_lwip_close( struct netif *pNetIF )
 
     int  comPort = g_COM_LWIP_Config.DeviceConfigs[0].comPort;
 
-    com_lwip_write_com(comPort, COM_SPI_BIT_FIELD_CLEAR_OPCODE, COM_EIE, (UINT8)((1 << COM_EIE_INTIE_BIT) | (1 << COM_EIE_PKTIE_BIT) | (1 << COM_EIE_TXIE_BIT) |(1 << COM_EIE_TXERIE_BIT)));
+    g_COM_LWIP_Config.DeviceConfigs[0].ifStatus = NetIfUnInitialized ;
+    //com_lwip_write_com(comPort, COM_SPI_BIT_FIELD_CLEAR_OPCODE, COM_EIE, (UINT8)((1 << COM_EIE_INTIE_BIT) | (1 << COM_EIE_PKTIE_BIT) | (1 << COM_EIE_TXIE_BIT) |(1 << COM_EIE_TXERIE_BIT)));
 }
 
 /* ********************************************************************
@@ -120,9 +121,14 @@ static UINT8 s_retriesTransmit = TRANSMIT_RETRIES;
 static UINT8 s_receiveRetries = 10;
 
 
-BOOL com_get_link_status(COM_LWIP_DEVICE_CONFIG  *g_COM_LWIP_Config)
+void pfnUsartEventHandler (void* context, unsigned int event){
+
+}
+
+
+BOOL com_get_link_status(COM_LWIP_DRIVER_CONFIG  *g_COM_driver_Config)
 {
-    return (g_COM_LWIP_Config->ifStatus==NetIfActive);
+    return (g_COM_driver_Config->ifStatus==NetIfActive);
 }
 
 bool com_lwip_setup_device( struct netif *pNetIF )
@@ -151,7 +157,7 @@ bool com_lwip_setup_device( struct netif *pNetIF )
     /* ---------------------------------------------------------------------------------------------------- */
     /*                                                  SOFT RESET                                          */
 
-    com_lwip_soft_reset(comPort);
+    //com_lwip_soft_reset(comPort);
 
     /* ---------------------------------------------------------------------------------------------------- */
     /*                                              VERIFY THE DEVICE ID                                    */
@@ -165,6 +171,7 @@ bool com_lwip_setup_device( struct netif *pNetIF )
 
     //com_lwip_setup_recv_buffer( pNetIF, comPort );
     //Nothing to be done here.
+    USART_ConnectEventSink( comPort,USART_EVENT_TYPE_DATA,  (void*)pUsartRcvContext, &pfnUsartEventHandler, NULL );
 
     /* ---------------------------------------------------------------------------------------------------- */
     /*                                          SETUP RECEIVE FILTER                                       */

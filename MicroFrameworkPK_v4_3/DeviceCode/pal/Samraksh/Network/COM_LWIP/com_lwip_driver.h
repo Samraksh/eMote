@@ -24,6 +24,7 @@ struct COM_LWIP_DRIVER_CONFIG
 {
     //SPI_CONFIGURATION   SPI_Config;
     int             comPort;
+    COM_NetIf_Status ifStatus;
 };
 
 
@@ -34,7 +35,7 @@ struct COM_LWIP_DRIVER_CONFIG
 struct COM_LWIP_DEVICE_CONFIG
 {
     COM_LWIP_DRIVER_CONFIG DeviceConfigs[NETWORK_INTERFACE_COUNT];
-    COM_NetIf_Status ifStatus;
+
     static LPCSTR GetDriverName() { return "COM_LWIP"; }
 };
 

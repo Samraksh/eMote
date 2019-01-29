@@ -35,13 +35,14 @@ COM_LWIP_DEVICE_CONFIG   g_COM_LWIP_Config =
 	{ 	//COM_LWIP_DRIVER_CONFIG
 		{
 			COM_DEBUG,
+			NetIfUnInitialized,
 		},
 	},
-	NetIfUnInitialized,
+
 };
 extern NETWORK_CONFIG                g_NetworkConfig;
 
-extern BOOL com_get_link_status(COM_LWIP_DEVICE_CONFIG  *g_COM_LWIP_Config);
+extern BOOL com_get_link_status(COM_LWIP_DRIVER_CONFIG  *g_COM_driver_Config);
 
 
 
@@ -204,7 +205,7 @@ void lwip_network_uptime_completion(void *arg)
 
     struct netif* pNetIf = (struct netif*)arg;
 
-    BOOL status = com_get_link_status(g_COM_LWIP_Config.DeviceConfigs[0].comPort);
+    BOOL status = com_get_link_status(&g_COM_LWIP_Config.DeviceConfigs[0]  );
 
     if(status != LwipNetworkStatus)
     {
@@ -232,6 +233,7 @@ void lwip_network_uptime_completion(void *arg)
     LwipUpTimeCompletion.EnqueueDelta64( 2000000 );
 }
 
+/*
 void InitContinuations( struct netif* pNetIf )
 {
     InterruptTaskContinuation.InitializeCallback( (HAL_CALLBACK_FPN)com_lwip_interrupt, &g_COM_NetIF );
@@ -240,6 +242,7 @@ void InitContinuations( struct netif* pNetIf )
 
     LwipUpTimeCompletion.EnqueueDelta64( 500000 );
 }
+*/
 
 BOOL Network_Interface_Bind(int index)
 {
@@ -307,10 +310,10 @@ int COM_LWIP_Driver::Open( COM_LWIP_DRIVER_CONFIG* config, int index )
 
     netif_set_default( pNetIF );
 
-    LwipNetworkStatus = com_get_link_status(config->comPort);
+    LwipNetworkStatus = com_get_link_status(config);
 
-    /* Initialize the continuation routine for the driver interrupt and receive */
-    InitContinuations( pNetIF );
+    // Initialize the continuation routine for the driver interrupt and receive
+    //InitContinuations( pNetIF );
 
     return g_COM_NetIF.num;
 
