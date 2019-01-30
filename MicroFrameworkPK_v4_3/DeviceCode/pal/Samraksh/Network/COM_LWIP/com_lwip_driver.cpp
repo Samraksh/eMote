@@ -40,6 +40,9 @@ COM_LWIP_DEVICE_CONFIG   g_COM_LWIP_Config =
 	},
 
 };
+
+
+
 extern NETWORK_CONFIG                g_NetworkConfig;
 
 extern BOOL com_get_link_status(COM_LWIP_DRIVER_CONFIG  *g_COM_driver_Config);
@@ -282,7 +285,12 @@ int COM_LWIP_Driver::Open( COM_LWIP_DRIVER_CONFIG* config, int index )
 
     iface = &g_NetworkConfig.NetworkInterfaces[index];
 
-    if(0 == (iface->flags & SOCK_NETWORKCONFIGURATION_FLAGS_DHCP))
+    //Set the address statically irrespective of mode for the timebeing
+    ipaddr.addr  = iface->ipaddr;
+    gw.addr      = iface->gateway;
+    netmask.addr = iface->subnetmask;
+
+    /*if(0 == (iface->flags & SOCK_NETWORKCONFIGURATION_FLAGS_DHCP))
     {
         ipaddr.addr  = iface->ipaddr;
         gw.addr      = iface->gateway;
@@ -290,11 +298,11 @@ int COM_LWIP_Driver::Open( COM_LWIP_DRIVER_CONFIG* config, int index )
     }
     else
     {
-        /* Set network address variables - this will be set by either DHCP or when the configuration is applied */
+        // Set network address variables - this will be set by either DHCP or when the configuration is applied
         IP4_ADDR(&gw     ,   0,   0,   0, 0);
         IP4_ADDR(&ipaddr ,   0,   0,   0, 0);
         IP4_ADDR(&netmask, 255, 255, 255, 0);
-    }
+    }*/
 
     len = g_COM_NetIF.hwaddr_len;
 

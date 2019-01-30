@@ -14,11 +14,11 @@ NETWORK_CONFIG g_NetworkConfig =
     {       // COM port
         {                                      
             SOCK_NETWORKCONFIGURATION_FLAGS_DHCP,
-            SOCK_MAKE_IP_ADDR_LITTLEEND(192,168,  5,100), 
-            SOCK_MAKE_IP_ADDR_LITTLEEND(255,255,255,  0), 
-            SOCK_MAKE_IP_ADDR_LITTLEEND(192,168,  5,  1), 
-            SOCK_MAKE_IP_ADDR_LITTLEEND(  0,  0,  0,  0), 
-            SOCK_MAKE_IP_ADDR_LITTLEEND(  0,  0,  0,  0), 
+            SOCK_MAKE_IP_ADDR_LITTLEEND(192,168,  5,100), //ip
+            SOCK_MAKE_IP_ADDR_LITTLEEND(255,255,255,  0), //netmask
+            SOCK_MAKE_IP_ADDR_LITTLEEND(192,168,  5,  1), //gateway
+            SOCK_MAKE_IP_ADDR_LITTLEEND(  0,  0,  0,  0), //dns1
+            SOCK_MAKE_IP_ADDR_LITTLEEND(  0,  0,  0,  0), //dns2
 			SOCK_NETWORKCONFIGURATION_INTERFACETYPE_UNKNOWN,        // Change to SOCK_NETWORKCONFIGURATION_INTERFACETYPE_WIRELESS_80211 for wireless
             6,              
             {               

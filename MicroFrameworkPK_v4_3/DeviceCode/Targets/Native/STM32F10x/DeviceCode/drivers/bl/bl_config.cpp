@@ -17,8 +17,9 @@ const BlockRange STM32F10x_BlockRange_InternalFlash[] =
         // It should be obvious that block ranges are inclusive, and different regions have exclusive ranges.
         // TODO: check if User Storage B region is needed for EWR Extended Weak References to work (eg, for wear-leveling).
 
-	    { BlockRange::BLOCKTYPE_BOOTSTRAP       ,  0, 63 },  // 64 blocks, 128K for Booter,     address 0x0800_0000
-	    { BlockRange::BLOCKTYPE_CODE            , 64,385 },  //322 blocks, 644K for CLR,        address 0x0802_0000
+	    //{ BlockRange::BLOCKTYPE_BOOTSTRAP       ,  0, 63 },  // 64 blocks, 128K for Booter,     address 0x0800_0000
+	    //{ BlockRange::BLOCKTYPE_CODE            , 64,385 },  //322 blocks, 644K for CLR,        address 0x0802_0000
+		{ BlockRange::BLOCKTYPE_CODE            , 0,385 },  //322 blocks, 644K for CLR,        address 0x0802_0000
 	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,386,449 },  // 64 blocks, 128K for Deployment, address 0x080C_1000
 #if defined(SAMRAKSH_UPDATE_EXT )
 	    { BlockRange::BLOCKTYPE_UPDATE          ,450,505 },  // 56 blocks, 112K for Updates,    address 0x080E_1000
