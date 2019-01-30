@@ -50,7 +50,8 @@ int USART_Write( int ComPortNum, const char* Data, size_t size )
 
 int USART_Read( int ComPortNum, char* Data, size_t size )
 {
-    return USART_Driver::Read( ComPortNum, Data, size );
+	if (ComPortNum == 0) return USART_Driver::Read( ComPortNum, Data, size );
+	else return USART_Driver::ManagedRead( ComPortNum, Data, size );
 }
 
 int USART_Managed_Read( int ComPortNum, char* Data, size_t size )
@@ -680,7 +681,23 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 
 	toWrite = size;
 	written = 0;
-
+	//
+#if defined(EMOTE_COM_NETIF)
+	int detectState=0;
+	if(ComPortNum == COM_NETIF){
+		for (int i=0; i < size; i++){
+			if(data[i]==NETIF_START_STOP_CHAR){
+				detectState++;
+			}else{
+				if(detectState >0) detectState=0;
+			}
+			if (detectState == NETIF_START_STOP_CHAR_SIZE){
+				//Signal up
+				SetEvent( ComPortNum, USART_EVENT_DATA_NETIF );
+			}
+		}
+	}
+#endif
 	// Only COM1 uses RxQueue, others use managed queue
 	if (ComPortNum == 0) {
 		GLOBAL_LOCK(irq);
@@ -983,8 +1000,11 @@ int USART_Driver::BytesInBuffer( int ComPortNum, BOOL fRx )
     if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) return -1;
 
     HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
-
-    return fRx? State.RxQueue.NumberOfElements(): State.TxQueue.NumberOfElements();
+    if (ComPortNum == 0){
+    	return fRx? State.RxQueue.NumberOfElements(): State.TxQueue.NumberOfElements();
+    }else {
+    	return fRx? State.ManagedRxQueue.NumberOfElements(): State.TxQueue.NumberOfElements();
+    }
 }
 
 int USART_Driver::BytesInManagedBuffer( int ComPortNum, BOOL fRx )

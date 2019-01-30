@@ -120,9 +120,10 @@ static UINT8 s_retriesTransmit = TRANSMIT_RETRIES;
 #define RECEIVE_RETRIES 5
 static UINT8 s_receiveRetries = 10;
 
-
+//Signal from usart driver that a Net packet has arrived.
 void pfnUsartEventHandler (void* context, unsigned int event){
-
+	COM_LWIP_DRIVER_CONFIG  *g_COM_driver_Config = (COM_LWIP_DRIVER_CONFIG*)context;
+	com_lwip_recv(NULL);
 }
 
 
@@ -190,5 +191,67 @@ bool com_lwip_setup_device( struct netif *pNetIF )
     //s_COM_RECEIVE_BUFFER_START  = COM_RECEIVE_BUFFER_START;
 
     return TRUE;
+}
+
+/* ********************************************************************
+   Receive. a packet over the packet driver interface.  This is called
+   from the ISR or task ISR.
+
+   This routine is called when a packet is received.
+
+   Upon successful reading of received packet, the IP is
+   signalled to process the packet.
+
+   Returns the number of packets that remain to be processed
+
+  ******************************************************************** */
+int com_lwip_recv(struct netif *pNetIF )
+{
+    NATIVE_PROFILE_HAL_DRIVERS_ETHERNET();
+
+    struct pbuf        *pPBuf;
+    char              *dataRX;
+    //UINT8               nextPktAndRecvStatusVector[6];
+    UINT16              length;
+    //UINT8               byteData;
+    //UINT8               packetsLeft=0;
+    //UINT16              lastReceiveBuffer;
+    //int                     numPacketsProcessed = 0;
+
+    if ( !pNetIF )
+    {
+        return 1;
+    }
+
+    int comPort= g_COM_LWIP_Config.DeviceConfigs[0].comPort;
+
+    do
+    {
+		length=USART_BytesInBuffer( comPort, TRUE );
+		if (length > 0)
+		{
+			pPBuf = pbuf_alloc( PBUF_RAW, length, PBUF_RAM );
+
+			if ( pPBuf )
+			{
+				dataRX = (char *)pPBuf->payload;
+				int readBytes= USART_Read(comPort, dataRX, length );
+				length -=readBytes;
+				// invoke stack ip input - the stack should free the buffer when it is done,
+				// so DON'T call pbuf_free on pPBuf!!!!!
+				pNetIF->input( pPBuf, pNetIF );
+			}
+			else
+			{
+				hal_printf("com_lwip_recv: input alloc packet failed \r\n");
+			}
+		}
+		else // no packets left - should we break??
+		{
+		}
+
+    } while (length);
+
+    return 0; //not sure how to find packets left in case of usart
 }
 

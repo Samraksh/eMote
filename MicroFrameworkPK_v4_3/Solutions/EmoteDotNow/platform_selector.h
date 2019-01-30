@@ -131,6 +131,13 @@ typedef uint16_t ushort;
 #define TOTAL_DEBUG_PORT       1
 #define COM_DEBUG              ConvertCOM_DebugHandle(0)
 
+#define EMOTE_COM_NETIF 1
+#if defined(EMOTE_COM_NETIF)
+#define COM_NETIF COM2
+#define NETIF_START_STOP_CHAR_SIZE 4
+#define NETIF_START_STOP_CHAR 0xE8
+#endif
+
 #define COM_MESSAGING          ConvertCOM_MessagingHandle(0)
 
 #define USART_TX_IRQ_INDEX(x)       ( (x) ? 0 : 0 )     /* TODO set right indexes */

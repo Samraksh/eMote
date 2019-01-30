@@ -64,7 +64,7 @@ typedef void (*PFNUsartEvent) (void* context, unsigned int event);
 #define USART_EVENT_TYPE_DATA      2
 #define USART_EVENT_DATA_CHARS     0x05    // A character was received and placed in the input buffer. 
 #define USART_EVENT_DATA_EOF       0x06    // The end of file character was received and placed in the input buffer. 
-
+#define USART_EVENT_DATA_NETIF       0x07
 
 
 BOOL USART_IsComPortInitialized( int ComPortNum);

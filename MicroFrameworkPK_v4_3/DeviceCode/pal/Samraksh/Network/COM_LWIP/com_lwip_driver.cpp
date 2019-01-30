@@ -34,7 +34,7 @@ COM_LWIP_DEVICE_CONFIG   g_COM_LWIP_Config =
 {
 	{ 	//COM_LWIP_DRIVER_CONFIG
 		{
-			COM_DEBUG,
+			COM_NETIF,
 			NetIfUnInitialized,
 		},
 	},
@@ -80,8 +80,8 @@ err_t com_netif_output(struct netif *pNetIF, struct pbuf *pPBuf,
     //idx = 2;
     //write the startbytes
     int x;
-    x=USART_Write(comPort, START_STOP_BYTES, START_STOP_BYTES_SIZE);
-    if(x!=START_STOP_BYTES_SIZE){HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);}
+    x=USART_Write(comPort, NETIF_START_STOP_BYTES, NETIF_START_STOP_CHAR_SIZE);
+    if(x!=NETIF_START_STOP_CHAR_SIZE){HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);}
     while(pPBuf)
     {
     	x=USART_Write(comPort,(const char*)pPBuf->payload, pPBuf->len);
@@ -91,8 +91,8 @@ err_t com_netif_output(struct netif *pNetIF, struct pbuf *pPBuf,
         pPBuf = pPBuf->next;
     }
     //write the stopbytes
-    x=USART_Write(comPort, START_STOP_BYTES, START_STOP_BYTES_SIZE);
-    if(x!=START_STOP_BYTES_SIZE){
+    x=USART_Write(comPort, NETIF_START_STOP_BYTES, NETIF_START_STOP_CHAR_SIZE);
+    if(x!=NETIF_START_STOP_CHAR_SIZE){
     	HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);
     }
 
