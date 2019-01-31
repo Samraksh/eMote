@@ -46,7 +46,7 @@ COM_LWIP_DEVICE_CONFIG   g_COM_LWIP_Config =
 extern NETWORK_CONFIG                g_NetworkConfig;
 
 extern BOOL com_get_link_status(COM_LWIP_DRIVER_CONFIG  *g_COM_driver_Config);
-
+extern void com_lwip_interrupt(struct netif *pNetIF );
 
 
 
@@ -54,6 +54,7 @@ extern BOOL com_get_link_status(COM_LWIP_DRIVER_CONFIG  *g_COM_driver_Config);
 err_t com_netif_output(struct netif *pNetIF, struct pbuf *pPBuf,
        ip_addr_t *ipaddr){
 
+	hal_printf("com_netif_output: \r\n");
     NATIVE_PROFILE_HAL_DRIVERS_ETHERNET();
     UINT16                  length = 0;
     //UINT8                   perPacketControlByte;
@@ -103,17 +104,18 @@ err_t com_netif_output(struct netif *pNetIF, struct pbuf *pPBuf,
 }
 
 err_t com_netif_linkoutput(struct netif *netif, struct pbuf *p){
-
+	debug_printf("com_netif_linkoutput\r\n");
 }
 
 //this function will be called when a packet comes in through the com port
 err_t com_netif_input(struct pbuf *p, struct netif *inp){
-
+	debug_printf("com_netif_input: \r\n");
 }
 
 //Mukundan: We are not building the C#/feature project for Net_sockets, so lets not post any
 void com_status_callback(struct netif *netif)
 {
+	debug_printf("com_status_callback: \r\n");
     if(LwipLastIpAddress != netif->ip_addr.addr)
     {
         //Network_PostEvent( NETWORK_EVENT_TYPE_ADDRESS_CHANGED, 0 );
@@ -173,6 +175,7 @@ err_t   com_netif_init( netif * myNetIf)
     myNetIf->mtu = MTU_BIG;
 #endif
 
+    hal_printf("com_netif_init: \r\n");
     //myNetIf->flags = NETIF_FLAG_IGMP | NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET;
     myNetIf->flags = NETIF_FLAG_BROADCAST;
 
@@ -236,7 +239,7 @@ void lwip_network_uptime_completion(void *arg)
     LwipUpTimeCompletion.EnqueueDelta64( 2000000 );
 }
 
-/*
+
 void InitContinuations( struct netif* pNetIf )
 {
     InterruptTaskContinuation.InitializeCallback( (HAL_CALLBACK_FPN)com_lwip_interrupt, &g_COM_NetIF );
@@ -245,7 +248,6 @@ void InitContinuations( struct netif* pNetIf )
 
     LwipUpTimeCompletion.EnqueueDelta64( 500000 );
 }
-*/
 
 BOOL Network_Interface_Bind(int index)
 {
@@ -275,6 +277,7 @@ int COM_LWIP_Driver::Open( COM_LWIP_DRIVER_CONFIG* config, int index )
 {
     NATIVE_PROFILE_HAL_DRIVERS_ETHERNET();
 
+    debug_printf("COM_LWIP_Driver::Open: \r\n");
     /* Network interface variables */
     struct ip_addr ipaddr, netmask, gw;
     struct netif *pNetIF;
@@ -320,8 +323,8 @@ int COM_LWIP_Driver::Open( COM_LWIP_DRIVER_CONFIG* config, int index )
 
     LwipNetworkStatus = com_get_link_status(config);
 
-    // Initialize the continuation routine for the driver interrupt and receive
-    //InitContinuations( pNetIF );
+    //Initialize the continuation routine for the driver interrupt and receive
+    InitContinuations( pNetIF );
 
     return g_COM_NetIF.num;
 

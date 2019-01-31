@@ -37,7 +37,7 @@ void    com_lwip_write_com(int ComPortNum,
                                     UINT32 numBytes);
 */
 
-void    com_lwip_write_com(int ComPortNum,
+/*void    com_lwip_write_com(int ComPortNum,
                                     UINT8 opcode, 
                                     UINT8 address, 
                                     UINT8 byteData);
@@ -49,7 +49,7 @@ void    com_lwip_read_com(int ComPortNum,
                                    UINT32 numBytes,
                                    UINT8 offset);
 
-
+*/
 bool    com_lwip_setup_device( struct netif *pNetIF );
 
 //void    com_lwip_select_bank(int ComPortNum,
@@ -126,9 +126,15 @@ void pfnUsartEventHandler (void* context, unsigned int event){
 	com_lwip_recv(NULL);
 }
 
+//Recv interrupt hanlder at the lwip task level
+void com_lwip_interrupt(struct netif *pNetIF ){
+	hal_printf("com_lwip_interrupt: \r\n");
+	com_lwip_recv(pNetIF);
+}
 
 BOOL com_get_link_status(COM_LWIP_DRIVER_CONFIG  *g_COM_driver_Config)
 {
+	hal_printf("com_get_link_status: \r\n");
     return (g_COM_driver_Config->ifStatus==NetIfActive);
 }
 
