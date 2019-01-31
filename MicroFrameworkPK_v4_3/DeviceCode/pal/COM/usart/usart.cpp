@@ -399,7 +399,7 @@ int USART_Driver::Write( int ComPortNum, const char* Data, size_t size )
     // since it gets set/cleared from ISR, and disables the clock, but
     // USART_TxBufferEmptyInterruptEnable turns the clock back on!
     // We don't want to turn on the USART clock if in power save mode
-    /*{
+    {
         GLOBAL_LOCK(irq);
 
         if(size && !IS_POWERSAVE_ENABLED(State))
@@ -409,7 +409,7 @@ int USART_Driver::Write( int ComPortNum, const char* Data, size_t size )
             // so we do this once to be efficient in the common case (buffer has room for all chars)
             CPU_USART_TxBufferEmptyInterruptEnable( ComPortNum, TRUE );
         }
-    }*/
+    }
 #endif
     return totWrite;
 }
