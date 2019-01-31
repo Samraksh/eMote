@@ -4,3 +4,4 @@
 [submodule "MicroFrameworkPK_v4_3/DeviceCode/ExtCode/lwip"]
 	path = MicroFrameworkPK_v4_3/DeviceCode/ExtCode/lwip
 	url = https://git.savannah.nongnu.org/git/lwip.git
+	branch = master

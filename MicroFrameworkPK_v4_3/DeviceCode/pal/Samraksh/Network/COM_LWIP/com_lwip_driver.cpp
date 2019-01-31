@@ -34,7 +34,7 @@ COM_LWIP_DEVICE_CONFIG   g_COM_LWIP_Config =
 {
 	{ 	//COM_LWIP_DRIVER_CONFIG
 		{
-			COM_NETIF,
+			ConvertCOM_ComPort(COM_NETIF),
 			NetIfUnInitialized,
 		},
 	},
@@ -250,14 +250,14 @@ void InitContinuations( struct netif* pNetIf )
 BOOL Network_Interface_Bind(int index)
 {
     NATIVE_PROFILE_HAL_DRIVERS_ETHERNET();
-    if(index >= ARRAYSIZE(g_COM_LWIP_Config.DeviceConfigs)) return FALSE;
+    if(index >= NETWORK_INTERFACE_COUNT) return FALSE;
 
     return g_COM_LWIP_Driver.Bind(&g_COM_LWIP_Config.DeviceConfigs[index], index);
 }
 int  Network_Interface_Open(int index)
 {
     NATIVE_PROFILE_HAL_DRIVERS_ETHERNET();
-    if(index >= ARRAYSIZE(g_COM_LWIP_Config.DeviceConfigs)) return -1;
+    if(index >= NETWORK_INTERFACE_COUNT) return -1;
 
     HAL_CONFIG_BLOCK::ApplyConfig( COM_LWIP_DEVICE_CONFIG::GetDriverName(), &g_COM_LWIP_Config, sizeof(g_COM_LWIP_Config) );
 
@@ -266,7 +266,7 @@ int  Network_Interface_Open(int index)
 BOOL Network_Interface_Close(int index)
 {
     NATIVE_PROFILE_HAL_DRIVERS_ETHERNET();
-    if(index >= ARRAYSIZE(g_COM_LWIP_Config.DeviceConfigs)) return FALSE;
+    if(index >= NETWORK_INTERFACE_COUNT) return FALSE;
 
     return g_COM_LWIP_Driver.Close(&g_COM_LWIP_Config.DeviceConfigs[index], index);
 }

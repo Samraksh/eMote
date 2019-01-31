@@ -153,8 +153,18 @@ bool com_lwip_setup_device( struct netif *pNetIF )
     //We expect the debug com_port to be already initialized. otherwise give an error. We dont want to
     //initialize debug port with different values
     if(!USART_IsComPortInitialized(comPort)){
-    	USART_Initialize(ConvertCOM_ComPort(comPort), NETIF_COM_BAUD, NETIF_COM_PARITY, NETIF_COM_DATABITS, NETIF_COM_STOPBITS, NETIF_COM_FLOW );
+    	if(!USART_Initialize(comPort, NETIF_COM_BAUD, NETIF_COM_PARITY, NETIF_COM_DATABITS, NETIF_COM_STOPBITS, NETIF_COM_FLOW ))
+    	{
+    		hal_printf("Error initializing com port %d for network interface", ConvertCOM_ComPort(comPort));return FALSE;
+    	}
     }
+
+    //say hello to the comport
+    USART_Write(comPort,"HELLO OLLEH",11);USART_Write(comPort,"\n\r",2);
+    USART_Write(comPort,"HELLO OLLEH",11);USART_Write(comPort,"\n\r",2);
+    USART_Write(comPort,"HELLO OLLEH",11);USART_Write(comPort,"\n\r",2);
+    USART_Write(comPort,"HELLO OLLEH",11);USART_Write(comPort,"\n\r",2);
+
     /* ---------------------------------------------------------------------------------------------------- */
     /*                                                  SOFT RESET                                          */
 
