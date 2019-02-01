@@ -166,10 +166,11 @@ bool com_lwip_setup_device( struct netif *pNetIF )
     }
 
     //say hello to the comport
+    /*USART_Write(comPort,"HELLO OLLEH",11);USART_Write(comPort,"\n\r",2);
     USART_Write(comPort,"HELLO OLLEH",11);USART_Write(comPort,"\n\r",2);
     USART_Write(comPort,"HELLO OLLEH",11);USART_Write(comPort,"\n\r",2);
     USART_Write(comPort,"HELLO OLLEH",11);USART_Write(comPort,"\n\r",2);
-    USART_Write(comPort,"HELLO OLLEH",11);USART_Write(comPort,"\n\r",2);
+	*/
 
     /* ---------------------------------------------------------------------------------------------------- */
     /*                                                  SOFT RESET                                          */

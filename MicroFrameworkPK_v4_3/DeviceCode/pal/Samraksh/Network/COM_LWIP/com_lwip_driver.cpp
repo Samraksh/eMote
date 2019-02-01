@@ -81,11 +81,11 @@ err_t com_netif_output(struct netif *pNetIF, struct pbuf *pPBuf,
         length = COM_IF_MAX_SIZE; // COM_IF_MAX_SIZE+4;         /* what a terriable hack! */
     }//
 
-    //idx = 2;
-    //write the startbytes
     int x;
-    x=USART_Write(comPort, NETIF_START_STOP_BYTES, NETIF_START_STOP_CHAR_SIZE);
-    if(x!=NETIF_START_STOP_CHAR_SIZE){HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);}
+    //write the startbytes
+    //x=USART_Write(comPort, NETIF_START_STOP_BYTES, NETIF_START_STOP_CHAR_SIZE);
+    //if(x!=NETIF_START_STOP_CHAR_SIZE){HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);}
+
     while(pPBuf)
     {
     	x=USART_Write(comPort,(const char*)pPBuf->payload, pPBuf->len);
@@ -93,12 +93,11 @@ err_t com_netif_output(struct netif *pNetIF, struct pbuf *pPBuf,
         //memcpy(&pTx[idx], pPBuf->payload, pPBuf->len);
         //idx += pPBuf->len;
         pPBuf = pPBuf->next;
+        hal_printf("Com_netif_output: wrote %d bytes\n\r", x);
     }
     //write the stopbytes
-    x=USART_Write(comPort, NETIF_START_STOP_BYTES, NETIF_START_STOP_CHAR_SIZE);
-    if(x!=NETIF_START_STOP_CHAR_SIZE){
-    	HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);
-    }
+    //x=USART_Write(comPort, NETIF_START_STOP_BYTES, NETIF_START_STOP_CHAR_SIZE);
+    //if(x!=NETIF_START_STOP_CHAR_SIZE){HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__); }
 
     return ERR_OK;
 }
@@ -177,7 +176,7 @@ err_t   com_netif_init( netif * myNetIf)
 
     hal_printf("com_netif_init: \r\n");
     //myNetIf->flags = NETIF_FLAG_IGMP | NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET;
-    myNetIf->flags = NETIF_FLAG_BROADCAST;
+    myNetIf->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_UP | NETIF_FLAG_LINK_UP;
 
     // ethhw_init() is user-defined
     // use ip_input instead of ethernet_input for non-ethernet hardware

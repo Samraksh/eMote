@@ -675,13 +675,14 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 	size_t toWrite, written;
 	UINT8 *dst;
 
-	//ASSERT_IRQ_MUST_BE_OFF(); //This does not make sense. This function is being called from with uart irq
+	ASSERT_IRQ_MUST_BE_OFF();
 	if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) return FALSE;
 	HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
 
 	toWrite = size;
 	written = 0;
 	//
+/*
 #if defined(EMOTE_COM_NETIF)
 	int detectState=0;
 	if(ComPortNum == COM_NETIF){
@@ -698,6 +699,7 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 		}
 	}
 #endif
+*/
 	// Only COM1 uses RxQueue, others use managed queue
 	if (ComPortNum == 0) {
 		GLOBAL_LOCK(irq);
@@ -759,7 +761,7 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 
 BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
 {
-    //ASSERT_IRQ_MUST_BE_OFF();//This does not make sense. This function is being called from with uart irq
+    //ASSERT_IRQ_MUST_BE_OFF(); Mukundan: This does not make sense to me. This method is called from usart irq handler, how could irq be off?
 
     if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) return FALSE;
 
@@ -781,7 +783,7 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
 
 
     {
-        GLOBAL_LOCK(irq);
+        //GLOBAL_LOCK(irq);
 		UINT8* Dst;
 #if defined(PLATFORM_ARM_KRAIT)
         Dst = State.RxQueue.Push();
