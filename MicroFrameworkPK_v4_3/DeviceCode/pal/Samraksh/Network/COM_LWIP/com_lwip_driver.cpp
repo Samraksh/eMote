@@ -54,7 +54,7 @@ extern void com_lwip_interrupt(struct netif *pNetIF );
 err_t com_netif_output(struct netif *pNetIF, struct pbuf *pPBuf,
        ip_addr_t *ipaddr){
 
-	hal_printf("com_netif_output: \r\n");
+	//hal_printf("com_netif_output: \r\n");
     NATIVE_PROFILE_HAL_DRIVERS_ETHERNET();
     UINT16                  length = 0;
     //UINT8                   perPacketControlByte;
@@ -93,7 +93,7 @@ err_t com_netif_output(struct netif *pNetIF, struct pbuf *pPBuf,
         //memcpy(&pTx[idx], pPBuf->payload, pPBuf->len);
         //idx += pPBuf->len;
         pPBuf = pPBuf->next;
-        hal_printf("Com_netif_output: wrote %d bytes\n\r", x);
+        //hal_printf("Com_netif_output: wrote %d bytes\n\r", x);
     }
     //write the stopbytes
     //x=USART_Write(comPort, NETIF_START_STOP_BYTES, NETIF_START_STOP_CHAR_SIZE);
