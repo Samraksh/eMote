@@ -761,7 +761,7 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 
 BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
 {
-    //ASSERT_IRQ_MUST_BE_OFF(); Mukundan: This does not make sense to me. This method is called from usart irq handler, how could irq be off?
+    ASSERT_IRQ_MUST_BE_OFF();
 
     if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) return FALSE;
 

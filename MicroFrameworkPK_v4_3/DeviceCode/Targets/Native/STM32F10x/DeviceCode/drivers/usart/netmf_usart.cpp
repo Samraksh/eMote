@@ -457,6 +457,7 @@ void __irq USART1_IRQHandler() {
 void USART2_Handler(void *args)
 {
 	int err __attribute__ ((unused));
+	GLOBAL_LOCK(irq);
 	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
 	{
 		  char c = (char) USART_ReceiveData(USART2); // read RX data
