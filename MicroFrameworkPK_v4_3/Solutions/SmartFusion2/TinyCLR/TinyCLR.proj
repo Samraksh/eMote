@@ -14,6 +14,7 @@
     <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
   </PropertyGroup>
   <PropertyGroup>
+  	<!-- The next line is actually critical to build a tinyclr, else certain components default to tinybooter -->
     <SamAppName>TINYCLR</SamAppName>
   </PropertyGroup>
 
