@@ -540,6 +540,22 @@
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\Crypto\Tokens\dotNetMF.proj" />
     <DriverLibs Include="SF2_HW_PKCS11_Crypto.$(LIB_EXT)" />
   </ItemGroup>
+  <!--                    Bluetooth      -->
+
+  <ItemGroup>
+    <DriverLibs Include="SmartFusion2_bluetooth_hci.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\hcitrans\dotNetMF.proj" />
+  </ItemGroup>
+
+  <!--<ItemGroup>
+    <DriverLibs Include="SmartFusion2_bluetooth_btpsvend.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\btpsvend\dotNetMF.proj" />
+  </ItemGroup>-->
+
+  <!--<ItemGroup>
+    <DriverLibs Include="SmartFusion2_bluetooth_btpskrnl.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\btpskrnl\dotNetMF.proj" />
+  </ItemGroup>-->
 
   <!--                    Root of trust modules      -->
   
