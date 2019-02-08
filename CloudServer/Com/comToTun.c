@@ -152,7 +152,7 @@ void* ReadTunWriteCom(void *_tunfd){
         else {
             printf("TunRead: Did not read anything\n");
         }
-        usleep(1000000);
+        usleep(1000);
     }
 }
 
@@ -163,7 +163,7 @@ void* ReadComWriteTun(void *_comfd){
 
     while (comfd>=0){
          //this is a blocking call. T
-        int nread=ReadCom(comfd, comReadBuf, TUN_MTU, false);
+        int nread=ReadComPkt(comfd, comReadBuf, TUN_MTU, false);
 
         if(nread> 0){
             if(verboseMode){
@@ -177,7 +177,7 @@ void* ReadComWriteTun(void *_comfd){
         else {
             printf("ComRead: Did not read anything\n");
         }
-        usleep(500000);
+        usleep(1000);
 
     }
 }

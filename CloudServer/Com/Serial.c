@@ -109,3 +109,22 @@ ReadCom(int dev, char* buf, int buf_size, bool verbose){
 	//} while(n > 0);
 	return totalRead;
 }
+
+
+int ReadComPkt(int dev, char* buf, int buf_size, bool verbose){
+    int nread=ReadCom(dev,buf,buf_size,verbose);
+    __uint16_t pktSize = (buf[2]*256 +buf[3]);
+    if(nread==pktSize) return nread;
+    int npending=pktSize - nread;
+    int x=0;
+    printf("Read only %d, will read another %d\n", nread,npending);
+    while(npending>0){
+        x=ReadCom(dev,&buf[nread],buf_size-nread,verbose);
+        if (x>0){
+            npending -=x;
+            nread+=x;
+        }
+    }
+    return pktSize;
+}
+

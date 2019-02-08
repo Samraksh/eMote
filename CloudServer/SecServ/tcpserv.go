@@ -18,19 +18,19 @@ import (
 const COM_PORTO = "udp"
 const COM_PORT = "6001"
 
-type ClientManager struct {
-	clients    map[*Client]bool
+type TCPClientManager struct {
+	clients    map[*TCPClient]bool
 	broadcast  chan []byte
-	register   chan *Client
-	unregister chan *Client
+	register   chan *TCPClient
+	unregister chan *TCPClient
 }
 
-type Client struct {
+type TCPClient struct {
 	socket net.Conn
 	data   chan []byte
 }
 
-func (manager *ClientManager) start() {
+func (manager *TCPClientManager) start() {
 	for {
 		select {
 		case connection := <-manager.register:
@@ -55,7 +55,7 @@ func (manager *ClientManager) start() {
 	}
 }
 
-func (manager *ClientManager) receive(client *Client) {
+func (manager *TCPClientManager) receive(client *TCPClient) {
 	for {
 		message := make([]byte, 4096)
 		length, err := client.socket.Read(message)
@@ -71,7 +71,7 @@ func (manager *ClientManager) receive(client *Client) {
 	}
 }
 
-func (manager *ClientManager) send(client *Client) {
+func (manager *TCPClientManager) send(client *TCPClient) {
 	defer client.socket.Close()
 	for {
 		select {
@@ -84,17 +84,17 @@ func (manager *ClientManager) send(client *Client) {
 	}
 }
 
-func StartServerMode() {
+func StartTCPServer(string) {
 	fmt.Println("Starting server...")
 	listener, error := net.Listen("tcp", ":12345")
 	if error != nil {
 		fmt.Println(error)
 	}
-	manager := ClientManager{
-		clients:    make(map[*Client]bool),
+	manager := TCPClientManager{
+		clients:    make(map[*TCPClient]bool),
 		broadcast:  make(chan []byte),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
+		register:   make(chan *TCPClient),
+		unregister: make(chan *TCPClient),
 	}
 	go manager.start()
 	for {
@@ -102,14 +102,14 @@ func StartServerMode() {
 		if error != nil {
 			fmt.Println(error)
 		}
-		client := &Client{socket: connection, data: make(chan []byte)}
+		client := &TCPClient{socket: connection, data: make(chan []byte)}
 		manager.register <- client
 		go manager.receive(client)
 		go manager.send(client)
 	}
 }
 
-func (client *Client) receive() {
+func (client *TCPClient) receive() {
 	for {
 		message := make([]byte, 4096)
 		length, err := client.socket.Read(message)
@@ -129,7 +129,7 @@ func StartClientMode() {
 	if error != nil {
 		fmt.Println(error)
 	}
-	client := &Client{socket: connection}
+	client := &TCPClient{socket: connection}
 	go client.receive()
 	for {
 		reader := bufio.NewReader(os.Stdin)

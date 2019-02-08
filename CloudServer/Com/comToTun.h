@@ -22,7 +22,7 @@
 int OpenCom(char* devname);
 int SetComAttribs (int fd, int speed, int parity);
 void SetBlocking (int fd, int should_block);
-int ReadCom(int dev, char* buf, int buf_size, bool verbose);
+int ReadComPkt(int dev, char* buf, int buf_size, bool verbose);
 int WriteToCom(int dev, char * buf, int size);
 
 //Utils
