@@ -5,25 +5,21 @@ Author: Mukundan Sridharan
 This program acts as a bridge between a com port and a TUN interface. The TUN interface should already be setup.
 The assumption is that the COM port receives and send raw IP packets and this packets needs to be forwarded to the 
 TUN interface so that a "regular" desktop application can then process it.
-This is meant for testing IP based applications on embedded devices based on Samraksh's eMote OS. 
+This is meant for testing TCP/UDP/IP based applications on embedded devices based on Samraksh's eMote OS. 
 If you dont use IP stack on the eMote, you should not be using this program.
 */
 
-
-#include <stdio.h>
-#include <linux/if_tun.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <net/if.h>
-#include <fcntl.h>
-#include <sys/stat.h>
+#include "comToTun.h"
+#include <pthread.h>
 
 #define TUN_MTU 1500
+const bool verboseMode=true;
 
+char tunReadBuf[TUN_MTU];
+char comReadBuf[TUN_MTU];
+ int tunfd=-1;
+ int comfd=-1;
 
-char readBuffer[1500];
 
 
 //function prototypes
@@ -47,13 +43,14 @@ int OpenTunDev(char * _tunName)
     return tun_fd;
 }
 
-int ReadTun(int tun_fd, char* tun_name)
+int ReadTun(int tun_fd)
 {
     int nread;
     // Now read data coming from the kernel 
     while(1) {
         // Note that "buffer" should be at least the MTU size of the interface, eg 1500 bytes 
-        nread = read(tun_fd,readBuffer,sizeof(readBuffer));
+        memset(tunReadBuf, '\0', TUN_MTU);
+        nread = read(tun_fd,tunReadBuf,sizeof(tunReadBuf));
         if(nread < 0) {
             perror("Reading from interface");
             close(tun_fd);
@@ -62,10 +59,9 @@ int ReadTun(int tun_fd, char* tun_name)
     }
 
     // Do whatever with the data 
-    printf("Read %d bytes from device %s\n", nread, tun_name);
+    printf("Read %d bytes from port %d\n", nread, tun_fd);
     return 1;
 }
-
 
 int WriteTun(int tun_fd, char * buf, int nwrite)
 {
@@ -82,7 +78,7 @@ int WriteTun(int tun_fd, char * buf, int nwrite)
     }
 
     printf("Wrote %d bytes to Tun fd %d\n", nwrote, tun_fd);
-    return 1;
+    return nwrote;
 }
 
 
@@ -132,18 +128,97 @@ int AllocTun(char *dev, int flags)
     return fd;
 }
 
+//Blocking method, make sure to call from a thread.
+void* ReadTunWriteCom(void *_tunfd){
+    int tunfd=*(int*)_tunfd;
+    printf("tUNRead: Starting up on fd %d...\n",tunfd);
+    if(tunfd < 0){
+        printf("Couldn't access TUN port(%d).. Exiting.\n",tunfd);
+        exit(-1);
+    }
+
+    while (tunfd>=0){
+        //this is a blocking call
+        int nread=ReadTun(tunfd);
+        
+        if(nread> 0){
+            if(verboseMode){
+                printf("Tun pkt: %s", tunReadBuf);
+            }
+            if(WriteToCom(comfd, tunReadBuf, nread)!= nread){
+                printf("TunRead: Did not write everything to Com that I read from Tun...\n");
+            }
+        }
+        else {
+            printf("TunRead: Did not read anything\n");
+        }
+        usleep(1000000);
+    }
+}
+
+
+void* ReadComWriteTun(void *_comfd){
+    int comfd=*(int*)_comfd;
+    printf("ComRead: Starting up on fd %d...\n",comfd);
+
+    while (comfd>=0){
+         //this is a blocking call. T
+        int nread=ReadCom(comfd, comReadBuf, TUN_MTU, false);
+
+        if(nread> 0){
+            if(verboseMode){
+                printf("Com pkt: "); PrintMem(comReadBuf,nread);
+            }
+            if(WriteTun(tunfd, comReadBuf, nread)!= nread)
+            {
+                printf("ComRead: Did not write everything to Tun that I read from Com...\n");
+            }
+        }
+        else {
+            printf("ComRead: Did not read anything\n");
+        }
+        usleep(500000);
+
+    }
+}
+
 //main starts here
 int main(){
-    int tunfd=-1;
+   
+    pthread_t tunThreadId=-1;
+    pthread_t comThreadId=-1;
+
     char tunName[4]="tun0";
     tunfd=OpenTunDev(tunName);
+    comfd=OpenCom("/dev/ttyUSB0");
+    SetComAttribs(comfd, B115200, 0);
+	SetBlocking(comfd,1); //let com be blocking
+
+    //Sanity check, make sure both ports are open
+    if(tunfd<0 || comfd< 0){
+        printf("Couldn't open the COM Port (%d) or the TUN port(%d).. Exiting.\n",comfd,tunfd);
+        exit(-1);
+    }
+    printf("Opened both ports sucessfully, begining to bridge...\n");
+
 
     //fork a thread and read COM in it
+    int err = pthread_create(&comThreadId, NULL, &ReadComWriteTun, (void*)&comfd);
+    if(err) 
+    {
+        printf("Problem creating the COM thread\n"); exit(-1);
+    }
 
     //fork a thread and read Tun in it
-    if(tunfd){
-        ReadTun(tunfd, tunName);
-        return 0;
+    err = pthread_create(&tunThreadId, NULL, &ReadTunWriteCom, (void*)&tunfd);
+    if(err) {
+        printf("Problem creating the tun thread\n"); exit(-1);
     }
+
+   
+    //our threads never quit unless a error. So need a exception handler method.
+    pthread_join(tunThreadId, NULL);
+    pthread_join(comThreadId, NULL);
+
     return -1;
 }

@@ -5,6 +5,8 @@
 # Notepad++ backup files
 *.bak
 
+#object files
+*.o
 
 # build meta data
 MicroFrameworkPK_v4_3/CLR/Tools/BuildHelper/BuildHelper_assemblyinfo.txt

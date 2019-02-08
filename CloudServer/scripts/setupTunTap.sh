@@ -1,3 +1,7 @@
 sudo openvpn --mktun --dev tun0 
 sudo ip link set tun0 up
-sudo ip addr add 192.168.200.5/24 dev tun0
+sudo ip addr add 192.168.5.200/24 dev tun0
+sudo ip route add 192.168.5.0/24 via 192.168.5.200 dev tun0
+sudo echo 1 > /proc/sys/net/ipv4/ip_forward
+
+sudo ip route add 192.168.5.0/24 dev tun0 proto kernel scope link src 192.168.5.200

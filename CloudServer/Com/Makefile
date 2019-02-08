@@ -7,12 +7,12 @@ CFLAGS=-I$(IDIR)
 ODIR=.
 #LDIR =../lib
 
-LIBS=-lm
+LIBS=-lm -lpthread
 
 #_DEPS = hellomake.h
 #DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = comToTun.o 
+_OBJ = comToTun.o Serial.o Utils.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 
