@@ -16,8 +16,8 @@
 #ifndef __BKRNLAPIH__
 #define __BKRNLAPIH__
 
-#include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
-#include "BTTypes.h"            /* Bluetooth basic type definitions           */
+#include "..\include\BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
+#include "..\include\BTTypes.h"            /* Bluetooth basic type definitions           */
 
    /* Miscellaneous Type definitions that should already be defined,    */
    /* but are necessary.                                                */

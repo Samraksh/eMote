@@ -17,7 +17,7 @@
 #ifndef __BSCAPIH__
 #define __BSCAPIH__
 
-#include "BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
+#include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
 #include "BTTypes.h"            /* Bluetooth Type Definitions/Constants.      */

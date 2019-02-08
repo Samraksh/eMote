@@ -514,6 +514,7 @@ void HAL_Initialize()
    // Gesture_Initialize();
     //Ink_Initialize();
     TimeService_Initialize();
+	CPU_Bluetooth_Initialize();
 #endif //end IBL
 
 #if defined(ENABLE_NATIVE_PROFILER)
@@ -597,6 +598,7 @@ void HAL_Uninitialize()
 
     Events_Uninitialize();
     Time_Uninitialize();
+	CPU_Bluetooth_UnInitialize();
 
     HAL_CONTINUATION::Uninitialize();
     HAL_COMPLETION  ::Uninitialize();

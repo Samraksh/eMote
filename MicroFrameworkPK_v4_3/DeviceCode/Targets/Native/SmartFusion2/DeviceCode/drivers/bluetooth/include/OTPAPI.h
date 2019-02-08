@@ -16,7 +16,7 @@
 #ifndef __OTPAPIH__
 #define __OTPAPIH__
 
-#include "BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
+#include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
 #include "BTTypes.h"            /* Bluetooth Type Definitions/Constants.      */
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */

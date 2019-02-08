@@ -17,7 +17,7 @@
 #ifndef __L2CAPAPIH__
 #define __L2CAPAPIH__
 
-#include "BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
+#include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
 #include "L2CAPTyp.h"           /* Bluetooth L2CAP Type Definitions/Constants.*/

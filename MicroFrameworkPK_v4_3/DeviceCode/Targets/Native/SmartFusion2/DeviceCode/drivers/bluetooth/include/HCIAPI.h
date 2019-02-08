@@ -17,7 +17,7 @@
 #ifndef __HCIAPIH__
 #define __HCIAPIH__
 
-#include "BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
+#include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
 #include "HCITypes.h"           /* Bluetooth HCI Type Definitions/Constants.  */

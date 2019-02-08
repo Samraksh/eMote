@@ -15,8 +15,8 @@
 #ifndef __HCITRANSH__
 #define __HCITRANSH__
 
-#include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
-#include "HCITypes.h"           /* Bluetooth HCI Type Definitions/Constants.  */
+#include "..\include\BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
+#include "..\include\HCITypes.h"           /* Bluetooth HCI Type Definitions/Constants.  */
 
 #define HCITR_ERROR_UNABLE_TO_OPEN_TRANSPORT (-1)       /* Denotes that the   */
                                                         /* there was an error */

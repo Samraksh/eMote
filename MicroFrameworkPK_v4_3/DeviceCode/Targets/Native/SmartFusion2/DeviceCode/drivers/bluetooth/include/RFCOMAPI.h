@@ -16,7 +16,7 @@
 #ifndef __RFCOMAPIH__
 #define __RFCOMAPIH__
 
-#include "BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
+#include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
 #include "RFCOMMT.h"            /* Bluetooth RFCOMM Type Definitions.         */

@@ -16,7 +16,7 @@
 #ifndef __SDPAPIH__
 #define __SDPAPIH__
 
-#include "BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
+#include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
 #include "SDPTypes.h"           /* Bluetooth SDP Type Definitions/Constants.  */

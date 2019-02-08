@@ -19,14 +19,14 @@
 #ifndef __HCITRCFGH__
 #define __HCITRCFGH__
 
-#include "BTAPITyp.h"            /* Bluetooth API Type Definitions.           */
+#include "..\include\BTAPITyp.h"            /* Bluetooth API Type Definitions.           */
 
-#include "stm32f4xx.h"           /* STM32F register definitions.              */
-#include "stm32f4xx_gpio.h"      /* STM32F GPIO control functions.            */
-#include "stm32f4xx_usart.h"     /* STM32F USART control functions.           */
-#include "stm32f4xx_rcc.h"       /* STM32F Clock control functions.           */
-#include "stm32f4xx_exti.h"      /* STM32F Ext interrupt definitions.         */
-#include "stm32f4xx_syscfg.h"    /* STM32F system config definitions.         */
+//#include "stm32f4xx.h"           /* STM32F register definitions.              */
+//#include "stm32f4xx_gpio.h"      /* STM32F GPIO control functions.            */
+//#include "stm32f4xx_usart.h"     /* STM32F USART control functions.           */
+//#include "stm32f4xx_rcc.h"       /* STM32F Clock control functions.           */
+//#include "stm32f4xx_exti.h"      /* STM32F Ext interrupt definitions.         */
+//#include "stm32f4xx_syscfg.h"    /* STM32F system config definitions.         */
 
    /* The following definitions define the UART/USART to be used by the */
    /* HCI transport and the pins that will be used by the UART.  Please */

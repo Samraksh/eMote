@@ -18,7 +18,7 @@
 #ifndef __BTPSCFGH__
 #define __BTPSCFGH__
 
-#include "BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
+#include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
    /* Internal Timer Module Configuration.                              */
 #define BTPS_CONFIGURATION_TIMER_MAXIMUM_NUMBER_CONCURRENT_TIMERS            16

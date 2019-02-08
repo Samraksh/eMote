@@ -543,19 +543,24 @@
   <!--                    Bluetooth      -->
 
   <ItemGroup>
+    <DriverLibs Include="SmartFusion2_bluetooth.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\dotNetMF.proj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <DriverLibs Include="SmartFusion2_bluetooth_hci.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\hcitrans\dotNetMF.proj" />
   </ItemGroup>
 
-  <!--<ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="SmartFusion2_bluetooth_btpsvend.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\btpsvend\dotNetMF.proj" />
-  </ItemGroup>-->
+  </ItemGroup>
 
-  <!--<ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="SmartFusion2_bluetooth_btpskrnl.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\btpskrnl\dotNetMF.proj" />
-  </ItemGroup>-->
+  </ItemGroup>
 
   <!--                    Root of trust modules      -->
   

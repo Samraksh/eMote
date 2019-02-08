@@ -25,6 +25,9 @@
 // Gp I/O driver
 #include <CPU_GPIO_decl.h>
 
+// Bluetooth driver
+#include <CPU_Bluetooth_decl.h>
+
 // Watchdog driver
 #include <CPU_WATCHDOG_decl.h>
 

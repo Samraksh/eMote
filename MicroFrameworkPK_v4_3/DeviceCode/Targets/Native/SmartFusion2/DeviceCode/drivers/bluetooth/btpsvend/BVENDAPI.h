@@ -18,7 +18,7 @@
 #ifndef __BVENDAPIH__
 #define __BVENDAPIH__
 
-#include "SS1BTPS.h"            /* Bluetopia API Prototypes/Constants.        */
+#include "..\include\SS1BTPS.h"            /* Bluetopia API Prototypes/Constants.        */
 
    /* The following function prototype represents the vendor specific   */
    /* function which is used to implement any needed Bluetooth device   */
