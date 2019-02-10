@@ -8,7 +8,7 @@
     <Description>SmartFusion2 bluetooth btpskrnl</Description>
     <Level>HAL</Level>
     <LibraryFile>SmartFusion2_bluetooth_btpskrnl.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\drivers\bluetooth\btpskrnl</ProjectPath>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\btpskrnl</ProjectPath>
     <ManifestFile>SmartFusion2_bluetooth_btpskrnl.$(LIB_EXT).manifest</ManifestFile>
     <Groups>SmartFusion2\SmartFusion2</Groups>
     <LibraryCategory>
@@ -32,7 +32,7 @@
     <Required>False</Required>
     <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
     <IsStub>False</IsStub>
-    <Directory>Solutions\SmartFusion2\DeviceCode\drivers\bluetooth</Directory>
+    <Directory>DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\btpskrnl</Directory>
     <OutputType>Library</OutputType>
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
     <Version>4.0.0.0</Version>
@@ -42,7 +42,7 @@
   <ItemGroup>		
 	<HFiles Include="BKRNLAPI.h" />	
 	<HFiles Include="BTPSKRNL.h" />
-	<Compile Include="BTPSKRNL.cpp" />
+	<Compile Include="BTPSKRNL.c" />
 	<HFiles Include="..\btpskrnl\BTPSKRNL.h" />	
 	<HFiles Include="..\include\BaseTypes.h" />	
 	<HFiles Include="..\include\BSCAPI.h" />	

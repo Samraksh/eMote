@@ -1,12 +1,12 @@
 #include <tinyhal.h>
+extern "C" {
+#include "include\SS1BTPS.h"
+};
+
 #include "hcitrans\HCITRANS.h"
 #include "btpskrnl\BTPSKRNL.h"
 #include "include\HCICommT.h"
 #include "include\HCIAPI.h"
-
-extern "C" {
-#include "include\SS1BTPS.h"
-};
 
 #define HAL_HCI_UART_MAX_BAUD_RATE      2000000
 #define APPLICATION_ERROR_INVALID_PARAMETERS       (-1000)

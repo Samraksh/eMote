@@ -32,7 +32,7 @@
     <Required>False</Required>
     <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
     <IsStub>False</IsStub>
-    <Directory>DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer</Directory>
+    <Directory>DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth</Directory>
     <OutputType>Library</OutputType>
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
     <Version>4.0.0.0</Version>
