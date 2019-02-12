@@ -206,6 +206,7 @@ BTPSAPI_DECLARATION Boolean_t BTPSAPI HCI_VS_DisableWBS(unsigned int BluetoothSt
 #endif
 #endif /* __SUPPORT_CC256X_PATCH__ */
 
+Boolean_t BTPSAPI_ForceCompile(HCI_DriverInformation_t *HCI_DriverInformation);
 #ifdef __cplusplus 
 }
 #endif

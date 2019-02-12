@@ -179,6 +179,7 @@ int BTPSAPI HCITR_COMSuspend(unsigned int HCITransportID);
    /* if successful or a negative value if there was an error.          */
 int BTPSAPI HCITR_EnableDebugLogging(Boolean_t Enable);
 
+Boolean_t HCI_ForceCompile(HCI_DriverInformation_t *HCI_DriverInformation);
 #ifdef __cplusplus 
 }
 #endif

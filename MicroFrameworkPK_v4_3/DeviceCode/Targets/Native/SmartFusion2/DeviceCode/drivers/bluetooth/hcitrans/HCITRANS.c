@@ -864,3 +864,10 @@ int BTPSAPI HCITR_EnableDebugLogging(Boolean_t Enable)
 
    return(ret_val);
 }
+
+Boolean_t HCI_ForceCompile(HCI_DriverInformation_t *HCI_DriverInformation){
+	if (HCI_DriverInformation!=NULL)
+		return TRUE;
+	else 
+		return FALSE;
+}

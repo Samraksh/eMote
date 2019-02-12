@@ -5,6 +5,8 @@ extern "C" {
 #include "btpskrnl\BTPSKRNL.h"
 #include "include\HCICommT.h"
 #include "include\HCIAPI.h"
+#include "btpsvend\bvendapi.h"
+#include "hcitrans\HCITRANS.h"
 };
 
 #define HAL_HCI_UART_MAX_BAUD_RATE      2000000
@@ -54,6 +56,8 @@ static int OpenStack(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_Initia
 
          hal_printf(("\r\nOpenStack().\r\n"));
 
+		 HCI_ForceCompile(HCI_DriverInformation);
+		 BTPSAPI_ForceCompile(HCI_DriverInformation);
          // Initialize the Stack                                        
          Result = BSC_Initialize(HCI_DriverInformation, 0);
 /*

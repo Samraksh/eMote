@@ -20,7 +20,7 @@
 //   25/12/14  D. Horowitz    Adding ifdef for CC256X/CC256XB                 
 //****************************************************************************
 #include "..\include\SS1BTPS.h"          // Bluetopia API Prototypes/Constants.          
-#include "..\btvs\SS1BTVS.h"          // TI Vendor Specific Commands.                 
+//#include "..\btvs\SS1BTVS.h"          // TI Vendor Specific Commands.                 
 #include "..\btpskrnl\BTPSKRNL.h"         // Bluetooth Kernel Prototypes/Constants.       
 #include "BTPSVEND.h"
 
@@ -485,5 +485,13 @@ Boolean_t BTPSAPI HCI_VS_DisableFeature(unsigned int BluetoothStackID, unsigned 
 */
    return(ret_val);
 }
+
+Boolean_t BTPSAPI_ForceCompile(HCI_DriverInformation_t *HCI_DriverInformation){
+	if (HCI_DriverInformation!=NULL)
+		return TRUE;
+	else 
+		return FALSE;
+}
+
 #endif
 
