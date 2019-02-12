@@ -16,6 +16,10 @@
 #ifndef __HCITYPESH__
 #define __HCITYPESH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "BTAPITyp.h"
 #include "BTTypes.h"            /* Bluetooth Type Definitions.                */
 #include "HCICommT.h"           /* HCI COMM Driver Types/Constants.           */
@@ -8342,5 +8346,9 @@ typedef __PACKED_STRUCT_BEGIN__ struct _tagHCI_eSCO_Data_t
 #define HCI_LMP_CLASS_OF_DEVICE_MINOR_DEVICE_HEALTH_HEART_PULSE_RATE_MONITOR  0x06
 #define HCI_LMP_CLASS_OF_DEVICE_MINOR_DEVICE_HEALTH_HEALTH_DATA_DISPLAY       0x07
 #define HCI_LMP_CLASS_OF_DEVICE_MINOR_DEVICE_HEALTH_STEP_COUNTER              0x08
+
+#ifdef __cplusplus 
+}
+#endif
 
 #endif

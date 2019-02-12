@@ -16,6 +16,10 @@
 #ifndef __SDPAPIH__
 #define __SDPAPIH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
@@ -955,4 +959,8 @@ BTPSAPI_DECLARATION int BTPSAPI SDP_Connect_Request_Response(unsigned int Blueto
    typedef int (BTPSAPI *PFN_SDP_Connect_Request_Response_t)(unsigned int BluetoothStackID, BD_ADDR_t BD_ADDR);
 #endif
 
+#ifdef __cplusplus 
+}
+#endif
+   
 #endif

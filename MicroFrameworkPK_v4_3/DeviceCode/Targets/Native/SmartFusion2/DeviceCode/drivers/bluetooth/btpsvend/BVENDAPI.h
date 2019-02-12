@@ -18,6 +18,10 @@
 #ifndef __BVENDAPIH__
 #define __BVENDAPIH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\include\SS1BTPS.h"            /* Bluetopia API Prototypes/Constants.        */
 
    /* The following function prototype represents the vendor specific   */
@@ -201,4 +205,9 @@ BTPSAPI_DECLARATION Boolean_t BTPSAPI HCI_VS_DisableWBS(unsigned int BluetoothSt
    typedef Boolean_t (BTPSAPI *PFN_HCI_VS_DisableWBS_t)(unsigned int BluetoothStackID);
 #endif
 #endif /* __SUPPORT_CC256X_PATCH__ */
+
+#ifdef __cplusplus 
+}
+#endif
+   
 #endif

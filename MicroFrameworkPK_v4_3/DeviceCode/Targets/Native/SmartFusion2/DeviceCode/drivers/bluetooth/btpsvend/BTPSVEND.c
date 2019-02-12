@@ -20,7 +20,7 @@
 //   25/12/14  D. Horowitz    Adding ifdef for CC256X/CC256XB                 
 //****************************************************************************
 #include "..\include\SS1BTPS.h"          // Bluetopia API Prototypes/Constants.          
-#include "..\include\SS1BTVS.h"          // TI Vendor Specific Commands.                 
+#include "..\btvs\SS1BTVS.h"          // TI Vendor Specific Commands.                 
 #include "..\btpskrnl\BTPSKRNL.h"         // Bluetooth Kernel Prototypes/Constants.       
 #include "BTPSVEND.h"
 

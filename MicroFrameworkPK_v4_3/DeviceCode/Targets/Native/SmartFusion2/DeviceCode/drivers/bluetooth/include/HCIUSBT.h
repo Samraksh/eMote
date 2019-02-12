@@ -15,6 +15,10 @@
 #ifndef __HCIUSBTH__
 #define __HCIUSBTH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
    /* The following constants represent the Minimum, Maximum, and       */
    /* Values that are used with the Initialization Delay member of the  */
    /* HCI_USBDriverInformation_t structure.  These Delays are specified */
@@ -69,5 +73,9 @@ typedef struct _tagHCI_USBDriverInformation_t
    /* * NOTE * The underlying driver may not support changing all of    */
    /*          specified parameters.                                    */
 #define HCI_USB_DRIVER_RECONFIGURE_DATA_COMMAND_CHANGE_PARAMETERS  (HCI_DRIVER_RECONFIGURE_DATA_RECONFIGURE_COMMAND_TRANSPORT_START)
+
+#ifdef __cplusplus 
+}
+#endif
 
 #endif

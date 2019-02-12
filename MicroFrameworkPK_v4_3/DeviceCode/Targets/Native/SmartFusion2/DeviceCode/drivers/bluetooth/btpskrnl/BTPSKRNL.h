@@ -16,6 +16,10 @@
 #ifndef __BTPSKRNLH__
 #define __BTPSKRNLH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "BKRNLAPI.h"           /* Bluetooth Kernel Prototypes/Constants.     */
 
    /* The following constant represents the Minimum Amount of Time      */
@@ -82,5 +86,10 @@ int BTPSAPI BTPS_QueryMemoryUsage(BTPS_MemoryStatistics_t *MemoryStatistics, Boo
 #endif
 
 #include "BKRNLAPI.h"           /* Bluetooth Kernel Prototypes/Constants.     */
+
+#ifdef __cplusplus 
+}
+#endif
+   
 
 #endif

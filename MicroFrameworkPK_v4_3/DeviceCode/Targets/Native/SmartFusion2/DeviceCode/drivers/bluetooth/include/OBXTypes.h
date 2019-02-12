@@ -16,6 +16,10 @@
 #ifndef __OBXTYPESH__
 #define __OBXTYPESH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "BTTypes.h"            /* Bluetooth Type Definitions.                */
 
    /* Supported version of OBEX that these types support.               */
@@ -316,5 +320,9 @@ typedef __PACKED_STRUCT_BEGIN__ struct _tagOBEX_Realm_t
    /* The following constant represents the maximum size (in bytes) of  */
    /* the User ID value for the Digest Response User ID Tag.            */
 #define OBEX_DIGEST_RESPONSE_TAG_USER_ID_MAXIMUM_SIZE                   0x14
+
+#ifdef __cplusplus 
+}
+#endif
 
 #endif

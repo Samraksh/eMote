@@ -15,6 +15,10 @@
 #ifndef __SDPTYPESH__
 #define __SDPTYPESH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "BTTypes.h"            /* Bluetooth Type Definitions.                */
 
    /* The following Constants represent the defined Bluetooth SDP       */
@@ -1132,5 +1136,9 @@ typedef __PACKED_STRUCT_BEGIN__ struct _tagSDP_Service_Search_Attribute_Response
    /* and the Continuation State Information that is part of the SDP    */
    /* Service Search Attribute Response Packet.                         */
 #define SDP_SERVICE_SEARCH_ATTRIBUTE_RESPONSE_SIZE(_x)          (sizeof(SDP_Service_Search_Attribute_Response_t) - sizeof(Byte_t) + (unsigned int)(_x))
+
+#ifdef __cplusplus 
+}
+#endif
 
 #endif

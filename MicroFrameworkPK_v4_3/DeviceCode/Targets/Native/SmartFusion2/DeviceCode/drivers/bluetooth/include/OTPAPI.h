@@ -16,6 +16,10 @@
 #ifndef __OTPAPIH__
 #define __OTPAPIH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
 #include "BTTypes.h"            /* Bluetooth Type Definitions/Constants.      */
@@ -1557,4 +1561,8 @@ BTPSAPI_DECLARATION int BTPSAPI OTP_Set_Server_Connection_Mode(unsigned int Blue
    typedef int (BTPSAPI *PFN_OTP_Set_Server_Connection_Mode_t)(unsigned int BluetoothStackID, unsigned int OTP_ID, SPP_Server_Connection_Mode_t ServerConnectionMode);
 #endif
 
+#ifdef __cplusplus 
+}
+#endif
+   
 #endif

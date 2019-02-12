@@ -18,6 +18,10 @@
 #ifndef __BTPSCFGH__
 #define __BTPSCFGH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
    /* Internal Timer Module Configuration.                              */
@@ -385,5 +389,8 @@
    /* TPS Configuration.                                                */
 #define BTPS_CONFIGURATION_TPS_MAXIMUM_SUPPORTED_INSTANCES                1
 
+#ifdef __cplusplus 
+}
+#endif
 
 #endif

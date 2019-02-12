@@ -17,6 +17,10 @@
 #ifndef __HCIAPIH__
 #define __HCIAPIH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
@@ -5219,4 +5223,8 @@ BTPSAPI_DECLARATION int BTPSAPI HCI_LE_Test_End(unsigned int BluetoothStackID, B
    typedef int (BTPSAPI *PFN_HCI_LE_Test_End_t)(unsigned int BluetoothStackID, Byte_t *StatusResult, Word_t *Number_Of_PacketsResult);
 #endif
 
+#ifdef __cplusplus 
+}
+#endif
+   
 #endif

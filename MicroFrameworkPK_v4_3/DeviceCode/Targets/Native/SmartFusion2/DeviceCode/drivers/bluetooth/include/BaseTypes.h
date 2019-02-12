@@ -19,6 +19,10 @@
 #ifndef __BASETYPESH__
 #define __BASETYPESH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
    /* Miscellaneous defined type declarations.                          */
 
    /* Simply BOOLEAN type.                                              */
@@ -391,5 +395,9 @@ typedef __PACKED_STRUCT_BEGIN__ struct _tagNonAlignedSQWord_t  /* Unaligned Sign
    /*          Endian-ness of the second parameter will be maintained   */
    /*          into the Memory Address of the first parameter.          */
 #define READ_UNALIGNED_GENERIC_TYPE(_x)         (*(_x))
+
+#ifdef __cplusplus 
+}
+#endif
 
 #endif

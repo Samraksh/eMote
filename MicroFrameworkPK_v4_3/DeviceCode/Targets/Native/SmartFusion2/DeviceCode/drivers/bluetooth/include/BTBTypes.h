@@ -20,6 +20,10 @@
 #ifndef __BTBTYPESH__
 #define __BTBTYPESH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
    /* The following type declaration represents the structure of a      */
    /* single Bluetooth Board Address.                                   */
 typedef __PACKED_STRUCT_BEGIN__ struct _tagBD_ADDR_t
@@ -2079,5 +2083,9 @@ typedef __PACKED_STRUCT_BEGIN__ struct _tagLE_States_t
    /* This MACRO returns a boolean result as the test result.           */
 #define TEST_LE_STATES_BIT(_x, _y)   \
    (((Byte_t *)&(_x))[(_y)/(sizeof(Byte_t)*8)] & (Byte_t)(1 << ((_y)%(sizeof(Byte_t)*8))))
+
+#ifdef __cplusplus 
+}
+#endif
 
 #endif

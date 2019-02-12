@@ -16,6 +16,10 @@
 #ifndef __SS1BTPSH__
 #define __SS1BTPSH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
 #include "BTTypes.h"            /* Bluetooth Type Definitions/Constants.      */
 
@@ -34,4 +38,8 @@
 
 #include "BTPSVER.h"            /* Bluetooth Stack Version Constants.         */
 
+#ifdef __cplusplus 
+}
+#endif
+	
 #endif

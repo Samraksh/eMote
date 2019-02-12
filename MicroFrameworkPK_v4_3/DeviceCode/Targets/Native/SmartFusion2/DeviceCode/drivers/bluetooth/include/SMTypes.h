@@ -15,6 +15,10 @@
 #ifndef __SMTYPESH__
 #define __SMTYPESH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "BTTypes.h"             /* Bluetooth Type Definitions.               */
 #include "L2CAPTyp.h"            /* Bluetooth L2CAP Type Definitions.         */
 
@@ -363,5 +367,9 @@ typedef __PACKED_STRUCT_BEGIN__ struct _tagSM_MAC_t
 } __PACKED_STRUCT_END__ SM_MAC_t;
 
 #define SM_MAC_DATA_SIZE                                                (sizeof(SM_MAC_t))
+
+#ifdef __cplusplus 
+}
+#endif
 
 #endif

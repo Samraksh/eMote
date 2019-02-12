@@ -15,6 +15,10 @@
 #ifndef __HCIDRVH__
 #define __HCIDRVH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
 #include "HCITypes.h"           /* Generic Bluetooth HCI Types/Constants.     */
 
@@ -391,4 +395,8 @@ BTPSAPI_DECLARATION int BTPSAPI HCI_RegisterDebugPacketCallback(unsigned int HCI
    typedef int (BTPSAPI *PFN_HCI_RegisterDebugPacketCallback_t)(unsigned int HCIDriverID, HCI_DebugPacketCallback_t HCI_DebugPacketCallback, unsigned long CallbackParameter);
 #endif
 
+#ifdef __cplusplus 
+}
+#endif
+   
 #endif

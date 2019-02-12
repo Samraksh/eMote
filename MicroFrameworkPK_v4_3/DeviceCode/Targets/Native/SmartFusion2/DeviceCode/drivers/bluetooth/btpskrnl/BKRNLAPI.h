@@ -16,6 +16,10 @@
 #ifndef __BKRNLAPIH__
 #define __BKRNLAPIH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\include\BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
 #include "..\include\BTTypes.h"            /* Bluetooth basic type definitions           */
 
@@ -466,4 +470,8 @@ BTPSAPI_DECLARATION int BTPSAPI BTPS_DumpData(unsigned int DataLength, BTPSCONST
    typedef int (BTPSAPI *PFN_BTPS_DumpData_t)(unsigned int DataLength, BTPSCONST unsigned char *DataPtr);
 #endif
 
+#ifdef __cplusplus 
+}
+#endif
+   
 #endif

@@ -15,6 +15,10 @@
 #ifndef __BTERRORSH__
 #define __BTERRORSH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #define BTPS_ERROR_INVALID_PARAMETER                             (-1)
 #define BTPS_ERROR_INVALID_BLUETOOTH_STACK_ID                    (-2)
 #define BTPS_ERROR_STACK_INITIALIZATION_ERROR                    (-3)
@@ -148,4 +152,8 @@
    /* Code.                                                             */
 #define CONVERT_ERROR_CODE_TO_HCI_STATUS_CODE(_x)               ((Byte_t)(-((_x) - BTPS_ERROR_CODE_HCI_STATUS_BASE)))
 
+#ifdef __cplusplus 
+}
+#endif
+	
 #endif

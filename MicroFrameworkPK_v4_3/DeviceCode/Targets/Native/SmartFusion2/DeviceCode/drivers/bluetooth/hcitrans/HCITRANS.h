@@ -15,6 +15,10 @@
 #ifndef __HCITRANSH__
 #define __HCITRANSH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\include\BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
 #include "..\include\HCITypes.h"           /* Bluetooth HCI Type Definitions/Constants.  */
 
@@ -174,5 +178,9 @@ int BTPSAPI HCITR_COMSuspend(unsigned int HCITransportID);
    /* which indicates if debugging should be enabled.  It returns zero  */
    /* if successful or a negative value if there was an error.          */
 int BTPSAPI HCITR_EnableDebugLogging(Boolean_t Enable);
+
+#ifdef __cplusplus 
+}
+#endif
 
 #endif

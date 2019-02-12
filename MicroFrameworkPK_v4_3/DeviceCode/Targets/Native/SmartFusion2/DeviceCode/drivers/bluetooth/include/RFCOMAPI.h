@@ -16,6 +16,10 @@
 #ifndef __RFCOMAPIH__
 #define __RFCOMAPIH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
@@ -966,4 +970,8 @@ BTPSAPI_DECLARATION int BTPSAPI RFCOMM_Query_Server_Channel_Present(unsigned int
    typedef int (BTPSAPI *PFN_RFCOMM_Query_Server_Channel_Present_t)(unsigned int BluetoothStackID, Byte_t Channel, Boolean_t *ServerChannelPresent);
 #endif
 
+#ifdef __cplusplus 
+}
+#endif
+   
 #endif

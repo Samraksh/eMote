@@ -16,6 +16,10 @@
 #ifndef __GOEPAPIH__
 #define __GOEPAPIH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
@@ -897,4 +901,8 @@ BTPSAPI_DECLARATION int BTPSAPI GOEP_Generate_Digest_Nonce(unsigned int PreDelim
    typedef int (BTPSAPI *PFN_GOEP_Generate_Digest_Nonce_t)(unsigned int PreDelimeterLength, Byte_t *PreDelimeterData, unsigned int PostDelimeterLength, Byte_t *PostDelimeterData, OBEX_Nonce_t *OutputNonce);
 #endif
 
+#ifdef __cplusplus 
+}
+#endif
+   
 #endif

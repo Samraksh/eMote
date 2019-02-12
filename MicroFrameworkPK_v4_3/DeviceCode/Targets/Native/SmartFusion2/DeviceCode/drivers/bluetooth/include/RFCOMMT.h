@@ -15,6 +15,10 @@
 #ifndef __RFCOMMTH__
 #define __RFCOMMTH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "BTTypes.h"
 #include "L2CAPTyp.h"
 
@@ -357,5 +361,10 @@ typedef __PACKED_STRUCT_BEGIN__ struct _tagRFCOMM_RPN_Message_Data_t
 } __PACKED_STRUCT_END__ RFCOMM_RPN_Message_Data_t;
 
 #define RFCOMM_RPN_MESSAGE_DATA_SIZE                    (sizeof(RFCOMM_RPN_Message_Data_t))
+
+#ifdef __cplusplus 
+}
+#endif
+
 
 #endif

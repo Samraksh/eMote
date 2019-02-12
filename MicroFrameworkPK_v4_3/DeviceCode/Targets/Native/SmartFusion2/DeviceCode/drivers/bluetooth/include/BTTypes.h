@@ -15,6 +15,10 @@
 #ifndef __BTTYPESH__
 #define __BTTYPESH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
    /* Miscellaneous defined type declarations.                          */
 
    /* Definitions for compilers that required structure to be explicitly*/
@@ -37,6 +41,9 @@
 
 #include "BaseTypes.h"
 #include "BTBTypes.h"
+#ifdef __cplusplus 
+}
+#endif
 
 #undef __BTTYPESH_INC__
 

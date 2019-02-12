@@ -18,6 +18,10 @@
 #define __BTPSVER_H__
 
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 /* Bluetooth Protocol Stack Core Support .                      */
 #define BTPS_VERSION_MAJOR_CORE_SUPPORT                         4
 
@@ -63,4 +67,8 @@
 
 #define BTPS_VERSION_COPYRIGHT_STRING                       "Copyright (C) 2014 Texas Instruments"
 
+#ifdef __cplusplus 
+}
+#endif
+	
 #endif

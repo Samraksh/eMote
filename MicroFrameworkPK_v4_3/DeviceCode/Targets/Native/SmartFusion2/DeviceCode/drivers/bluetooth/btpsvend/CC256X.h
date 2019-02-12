@@ -20,6 +20,10 @@
 #ifndef _CC256X_H_
 #define _CC256X_H_
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\include\BTTypes.h"
 
    /* *********************************************************************** */
@@ -1187,5 +1191,10 @@ static BTPSCONST unsigned char Patch[] =
 #endif
 
 };
+
+#ifdef __cplusplus 
+}
+#endif
+
 
 #endif

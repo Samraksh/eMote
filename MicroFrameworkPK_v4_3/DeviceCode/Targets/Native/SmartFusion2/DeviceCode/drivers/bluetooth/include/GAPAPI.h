@@ -19,6 +19,10 @@
 #ifndef __GAPAPIH__
 #define __GAPAPIH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "HCITypes.h"           /* HCI Related Type Definitions.              */
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
 #include "BTTypes.h"            /* Bluetooth Type Definitions/Constants.      */
@@ -3099,4 +3103,8 @@ BTPSAPI_DECLARATION int BTPSAPI GAP_LE_Update_Connection_Parameters(unsigned int
    typedef int (BTPSAPI *PFN_GAP_LE_Update_Connection_Parameters_t)(unsigned int BluetoothStackID, BD_ADDR_t BD_ADDR, GAP_LE_Connection_Parameters_t *ConnectionParameters);
 #endif
 
+#ifdef __cplusplus 
+}
+#endif
+   
 #endif

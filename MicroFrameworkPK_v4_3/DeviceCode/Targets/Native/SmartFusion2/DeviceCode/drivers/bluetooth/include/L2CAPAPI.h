@@ -17,6 +17,10 @@
 #ifndef __L2CAPAPIH__
 #define __L2CAPAPIH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
@@ -1567,4 +1571,8 @@ BTPSAPI_DECLARATION int BTPSAPI L2CA_Set_Channel_Queue_Threshold(unsigned int Bl
    typedef int (BTPSAPI *PFN_L2CA_Set_Channel_Queue_Threshold_t)(unsigned int BluetoothStackID, L2CA_Channel_Queue_Threshold_t *L2CA_Channel_Queue_Threshold);
 #endif
 
+#ifdef __cplusplus 
+}
+#endif
+   
 #endif

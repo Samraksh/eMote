@@ -1,11 +1,9 @@
-/*****< btpsvend.h >***********************************************************/
-/*      Copyright 2009 - 2014 Stonestreet One.                                */
+/*****< ss1btvs.h >************************************************************/
+/*      Copyright 2011 - 2014 Stonestreet One.                                */
 /*      All Rights Reserved.                                                  */
 /*                                                                            */
-/*  BTPSVEND - Vendor specific functions/definitions/constants used to define */
-/*             a set of vendor specific functions supported by the Bluetopia  */
-/*             Protocol Stack.  These functions may be unique to a given      */
-/*             hardware platform.                                             */
+/*  BTVS - Bluetooth Vendor Specific extensions (Texas Instruments) Library   */
+/*         Library Type Definitions, Prototypes, and Constants.               */
 /*                                                                            */
 /*  Author:  Damon Lange                                                      */
 /*                                                                            */
@@ -13,20 +11,27 @@
 /*                                                                            */
 /*   mm/dd/yy  F. Lastname    Description of Modification                     */
 /*   --------  -----------    ------------------------------------------------*/
-/*   06/09/09  D. Lange       Initial creation.                               */
+/*   05/20/11  D. Lange       Initial creation.                               */
 /******************************************************************************/
-#ifndef __BTPSVENDH__
-#define __BTPSVENDH__
+#ifndef __SS1BTVSH__
+#define __SS1BTVSH__
 
-#ifdef __cplusplus 
-extern "C" {
+  /* If building with a C++ compiler, make all of the definitions in    */
+  /* this header have a C binding.                                      */
+#ifdef __cplusplus
+
+extern "C"
+{
+
 #endif
 
-#include "BVENDAPI.h"           /* BTPS Vendor Specific Prototypes/Constants. */
+#include "BTVSAPI.h"                  /* Vendor Specific API Prototypes.      */
 
-#ifdef __cplusplus 
+   /* Mark the end of the C bindings section for C++ compilers.         */
+#ifdef __cplusplus
+
 }
+
 #endif
-	
 
 #endif

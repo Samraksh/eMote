@@ -45,35 +45,6 @@
 	<HFiles Include="BTPSVEND.h" />
 	<HFiles Include="BVENDAPI.h" />
 	<Compile Include="BTPSVEND.c" />
-	<HFiles Include="..\btpskrnl\BTPSKRNL.h" />	
-	<HFiles Include="..\include\BaseTypes.h" />	
-	<HFiles Include="..\include\BSCAPI.h" />	
-	<HFiles Include="..\include\BTAPITyp.h" />	
-	<HFiles Include="..\include\BTBTypes.h" />	
-	<HFiles Include="..\include\BTErrors.h" />	
-	<HFiles Include="..\include\BTPSCFG.h" />	
-	<HFiles Include="..\include\BTPSVER.h" />	
-	<HFiles Include="..\include\BTTypes.h" />	
-	<HFiles Include="..\include\GAPAPI.h" />	
-	<HFiles Include="..\include\GOEPAPI.h" />	
-	<HFiles Include="..\include\HCIAPI.h" />	
-	<HFiles Include="..\include\HCICommT.h" />	
-	<HFiles Include="..\include\HCIDRV.h" />	
-	<HFiles Include="..\include\HCITypes.h" />	
-	<HFiles Include="..\include\HCIUSBT.h" />	
-	<HFiles Include="..\include\L2CAPAPI.h" />	
-	<HFiles Include="..\include\L2CAPTyp.h" />	
-	<HFiles Include="..\include\OBXTypes.h" />	
-	<HFiles Include="..\include\OTPAPI.h" />	
-	<HFiles Include="..\include\PLATVER.h" />	
-	<HFiles Include="..\include\RFCOMAPI.h" />	
-	<HFiles Include="..\include\RFCOMMT.h" />	
-	<HFiles Include="..\include\SCOAPI.h" />	
-	<HFiles Include="..\include\SDPAPI.h" />	
-	<HFiles Include="..\include\SDPTypes.h" />	
-	<HFiles Include="..\include\SMTypes.h" />	
-	<HFiles Include="..\include\SPPAPI.h" />	
-	<HFiles Include="..\include\SS1BTPS.h" />	
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

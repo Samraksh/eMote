@@ -17,6 +17,10 @@
 #ifndef __BSCAPIH__
 #define __BSCAPIH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
@@ -718,4 +722,8 @@ BTPSAPI_DECLARATION void BTPSAPI BSC_FreeGenericListEntryList(void **ListHead, u
    typedef void (BTPSAPI *PFN_BSC_FreeGenericListEntryList_t)(void **ListHead, unsigned int ListEntryNextPointerOffset);
 #endif
 
+#ifdef __cplusplus 
+}
+#endif
+   
 #endif

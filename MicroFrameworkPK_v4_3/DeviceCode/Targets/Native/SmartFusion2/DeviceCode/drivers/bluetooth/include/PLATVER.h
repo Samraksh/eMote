@@ -16,6 +16,10 @@
 #ifndef __PLATVER_H__
 #define __PLATVER_H__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
  /* Customer Major Version Release Numbers.                     		*/
 #ifndef PLATFORM_MAJOR_VERSION_NUMBER
     #define PLATFORM_MAJOR_VERSION_NUMBER                  			1
@@ -40,4 +44,8 @@
 
 #define PLATFORM_VERSION_STRING                        				PLATFORM_VERSION_CONSTANT_TO_STRING(PLATFORM_MAJOR_VERSION_NUMBER) "." PLATFORM_VERSION_CONSTANT_TO_STRING(PLATFORM_MINOR_VERSION_NUMBER)
 
+#ifdef __cplusplus 
+}
+#endif
+	
 #endif

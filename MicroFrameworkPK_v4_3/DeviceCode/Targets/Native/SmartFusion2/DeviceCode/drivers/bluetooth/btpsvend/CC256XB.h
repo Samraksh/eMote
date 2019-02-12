@@ -23,6 +23,10 @@
 #ifndef _CC256XB_H_
 #define _CC256XB_H_
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\include\bttypes.h"
 
    /* *********************************************************************** */
@@ -4613,6 +4617,10 @@ static BTPSCONST unsigned char AvprPatch[] =
 };
 
 static BTPSCONST unsigned int AvprPatchLength = sizeof(AvprPatch);
+
+#ifdef __cplusplus 
+}
+#endif
 
 
 #endif

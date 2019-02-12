@@ -17,6 +17,10 @@
 #ifndef __SCOAPIH__
 #define __SCOAPIH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\btpskrnl\BTPSKRNL.h"           /* BTPS Kernel Prototypes/Constants.          */
 
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
@@ -956,4 +960,8 @@ BTPSAPI_DECLARATION int BTPSAPI SCO_Set_Physical_Transport(unsigned int Bluetoot
    typedef int (BTPSAPI *PFN_SCO_Set_Physical_Transport_t)(unsigned int BluetoothStackID, SCO_Physical_Transport_t PhysicalTransport);
 #endif
 
+#ifdef __cplusplus 
+}
+#endif
+   
 #endif

@@ -16,6 +16,10 @@
 #ifndef __SPPAPIH__
 #define __SPPAPIH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\btpskrnl\BTPSKRNL.h"          /* BTPS Kernel Prototypes/Constants.           */
 
 #include "BTAPITyp.h"          /* Bluetooth API Type Definitions.             */
@@ -1074,4 +1078,8 @@ BTPSAPI_DECLARATION int BTPSAPI SPP_Query_Server_Present(unsigned int BluetoothS
    typedef int (BTPSAPI *PFN_SPP_Query_Server_Present_t)(unsigned int BluetoothStackID, unsigned int ServerPort, Boolean_t *ServerPresent);
 #endif
 
+#ifdef __cplusplus 
+}
+#endif
+   
 #endif

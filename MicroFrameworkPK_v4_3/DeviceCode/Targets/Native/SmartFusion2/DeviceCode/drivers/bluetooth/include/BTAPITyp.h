@@ -15,6 +15,10 @@
 #ifndef __BTPSAPITH__
 #define __BTPSAPITH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
    /* The following definition defines the API Calling Convention for   */
    /* ALL the exported Bluetoth API Functions.                          */
 #ifndef BTPSAPI
@@ -56,4 +60,8 @@
 
 #endif
 
+#ifdef __cplusplus 
+}
+#endif
+	
 #endif

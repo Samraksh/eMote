@@ -15,6 +15,10 @@
 #ifndef __L2CAPTYPH__
 #define __L2CAPTYPH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "BTTypes.h"            /* Bluetooth Type Definitions.                */
 
    /* The following Constants represent the defined Bluetooth L2CAP     */
@@ -949,5 +953,9 @@ typedef __PACKED_STRUCT_BEGIN__ struct _tagL2CAP_C_Frame_Packet_t
    /* the Packet.  The first parameter to this MACRO is the size (in    */
    /* Bytes) of the Payload that is to be part of the Packet.           */
 #define L2CAP_C_FRAME_PACKET_SIZE(_x)                   (sizeof(L2CAP_Data_Packet_Header_t) + L2CAP_C_PACKET_SIZE(_x))
+
+#ifdef __cplusplus 
+}
+#endif
 
 #endif

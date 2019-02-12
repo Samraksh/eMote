@@ -15,6 +15,10 @@
 #ifndef __HCICOMMTH__
 #define __HCICOMMTH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "BTAPITyp.h"           /* Bluetooth API Type Definitions.            */
 #include "BTTypes.h"            /* Bluetooth Type Definitions/Constants.      */
 
@@ -465,5 +469,9 @@ typedef struct _tagHCI_SIBSConfiguration_t
    /* Sleep protocol.                                                   */
 #define HCI_SIBS_MINIMUM_RETRANSMIT_TIME                 10
 #define HCI_SIBS_MAXIMUM_RETRANSMIT_TIME                 1000
+
+#ifdef __cplusplus 
+}
+#endif
 
 #endif

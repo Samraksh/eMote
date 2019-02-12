@@ -19,6 +19,10 @@
 #ifndef __HCITRCFGH__
 #define __HCITRCFGH__
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #include "..\include\BTAPITyp.h"            /* Bluetooth API Type Definitions.           */
 
 //#include "stm32f4xx.h"           /* STM32F register definitions.              */
@@ -179,5 +183,9 @@
 
 #endif
 
+#ifdef __cplusplus 
+}
+#endif
+	
 #endif
 

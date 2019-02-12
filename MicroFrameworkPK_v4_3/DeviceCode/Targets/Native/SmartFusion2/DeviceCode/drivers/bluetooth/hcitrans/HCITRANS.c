@@ -106,7 +106,7 @@ static UartContext_t              UartContext;
 static int                        HCITransportOpen        = 0;
 */
    // Local Function Prototypes.                                        
-static void SetBaudRate(USART_TypeDef *UartBase, unsigned int BaudRate);
+/*static void SetBaudRate(USART_TypeDef *UartBase, unsigned int BaudRate);
 static void ConfigureGPIO(GPIO_TypeDef *Port, unsigned int Pin, GPIOMode_TypeDef Mode);
 static void SetSuspendGPIO(Boolean_t Suspend);
 static void TxInterrupt(void);
@@ -118,7 +118,7 @@ static void RxInterrupt(void);
    // libraries.                                                        
 static void SetBaudRate(USART_TypeDef *UartBase, unsigned int BaudRate)
 {
-   /*RCC_ClocksTypeDef RCC_ClocksStatus;
+   RCC_ClocksTypeDef RCC_ClocksStatus;
    unsigned int      SourceFrequency;
    unsigned int      Divider;
    unsigned int      TempDiv;
@@ -169,7 +169,7 @@ static void SetBaudRate(USART_TypeDef *UartBase, unsigned int BaudRate)
    }
 
    UartBase->BRR = Divider;
-   UartBase->CR1 |= USART_CR1_UE;*/
+   UartBase->CR1 |= USART_CR1_UE;
 }
 
    // The following function is a utility function to set the           
@@ -177,7 +177,7 @@ static void SetBaudRate(USART_TypeDef *UartBase, unsigned int BaudRate)
    // parameters the GPIO port, pin and mode of operation.              
 static void ConfigureGPIO(GPIO_TypeDef *Port, unsigned int Pin, GPIOMode_TypeDef Mode)
 {
-  /* GPIO_InitTypeDef GpioConfiguration;
+   GPIO_InitTypeDef GpioConfiguration;
 
    // Setup the configuration structure.                                
    GpioConfiguration.GPIO_Pin   = 1 << Pin;
@@ -187,7 +187,7 @@ static void ConfigureGPIO(GPIO_TypeDef *Port, unsigned int Pin, GPIOMode_TypeDef
    GpioConfiguration.GPIO_PuPd  = GPIO_PuPd_NOPULL;
 
    // Configure the GPIO.                                               
-   GPIO_Init(Port, &GpioConfiguration);*/
+   GPIO_Init(Port, &GpioConfiguration);
 }
 
    // The following function is responsible for setting the CTS and RTS 
@@ -196,7 +196,7 @@ static void ConfigureGPIO(GPIO_TypeDef *Port, unsigned int Pin, GPIOMode_TypeDef
    // suspend mode (TRUE) or not-suspended mode (FALSE).                
 static void SetSuspendGPIO(Boolean_t Suspend)
 {
-/*#if (defined(USE_SOFTWARE_CTS_RTS) || defined(SUPPORT_TRANSPORT_SUSPEND))
+#if (defined(USE_SOFTWARE_CTS_RTS) || defined(SUPPORT_TRANSPORT_SUSPEND))
 
 #ifndef USE_SOFTWARE_CTS_RTS
 
@@ -247,7 +247,7 @@ static void SetSuspendGPIO(Boolean_t Suspend)
 
    }
 
-#endif*/
+#endif
 }
 
    // The following function is the FIFO Primer and Interrupt Service   
@@ -256,7 +256,7 @@ static void TxInterrupt(void)
 {
    // Continue to transmit characters as long as there is data in the   
    // buffer and the transmit fifo is empty.                            
-/*   while((UartContext.TxBytesFree != OUTPUT_BUFFER_SIZE) && (HCITR_UART_BASE->SR & USART_FLAG_TXE))
+   while((UartContext.TxBytesFree != OUTPUT_BUFFER_SIZE) && (HCITR_UART_BASE->SR & USART_FLAG_TXE))
    {
 
 #ifdef USE_SOFTWARE_CTS_RTS
@@ -284,7 +284,7 @@ static void TxInterrupt(void)
    // If there are no more bytes in the queue then disable the transmit 
    // interrupt.                                                        
    if(UartContext.TxBytesFree == OUTPUT_BUFFER_SIZE)
-      USART_ITConfig(HCITR_UART_BASE, USART_IT_TXE, DISABLE);*/
+      USART_ITConfig(HCITR_UART_BASE, USART_IT_TXE, DISABLE);
 }
 
    // The following function is the Interrupt Service Routine for the   
@@ -293,7 +293,7 @@ static void RxInterrupt(void)
 {
    // Continue reading data from the fifo until it is empty or the      
    // buffer is full.                                                   
-/*   while((UartContext.RxBytesFree) && (HCITR_UART_BASE->SR & (USART_FLAG_RXNE | USART_FLAG_ORE)))
+   while((UartContext.RxBytesFree) && (HCITR_UART_BASE->SR & (USART_FLAG_RXNE | USART_FLAG_ORE)))
    {
       if(HCITR_UART_BASE->SR & USART_FLAG_ORE)
          DBG_MSG(DBG_ZONE_GENERAL, ("Receive Overflow\r\n"));
@@ -331,13 +331,13 @@ static void RxInterrupt(void)
    {
       // Indicate the suspend is interrupted.                           
       UartContext.SuspendState = hssSuspendWaitInterrupted;
-   }*/
+   }
 }
 
    // The following is the ISR for the UART.                            
 void HCITR_UART_IRQ_HANDLER(void)
 {
-/*   unsigned int Flags;
+   unsigned int Flags;
    unsigned int Control;
 
    Flags   = HCITR_UART_BASE->SR;
@@ -351,7 +351,7 @@ void HCITR_UART_IRQ_HANDLER(void)
       // Check to see if the transmit buffers are ready for more data.  
       if((Flags & USART_FLAG_TXE) && (Control & (1 << (USART_IT_TXE & 0x1F))))
          TxInterrupt();
-   }*/
+   }
 }
 
 #if (defined(USE_SOFTWARE_CTS_RTS) || defined(SUPPORT_TRANSPORT_SUSPEND))
@@ -361,7 +361,7 @@ void HCITR_UART_IRQ_HANDLER(void)
    // enabled when the flow control line is low.                        
 void HCITR_CTS_IRQ_HANDLER(void)
 {
-/*   if(UartContext.SuspendState == hssSuspended)
+   if(UartContext.SuspendState == hssSuspended)
    {
       // Resume the UART.                                               
       EnableUartPeriphClock();
@@ -381,10 +381,10 @@ void HCITR_CTS_IRQ_HANDLER(void)
    if(UartContext.TxBytesFree != OUTPUT_BUFFER_SIZE)
       USART_ITConfig(HCITR_UART_BASE, USART_IT_TXE, ENABLE);
 
-   EXTI_ClearFlag(CTS_ExtIntConfiguration.EXTI_Line);*/
+   EXTI_ClearFlag(CTS_ExtIntConfiguration.EXTI_Line);
 }
 
-#endif
+#endif*/
 
    // The following function is responsible for opening the HCI         
    // Transport layer that will be used by Bluetopia to send and receive
