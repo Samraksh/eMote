@@ -238,6 +238,22 @@ HAL_USART_STATE Hal_Usart_State[TOTAL_USART_PORT];
 #endif
 
 
+void LetNetIFHigherUpKnow(int ComPortNum, HAL_USART_STATE &State){
+#if defined(EMOTE_COM_NETIF)
+	UINT8 * palBuf;
+	if(ComPortNum == COM_NETIF){
+		size_t nChar= State.ManagedRxQueue.NumberOfElements();
+		if (nChar >=3){
+			palBuf=State.ManagedRxQueue.Storage();
+			UINT16 pktSize = (palBuf[2]*256 +palBuf[3]);
+			if(nChar>=pktSize) {
+				 USART_Driver::SetEvent( ComPortNum, USART_EVENT_DATA_NETIF );
+			}
+		}
+	}
+#endif
+}
+
 BOOL USART_IsComPortInitialized( int ComPortNum){
 	HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
 	return IS_USART_INITIALIZED(State);
@@ -528,6 +544,8 @@ int USART_Driver::ManagedRead( int ComPortNum, char* Data, size_t size ){
         }
 	}
 #endif
+
+
     return CharsRead;
 }
 
@@ -828,7 +846,6 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
 		if( State.ManagedRxQueue.NumberOfElements() < State.RxBufferHighWaterMark )
 		{
 			Dst = State.ManagedRxQueue.Push();
-
         	if(Dst)
         	{
         	    *Dst = c;        	    
@@ -836,7 +853,6 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
         	else
         	{
             	SetEvent( ComPortNum, USART_EVENT_ERROR_RXOVER );
-
             	return FALSE;
         	}
 		}
@@ -845,8 +861,11 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
     SetEvent( ComPortNum, USART_EVENT_DATA_CHARS );
     Events_Set( SYSTEM_EVENT_FLAG_COM_IN );
 
+    LetNetIFHigherUpKnow(ComPortNum,State);
+
     return TRUE;
 }
+
 
 BOOL USART_Driver::RemoveCharFromTxBuffer( int ComPortNum, char& c )
 {

@@ -123,7 +123,7 @@ static UINT8 s_receiveRetries = 10;
 //Signal from usart driver that a Net packet has arrived.
 void pfnUsartEventHandler (void* context, unsigned int event){
 	COM_LWIP_DRIVER_CONFIG  *g_COM_driver_Config = (COM_LWIP_DRIVER_CONFIG*)context;
-	com_lwip_recv(NULL);
+	com_lwip_recv(g_COM_LWIP_Config.DeviceConfigs[0].pnetif);
 }
 
 //Recv interrupt hanlder at the lwip task level
@@ -189,7 +189,8 @@ bool com_lwip_setup_device( struct netif *pNetIF )
 
     //com_lwip_setup_recv_buffer( pNetIF, comPort );
     //Nothing to be done here.
-    USART_ConnectEventSink( comPort,USART_EVENT_TYPE_DATA,  (void*)pUsartRcvContext, &pfnUsartEventHandler, NULL );
+    //USART_ConnectEventSink( comPort,USART_EVENT_TYPE_DATA,  (void*)pUsartRcvContext, &pfnUsartEventHandler, NULL );
+    USART_ConnectEventSink( comPort,USART_EVENT_DATA_NETIF,  (void*)pUsartRcvContext, &pfnUsartEventHandler, NULL );
 
     /* ---------------------------------------------------------------------------------------------------- */
     /*                                          SETUP RECEIVE FILTER                                       */
@@ -206,6 +207,7 @@ bool com_lwip_setup_device( struct netif *pNetIF )
 
     //s_COM_TRANSMIT_BUFFER_START = COM_TRANSMIT_BUFFER_START;
     //s_COM_RECEIVE_BUFFER_START  = COM_RECEIVE_BUFFER_START;
+    g_COM_LWIP_Config.DeviceConfigs[0].pnetif= pNetIF;
 
     return TRUE;
 }

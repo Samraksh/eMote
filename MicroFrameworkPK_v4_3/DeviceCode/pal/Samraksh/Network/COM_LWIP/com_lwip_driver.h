@@ -30,6 +30,7 @@ struct COM_LWIP_DRIVER_CONFIG
     //SPI_CONFIGURATION   SPI_Config;
     int             comPort;
     COM_NetIf_Status ifStatus;
+    struct netif* pnetif;
 };
 
 
