@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"flag"
 	"strings"
 )
@@ -28,9 +29,10 @@ func StartClientMode(mode string) {
 func main() {
 	flagMode := flag.String("mode", "server", "start in client or server mode")
 	flag.Parse()
-	if strings.ToLower(*flagMode) == "server" {
-		StartServerMode("udp")
-	} else {
+	if strings.ToLower(*flagMode) == "client" {
 		StartClientMode("udp")
+	} else {
+		fmt.Println("Starting udp server..")
+		StartServerMode("udp")
 	}
 }

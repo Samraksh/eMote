@@ -96,8 +96,10 @@ int AllocTun(char *dev, int flags)
     * int flags: interface flags (eg, IFF_TUN etc.)
     */
 
+    
     // open the clone device 
     if( (fd = open(clonedev, O_RDWR)) < 0 ) {
+        perror("Unable to open clonedev: ");
         return fd;
     }
 
@@ -110,11 +112,13 @@ int AllocTun(char *dev, int flags)
         * the kernel will try to allocate the "next" device of the
         * specified type */
         strncpy(ifr.ifr_name, dev, IFNAMSIZ);
+        printf("Opening device %s\n",ifr.ifr_name);
     }
 
     // try to create the device 
     if( (err = ioctl(fd, TUNSETIFF, (void *) &ifr)) < 0 ) {
         close(fd);
+        perror("ioctl error on interfce: ");
         return err;
     }
 
@@ -234,7 +238,8 @@ int main(int argc, char **argv){
     pthread_t tunThreadId=-1;
     pthread_t comThreadId=-1;
 
-    char tunName[4]="tun0";
+    char tunName[5]="tun0";
+    tunName[4]='\0';
     tunfd=OpenTunDev(tunName);
     comfd=OpenCom(deviceName);
     SetComAttribs(comfd, B115200, 0);

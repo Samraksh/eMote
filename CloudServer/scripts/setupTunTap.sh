@@ -1,4 +1,5 @@
-sudo openvpn --mktun --dev tun0 --persist-tun 
+#sudo openvpn --mktun --dev tun0 --persist-tun --user sridhara --group netdev 
+sudo openvpn --mktun --dev tun0 --user sridhara --group netdev 
 sudo ip link set tun0 up
 sudo ip addr add 192.168.5.200/24 dev tun0
 #sudo ip route add 192.168.5.0/24 via 192.168.5.200 dev tun0
