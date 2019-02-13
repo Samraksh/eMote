@@ -5,12 +5,22 @@ import (
 	"strings"
 )
 
+const COM_PORTO = "udp"
+const COM_PORT = 6001
 
-func StartServerMode(string mode) {
+func StartServerMode(mode string) {
 	if mode == "tcp" {
-		StartTCPServer()
+		StartTCPServer(COM_PORT)
 	} else {
-		StartUSPServer()
+		StartUDPServer(COM_PORT)
+	}
+}
+
+func StartClientMode(mode string) {
+	if mode == "tcp" {
+		StartTCPClient(COM_PORT)
+	} else {
+		StartUDPClient(COM_PORT)
 	}
 }
 
@@ -21,6 +31,6 @@ func main() {
 	if strings.ToLower(*flagMode) == "server" {
 		StartServerMode("udp")
 	} else {
-		StartClientMode()
+		StartClientMode("udp")
 	}
 }

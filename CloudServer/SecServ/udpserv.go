@@ -1,43 +1,31 @@
 package main
 
 import (
-	"bufio"
+	//"bufio"
 	"fmt"
 	"net"
-	"os"
-	"strings"
+	"strconv"
+	//"os"
+	//"strings"
+	"encoding/binary"
 )
 
+/*
 type UDPManager struct {
-	/*clients    map[*UDPClient]bool
-	broadcast  chan []byte
-	register   chan *UDPClient
-	unregister chan *UDPClient*/
+	//clients    map[*UDPClient]bool
+	//broadcast  chan []byte
+	//register   chan *UDPClient
+	//unregister chan *UDPClient
 	conn net.PacketConn
 	data   chan []byte
 }
-/*
-type UDPClient struct {
-	socket net.PacketConn
-	data   chan []byte
-}*/
 
 
-func (manager *UDPManager) createMsg (int msgid, int msglen) ([]byte)  {
-	sendmsg := make([]byte,msglen)
-	x:=10+1
-	return sendmsg
-}
-
-func (manager *UDPManager) parseMsg (byte[] data) int {
-	x:=10
-	return x
-}
 
 func (manager *UDPManager) udpreceive() {
 	for {
 		message := make([]byte, 4096)
-		length, addr, err := conn.ReadFrom(message)
+		length, addr, err := manager.conn.ReadFrom(message)
 		if err != nil {
 			//manager.unregister <- client
 			//conn.Close()
@@ -46,30 +34,31 @@ func (manager *UDPManager) udpreceive() {
 		if length > 0 {
 			fmt.Println("RECEIVED: " + string(message))
 			//manager.broadcast <- message
-			int msgid = 10
-			int msglen = length
+			//msgid := 10
+			//msglen := length
 			//parseMsg(message)
-			createMsg(10, length)
+			manager.createMsg(10, length)
+			manager.udpsend(addr);
 		}
 	}
 }
 
-func (manager *UDPManager) udpsend() {
-	defer client.socket.Close()
+func (manager *UDPManager) udpsend(destAddr net.Addr) {
+	//defer manager..Close()
 	for {
 		select {
-		case message, ok := <-client.data:
+		case message, ok := <-manager.data:
 			if !ok {
 				return
 			}
-			client.socket.Write(message)
+			manager.conn.WriteTo(message,destAddr)
 		}
 	}
 }
 
 
-func StartUDPServer(int port) {
-	fmt.Println("Starting UDPserver...")
+func StartUDPServer(port int) {
+	fmt.Println("Starting UDPserver...on port ",port)
 	pc, error := net.ListenPacket("udp", ":"+ strconv.Itoa(port) )
 	if error != nil {
 		fmt.Println(error)
@@ -80,14 +69,49 @@ func StartUDPServer(int port) {
 	}
 	//go manager.start()
 	for {
-		/*connection, _ := listener.Accept()
-		if error != nil {
-			fmt.Println(error)
-		}
-		client := &Client{socket: connection, data: make(chan []byte)}
-		manager.register <- client
-		*/
 		go manager.udpreceive()
 		//go manager.send(client)
 	}
+}
+*/
+
+
+
+func createMsg (msgid, msglen int) ([]byte)  {
+	sendmsg := make([]byte,msglen)
+	sendmsg=[]byte("Hello Client: "+strconv.Itoa(msgid+1))
+	//sendmsg+= 
+	return sendmsg
+}
+
+func parseMsg (data []byte) int {
+	var bInt = data[:13]
+	//var pInt []int
+	//pInt :=&data[13]
+	x := binary.BigEndian.Uint32(bInt)
+	//x:= strconv.Atoi(string(bInt))
+	return int(x)
+}
+
+
+func StartUDPServer(port int) {
+	ServerConn, _ := net.ListenUDP("udp", &net.UDPAddr{IP:[]byte{0,0,0,0},Port:port,Zone:""})
+  	defer ServerConn.Close()
+	buf := make([]byte, 1024)
+	for {
+		n, addr, _ := ServerConn.ReadFromUDP(buf)
+		fmt.Println("Received ", string(buf[0:n]), " from ", addr)
+
+		msgid := parseMsg(buf[0:n]);
+		_msg := createMsg(msgid,n)
+		ServerConn.WriteToUDP(_msg,addr)
+	}
+}
+
+func StartUDPClient(port int) {
+	fmt.Println("Starting UDP client to connect on port: ", port)
+	Conn, _ := net.DialUDP("udp", nil, &net.UDPAddr{IP:[]byte{127,0,0,1},Port:port,Zone:""})
+	defer Conn.Close()
+	Conn.Write([]byte("hello"))
+	fmt.Println("Done..")
 }

@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"strconv"
 )
 
 //reference
@@ -14,9 +15,6 @@ import (
 
 //udp server
 //http://www.minaandrawos.com/2016/05/14/udp-vs-tcp-in-golang/
-
-const COM_PORTO = "udp"
-const COM_PORT = "6001"
 
 type TCPClientManager struct {
 	clients    map[*TCPClient]bool
@@ -84,9 +82,9 @@ func (manager *TCPClientManager) send(client *TCPClient) {
 	}
 }
 
-func StartTCPServer(string) {
+func StartTCPServer(port int) {
 	fmt.Println("Starting server...")
-	listener, error := net.Listen("tcp", ":12345")
+	listener, error := net.Listen("tcp", ":"+ strconv.Itoa(port) )
 	if error != nil {
 		fmt.Println(error)
 	}
@@ -123,9 +121,9 @@ func (client *TCPClient) receive() {
 	}
 }
 
-func StartClientMode() {
+func StartTCPClient(port int) {
 	fmt.Println("Starting client...")
-	connection, error := net.Dial(COM_PORTO, "localhost:"+COM_PORT)
+	connection, error := net.Dial("tcp", "localhost:"+ strconv.Itoa(port))
 	if error != nil {
 		fmt.Println(error)
 	}

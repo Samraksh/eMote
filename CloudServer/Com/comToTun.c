@@ -11,6 +11,7 @@ If you dont use IP stack on the eMote, you should not be using this program.
 
 #include "comToTun.h"
 #include <pthread.h>
+#include <string.h>
 
 #define TUN_MTU 1500
 const bool verboseMode=true;
@@ -47,20 +48,20 @@ int ReadTun(int tun_fd)
 {
     int nread;
     // Now read data coming from the kernel 
-    while(1) {
-        // Note that "buffer" should be at least the MTU size of the interface, eg 1500 bytes 
-        memset(tunReadBuf, '\0', TUN_MTU);
-        nread = read(tun_fd,tunReadBuf,sizeof(tunReadBuf));
-        if(nread < 0) {
-            perror("Reading from interface");
-            close(tun_fd);
-            exit(1);
-        }
+    
+    // Note that "buffer" should be at least the MTU size of the interface, eg 1500 bytes 
+    memset(tunReadBuf, '\0', TUN_MTU);
+    printf("reading from device %d\n",tun_fd);
+    nread = read(tun_fd,tunReadBuf,sizeof(tunReadBuf));
+    if(nread < 0) {
+        perror("Reading from interface");
+        close(tun_fd);
+        exit(1);
     }
 
     // Do whatever with the data 
     printf("Read %d bytes from port %d\n", nread, tun_fd);
-    return 1;
+    return nread;
 }
 
 int WriteTun(int tun_fd, char * buf, int nwrite)
@@ -143,7 +144,7 @@ void* ReadTunWriteCom(void *_tunfd){
         
         if(nread> 0){
             if(verboseMode){
-                printf("Tun pkt: %s", tunReadBuf);
+                printf("Tun pkt: ");PrintMem(tunReadBuf, nread);
             }
             if(WriteToCom(comfd, tunReadBuf, nread)!= nread){
                 printf("TunRead: Did not write everything to Com that I read from Tun...\n");
@@ -182,15 +183,60 @@ void* ReadComWriteTun(void *_comfd){
     }
 }
 
+
+void Usage(){
+	printf("Usage: ./comToTun DeviceName \n\n");
+	printf("\tDevice Name: eg. ttyUSB0. /dev will be prepended to it\n");
+	/*printf("\t StartupDelay: Number of seconds to wait before starting sampling\n");
+	printf("\tRunTime unit is secs. A value of -1 will run for ever.\n");
+	printf("\tVerbose: (0 or 1) prints on screen (optional parameter)\n\n");
+	printf("\tOutPutFile is the name of the file to store sampled data\n");
+    */
+}
+
+//bool ParseArgs(int argc, char** argv, string* devname, int *startupDelay, int *runTime, string *filename, bool *verbose){
+bool ParseArgs(int argc, char** argv, char* devname){
+	/*if(argc<4){
+		printf("Error: Not enough arguments.");
+		Usage(); exit(-1);
+	}*/
+    if(argc >= 2){
+	    strcpy(devname,argv[1]);
+    }else {
+        strcpy(devname,"ttyUSB0");
+    }
+	//*startupDelay=atoi(argv[2]);
+	//*runTime=atoi(argv[3]);
+	printf("Received arguments : %d \n",argc);
+	
+	/*if(argc >= 5){
+		*verbose=bool(atoi(argv[4]));
+		printf("Read verbose :  %d\n" , *verbose);
+	}
+	
+	if(argc==6){
+		*filename=argv[5];
+	}else {
+		*filename= string(*devname).append("_").append(GetDateString()).append(".det");
+	}*/
+
+	return true;
+}
+
 //main starts here
-int main(){
+int main(int argc, char **argv){
    
+    char deviceName[16]="/dev/";
+    char tmpName[16];
+    ParseArgs(argc, argv, tmpName);
+    strcat(deviceName,tmpName);
+
     pthread_t tunThreadId=-1;
     pthread_t comThreadId=-1;
 
     char tunName[4]="tun0";
     tunfd=OpenTunDev(tunName);
-    comfd=OpenCom("/dev/ttyUSB0");
+    comfd=OpenCom(deviceName);
     SetComAttribs(comfd, B115200, 0);
 	SetBlocking(comfd,1); //let com be blocking
 
