@@ -486,6 +486,7 @@ Boolean_t BTPSAPI HCI_VS_DisableFeature(unsigned int BluetoothStackID, unsigned 
    return(ret_val);
 }
 
+// this force compile function allows this file to be linked in properly, otherwise the linker can't find functions the bluetooth library needs
 Boolean_t BTPSAPI_ForceCompile(HCI_DriverInformation_t *HCI_DriverInformation){
 	if (HCI_DriverInformation!=NULL)
 		return TRUE;

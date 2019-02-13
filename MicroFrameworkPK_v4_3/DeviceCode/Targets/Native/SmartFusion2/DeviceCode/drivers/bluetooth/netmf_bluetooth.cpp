@@ -56,6 +56,7 @@ static int OpenStack(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_Initia
 
          hal_printf(("\r\nOpenStack().\r\n"));
 
+		 // these two force compile functions allow their files to be linked in properly, otherwise the linker can't find functions the bluetooth library needs
 		 HCI_ForceCompile(HCI_DriverInformation);
 		 BTPSAPI_ForceCompile(HCI_DriverInformation);
          // Initialize the Stack                                        
@@ -346,7 +347,7 @@ DeviceStatus CPU_Bluetooth_Initialize( )
    	//BTPS_Initialization.GetTickCountCallback  = HAL_Time_CurrentTicks;
    	BTPS_Initialization.MessageOutputCallback = Bluetooth_MessageOutputCallback;
 
-	hal_printf("init app\r\n");
+	hal_printf("init Bluetooth\r\n");
 	// Initialize the application.                                       
    if((Result = InitializeApplication(&HCI_DriverInformation, &BTPS_Initialization)) > 0)
    {

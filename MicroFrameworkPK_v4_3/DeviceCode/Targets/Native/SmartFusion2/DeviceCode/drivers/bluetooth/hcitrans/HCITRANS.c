@@ -865,6 +865,7 @@ int BTPSAPI HCITR_EnableDebugLogging(Boolean_t Enable)
    return(ret_val);
 }
 
+// this force compile function allows this file to be linked in properly, otherwise the linker can't find functions the bluetooth library needs
 Boolean_t HCI_ForceCompile(HCI_DriverInformation_t *HCI_DriverInformation){
 	if (HCI_DriverInformation!=NULL)
 		return TRUE;
