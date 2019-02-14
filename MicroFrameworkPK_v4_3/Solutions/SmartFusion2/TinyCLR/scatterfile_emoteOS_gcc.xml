@@ -21,20 +21,26 @@
         <!-- The M2S010 has  devices have 256 KB of flash starting at 0x60000000 -->
 		<!-- The M2S090 has  devices have 512 KB of flash starting at 0x60000000 -->
         <!-- THIS MUST MATCH THE BLOCK STORAGE DRIVER! -->
-        <!-- Regular build: -->
+		<!-- Regular build: -->
+
+		<!-- this needs to match bl_config.cpp -->
         <Set Name="Config_BaseAddress"  Value="0x6007F000"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
         <Set Name="Config_Size"         Value="0x00001000"/><!--        Config_Size MUST MATCH TINYBOOTER SCATTERFILE -->
         <!--<Set Name="Code_BaseAddress"    Value="0x6000F000"/>
 		<Set Name="Code_BaseAddress_Mirror"    Value="0x0000F000"/>
 		-->
-        <Set Name="Deploy_BaseAddress"  Value="0x6006E000"/>
+
+		<!-- this needs to match bl_config.cpp -->
+        <Set Name="Deploy_BaseAddress"  Value="0x60076000"/>
         <!-- <Set Name="Code_Size"           Value="%Deploy_BaseAddress - Code_BaseAddress%"/> --> 
-        
+
+		<!-- this needs to match bl_config.cpp -->
         <Set Name="RoT_BaseAddress"    Value="0x6000F000"/>
         <Set Name="RoT_BaseAddress_Mirror"    Value="0x0000F000"/>
         
         <!-- The below for parameters are important, will have to be adjusted based on compilation output, if a section overflows -->
-        <Set Name="RoT_Code_Size"           Value="0x1C00"/> <!-- 30KB -->
+		<!-- RoT_Code_Size must be large enough to include RoT code (ROT_LR_FLASH) *AND* ROT_ER_RAM_RW, KERNEL_ER_RAM_RW, RUNTIME_ER_RAM_RW. All of the *_RAM_RW are placed after the ROT_LR_FLASH-->
+        <Set Name="RoT_Code_Size"           Value="0x1D00"/> <!-- 30KB -->
 		<Set Name="Kernel_Code_Size"           Value="0xBC00"/> 
         
         <!-- <Set Name="RoT_RAM_Base" 			Value="%Stack_Top% + 8"/> -->

@@ -562,6 +562,11 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\btpskrnl\dotNetMF.proj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <DriverLibs Include="SmartFusion2_bluetooth_gap_profile.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\profiles\gaps\dotNetMF.proj" />
+  </ItemGroup>
+
   <!--                    Root of trust modules      -->
   
   <ItemGroup>

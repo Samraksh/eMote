@@ -20,7 +20,7 @@ const BlockRange SF2_CM3_BlockRange_InternalFlash[] =
 	    { BlockRange::BLOCKTYPE_BOOTSTRAP       ,0, 27 },  // 28 blocks, 56K for IBL,     address 0x0000_0000
 		{ BlockRange::BLOCKTYPE_STORAGE_A       ,28,29 },  // 2 blocks for Compute Processor binary, address 0x0000_E000
 	    { BlockRange::BLOCKTYPE_CODE            ,30,219 },  //173 blocks, 389k for CLR,        address 0x0000_F000
-	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,220,253 },  // 34 blocks, 69k for Deployment, address 0x06_E000
+	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,236,253 },  // 34 blocks, 36k for Deployment, address 0x07_6000
 	    { BlockRange::BLOCKTYPE_CONFIG          ,254,255 }   //  2 blocks,   4K for Config,     address 0x07_F000
 	    //Flash ends at address 0x07_FFFF
 };
