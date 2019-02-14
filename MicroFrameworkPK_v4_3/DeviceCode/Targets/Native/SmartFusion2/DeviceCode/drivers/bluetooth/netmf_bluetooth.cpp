@@ -501,9 +501,9 @@ static void BTPSAPI GAP_Event_Callback(unsigned int BluetoothStackID, GAP_Event_
 
                   // Check the result of the submitted command.         
                   if(!Result)
-                     hal_printf("GAP_Authentication_Response");
+                     hal_printf("GAP_Authentication_Response\r\n");
                   else
-                     hal_printf("GAP_Authentication_Response %d", Result);
+                     hal_printf("GAP_Authentication_Response %d\r\n", Result);
                   break;
                case atPINCodeRequest:
                   // A pin code request event occurred, first display   
@@ -589,9 +589,9 @@ static void BTPSAPI GAP_Event_Callback(unsigned int BluetoothStackID, GAP_Event_
                   // Check the result of the submitted command.         
                   // Check the result of the submitted command.         
                   if(!Result)
-                     hal_printf("Auth");
+                     hal_printf("Auth\r\n");
                   else
-                     hal_printf("Auth %d", Result);
+                     hal_printf("Auth %d\r\n", Result);
                   break;
                case atIOCapabilityResponse:
                   BD_ADDRToStr(GAP_Event_Data->Event_Data.GAP_Authentication_Event_Data->Remote_Device, Callback_BoardStr);
@@ -624,9 +624,9 @@ static void BTPSAPI GAP_Event_Callback(unsigned int BluetoothStackID, GAP_Event_
                      Result = GAP_Authentication_Response(BluetoothStackID, GAP_Event_Data->Event_Data.GAP_Authentication_Event_Data->Remote_Device, &GAP_Authentication_Information);
 
                      if(!Result)
-                        hal_printf("GAP_Authentication_Response");
+                        hal_printf("GAP_Authentication_Response\r\n");
                      else
-                        hal_printf("GAP_Authentication_Response %d", Result);
+                        hal_printf("GAP_Authentication_Response %d\r\n", Result);
 
                      // Flag that there is no longer a current          
                      // Authentication procedure in progress.           
@@ -668,9 +668,9 @@ static void BTPSAPI GAP_Event_Callback(unsigned int BluetoothStackID, GAP_Event_
                   Result = GAP_Authentication_Response(BluetoothStackID, GAP_Event_Data->Event_Data.GAP_Authentication_Event_Data->Remote_Device, &GAP_Authentication_Information);
 
                   if(!Result)
-                     hal_printf("GAP_Authentication_Response");
+                     hal_printf("GAP_Authentication_Response\r\n");
                   else
-                     hal_printf("GAP_Authentication_Response %d", Result);
+                     hal_printf("GAP_Authentication_Response %d\r\n", Result);
                   break;
                case atPasskeyNotification:
                   BD_ADDRToStr(GAP_Event_Data->Event_Data.GAP_Authentication_Event_Data->Remote_Device, Callback_BoardStr);
@@ -1351,7 +1351,7 @@ static int SetConnect(void)
       {
          // An error occurred while trying to make the Device           
          // Connectable.                                                
-         hal_printf("Bluetooth Set Connectability Mode %d", ret_val);
+         hal_printf("Bluetooth Set Connectability Mode error %d\r\n", ret_val);
       }
    }
    else
@@ -1393,7 +1393,7 @@ static int SetDisc(void)
       {
          // An error occurred while trying to set the Discoverability   
          // Mode of the Device.                                         
-         hal_printf("Set Discoverable Mode", ret_val);
+         hal_printf("Set Discoverable Mode\r\n", ret_val);
       }
    }
    else
@@ -1456,7 +1456,7 @@ static int SetPairable(void)
                {
                   // An error occurred while trying to execute this     
                   // function.                                          
-                  hal_printf("GAP_LE_Register_Remote_Authentication %d", Result);
+                  hal_printf("GAP_LE_Register_Remote_Authentication %d\r\n", Result);
 
                   ret_val = Result;
                }
@@ -1465,7 +1465,7 @@ static int SetPairable(void)
             {
                // An error occurred while trying to make the device     
                // pairable.                                             
-               hal_printf("GAP_LE_Set_Pairability_Mode %d", Result);
+               hal_printf("GAP_LE_Set_Pairability_Mode %d\r\n", Result);
 
                ret_val = Result;
             }
@@ -1473,7 +1473,7 @@ static int SetPairable(void)
          else
          {
             // An error occurred while trying to execute this function. 
-            hal_printf("GAP_Register_Remote_Authentication %d", Result);
+            hal_printf("GAP_Register_Remote_Authentication %d\r\n", Result);
 
             ret_val = Result;
          }
@@ -1481,7 +1481,7 @@ static int SetPairable(void)
       else
       {
          // An error occurred while trying to make the device pairable. 
-         hal_printf("GAP_Set_Pairability_Mode %d", Result);
+         hal_printf("GAP_Set_Pairability_Mode %d\r\n", Result);
 
          ret_val = Result;
       }
@@ -1510,7 +1510,7 @@ int InitializeApplication(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_I
       {
          // First, attempt to set the Device to be Connectable.         
          ret_val = SetConnect();
-
+		 hal_printf("SetConnect ret: %d\r\n", ret_val);
          // Next, check to see if the Device was successfully made      
          // Connectable.                                                
          if(!ret_val)
@@ -1543,13 +1543,13 @@ int InitializeApplication(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_I
                   }
                }
                else
-                  hal_printf("BT: SetPairable %d", ret_val);
+                  hal_printf("BT: SetPairable %d\r\n", ret_val);
             }
             else
-               hal_printf("BT: SetDisc %d", ret_val);
+               hal_printf("BT: SetDisc %d\r\n", ret_val);
          }
          else
-            hal_printf("BT: SetDisc %d", ret_val);
+            hal_printf("BT: SetDisc %d\r\n", ret_val);
 
          // In some error occurred then close the stack.                
          if(ret_val < 0)
@@ -1668,5 +1668,6 @@ BOOL CPU_Bluetooth_UnInitialize()
 	
 	return result;
 }
+
 
 

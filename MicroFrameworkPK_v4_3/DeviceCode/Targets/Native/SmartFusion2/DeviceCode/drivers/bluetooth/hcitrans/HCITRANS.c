@@ -17,6 +17,8 @@
 #include "HCITRANS.h"       // HCI Transport Prototypes/Constants.            
 #include "HCITRCFG.h"       // HCI Transport configuration.                   
 
+#include "..\c_code_calling_cpp.h"
+
 #define INPUT_BUFFER_SIZE        1056
 #define OUTPUT_BUFFER_SIZE       1056
 
@@ -401,6 +403,7 @@ void HCITR_CTS_IRQ_HANDLER(void)
 int BTPSAPI HCITR_COMOpen(HCI_COMMDriverInformation_t *COMMDriverInformation, HCITR_COMDataCallback_t COMDataCallback, unsigned long CallbackParameter)
 {
    int ret_val;
+   debugBT_printf("*** incomplete *** hcitr_comOpen\r\n");
 
    // First, make sure that the port is not already open and make sure  
    // that valid COMM Driver Information was specified.                 
@@ -513,6 +516,7 @@ int BTPSAPI HCITR_COMOpen(HCI_COMMDriverInformation_t *COMMDriverInformation, HC
    //          length and data buffer (respectively).                   
 void BTPSAPI HCITR_COMClose(unsigned int HCITransportID)
 {
+	debugBT_printf("*** incomplete *** hcitr_comClos\r\n");
 /*   HCITR_COMDataCallback_t COMDataCallback;
 
 #if (defined(SUPPORT_TRANSPORT_SUSPEND) || defined(USE_SOFTWARE_CTS_RTS))
@@ -575,6 +579,7 @@ void BTPSAPI HCITR_COMClose(unsigned int HCITransportID)
    //          the HCI_COMClose() function.                             
 void BTPSAPI HCITR_COMReconfigure(unsigned int HCITransportID, HCI_Driver_Reconfigure_Data_t *DriverReconfigureData)
 {
+	debugBT_printf("*** incomplete *** hcitr_comRec\r\n");
 /*   HCI_COMMReconfigureInformation_t *ReconfigureInformation;
 
    // Check to make sure that the specified Transport ID is valid.      
@@ -602,6 +607,7 @@ void BTPSAPI HCITR_COMReconfigure(unsigned int HCITransportID, HCI_Driver_Reconf
    //          stacks that are operating in threaded environments.      
 void BTPSAPI HCITR_COMProcess(unsigned int HCITransportID)
 {
+	debugBT_printf("*** incomplete *** hcitr_comProcs\r\n");
 /*   unsigned int MaxLength;
    unsigned int TotalLength;
 
@@ -693,6 +699,7 @@ int BTPSAPI HCITR_COMWrite(unsigned int HCITransportID, unsigned int Length, uns
    int ret_val;
    int Count;
    int BytesFree;
+   debugBT_printf("*** incomplete *** hcitr_comWrite\r\n");
 /*
 #ifdef HCITR_ENABLE_DEBUG_LOGGING
 
@@ -792,6 +799,7 @@ int BTPSAPI HCITR_COMWrite(unsigned int HCITransportID, unsigned int Length, uns
 int BTPSAPI HCITR_COMSuspend(unsigned int HCITransportID)
 {
    int ret_val;
+   debugBT_printf("*** incomplete *** hcitr_comSusp\r\n");
 /*
 #ifdef SUPPORT_TRANSPORT_SUSPEND
 
@@ -850,6 +858,7 @@ int BTPSAPI HCITR_EnableDebugLogging(Boolean_t Enable)
 {
    int ret_val;
 
+   debugBT_printf("*** incomplete *** hcitr_edl\r\n");
 /*#ifdef HCITR_ENABLE_DEBUG_LOGGING
 
    UartContext.DebugEnabled = Enable;

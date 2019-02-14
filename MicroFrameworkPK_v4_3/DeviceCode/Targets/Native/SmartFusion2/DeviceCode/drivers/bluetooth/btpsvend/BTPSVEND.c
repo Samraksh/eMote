@@ -24,6 +24,7 @@
 #include "..\btpskrnl\BTPSKRNL.h"         // Bluetooth Kernel Prototypes/Constants.       
 #include "BTPSVEND.h"
 
+#include "..\c_code_calling_cpp.h"
 
     // Add this define to use CC256X									
 #ifdef __SUPPORT_CC256X_PATCH__
@@ -64,6 +65,7 @@ static Boolean_t DownloadPatch(unsigned int BluetoothStackID, unsigned int Patch
    unsigned short OCF;
    Boolean_t      ret_val;
    unsigned char  Buffer[128];
+   debugBT_printf("*** incomplete *** DownloadPatch\r\n");
 /*
    // First, make sure the input parameters appear to be semi-valid.    
    if((BluetoothStackID) && (PatchPointer))
@@ -122,6 +124,7 @@ static Boolean_t DownloadPatch(unsigned int BluetoothStackID, unsigned int Patch
    //          at the time this function is called.                     
 Boolean_t BTPSAPI HCI_VS_InitializeBeforeHCIOpen(HCI_DriverInformation_t *HCI_DriverInformation)
 {
+	debugBT_printf("*** incomplete *** HCI_VS_InitiBeforeHCIOpen\r\n");
    // Flag that we have not issued the first Vendor Specific Commands   
    // before the first reset.                                           
   /* VendorCommandsIssued = FALSE;
@@ -192,6 +195,7 @@ Boolean_t BTPSAPI HCI_VS_InitializeBeforeHCIReset(unsigned int HCIDriverID, unsi
 Boolean_t BTPSAPI HCI_VS_InitializeAfterHCIReset(unsigned int HCIDriverID, unsigned int BluetoothStackID)
 {
    Boolean_t                        ret_val;
+   debugBT_printf("*** incomplete *** hci_vs_init_afterHCIReset\r\n");
    /*HCI_Driver_Reconfigure_Data_t    DriverReconfigureData;
    HCI_COMMReconfigureInformation_t COMMReconfigureInformation;
 
@@ -283,7 +287,7 @@ Boolean_t BTPSAPI HCI_VS_InitializeAfterHCIReset(unsigned int HCIDriverID, unsig
 Boolean_t BTPSAPI HCI_VS_InitializeBeforeHCIClose(unsigned int HCIDriverID, unsigned int BluetoothStackID)
 {
    Boolean_t ret_val;
-
+debugBT_printf("*** incomplete *** hci_vs_initBeforeHCIClose\r\n");
   /* if((SpecifiedProtocol == cpHCILL) || (SpecifiedProtocol == cpHCILL_RTS_CTS))
    {
       // Disable HCILL.                                                 
@@ -350,6 +354,7 @@ Boolean_t BTPSAPI HCI_VS_EnableFeature(unsigned int BluetoothStackID, unsigned l
    int            Result;
    Boolean_t      ret_val = FALSE;
    unsigned long  FeatureMask;
+   debugBT_printf("*** incomplete *** hci_enableFeature\r\n");
 /*
    // First, make sure that we have a semi-valid Bluetooth Stack ID.    
    if(BluetoothStackID)
@@ -430,6 +435,7 @@ Boolean_t BTPSAPI HCI_VS_DisableFeature(unsigned int BluetoothStackID, unsigned 
    int            Result;
    Boolean_t      ret_val;
    unsigned long  FeatureMask;  
+   debugBT_printf("*** incomplete *** hci_vs_disableF\r\n");
 /*
    // First, make sure that we have a semi-valid Bluetooth Stack ID.    
    if(BluetoothStackID)

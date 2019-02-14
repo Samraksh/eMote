@@ -40,6 +40,8 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
+	<HFiles Include="c_code_calling_cpp.h" />
+	<Compile Include="c_code_calling_cpp.cpp" />
 	<Compile Include="netmf_bluetooth.cpp" />
   </ItemGroup>
   <ItemGroup />

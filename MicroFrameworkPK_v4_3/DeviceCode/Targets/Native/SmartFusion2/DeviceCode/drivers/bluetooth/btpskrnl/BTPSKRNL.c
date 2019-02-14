@@ -13,12 +13,14 @@
 //   --------  -----------    ------------------------------------------------
 //   11/08/12  M. Funk        Initial creation.                               
 //****************************************************************************
-#include <string.h>
-#include <stdarg.h>
-#include <stdio.h>
+//#include <string.h>
+//#include <stdarg.h>
+//#include <stdio.h>
 
 #include "BTPSKRNL.h"         // BTPS Kernel Prototypes/Constants.            
-#include "..\include\BTTypes.h"          // BTPS internal data types.                    
+#include "..\include\BTTypes.h"          // BTPS internal data types.           
+
+#include "..\c_code_calling_cpp.h"
 
 //#include "stm32f4xx_rcc.h"    // STM32F Clock control functions.              
 
@@ -168,6 +170,7 @@ void SysTick_Handler(void);
    // The function takes no parameters and returns no status.           
 static void HeapInit(void *Heap, unsigned long Size)
 {
+	//debugBT_printf("*** incomplete *** heapInit\r\n");
    /*HeapInfo_t *HeapInfo;
 
    HeapInfo = (HeapInfo_t *)Heap;
@@ -201,6 +204,7 @@ static void HeapInit(void *Heap, unsigned long Size)
    // taken from the start of the buffer.                               
 static void *MemAlloc(void *Heap, unsigned long Size)
 {
+	//debugBT_printf("*** incomplete *** memAlloc\r\n");
    /*void        *ret_val;
    HeapInfo_t  *HeapInfo;
    BlockInfo_t *BlockInfo;
@@ -335,6 +339,7 @@ static void *MemAlloc(void *Heap, unsigned long Size)
    // produce a larger free fragment.                                   
 static void MemFree(void *Heap, void *MemoryPtr)
 {
+	//debugBT_printf("*** incomplete *** memFree\r\n");
 /*   HeapInfo_t  *HeapInfo;
    BlockInfo_t *BlockInfo;
    BlockInfo_t *TempBlockInfo;
@@ -403,6 +408,7 @@ static void MemFree(void *Heap, void *MemoryPtr)
    //          set to zero.                                             
 static int GetHeapStatistics(void *Heap, BTPS_MemoryStatistics_t *MemoryStatistics, Boolean_t AdvancedStatitics)
 {
+	//debugBT_printf("*** incomplete *** getheapStat\r\n");
  /*  int          ret_val;
    HeapInfo_t  *HeapInfo;
    BlockInfo_t *BlockInfo;
@@ -456,6 +462,7 @@ static int GetHeapStatistics(void *Heap, BTPS_MemoryStatistics_t *MemoryStatisti
    // timer used by BTPS.                                               
 void SysTick_Handler(void)
 {
+	//debugBT_printf("*** incomplete *** sysTick_Handler\r\n");
   // TickCount += TICKS_PER_TIMER_INTERRUPT;
 }
 
@@ -469,6 +476,7 @@ void SysTick_Handler(void)
    //          set to zero.                                             
 int BTPSAPI BTPS_QueryMemoryUsage(BTPS_MemoryStatistics_t *MemoryStatistics, Boolean_t AdvancedStatitics)
 {
+	//debugBT_printf("*** incomplete *** QueryMemUsage\r\n");
   // return(GetHeapStatistics(MemoryBuffer, MemoryStatistics, AdvancedStatitics));
   return 0;
 }
@@ -479,6 +487,7 @@ int BTPSAPI BTPS_QueryMemoryUsage(BTPS_MemoryStatistics_t *MemoryStatistics, Boo
    //          the system can support !!!!                              
 void BTPSAPI BTPS_Delay(unsigned long MilliSeconds)
 {
+	//debugBT_printf("*** incomplete *** btps_delay\r\n");
   /* unsigned long StartTickCount;
 
    StartTickCount = BTPS_GetTickCount();
@@ -490,6 +499,7 @@ void BTPSAPI BTPS_Delay(unsigned long MilliSeconds)
    // in Milliseconds resolution.                                       
 unsigned long BTPSAPI BTPS_GetTickCount(void)
 {
+	//debugBT_printf("*** incomplete *** btps_getTickCount\r\n");
    // Simply return the current tick count.                             
    return(TickCount);
 }
@@ -512,6 +522,7 @@ unsigned long BTPSAPI BTPS_GetTickCount(void)
    //          BTPS_ProcessScheduler() function repeatedly.             
 Boolean_t BTPSAPI BTPS_AddFunctionToScheduler(BTPS_SchedulerFunction_t SchedulerFunction, void *SchedulerParameter, unsigned int Period)
 {
+	//debugBT_printf("*** incomplete *** btps_addFuncToSched\r\n");
    Boolean_t ret_val;
 /*
    // First, let's make sure that the Scheduler has been initialized    
@@ -563,6 +574,7 @@ Boolean_t BTPSAPI BTPS_AddFunctionToScheduler(BTPS_SchedulerFunction_t Scheduler
    // these values *must* match to remove a specific Scheduler Entry.   
 void BTPSAPI BTPS_DeleteFunctionFromScheduler(BTPS_SchedulerFunction_t SchedulerFunction, void *SchedulerParameter)
 {
+	//debugBT_printf("*** incomplete *** btps_deleteFuncFromSched\r\n");
  /*  unsigned int Index;
 
    // First, let's make sure that the Scheduler has been initialized    
@@ -611,6 +623,7 @@ void BTPSAPI BTPS_DeleteFunctionFromScheduler(BTPS_SchedulerFunction_t Scheduler
    // the Scheduler with the BTPS_AddFunctionToScheduler() function.    
 void BTPSAPI BTPS_ExecuteScheduler(void)
 {
+	//debugBT_printf("*** incomplete *** btps_executeSched\r\n");
 /*   Boolean_t Done;
 
    // Initialize the Scheduler state information.                       
@@ -640,6 +653,7 @@ void BTPSAPI BTPS_ExecuteScheduler(void)
    //          loop will occur.                                         
 void BTPSAPI BTPS_ProcessScheduler(void)
 {
+	//debugBT_printf("*** incomplete *** btps_processSchedu\r\n");
 /*   unsigned int  SchedulerPointer;
    unsigned long ElapsedTicks;
    unsigned long CurrentTickCount;
@@ -685,6 +699,7 @@ void BTPSAPI BTPS_ProcessScheduler(void)
    // allocated, or a NULL value if the memory could not be allocated.  
 void *BTPSAPI BTPS_AllocateMemory(unsigned long MemorySize)
 {
+	//debugBT_printf("*** incomplete *** btps_AllocateMem\r\n");
    void *ret_val;
 
  /*  ret_val = MemAlloc(MemoryBuffer, MemorySize);
@@ -704,6 +719,7 @@ void *BTPSAPI BTPS_AllocateMemory(unsigned long MemorySize)
    // of the Memory pointed to by the Memory Pointer.                   
 void BTPSAPI BTPS_FreeMemory(void *MemoryPointer)
 {
+	//debugBT_printf("*** incomplete *** btps_freeMem\r\n");
    //MemFree(MemoryBuffer, MemoryPointer);
 }
 
@@ -720,6 +736,7 @@ void BTPSAPI BTPS_FreeMemory(void *MemoryPointer)
    //          Source and Destination Buffers !!!!                      
 void BTPSAPI BTPS_MemCopy(void *Destination, BTPSCONST void *Source, unsigned long Size)
 {
+	//debugBT_printf("*** incomplete *** btps_memcopy\r\n");
    // Simply wrap the C Run-Time memcpy() function.                     
    //memcpy(Destination, Source, Size);
 }
@@ -737,6 +754,7 @@ void BTPSAPI BTPS_MemCopy(void *Destination, BTPSCONST void *Source, unsigned lo
    //          and Destination Buffers.                                 
 void BTPSAPI BTPS_MemMove(void *Destination, BTPSCONST void *Source, unsigned long Size)
 {
+	//debugBT_printf("*** incomplete *** btps_memMove\r\n");
    // Simply wrap the C Run-Time memmove() function.                    
    //memmove(Destination, Source, Size);
 }
@@ -750,6 +768,7 @@ void BTPSAPI BTPS_MemMove(void *Destination, BTPSCONST void *Source, unsigned lo
    // point to a Buffer that is AT LEAST the size of the Size parameter.
 void BTPSAPI BTPS_MemInitialize(void *Destination, unsigned char Value, unsigned long Size)
 {
+	//debugBT_printf("*** incomplete *** btps_memInit\r\n");
    // Simply wrap the C Run-Time memset() function.                     
   // memset(Destination, Value, Size);
 }
@@ -762,6 +781,7 @@ void BTPSAPI BTPS_MemInitialize(void *Destination, unsigned char Value, unsigned
    // Source1 is greater than Source2.                                  
 int BTPSAPI BTPS_MemCompare(BTPSCONST void *Source1, BTPSCONST void *Source2, unsigned long Size)
 {
+	//debugBT_printf("*** incomplete *** btps_memcomp\r\n");
    // Simply wrap the C Run-Time memcmp() function.                     
   // return(memcmp(Source1, Source2, Size));
   return 0;
@@ -776,6 +796,7 @@ int BTPSAPI BTPS_MemCompare(BTPSCONST void *Source1, BTPSCONST void *Source2, un
    // Source2.                                                          
 int BTPSAPI BTPS_MemCompareI(BTPSCONST void *Source1, BTPSCONST void *Source2, unsigned long Size)
 {
+	//debugBT_printf("*** incomplete *** btps_memcompI\r\n");
    int           ret_val = 0;
   /* unsigned char Byte1;
    unsigned char Byte2;
@@ -823,6 +844,7 @@ int BTPSAPI BTPS_MemCompareI(BTPSCONST void *Source1, BTPSCONST void *Source2, u
    // Destination (including the NULL terminator).                      
 void BTPSAPI BTPS_StringCopy(char *Destination, BTPSCONST char *Source)
 {
+	//debugBT_printf("*** incomplete *** btps_strCpy\r\n");
    // Simply wrap the C Run-Time strcpy() function.                     
   // strcpy(Destination, Source);
 }
@@ -845,6 +867,7 @@ unsigned int BTPSAPI BTPS_StringLength(BTPSCONST char *Source)
    // variable number of arguments determined by the format string.     
 int BTPSAPI BTPS_SprintF(char *Buffer, BTPSCONST char *Format, ...)
 {
+	//debugBT_printf("*** incomplete *** btps_sprintf\r\n");
    int     ret_val;
   /* va_list args;
 
@@ -868,6 +891,7 @@ int BTPSAPI BTPS_SprintF(char *Buffer, BTPSCONST char *Format, ...)
    // Mailbox Handle if the Mailbox was unable to be created.           
 Mailbox_t BTPSAPI BTPS_CreateMailbox(unsigned int NumberSlots, unsigned int SlotSize)
 {
+	//debugBT_printf("*** incomplete *** btps_createMail\r\n");
    Mailbox_t        ret_val;
    /*MailboxHeader_t *MailboxHeader;
 
@@ -920,7 +944,7 @@ Mailbox_t BTPSAPI BTPS_CreateMailbox(unsigned int NumberSlots, unsigned int Slot
 Boolean_t BTPSAPI BTPS_AddMailbox(Mailbox_t Mailbox, void *MailboxData)
 {
    Boolean_t ret_val;
-
+//debugBT_printf("*** incomplete *** btps_addMailb\r\n");
    // Before proceeding any further make sure that the Mailbox Handle   
    // and the MailboxData pointer that was specified appears semi-valid.
   /* if((Mailbox) && (MailboxData))
@@ -978,6 +1002,7 @@ Boolean_t BTPSAPI BTPS_WaitMailbox(Mailbox_t Mailbox, void *MailboxData)
 {
    Boolean_t ret_val;
 
+   //debugBT_printf("*** incomplete *** btps_waitMailB\r\n");
    // Before proceeding any further make sure that the Mailbox Handle   
    // and the MailboxData pointer that was specified appears semi-valid.
  /*  if((Mailbox) && (MailboxData))
@@ -1019,7 +1044,7 @@ Boolean_t BTPSAPI BTPS_WaitMailbox(Mailbox_t Mailbox, void *MailboxData)
 Boolean_t BTPSAPI BTPS_QueryMailbox(Mailbox_t Mailbox)
 {
    Boolean_t ret_val;
-
+//debugBT_printf("*** incomplete *** btps_queryM\r\n");
    // Before proceeding any further make sure that the Mailbox Handle   
    // and the MailboxData pointer that was specified appears semi-valid.
   /* if(Mailbox)
@@ -1053,6 +1078,7 @@ Boolean_t BTPSAPI BTPS_QueryMailbox(Mailbox_t Mailbox)
    // Mailbox item.                                                     
 void BTPSAPI BTPS_DeleteMailbox(Mailbox_t Mailbox, BTPS_MailboxDeleteCallback_t MailboxDeleteCallback)
 {
+	//debugBT_printf("*** incomplete *** btps_deleMailB\r\n");
    // Before proceeding any further make sure that the Mailbox Handle   
    // that was specified appears semi-valid.                            
  /*  if(Mailbox)
@@ -1099,6 +1125,7 @@ void BTPSAPI BTPS_DeleteMailbox(Mailbox_t Mailbox, BTPS_MailboxDeleteCallback_t 
    //          required in this parameter.                              
 void BTPSAPI BTPS_Init(void *UserParam)
 {
+	//debugBT_printf("*** incomplete *** btps_init\r\n");
   /* RCC_ClocksTypeDef RCC_Clocks;
 
    // Input parameter represents the Debug Message Output Callback      
@@ -1138,6 +1165,7 @@ void BTPSAPI BTPS_DeInit(void)
    // Debug output.                                                     
 void BTPSAPI BTPS_OutputMessage(BTPSCONST char *DebugString, ...)
 {
+	//debugBT_printf("*** incomplete *** btps_outputMessage\r\n");
  /*  va_list args;
    int     Length;
    char    MsgBuffer[256];
@@ -1177,6 +1205,7 @@ int BTPSAPI BTPS_TestDebugZone(unsigned long Zone)
 int BTPSAPI BTPS_DumpData(unsigned int DataLength, BTPSCONST unsigned char *DataPtr)
 {
    int          ret_val;
+   //debugBT_printf("*** incomplete *** btps_dumpData\r\n");
   /* unsigned int Index;
    unsigned int Offset;
 
