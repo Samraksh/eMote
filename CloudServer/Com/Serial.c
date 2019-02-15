@@ -80,8 +80,8 @@ SetBlocking (int fd, int should_block)
 int 
 WriteToCom(int dev, char * buf, int size)
 {
-	int n_written = write( dev, buf, size);
-	usleep (100); // sleep for 100 usec to let the port transmit the chars
+	//instead of writing directly to com, write to the parser, it will write it out
+	int n_written = WriteToNetIfParser( dev, buf, size);
 	return n_written;
 }
 

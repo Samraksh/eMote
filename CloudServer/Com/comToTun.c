@@ -51,7 +51,7 @@ int ReadTun(int tun_fd)
     
     // Note that "buffer" should be at least the MTU size of the interface, eg 1500 bytes 
     memset(tunReadBuf, '\0', TUN_MTU);
-    printf("reading from device %d\n",tun_fd);
+    //printf("ReadTun: reading from device %d\n",tun_fd);
     nread = read(tun_fd,tunReadBuf,sizeof(tunReadBuf));
     if(nread < 0) {
         perror("Reading from interface");
@@ -60,7 +60,7 @@ int ReadTun(int tun_fd)
     }
 
     // Do whatever with the data 
-    printf("Read %d bytes from port %d\n", nread, tun_fd);
+    //printf("ReadTun: Read %d bytes from port %d\n", nread, tun_fd);
     return nread;
 }
 
@@ -78,7 +78,7 @@ int WriteTun(int tun_fd, char * buf, int nwrite)
         //exit(1);
     }
 
-    printf("Wrote %d bytes to Tun fd %d\n", nwrote, tun_fd);
+    printf("WriteTun: Wrote %d bytes to Tun fd %d\n", nwrote, tun_fd);
     return nwrote;
 }
 
@@ -151,11 +151,13 @@ void* ReadTunWriteCom(void *_tunfd){
                 printf("Tun pkt: ");PrintMem(tunReadBuf, nread);
             }
             if(WriteToCom(comfd, tunReadBuf, nread)!= nread){
-                printf("TunRead: Did not write everything to Com that I read from Tun...\n");
+                printf("ReadTunWriteCom: Did not write everything to Com that I read from Tun...\n");
+            }else {
+                 printf("ReadTunWriteCom: Wrote %d bytes to Com\n", nread);
             }
         }
         else {
-            printf("TunRead: Did not read anything\n");
+            printf("ReadTunWriteCom: Did not read anything from tun\n");
         }
         usleep(1000);
     }
@@ -176,7 +178,9 @@ void* ReadComWriteTun(void *_comfd){
             }
             if(WriteTun(tunfd, comReadBuf, nread)!= nread)
             {
-                printf("ComRead: Did not write everything to Tun that I read from Com...\n");
+                printf("ComReadWriteTun: Did not write everything to Tun that I read from Com...\n");
+            }else {
+                printf("ComReadWriteTun: Wrote %d bytes to Tun\n", nread);
             }
         }
         else {

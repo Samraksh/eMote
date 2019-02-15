@@ -12,7 +12,7 @@ LIBS=-lm -lpthread
 #_DEPS = hellomake.h
 #DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = comToTun.o Serial.o Utils.o
+_OBJ = comToTun.o Serial.o Utils.o netif_parser.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 

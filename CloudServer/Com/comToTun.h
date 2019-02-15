@@ -28,4 +28,8 @@ int WriteToCom(int dev, char * buf, int size);
 //Utils
 void PrintMem(char *buf, int size);
 
+
+//netif parser
+int WriteToNetIfParser(int dev, char * buf, int size);
+
 #endif //_COM_TO_TUN_H
