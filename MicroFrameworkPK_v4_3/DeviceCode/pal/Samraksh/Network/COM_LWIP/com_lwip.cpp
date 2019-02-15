@@ -15,6 +15,10 @@
 
 extern void lwip_interrupt_continuation( void );
 
+//implemented in usart.cpp in Pal
+extern int Com_Netif_Read( int ComPortNum, char* Data, size_t size );
+extern int Com_Netif_BytesInBuffer(int ComPortNum);
+extern UINT16 CheckForNetIfPkt(int ComPortNum);
 
 /* ********************************************************************
    GLOBAL DATA
@@ -22,6 +26,8 @@ extern void lwip_interrupt_continuation( void );
    
 extern  NETWORK_CONFIG                   g_NetworkConfig;
 extern  COM_LWIP_DEVICE_CONFIG      g_COM_LWIP_Config;
+extern HAL_CONTINUATION    InterruptTaskContinuation;
+UINT8 interruptPending=0;
 char pUsartRcvContext[128];
 
 /* Function Prototypes */
@@ -87,7 +93,6 @@ bool com_lwip_open( struct netif *pNetIF )
     
 {
     NATIVE_PROFILE_HAL_DRIVERS_ETHERNET();
-
     return com_lwip_setup_device( pNetIF );
 }
 
@@ -121,20 +126,27 @@ static UINT8 s_retriesTransmit = TRANSMIT_RETRIES;
 static UINT8 s_receiveRetries = 10;
 
 //Signal from usart driver that a Net packet has arrived.
+//beware, this is called from interrupt handler in usart pal layer in interrupt mode.
+//just enque a Task continuation and getout.
 void pfnUsartEventHandler (void* context, unsigned int event){
-	COM_LWIP_DRIVER_CONFIG  *g_COM_driver_Config = (COM_LWIP_DRIVER_CONFIG*)context;
-	com_lwip_recv(g_COM_LWIP_Config.DeviceConfigs[0].pnetif);
+	if(!interruptPending){
+		InterruptTaskContinuation.Enqueue();
+	}
 }
 
-//Recv interrupt hanlder at the lwip task level
+//Recv interrupt hanlder at the lwip task level, enqueued from above
 void com_lwip_interrupt(struct netif *pNetIF ){
-	hal_printf("com_lwip_interrupt: \r\n");
-	com_lwip_recv(pNetIF);
+	//COM_LWIP_DRIVER_CONFIG  *g_COM_driver_Config = (COM_LWIP_DRIVER_CONFIG*)context;
+	interruptPending=0;
+	UINT16 size = CheckForNetIfPkt(g_COM_LWIP_Config.DeviceConfigs[0].comPort);
+	if(size>0){
+		com_lwip_recv(g_COM_LWIP_Config.DeviceConfigs[0].pnetif, size);
+	}
 }
 
 BOOL com_get_link_status(COM_LWIP_DRIVER_CONFIG  *g_COM_driver_Config)
 {
-	hal_printf("com_get_link_status: \r\n");
+	//hal_printf("com_get_link_status: \r\n");
     return (g_COM_driver_Config->ifStatus==NetIfActive);
 }
 
@@ -189,8 +201,8 @@ bool com_lwip_setup_device( struct netif *pNetIF )
 
     //com_lwip_setup_recv_buffer( pNetIF, comPort );
     //Nothing to be done here.
-    //USART_ConnectEventSink( comPort,USART_EVENT_TYPE_DATA,  (void*)pUsartRcvContext, &pfnUsartEventHandler, NULL );
-    USART_ConnectEventSink( comPort,USART_EVENT_DATA_NETIF,  (void*)pUsartRcvContext, &pfnUsartEventHandler, NULL );
+    USART_ConnectEventSink( comPort,USART_EVENT_TYPE_DATA,  (void*)pUsartRcvContext, &pfnUsartEventHandler, NULL );
+    //USART_ConnectEventSink( comPort,USART_EVENT_DATA_NETIF,  (void*)pUsartRcvContext, &pfnUsartEventHandler, NULL );
 
     /* ---------------------------------------------------------------------------------------------------- */
     /*                                          SETUP RECEIVE FILTER                                       */
@@ -224,14 +236,14 @@ bool com_lwip_setup_device( struct netif *pNetIF )
    Returns the number of packets that remain to be processed
 
   ******************************************************************** */
-int com_lwip_recv(struct netif *pNetIF )
+int com_lwip_recv(struct netif *pNetIF , UINT16 length)
 {
     NATIVE_PROFILE_HAL_DRIVERS_ETHERNET();
 
     struct pbuf        *pPBuf;
     char              *dataRX;
     //UINT8               nextPktAndRecvStatusVector[6];
-    UINT16              length;
+    //UINT16              length;
     //UINT8               byteData;
     //UINT8               packetsLeft=0;
     //UINT16              lastReceiveBuffer;
@@ -246,7 +258,8 @@ int com_lwip_recv(struct netif *pNetIF )
 
     do
     {
-		length=USART_BytesInBuffer( comPort, TRUE );
+		//length=USART_BytesInBuffer( comPort, TRUE );
+		//length=Com_Netif_BytesInBuffer(comPort);
 		if (length > 0)
 		{
 			pPBuf = pbuf_alloc( PBUF_RAW, length, PBUF_RAM );
@@ -254,7 +267,9 @@ int com_lwip_recv(struct netif *pNetIF )
 			if ( pPBuf )
 			{
 				dataRX = (char *)pPBuf->payload;
-				int readBytes= USART_Read(comPort, dataRX, length );
+				//int readBytes= USART_Read(comPort, dataRX, length );
+				int readBytes= Com_Netif_Read(comPort, dataRX, length );
+
 				length -=readBytes;
 				// invoke stack ip input - the stack should free the buffer when it is done,
 				// so DON'T call pbuf_free on pPBuf!!!!!

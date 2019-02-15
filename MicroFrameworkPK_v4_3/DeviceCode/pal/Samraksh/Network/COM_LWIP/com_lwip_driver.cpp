@@ -5,6 +5,8 @@
 #include <USART_decl.h>
 
 
+#include <pwr/netmf_pwr_wakelock.h>
+
 extern "C"
 {
 //#include "netif\etharp.h"
@@ -12,6 +14,7 @@ extern "C"
 #include "lwip\tcpip.h"
 //#include "lwip\dns.h"
 #include "lwip\ip_addr.h"
+#include "lwip\ip.h"
 }
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
@@ -107,9 +110,10 @@ err_t com_netif_linkoutput(struct netif *netif, struct pbuf *p){
 }
 
 //this function will be called when a packet comes in through the com port
-err_t com_netif_input(struct pbuf *p, struct netif *inp){
+/*err_t com_netif_input(struct pbuf *p, struct netif *inp){
 	debug_printf("com_netif_input: \r\n");
 }
+*/
 
 //Mukundan: We are not building the C#/feature project for Net_sockets, so lets not post any
 void com_status_callback(struct netif *netif)
@@ -189,6 +193,9 @@ err_t   com_netif_init( netif * myNetIf)
 
     com_lwip_open( myNetIf );
 
+    //prevent system from going to deep sleep
+    WakeLock(1);
+
     return ERR_OK;
 }
 
@@ -196,7 +203,7 @@ err_t   com_netif_init( netif * myNetIf)
 void lwip_interrupt_continuation( )
 {
     NATIVE_PROFILE_PAL_NETWORK();
-    GLOBAL_LOCK(irq);
+    //GLOBAL_LOCK(irq);
 
     if(!InterruptTaskContinuation.IsLinked())
     {
@@ -316,7 +323,7 @@ int COM_LWIP_Driver::Open( COM_LWIP_DRIVER_CONFIG* config, int index )
 
     memcpy(g_COM_NetIF.hwaddr, iface->macAddressBuffer, len);
 
-    pNetIF = netif_add( &g_COM_NetIF, &ipaddr, &netmask, &gw, NULL, com_netif_init, com_netif_input );
+    pNetIF = netif_add( &g_COM_NetIF, &ipaddr, &netmask, &gw, NULL, com_netif_init, ip_input );
 
     netif_set_default( pNetIF );
 

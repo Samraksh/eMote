@@ -8,7 +8,7 @@
 bool        com_lwip_open( struct netif *pNetIF );
 void        com_lwip_close ( struct netif *pNetIF  );
 err_t       com_lwip_xmit ( struct netif *pNetIF , struct pbuf *pPBuf );
-int         com_lwip_recv ( struct netif *pNetIF );
+int         com_lwip_recv ( struct netif *pNetIF, UINT16 length );
 void        com_lwip_interrupt ( struct netif *pNetIF );
 void        com_lwip_pre_interrupt (GPIO_PIN Pin, BOOL PinState, void *pArg );
 void        com_lwip_setup_recv_buffer( struct netif *pNetIF, SPI_CONFIGURATION  *SpiConf);

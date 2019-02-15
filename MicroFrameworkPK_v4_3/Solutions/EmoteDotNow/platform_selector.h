@@ -132,15 +132,18 @@ typedef uint16_t ushort;
 
 #define EMOTE_COM_NETIF 1
 #if defined(EMOTE_COM_NETIF)
-#define COM_NETIF COM2
-#define NETIF_START_STOP_CHAR_SIZE 4
+#define COM_NETIF COM1
+#define NETIF_START_STOP_CHAR_SIZE 3
 #define NETIF_START_STOP_CHAR 0xE8
-#endif
+#define NETIF_MTU 256
+#define NETIF_MIN_PKT_SIZE 28+6+8 //20byte IP header+8byte udp header
+#endif //EMOTE_COM_NETIF
 
 #define COM_MESSAGING          ConvertCOM_MessagingHandle(0)
 
 #define USART_TX_IRQ_INDEX(x)       ( (x) ? 0 : 0 )     /* TODO set right indexes */
-#define USART_DEFAULT_PORT          COM1
+#define DEFAULT_PORT COM2
+#define USART_DEFAULT_PORT          DEFAULT_PORT
 #define USART_DEFAULT_BAUDRATE      115200
 
 #define USB_IRQ_INDEX               0  // TODO set right index
@@ -152,10 +155,10 @@ typedef uint16_t ushort;
 #define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    256  // there is one RX for each usart port
 #define PLATFORM_DEPENDENT_USB_QUEUE_PACKET_COUNT  2    // there is one queue for each pipe of each endpoint and the size of a single packet is sizeof(USB_PACKET64) == 68 bytes
 
-#define DEBUG_TEXT_PORT    COM1
-#define STDIO              COM1
-#define DEBUGGER_PORT      COM1
-#define MESSAGING_PORT     COM1
+#define DEBUG_TEXT_PORT    DEFAULT_PORT
+#define STDIO              DEFAULT_PORT
+#define DEBUGGER_PORT      DEFAULT_PORT
+#define MESSAGING_PORT     DEFAULT_PORT
 
 
 //Setting the upper and lower thresholds for the GC to kick in
