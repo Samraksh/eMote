@@ -10,10 +10,10 @@ const COM_PORTO = "udp"
 const COM_PORT = 6001
 
 func StartServerMode(mode string) {
-	if mode == "tcp" {
-		StartTCPServer(COM_PORT)
-	} else {
+	if mode == "udp" {
 		StartUDPServer(COM_PORT)
+	} else {
+		StartTCPServer(COM_PORT)
 	}
 }
 
@@ -28,11 +28,24 @@ func StartClientMode(mode string) {
 //main
 func main() {
 	flagMode := flag.String("mode", "server", "start in client or server mode")
+	flagProto := flag.String("proto", "tcp", "use udp instead of tcp")
 	flag.Parse()
 	if strings.ToLower(*flagMode) == "client" {
-		StartClientMode("udp")
+		switch strings.ToLower(*flagProto) {
+		case "udp":
+			StartClientMode("udp")
+		default:
+			StartClientMode("tcp")
+		}	
 	} else {
-		fmt.Println("Starting udp server..")
-		StartServerMode("udp")
+		switch strings.ToLower(*flagProto) {
+		case "udp":
+			fmt.Println("Starting udp server..")
+			StartServerMode("udp")
+		default:
+			fmt.Println("Starting tcp server..")
+			StartServerMode("tcp")
+		}
+		
 	}
 }

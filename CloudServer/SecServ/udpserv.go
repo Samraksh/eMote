@@ -111,7 +111,7 @@ func StartUDPServer(port int) {
 		_msg := createMsg(msgid+1,n)
 		fmt.Println("Received id: ",msgid," Sending response:  ",msgid+1 )
 		ServerConn.WriteToUDP(_msg,addr)
-		time.Sleep(30 * time.Second)
+		time.Sleep(3 * time.Millisecond)
 		//ServerConn.WriteToUDP(_msg,addr)
 	}
 }

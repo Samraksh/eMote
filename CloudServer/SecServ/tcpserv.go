@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"strconv"
+	"time"
 )
 
 //reference
@@ -65,6 +66,12 @@ func (manager *TCPClientManager) receive(client *TCPClient) {
 		if length > 0 {
 			fmt.Println("RECEIVED: " + string(message))
 			manager.broadcast <- message
+			
+			msgid := ParseMsg(message,length);
+			_msg := CreateMsg(msgid+1,length)
+			fmt.Println("Received id: ",msgid," Sending response:  ",msgid+1 )
+			client.socket.Write(_msg)
+			time.Sleep(3 * time.Millisecond)
 		}
 	}
 }
@@ -82,6 +89,8 @@ func (manager *TCPClientManager) send(client *TCPClient) {
 	}
 }
 
+
+//Start the TCP server/client
 func StartTCPServer(port int) {
 	fmt.Println("Starting server...")
 	listener, error := net.Listen("tcp", ":"+ strconv.Itoa(port) )
