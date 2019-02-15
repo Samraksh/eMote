@@ -124,10 +124,9 @@ static Boolean_t DownloadPatch(unsigned int BluetoothStackID, unsigned int Patch
    //          at the time this function is called.                     
 Boolean_t BTPSAPI HCI_VS_InitializeBeforeHCIOpen(HCI_DriverInformation_t *HCI_DriverInformation)
 {
-	debugBT_printf("*** incomplete *** HCI_VS_InitiBeforeHCIOpen\r\n");
    // Flag that we have not issued the first Vendor Specific Commands   
    // before the first reset.                                           
-  /* VendorCommandsIssued = FALSE;
+   VendorCommandsIssued = FALSE;
 
    // Store the driver information for later use.                       
    SpecifiedBaudRate = HCI_DriverInformation->DriverInformation.COMMDriverInformation.BaudRate;
@@ -136,7 +135,7 @@ Boolean_t BTPSAPI HCI_VS_InitializeBeforeHCIOpen(HCI_DriverInformation_t *HCI_Dr
    // Make sure that the driver is initially configured to the default  
    // baud rate of the controller.                                      
    HCI_DriverInformation->DriverInformation.COMMDriverInformation.BaudRate = VENDOR_DEFAULT_BAUDRATE;
-*/
+
    return(TRUE);
 }
 

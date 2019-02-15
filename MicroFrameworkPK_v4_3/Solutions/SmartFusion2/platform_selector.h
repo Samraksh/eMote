@@ -240,7 +240,7 @@ const UINT8 LOW_DRIFT_TIMER = ADVTIMER_32BIT;
 
 const UINT8 g_CountOfHardwareTimers = 1;
 const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {DEFAULT_TIMER };
-const UINT8 g_VirtualTimerPerHardwareTimer = 16;
+const UINT8 g_VirtualTimerPerHardwareTimer = 5;
 const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {100000000};
 
 
@@ -286,6 +286,8 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_OMAC_FAST_RECOVERY	21
 #define VIRT_TIMER_OMAC_POST_EXEC	22
 //#define VIRT_TIMER_OMAC_TRANSMITTER_POST_EXEC	23
+
+#define VIRT_TIMER_BLUETOOTH_TICK 25
 
 const uint OMAC_DISCO_SEQ_NUMBER = 27;
 //const uint OMAC_HW_ACK_DELAY_MICRO = 100;

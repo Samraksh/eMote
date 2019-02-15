@@ -12,15 +12,76 @@ extern "C" {
 #include "include\SPPLETyp.h"
 };
 
+   // The following string table is used to map HCI Version information 
+   // to an easily displayable version string.                          
+static BTPSCONST char *HCIVersionStrings[] =
+{
+   "1.0b",
+   "1.1",
+   "1.2",
+   "2.0",
+   "2.1",
+   "3.0",
+   "4.0",
+   "4.1",
+   "Unknown (greater 4.1)"
+} ;
+
 #define HAL_HCI_UART_MAX_BAUD_RATE      2000000
 #define APPLICATION_ERROR_INVALID_PARAMETERS       (-1000)
 #define APPLICATION_ERROR_UNABLE_TO_OPEN_STACK     (-1001)
 #define UNABLE_TO_INITIALIZE_STACK                 (-7)  // Denotes that an error occurred while Initializing the Bluetooth Protocol Stack. 
 #define INVALID_STACK_ID_ERROR                     (-8)  // Denotes that an occurred due to attempted  execution of a Command when a Bluetooth Protocol  Stack has not been opened.         
 #define INVALID_PARAMETERS_ERROR                   (-6)
-#define MAX_INQUIRY_RESULTS                        (20)  // Denotes the max number of inquiry results
+#define MAX_INQUIRY_RESULTS                        (10)  // Denotes the max number of inquiry results
 #define MAX_SUPPORTED_LINK_KEYS                     (1)  // Max supported Link keys
+#define DEFAULT_LE_IO_CAPABILITY   (licNoInputNoOutput)  // Denotes the default I/O Capability that is  used with LE Pairing 
+#define DEFAULT_LE_MITM_PROTECTION              (TRUE)   // Denotes the default value used for Man in the Middle (MITM) protection used  with LE Pairing.
+#define DEFAULT_IO_CAPABILITY          (icDisplayYesNo)  // Denotes the default I/O Capability that is used with Secure Simple Pairing. 
+#define NUM_SUPPORTED_HCI_VERSIONS              (sizeof(HCIVersionStrings)/sizeof(char *) - 1)
+#define DEFAULT_MITM_PROTECTION                  (TRUE)  // Denotes the  default value used for Man in the Middle (MITM) protection used with Secure Simple Pairing.         
+#define LE_APP_DEMO_NAME                        "SF2 Bluetooth"
 
+   // Bluetooth Protocol Demo Application Major Version Release Number. 
+#define DEMO_APPLICATION_MAJOR_VERSION_NUMBER      0
+
+   // Bluetooth Protocol Demo Application Minor Version Release Number. 
+#define DEMO_APPLICATION_MINOR_VERSION_NUMBER      5
+
+   // Constants used to convert numeric constants to string constants   
+   // (used in MACRO's below).                                          
+#define VERSION_NUMBER_TO_STRING(_x)               #_x
+#define VERSION_CONSTANT_TO_STRING(_y)             VERSION_NUMBER_TO_STRING(_y)
+
+//  Demo Application Version String of the form "a.b"                
+// where:                                                            
+//    a - DEMO_APPLICATION_MAJOR_VERSION_NUMBER                      
+//    b - DEMO_APPLICATION_MINOR_VERSION_NUMBER                      
+#define DEMO_APPLICATION_VERSION_STRING            VERSION_CONSTANT_TO_STRING(DEMO_APPLICATION_MAJOR_VERSION_NUMBER) "." VERSION_CONSTANT_TO_STRING(DEMO_APPLICATION_MINOR_VERSION_NUMBER)
+#define MAX_SIMULTANEOUS_SPP_PORTS                  (1) // Maximum SPP Ports  
+                                                        // that we support.   
+#define SPPLE_DATA_CREDITS        (SPPLE_DATA_BUFFER_LENGTH*1) // Defines the 
+                                                         // number of credits 
+                                                         // in an SPPLE Buffer
+#define SPPLE_DATA_BUFFER_LENGTH  (BTPS_CONFIGURATION_GATT_MAXIMUM_SUPPORTED_MTU_SIZE)
+                                                         // Defines the length
+                                                         // of a SPPLE Data   
+                                                         // Buffer.           
+
+
+
+
+
+
+   // The following structure holds status information about a send     
+   // process.                                                          
+typedef struct _tagSend_Info_t
+{
+   Boolean_t    BufferFull;
+   DWord_t      BytesToSend;
+   DWord_t      BytesSent;
+   unsigned int DataStrIndex;
+} Send_Info_t;
 
 
 // The following structure represents the information we will store  
@@ -66,6 +127,62 @@ typedef struct _tagLinkKeyInfo_t
    Link_Key_t LinkKey;
 } LinkKeyInfo_t;
 
+   // The following defines the format of a SPPLE Data Buffer.          
+typedef struct _tagSPPLE_Data_Buffer_t
+{
+   unsigned int InIndex;
+   unsigned int OutIndex;
+   unsigned int BytesFree;
+   unsigned int BufferSize;
+   Byte_t       Buffer[SPPLE_DATA_CREDITS];
+} SPPLE_Data_Buffer_t;
+
+
+   // The following structure is used to hold all of the SPPLE related  
+   // information pertaining to buffers and credits.                    
+typedef struct _tagSPPLE_Buffer_Info_t
+{
+   Send_Info_t         SendInfo;
+   unsigned int        TransmitCredits;
+   Word_t              QueuedCredits;
+   SPPLE_Data_Buffer_t ReceiveBuffer;
+   SPPLE_Data_Buffer_t TransmitBuffer;
+} SPPLE_Buffer_Info_t;
+
+
+   // The following structure is used to hold information on a connected
+   // LE Device.                                                        
+typedef struct _tagLE_Context_Info_t
+{
+   BD_ADDR_t           ConnectionBD_ADDR;
+   unsigned int        ConnectionID;
+   SPPLE_Buffer_Info_t SPPLEBufferInfo;
+   Boolean_t           BufferFull;
+}  LE_Context_Info_t;
+
+   // The following defines the structure that is used to hold          
+   // information about all open SPP Ports.                             
+typedef struct SPP_Context_Info_t
+{
+   unsigned int  LocalSerialPortID;
+   unsigned int  ServerPortNumber;
+   Word_t        Connection_Handle;
+   BD_ADDR_t     BD_ADDR;
+   DWord_t       SPPServerSDPHandle;
+   Boolean_t     Connected;
+   Send_Info_t   SendInfo;
+
+#if MAXIMUM_SPP_LOOPBACK_BUFFER_SIZE > 0
+
+   unsigned int  BufferLength;
+   unsigned char Buffer[MAXIMUM_SPP_LOOPBACK_BUFFER_SIZE];
+
+#endif
+
+} SPP_Context_Info_t;
+
+
+
 
 static unsigned int BluetoothStackID;
 static unsigned int InputIndex;
@@ -86,8 +203,41 @@ static BD_ADDR_t           CurrentCBRemoteBD_ADDR;  // Variable which holds the 
 static GAP_IO_Capability_t IOCapability;            // Variable which holds the current I/O Capabilities that  are to be used for Secure Simple Pairing      
 static Boolean_t           MITMProtection;          // Variable which flags whether or not Man in the Middle (MITM)  protection is to be requested during a Secure Simple Pairing procedure
 static Boolean_t           OOBSupport;              // Variable which flags whether  or not Out of Band Secure Simple  Pairing exchange is supported.  
+typedef char BoardStr_t[16]; // User to represent a structure to hold a BD_ADDR return from  BD_ADDRToStr. 
+static BD_ADDR_t           CurrentLERemoteBD_ADDR;  // Variable which holds the current LE BD_ADDR of the device which is currently pairing or authenticating.    
+static Boolean_t           LocalDeviceIsMaster;     // Boolean that tells if the local device is the master of the current connection. 
+#define MAX_LE_CONNECTIONS                          (2)  // Denotes the max number of LE connections that are allowed at the same time.   
+static LE_Context_Info_t   LEContextInfo[MAX_LE_CONNECTIONS]; // Array that contains the connection ID and BD_ADDR of each connected device. 
+static BTPSCONST Encryption_Key_t ER = {0x28, 0xBA, 0xE1, 0x37, 0x13, 0xB2, 0x20, 0x45, 0x16, 0xB2, 0x19, 0xD0, 0x80, 0xEE, 0x4A, 0x51}; //The Encryption Root Key should be generated in such a way as to guarantee 128 bits of entropy.
+static BTPSCONST Encryption_Key_t IR = {0x41, 0x09, 0xA0, 0x88, 0x09, 0x6B, 0x70, 0xC0, 0x95, 0x23, 0x3C, 0x8C, 0x48, 0xFC, 0xC9, 0xFE}; // The Identity Root Key should be generated in such a way as to guarantee 128 bits of entropy.
+
+// The following keys can be regenerated on the 
+// fly using the constant IR and ER keys and    
+// are used globally, for all devices.         
+static Encryption_Key_t DHK;
+static Encryption_Key_t IRK;
+static SPP_Context_Info_t  SPPContextInfo[MAX_SIMULTANEOUS_SPP_PORTS];
+                                                    // Variable that contains          
+                                                    // information about the current   
+                                                    // open SPP Ports                  
+   // The following structure is used to hold information of the        
+   // FIRMWARE version.                                                 
+typedef struct FW_Version_t
+{
+   Byte_t StatusResult;
+   Byte_t HCI_VersionResult;
+   Word_t HCI_RevisionResult;
+   Byte_t LMP_VersionResult;
+   Word_t Manufacturer_NameResult;
+   Word_t LMP_SubversionResult;
+} FW_Version;
 
 
+
+static void DisplayFWVersion (void);
+static int DeleteLinkKey(BD_ADDR_t BD_ADDR);
+static void BD_ADDRToStr(BD_ADDR_t Board_Address, BoardStr_t BoardStr);
+static void BTPSAPI GATT_Connection_Event_Callback(unsigned int BluetoothStackID, GATT_Connection_Event_Data_t *GATT_Connection_Event_Data, unsigned long CallbackParameter);
 
 int Bluetooth_MessageOutputCallback(int length, char* Message){
 	hal_printf("Bluetooth message callback: ");
@@ -126,7 +276,7 @@ static int OpenStack(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_Initia
 		 BTPSAPI_ForceCompile(HCI_DriverInformation);
          // Initialize the Stack                                        
          Result = BSC_Initialize(HCI_DriverInformation, 0);
-/*
+
          // Next, check the return value of the initialization to see   
          // if it was successful.                                       
          if(Result > 0)
@@ -135,7 +285,7 @@ static int OpenStack(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_Initia
             // and set the return value of the initialization function  
             // to the Bluetooth Stack ID.                               
             BluetoothStackID = Result;
-            hal_printf(("Bluetooth Stack ID: %d\r\n", BluetoothStackID));
+            hal_printf("Bluetooth Stack ID: %d\r\n", BluetoothStackID);
 
             ret_val          = 0;
 
@@ -143,11 +293,11 @@ static int OpenStack(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_Initia
             Result = BSC_EnableFeature(BluetoothStackID, BSC_FEATURE_BLUETOOTH_LOW_ENERGY);
             if(!Result)
             {
-               hal_printf(("LOW ENERGY Support initialized.\r\n"));
+               hal_printf("LOW ENERGY Support initialized.\r\n");
             }
             else
             {
-               hal_printf(("LOW ENERGY Support not initialized %d.\r\n", Result));
+               hal_printf("LOW ENERGY Support not initialized %d.\r\n", Result);
             }
 
 
@@ -162,16 +312,16 @@ static int OpenStack(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_Initia
             MITMProtection               = DEFAULT_MITM_PROTECTION;
 
             if(!HCI_Version_Supported(BluetoothStackID, &HCIVersion))
-               hal_printf(("Device Chipset: %s\r\n", (HCIVersion <= NUM_SUPPORTED_HCI_VERSIONS)?HCIVersionStrings[HCIVersion]:HCIVersionStrings[NUM_SUPPORTED_HCI_VERSIONS]));
+               hal_printf("Device Chipset: %s\r\n", (HCIVersion <= NUM_SUPPORTED_HCI_VERSIONS)?HCIVersionStrings[HCIVersion]:HCIVersionStrings[NUM_SUPPORTED_HCI_VERSIONS]);
 
             // Printing the BTPS version                                
-            hal_printf(("BTPS Version  : %s \r\n", BTPS_VERSION_VERSION_STRING));
+            hal_printf("BTPS Version  : %s \r\n", BTPS_VERSION_VERSION_STRING);
             // Printing the FW version                                  
             DisplayFWVersion();
 
             // Printing the Demo Application name and version           
-            hal_printf(("App Name      : %s \r\n", LE_APP_DEMO_NAME));
-            hal_printf(("App Version   : %s \r\n", DEMO_APPLICATION_VERSION_STRING));
+            hal_printf("App Name      : %s \r\n", LE_APP_DEMO_NAME);
+            hal_printf("App Version   : %s \r\n", DEMO_APPLICATION_VERSION_STRING);
 
             // Let's output the Bluetooth Device Address so that the    
             // user knows what the Device Address is.                   
@@ -179,7 +329,7 @@ static int OpenStack(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_Initia
             {
                BD_ADDRToStr(BD_ADDR, BluetoothAddress);
 
-               hal_printf(("LOCAL BD_ADDR: %s\r\n", BluetoothAddress));
+               hal_printf("LOCAL BD_ADDR: %s\r\n", BluetoothAddress);
             }
 
             if(HCI_Command_Supported(BluetoothStackID, HCI_SUPPORTED_COMMAND_WRITE_DEFAULT_LINK_POLICY_BIT_NUMBER) > 0)
@@ -243,8 +393,8 @@ static int OpenStack(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_Initia
                   GAPSInstanceID = (unsigned int)Result;
 
                   // Set the GAP Device Name and Device Appearance.     
-                  GAP_Set_Local_Device_Name (BluetoothStackID,LE_APP_DEMO_NAME);
-                  GAPS_Set_Device_Name(BluetoothStackID, GAPSInstanceID, LE_APP_DEMO_NAME);
+                  GAP_Set_Local_Device_Name (BluetoothStackID,(char*)LE_APP_DEMO_NAME);
+                  GAPS_Set_Device_Name(BluetoothStackID, GAPSInstanceID, (char*)LE_APP_DEMO_NAME);
                   GAPS_Set_Device_Appearance(BluetoothStackID, GAPSInstanceID, GAP_DEVICE_APPEARENCE_VALUE_GENERIC_COMPUTER);
 
                   // Return success to the caller.                      
@@ -255,7 +405,7 @@ static int OpenStack(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_Initia
                   // The Stack was NOT initialized successfully, inform 
                   // the user and set the return value of the           
                   // initialization function to an error.               
-                  hal_printf("GAPS_Initialize_Service %d", Result);
+                  hal_printf("GAPS_Initialize_Service %d\r\n", Result);
 
                   // Cleanup GATT Module.                               
                   GATT_Cleanup(BluetoothStackID);
@@ -270,7 +420,7 @@ static int OpenStack(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_Initia
                // The Stack was NOT initialized successfully, inform the
                // user and set the return value of the initialization   
                // function to an error.                                 
-               hal_printf("GATT_Initialize %d", Result);
+               hal_printf("GATT_Initialize %d\r\n", Result);
 
                BluetoothStackID = 0;
 
@@ -285,12 +435,12 @@ static int OpenStack(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_Initia
             // The Stack was NOT initialized successfully, inform the   
             // user and set the return value of the initialization      
             // function to an error.                                    
-            hal_printf("BSC_Initialize %d", Result);
+            hal_printf("BSC_Initialize %d\r\n", Result);
 
             BluetoothStackID = 0;
 
             ret_val          = UNABLE_TO_INITIALIZE_STACK;
-         }*/
+         }
       }
       else
       {
@@ -301,6 +451,74 @@ static int OpenStack(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_Initia
 
    return(ret_val);
 }
+
+   // The following function is for displaying The FW Version by reading
+   // The Local version information form the FW.                        
+static void DisplayFWVersion (void)
+{
+    FW_Version FW_Version_Details;
+
+    // This function retrieves the Local Version Information of the FW. 
+    HCI_Read_Local_Version_Information(BluetoothStackID, &FW_Version_Details.StatusResult, &FW_Version_Details.HCI_VersionResult, &FW_Version_Details.HCI_RevisionResult, &FW_Version_Details.LMP_VersionResult, &FW_Version_Details.Manufacturer_NameResult, &FW_Version_Details.LMP_SubversionResult);
+    if (!FW_Version_Details.StatusResult)
+    {
+        // This function prints The project type from firmware, Bits    
+        // 10 to 14 (5 bits) from LMP_SubversionResult parameter.       
+        hal_printf("Project Type  : %d \r\n", ((FW_Version_Details.LMP_SubversionResult >> 10)) & 0x1F);
+        // This function prints The version of the firmware. The first  
+        // number is the Major version, Bits 7 to 9 and 15 (4 bits) from
+        // LMP_SubversionResult parameter, the second number is the     
+        // Minor Version, Bits 0 to 6 (7 bits) from LMP_SubversionResult
+        // parameter.                                                   
+        hal_printf("FW Version    : %d.%d \r\n", ((FW_Version_Details.LMP_SubversionResult >> 7) & 0x07) + ((FW_Version_Details.LMP_SubversionResult >> 12) & 0x08), FW_Version_Details.LMP_SubversionResult & 0x7F);
+    }
+    else
+        // There was an error with HCI_Read_Local_Version_Information.  
+        // Function.                                                    
+        hal_printf("HCI_Read_Local_Version_Information %d", FW_Version_Details.StatusResult);
+}
+
+  // The following function is a utility function that exists to delete
+   // the specified Link Key from the Local Bluetooth Device.  If a NULL
+   // Bluetooth Device Address is specified, then all Link Keys will be 
+   // deleted.                                                          
+static int DeleteLinkKey(BD_ADDR_t BD_ADDR)
+{
+   int       Result;
+   Byte_t    Status_Result;
+   Word_t    Num_Keys_Deleted = 0;
+   BD_ADDR_t NULL_BD_ADDR;
+
+   Result = HCI_Delete_Stored_Link_Key(BluetoothStackID, BD_ADDR, TRUE, &Status_Result, &Num_Keys_Deleted);
+
+   // Any stored link keys for the specified address (or all) have been 
+   // deleted from the chip.  Now, let's make sure that our stored Link 
+   // Key Array is in sync with these changes.                          
+
+   // First check to see all Link Keys were deleted.                    
+   ASSIGN_BD_ADDR(NULL_BD_ADDR, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+
+   if(COMPARE_BD_ADDR(BD_ADDR, NULL_BD_ADDR))
+      BTPS_MemInitialize(LinkKeyInfo, 0, sizeof(LinkKeyInfo));
+   else
+   {
+      // Individual Link Key.  Go ahead and see if know about the entry 
+      // in the list.                                                   
+      for(Result=0;(Result<sizeof(LinkKeyInfo)/sizeof(LinkKeyInfo_t));Result++)
+      {
+         if(COMPARE_BD_ADDR(BD_ADDR, LinkKeyInfo[Result].BD_ADDR))
+         {
+            LinkKeyInfo[Result].BD_ADDR = NULL_BD_ADDR;
+
+            break;
+         }
+      }
+   }
+
+   return(Result);
+}
+
+
 
    // The following function is responsible for converting data of type 
    // BD_ADDR to a string.  The first parameter of this function is the 
@@ -381,6 +599,215 @@ static void BTPSAPI HCI_Event_Callback(unsigned int BluetoothStackID, HCI_Event_
             break;
       }
    }
+}
+
+  // The following function is for an GATT Connection Event Callback.  
+   // This function is called for GATT Connection Events that occur on  
+   // the specified Bluetooth Stack.  This function passes to the caller
+   // the GATT Connection Event Data that occurred and the GATT         
+   // Connection Event Callback Parameter that was specified when this  
+   // Callback was installed.  The caller is free to use the contents of
+   // the GATT Client Event Data ONLY in the context of this callback.  
+   // If the caller requires the Data for a longer period of time, then 
+   // the callback function MUST copy the data into another Data Buffer.
+   // This function is guaranteed NOT to be invoked more than once      
+   // simultaneously for the specified installed callback (i.e.  this   
+   // function DOES NOT have be reentrant).  It Needs to be noted       
+   // however, that if the same Callback is installed more than once,   
+   // then the callbacks will be called serially.  Because of this, the 
+   // processing in this function should be as efficient as possible.   
+   // It should also be noted that this function is called in the Thread
+   // Context of a Thread that the User does NOT own.  Therefore,       
+   // processing in this function should be as efficient as possible    
+   // (this argument holds anyway because another GATT Event            
+   // (Server/Client or Connection) will not be processed while this    
+   // function call is outstanding).                                    
+   // * NOTE * This function MUST NOT Block and wait for Events that can
+   //          only be satisfied by Receiving a Bluetooth Event         
+   //          Callback.  A Deadlock WILL occur because NO Bluetooth    
+   //          Callbacks will be issued while this function is currently
+   //          outstanding.                                             
+static void BTPSAPI GATT_Connection_Event_Callback(unsigned int BluetoothStackID, GATT_Connection_Event_Data_t *GATT_Connection_Event_Data, unsigned long CallbackParameter)
+{
+   int           LEConnectionIndex;
+   Word_t        Credits;
+   Boolean_t     SuppressResponse = FALSE;
+   BoardStr_t    BoardStr;
+   DeviceInfo_t *DeviceInfo;
+
+   hal_printf("**** not finished GATT_Connection_Event_Callback\r\n");
+   // Verify that all parameters to this callback are Semi-Valid.       
+   /*if((BluetoothStackID) && (GATT_Connection_Event_Data))
+   {
+      // Determine the Connection Event that occurred.                  
+      switch(GATT_Connection_Event_Data->Event_Data_Type)
+      {
+         case etGATT_Connection_Device_Connection:
+            if(GATT_Connection_Event_Data->Event_Data.GATT_Device_Connection_Data)
+            {
+               // Update the ConnectionID associated with the BD_ADDR   
+               // If UpdateConnectionID returns -1, then it failed.     
+               if(UpdateConnectionID(GATT_Connection_Event_Data->Event_Data.GATT_Device_Connection_Data->ConnectionID, GATT_Connection_Event_Data->Event_Data.GATT_Device_Connection_Data->RemoteDevice) < 0)
+                   Display(("Error - No matching ConnectionBD_ADDR found."));
+
+               Display(("\r\netGATT_Connection_Device_Connection with size %u: \r\n", GATT_Connection_Event_Data->Event_Data_Size));
+               BD_ADDRToStr(GATT_Connection_Event_Data->Event_Data.GATT_Device_Connection_Data->RemoteDevice, BoardStr);
+               Display(("   Connection ID:   %u.\r\n", GATT_Connection_Event_Data->Event_Data.GATT_Device_Connection_Data->ConnectionID));
+               Display(("   Connection Type: %s.\r\n", ((GATT_Connection_Event_Data->Event_Data.GATT_Device_Connection_Data->ConnectionType == gctLE)?"LE":"BR/EDR")));
+               Display(("   Remote Device:   %s.\r\n", BoardStr));
+               Display(("   Connection MTU:  %u.\r\n", GATT_Connection_Event_Data->Event_Data.GATT_Device_Connection_Data->MTU));
+
+               // Find the LE Connection Index for this connection.     
+               if((LEConnectionIndex = FindLEIndexByAddress(GATT_Connection_Event_Data->Event_Data.GATT_Device_Connection_Data->RemoteDevice)) >= 0)
+               {
+                  // Search for the device info for the connection.     
+                  if((DeviceInfo = SearchDeviceInfoEntryByBD_ADDR(&DeviceInfoList, LEContextInfo[LEConnectionIndex].ConnectionBD_ADDR)) != NULL)
+                  {
+                     // Clear the SPPLE Role Flag.                      
+                     DeviceInfo->Flags &= ~DEVICE_INFO_FLAGS_SPPLE_SERVER;
+
+                     // Initialize the Transmit and Receive Buffers.    
+                     InitializeBuffer(&(LEContextInfo[LEConnectionIndex].SPPLEBufferInfo.ReceiveBuffer));
+                     InitializeBuffer(&(LEContextInfo[LEConnectionIndex].SPPLEBufferInfo.TransmitBuffer));
+
+                     // Flag that we do not have any transmit credits   
+                     // yet.                                            
+                     LEContextInfo[LEConnectionIndex].SPPLEBufferInfo.TransmitCredits = 0;
+
+                     // Flag that no credits are queued.                
+                     LEContextInfo[LEConnectionIndex].SPPLEBufferInfo.QueuedCredits   = 0;
+
+                     if(!LocalDeviceIsMaster)
+                     {
+                        // Flag that we will act as the Server.         
+                        DeviceInfo->Flags |= DEVICE_INFO_FLAGS_SPPLE_SERVER;
+
+                        // Send the Initial Credits if the Rx Credit CCD
+                        // is already configured (for a bonded device   
+                        // this could be the case).                     
+                        SPPLESendCredits(&(LEContextInfo[LEConnectionIndex]), DeviceInfo, LEContextInfo[LEConnectionIndex].SPPLEBufferInfo.ReceiveBuffer.BytesFree);
+                     }
+                     else
+                     {
+                        // Attempt to update the MTU to the maximum     
+                        // supported.                                   
+                        GATT_Exchange_MTU_Request(BluetoothStackID, GATT_Connection_Event_Data->Event_Data.GATT_Device_Connection_Data->ConnectionID, BTPS_CONFIGURATION_GATT_MAXIMUM_SUPPORTED_MTU_SIZE, GATT_ClientEventCallback_SPPLE, 0);
+                     }
+                  }
+               }
+            }
+            else
+               Display(("Error - Null Connection Data.\r\n"));
+            break;
+         case etGATT_Connection_Device_Disconnection:
+            if(GATT_Connection_Event_Data->Event_Data.GATT_Device_Disconnection_Data)
+            {
+               // Clear the Connection ID.                              
+               RemoveConnectionInfo(GATT_Connection_Event_Data->Event_Data.GATT_Device_Disconnection_Data->RemoteDevice);
+
+               Display(("\r\netGATT_Connection_Device_Disconnection with size %u: \r\n", GATT_Connection_Event_Data->Event_Data_Size));
+               BD_ADDRToStr(GATT_Connection_Event_Data->Event_Data.GATT_Device_Disconnection_Data->RemoteDevice, BoardStr);
+               Display(("   Connection ID:   %u.\r\n", GATT_Connection_Event_Data->Event_Data.GATT_Device_Disconnection_Data->ConnectionID));
+               Display(("   Connection Type: %s.\r\n", ((GATT_Connection_Event_Data->Event_Data.GATT_Device_Disconnection_Data->ConnectionType == gctLE)?"LE":"BR/EDR")));
+               Display(("   Remote Device:   %s.\r\n", BoardStr));
+            }
+            else
+               Display(("Error - Null Disconnection Data.\r\n"));
+            break;
+         case etGATT_Connection_Device_Buffer_Empty:
+            if(GATT_Connection_Event_Data->Event_Data.GATT_Device_Buffer_Empty_Data)
+            {
+               // Find the LE Connection Index for this connection.     
+               if((LEConnectionIndex = FindLEIndexByAddress(GATT_Connection_Event_Data->Event_Data.GATT_Device_Buffer_Empty_Data->RemoteDevice)) >= 0)
+               {
+                  // Grab the device info for the currently connected   
+                  // device.                                            
+                  if((DeviceInfo = SearchDeviceInfoEntryByBD_ADDR(&DeviceInfoList, LEContextInfo[LEConnectionIndex].ConnectionBD_ADDR)) != NULL)
+                  {
+                     // Flag that the buffer is no longer empty.        
+                     LEContextInfo[LEConnectionIndex].BufferFull = FALSE;
+
+                     // Attempt to send any queued credits that we may  
+                     // have.                                           
+                     SPPLESendCredits(&(LEContextInfo[LEConnectionIndex]), DeviceInfo, 0);
+
+                     // If may be possible for transmit queued data now.
+                     // So fake a Receive Credit event with 0 as the    
+                     // received credits.                               
+                     SPPLEReceiveCreditEvent(&(LEContextInfo[LEConnectionIndex]), DeviceInfo, 0);
+
+                     // Suppress the command prompt.                    
+                     SuppressResponse   = TRUE;
+                  }
+               }
+            }
+            break;
+         case etGATT_Connection_Server_Notification:
+            if(GATT_Connection_Event_Data->Event_Data.GATT_Server_Notification_Data)
+            {
+               // Find the LE Connection Index for this connection.     
+               if((LEConnectionIndex = FindLEIndexByAddress(GATT_Connection_Event_Data->Event_Data.GATT_Server_Notification_Data->RemoteDevice)) >= 0)
+               {
+                  // Find the Device Info for the device that has sent  
+                  // us the notification.                               
+                  if((DeviceInfo = SearchDeviceInfoEntryByBD_ADDR(&DeviceInfoList, LEContextInfo[LEConnectionIndex].ConnectionBD_ADDR)) != NULL)
+                  {
+                     // Determine the characteristic that is being      
+                     // notified.                                       
+                     if(GATT_Connection_Event_Data->Event_Data.GATT_Server_Notification_Data->AttributeHandle == DeviceInfo->ClientInfo.Rx_Credit_Characteristic)
+                     {
+                        // Verify that the length of the Rx Credit      
+                        // Notification is correct.                     
+                        if(GATT_Connection_Event_Data->Event_Data.GATT_Server_Notification_Data->AttributeValueLength == WORD_SIZE)
+                        {
+                           Credits = READ_UNALIGNED_WORD_LITTLE_ENDIAN(GATT_Connection_Event_Data->Event_Data.GATT_Server_Notification_Data->AttributeValue);
+
+                           // Handle the received credits event.        
+                           SPPLEReceiveCreditEvent(&(LEContextInfo[LEConnectionIndex]), DeviceInfo, Credits);
+
+                           // Suppress the command prompt.              
+                           SuppressResponse   = TRUE;
+                        }
+                     }
+                     else
+                     {
+                        if(GATT_Connection_Event_Data->Event_Data.GATT_Server_Notification_Data->AttributeHandle == DeviceInfo->ClientInfo.Tx_Characteristic)
+                        {
+                           // This is a Tx Characteristic Event.  So    
+                           // call the function to handle the data      
+                           // indication event.                         
+                           SPPLEDataIndicationEvent(&(LEContextInfo[LEConnectionIndex]), DeviceInfo, GATT_Connection_Event_Data->Event_Data.GATT_Server_Notification_Data->AttributeValueLength, GATT_Connection_Event_Data->Event_Data.GATT_Server_Notification_Data->AttributeValue);
+
+                           // If we are not looping back or doing       
+                           // automatic reads we will display the       
+                           // prompt.                                   
+                           if((!AutomaticReadActive) && (!LoopbackActive))
+                              SuppressResponse = FALSE;
+                           else
+                              SuppressResponse = TRUE;
+                        }
+                     }
+                  }
+               }
+            }
+            else
+               Display(("Error - Null Server Notification Data.\r\n"));
+            break;
+      }
+
+      // Print the command line prompt.                                 
+      if(!SuppressResponse)
+         DisplayPrompt();
+   }
+   else
+   {
+      // There was an error with one or more of the input parameters.   
+      Display(("\r\n"));
+
+      Display(("GATT Connection Callback Data: Event_Data = NULL.\r\n"));
+
+      DisplayPrompt();
+   }*/
 }
 
 
@@ -771,6 +1198,7 @@ static void BTPSAPI GAP_LE_Event_Callback(unsigned int BluetoothStackID, GAP_LE_
    GAP_LE_Authentication_Event_Data_t           *Authentication_Event_Data;
    GAP_LE_Authentication_Response_Information_t  GAP_LE_Authentication_Response_Information;
 
+   hal_printf("**** not finished GAP_LE_Event_Callback\r\n");
    // Verify that all parameters to this callback are Semi-Valid.       
    /*if((BluetoothStackID) && (GAP_LE_Event_Data))
    {
