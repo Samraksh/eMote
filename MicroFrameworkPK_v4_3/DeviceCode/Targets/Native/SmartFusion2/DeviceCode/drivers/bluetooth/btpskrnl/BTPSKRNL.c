@@ -127,7 +127,7 @@ typedef struct _tagHeapInfo_t
 
    // Declare a buffer to use for the Heap.  Note that we declare this  
    // as an Alignment_t so that we can force alignment to be correct.   
-static Alignment_t               MemoryBuffer[(BTPS_MEMORY_BUFFER_SIZE / ALIGNMENT_SIZE)];
+//static Alignment_t               MemoryBuffer[(BTPS_MEMORY_BUFFER_SIZE / ALIGNMENT_SIZE)];
 
 //**********************************************************************
 // End of Heap Manager definitions.                                     
@@ -170,7 +170,7 @@ void SysTick_Handler(void);
    // The function takes no parameters and returns no status.           
 static void HeapInit(void *Heap, unsigned long Size)
 {
-	debugBT_printf("*** incomplete *** heapInit\r\n");
+	debugBT_printf("*** this shouldn't be called *** heapInit\r\n");
    /*HeapInfo_t *HeapInfo;
 
    HeapInfo = (HeapInfo_t *)Heap;
@@ -204,9 +204,11 @@ static void HeapInit(void *Heap, unsigned long Size)
    // taken from the start of the buffer.                               
 static void *MemAlloc(void *Heap, unsigned long Size)
 {
-	debugBT_printf("*** incomplete *** memAlloc\r\n");
-   /*void        *ret_val;
-   HeapInfo_t  *HeapInfo;
+   void        *ret_val;
+   
+   //debugBT_Numprintf("bt all: ", Size);
+   ret_val = private_malloc(Size);
+   /*HeapInfo_t  *HeapInfo;
    BlockInfo_t *BlockInfo;
    BlockInfo_t *TempBlockInfo;
    Word_t       RemainingSize;
@@ -339,7 +341,7 @@ static void *MemAlloc(void *Heap, unsigned long Size)
    // produce a larger free fragment.                                   
 static void MemFree(void *Heap, void *MemoryPtr)
 {
-	debugBT_printf("*** incomplete *** memFree\r\n");
+	private_free(MemoryPtr);
 /*   HeapInfo_t  *HeapInfo;
    BlockInfo_t *BlockInfo;
    BlockInfo_t *TempBlockInfo;
@@ -521,9 +523,8 @@ unsigned long BTPSAPI BTPS_GetTickCount(void)
    //          BTPS_ProcessScheduler() function repeatedly.             
 Boolean_t BTPSAPI BTPS_AddFunctionToScheduler(BTPS_SchedulerFunction_t SchedulerFunction, void *SchedulerParameter, unsigned int Period)
 {
-	debugBT_printf("*** incomplete *** btps_addFuncToSched\r\n");
    Boolean_t ret_val;
-/*
+
    // First, let's make sure that the Scheduler has been initialized    
    // successfully AND that the Scheduler is NOT full.                  
    if((SchedulerInitialized) && (NumberScheduledFunctions != MAX_NUMBER_SCHEDULE_FUNCTIONS))
@@ -559,7 +560,7 @@ Boolean_t BTPSAPI BTPS_AddFunctionToScheduler(BTPS_SchedulerFunction_t Scheduler
    }
    else
       ret_val = FALSE;
-*/
+
    // Finally return the result to the caller.                          
    return(ret_val);
 }
@@ -573,8 +574,7 @@ Boolean_t BTPSAPI BTPS_AddFunctionToScheduler(BTPS_SchedulerFunction_t Scheduler
    // these values *must* match to remove a specific Scheduler Entry.   
 void BTPSAPI BTPS_DeleteFunctionFromScheduler(BTPS_SchedulerFunction_t SchedulerFunction, void *SchedulerParameter)
 {
-	debugBT_printf("*** incomplete *** btps_deleteFuncFromSched\r\n");
- /*  unsigned int Index;
+   unsigned int Index;
 
    // First, let's make sure that the Scheduler has been initialized    
    // successfully AND that the Scheduler is NOT full.                  
@@ -613,7 +613,7 @@ void BTPSAPI BTPS_DeleteFunctionFromScheduler(BTPS_SchedulerFunction_t Scheduler
             NumberScheduledFunctions--;
          }
       }
-   }*/
+   }
 }
 
    // The following function begins execution of the actual Scheduler.  
@@ -698,8 +698,10 @@ void BTPSAPI BTPS_ProcessScheduler(void)
    // allocated, or a NULL value if the memory could not be allocated.  
 void *BTPSAPI BTPS_AllocateMemory(unsigned long MemorySize)
 {
-	debugBT_printf("*** incomplete *** btps_AllocateMem\r\n");
    void *ret_val;
+
+   //debugBT_Numprintf("bt all: ", MemorySize);
+   ret_val = private_malloc(MemorySize);
 
  /*  ret_val = MemAlloc(MemoryBuffer, MemorySize);
 
@@ -718,7 +720,7 @@ void *BTPSAPI BTPS_AllocateMemory(unsigned long MemorySize)
    // of the Memory pointed to by the Memory Pointer.                   
 void BTPSAPI BTPS_FreeMemory(void *MemoryPointer)
 {
-	debugBT_printf("*** incomplete *** btps_freeMem\r\n");
+	private_free(MemoryPointer);
    //MemFree(MemoryBuffer, MemoryPointer);
 }
 
@@ -735,9 +737,8 @@ void BTPSAPI BTPS_FreeMemory(void *MemoryPointer)
    //          Source and Destination Buffers !!!!                      
 void BTPSAPI BTPS_MemCopy(void *Destination, BTPSCONST void *Source, unsigned long Size)
 {
-	debugBT_printf("*** incomplete *** btps_memcopy\r\n");
    // Simply wrap the C Run-Time memcpy() function.                     
-   //memcpy(Destination, Source, Size);
+   memcpy(Destination, Source, Size);
 }
 
    // The following function is responsible for moving a block of memory
@@ -753,9 +754,8 @@ void BTPSAPI BTPS_MemCopy(void *Destination, BTPSCONST void *Source, unsigned lo
    //          and Destination Buffers.                                 
 void BTPSAPI BTPS_MemMove(void *Destination, BTPSCONST void *Source, unsigned long Size)
 {
-	debugBT_printf("*** incomplete *** btps_memMove\r\n");
    // Simply wrap the C Run-Time memmove() function.                    
-   //memmove(Destination, Source, Size);
+   memmove(Destination, Source, Size);
 }
 
    // The following function is provided to allow a mechanism to fill a 
@@ -767,9 +767,8 @@ void BTPSAPI BTPS_MemMove(void *Destination, BTPSCONST void *Source, unsigned lo
    // point to a Buffer that is AT LEAST the size of the Size parameter.
 void BTPSAPI BTPS_MemInitialize(void *Destination, unsigned char Value, unsigned long Size)
 {
-	debugBT_printf("*** incomplete *** btps_memInit\r\n");
    // Simply wrap the C Run-Time memset() function.                     
-  // memset(Destination, Value, Size);
+   memset(Destination, Value, Size);
 }
 
    // The following function is provided to allow a mechanism to Compare
@@ -780,10 +779,8 @@ void BTPSAPI BTPS_MemInitialize(void *Destination, unsigned char Value, unsigned
    // Source1 is greater than Source2.                                  
 int BTPSAPI BTPS_MemCompare(BTPSCONST void *Source1, BTPSCONST void *Source2, unsigned long Size)
 {
-	debugBT_printf("*** incomplete *** btps_memcomp\r\n");
    // Simply wrap the C Run-Time memcmp() function.                     
-  // return(memcmp(Source1, Source2, Size));
-  return 0;
+   return(memcmp(Source1, Source2, Size));
 }
 
    // The following function is provided to allow a mechanism to Compare
@@ -843,9 +840,8 @@ int BTPSAPI BTPS_MemCompareI(BTPSCONST void *Source1, BTPSCONST void *Source2, u
    // Destination (including the NULL terminator).                      
 void BTPSAPI BTPS_StringCopy(char *Destination, BTPSCONST char *Source)
 {
-	debugBT_printf("*** incomplete *** btps_strCpy\r\n");
    // Simply wrap the C Run-Time strcpy() function.                     
-  // strcpy(Destination, Source);
+   strcpy(Destination, Source);
 }
 
    // The following function is provided to allow a mechanism to        
@@ -1138,7 +1134,7 @@ debugBT_printf("btps_init\r\n");
       MessageOutputCallback = NULL;
 
    // Initailize the Heap.                                              
-   HeapInit(MemoryBuffer, sizeof(MemoryBuffer));
+	//HeapInit(MemoryBuffer, sizeof(MemoryBuffer));
 
    // Initialize the tick timer.                                        
    //RCC_GetClocksFreq(&RCC_Clocks);

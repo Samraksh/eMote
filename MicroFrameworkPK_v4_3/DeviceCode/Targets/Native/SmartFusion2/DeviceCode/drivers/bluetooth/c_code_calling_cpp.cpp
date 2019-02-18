@@ -7,11 +7,22 @@ extern "C" {
 
 
 void debugBT_printf(const char* message){
-	hal_printf("debugBT called: %s\r\n", message);
+	hal_printf("debugBT: %s\r\n", message);
+}
+
+void debugBT_Numprintf(char* message, int num){
+	hal_printf("debugBT: %s %d\r\n", message, num);
+}
+
+void BT_VTCallback(void * arg){
+	hal_printf("bt_vt callback\r\n");
+	//callbackFunction();
 }
 
 void SetBTTimerInterrupt(int ticks, TIMER_CALLBACK_FPN callbackFunction){
-	VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, 50000000, TRUE, TRUE, callbackFunction, ADVTIMER_32BIT);
+	hal_printf("starting timer\r\n");
+	VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, 5000, TRUE, TRUE, BT_VTCallback, ADVTIMER_32BIT);
+	VirtTimer_Start(VIRT_TIMER_BLUETOOTH_TICK);
 }
 
 void BTTimerStop(void){

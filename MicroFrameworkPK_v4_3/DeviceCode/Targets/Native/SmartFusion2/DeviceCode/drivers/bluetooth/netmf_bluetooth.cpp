@@ -1,4 +1,5 @@
 #include <tinyhal.h>
+#include <Samraksh/VirtualTimer.h>
 extern "C" {
 #include "include\SS1BTPS.h"
 #include "hcitrans\HCITRANS.h"
@@ -1997,13 +1998,22 @@ int InitializeApplication(HCI_DriverInformation_t *HCI_DriverInformation, BTPS_I
 
    return(ret_val);
 }
-
+void testCallback(void * param){
+	hal_printf("test callback\r\n");
+}
 
 DeviceStatus CPU_Bluetooth_Initialize( )
 {
 	DeviceStatus status = DS_Fail;
 	int Result;
 
+	hal_printf("set timer in init\r\n");
+	if(VirtTimer_SetTimer(VIRT_TIMER_BLUETOOTH_TICK2, 0, 5000, TRUE, TRUE, testCallback, ADVTIMER_32BIT) != TimerSupported)
+	{
+		hal_printf("failed to set timer\r\n");
+	}
+	VirtTimer_Start(VIRT_TIMER_BLUETOOTH_TICK2);
+	
 	hal_printf("init Bluetooth\r\n");
 	// configure hardware
 	

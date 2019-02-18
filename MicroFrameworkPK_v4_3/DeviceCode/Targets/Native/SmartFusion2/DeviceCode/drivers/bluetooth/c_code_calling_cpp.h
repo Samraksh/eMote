@@ -9,6 +9,7 @@ extern "C" {
 typedef void (*TIMER_CALLBACK_FPN_C)( void* arg );
 // used to debug the C bluetooth code
 void debugBT_printf(char* message);
+void debugBT_Numprintf(char* message, int num);
 
 void  SetBTTimerInterrupt(int ticks, TIMER_CALLBACK_FPN_C callbackFunction);
 void BTTimerStop(void);
