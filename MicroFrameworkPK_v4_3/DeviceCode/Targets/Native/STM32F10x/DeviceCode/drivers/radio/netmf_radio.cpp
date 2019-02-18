@@ -31,6 +31,7 @@
 const char * strUfoRadio = "[NATIVE] Error in function %s : Unidentified radio \r\n";
 #define PRINTF_UNIDENTIFIED_RADIO()  hal_printf( strUfoRadio , __func__ );
 
+extern EMOTE_SX1276_LORA::Samraksh_SX1276_hal gsx1276radio;
 INT8 currentRadioName;
 INT8 currentRadioAckType;
 
@@ -81,6 +82,11 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioN
 				ASSERT_NOFAIL(0);
 			}
 			status = si446x_hal_init(eventHandlers, radioName, macName);
+			break;
+		case SX1276:
+			currentRadioName = SX1276;
+			currentRadioAckType = SOFTWARE_ACK;
+			gsx1276radio.Initialize(radio_events);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
@@ -444,6 +450,10 @@ void* CPU_Radio_Send_TimeStamped(UINT8 radioName, void* msg, UINT16 size, UINT32
 			break;
 		case SI4468_SPI2:
 			ptr_temp = si446x_hal_send_ts(radioName, msg, size, eventTime);
+			break;
+		case SX1276:
+			//ptr_temp = si446x_hal_send_ts(radioName, msg, size, eventTime);
+			gsx1276radio.Samraksh_SX1276_hal::Send(msg, size, true);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
