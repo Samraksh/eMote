@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "comtotun.h": "c"
+        "comtotun.h": "c",
+        "netif_parser.h": "c"
     }
 }

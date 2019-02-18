@@ -112,6 +112,13 @@ ReadCom(int dev, char* buf, int buf_size, bool verbose){
 
 
 int ReadComPkt(int dev, char* buf, int buf_size, bool verbose){
+    int nread=ReadNetIfParser(dev,buf,buf_size,verbose);
+	if(nread>0){return nread;}
+	else return 0;
+}
+
+/*
+int ReadComPkt(int dev, char* buf, int buf_size, bool verbose){
     int nread=ReadCom(dev,buf,buf_size,verbose);
     __uint16_t pktSize = (buf[2]*256 +buf[3]);
     if(nread==pktSize) return nread;
@@ -127,4 +134,4 @@ int ReadComPkt(int dev, char* buf, int buf_size, bool verbose){
     }
     return pktSize;
 }
-
+*/

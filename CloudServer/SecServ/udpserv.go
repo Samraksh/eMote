@@ -4,10 +4,10 @@ import (
 	//"bufio"
 	"fmt"
 	"net"
-	"strconv"
+	//"strconv"
 	//"os"
 	//"strings"
-	"encoding/binary"
+	//"encoding/binary"
 	"time"
 )
 
@@ -77,28 +77,6 @@ func StartUDPServer(port int) {
 */
 
 
-
-func createMsg (msgid, msglen int) ([]byte)  {
-	sendmsg := make([]byte,msglen)
-	sendmsg=[]byte("Hello Client: "+strconv.Itoa(msgid))
-	//sendmsg+= 
-	return sendmsg
-}
-
-func parseMsg (data []byte, msglen int) int {
-	var bInt = data[13:]
-	//fmt.Println("Received Msg of size: ",msglen, "Bytes: ",data[10],data[11],data[12],data[13],data[14],data[15],data[16], "Bytes: ", bInt)
-	
-	//var pInt []int
-	//pInt :=&data[13]
-	//x := binary.BigEndian.Uint32(bInt)
-	x := binary.LittleEndian.Uint32(bInt)
-	//int x:= strconv.Atoi(string(bInt))
-	//fmt.Println("Received id: ",x)
-	return int(x)
-}
-
-
 func StartUDPServer(port int) {
 	ServerConn, _ := net.ListenUDP("udp", &net.UDPAddr{IP:[]byte{0,0,0,0},Port:port,Zone:""})
   	defer ServerConn.Close()
@@ -107,8 +85,8 @@ func StartUDPServer(port int) {
 		n, addr, _ := ServerConn.ReadFromUDP(buf)
 		//fmt.Println("Received ", string(buf[0:n]), " from ", addr)
 
-		msgid := parseMsg(buf[0:n],n);
-		_msg := createMsg(msgid+1,n)
+		msgid := ParseMsg(buf[0:n],n);
+		_msg := CreateMsg(msgid+1,n)
 		fmt.Println("Received id: ",msgid," Sending response:  ",msgid+1 )
 		ServerConn.WriteToUDP(_msg,addr)
 		time.Sleep(3 * time.Millisecond)

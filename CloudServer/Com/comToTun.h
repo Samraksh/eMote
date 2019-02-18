@@ -23,6 +23,7 @@ int OpenCom(char* devname);
 int SetComAttribs (int fd, int speed, int parity);
 void SetBlocking (int fd, int should_block);
 int ReadComPkt(int dev, char* buf, int buf_size, bool verbose);
+int ReadCom(int dev, char* buf, int buf_size, bool verbose);
 int WriteToCom(int dev, char * buf, int size);
 
 //Utils
@@ -31,5 +32,6 @@ void PrintMem(char *buf, int size);
 
 //netif parser
 int WriteToNetIfParser(int dev, char * buf, int size);
+int ReadNetIfParser(int dev, char* buf, int buf_size, bool verbose);
 
 #endif //_COM_TO_TUN_H
