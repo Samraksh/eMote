@@ -14,6 +14,14 @@ void debugBT_Numprintf(char* message, int num);
 void  SetBTTimerInterrupt(int ticks, TIMER_CALLBACK_FPN_C callbackFunction);
 void BTTimerStop(void);
 
+void ClearReset(void);
+void SetReset(void);
+void ConfigureSoftwareFlowCtrl(void);
+void ConfigureHardwareFlowCtrl(void);
+void FlowOff(void);
+void FlowOn(void);
+int FlowIsOn(void);
+
 #ifdef __cplusplus
 }
 #endif

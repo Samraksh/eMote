@@ -488,11 +488,11 @@ int BTPSAPI BTPS_QueryMemoryUsage(BTPS_MemoryStatistics_t *MemoryStatistics, Boo
    //          the system can support !!!!                              
 void BTPSAPI BTPS_Delay(unsigned long MilliSeconds)
 {
-	debugBT_printf("*** incomplete *** btps_delay\r\n");
-  /* unsigned long StartTickCount;
+   unsigned long StartTickCount;
+   unsigned long ticksInMs = MilliSeconds * 100000;
 
    StartTickCount = BTPS_GetTickCount();
-   while((BTPS_GetTickCount() - StartTickCount) < MilliSeconds) {}*/
+   while((BTPS_GetTickCount() - StartTickCount) < ticksInMs) {}
 }
 
    // The following function is responsible for retrieving the current  
@@ -1146,6 +1146,10 @@ debugBT_printf("btps_init\r\n");
 
    // Finally flag that the Scheduler has been initialized successfully.
    SchedulerInitialized       = TRUE;
+   /*while (1){
+debugBT_printf("delay test\r\n");
+	   BTPS_Delay(2000);
+   }*/
 }
 
    // The following function is used to cleanup the Platform module.    

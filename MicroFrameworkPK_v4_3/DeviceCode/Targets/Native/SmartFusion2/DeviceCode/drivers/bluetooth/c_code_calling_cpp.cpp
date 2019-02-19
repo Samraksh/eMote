@@ -22,6 +22,43 @@ void BTTimerStop(void){
 	VirtTimer_Stop(VIRT_TIMER_BLUETOOTH_TICK);
 }
 
+void ClearReset(void){
+	hal_printf("*** clear reset not implemented\r\n");
+}
+
+void SetReset(void){
+	hal_printf("*** set reset not implemented\r\n");
+}
+
+void ConfigureSoftwareFlowCtrl(void){
+	hal_printf("*** ConfigureSoftwareFlowCtrl not implemented\r\n");
+}
+
+void ConfigureHardwareFlowCtrl(void){
+	hal_printf("*** ConfigureHardwareFlowCtrl not implemented\r\n");
+}
+
+void FlowOff(void){
+	hal_printf("*** FlowOff not implemented\r\n");
+}
+
+void FlowOn(void){
+	hal_printf("*** FlowOn not implemented\r\n");
+}
+
+int FlowIsOn(void){
+	hal_printf("*** FlowIsOn not implemented\r\n");
+	return 1;
+}
+
+int EnableBTUart(){
+	return 0;
+}
+
+void DisableBTUart(){
+	hal_printf("*** incomplete *** DisableBTUart\r\n");
+}
+
 #ifdef __cplusplus
 }
 #endif

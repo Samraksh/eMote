@@ -30,12 +30,12 @@
 #define FLOW_OFF_THRESHOLD       16
 #define FLOW_ON_THRESHOLD        32
 
-#define FlowOff()                GPIO_SetBits(HCITR_RTS_GPIO_PORT, (1 << HCITR_RTS_PIN))
-#define FlowOn()                 GPIO_ResetBits(HCITR_RTS_GPIO_PORT, (1 << HCITR_RTS_PIN))
-#define FlowIsOn()               ((GPIO_ReadInputData(HCITR_CTS_GPIO_PORT) & (1 << HCITR_CTS_PIN)) == 0)
+//#define FlowOff()                GPIO_SetBits(HCITR_RTS_GPIO_PORT, (1 << HCITR_RTS_PIN))
+//#define FlowOn()                 GPIO_ResetBits(HCITR_RTS_GPIO_PORT, (1 << HCITR_RTS_PIN))
+//#define FlowIsOn()               ((GPIO_ReadInputData(HCITR_CTS_GPIO_PORT) & (1 << HCITR_CTS_PIN)) == 0)
 
-#define ClearReset()             GPIO_SetBits(HCITR_RESET_GPIO_PORT, (1 << HCITR_RESET_PIN))
-#define SetReset()               GPIO_ResetBits(HCITR_RESET_GPIO_PORT, (1 << HCITR_RESET_PIN))
+//#define ClearReset()             GPIO_SetBits(HCITR_RESET_GPIO_PORT, (1 << HCITR_RESET_PIN))
+//#define SetReset()               GPIO_ResetBits(HCITR_RESET_GPIO_PORT, (1 << HCITR_RESET_PIN))
 
 #define EnableUartPeriphClock()  HCITR_UART_RCC_PERIPH_CLK_CMD(HCITR_UART_RCC_PERIPH_CLK_BIT, ENABLE)
 #define DisableUartPeriphClock() HCITR_UART_RCC_PERIPH_CLK_CMD(HCITR_UART_RCC_PERIPH_CLK_BIT, DISABLE)
@@ -81,6 +81,9 @@ typedef struct _tagUartContext_t
    unsigned char            TxBuffer[OUTPUT_BUFFER_SIZE];
 } UartContext_t;
 
+//static UartContext_t              UartContext;
+static int                        HCITransportOpen        = 0;
+
    // Internal Variables to this Module (Remember that all variables    
    // declared static are initialized to 0 automatically by the         
    // compiler as part of standard C/C++).                              
@@ -104,8 +107,8 @@ static BTPSCONST EXTI_InitTypeDef CTS_ExtIntConfiguration = {HCITR_CTS_IRQ_LINE,
 
 #endif
 
-static UartContext_t              UartContext;
-static int                        HCITransportOpen        = 0;
+
+
 */
    // Local Function Prototypes.                                        
 /*static void SetBaudRate(USART_TypeDef *UartBase, unsigned int BaudRate);
@@ -403,95 +406,100 @@ void HCITR_CTS_IRQ_HANDLER(void)
 int BTPSAPI HCITR_COMOpen(HCI_COMMDriverInformation_t *COMMDriverInformation, HCITR_COMDataCallback_t COMDataCallback, unsigned long CallbackParameter)
 {
    int ret_val;
-   debugBT_printf("*** incomplete *** hcitr_comOpen\r\n");
 
    // First, make sure that the port is not already open and make sure  
    // that valid COMM Driver Information was specified.                 
-/*   if((!HCITransportOpen) && (COMMDriverInformation) && (COMDataCallback))
+   if((!HCITransportOpen) && (COMMDriverInformation) && (COMDataCallback))
    {
-      // Initialize the return value for success.                       
-      ret_val                              = TRANSPORT_ID;
+	  if (EnableBTUart() == 0)
+	      // Initialize the return value for success.                       
+    	  ret_val                              = TRANSPORT_ID;
+	  else
+		  return (HCITR_ERROR_UNABLE_TO_OPEN_TRANSPORT);
 
       // Flag that the HCI Transport is open.                           
       HCITransportOpen                     = 1;
 
       // Initialize the context structure.                              
-      BTPS_MemInitialize(&UartContext, 0, sizeof(UartContext_t));
+      //BTPS_MemInitialize(&UartContext, 0, sizeof(UartContext_t));
 
-      UartContext.COMDataCallbackFunction  = COMDataCallback;
-      UartContext.COMDataCallbackParameter = CallbackParameter;
-      UartContext.TxBytesFree              = OUTPUT_BUFFER_SIZE;
-      UartContext.RxBytesFree              = INPUT_BUFFER_SIZE;
-      UartContext.SuspendState             = hssNormal;
+      //UartContext.COMDataCallbackFunction  = COMDataCallback;
+      //UartContext.COMDataCallbackParameter = CallbackParameter;
+      //UartContext.TxBytesFree              = OUTPUT_BUFFER_SIZE;
+      //UartContext.RxBytesFree              = INPUT_BUFFER_SIZE;
+      //UartContext.SuspendState             = hssNormal;
 
       // Enable the peripheral clocks for the UART and its GPIO.        
-      EnableUartPeriphClock();
-      RCC_AHB1PeriphClockCmd(HCITR_TXD_GPIO_AHB_BIT | HCITR_RXD_GPIO_AHB_BIT | HCITR_RTS_GPIO_AHB_BIT | HCITR_CTS_GPIO_AHB_BIT | HCITR_RESET_GPIO_AHB_BIT, ENABLE);
+      //EnableUartPeriphClock();
+      //RCC_AHB1PeriphClockCmd(HCITR_TXD_GPIO_AHB_BIT | HCITR_RXD_GPIO_AHB_BIT | HCITR_RTS_GPIO_AHB_BIT | HCITR_CTS_GPIO_AHB_BIT | HCITR_RESET_GPIO_AHB_BIT, ENABLE);
 
       // Configure the GPIO.                                            
-      ConfigureGPIO(HCITR_RESET_GPIO_PORT, HCITR_RESET_PIN, GPIO_Mode_OUT);
+      //ConfigureGPIO(HCITR_RESET_GPIO_PORT, HCITR_RESET_PIN, GPIO_Mode_OUT);
       SetReset();
 
-      ConfigureGPIO(HCITR_TXD_GPIO_PORT, HCITR_TXD_PIN, GPIO_Mode_AF);
-      GPIO_PinAFConfig(HCITR_TXD_GPIO_PORT, HCITR_TXD_PIN, HCITR_UART_GPIO_AF);
+      //ConfigureGPIO(HCITR_TXD_GPIO_PORT, HCITR_TXD_PIN, GPIO_Mode_AF);
+      //GPIO_PinAFConfig(HCITR_TXD_GPIO_PORT, HCITR_TXD_PIN, HCITR_UART_GPIO_AF);
 
-      ConfigureGPIO(HCITR_RXD_GPIO_PORT, HCITR_RXD_PIN, GPIO_Mode_AF);
-      GPIO_PinAFConfig(HCITR_RXD_GPIO_PORT, HCITR_RXD_PIN, HCITR_UART_GPIO_AF);
+      //ConfigureGPIO(HCITR_RXD_GPIO_PORT, HCITR_RXD_PIN, GPIO_Mode_AF);
+      //GPIO_PinAFConfig(HCITR_RXD_GPIO_PORT, HCITR_RXD_PIN, HCITR_UART_GPIO_AF);
 
 #ifdef USE_SOFTWARE_CTS_RTS
 
-      ConfigureGPIO(HCITR_RTS_GPIO_PORT, HCITR_RTS_PIN, GPIO_Mode_OUT);
-      ConfigureGPIO(HCITR_CTS_GPIO_PORT, HCITR_CTS_PIN, GPIO_Mode_IN);
+	  ConfigureSoftwareFlowCtrl();
+      //ConfigureGPIO(HCITR_RTS_GPIO_PORT, HCITR_RTS_PIN, GPIO_Mode_OUT);
+      //ConfigureGPIO(HCITR_CTS_GPIO_PORT, HCITR_CTS_PIN, GPIO_Mode_IN);
 
       // Setup the CTS interrupt.                                    
-      EXTI_Init((EXTI_InitTypeDef *)&CTS_ExtIntConfiguration);
-      NVIC_SetPriority(HCITR_CTS_IRQ, INTERRUPT_PRIORITY);
-      NVIC_EnableIRQ(HCITR_CTS_IRQ);
+      //EXTI_Init((EXTI_InitTypeDef *)&CTS_ExtIntConfiguration);
+      //NVIC_SetPriority(HCITR_CTS_IRQ, INTERRUPT_PRIORITY);
+      //NVIC_EnableIRQ(HCITR_CTS_IRQ);
 
       // Turn on flow.                                                  
       FlowOn();
 
 #else
+		ConfigureHardwareFlowCtrl();
+      //ConfigureGPIO(HCITR_RTS_GPIO_PORT, HCITR_RTS_PIN, GPIO_Mode_AF);
+      //GPIO_PinAFConfig(HCITR_RTS_GPIO_PORT, HCITR_RTS_PIN, HCITR_UART_GPIO_AF);
 
-      ConfigureGPIO(HCITR_RTS_GPIO_PORT, HCITR_RTS_PIN, GPIO_Mode_AF);
-      GPIO_PinAFConfig(HCITR_RTS_GPIO_PORT, HCITR_RTS_PIN, HCITR_UART_GPIO_AF);
-
-      ConfigureGPIO(HCITR_CTS_GPIO_PORT, HCITR_CTS_PIN, GPIO_Mode_AF);
-      GPIO_PinAFConfig(HCITR_CTS_GPIO_PORT, HCITR_CTS_PIN, HCITR_UART_GPIO_AF);
+      //ConfigureGPIO(HCITR_CTS_GPIO_PORT, HCITR_CTS_PIN, GPIO_Mode_AF);
+      //GPIO_PinAFConfig(HCITR_CTS_GPIO_PORT, HCITR_CTS_PIN, HCITR_UART_GPIO_AF);
 
 #endif
 
       // Initialize the UART.                                           
-      USART_Init(HCITR_UART_BASE, (USART_InitTypeDef *)&UartConfiguration);
+      //USART_Init(HCITR_UART_BASE, (USART_InitTypeDef *)&UartConfiguration);
 
       // Reconfigure the baud rate to make sure it is as accurate as    
       // possible.                                                      
-      SetBaudRate(HCITR_UART_BASE, COMMDriverInformation->BaudRate);
+      //SetBaudRate(HCITR_UART_BASE, COMMDriverInformation->BaudRate);
 
-      USART_ITConfig(HCITR_UART_BASE, USART_IT_RXNE, ENABLE);
-      NVIC_SetPriority(HCITR_UART_IRQ, INTERRUPT_PRIORITY);
-      NVIC_EnableIRQ(HCITR_UART_IRQ);
+      //USART_ITConfig(HCITR_UART_BASE, USART_IT_RXNE, ENABLE);
+      //NVIC_SetPriority(HCITR_UART_IRQ, INTERRUPT_PRIORITY);
+      //NVIC_EnableIRQ(HCITR_UART_IRQ);
 
       // Enable the UART.                                               
-      USART_Cmd(HCITR_UART_BASE, ENABLE);
+      //USART_Cmd(HCITR_UART_BASE, ENABLE);
 
 #if (defined(USE_SOFTWARE_CTS_RTS) || defined(SUPPORT_TRANSPORT_SUSPEND))
 
+		debugBT_printf("*** cts rts area not implemented\r\n");
       // Initialize the external interrupt for the CTS line             
-      RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-      SYSCFG_EXTILineConfig(HCITR_CTS_EXTI_PORT, HCITR_CTS_PIN);
-      RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, DISABLE);
+      //RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+      //SYSCFG_EXTILineConfig(HCITR_CTS_EXTI_PORT, HCITR_CTS_PIN);
+      //RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, DISABLE);
 
 #endif
 
+		debugBT_printf("xxx enable delay\r\n");
       // Clear the reset.                                               
-      BTPS_Delay(10);
+     // BTPS_Delay(10);
       ClearReset();
-      BTPS_Delay(250);
+     // BTPS_Delay(250);
    }
    else
       ret_val = HCITR_ERROR_UNABLE_TO_OPEN_TRANSPORT;
-*/
+
    return(ret_val);
 }
 
@@ -516,7 +524,15 @@ int BTPSAPI HCITR_COMOpen(HCI_COMMDriverInformation_t *COMMDriverInformation, HC
    //          length and data buffer (respectively).                   
 void BTPSAPI HCITR_COMClose(unsigned int HCITransportID)
 {
-	debugBT_printf("*** incomplete *** hcitr_comClos\r\n");
+	// Check to make sure that the specified Transport ID is valid.      
+   if((HCITransportID == TRANSPORT_ID) && (HCITransportOpen))
+   {
+      	// Flag that the HCI Transport is no longer open.                 
+      	HCITransportOpen = 0;
+		DisableBTUart();
+		// Place the Bluetooth Device in Reset.                           
+      	SetReset();
+   }
 /*   HCITR_COMDataCallback_t COMDataCallback;
 
 #if (defined(SUPPORT_TRANSPORT_SUSPEND) || defined(USE_SOFTWARE_CTS_RTS))
