@@ -198,7 +198,7 @@ typedef uint16_t ushort;
 #endif /* DEBUG_* */
 #endif /* !DEBUG */
 
-//#define DISABLE_SLEEP
+#define DISABLE_SLEEP
 //#define EMOTE_WAKELOCKS // in power driver
 //#define DOTNOW_HSI_CALIB
 
@@ -288,7 +288,6 @@ HAL_RECEPTION_TIMER 6
 //#define VIRT_TIMER_OMAC_TRANSMITTER_POST_EXEC	23
 
 #define VIRT_TIMER_BLUETOOTH_TICK 25
-#define VIRT_TIMER_BLUETOOTH_TICK2 26
 
 const uint OMAC_DISCO_SEQ_NUMBER = 27;
 //const uint OMAC_HW_ACK_DELAY_MICRO = 100;

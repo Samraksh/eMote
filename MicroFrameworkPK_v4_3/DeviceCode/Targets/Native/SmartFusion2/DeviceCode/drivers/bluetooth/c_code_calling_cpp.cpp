@@ -20,8 +20,7 @@ void BT_VTCallback(void * arg){
 }
 
 void SetBTTimerInterrupt(int ticks, TIMER_CALLBACK_FPN callbackFunction){
-	hal_printf("starting timer\r\n");
-	VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, 5000, TRUE, TRUE, BT_VTCallback, ADVTIMER_32BIT);
+	VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, 100000, FALSE, TRUE, BT_VTCallback, ADVTIMER_32BIT);
 	VirtTimer_Start(VIRT_TIMER_BLUETOOTH_TICK);
 }
 

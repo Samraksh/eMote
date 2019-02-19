@@ -2006,13 +2006,6 @@ DeviceStatus CPU_Bluetooth_Initialize( )
 {
 	DeviceStatus status = DS_Fail;
 	int Result;
-
-	hal_printf("set timer in init\r\n");
-	if(VirtTimer_SetTimer(VIRT_TIMER_BLUETOOTH_TICK2, 0, 5000, TRUE, TRUE, testCallback, ADVTIMER_32BIT) != TimerSupported)
-	{
-		hal_printf("failed to set timer\r\n");
-	}
-	VirtTimer_Start(VIRT_TIMER_BLUETOOTH_TICK2);
 	
 	hal_printf("init Bluetooth\r\n");
 	// configure hardware

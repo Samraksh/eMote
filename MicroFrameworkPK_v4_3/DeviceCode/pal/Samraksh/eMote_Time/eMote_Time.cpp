@@ -20,7 +20,7 @@
 
 Time_Driver g_Time_Driver;
 
-void TimeHandler(void *arg);
+//void TimeHandler(void *arg);
 void SetCompareHandler(void *arg);
 
 
@@ -28,31 +28,34 @@ BOOL Time_Driver::Initialize()
 {
 	BOOL retVal = TRUE;
 
+	// *** for SF2 TIM1 is dedicated to keeping track of time in the timer driver so it is not needed here.***
+	// there is no RTC clock enabled yet for sleep
+	// sleep has been disabled for now so that only leaves the VIRT_TIMER_EVENTS
 
 	// this timer keeps our timer constantly running so we can keep track of our system time
 	// overflows are kept track of in the timer driver itself
-	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_TIME, 0, CPU_Timer_GetMaxTicks(ADVTIMER_32BIT), FALSE, TRUE, TimeHandler, ADVTIMER_32BIT) == TimerSupported);
-	ASSERT(retVal);
+	//retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_TIME, 0, CPU_Timer_GetMaxTicks(ADVTIMER_32BIT), FALSE, TRUE, TimeHandler, ADVTIMER_32BIT) == TimerSupported);
+	//ASSERT(retVal);
 
-	retVal = retVal && (VirtTimer_Start( VIRT_TIMER_TIME ) == TimerSupported);
-	ASSERT(retVal);
+	//retVal = retVal && (VirtTimer_Start( VIRT_TIMER_TIME ) == TimerSupported);
+	//ASSERT(retVal);
 
 	//retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_RTC_ONE_SEC, 0, 1000000, FALSE, TRUE, TimeHandlerRTC, LOW_DRIFT_TIMER) == TimerSupported);
 	//retVal = retVal && (VirtTimer_Start( VIRT_TIMER_RTC_ONE_SEC ) == TimerSupported);
 
-	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_SLEEP, 0, CPU_Timer_GetMaxTicks(LOW_DRIFT_TIMER), FALSE, TRUE, SetCompareHandler, LOW_DRIFT_TIMER) == TimerSupported);
+	//retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_SLEEP, 0, CPU_Timer_GetMaxTicks(LOW_DRIFT_TIMER), FALSE, TRUE, SetCompareHandler, LOW_DRIFT_TIMER) == TimerSupported);
 	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_EVENTS, 0, CPU_Timer_GetMaxTicks(ADVTIMER_32BIT), FALSE, TRUE, SetCompareHandler, ADVTIMER_32BIT) == TimerSupported);
 
 	return retVal;
 }
 
 
-void TimeHandler(void *arg)
+/*void TimeHandler(void *arg)
 {
 	static int  timeHandlerCount = 0;
 
 	timeHandlerCount++;
-}
+}*/
 
 
 BOOL Time_Driver::Uninitialize()
