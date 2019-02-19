@@ -26,7 +26,7 @@
 
    // The following constant represents the number of ticks between each
    // interrupt of the timer.  The value must be between 1 and 65536.   
-#define TICKS_PER_TIMER_INTERRUPT                    (1)
+#define TICKS_PER_TIMER_INTERRUPT                    (50000)
 
    // The following constant represents the maximum number of functions 
    // that can be added to the scheduler.                               
@@ -464,7 +464,6 @@ static int GetHeapStatistics(void *Heap, BTPS_MemoryStatistics_t *MemoryStatisti
    // timer used by BTPS.                                               
 void SysTick_Handler(void)
 {
-		debugBT_printf("bt tick\r\n");
    TickCount += TICKS_PER_TIMER_INTERRUPT;
 }
 
@@ -1138,7 +1137,7 @@ debugBT_printf("btps_init\r\n");
 
    // Initialize the tick timer.                                        
    //RCC_GetClocksFreq(&RCC_Clocks);
-   SetBTTimerInterrupt(TICKS_PER_TIMER_INTERRUPT / 1000, SysTick_Handler);
+   SetBTTimerInterrupt(TICKS_PER_TIMER_INTERRUPT / 100, SysTick_Handler);
 
    // Initialize the static variables for this module.                  
    DebugZoneMask              = DEBUG_ZONES;
