@@ -92,7 +92,10 @@ ReadCom(int dev, char* buf, int buf_size, bool verbose){
 	int totalRead=0, n=0;
 	//do {
 		memset(buf, '0', buf_size);
+		printf("Going to read serial packet...\n");
+		
 		n = read( dev, buf, buf_size);
+		
 		if (n < 0) {
 			badFileDescriptor++;
 			printf("Error reading: %s \n", strerror(errno));
