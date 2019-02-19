@@ -206,8 +206,9 @@ static void *MemAlloc(void *Heap, unsigned long Size)
 {
    void        *ret_val;
    
-   //debugBT_Numprintf("bt all: ", Size);
    ret_val = private_malloc(Size);
+   debugBT_Numprintf("memalloc size: ", Size);
+   debugBT_Numprintf("memalloc addr: ", ret_val);
    /*HeapInfo_t  *HeapInfo;
    BlockInfo_t *BlockInfo;
    BlockInfo_t *TempBlockInfo;
@@ -492,6 +493,10 @@ void BTPSAPI BTPS_Delay(unsigned long MilliSeconds)
    unsigned long ticksInMs = MilliSeconds * 100000;
 
    StartTickCount = BTPS_GetTickCount();
+   if (StartTickCount == 0){
+		debugBT_printf("delay fail\r\n");
+	   return;
+   }
    while((BTPS_GetTickCount() - StartTickCount) < ticksInMs) {}
 }
 
@@ -701,6 +706,8 @@ void *BTPSAPI BTPS_AllocateMemory(unsigned long MemorySize)
 
    //debugBT_Numprintf("bt all: ", MemorySize);
    ret_val = private_malloc(MemorySize);
+   //debugBT_Numprintf("memalloc size: ", MemorySize);
+   //debugBT_Numprintf("memalloc addr: ", ret_val);
 
  /*  ret_val = MemAlloc(MemoryBuffer, MemorySize);
 
@@ -1146,10 +1153,6 @@ debugBT_printf("btps_init\r\n");
 
    // Finally flag that the Scheduler has been initialized successfully.
    SchedulerInitialized       = TRUE;
-   /*while (1){
-debugBT_printf("delay test\r\n");
-	   BTPS_Delay(2000);
-   }*/
 }
 
    // The following function is used to cleanup the Platform module.    
