@@ -86,21 +86,30 @@ err_t com_netif_output(struct netif *pNetIF, struct pbuf *pPBuf,
 
     int x;
     //write the startbytes
-    //x=USART_Write(comPort, NETIF_START_STOP_BYTES, NETIF_START_STOP_CHAR_SIZE);
-    //if(x!=NETIF_START_STOP_CHAR_SIZE){HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);}
+    x=USART_Write(comPort, NETIF_START_STOP_BYTES, NETIF_START_STOP_CHAR_SIZE);
+    if(x!=NETIF_START_STOP_CHAR_SIZE){
+		debug_printf("com_netif_output: Got %d, wrote %d\n\n",NETIF_START_STOP_CHAR_SIZE,x);debug_printf("\n\n");
+    	HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);
+    }
 
     while(pPBuf)
     {
     	x=USART_Write(comPort,(const char*)pPBuf->payload, pPBuf->len);
-    	if(x!=pPBuf->len){HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);}
+    	if(x!=pPBuf->len){
+    		debug_printf("com_netif_output: Got %d, wrote %d\n\n",pPBuf->len,x);debug_printf("\n\n");
+    		HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);
+    	}
         //memcpy(&pTx[idx], pPBuf->payload, pPBuf->len);
         //idx += pPBuf->len;
         pPBuf = pPBuf->next;
         //hal_printf("Com_netif_output: wrote %d bytes\n\r", x);
     }
     //write the stopbytes
-    //x=USART_Write(comPort, NETIF_START_STOP_BYTES, NETIF_START_STOP_CHAR_SIZE);
-    //if(x!=NETIF_START_STOP_CHAR_SIZE){HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__); }
+    x=USART_Write(comPort, NETIF_START_STOP_BYTES, NETIF_START_STOP_CHAR_SIZE);
+    if(x!=NETIF_START_STOP_CHAR_SIZE){
+    	debug_printf("com_netif_output: Got %d, wrote %d\n\n",NETIF_START_STOP_CHAR_SIZE,x);debug_printf("\n\n");
+    	HAL_Assert((LPCSTR)__func__, __LINE__,(LPCSTR)__FILE__);
+    }
 
     return ERR_OK;
 }
