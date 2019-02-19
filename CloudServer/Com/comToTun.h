@@ -14,6 +14,8 @@
 #include <termios.h>
 #include <locale.h>
 #include <stdbool.h>
+#include <semaphore.h> 
+
 
 //Tun Methods
 

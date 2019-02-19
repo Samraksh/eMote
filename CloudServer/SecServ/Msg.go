@@ -2,7 +2,7 @@ package main
 
 import (
 	//"bufio"
-	//"fmt"
+	"fmt"
 	//"net"
 	"strconv"
 	//"os"
@@ -13,9 +13,11 @@ import (
 
 
 func CreateMsg (msgid, msglen int) ([]byte)  {
+	fmt.Println("Created Message of size: ", msglen);
 	sendmsg := make([]byte,msglen)
 	sendmsg=[]byte("Hello Client: "+strconv.Itoa(msgid))
 	//sendmsg+= 
+	fmt.Println("Message of size: ", len(sendmsg));
 	return sendmsg
 }
 

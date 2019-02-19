@@ -18,9 +18,11 @@ const bool verboseMode=true;
 
 char tunReadBuf[TUN_MTU];
 char comReadBuf[TUN_MTU];
- int tunfd=-1;
- int comfd=-1;
+int tunfd=-1;
+int comfd=-1;
 
+//semphore for critical section
+//sem_t mutex;
 
 
 //function prototypes
@@ -46,17 +48,20 @@ int OpenTunDev(char * _tunName)
 
 int ReadTun(int tun_fd)
 {
-    int nread;
+    int nread=0;
     // Now read data coming from the kernel 
     
     // Note that "buffer" should be at least the MTU size of the interface, eg 1500 bytes 
     memset(tunReadBuf, '\0', TUN_MTU);
     //printf("ReadTun: reading from device %d\n",tun_fd);
-    nread = read(tun_fd,tunReadBuf,sizeof(tunReadBuf));
+    nread = read(tun_fd,tunReadBuf,TUN_MTU);
     if(nread < 0) {
         perror("Reading from interface");
-        close(tun_fd);
-        exit(1);
+        //close(tun_fd);
+        //exit(1);
+    }
+    if(nread > 100){
+        printf("ReadTun: Large Tun Pkt %d\n", nread);
     }
 
     // Do whatever with the data 
@@ -148,9 +153,10 @@ void* ReadTunWriteCom(void *_tunfd){
         
         if(nread> 0){
             if(verboseMode){
-                printf("Tun pkt: ");PrintMem(tunReadBuf, nread);
+                printf("Tun pkt: size %d: ",nread);PrintMem(tunReadBuf, nread);
             }
             if(WriteToCom(comfd, tunReadBuf, nread)!= nread){
+                memset(tunReadBuf,'\0',TUN_MTU);
                 printf("ReadTunWriteCom: Did not write everything to Com that I read from Tun...\n");
             }else {
                  printf("ReadTunWriteCom: Wrote %d bytes to Com\n", nread);
@@ -159,7 +165,7 @@ void* ReadTunWriteCom(void *_tunfd){
         else {
             printf("ReadTunWriteCom: Did not read anything from tun\n");
         }
-        usleep(1000);
+        //usleep(1000);
     }
 }
 
@@ -174,7 +180,7 @@ void* ReadComWriteTun(void *_comfd){
 
         if(nread> 0){
             if(verboseMode){
-                printf("Com pkt: "); PrintMem(comReadBuf,nread);
+                printf("\n\nCom pkt: "); PrintMem(comReadBuf,nread);
             }
             if(WriteTun(tunfd, comReadBuf, nread)!= nread)
             {
@@ -186,7 +192,7 @@ void* ReadComWriteTun(void *_comfd){
         else {
             printf("ComRead: Did not read anything\n");
         }
-        usleep(1000);
+        //usleep(1000);
 
     }
 }
