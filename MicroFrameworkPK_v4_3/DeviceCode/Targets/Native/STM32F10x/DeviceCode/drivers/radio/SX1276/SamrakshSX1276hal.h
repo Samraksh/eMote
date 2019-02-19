@@ -19,7 +19,7 @@ namespace EMOTE_SX1276_LORA {
 								which is used by the above layers within Emote like OMAC
  */
 class Samraksh_SX1276_hal : public  SamrakshRadio_I {
-private:
+protected:
 	SX1276RadioEvents_t sx1276_re;
 public: //Public class definitions
 //	SX1276M1BxASWrapper radio;
@@ -58,7 +58,7 @@ public:
 		};
 	};
 	InternalRadioProperties_t SX1276_hal_wrapper_internal_radio_properties;
-private:
+protected:
 	static const UINT16 SX1276_hal_wrapper_max_packetsize = 255;
 
 	static const ClockIdentifier_t low_precision_clock_id = 4; // low precision  clock id used when schedling  time to load
@@ -109,7 +109,7 @@ private:
 	}
 
 	DeviceStatus AddToTxBuffer(void* msg, UINT16 size);
-private:
+protected:
 	bool IsPacketTransmittable(void* msg, UINT16 size);
 public:
 	void ChooseRadioConfig();
@@ -124,7 +124,7 @@ public:
 	DeviceStatus SetAddress();
 	RadioProperties_t GetRadioProperties();
 
-	void Send(void* msg, UINT16 size, bool request_ack = false);
+	void Send(void* msg, UINT16 size, bool request_ack = false, bool saveCopyOfPacket = false);
 	void RequestSendAtTimeInstanst(void* msg, UINT16 size, TimeVariable_t PacketTransmissionTime, ClockIdentifier_t ClockIdentifier);
 	void RequestCancelSend();
 

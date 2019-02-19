@@ -235,6 +235,8 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1
 #define VIRT_TIMER_OMAC_SCHEDULER	2
+#define VIRT_TIMER_SX1276_PacketTxClock  3
+
 #define LocalClockMonitor_TIMER1 33
 //#define VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC		3
 #define NeighborClockMonitor_TIMER1 34
@@ -275,6 +277,15 @@ const uint __SI4468_SOFTWARE_ACK__ = 1;
 const uint __SI4468_HARDWARE_ACK__ = 0;		//Hardware ack is always zero for SI4468
 const uint __RF231_SOFTWARE_ACK__ = 0;
 const uint __RF231_HARDWARE_ACK__ = 1;
+
+/********SX1276 SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
+#define VIRT_TIMER_SX1276  44
+#define VIRT_TIMER_SX1276_txTimeout 45
+#define VIRT_TIMER_SX1276_rxTimeout 46
+#define VIRT_TIMER_SX1276_rxTimeoutSyncWord 47
+#define VIRT_TIMER_SX1276_PacketLoadTimerName 48
+#define VIRT_TIMER_SX1276_PacketTxTimerName 49
+
 
 /*#define RADIONAME_RF231		1
 #define RADIONAME_RF231LR	2

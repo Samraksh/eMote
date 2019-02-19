@@ -28,8 +28,8 @@ void Samraksh_SX1276_hal::ValidHeaderDetected(){
 	if(gsx1276radio.m_re.PacketDetected) gsx1276radio.m_re.PacketDetected();
 }
 void Samraksh_SX1276_hal::TxDone(){
-	gsx1276radio.m_packet.ClearPaylod();
 	if(gsx1276radio.m_re.TxDone) gsx1276radio.m_re.TxDone(true);
+	gsx1276radio.m_packet.ClearPaylod();
 }
 void Samraksh_SX1276_hal::TxTimeout(){
 	gsx1276radio.m_packet.ClearPaylod();
@@ -134,10 +134,17 @@ SamrakshRadio_I::RadioProperties_t Samraksh_SX1276_hal::GetRadioProperties(){
 	return m_rp;
 }
 
-void Samraksh_SX1276_hal::Send(void* msg, UINT16 size, bool request_ack) {
+void Samraksh_SX1276_hal::Send(void* msg, UINT16 size, bool request_ack, bool saveCopyOfPacket) {
 	if(!IsPacketTransmittable(msg, size)) {
 		m_re.DataStatusCallback(false,size);
 		return;
+	}
+	if(saveCopyOfPacket){
+		bool rv = m_packet.PreparePayload(msg, size, 0, 0);
+		if(!rv){
+			m_re.DataStatusCallback(false, size);
+			return;
+		}
 	}
 	m_re.DataStatusCallback(true,size);
 	g_SX1276M1BxASWrapper.Send(static_cast<uint8_t *>(msg), size);

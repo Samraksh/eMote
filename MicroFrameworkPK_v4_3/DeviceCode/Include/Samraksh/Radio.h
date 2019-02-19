@@ -371,7 +371,7 @@ public:
      * @brief Request Sending data as soon as possible
      *
      */
-	virtual void Send(void* msg, UINT16 size, bool request_ack = false);
+	virtual void Send(void* msg, UINT16 size, bool request_ack = false, bool saveCopyOfPacket=false);
     /*!
      * @brief Request Sending data at a specified time instance
      *
