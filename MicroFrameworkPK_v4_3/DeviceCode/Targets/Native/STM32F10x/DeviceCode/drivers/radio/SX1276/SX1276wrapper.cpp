@@ -1329,6 +1329,100 @@ void SX1276M1BxASWrapper::Send( uint8_t *buffer, uint8_t size )
     Tx( txTimeout );
 }
 
+void SX1276M1BxASWrapper::SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventTime) //BK:Artificial injection due to compliance with mf_radio. TODO:The interface should be changed as it breaks layering.
+{
+    uint32_t txTimeout = 0;
+
+    switch( this->settings.Modem )
+    {
+    case MODEM_FSK:
+        {
+            this->settings.FskPacketHandler.NbBytes = 0;
+            this->settings.FskPacketHandler.Size = size;
+
+            if( this->settings.Fsk.FixLen == false )
+            {
+                WriteFifo( ( uint8_t* )&size, 1 );
+            }
+            else
+            {
+                Write( REG_PAYLOADLENGTH, size );
+            }
+
+            if( ( size > 0 ) && ( size <= 64 ) )
+            {
+                this->settings.FskPacketHandler.ChunkSize = size;
+            }
+            else
+            {
+                for(uint8_t i = 0; i < size; ++i){
+                	rxtxBufferstorage[i] = *(buffer + i);
+                };
+//                memcpy( rxtxBuffer, buffer, size );
+                this->settings.FskPacketHandler.ChunkSize = 32;
+            }
+
+            // Write payload buffer
+            WriteFifo( buffer, this->settings.FskPacketHandler.ChunkSize );
+            this->settings.FskPacketHandler.NbBytes += this->settings.FskPacketHandler.ChunkSize;
+
+            //CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
+            UINT32 timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
+            UINT32 eventOffset = timestamp - eventTime;
+        	WriteFifo( buffer, eventOffset );
+
+            txTimeout = this->settings.Fsk.TxTimeout;
+        }
+        break;
+    case MODEM_LORA:
+        {
+            if( this->settings.LoRa.IqInverted == true )
+            {
+                Write( REG_LR_INVERTIQ, ( ( Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_ON ) );
+                Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_ON );
+            }
+            else
+            {
+                Write( REG_LR_INVERTIQ, ( ( Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_OFF ) );
+                Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF );
+            }
+
+            this->settings.LoRaPacketHandler.Size = size;
+
+            // Initializes the payload size
+            Write( REG_LR_PAYLOADLENGTH, size );
+
+            // Full buffer used for Tx
+            Write( REG_LR_FIFOTXBASEADDR, 0 );
+            Write( REG_LR_FIFOADDRPTR, 0 );
+
+            // FIFO operations can not take place in Sleep mode
+            if( ( Read( REG_OPMODE ) & ~RF_OPMODE_MASK ) == RF_OPMODE_SLEEP )
+            {
+                Standby( );
+                wait_ms( 1 );
+            }
+            // Write payload buffer
+            WriteFifo( buffer, size );
+
+
+
+            //CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
+            UINT32 timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
+            UINT32 eventOffset = timestamp - eventTime;
+        	WriteFifo( buffer, eventOffset );
+
+
+
+            txTimeout = this->settings.LoRa.TxTimeout;
+        }
+        break;
+    }
+
+    Tx( txTimeout );
+}
+
+
 void SX1276M1BxASWrapper::Sleep(  )
 {
     //txTimeoutTimer.detach( );

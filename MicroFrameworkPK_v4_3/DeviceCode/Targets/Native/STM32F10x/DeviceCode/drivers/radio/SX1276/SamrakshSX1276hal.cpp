@@ -149,6 +149,21 @@ void Samraksh_SX1276_hal::Send(void* msg, UINT16 size, bool request_ack, bool sa
 	m_re.DataStatusCallback(true,size);
 	g_SX1276M1BxASWrapper.Send(static_cast<uint8_t *>(msg), size);
 }
+void Samraksh_SX1276_hal::SendTS(void* msg, UINT16 size, UINT32 eventTime, bool request_ack, bool saveCopyOfPacket) {
+	if(!IsPacketTransmittable(msg, size)) {
+		m_re.DataStatusCallback(false,size);
+		return;
+	}
+	if(saveCopyOfPacket){
+		bool rv = m_packet.PreparePayload(msg, size, 0, 0);
+		if(!rv){
+			m_re.DataStatusCallback(false, size);
+			return;
+		}
+	}
+	m_re.DataStatusCallback(true,size);
+	g_SX1276M1BxASWrapper.SendTS(static_cast<uint8_t *>(msg), size, eventTime);
+}
 
 
 void Samraksh_SX1276_hal::RequestSendAtTimeInstanst(void* msg, UINT16 size, TimeVariable_t PacketTransmissionTime, ClockIdentifier_t ClockIdentifier){ //TODO:

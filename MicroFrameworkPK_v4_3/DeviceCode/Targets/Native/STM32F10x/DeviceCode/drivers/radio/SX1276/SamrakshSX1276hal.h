@@ -125,6 +125,8 @@ public:
 	RadioProperties_t GetRadioProperties();
 
 	void Send(void* msg, UINT16 size, bool request_ack = false, bool saveCopyOfPacket = false);
+	void SendTS(void* msg, UINT16 size, UINT32 eventTime, bool request_ack, bool saveCopyOfPacket);
+
 	void RequestSendAtTimeInstanst(void* msg, UINT16 size, TimeVariable_t PacketTransmissionTime, ClockIdentifier_t ClockIdentifier);
 	void RequestCancelSend();
 

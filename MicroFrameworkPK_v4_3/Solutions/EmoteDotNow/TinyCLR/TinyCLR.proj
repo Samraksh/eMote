@@ -702,6 +702,7 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_radio_rf231.$(LIB_EXT)" />
 	<DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />
+	<DriverLibs Include="STM32F10x_radio_sx1276x.$(LIB_EXT)" />
   </ItemGroup>
   <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\dotNetMF.proj" />

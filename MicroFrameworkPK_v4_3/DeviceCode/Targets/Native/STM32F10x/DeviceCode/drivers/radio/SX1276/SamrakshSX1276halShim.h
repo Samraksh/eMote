@@ -16,7 +16,13 @@ namespace EMOTE_SX1276_LORA {
  * @brief Samraksh_SX1276_hal: 	The class that converts calls from netmf_radio to SamrakshRadio_I interface
  */
 class Samraksh_SX1276_hal_netmfadapter {
+protected:
+	UINT16 radio_address;
+	INT8 radioName;
+	bool DataStatusCallback_success;
+	UINT16 DataStatusCallback_number_of_bytes_in_buffer;
 public:
+
 	RadioEventHandler Radio_event_handler; //Radop events from netmf
 	SamrakshRadio_I::RadioEvents_t radio_events; //Radio events to SamrakshRadio_I
 public:
@@ -46,11 +52,29 @@ public:
      *
      */
     static void  DataStatusCallback ( bool success, UINT16 number_of_bytes_in_buffer );
-
 public:
 
 	DeviceStatus CPU_Radio_Initialize(RadioEventHandler* event_handler); //Initializes Return the ID of the Radio layer that was initialized
 	void* Send(void* msg, UINT16 size);
+	void* SendTS(void* msg, UINT16 size,  UINT32 eventTime);
+	DeviceStatus CPU_Radio_ClearChannelAssesment();
+	DeviceStatus TurnOnRx();
+	DeviceStatus Sleep();
+
+	UINT16 GetAddress(){
+		return radio_address;
+	}
+	BOOL SetAddress(UINT16 address){
+		radio_address = address;
+		return true;
+	}
+
+	INT8 GetRadioName(){
+		return radioName;
+	}
+	void SetRadioName(INT8 rn){
+		radioName = rn;
+	}
 	/*	BOOL CPU_Radio_UnInitialize(UINT8 radioIDs);
 	UINT8 CPU_Radio_GetRadioIDs(UINT8* radioIDs);
 	void* CPU_Radio_Preload(UINT8 radioID,void * msg, UINT16 size);

@@ -475,6 +475,7 @@ public:
      * @param [IN]: size       Buffer size
      */
     void Send( uint8_t *buffer, uint8_t size );
+    void SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventTime);//BK:Artificial injection due to compliance with mf_radio. TODO:The interface should be changed as it breaks layering.
     /*!
      * @brief Sets the radio in sleep mode
      */
