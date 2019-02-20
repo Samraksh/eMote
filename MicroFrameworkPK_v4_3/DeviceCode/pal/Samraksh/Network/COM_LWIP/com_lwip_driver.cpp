@@ -4,8 +4,9 @@
 #include "com_lwip.h"
 #include <USART_decl.h>
 
-
+#if defined(PLATFORM_ARM_EmoteDotNow)
 #include <pwr/netmf_pwr_wakelock.h>
+#endif
 
 extern "C"
 {
@@ -203,7 +204,9 @@ err_t   com_netif_init( netif * myNetIf)
     com_lwip_open( myNetIf );
 
     //prevent system from going to deep sleep
+#if defined(PLATFORM_ARM_EmoteDotNow)
     WakeLock(1);
+#endif
 
     return ERR_OK;
 }

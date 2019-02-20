@@ -24,15 +24,18 @@
 		<!-- The M2S090 has  devices have 512 KB of flash starting at 0x60000000 -->
         <!-- THIS MUST MATCH THE BLOCK STORAGE DRIVER! -->
         <!-- Regular build: -->
-        <Set Name="Config_BaseAddress"  Value="0x6007F000"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
-        <Set Name="Config_BaseAddress_Mirror"  Value="0x0007F000"/>
-        <Set Name="Config_Size"         Value="0x00001000"/><!--        Config_Size MUST MATCH TINYBOOTER SCATTERFILE -->
+        <Set Name="Config_BaseAddress"  Value="0x6007F800"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
+        <Set Name="Config_BaseAddress_Mirror"  Value="0x0007F800"/>
+        <Set Name="Config_Size"         Value="0x00000800"/><!--        Config_Size MUST MATCH TINYBOOTER SCATTERFILE -->
  
         <!--<Set Name="Code_BaseAddress"    Value="0x6000F000"/>
 		<Set Name="Code_BaseAddress_Mirror"    Value="0x0000F000"/>
 		-->
-        <Set Name="Deploy_BaseAddress"  Value="0x60065800"/>
-        <Set Name="Deploy_BaseAddress_Mirror"  Value="0x00065800"/>
+        <!-- <Set Name="Deploy_BaseAddress"  Value="0x60065800"/>
+        <Set Name="Deploy_BaseAddress_Mirror"  Value="0x00065800"/> -->
+        
+        <Set Name="Deploy_BaseAddress"  Value="0x6006B000"/>
+        <Set Name="Deploy_BaseAddress_Mirror"  Value="0x0006B000"/>
         <!-- <Set Name="Code_Size"           Value="%Deploy_BaseAddress - Code_BaseAddress%"/> --> 
         
         <Set Name="RoT_BaseAddress"    Value="0x6000F000"/>
@@ -41,11 +44,11 @@
         <!-- The below for parameters are important, will have to be adjusted based on compilation output, if a section overflows -->
         <!-- <Set Name="RoT_Code_Size"           Value="0x2200"/>  30KB -->
         <Set Name="RoT_Code_Size"           Value="0x5000"/> <!-- 30KB -->
-		<Set Name="Kernel_Code_Size"           Value="0xC000"/> 
+		<Set Name="Kernel_Code_Size"           Value="0x1C000"/> 
         
         <!-- <Set Name="RoT_RAM_Base" 			Value="%Stack_Top% + 8"/> -->
         <Set Name="RoT_RAM_Size"           Value="0x400"/> <!-- 512 B -->
-		<Set Name="Kernel_RAM_Size"           Value="0x2F00"/> <!-- 4KB -->
+		<Set Name="Kernel_RAM_Size"           Value="0x9F00"/> <!-- 39KB -->
         
         
         <!--<Set Name="Kernel_BaseAddress"    Value="0x6001F000"/>-->
@@ -112,7 +115,8 @@
       </IfDefined>
       <LoadRegion Name="ROT_RELOC_RAM" Base="%Stack_Top% + 8" Size="%RoT_RAM_Size%"/>
       <LoadRegion Name="Kernel_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size%" Size="%Kernel_RAM_Size%"/>
-      <LoadRegion Name="RunTime_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size% + %Kernel_RAM_Size%" Size="%Heap_Begin - Stack_Top% - %RoT_RAM_Size% - %Kernel_RAM_Size% - 8"/>
+      <!-- <LoadRegion Name="RunTime_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size% + %Kernel_RAM_Size%" Size="%Heap_Begin - Stack_Top% - %RoT_RAM_Size% - %Kernel_RAM_Size% - 8"/> -->
+      <LoadRegion Name="RunTime_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size% + %Kernel_RAM_Size%" Size="%User_Stack_Top - Stack_Top% - %RoT_RAM_Size% - %Kernel_RAM_Size% - 8"/>
       
     </NamedGroup>
 
@@ -141,9 +145,9 @@
 		<!-- Root of trust execution region -->
 		<ExecRegion Name="ROT_ER_%TARGETLOCATION%" Options="&gt;ROT_LR_%TARGETLOCATION%_Mirror AT>ROT_%AltName%">
 			<!--<Input Name="RoT/*.obj" />-->
-        	<FileMapping Name="*" Options="(VectorsTrampolines)" />
-        	<FileMapping Name="*" Options="(i.EntryPoint)" />
-        	<FileMapping Name="*" Options="(SectionForBootstrapOperations)" />
+        	<FileMapping Name="*\tmp_RoT_SecureClr.lib:*" Options="(VectorsTrampolines)" />
+        	<FileMapping Name="*\tmp_RoT_SecureClr.lib:*" Options="(i.EntryPoint)" />
+        	<FileMapping Name="*\tmp_RoT_SecureClr.lib:*" Options="(SectionForBootstrapOperations)" />
         	
         	<FileMapping Name="*\tmp_RoT_SecureClr.lib:* " Options="(.text*)" />     	      
         	<FileMapping Name="*\tmp_RoT_SecureClr.lib:* " Options="(.rodata*)" />
@@ -192,7 +196,8 @@
           		<FileMapping Name="*" Options="(SectionForFlashOperations)" />       
         	</If>
       	</ExecRegion>    
-      	<ExecRegion Name="ROT_ER_RAM_RW" Align="0x10" Options="&gt;ROT_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
+      	<!--<ExecRegion Name="ROT_ER_RAM_RW" Align="0x10" Options="&gt;ROT_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%"> -->
+      	<ExecRegion Name="ROT_ER_RAM_RW" Align="0x10" Options="&gt;ROT_RELOC_RAM">
         	<FileMapping Name="*\tmp_RoT_SecureClr.lib:*" Options="(rwdata)" />
         	<FileMapping Name="*\tmp_RoT_SecureClr.lib:*" Options="(.data*)" />
         	<FileMapping Name="*\tmp_RoT_SecureClr.lib:*" Options="(.zidata*)" />
@@ -202,10 +207,11 @@
         	<FileMapping Name="PROVIDE(__exidx_start = .);" />
         	<FileMapping Name="PROVIDE(__exidx_end = .);" />
       	</ExecRegion>
-      	<ExecRegion Name="Kernel_ER_RAM_RW" Align="0x10" Options="&gt;Kernel_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
+      	<ExecRegion Name="Kernel_ER_RAM_RW" Align="0x10" Options="&gt;Kernel_RELOC_RAM">
         	<FileMapping Name="*\tmp_Kernel_SecureClr.lib:*" Options="(rwdata)" />
         	<FileMapping Name="*\tmp_Kernel_SecureClr.lib:*" Options="(.data*)" />
         	<FileMapping Name="*\tmp_Kernel_SecureClr.lib:*" Options="(.zidata*)" />
+        	<FileMapping Name="*\tmp_Kernel_SecureClr.lib:*" Options="(COMMON*)" />
         	          	
       	</ExecRegion>      
       	<ExecRegion Name=".bss.kernel" Align="0x10" Options="&gt;Kernel_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
@@ -213,7 +219,7 @@
         	
         	
       	</ExecRegion>
-      	<ExecRegion Name="RunTime_ER_RAM_RW" Align="0x10" Options="&gt;RunTime_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
+      	<ExecRegion Name="RunTime_ER_RAM_RW" Align="0x10" Options="&gt;RunTime_RELOC_RAM">
         	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:*)" Options="rwdata)" />
         	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:*)" Options=".data*)" />
         	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:*)" Options=".zidata*)" />

@@ -29,9 +29,6 @@
   <!-- Samraksh Heap and Stack settings to be propagated across ASM, C/C++, and Linker Script targets -->
   <PropertyGroup>
     <!-- BEFORE YOU CHANGE THIS: check size of ER_RAM_RO + ER_RAM_RW + .bss in map file and accommodate accordingly. -->
-    <!-- 0x3000 address maps to the LSRAM section in fabric, which have 18K or 2250 byte blocks, 
-    MS2090 has 109 such blocks for a total of 245250Bytes(0x3BE02) of RAM = 239.5KB -->
-    
     <SAM_STACK_BOTTOM     >0x20000000</SAM_STACK_BOTTOM>    <!-- Stack always must sit at the base of ram. period. -->
     <SAM_STACK_TOP        >0x20000FF8</SAM_STACK_TOP>
     <!-- Linker will collect and place ER_RAM_RO, ER_RAM_RW, .bss sections between stack and heap -->
@@ -41,14 +38,13 @@
     <!-- ... SAM_STACK_TOP + 8 + (Image$$ER_RAM_RW$$ZI$$Base -  Image$$ER_RAM_RO$$Base) + Image$$ER_RAM_RW$$ZI$$Length -->
     <!-- ... for TinyBooter Debug build, SAM_HEAP_BEGIN could start as low as SAM_STACK_TOP + 0x3200 = 0x20005200 -->
     <!-- ... for TinyCLR Debug build, SAM_HEAP_BEGIN could start as low as SAM_STACK_TOP + 0x98c4 = 0x2000B8D0 -->
-    <SAM_HEAP_BEGIN       >0x30000000</SAM_HEAP_BEGIN>
-    <SAM_HEAP_END         >0x3000F5F8</SAM_HEAP_END>
-    <SAM_CUSTOM_HEAP_BEGIN>0x3000F600</SAM_CUSTOM_HEAP_BEGIN>
-    <SAM_CUSTOM_HEAP_END  >0x3000F6F8</SAM_CUSTOM_HEAP_END>
+    <SAM_HEAP_BEGIN       >0x20006000</SAM_HEAP_BEGIN>
+    <SAM_HEAP_END         >0x2000F5F8</SAM_HEAP_END>
+    <SAM_CUSTOM_HEAP_BEGIN>0x2000F600</SAM_CUSTOM_HEAP_BEGIN>
+    <SAM_CUSTOM_HEAP_END  >0x2000F6F8</SAM_CUSTOM_HEAP_END>
     <SAM_USER_STACK_TOP		>0x2000F700</SAM_USER_STACK_TOP>
     <SAM_USER_STACK_BOTTOM	>0x2000FF00</SAM_USER_STACK_BOTTOM> <!-- User stack is slightly less than 2 k-->
     <SAM_PROFILER_BUFFER_BEGIN>0x2000FFE8</SAM_PROFILER_BUFFER_BEGIN>
     <SAM_PROFILER_BUFFER_END  >0x2000FFF8</SAM_PROFILER_BUFFER_END>
-    
   </PropertyGroup>
 </Project>

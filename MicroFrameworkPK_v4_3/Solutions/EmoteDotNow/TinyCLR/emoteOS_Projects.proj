@@ -669,6 +669,7 @@
     <DriverLibs Include="Algorithm_pal.$(LIB_EXT)" />
   </ItemGroup>
   
+  <!--                            Lwip and sockets begin                     -->
   <ItemGroup> 
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\dotNetMF.proj" />    
     <DriverLibs Include="sockets_hal_async_LWIP.$(LIB_EXT)" />
