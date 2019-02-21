@@ -310,15 +310,19 @@ typedef OFProv<UINT64> OMACTicks;
 
 #define DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX_RF231	284
 #define DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX_SI 1718
-
+#define DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX_SX1276 1718
 
 //#define PROCESSING_DELAY_BEFORE_TX_MICRO (581) //DELAY_FROM_OMAC_TX_TO_RF231_TX //581
 #define DELAY_FROM_DTH_TX_TO_RADIO_DRIVER_TX_RF231 581
 #define DELAY_FROM_DTH_TX_TO_RADIO_DRIVER_TX_SI 1440
+#define DELAY_FROM_DTH_TX_TO_RADIO_DRIVER_TX_SX1276 2000
 #define RADIO_TURN_ON_DELAY_RX_MICRO_RF231 693
 #define RADIO_TURN_ON_DELAY_TX_MICRO_RF231 693
 #define RADIO_TURN_ON_DELAY_RX_MICRO_SI 163
 #define RADIO_TURN_ON_DELAY_TX_MICRO_SI 143
+#define RADIO_TURN_ON_DELAY_RX_MICRO_SX1276 200
+#define RADIO_TURN_ON_DELAY_TX_MICRO_SX1276 200
+
 
 #define RADIO_TURN_OFF_DELAY_MICRO_RF231 184 //453 //BK: This is not used but it is measured 184 micro secs (may not be very accurate)
 #define TIMER_MODIFICATION_AND_START_DELAY_MICRO 269 // BK: This is a very rough number
@@ -333,6 +337,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define ADDITIONAL_TIMEADVANCE_FOR_RECEPTION 0
 #define TIME_RX_TIMESTAMP_OFFSET_MICRO_SI 1415 //TODO: BK: We need to revisit at this. This is a workaround for some unaccountant time stamping error. In rf231 this is due to the duration from the beginning of the first bit to the end of preamble (note that this is earlier than AMI) when the TS is taken.
 #define TIME_RX_TIMESTAMP_OFFSET_MICRO_RF231 141 //Actual number is unknown. Have to go back into previous commits to find out for rf231 //TODO: BK: We need to revisit at this. This is a workaround for some unaccountant time stamping error. In rf231 this is due to the duration from the beginning of the first bit to the end of preamble (note that this is earlier than AMI) when the TS is taken.
+#define TIME_RX_TIMESTAMP_OFFSET_MICRO_SX1276 1415 //Actual number is unknown. Have to go back into previous commits to find out for rf231 //TODO: BK: We need to revisit at this. This is a workaround for some unaccountant time stamping error. In rf231 this is due to the duration from the beginning of the first bit to the end of preamble (note that this is earlier than AMI) when the TS is taken.
 
 
 
