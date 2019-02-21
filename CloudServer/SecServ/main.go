@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"flag"
 	"strings"
+	"time"
 )
 
 const COM_PORTO = "udp"
@@ -17,9 +18,27 @@ func StartServerMode(mode string) {
 	}
 }
 
+func TcpClientMain(port int){
+	client := StartTCPClient(COM_PORT)
+	go client.receive()
+	/*
+	for {
+		reader := bufio.NewReader(os.Stdin)
+		message, _ := reader.ReadString('\n')
+		connection.Write([]byte(strings.TrimRight(message, "\n")))
+	}*/
+
+	for i:=0; i< 200; i+=2 {
+		fmt.Println("Sending msg: ", i)
+		msg:=CreateMsg(i,32)
+		client.socket.Write(msg)
+		time.Sleep(3 * time.Second)
+	}
+}
+
 func StartClientMode(mode string) {
 	if mode == "tcp" {
-		StartTCPClient(COM_PORT)
+		TcpClientMain(COM_PORT)
 	} else {
 		StartUDPClient(COM_PORT)
 	}

@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bufio"
+	//"bufio"
 	"fmt"
 	"net"
-	"os"
-	"strings"
+	//"os"
+	//"strings"
 	"strconv"
 	"time"
 )
@@ -130,17 +130,19 @@ func (client *TCPClient) receive() {
 	}
 }
 
-func StartTCPClient(port int) {
+func StartTCPClient(port int)  *TCPClient {
 	fmt.Println("Starting client...")
 	connection, error := net.Dial("tcp", "localhost:"+ strconv.Itoa(port))
 	if error != nil {
 		fmt.Println(error)
 	}
 	client := &TCPClient{socket: connection}
-	go client.receive()
+	/*go client.receive()
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		message, _ := reader.ReadString('\n')
 		connection.Write([]byte(strings.TrimRight(message, "\n")))
-	}
+	}*/
+	return client
 }
+
