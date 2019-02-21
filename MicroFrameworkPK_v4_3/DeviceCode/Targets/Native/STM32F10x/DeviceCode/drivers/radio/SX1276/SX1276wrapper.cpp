@@ -1338,38 +1338,50 @@ void SX1276M1BxASWrapper::SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventT
     case MODEM_FSK:
         {
             this->settings.FskPacketHandler.NbBytes = 0;
-            this->settings.FskPacketHandler.Size = size;
+            this->settings.FskPacketHandler.Size = size+4;
 
             if( this->settings.Fsk.FixLen == false )
             {
-                WriteFifo( ( uint8_t* )&size, 1 );
+                WriteFifo( ( uint8_t* )&size+4, 1 );
             }
             else
             {
-                Write( REG_PAYLOADLENGTH, size );
+                Write( REG_PAYLOADLENGTH, size+4 );
             }
 
-            if( ( size > 0 ) && ( size <= 64 ) )
+            if( ( size > 0 ) && ( size <= (64-4) ) )
             {
-                this->settings.FskPacketHandler.ChunkSize = size;
+                this->settings.FskPacketHandler.ChunkSize = size+4;
+                for(uint8_t i = 0; i < size; ++i){
+                	rxtxBufferstorage[i] = *(buffer + i);
+                };
+                UINT32 timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
+                UINT32 eventOffset = timestamp - eventTime;
+                memcpy(static_cast<void*>(&(rxtxBufferstorage[size])), static_cast<void*>(&eventOffset), sizeof(UINT32) );
             }
             else
             {
                 for(uint8_t i = 0; i < size; ++i){
                 	rxtxBufferstorage[i] = *(buffer + i);
                 };
-//                memcpy( rxtxBuffer, buffer, size );
-                this->settings.FskPacketHandler.ChunkSize = 32;
+                UINT32 timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
+                UINT32 eventOffset = timestamp - eventTime;
+                memcpy(static_cast<void*>(&(rxtxBufferstorage[size])), static_cast<void*>(&eventOffset), sizeof(UINT32) );
+                //for(uint8_t i = size; i < size+4; ++i){
+				//	rxtxBufferstorage[i] = *(buffer + i);
+				//};
+
             }
 
             // Write payload buffer
-            WriteFifo( buffer, this->settings.FskPacketHandler.ChunkSize );
+            //WriteFifo( buffer, this->settings.FskPacketHandler.ChunkSize );
+            WriteFifo( rxtxBufferstorage, this->settings.FskPacketHandler.ChunkSize );
             this->settings.FskPacketHandler.NbBytes += this->settings.FskPacketHandler.ChunkSize;
 
             //CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
-            UINT32 timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
-            UINT32 eventOffset = timestamp - eventTime;
-        	WriteFifo( buffer, eventOffset );
+            //UINT32 timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
+            //UINT32 eventOffset = timestamp - eventTime;
+        	//WriteFifo( buffer, eventOffset );
 
             txTimeout = this->settings.Fsk.TxTimeout;
         }
@@ -1387,10 +1399,10 @@ void SX1276M1BxASWrapper::SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventT
                 Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF );
             }
 
-            this->settings.LoRaPacketHandler.Size = size;
+            this->settings.LoRaPacketHandler.Size = size+4;
 
             // Initializes the payload size
-            Write( REG_LR_PAYLOADLENGTH, size );
+            Write( REG_LR_PAYLOADLENGTH, this->settings.LoRaPacketHandler.Size );
 
             // Full buffer used for Tx
             Write( REG_LR_FIFOTXBASEADDR, 0 );
@@ -1402,15 +1414,23 @@ void SX1276M1BxASWrapper::SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventT
                 Standby( );
                 wait_ms( 1 );
             }
+
+            //CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
+            UINT32 timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
+            UINT32 eventOffset = timestamp - eventTime;
+            memcpy(buffer+size, static_cast<void*>(&eventOffset), sizeof(UINT32) );
+        	//WriteFifo( reinterpret_cast<uint8_t*>(eventOffset), 4 );
+            size = size+4;
             // Write payload buffer
             WriteFifo( buffer, size );
 
 
 
             //CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
-            UINT32 timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
-            UINT32 eventOffset = timestamp - eventTime;
-        	WriteFifo( buffer, eventOffset );
+            //UINT32 timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
+            //UINT32 eventOffset = timestamp - eventTime;
+            //memcpy(buffer+size, static_cast<void*>(&eventOffset), sizeof(UINT32) );
+        	//WriteFifo( reinterpret_cast<uint8_t*>(eventOffset), 4 );
 
 
 

@@ -17,6 +17,7 @@ namespace EMOTE_SX1276_LORA {
  */
 class Samraksh_SX1276_hal_netmfadapter {
 protected:
+	UINT64 received_ts_ticks;
 	UINT16 radio_address;
 	INT8 radioName;
 	bool DataStatusCallback_success;

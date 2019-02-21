@@ -91,7 +91,7 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioN
 			currentRadioAckType = SOFTWARE_ACK;
 			SamrakshRadio_I::RadioEvents_t radio_events;
 
-			gsx1276radio_netmf_adapter.CPU_Radio_Initialize(eventHandlers);
+			status = gsx1276radio_netmf_adapter.CPU_Radio_Initialize(eventHandlers);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
@@ -185,6 +185,7 @@ UINT16 CPU_Radio_GetAddress(UINT8 radioName)
 		break;
 	case SX1276:
 		address = gsx1276radio_netmf_adapter.GetAddress();
+		//address = grf231Radio.GetAddress();
 		break;
 	default:
 		PRINTF_UNIDENTIFIED_RADIO();

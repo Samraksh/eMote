@@ -147,7 +147,8 @@ void Samraksh_SX1276_hal::Send(void* msg, UINT16 size, bool request_ack, bool sa
 		}
 	}
 	m_re.DataStatusCallback(true,size);
-	g_SX1276M1BxASWrapper.Send(static_cast<uint8_t *>(msg), size);
+	//g_SX1276M1BxASWrapper.Send(static_cast<uint8_t *>(msg), size);
+	g_SX1276M1BxASWrapper.Send(m_packet.GetPayload(), size);
 }
 void Samraksh_SX1276_hal::SendTS(void* msg, UINT16 size, UINT32 eventTime, bool request_ack, bool saveCopyOfPacket) {
 	if(!IsPacketTransmittable(msg, size)) {
@@ -162,7 +163,7 @@ void Samraksh_SX1276_hal::SendTS(void* msg, UINT16 size, UINT32 eventTime, bool 
 		}
 	}
 	m_re.DataStatusCallback(true,size);
-	g_SX1276M1BxASWrapper.SendTS(static_cast<uint8_t *>(msg), size, eventTime);
+	g_SX1276M1BxASWrapper.SendTS(m_packet.GetPayload(), size, eventTime);
 }
 
 

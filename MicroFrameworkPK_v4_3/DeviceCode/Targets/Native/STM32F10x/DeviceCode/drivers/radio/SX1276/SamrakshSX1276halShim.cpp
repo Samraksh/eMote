@@ -8,12 +8,37 @@
 #include "SamrakshSX1276halShim.h"
 #include <Samraksh/VirtualTimer.h>
 #include "SamrakshSX1276Parameters.h"
+#include <Samraksh/Message.h>
 
 extern EMOTE_SX1276_LORA::Samraksh_SX1276_hal gsx1276radio;
 EMOTE_SX1276_LORA::Samraksh_SX1276_hal_netmfadapter gsx1276radio_netmf_adapter;
 
 
 namespace EMOTE_SX1276_LORA {
+
+// This somehow gets put in the radio function. Out of scope for now, but fix me later.
+static void GetCPUSerial(uint8_t * ptr, unsigned num_of_bytes ){
+	unsigned Device_Serial0;unsigned Device_Serial1; unsigned Device_Serial2;
+	Device_Serial0 = *(unsigned*)(0x1FFFF7E8);
+	Device_Serial1 = *(unsigned*)(0x1FFFF7EC);
+	Device_Serial2 = *(unsigned*)(0x1FFFF7F0);
+	if(num_of_bytes==12){
+	    ptr[0] = (uint8_t)(Device_Serial0 & 0x000000FF);
+	    ptr[1] = (uint8_t)((Device_Serial0 & 0x0000FF00) >> 8);
+	    ptr[2] = (uint8_t)((Device_Serial0 & 0x00FF0000) >> 16);
+	    ptr[3] = (uint8_t)((Device_Serial0 & 0xFF000000) >> 24);
+
+	    ptr[4] = (uint8_t)(Device_Serial1 & 0x000000FF);
+	    ptr[5] = (uint8_t)((Device_Serial1 & 0x0000FF00) >> 8);
+	    ptr[6] = (uint8_t)((Device_Serial1 & 0x00FF0000) >> 16);
+	    ptr[7] = (uint8_t)((Device_Serial1 & 0xFF000000) >> 24);
+
+	    ptr[8] = (uint8_t)(Device_Serial2 & 0x000000FF);
+	    ptr[9] = (uint8_t)((Device_Serial2 & 0x0000FF00) >> 8);
+	    ptr[10] = (uint8_t)((Device_Serial2 & 0x00FF0000) >> 16);
+	    ptr[11] = (uint8_t)((Device_Serial2 & 0xFF000000) >> 24);
+	}
+}
 
 DeviceStatus Samraksh_SX1276_hal_netmfadapter::CPU_Radio_Initialize(RadioEventHandler* event_handler){
 	Radio_event_handler.SetReceiveHandler(event_handler->GetReceiveHandler());
@@ -25,6 +50,19 @@ DeviceStatus Samraksh_SX1276_hal_netmfadapter::CPU_Radio_Initialize(RadioEventHa
 	radio_events.RxDone = RxDone;
 	radio_events.CadDone = CadDone;
 	radio_events.DataStatusCallback = DataStatusCallback;
+
+	{
+		//Get cpu serial and hash it to use as node id. THIS IS NOT A DRIVER FUNCTION and NOT A MAC FUNCTION. CREATE A NAMING SERVICE
+		UINT8 cpuserial[12];
+		memset(cpuserial, 0, 12);
+		GetCPUSerial(cpuserial, 12);
+		UINT16 tempNum=0;
+		UINT16 * temp = (UINT16 *) cpuserial;
+		for (int i=0; i< 6; i++){
+			tempNum=tempNum ^ temp[i]; //XOR 72-bit number to generate 16-bit hash
+		}
+		SetAddress(tempNum);
+	}
 
 	//Samraksh_SX1276_hal* base_ptr = this;
 	DeviceStatus ds = gsx1276radio.Initialize(radio_events);
@@ -48,6 +86,7 @@ void Samraksh_SX1276_hal_netmfadapter::TxDone (bool success){
 
 void  Samraksh_SX1276_hal_netmfadapter::PacketDetected( void ){
 	void* dummy_ptr=NULL;
+	gsx1276radio_netmf_adapter.received_ts_ticks = HAL_Time_CurrentTicks();
 	gsx1276radio_netmf_adapter.Radio_event_handler.RadioInterruptHandler(StartOfReception, dummy_ptr);
 }
 
@@ -58,6 +97,8 @@ void  Samraksh_SX1276_hal_netmfadapter::PacketDetected( void ){
  * @param [IN] size    Received buffer size
  */
 void    Samraksh_SX1276_hal_netmfadapter::RxDone( uint8_t *payload, uint16_t size ){
+	Message_15_4_t* pckt_ptr = reinterpret_cast<Message_15_4_t*>(payload);
+	pckt_ptr->GetMetaData()->SetReceiveTimeStamp(gsx1276radio_netmf_adapter.received_ts_ticks);
 	(gsx1276radio_netmf_adapter.Radio_event_handler.GetReceiveHandler())(payload, size);
 }
 
@@ -105,7 +146,7 @@ void* Samraksh_SX1276_hal_netmfadapter::SendTS(void* msg, UINT16 size, UINT32 ev
 }
 
 DeviceStatus Samraksh_SX1276_hal_netmfadapter::TurnOnRx(){
-	if(gsx1276radio.Sleep() == SamrakshRadio_I::SLEEP)
+	if(gsx1276radio.StartListenning() == SamrakshRadio_I::RX)
 		return DS_Success;
 	else return DS_Fail;
 }

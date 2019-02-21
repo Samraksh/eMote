@@ -230,7 +230,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 		}
 #endif
 
-		if(returnMsg == msg){
+		if(returnMsg != NULL){
 			//OMAC_HAL_PRINTF("Returning success \r\n");
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
