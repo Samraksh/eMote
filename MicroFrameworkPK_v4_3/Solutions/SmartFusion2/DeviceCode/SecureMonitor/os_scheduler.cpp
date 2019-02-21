@@ -138,7 +138,7 @@ UINT32 GetExecMode(){
 	{
 		mode=1;
 	}
-	else if( !(__get_CONTROL() & 0x1)){
+	else if( !(__get_CONTROL() & 0x01)){
 		mode=2;
 	}
 	else {

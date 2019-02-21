@@ -38,8 +38,13 @@
         <Set Name="Deploy_BaseAddress_Mirror"  Value="0x0006B000"/>
         <!-- <Set Name="Code_Size"           Value="%Deploy_BaseAddress - Code_BaseAddress%"/> --> 
         
+        <!-- To run with IBL 
         <Set Name="RoT_BaseAddress"    Value="0x6000F000"/>
-        <Set Name="RoT_BaseAddress_Mirror"    Value="0x0000F000"/>
+        <Set Name="RoT_BaseAddress_Mirror"    Value="0x0000F000"/> -->
+        
+        <!-- To run alone -->
+        <Set Name="RoT_BaseAddress"    Value="0x60000000"/>
+        <Set Name="RoT_BaseAddress_Mirror"    Value="0x00000000"/>
         
         <!-- The below for parameters are important, will have to be adjusted based on compilation output, if a section overflows -->
         <!-- <Set Name="RoT_Code_Size"           Value="0x2200"/>  30KB -->
@@ -115,8 +120,8 @@
       </IfDefined>
       <LoadRegion Name="ROT_RELOC_RAM" Base="%Stack_Top% + 8" Size="%RoT_RAM_Size%"/>
       <LoadRegion Name="Kernel_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size%" Size="%Kernel_RAM_Size%"/>
-      <LoadRegion Name="RunTime_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size% + %Kernel_RAM_Size%" Size="%Heap_Begin - Stack_Top% - %RoT_RAM_Size% - %Kernel_RAM_Size% - 8"/> 
-      <!--<LoadRegion Name="RunTime_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size% + %Kernel_RAM_Size%" Size="%User_Stack_Top - Stack_Top% - %RoT_RAM_Size% - %Kernel_RAM_Size% - 8"/> -->
+      <!-- <LoadRegion Name="RunTime_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size% + %Kernel_RAM_Size%" Size="%Heap_Begin - Stack_Top% - %RoT_RAM_Size% - %Kernel_RAM_Size% - 8"/> --> 
+      <LoadRegion Name="RunTime_RELOC_RAM" Base="%Stack_Top% + 8 + %RoT_RAM_Size% + %Kernel_RAM_Size%" Size="%User_Stack_Top - Stack_Top% - %RoT_RAM_Size% - %Kernel_RAM_Size% - 8"/> -->
       
     </NamedGroup>
 
@@ -160,8 +165,8 @@
       	<!-- Kernel execution region -->
 		<ExecRegion Name="Kernel_ER_%TARGETLOCATION%" Options="&gt;Kernel_LR_%TARGETLOCATION%_Mirror AT>Kernel_%AltName%">
 		
-			<FileMapping Name="*\tmp_Kernel_SecureClr.lib:*" Options="(.text*)" />
-    	    <FileMapping Name="*\tmp_Kernel_SecureClr.lib:*" Options="(.rodata*)" />
+			<FileMapping Name="*\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*" Options="(.text*)" />
+    	    <FileMapping Name="*\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*" Options="(.rodata*)" />
     	    	    
     	    <!--<FileMapping Name="*(EXCLUDE_FILE(*\tinycrt_pal.lib:* )" Options=" .text* .rodata*)" />-->
         	<!--<FileMapping Name="*\tmp_Kernel_SecureClr.lib:*" Options="(.ARM.attributes)" />-->        	        
@@ -171,9 +176,9 @@
       	      	
       <!-- RunTime execution region, include all libs excluding whats included in rot, kernel -->
 		<ExecRegion Name="RunTime_ER_%TARGETLOCATION%" Options="&gt;RunTime_LR_%TARGETLOCATION%_Mirror AT>RunTime_%AltName%">
-			<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:* )" Options=".text*)" />		        
-        	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:* )" Options=".rodata*)" />
-        	<!--<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:*)" Options=".ARM.attributes)" />-->
+			<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*)" Options=".text*)" />		        
+        	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*)" Options=".rodata*)" />
+        	<!--<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*)" Options=".ARM.attributes)" />-->
 			<FileMapping Name="*\tinycrt_pal.lib:*" Options="( .text* .rodata*)" />
 			
 			<FileMapping Name="*\libgcc.a:*"  Options="(.text* .rodata*)" />
@@ -181,7 +186,7 @@
         	<FileMapping Name="*\libm.a:*"  Options="(.text* .rodata*)" />
 
         	<IfNotDefined Name="Data_BaseAddress">
-          		<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:*)" Options="tinyclr_metadata)" />
+          		<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*)" Options="tinyclr_metadata)" />
         	</IfNotDefined>
       	</ExecRegion>
       	<!--<ExecRegion Name="DebugRegion" Align="0x10" Options="&gt;RunTime_LR_%TARGETLOCATION%_Mirror AT>RunTime_%AltName%">
@@ -207,28 +212,28 @@
         	<FileMapping Name="PROVIDE(__exidx_end = .);" />
       	</ExecRegion>
       	<ExecRegion Name="Kernel_ER_RAM_RW" Align="0x10" Options="&gt;Kernel_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
-        	<FileMapping Name="*\tmp_Kernel_SecureClr.lib:*" Options="(rwdata)" />
-        	<FileMapping Name="*\tmp_Kernel_SecureClr.lib:*" Options="(.data*)" />
-        	<FileMapping Name="*\tmp_Kernel_SecureClr.lib:*" Options="(.zidata*)" />
-        	<FileMapping Name="*\tmp_Kernel_SecureClr.lib:*" Options="(COMMON*)" />
+        	<FileMapping Name="*\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*" Options="(rwdata)" />
+        	<FileMapping Name="*\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*" Options="(.data*)" />
+        	<FileMapping Name="*\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*" Options="(.zidata*)" />
+        	<FileMapping Name="*\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*" Options="(COMMON*)" />
         	          	
       	</ExecRegion>      
       	<ExecRegion Name=".bss.kernel" Align="0x10" Options="&gt;Kernel_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
-        	<FileMapping Name="*\tmp_Kernel_SecureClr.lib:*" Options="(.bss*)" />
+        	<FileMapping Name="*\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*" Options="(.bss*)" />
         	
         	
       	</ExecRegion>
       	<ExecRegion Name="RunTime_ER_RAM_RW" Align="0x10" Options="&gt;RunTime_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
-        	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:*)" Options="rwdata)" />
-        	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:*)" Options=".data*)" />
-        	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:*)" Options=".zidata*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*)" Options="rwdata)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*)" Options=".data*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(*\tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*)" Options=".zidata*)" />
         	
         	<FileMapping Name="*\libgcc.a:*"  Options="(rwdata* .data* .zidata*)" />
         	<FileMapping Name="*\libc.a:*"  Options="(rwdata* .data* .zidata*)" />
         	<FileMapping Name="*\libm.a:*"  Options="(rwdata* .data* .zidata*)" />
       	</ExecRegion>      
       	<ExecRegion Name=".bss.runtime" Align="0x10" Options="&gt;RunTime_RELOC_RAM AT&gt;ROT_LR_%TARGETLOCATION%">
-        	<FileMapping Name="*(EXCLUDE_FILE(tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:*)" Options=".bss*)" />
+        	<FileMapping Name="*(EXCLUDE_FILE(tmp_RoT_SecureClr.lib:* *\tmp_Kernel_SecureClr.lib:* *\tmp_NativeTest.lib:*)" Options=".bss*)" />
         	
         	<FileMapping Name="*\libgcc.a:*"  Options="(.bss*)" />
         	<FileMapping Name="*\libc.a:*"  Options="(.bss*)" />

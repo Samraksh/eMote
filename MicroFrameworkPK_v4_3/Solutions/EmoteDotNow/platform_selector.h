@@ -132,7 +132,7 @@ typedef uint16_t ushort;
 
 #define EMOTE_COM_NETIF 1
 #if defined(EMOTE_COM_NETIF)
-#define COM_NETIF COM1
+#define COM_NETIF COM2
 #define NETIF_START_STOP_CHAR_SIZE 3
 #define NETIF_START_STOP_CHAR 0xE8
 #define NETIF_MTU 256
@@ -142,7 +142,7 @@ typedef uint16_t ushort;
 #define COM_MESSAGING          ConvertCOM_MessagingHandle(0)
 
 #define USART_TX_IRQ_INDEX(x)       ( (x) ? 0 : 0 )     /* TODO set right indexes */
-#define DEFAULT_PORT COM2
+#define DEFAULT_PORT COM1
 #define USART_DEFAULT_PORT          DEFAULT_PORT
 #define USART_DEFAULT_BAUDRATE      115200
 

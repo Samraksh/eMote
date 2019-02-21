@@ -148,13 +148,12 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 		mss_uart_instance_t * const gp_my_uart = &g_mss_uart0;
 		baud_rate = BaudRate;
 
-
-
 		line_config = MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT;
 
 
 		MSS_UART_init(gp_my_uart, baud_rate, line_config);
-		MSS_UART_polled_tx_string(gp_my_uart, g_greeting_msg2);
+		MSS_UART_polled_tx(gp_my_uart, g_greeting_msg2,sizeof(g_greeting_msg2));
+		//MSS_UART_polled_tx_string(gp_my_uart, g_greeting_msg2);
 
 		MSS_UART_set_rx_handler(&g_mss_uart0,
                               uart0_rx_handler,

@@ -145,7 +145,7 @@ bool inPendSV_irq;
 //
 
 // Port definitions
-#define TOTAL_USART_PORT       2
+#define TOTAL_USART_PORT       1
 #define COM1                   ConvertCOM_ComHandle(0)
 #define COM2                   ConvertCOM_ComHandle(1)
 
@@ -169,7 +169,7 @@ bool inPendSV_irq;
 #define COM_MESSAGING          ConvertCOM_MessagingHandle(0)
 
 #define USART_TX_IRQ_INDEX(x)       ( (x) ? 0 : 0 )     /* TODO set right indexes */
-#define DEFAULT_PORT COM2
+#define DEFAULT_PORT COM1
 #define USART_DEFAULT_PORT          DEFAULT_PORT
 #define USART_DEFAULT_BAUDRATE      115200
 

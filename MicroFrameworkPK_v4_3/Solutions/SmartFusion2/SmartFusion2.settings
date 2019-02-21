@@ -34,6 +34,7 @@
     
     <SAM_STACK_BOTTOM     >0x20000000</SAM_STACK_BOTTOM>    <!-- Stack always must sit at the base of ram. period. -->
     <SAM_STACK_TOP        >0x20000FF8</SAM_STACK_TOP>
+   
     <!-- Linker will collect and place ER_RAM_RO, ER_RAM_RW, .bss sections between stack and heap -->
     <!-- After you know the size of sections below the heap, come back here and re-define ...-->
     <!-- ... SAM_HEAP_BEGIN to hug the variable-sized sections below the HEAP. -->
@@ -41,14 +42,31 @@
     <!-- ... SAM_STACK_TOP + 8 + (Image$$ER_RAM_RW$$ZI$$Base -  Image$$ER_RAM_RO$$Base) + Image$$ER_RAM_RW$$ZI$$Length -->
     <!-- ... for TinyBooter Debug build, SAM_HEAP_BEGIN could start as low as SAM_STACK_TOP + 0x3200 = 0x20005200 -->
     <!-- ... for TinyCLR Debug build, SAM_HEAP_BEGIN could start as low as SAM_STACK_TOP + 0x98c4 = 0x2000B8D0 -->
+    
+    
+    
+    <!-- <SAM_HEAP_BEGIN       >0x50000000</SAM_HEAP_BEGIN>
+    <SAM_HEAP_END         >0x50021FF8</SAM_HEAP_END> --> <!-- Max address allow on LRSAM, 136KB. Limit due to Libero interface limit -->
+    
     <SAM_HEAP_BEGIN       >0x20009400</SAM_HEAP_BEGIN>
-    <SAM_HEAP_END         >0x2000F5F8</SAM_HEAP_END>
+    <SAM_HEAP_END         >0x2000F5F8</SAM_HEAP_END> 
+    
     <SAM_CUSTOM_HEAP_BEGIN>0x2000F600</SAM_CUSTOM_HEAP_BEGIN>
     <SAM_CUSTOM_HEAP_END  >0x2000F6F8</SAM_CUSTOM_HEAP_END>
     <SAM_USER_STACK_TOP		>0x2000F700</SAM_USER_STACK_TOP>
-    <SAM_USER_STACK_BOTTOM	>0x2000FF00</SAM_USER_STACK_BOTTOM> <!-- User stack is slightly less than 2 k-->
+    <SAM_USER_STACK_BOTTOM	>0x2000FF00</SAM_USER_STACK_BOTTOM> 
     <SAM_PROFILER_BUFFER_BEGIN>0x2000FFE8</SAM_PROFILER_BUFFER_BEGIN>
     <SAM_PROFILER_BUFFER_END  >0x2000FFF8</SAM_PROFILER_BUFFER_END>
+
+	<!-- <SAM_HEAP_BEGIN       >0x20009400</SAM_HEAP_BEGIN>
+    <SAM_HEAP_END         >0x200135F8</SAM_HEAP_END> 
+    <SAM_CUSTOM_HEAP_BEGIN>0x20013600</SAM_CUSTOM_HEAP_BEGIN>
+    <SAM_CUSTOM_HEAP_END  >0x200136F8</SAM_CUSTOM_HEAP_END>
+    <SAM_USER_STACK_TOP		>0x20013700</SAM_USER_STACK_TOP>
+    <SAM_USER_STACK_BOTTOM	>0x20013F00</SAM_USER_STACK_BOTTOM> 
+    <SAM_PROFILER_BUFFER_BEGIN>0x20013FE8</SAM_PROFILER_BUFFER_BEGIN>
+    <SAM_PROFILER_BUFFER_END  >0x20013FF8</SAM_PROFILER_BUFFER_END> -->
+    
     
   </PropertyGroup>
 </Project>

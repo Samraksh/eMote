@@ -3914,14 +3914,14 @@ CLR_UINT32 CLR_RT_ExecutionEngine::WaitSystemEvents( CLR_UINT32 powerLevel, CLR_
 
 
 #if defined(SECURE_EMOTE)
-    if(GetExecMode() > 2){
+    /*if(GetExecMode() > 2){
        	debug_printf( "In CLR_Execution 1:: Still in Priviledged Mode... Switching to thread mode.\r\n" );
        	SwitchToUserMode();
     }
     if(GetExecMode() > 2){
 		debug_printf( "In CLR_Execution 2:: Still in Priviledged Mode... Switching to thread mode.\r\n" );
 		SwitchToUserMode();
-	}
+	}*/
 
 #endif
 

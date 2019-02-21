@@ -283,6 +283,7 @@
     <TargetRule Condition="'$(OutputType)'=='Library'">ArmBuildLib</TargetRule>
     <TargetRule Condition="'$(OutputType)'=='Executable' and '$(AssemblyName)'=='tinyclr' ">BuildAXF</TargetRule>
     <TargetRule Condition="'$(OutputType)'=='Executable' and '$(AssemblyName)'=='NativeTest' ">BuildAXF</TargetRule>
+    <TargetRule Condition="'$(OutputType)'=='Executable' and '$(AssemblyName)'=='IBL' ">BuildAXF</TargetRule>
     <TargetRule Condition="'$(OutputType)'=='Executable' and '$(AssemblyName)'=='SecureClr'">BuildAXF_SEC</TargetRule>
   </PropertyGroup>
   

@@ -294,6 +294,6 @@ void HAL_Assert( LPCSTR Func, int Line, LPCSTR File )
     debug_printf( "Assert in %s line %d of file %s\r\n"        , Func, Line, File );
     debug_printf("\n\r");
     debug_printf("\n\r");
-    CPU_Halt();
+    //CPU_Halt();
 }
 
