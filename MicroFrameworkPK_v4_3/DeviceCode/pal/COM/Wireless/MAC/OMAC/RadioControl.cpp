@@ -169,7 +169,8 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 
 		if( (header->flags & TIMESTAMPED_FLAG) ){
 			//Convert TimeStamp to high freq clock
-			UINT64 time_elapsed_since_TS = g_OMAC.m_Clock.GetCurrentTimeinTicks() - msg->GetMetaData()->GetReceiveTimeStamp();
+			UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+			UINT64 time_elapsed_since_TS = y - msg->GetMetaData()->GetReceiveTimeStamp();
 			UINT64 event_time = HAL_Time_CurrentTicks() - time_elapsed_since_TS;
 			//msg->GetMetaData()->SetReceiveTimeStamp((INT64)event_time);
 			if((g_OMAC.isSendDone)){//||(g_OMAC.radioName != SI4468_SPI2)){
