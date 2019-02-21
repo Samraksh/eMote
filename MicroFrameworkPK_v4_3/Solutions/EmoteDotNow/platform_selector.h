@@ -30,7 +30,7 @@ typedef uint16_t ushort;
 
 //#define EMOTE_COMPLETIONS_STARTUP_WAIT // Only allow snooze mode for 1 minute after boot.
 #define EMOTE_DEEP_SLEEP_MIN 5000 // microseconds. Sleep intervals less than this will only snooze
-
+//#define PLATFORM_ARM_EmoteDotNow
 #if defined(PLATFORM_ARM_EmoteDotNow)
 #define HAL_SYSTEM_NAME                     "EmoteDotNow"
 #define SAM_VERSION_REVISION 70
@@ -366,7 +366,7 @@ J12_PIN10 = GND
 
 /*PIN SETUP FOR FAN-IN WITH HW ACKS AND FAST RECOVERY*/
 
-#define DEBUG_GPIO_EMOTE_AUSTERE 0
+//#define DEBUG_GPIO_EMOTE_AUSTERE 0
 
 #define DISABLED_PIN	(GPIO_PIN)120
 
@@ -382,7 +382,7 @@ J12_PIN10 = GND
 #define DATARX_HANDLE_END_OF_RX				DISABLED_PIN
 #define OMAC_CONTINUATION					DISABLED_PIN//23
 #define DATARX_SEND_SW_ACK					DISABLED_PIN//23//22
-#define OMAC_DRIVING_RADIO_SEND				DISABLED_PIN//22
+#define OMAC_DRIVING_RADIO_SEND				(GPIO_PIN)25 //DISABLED_PIN//22
 #define DATARX_EXEC_EVENT					DISABLED_PIN//22//23
 #define SI4468_HANDLE_SLEEP					DISABLED_PIN//0//23
 //#define SCHED_RX_EXEC_PIN 					(GPIO_PIN)06171015//22 //THis is a duplicate definition
@@ -495,7 +495,7 @@ J12_PIN10 = GND
 #define SCHED_START_STOP_PIN 				DISABLED_PIN //4
 #define SCHED_RX_EXEC_PIN 					DISABLED_PIN //(GPIO_PIN)25 //25 //4
 #define SCHED_TX_EXEC_PIN 					DISABLED_PIN //(GPIO_PIN)24 //24 //4
-#define SCHED_DISCO_EXEC_PIN 				DISABLED_PIN //0 //4
+#define SCHED_DISCO_EXEC_PIN 				(GPIO_PIN)0 //DISABLED_PIN //0 //4
 #define SCHED_TSREQ_EXEC_PIN 				DISABLED_PIN //23 //4
 #define DATARX_NEXTEVENT 					DISABLED_PIN
 #define DATATX_NEXTEVENT 					DISABLED_PIN
