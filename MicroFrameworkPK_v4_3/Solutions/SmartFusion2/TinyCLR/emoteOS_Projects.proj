@@ -504,12 +504,12 @@
   
   
   <!--                            Lwip and sockets begin                    -->
+  <!--
   <ItemGroup>
     <DriverLibs Include="sockets_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" />
   </ItemGroup>
-  
-  <!--
+  -->
   
   <ItemGroup> 
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\dotNetMF.proj" />    
@@ -534,8 +534,6 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Network\COM_LWIP\dotnetmf.proj" />
     <DriverLibs Include="COM_LWIP_config_net.$(LIB_EXT)" />
   </ItemGroup>
-   
-   -->
  
   <!--                      	    Networking Stack ::End                      -->
   

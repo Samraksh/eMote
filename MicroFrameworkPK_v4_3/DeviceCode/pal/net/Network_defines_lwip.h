@@ -19,9 +19,9 @@ been taken from lwiopts.small.h, lwipopts.h and lwipopts.big.h */
 
 /* MEM_SIZE: the size of the heap memory. If the application will send
 a lot of data that needs to be copied, this should be set high. */
-#define MEM_SIZE__min                       (16*1024)
-#define MEM_SIZE__default                   (64*1024)
-#define MEM_SIZE__max                       (1024*1024)  // TODO - this seems a bit extreme
+#define MEM_SIZE__min                       (8*1024)
+#define MEM_SIZE__default                   (16*1024)
+#define MEM_SIZE__max                       (32*1024)  // TODO - this seems a bit extreme
 
 /* MEMP_NUM_PBUF: the number of memp struct pbufs. If the application
    sends a lot of data out of ROM (or other static memory), this
@@ -38,21 +38,21 @@ a lot of data that needs to be copied, this should be set high. */
 
 /* MEMP_NUM_TCP_PCB: the number of simulatenously active TCP
    connections. */
-#define MEMP_NUM_TCP_PCB__min               4
-#define MEMP_NUM_TCP_PCB__default           6
-#define MEMP_NUM_TCP_PCB__max               8
+#define MEMP_NUM_TCP_PCB__min               6
+#define MEMP_NUM_TCP_PCB__default           10
+#define MEMP_NUM_TCP_PCB__max               16
 
 /* MEMP_NUM_TCP_PCB_LISTEN: the number of listening TCP
    connections. */
-#define MEMP_NUM_TCP_PCB_LISTEN__min        3
-#define MEMP_NUM_TCP_PCB_LISTEN__default    4
+#define MEMP_NUM_TCP_PCB_LISTEN__min        1
+#define MEMP_NUM_TCP_PCB_LISTEN__default    3
 #define MEMP_NUM_TCP_PCB_LISTEN__max        4
 
 /* MEMP_NUM_TCP_SEG: the number of simultaneously queued TCP
    segments. */
-#define MEMP_NUM_TCP_SEG__min               32
-#define MEMP_NUM_TCP_SEG__default           64
-#define MEMP_NUM_TCP_SEG__max               128
+#define MEMP_NUM_TCP_SEG__min               16
+#define MEMP_NUM_TCP_SEG__default           32
+#define MEMP_NUM_TCP_SEG__max               64
 
 /* MEMP_NUM_SYS_TIMEOUT: the number of simulateously active
    timeouts. */
@@ -71,7 +71,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define MEMP_NUM_NETCONN__max               40
 
 /* PBUF_POOL_SIZE: the number of buffers in the pbuf pool. */
-#define PBUF_POOL_SIZE__min                 40
+#define PBUF_POOL_SIZE__min                 32
 #define PBUF_POOL_SIZE__default             128
 #define PBUF_POOL_SIZE__max                 256
 
@@ -80,9 +80,9 @@ a lot of data that needs to be copied, this should be set high. */
 //#define PBUF_POOL_BUFSIZE__default          1024
 //#define PBUF_POOL_BUFSIZE__max              2048
 
-#define PBUF_POOL_BUFSIZE__min              64
-#define PBUF_POOL_BUFSIZE__default          256
-#define PBUF_POOL_BUFSIZE__max              512
+#define PBUF_POOL_BUFSIZE__min              32
+#define PBUF_POOL_BUFSIZE__default          128
+#define PBUF_POOL_BUFSIZE__max              256
 
 
 /* TCP Maximum segment size. */
