@@ -145,7 +145,7 @@ bool inPendSV_irq;
 //
 
 // Port definitions
-#define TOTAL_USART_PORT       1
+#define TOTAL_USART_PORT       2
 #define COM1                   ConvertCOM_ComHandle(0)
 #define COM2                   ConvertCOM_ComHandle(1)
 
@@ -159,7 +159,7 @@ bool inPendSV_irq;
 
 #define EMOTE_COM_NETIF 1
 #if defined(EMOTE_COM_NETIF)
-#define COM_NETIF COM1
+#define COM_NETIF COM2
 #define NETIF_START_STOP_CHAR_SIZE 3
 #define NETIF_START_STOP_CHAR 0xE8
 #define NETIF_MTU 256

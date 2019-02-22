@@ -140,6 +140,7 @@ void com_lwip_interrupt(struct netif *pNetIF ){
 	interruptPending=0;
 	UINT16 size = CheckForNetIfPkt(g_COM_LWIP_Config.DeviceConfigs[0].comPort);
 	if(size>0){
+		hal_printf("com_lwip_interrupt: Reviced a net pkt, going to read \r\n");
 		com_lwip_recv(g_COM_LWIP_Config.DeviceConfigs[0].pnetif, size);
 	}
 }
