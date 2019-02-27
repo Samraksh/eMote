@@ -52,7 +52,7 @@
   </ItemGroup>
  
   <!-- If building in Visual Studio use the block under this -->
- <!-- 
+ 
   <ItemGroup>
     <Reference Include="Microsoft.SPOT.Native">
 		<HintPath>$(SPOCLIENT)\BuildOutput\public\Debug\Client\</HintPath>
@@ -67,10 +67,10 @@
   
   <Import Condition="EXISTS('$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets')" Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <Import Condition="!EXISTS('$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets')" Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  -->
+ 
   
  <!-- If building on command line use the block under this  -->
- 
+ <!--
  
  <ItemGroup>
     <Reference Include="Microsoft.SPOT.Native">
@@ -91,4 +91,6 @@
 	<MMP_DAT_SKIP>false</MMP_DAT_SKIP>
 	<MMP_DAT_CreateDatabaseFile>bin\$(Configuration)\aes.dat</MMP_DAT_CreateDatabaseFile>
   </PropertyGroup>
+  -->
+  
 </Project>
