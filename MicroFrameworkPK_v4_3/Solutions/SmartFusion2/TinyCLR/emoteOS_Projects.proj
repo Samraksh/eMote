@@ -548,23 +548,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <DriverLibs Include="SmartFusion2_bluetooth_hci.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\hcitrans\dotNetMF.proj" />
+    <DriverLibs Include="SmartFusion2_bluetooth_platform.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\sf2\dotNetMF.proj" />
   </ItemGroup>
 
   <ItemGroup>
-    <DriverLibs Include="SmartFusion2_bluetooth_btpsvend.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\btpsvend\dotNetMF.proj" />
+    <DriverLibs Include="SmartFusion2_bluetooth_core.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\btcore\dotNetMF.proj" />
   </ItemGroup>
 
   <ItemGroup>
-    <DriverLibs Include="SmartFusion2_bluetooth_btpskrnl.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\btpskrnl\dotNetMF.proj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <DriverLibs Include="SmartFusion2_bluetooth_gap_profile.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\profiles\gaps\dotNetMF.proj" />
+    <DriverLibs Include="SmartFusion2_bluetooth_cc256x.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\cc256x\dotNetMF.proj" />
   </ItemGroup>
 
   <!--                    Root of trust modules      -->

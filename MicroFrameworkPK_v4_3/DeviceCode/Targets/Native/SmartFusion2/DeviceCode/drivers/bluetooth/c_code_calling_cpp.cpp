@@ -1,21 +1,33 @@
 #include <tinyhal.h>
 #include <Samraksh/VirtualTimer.h>
+#include <stdint.h>
+#include <tinyhal_types.h>
+#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void debugBT_printf(const char* message){
-	hal_printf("debugBT: %s\r\n", message);
+void debugBT_printf(const char* format, va_list argptr){
+	//hal_vprintf(format, argptr);
 }
 
-void debugBT_Numprintf(char* message, int num){
-	hal_printf("debugBT: %s %d\r\n", message, num);
+void* mf_private_malloc ( size_t len             ){
+	return mf_private_malloc(len);
 }
 
-void SetBTTimerInterrupt(int ticks, TIMER_CALLBACK_FPN callbackFunction){
-	VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, ticks, FALSE, TRUE, callbackFunction, ADVTIMER_32BIT);
+void  mf_private_free   ( void*  ptr             ){
+	private_free(ptr);
+}
+
+void SetBTTimerInterrupt(int ticks, void* callbackFunction){
+	VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, ticks, FALSE, TRUE, (TIMER_CALLBACK_FPN)callbackFunction, ADVTIMER_32BIT);
 	VirtTimer_Start(VIRT_TIMER_BLUETOOTH_TICK);
+}
+
+uint64_t BTGetTicks(void){
+	// getting only lower 32-bits
+	CPU_Timer_CurrentTicks(DEFAULT_TIMER);
 }
 
 void BTTimerStop(void){
