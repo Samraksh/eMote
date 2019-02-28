@@ -13,7 +13,7 @@
 extern EMOTE_SX1276_LORA::Samraksh_SX1276_hal gsx1276radio;
 EMOTE_SX1276_LORA::Samraksh_SX1276_hal_netmfadapter gsx1276radio_netmf_adapter;
 
-
+#define UNSET_TS 0xFFFFFFFFFFFFFFFF
 namespace EMOTE_SX1276_LORA {
 
 // This somehow gets put in the radio function. Out of scope for now, but fix me later.
@@ -41,6 +41,7 @@ static void GetCPUSerial(uint8_t * ptr, unsigned num_of_bytes ){
 }
 
 DeviceStatus Samraksh_SX1276_hal_netmfadapter::CPU_Radio_Initialize(RadioEventHandler* event_handler){
+
 	Radio_event_handler.SetReceiveHandler(event_handler->GetReceiveHandler());
 	Radio_event_handler.SetSendAckHandler(event_handler->GetSendAckHandler());
 	Radio_event_handler.SetRadioInterruptHandler(event_handler->GetRadioInterruptHandler());
@@ -63,6 +64,8 @@ DeviceStatus Samraksh_SX1276_hal_netmfadapter::CPU_Radio_Initialize(RadioEventHa
 		}
 		SetAddress(tempNum);
 	}
+
+	received_ts_ticks = UNSET_TS;
 
 	//Samraksh_SX1276_hal* base_ptr = this;
 	DeviceStatus ds = gsx1276radio.Initialize(radio_events);
@@ -98,6 +101,8 @@ void  Samraksh_SX1276_hal_netmfadapter::PacketDetected( void ){
  */
 void    Samraksh_SX1276_hal_netmfadapter::RxDone( uint8_t *payload, uint16_t size ){
 	Message_15_4_t* pckt_ptr = reinterpret_cast<Message_15_4_t*>(payload);
+	if(gsx1276radio_netmf_adapter.received_ts_ticks == UNSET_TS)
+		gsx1276radio_netmf_adapter.received_ts_ticks = HAL_Time_CurrentTicks();
 	pckt_ptr->GetMetaData()->SetReceiveTimeStamp(gsx1276radio_netmf_adapter.received_ts_ticks);
 	(gsx1276radio_netmf_adapter.Radio_event_handler.GetReceiveHandler())(payload, size);
 }
