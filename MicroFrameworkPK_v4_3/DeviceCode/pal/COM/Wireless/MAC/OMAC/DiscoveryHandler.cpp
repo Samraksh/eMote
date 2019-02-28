@@ -51,6 +51,12 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_SetPinState( OMAC_DISCO_POST_EXEC, FALSE );
 	CPU_GPIO_EnableOutputPin(OMAC_DISCO_EXEC_EVENT, TRUE);
 	CPU_GPIO_SetPinState( OMAC_DISCO_EXEC_EVENT, FALSE );
+	CPU_GPIO_EnableOutputPin(OMAC_DISCO_EXEC_EVENT, TRUE);
+	CPU_GPIO_SetPinState( OMAC_DISCO_EXEC_EVENT, FALSE );
+	CPU_GPIO_EnableOutputPin(OMAC_DISCO_BEACON_ACK_HANDLER_PIN, TRUE);
+	CPU_GPIO_SetPinState( OMAC_DISCO_BEACON_ACK_HANDLER_PIN, FALSE );
+	CPU_GPIO_EnableOutputPin(OMAC_DISCO_BEACONNTIMERHANDLER_PIN, TRUE);
+	CPU_GPIO_SetPinState( OMAC_DISCO_BEACONNTIMERHANDLER_PIN, FALSE );
 #endif
 
 	m_state = DISCO_INITIAL;
@@ -235,6 +241,7 @@ BOOL DiscoveryHandler::ShouldBeacon(){
 DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr){
 #ifdef OMAC_DEBUG_GPIO
 	OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, TRUE );
+	OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
 #endif
 	DeviceStatus DS = DS_Fail;
 	UINT64 y = 0;
@@ -245,6 +252,10 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 
 	y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 
+#ifdef OMAC_DEBUG_GPIO
+	OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, TRUE );
+	OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
+#endif
 	while(1){
 		//Check CCA
 		DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
@@ -260,6 +271,10 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 			break;
 		}
 	}
+#ifdef OMAC_DEBUG_GPIO
+	OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, TRUE );
+	OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
+#endif
 
 	if(canISend) {
 		DS = Send(dst, msgPtr, sizeof(DiscoveryMsg_t), 0 );
@@ -291,6 +306,8 @@ void DiscoveryHandler::CreateMessage(DiscoveryMsg_t* discoveryMsg){
  */
 void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus status){
 	VirtualTimerReturnMessage rm;
+	OMAC_CPU_GPIO_SetPinState(OMAC_DISCO_BEACON_ACK_HANDLER_PIN, TRUE);
+	OMAC_CPU_GPIO_SetPinState(OMAC_DISCO_BEACON_ACK_HANDLER_PIN, FALSE);
 	OMAC_CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, FALSE);
 	OMAC_CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, TRUE);
 	switch(m_state){
@@ -422,6 +439,10 @@ void DiscoveryHandler::BeaconN(){
  */
 void DiscoveryHandler::BeaconNTimerHandler(){
 	VirtualTimerReturnMessage rm;
+
+
+	OMAC_CPU_GPIO_SetPinState(OMAC_DISCO_BEACONNTIMERHANDLER_PIN, TRUE);
+	OMAC_CPU_GPIO_SetPinState(OMAC_DISCO_BEACONNTIMERHANDLER_PIN, FALSE);
 
 	OMAC_CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, FALSE);
 	OMAC_CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, TRUE);
@@ -584,6 +605,10 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	header->flags = (0); //Initialize flags to zero
 
 	msg->GetMetaData()->SetReceiveTimeStamp((INT64)event_time);
+
+#ifdef OMAC_DEBUG_GPIO
+	OMAC_CPU_GPIO_SetPinState(DISCO_SYNCSENDPIN, TRUE);
+#endif
 
 	retValue = g_OMAC.m_omac_RadioControl.Send(address, msg, header->length);
 
