@@ -23,6 +23,7 @@ DeviceStatus CPU_Bluetooth_Initialize( )
 	CPU_USART_Initialize(1, 115200, USART_PARITY_NONE, 8, USART_STOP_BITS_ONE, USART_FLOW_NONE );
 
 	bluetooth_main();
+
  
 	return status;
 }

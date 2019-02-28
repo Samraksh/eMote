@@ -33,6 +33,7 @@
 */
 
 // BTstack Core
+#include "..\btcore\btstack_debug.h"
 #include "..\btcore\btstack.h"
 #include "btstack_config.h"
 #include "btstack_run_loop_embedded.h"
@@ -386,8 +387,8 @@ int bluetooth_main(void)
 
     // setup LE Device DB using TLV
     //le_device_db_tlv_configure(btstack_tlv_impl, &btstack_tlv_flash_bank_context);
-
-    // go
-	//btstack_main(0, (void *)NULL);
+    
+	btstack_main(0, (void *)NULL);
+	
 	return 0;
 }

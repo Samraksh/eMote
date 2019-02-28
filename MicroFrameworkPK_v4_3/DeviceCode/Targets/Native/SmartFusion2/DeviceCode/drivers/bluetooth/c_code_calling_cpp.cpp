@@ -9,7 +9,8 @@ extern "C" {
 #endif
 
 void debugBT_printf(const char* format, va_list argptr){
-	//hal_vprintf(format, argptr);
+	hal_vprintf(format, argptr);
+	hal_printf("\r\n");
 }
 
 void* mf_private_malloc ( size_t len             ){
@@ -18,6 +19,10 @@ void* mf_private_malloc ( size_t len             ){
 
 void  mf_private_free   ( void*  ptr             ){
 	private_free(ptr);
+}
+
+void mf_delay_us(unsigned int usDelay){
+	CPU_Timer_Sleep_MicroSeconds(usDelay,ADVTIMER_32BIT);
 }
 
 void SetBTTimerInterrupt(int ticks, void* callbackFunction){

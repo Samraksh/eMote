@@ -160,11 +160,11 @@ static void chipset_init(const void * config){
     init_script_size = cc256x_init_script_size;
 #else
     if (custom_init_script){
-        log_info("cc256x: using custom init script");
+        log_info("cc256x: using custom init script\r\n");
         init_script      = custom_init_script;
         init_script_size = custom_init_script_size;
     } else {
-        log_info("cc256x: using default init script");
+        log_info("cc256x: using default init script\r\n");
         init_script      = cc256x_init_script;
         init_script_size = cc256x_init_script_size;
     }

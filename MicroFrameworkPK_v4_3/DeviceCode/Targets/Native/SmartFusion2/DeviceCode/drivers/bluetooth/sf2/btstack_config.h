@@ -7,12 +7,11 @@
 // Port related features
 #define HAVE_INIT_SCRIPT
 #define HAVE_EMBEDDED_TIME_MS
-#define HAVE_BTSTACK_STDIN
-#define HAVE_MALLOC 1
+#define HAVE_MALLOC
 
 // BTstack features that can be enabled
 #define ENABLE_BLE
-//#define ENABLE_CLASSIC
+#define ENABLE_CLASSIC
 #define ENABLE_LE_PERIPHERAL
 #define ENABLE_LE_CENTRAL
 #define ENABLE_LE_DATA_CHANNELS

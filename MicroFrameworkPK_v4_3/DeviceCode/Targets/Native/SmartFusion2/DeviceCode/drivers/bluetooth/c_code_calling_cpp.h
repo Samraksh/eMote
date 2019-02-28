@@ -18,6 +18,7 @@ void  mf_private_free   ( void*  ptr             );
 void  SetBTTimerInterrupt(int ticks, void* callbackFunction);
 uint64_t BTGetTicks(void);
 void BTTimerStop(void);
+void mf_delay_us(unsigned int usDelay);
 
 void ClearReset(void);
 void SetReset(void);

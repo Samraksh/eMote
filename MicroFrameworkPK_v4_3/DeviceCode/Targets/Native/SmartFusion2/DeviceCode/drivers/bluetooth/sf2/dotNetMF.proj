@@ -40,6 +40,7 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
+	<Compile Include="btmain.c" />
 	<Compile Include="btstack_port.c" />
 	<Compile Include="btstack_run_loop_embedded.c" />
 	<Compile Include="btstack_uart_block_embedded.c" />

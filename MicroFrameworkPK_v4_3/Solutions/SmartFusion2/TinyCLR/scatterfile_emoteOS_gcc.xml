@@ -41,7 +41,7 @@
         <!-- The below for parameters are important, will have to be adjusted based on compilation output, if a section overflows -->
 		<!-- RoT_Code_Size must be large enough to include RoT code (ROT_LR_FLASH) *AND* ROT_ER_RAM_RW, KERNEL_ER_RAM_RW, RUNTIME_ER_RAM_RW. All of the *_RAM_RW are placed after the ROT_LR_FLASH-->
         <Set Name="RoT_Code_Size"           Value="0x1D00"/> <!-- 30KB -->
-		<Set Name="Kernel_Code_Size"           Value="0xBF00"/> 
+		<Set Name="Kernel_Code_Size"           Value="0xF400"/> 
         
         <!-- <Set Name="RoT_RAM_Base" 			Value="%Stack_Top% + 8"/> -->
         <Set Name="RoT_RAM_Size"           Value="0x300"/>

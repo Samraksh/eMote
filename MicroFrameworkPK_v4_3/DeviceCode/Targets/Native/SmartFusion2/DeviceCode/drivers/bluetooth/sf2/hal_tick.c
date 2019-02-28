@@ -33,6 +33,7 @@
 */
 
 #include "..\c_code_calling_cpp.h"
+#include "..\btcore\btstack_debug.h"
 
 /***** Definitions *****/
 #define USE_RTC_SYSTEM_CLK 0
@@ -76,34 +77,12 @@ uint64_t hal_get_tick(void)
 
 void hal_delay_ms(unsigned int ms)
 {
-	uint64_t prev_tick = hal_get_tick();
-	uint64_t wait_time = ms * 1000;
-	uint64_t curr_tick;
-	int64_t diff;
-
-	while(1) {
-		curr_tick = hal_get_tick();
-		diff = curr_tick - prev_tick;
-		if (diff > wait_time) {
-			break;
-		}
-	}
+	mf_delay_us(ms*1000);
 }
 
 void hal_delay_us(unsigned int us)
 {
-	uint64_t prev_tick = hal_get_tick();
-	uint64_t wait_time = us;
-	uint64_t curr_tick;
-	int64_t diff;
-
-	while(1) {
-		curr_tick = hal_get_tick();
-		diff = curr_tick - prev_tick;
-		if (diff > wait_time) {
-			break;
-		}
-	}
+	mf_delay_us(us);
 }
 
 uint32_t hal_get_time_ms(void)

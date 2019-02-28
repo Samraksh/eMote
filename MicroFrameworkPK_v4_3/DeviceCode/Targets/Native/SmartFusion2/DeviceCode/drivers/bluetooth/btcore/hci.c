@@ -2660,6 +2660,7 @@ void hci_set_link_key_db(btstack_link_key_db_t const * link_key_db){
 
 void hci_init(const hci_transport_t *transport, const void *config){
     
+	log_info("hci_init\r\n");
 #ifdef HAVE_MALLOC
     if (!hci_stack) {
         hci_stack = (hci_stack_t*) mf_private_malloc(sizeof(hci_stack_t));

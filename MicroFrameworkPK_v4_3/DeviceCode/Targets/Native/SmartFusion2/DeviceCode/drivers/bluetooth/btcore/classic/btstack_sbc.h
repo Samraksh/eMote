@@ -43,7 +43,7 @@
 #ifndef __BTSTACK_SBC_H
 #define __BTSTACK_SBC_H
 
-#include "..\btstack_sbc_plc.h"
+#include "btstack_sbc_plc.h"
 
 #if defined __cplusplus
 extern "C" {

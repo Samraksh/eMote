@@ -46,8 +46,8 @@
 #define BTSTACK_HFP_GSM_MODEL_H
 
 #include "..\hci.h"
-#include "..\sdp_client_rfcomm.h"
-#include "..\hfp.h"
+#include "sdp_client_rfcomm.h"
+#include "hfp.h"
 
 #if defined __cplusplus
 extern "C" {
