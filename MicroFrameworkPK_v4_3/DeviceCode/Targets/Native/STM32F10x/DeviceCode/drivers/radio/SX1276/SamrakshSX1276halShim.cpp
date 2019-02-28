@@ -143,7 +143,7 @@ void* Samraksh_SX1276_hal_netmfadapter::Send(void* msg, UINT16 size){
 
 void* Samraksh_SX1276_hal_netmfadapter::SendTS(void* msg, UINT16 size, UINT32 eventTime){
 	gsx1276radio_netmf_adapter.DataStatusCallback_success = false;
-	gsx1276radio.SendTS(msg,size,true,true, eventTime);
+	gsx1276radio.SendTS(msg,size,eventTime, true,true);
 	if(gsx1276radio_netmf_adapter.DataStatusCallback_success){
 		return gsx1276radio.m_packet.GetPayload();
 	}
