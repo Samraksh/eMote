@@ -13,7 +13,7 @@ void debugBT_printf(const char* format, va_list argptr){
 }
 
 void* mf_private_malloc ( size_t len             ){
-	return mf_private_malloc(len);
+	return private_malloc(len);
 }
 
 void  mf_private_free   ( void*  ptr             ){

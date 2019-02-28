@@ -35,8 +35,8 @@
         <!-- <Set Name="Code_Size"           Value="%Deploy_BaseAddress - Code_BaseAddress%"/> --> 
 
 		<!-- this needs to match bl_config.cpp -->
-        <Set Name="RoT_BaseAddress"    Value="0x6000F000"/>
-        <Set Name="RoT_BaseAddress_Mirror"    Value="0x0000F000"/>
+        <Set Name="RoT_BaseAddress"    Value="0x60000000"/>
+        <Set Name="RoT_BaseAddress_Mirror"    Value="0x00000000"/>
         
         <!-- The below for parameters are important, will have to be adjusted based on compilation output, if a section overflows -->
 		<!-- RoT_Code_Size must be large enough to include RoT code (ROT_LR_FLASH) *AND* ROT_ER_RAM_RW, KERNEL_ER_RAM_RW, RUNTIME_ER_RAM_RW. All of the *_RAM_RW are placed after the ROT_LR_FLASH-->
