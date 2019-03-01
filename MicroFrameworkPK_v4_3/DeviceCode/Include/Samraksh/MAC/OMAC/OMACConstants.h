@@ -367,7 +367,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define RECEIVER_RADIO_STOP_RECHECK_INTERVAL_MICRO 1000
 #define TIMER_EVENT_DELAY_OFFSET 0
 #define MINEVENTTIME 50000				//minimum time (in micro seconds) required by scheduler to switch between modules
-#define SEED_UPDATE_INTERVAL_IN_SLOTS 100 //The FRAME SIZE in slots
+#define SEED_UPDATE_INTERVAL_IN_SLOTS 1000 //The FRAME SIZE in slots
 
 
 //Below 2 values are based on empirical observations made on a debug build
