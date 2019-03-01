@@ -1,6 +1,7 @@
 #ifndef _SF2_HW_CRYPTO_H_
 #define _SF2_HW_CRYPTO_H_
 
+#include <crypto.h>
 #include <drivers/mss_sys_services/mss_sys_services.h>
 
 
@@ -38,6 +39,17 @@ enum SF2_CipherOperation {
 	ECB, CBC, OFB, CTR
 };
 */
+
+//This is only for Curve-384
+typedef struct {
+	uint8_t publicKey[96];
+	uint8_t privateKey[48];
+	//uint16_t curveLen;
+	uint16_t references;
+}sf2_ec_key_t;
+
+
+
 
 ///Please note this is defined by Samraksh. Should really use sf2 defintion if available.
 typedef struct {
@@ -97,5 +109,7 @@ int SF2_GetBlockSize(sf2_cipher_context_t* ctx){
 
 ///main wrapper function for all digest methods
 int SF2_Digest(sf2_digest_context_t* ctx, uint8_t* data, uint32_t dataSize, uint8_t* result, uint32_t *resultSize);
+
+CRYPTO_RESULT SF2_ECC384_PKEY(sf2_ec_key_t *privateKey);
 
 #endif //_SF2_HW_CRYPTO_H_

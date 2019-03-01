@@ -142,6 +142,9 @@ typedef struct _SF2_HWEncryptData
     BOOL             IsUpdateInProgress;
 } SF2_HW_EncryptData;
 
+
+
+
 struct SF2_HW_PKCS11_Encryption
 {
     static CK_RV EncryptInit     (Cryptoki_Session_Context* pSessionCtx, CK_MECHANISM_PTR pEncryptMech, CK_OBJECT_HANDLE hKey);

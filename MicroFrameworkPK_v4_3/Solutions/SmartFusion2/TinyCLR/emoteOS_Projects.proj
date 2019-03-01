@@ -20,7 +20,7 @@
   <!--Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" Condition="'$(USB_PORT_FEATUREPROJ)'==''" /-->
   <!--Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" /-->
   <!--<Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />-->
-  <Import Condition="'$(CRYPTO_FEATUREPROJ)'==''" Project="$(SPOCLIENT)\Framework\Features\Crypto.featureproj" />
+  <Import Project="$(SPOCLIENT)\Framework\Features\Crypto.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   
   

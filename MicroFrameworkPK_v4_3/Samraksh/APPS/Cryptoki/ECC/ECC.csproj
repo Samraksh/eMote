@@ -58,6 +58,9 @@
   
  <!-- If building on command line use the block under this  -->
  <ItemGroup>
+	<Reference Include="mscorlib">
+		<HintPath>$(SPOCLIENT)\BuildOutput\public\Debug\Client\dll\mscorlib.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.SPOT.Native">
 		<HintPath>$(SPOCLIENT)\BuildOutput\public\Debug\Client\dll\Microsoft.SPOT.Native.dll</HintPath>
     </Reference>
