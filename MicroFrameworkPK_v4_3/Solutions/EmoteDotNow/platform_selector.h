@@ -458,7 +458,7 @@ J12_PIN10 = GND
 #define DATA_TX_ACK_PIN						DISABLED_PIN //120
 
 //Acknowledgements from other node
-#define OMAC_TX_DATAACK_PIN 				(GPIO_PIN)25 // DISABLED_PIN //120 //120 //23  //120							//J11_pin3 0
+#define OMAC_TX_DATAACK_PIN 				DISABLED_PIN //120 //120 //23  //120							//J11_pin3 0
 #define OMAC_RX_DATAACK_PIN 				(GPIO_PIN)25 //DISABLED_PIN //120 // 120 //23  //120							//J11_pin3 0
 
 //Radio Control
