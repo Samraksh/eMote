@@ -17,6 +17,7 @@
 #define INVALID_NBR_ID 0xFFFF
 #define MAXRangeUINT64 0xFFFFFFFFFFFFFFFF
 #define UnknownRelativeFreq 255
+#define INITIAL_LAST_TIME_INDEX MAX_SAMPLES+1
 
 #define MIN_NUM_ELEMENTS_FOR_TIME_CALCULATION 2
 #define TIME_WALK_STEP (double)(200) //BK: This is the search step in Ticks used in FAST_RECOVERY2
@@ -277,8 +278,12 @@ public:
 		}
 		samples[nbrIndex].nbrID = nbr;
 		previndex = samples[nbrIndex].lastTimeIndex;
+		if(samples[nbrIndex].lastTimeIndex = INITIAL_LAST_TIME_INDEX){
+			samples[nbrIndex].lastTimeIndex = MAX_SAMPLES-1;
+			previndex = MAX_SAMPLES-1;
+		}
 		//if( samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex] != INVALID_TIMESTAMP
-		if( samples[nbrIndex].isused[samples[nbrIndex].lastTimeIndex]
+		else if( samples[nbrIndex].isused[samples[nbrIndex].lastTimeIndex]
 		&&  samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex] >= nbr_ltime
 		){ // Discard out of orderly received time stamps // Consider adding it in between.
 			CleanNbrwithIndex(nbrIndex);
@@ -316,7 +321,7 @@ public:
 		if(nbrIndex >= 0 && nbrIndex < MAX_NBR){
 			samples[nbrIndex].nbrID = INVALID_NBR_ID;
 			--nbrCount;
-			samples[nbrIndex].lastTimeIndex = MAX_SAMPLES;
+			samples[nbrIndex].lastTimeIndex = INITIAL_LAST_TIME_INDEX;
 			samples[nbrIndex].numSamples = 0;
 			samples[nbrIndex].relativeFreq = 0;
 			samples[nbrIndex].y_intercept = 0;
