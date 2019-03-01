@@ -558,10 +558,13 @@ UINT16 CONTROL_P4[] = {8627, 8623, 8467, 8447, 8443, 8429, 8419};
 //UINT16 CONTROL_P2[] = {227, 181, 197, 191, 211, 199};
 
 //Expected disco time(2 disco receptions) 2.63 mins, Typical MaxDiscoTime Time (2 disco receptions) 3.51 mins, Non typical MaxDiscoTime = 11.46 mins
+#if defined(PLATFORM_ARM_Austere)
 UINT16 CONTROL_P1[] = { 67,  71,  79,  83,  89,  97, 101};
 UINT16 CONTROL_P2[] = {257, 251, 241, 239, 233, 229, 227};
-
-
+#else //#if defined(PLATFORM_ARM_EmoteDotNow)
+UINT16 CONTROL_P1[] = {2099, 2111, 2113, 2129, 2131, 2137, 2153};
+UINT16 CONTROL_P2[] = {8627, 8623, 8467, 8447, 8443, 8429, 8419};
+#endif
 //Define total size of a Disco packet with piggybacking
 #if OMAC_DEBUG_SEND_EXTENDEDMACINfo
 
