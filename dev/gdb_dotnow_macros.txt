@@ -8,6 +8,10 @@ monitor stm32f1x mass_erase 0
 monitor stm32f1x mass_erase 1
 end
 
+define massf4
+monitor stm32f2x mass_erase 0
+end
+
 define mri
 monitor reset init
 end
@@ -26,6 +30,10 @@ end
 
 define di
 monitor dump_image dump.bin 0x8000000 1048576
+end
+
+define dih7
+monitor dump_image dump.bin 0x8000000 2097152
 end
 
 define wi
