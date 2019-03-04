@@ -274,9 +274,9 @@ DeviceStatus OMACType::SetOMACParametersBasedOnRadioName(UINT8 radioName){
 			UINT16 DISCO_BUFFER = 1 * MILLISECINMICSEC;
 			TX_TIME_PER_BIT_IN_MICROSEC = (UINT32)1000;	/*** (1/1kbps) ***/
 			RETRY_RANDOM_BACKOFF_DELAY_MICRO = ((UINT32)RANDOM_BACKOFF_COUNT_MAX*(UINT32)DELAY_DUE_TO_CCA_MICRO);
-			MAX_PACKET_TX_DURATION_MICRO = ((UINT32)IEEE802_15_4_FRAME_LENGTH*(UINT32)BITS_PER_BYTE*(UINT32)TX_TIME_PER_BIT_IN_MICROSEC) + TX_BUFFER;	//27.6*MILLISECINMICSEC;
+			MAX_PACKET_TX_DURATION_MICRO = ((UINT32)IEEE802_15_4_FRAME_LENGTH*(UINT32)BITS_PER_BYTE*(UINT32)TX_TIME_PER_BIT_IN_MICROSEC) + TX_BUFFER;
 			MAX_PACKET_RX_DURATION_MICRO = MAX_PACKET_TX_DURATION_MICRO;
-			ACK_RX_MAX_DURATION_MICRO = (sizeof(softwareACKHeader)*BITS_PER_BYTE*(UINT32)TX_TIME_PER_BIT_IN_MICROSEC) + RX_BUFFER;	//8*MILLISECINMICSEC;
+			ACK_RX_MAX_DURATION_MICRO = MAX_PACKET_TX_DURATION_MICRO; //(sizeof(softwareACKHeader)*BITS_PER_BYTE*(UINT32)TX_TIME_PER_BIT_IN_MICROSEC) + RX_BUFFER;	//8*MILLISECINMICSEC;
 			DISCO_PACKET_TX_TIME_MICRO = (sizeof(DiscoveryMsg_t)*BITS_PER_BYTE*(UINT32)TX_TIME_PER_BIT_IN_MICROSEC) + DISCO_BUFFER;	//10*MILLISECINMICSEC;
 			DISCO_BEACON_TX_MAX_DURATION_MICRO = 10*MILLISECINMICSEC;
 			DISCO_SLOT_PERIOD_MICRO = DISCOPERIODINMILLI *MILLISECINMICSEC;
@@ -450,8 +450,8 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 		SetMyAddress(CPU_Radio_GetAddress(radioName));
 		SetMyID(CPU_Radio_GetAddress(radioName));
 
-#ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("Initializing OMACType: My address: %d\r\n", g_OMAC.GetMyAddress());
+#if OMAC_DEBUG_PRINTF_RADIOADDRESS
+		hal_printf("Initializing OMACType: My address: %d \r\n", g_OMAC.GetMyAddress());
 #endif
 
 		m_omac_RadioControl.Initialize();
@@ -461,7 +461,7 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 
 	CurrentActiveApp = routingAppID;
 
-	hal_printf("OMACType::init CPU_GetCurrentPowerLevel = %u \r\n",CPU_GetCurrentPowerLevel());
+	//hal_printf("OMACType::init CPU_GetCurrentPowerLevel = %u \r\n",CPU_GetCurrentPowerLevel());
 
 	m_rxAckHandler = NULL;
 	m_txAckHandler = NULL;

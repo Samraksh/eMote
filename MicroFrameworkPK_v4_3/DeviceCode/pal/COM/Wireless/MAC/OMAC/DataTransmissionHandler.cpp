@@ -1003,7 +1003,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 		}
 
 #if OMAC_DTH_DEBUG_ReceiveDATAACK
-		if(DATATX_ReceiveDATAACK_PIN_TOGGLER != DISABLED_PIN){
+		if(DATATX_ReceiveDATAACK_PIN_TOGGLER != DISABLED_PIN){ //Mark 8
 			CPU_GPIO_SetPinState( DATATX_ReceiveDATAACK_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_ReceiveDATAACK_PIN_TOGGLER) );
 			CPU_GPIO_SetPinState( DATATX_ReceiveDATAACK_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_ReceiveDATAACK_PIN_TOGGLER) );
 		}
@@ -1092,7 +1092,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 void DataTransmissionHandler::PostExecuteEvent(){
 #if OMAC_DTH_DEBUG_UNEXPECTED_POST_EX
 	if(txhandler_state != DTS_RECEIVEDDATAACK && txhandler_state != DTS_RECEIVEDDATAACK){
-#ifdef OMAC_DEBUG_GPIO //Mark 6 Before  Initiating Send from DTH
+#ifdef OMAC_DEBUG_GPIO //Mark 8
 		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
 		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
 		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
@@ -1123,7 +1123,7 @@ void DataTransmissionHandler::PostExecuteEvent(){
 #endif
 	if(txhandler_state == DTS_WAITING_FOR_ACKS && m_outgoingEntryPtr && m_outgoingEntryPtr_dest != 0){
 #if OMAC_DEBUG_PRINTF_PACKET_ACK_RX_FAIL
-#ifdef OMAC_DEBUG_GPIO //Mark 6 Before  Initiating Send from DTH
+#ifdef OMAC_DEBUG_GPIO //Mark 9
 		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
 		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
 #endif
