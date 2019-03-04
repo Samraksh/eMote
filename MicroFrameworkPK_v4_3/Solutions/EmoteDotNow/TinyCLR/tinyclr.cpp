@@ -4,6 +4,7 @@
 
 #include <tinyclr_application.h>
 #include <tinyhal.h>
+#include "OMACTest.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,7 +19,21 @@ void ApplicationEntryPoint()
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
 
-    ClrStartup( clrSettings );
+    //ClrStartup( clrSettings );
+    do
+    {
+    	//OMACTest omacTest();
+    	BOOL ret;
+    	ret = gOMACTest.Initialize();
+    	ret = gOMACTest.StartTest();
+
+    	//dsTestObject.Execute(TEST_INITIALIZATION);
+
+    } while(false); // run only once!
+
+    while(true){
+    	::Events_WaitForEvents(0, 100);
+    }
 
 #if !defined(BUILD_RTM)
     debug_printf( "Exiting.\r\n" );
