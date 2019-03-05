@@ -455,6 +455,7 @@ void* CPU_Radio_Send(UINT8 radioName, void* msg, UINT16 size)
 		case SX1276:
 			//ptr_temp = si446x_hal_send_ts(radioName, msg, size, eventTime);
 			ptr_temp = gsx1276radio_netmf_adapter.Send(msg, size);
+			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
 			break;
