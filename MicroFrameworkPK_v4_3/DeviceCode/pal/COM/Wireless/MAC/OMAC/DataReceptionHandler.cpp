@@ -409,7 +409,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 		VirtualTimerReturnMessage rm;
 		// m_isreceiving = false;
 		//ASSERT_SP(m_receptionstate == 1);
-		if(m_receptionstate != DRS_RX_START || m_receptionstate != DRS_EXECUTE_START){
+		if(m_receptionstate != DRS_RX_START && m_receptionstate != DRS_EXECUTE_START){
 			return;
 		}
 		m_receptionstate = DRS_RX_END;
