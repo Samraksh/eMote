@@ -253,7 +253,7 @@ void SX1276M1BxASWrapper::LoraHardwareConfigInitialize(){
 
 //	initSPI2();
 	init_pins();
-	reset();
+	//reset();
 
 
 
@@ -546,11 +546,17 @@ void SX1276M1BxASWrapper::Reset() { //TODO: B
 	reset_intiated = true;
 	//Write a zero to the reset pin
 	//and switch to reading in that pin and wait 6 ms
+
 	CPU_GPIO_EnableOutputPin(SX1276_pin_setup.reset_mf_pin, TRUE);
+	VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 10000 );
 	CPU_GPIO_SetPinState( SX1276_pin_setup.reset_mf_pin, FALSE );
-	VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 1000 );
-	CPU_GPIO_EnableInputPin(SX1276_pin_setup.reset_mf_pin, FALSE, SX1276M1BxASWrapper::SX1276_Reset_Pin_Interrupt_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-	VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 1000 );
+	VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 10000 );
+
+	//CPU_GPIO_EnableOutputPin(SX1276_pin_setup.reset_mf_pin, TRUE);
+	//CPU_GPIO_SetPinState( SX1276_pin_setup.reset_mf_pin, FALSE );
+	//VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 1000 );
+	//CPU_GPIO_EnableInputPin(SX1276_pin_setup.reset_mf_pin, FALSE, SX1276M1BxASWrapper::SX1276_Reset_Pin_Interrupt_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	//VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 1000 );
 
 	//while(reset_intiated){};
 
@@ -696,7 +702,7 @@ void SX1276M1BxASWrapper::Initialize(SX1276RadioEvents_t *events) {
 	InitializeTimers();
 
 	SX1276M1BxASWrapper::LoraHardwareConfigInitialize();
-	//this->SX1276M1BxASWrapper::Reset();
+	this->SX1276M1BxASWrapper::Reset();
 	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , FALSE);
 	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , TRUE);
 
