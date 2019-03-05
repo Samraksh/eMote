@@ -110,7 +110,6 @@ static void btstack_uart_embedded_process(btstack_data_source_t *ds, btstack_dat
 
 static int btstack_uart_embedded_open(void){
     btUartOpen();    
-    
 
     // set up polling data_source
     btstack_run_loop_set_data_source_handler(&transport_data_source, &btstack_uart_embedded_process);
@@ -187,7 +186,7 @@ static void btstack_uart_embedded_set_sleep(btstack_uart_sleep_mode_t sleep_mode
 	log_info("done");
 }
 
-void hal_uart_dma_set_baud(uint32_t baud){
+void hal_uart_set_baud(uint32_t baud){
 	log_info("baud to be set to %d\r\n", baud);
 }
 
@@ -197,7 +196,7 @@ static const btstack_uart_block_t btstack_uart_embedded = {
     /* int  (*close)(void); */                                        &btstack_uart_embedded_close,
     /* void (*set_block_received)(void (*handler)(void)); */          &btstack_uart_embedded_set_block_received,
     /* void (*set_block_sent)(void (*handler)(void)); */              &btstack_uart_embedded_set_block_sent,
-    /* int  (*set_baudrate)(uint32_t baudrate); */                    &hal_uart_dma_set_baud,
+    /* int  (*set_baudrate)(uint32_t baudrate); */                    &hal_uart_set_baud,
     /* int  (*set_parity)(int parity); */                             &btstack_uart_embedded_set_parity,
 #ifdef HAVE_UART_DMA_SET_FLOWCONTROL
     /* int  (*set_flowcontrol)(int flowcontrol); */                   &hal_uart_dma_set_flowcontrol,

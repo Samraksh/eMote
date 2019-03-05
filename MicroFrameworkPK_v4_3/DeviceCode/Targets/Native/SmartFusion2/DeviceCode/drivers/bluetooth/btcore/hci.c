@@ -1867,7 +1867,7 @@ static void event_handler(uint8_t *packet, int size){
     uint8_t link_type;
 #endif
 
-    // log_info("HCI:EVENT:%02x", hci_event_packet_get_type(packet));
+     log_info("HCI:EVENT:%02x", hci_event_packet_get_type(packet));
     
     switch (hci_event_packet_get_type(packet)) {
                         

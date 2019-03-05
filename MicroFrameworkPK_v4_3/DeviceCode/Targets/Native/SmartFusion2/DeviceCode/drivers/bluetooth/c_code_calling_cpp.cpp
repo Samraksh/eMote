@@ -83,18 +83,23 @@ int FlowIsOn(void){
 }
 
 int btUartNumReadAvail(){
-	USART_BytesInBuffer(BT_COM_PORT, RX_BUFF);
+	int byteCount = USART_BytesInBuffer(BT_COM_PORT, RX_BUFF);
+	hal_printf("read avail: %d\r\n", byteCount);
+	return byteCount;
 }
 
 int btUartRead(uint8_t * rx_buff_ptr, int num_rx_bytes){
+	int numBytesRead = USART_Read(BT_COM_PORT, (char*)rx_buff_ptr, num_rx_bytes);
+	hal_printf("uart read: %d\r\n", numBytesRead);
+	return numBytesRead;
 }
 
 int btUartNumWriteAvail(){
-	hal_printf("can uartnum avail tx return actual value\r\n");
-	return 100;
+	return PLATFORM_DEPENDENT_TX_USART_BUFFER_SIZE;
 }
 
 int btUartWrite(uint8_t* tx_buff_ptr, int num_tx_bytes){
+	// should change to USART_Write but need to initialize UART normally first
 	CPU_USART_WriteStringToTxBuffer(BT_COM_PORT, (char*)tx_buff_ptr, num_tx_bytes);
 	return num_tx_bytes;
 }

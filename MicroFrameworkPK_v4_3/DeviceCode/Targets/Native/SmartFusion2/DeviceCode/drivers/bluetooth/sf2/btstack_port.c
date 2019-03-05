@@ -164,8 +164,7 @@ void hal_btstack_run_loop_execute_once(void)
         }
      }
 
-     log_info("do we run embedded_execute_once?\r\n");
-	//btstack_run_loop_embedded_execute_once();
+	btstack_run_loop_embedded_execute_once();
 }
 
 /*

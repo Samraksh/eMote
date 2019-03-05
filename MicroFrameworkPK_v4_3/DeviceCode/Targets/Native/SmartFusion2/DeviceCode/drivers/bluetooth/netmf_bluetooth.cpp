@@ -10,13 +10,11 @@ extern "C" {
 
 DeviceStatus CPU_Bluetooth_Initialize( )
 {
-	
-	DeviceStatus status = DS_Fail;
+	DeviceStatus status = DS_Success;
 	int Result;
 	
 	hal_printf("init Bluetooth\r\n");
 	// configure hardware
-	
 
 	//configuring and resetting bluetooth module
 	// Configure the nSHUT pin, drive it low to put the radio into reset.
@@ -42,7 +40,6 @@ DeviceStatus CPU_Bluetooth_Initialize( )
 BOOL CPU_Bluetooth_Reset()
 {
 	BOOL result = FALSE;
-
 	
 	return result;
 }
@@ -51,7 +48,6 @@ BOOL CPU_Bluetooth_Reset()
 BOOL CPU_Bluetooth_UnInitialize()
 {
 	BOOL result = FALSE;
-
 	
 	return result;
 }
