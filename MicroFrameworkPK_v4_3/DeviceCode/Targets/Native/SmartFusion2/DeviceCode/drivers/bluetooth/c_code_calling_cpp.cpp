@@ -94,8 +94,8 @@ int btUartNumWriteAvail(){
 	return 100;
 }
 
-int btUartWrite(uint8_t * tx_buff_ptr, int num_tx_bytes){
-	CPU_USART_WriteStringToTxBuffer(BT_COM_PORT, tx_buff_ptr, num_tx_bytes);
+int btUartWrite(uint8_t* tx_buff_ptr, int num_tx_bytes){
+	CPU_USART_WriteStringToTxBuffer(BT_COM_PORT, (char*)tx_buff_ptr, num_tx_bytes);
 	return num_tx_bytes;
 }
 
