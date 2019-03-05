@@ -49,7 +49,6 @@
 #include "..\btcore\btstack_debug.h"
 #include "..\btcore\btstack_uart_block.h"
 #include "btstack_run_loop_embedded.h"
-#include "hal_uart_dma.h"
 
 // uart config
 static const btstack_uart_config_t * uart_config;
@@ -82,13 +81,6 @@ static void btstack_uart_cts_pulse(void){
     btstack_run_loop_embedded_trigger();
 }
 
-static int btstack_uart_embedded_init(const btstack_uart_config_t * config){
-    uart_config = config;
-    hal_uart_dma_set_block_received(&btstack_uart_block_received);
-    hal_uart_dma_set_block_sent(&btstack_uart_block_sent);
-    return 0;
-}
-
 static void btstack_uart_embedded_process(btstack_data_source_t *ds, btstack_data_source_callback_type_t callback_type) {
     switch (callback_type){
         case DATA_SOURCE_CALLBACK_POLL:
@@ -117,8 +109,8 @@ static void btstack_uart_embedded_process(btstack_data_source_t *ds, btstack_dat
 }
 
 static int btstack_uart_embedded_open(void){
-    hal_uart_dma_init();
-    hal_uart_dma_set_baud(uart_config->baudrate);
+    btUartOpen();    
+    
 
     // set up polling data_source
     btstack_run_loop_set_data_source_handler(&transport_data_source, &btstack_uart_embedded_process);
@@ -128,6 +120,7 @@ static int btstack_uart_embedded_open(void){
 } 
 
 static int btstack_uart_embedded_close(void){
+	btUartClose();
 
     // remove data source
     btstack_run_loop_disable_data_source_callbacks(&transport_data_source, DATA_SOURCE_CALLBACK_POLL);
@@ -139,11 +132,19 @@ static int btstack_uart_embedded_close(void){
 }
 
 static void btstack_uart_embedded_set_block_received( void (*block_handler)(void)){
+	// hci_transport_h4.c sets hci_transport_h4_block_read()
     block_received = block_handler;
+
+    // local uart callback
+    hal_uart_set_block_received(&btstack_uart_block_received);
 }
 
 static void btstack_uart_embedded_set_block_sent( void (*block_handler)(void)){
+	// hci_transport_h4.c sets hci_transport_h4_block_sent()
     block_sent = block_handler;
+
+    // local uart callback
+    hal_uart_set_block_sent(&btstack_uart_block_sent);
 }
 
 static void btstack_uart_embedded_set_wakeup_handler( void (*the_wakeup_handler)(void)){
@@ -155,11 +156,11 @@ static int btstack_uart_embedded_set_parity(int parity){
 }
 
 static void btstack_uart_embedded_send_block(const uint8_t *data, uint16_t size){
-    hal_uart_dma_send_block(data, size);
+    hal_uart_send_block(data, size);
 }
 
 static void btstack_uart_embedded_receive_block(uint8_t *buffer, uint16_t len){
-    hal_uart_dma_receive_block(buffer, len);
+    hal_uart_receive_bytes(buffer, len);
 }
 
 static int btstack_uart_embedded_get_supported_sleep_modes(void){
@@ -186,8 +187,12 @@ static void btstack_uart_embedded_set_sleep(btstack_uart_sleep_mode_t sleep_mode
 	log_info("done");
 }
 
+void hal_uart_dma_set_baud(uint32_t baud){
+	log_info("baud to be set to %d\r\n", baud);
+}
+
 static const btstack_uart_block_t btstack_uart_embedded = {
-    /* int  (*init)(hci_transport_config_uart_t * config); */         &btstack_uart_embedded_init,
+    /* int  (*init)(btstack_uart_config_t * config); */         	&btUartInit,
     /* int  (*open)(void); */                                         &btstack_uart_embedded_open,
     /* int  (*close)(void); */                                        &btstack_uart_embedded_close,
     /* void (*set_block_received)(void (*handler)(void)); */          &btstack_uart_embedded_set_block_received,

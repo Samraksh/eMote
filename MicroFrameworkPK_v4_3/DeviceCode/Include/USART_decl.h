@@ -114,6 +114,7 @@ void CPU_USART_GetPins                     ( int ComPortNum, GPIO_PIN& rxPin, GP
 void CPU_USART_GetBaudrateBoundary         ( int ComPortNum, UINT32 & maxBaudrateHz, UINT32 & minBaudrateHz );
 BOOL CPU_USART_SupportNonStandardBaudRate  ( int ComPortNum               );
 BOOL CPU_USART_IsBaudrateSupported         ( int ComPortNum, UINT32& BaudrateHz );
+void CPU_USART_set_rx_handler_override(void* handler);
 
 //--//
 

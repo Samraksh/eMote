@@ -157,7 +157,7 @@ static enum {
 #endif
 
 static int hci_transport_h4_set_baudrate(uint32_t baudrate){
-    //log_info("hci_transport_h4_set_baudrate %"PRIu32, baudrate);
+    log_info("hci_transport_h4_set_baudrate %d", baudrate);
     return btstack_uart->set_baudrate(baudrate);
 }
 

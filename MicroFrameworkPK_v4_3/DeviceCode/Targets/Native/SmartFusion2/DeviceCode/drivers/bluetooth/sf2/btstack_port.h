@@ -42,6 +42,10 @@ extern "C" {
 int bluetooth_main(void);
 void hal_btstack_run_loop_execute_once(void);
 int btstack_main(int argc, const char * argv[]);
+void hal_uart_receive_bytes(uint8_t *buffer, uint16_t len);
+void hal_uart_send_block(const uint8_t *buffer, uint16_t len);
+void hal_uart_set_block_received( void (*block_handler)(void));
+void hal_uart_set_block_sent( void (*block_handler)(void));
 
 #if defined __cplusplus
 }

@@ -94,6 +94,8 @@ const uint8_t g_greeting_msg2[] =
 
 #define RX_BUFF_SIZE    64
 
+//static void (*uart0_rx_handler_override)((char*),(size_t));
+
 void uart1_rx_handler(mss_uart_instance_t * this_uart)
    {
       uint8_t rx_buff[RX_BUFF_SIZE];
@@ -158,6 +160,21 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 
 	return FALSE;
 }
+
+/*
+void uart0_rx_handler_override(mss_uart_instance_t * this_uart){
+      uint8_t rx_buff[RX_BUFF_SIZE];
+      uint32_t rx_idx  = 0;
+      uint32_t rx_size = MSS_UART_get_rx(this_uart, rx_buff, sizeof(rx_buff));
+      uart0_rx_handler_override((char*) &rx_buff, (size_t)rx_size);
+}
+
+void CPU_USART_set_rx_handler_override(void* handler){
+	uart0_rx_handler_override = handler;
+	MSS_UART_set_rx_handler(&g_mss_uart0,
+                              uart0_rx_handler_override,
+                              MSS_UART_FIFO_SINGLE_BYTE);
+}*/
 
 BOOL CPU_USART_TxBufferEmpty( int ComPortNum )
 {
