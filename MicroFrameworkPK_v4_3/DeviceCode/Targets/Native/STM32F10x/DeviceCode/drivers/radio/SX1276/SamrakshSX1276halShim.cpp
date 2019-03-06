@@ -84,6 +84,7 @@ void Samraksh_SX1276_hal_netmfadapter::TxDone (bool success){
 		ns = NetworkOperations_Fail;
 		radioAckStatus = NetworkOperations_Success;
 	}
+	gsx1276radio_netmf_adapter.TurnOnRx();
 	(gsx1276radio_netmf_adapter.Radio_event_handler.GetSendAckHandler())(static_cast<void*>(gsx1276radio.m_packet.GetPayload()), gsx1276radio.m_packet.GetSize(), ns, radioAckStatus);
 }
 
