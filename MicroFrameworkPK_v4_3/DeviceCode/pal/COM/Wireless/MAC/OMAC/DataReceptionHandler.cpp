@@ -406,6 +406,11 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARX_HANDLE_END_OF_RX, TRUE );
 #endif
+		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+
+
+
 		VirtualTimerReturnMessage rm;
 		// m_isreceiving = false;
 		//ASSERT_SP(m_receptionstate == 1);

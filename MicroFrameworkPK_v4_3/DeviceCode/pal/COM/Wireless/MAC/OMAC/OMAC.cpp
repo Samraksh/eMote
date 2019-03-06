@@ -537,6 +537,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 	if(!Initialized){
 		return msg;
 	}
+	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+
 	DeviceStatus ds;
 	EntendedMACInfoMsgSummary* macinfosum_msg = NULL;
 	DiscoveryMsg_t* disco_msg = NULL;

@@ -991,6 +991,8 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 	//3) If the sourceID is equal to the destination of the original message
 	//
 
+	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
 
 
 	if( true
@@ -1150,6 +1152,11 @@ void DataTransmissionHandler::PostExecuteEvent(){
 #endif
 		}
 	}
+#if OMAC_DEBUG_PRINTF_PACKET_ACK_RX_FAIL
+	else{
+		hal_printf("ACK RX SUCCESS! \r\n");
+	}
+#endif
 	txhandler_state = DTS_POSTEXECUTION;
 	//Scheduler's PostExecution stops the radio
 	//g_OMAC.m_omac_RadioControl.Stop();
