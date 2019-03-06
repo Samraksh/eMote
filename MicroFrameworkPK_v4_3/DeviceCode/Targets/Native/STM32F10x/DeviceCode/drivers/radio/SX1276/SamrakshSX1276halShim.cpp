@@ -137,7 +137,7 @@ void* Samraksh_SX1276_hal_netmfadapter::Send(void* msg, UINT16 size){
 	gsx1276radio_netmf_adapter.DataStatusCallback_success = false;
 	gsx1276radio.Send(msg,size,true,true);
 	if(gsx1276radio_netmf_adapter.DataStatusCallback_success){
-		return gsx1276radio.m_packet.GetPayload();
+		return msg; //gsx1276radio.m_packet.GetPayload();
 	}
 		return NULL;
 }
@@ -146,7 +146,7 @@ void* Samraksh_SX1276_hal_netmfadapter::SendTS(void* msg, UINT16 size, UINT32 ev
 	gsx1276radio_netmf_adapter.DataStatusCallback_success = false;
 	gsx1276radio.SendTS(msg,size,eventTime, true,true);
 	if(gsx1276radio_netmf_adapter.DataStatusCallback_success){
-		return gsx1276radio.m_packet.GetPayload();
+		return msg; //gsx1276radio.m_packet.GetPayload();
 	}
 	return NULL;
 }
