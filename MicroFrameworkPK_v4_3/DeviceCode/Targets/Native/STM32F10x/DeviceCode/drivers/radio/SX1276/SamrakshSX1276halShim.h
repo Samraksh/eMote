@@ -22,7 +22,10 @@ protected:
 	INT8 radioName;
 	bool DataStatusCallback_success;
 	UINT16 DataStatusCallback_number_of_bytes_in_buffer;
+
 public:
+	bool Is_CAD_Running;
+	bool CAD_Status;
 
 	RadioEventHandler Radio_event_handler; //Radop events from netmf
 	SamrakshRadio_I::RadioEvents_t radio_events; //Radio events to SamrakshRadio_I

@@ -596,8 +596,8 @@ void SX1276M1BxASWrapper::IoIrqInit() {
 //	EXTI_ClearITPendingBit(EXTI_Line1);
 //	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO2, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler2, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 //	EXTI_ClearITPendingBit(EXTI_Line1);
-//	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO3, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler3, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-//	EXTI_ClearITPendingBit(EXTI_Line1);
+	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO3, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler3, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	EXTI_ClearITPendingBit(EXTI_Line3);
 //	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO4, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler4, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 //	EXTI_ClearITPendingBit(EXTI_Line1);
 //	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO5, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler5, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
@@ -2313,7 +2313,7 @@ void SX1276M1BxASWrapper::OnDio3Irq(  )
     case MODEM_FSK:
         break;
     case MODEM_LORA:
-    	if( this->settings.State == RF_TX_RUNNING){ //BK: Adding interrupt for packet detected
+    	/*if( this->settings.State == RF_RX_RUNNING){ //BK: Adding interrupt for packet detected
     		if( ( Read( REG_LR_IRQFLAGS ) & RFLR_IRQFLAGS_VALIDHEADER ) == RFLR_IRQFLAGS_VALIDHEADER ){ //BK:Adding callback for
     			// Clear Irq
     		        	 Write( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_VALIDHEADER | RFLR_IRQFLAGS_VALIDHEADER );
@@ -2322,7 +2322,7 @@ void SX1276M1BxASWrapper::OnDio3Irq(  )
     		                 this->RadioEvents->ValidHeaderDetected( );
     		             }
     		        }
-    	}
+    	}*/
         if( ( Read( REG_LR_IRQFLAGS ) & RFLR_IRQFLAGS_CADDETECTED ) == RFLR_IRQFLAGS_CADDETECTED )
         {
             // Clear Irq

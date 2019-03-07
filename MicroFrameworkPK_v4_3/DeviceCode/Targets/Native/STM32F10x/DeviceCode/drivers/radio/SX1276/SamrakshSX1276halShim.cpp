@@ -40,6 +40,12 @@ static void GetCPUSerial(uint8_t * ptr, unsigned num_of_bytes ){
 	}
 }
 
+void CADTimerHandler(void * param){
+	//gsx1276radio_netmf_adapter.CAD_Status = true;
+	//gsx1276radio_netmf_adapter.Is_CAD_Running = false;
+	gsx1276radio_netmf_adapter.CadDone(true);
+}
+
 DeviceStatus Samraksh_SX1276_hal_netmfadapter::CPU_Radio_Initialize(RadioEventHandler* event_handler){
 
 	Radio_event_handler.SetReceiveHandler(event_handler->GetReceiveHandler());
@@ -67,9 +73,13 @@ DeviceStatus Samraksh_SX1276_hal_netmfadapter::CPU_Radio_Initialize(RadioEventHa
 
 	received_ts_ticks = UNSET_TS;
 
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_SetTimer(VIRT_TIMER_SX1276_CADTimer, 0,  1000, TRUE, FALSE, CADTimerHandler, LOW_DRIFT_TIMER);
+
 	//Samraksh_SX1276_hal* base_ptr = this;
 	DeviceStatus ds = gsx1276radio.Initialize(radio_events);
 	//DeviceStatus ds = gsx1276radio.Initialize(radio_events);
+
 	return ds;
 }
 
@@ -122,11 +132,27 @@ void    Samraksh_SX1276_hal_netmfadapter::RxDone( uint8_t *payload, uint16_t siz
  * @param [IN] channelDetected    Whether Channel Activity detected during the CAD
  */
 void Samraksh_SX1276_hal_netmfadapter::CadDone( bool channelActivityDetected ){
-
+	gsx1276radio_netmf_adapter.CAD_Status = channelActivityDetected;
+	gsx1276radio_netmf_adapter.Is_CAD_Running = false;
 }
 
 DeviceStatus Samraksh_SX1276_hal_netmfadapter::CPU_Radio_ClearChannelAssesment(){
 	return DS_Success;
+	Is_CAD_Running = true;
+	CAD_Status = true;
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_Start(VIRT_TIMER_SX1276_CADTimer);
+
+	gsx1276radio.ChannelActivityDetection();
+
+	UINT32 i = 1;
+	while(Is_CAD_Running && i < 20000){
+		i++;
+		//hal_printf("CAD Running");
+	};
+
+	if(CAD_Status) return DS_Success;
+	else DS_Fail;
 }
 
 /*!
