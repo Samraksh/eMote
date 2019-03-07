@@ -319,7 +319,7 @@ private:
 
 
 	Message_15_4_t* ReceiveHandler(Message_15_4_t* msg, int size);
-
+	BOOL IsPcktValid(Message_15_4_t* msg, int size);
 
 	BOOL RadioInterruptHandler(RadioInterrupt Interrupt, void* Param);
 	void SendAckHandler(void* msg, int Size, NetOpStatus status);

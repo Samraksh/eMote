@@ -530,6 +530,49 @@ BOOL OMACType::UnInitialize(){
 	return ret;
 }
 
+BOOL OMACType::IsPcktValid(Message_15_4_t* msg, int Size){
+/*	UINT16 maxPayload = OMACType::GetMaxPayload();
+	if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t) > maxPayload) ){
+#ifdef OMAC_DEBUG_PRINTF
+		OMAC_HAL_PRINTF("OMAC Receive Error: Packet is too big: %d \r\n", Size+sizeof(IEEE802_15_4_Header_t));
+#endif
+		return FALSE;
+	}
+	if(Size < sizeof(IEEE802_15_4_Header_t)){
+		return FALSE;
+	}
+	Size -= sizeof(IEEE802_15_4_Header_t);
+	RadioAddress_t sourceID = msg->GetHeader()->src;
+	RadioAddress_t destID = msg->GetHeader()->dest;
+	if( sourceID == 0 || sourceID == MAX_UINT16
+			||	destID == 0
+			||  msg->GetHeader()->length > MAX_PCKT_SIZE
+	){ //Check for incompliant packets
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
+		return FALSE;
+	}*/
+	switch(msg->GetHeader()->payloadType){
+		case MFM_CSMA_TIMESYNCREQ:
+		case MFM_CSMA_NEIGHBORHOOD:
+		case MFM_CSMA_ROUTING:
+		case MFM_CSMA_DISCOVERY:
+		case MFM_TIMESYNC:
+		case MFM_CSMA_DATA_ACK:
+		case MFM_OMAC_TIMESYNCREQ:
+		case MFM_OMAC_NEIGHBORHOOD:
+		case MFM_OMAC_ROUTING:
+		case MFM_OMAC_DISCOVERY:
+		case MFM_OMAC_DATA_ACK:
+		case MFM_OMAC_DATA_BEACON_TYPE:
+			break;
+		default:
+			return FALSE;
+	}
+	return TRUE;
+}
+
 /*
  *
  */
@@ -627,6 +670,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 			return msg;
 		}
 
+		if(!IsPcktValid(msg, Size)){
+			return msg;
+		}
 		//g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_isreceiving = false;
 
 		//if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
