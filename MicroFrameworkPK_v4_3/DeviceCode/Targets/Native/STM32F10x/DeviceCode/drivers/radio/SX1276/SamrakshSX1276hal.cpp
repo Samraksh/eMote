@@ -40,7 +40,17 @@ void Samraksh_SX1276_hal::RxDone(uint8_t *payload, uint16_t size, int16_t rssi, 
 	if(gsx1276radio.m_re.RxDone) gsx1276radio.m_re.RxDone(payload, size);
 }
 void Samraksh_SX1276_hal::RxTimeout(){
-	if(gsx1276radio.m_re.RxDone) gsx1276radio.m_re.RxDone(NULL, 0);
+	g_SX1276M1BxASWrapper.Reset();
+	g_SX1276M1BxASWrapper.IoInit( );
+	g_SX1276M1BxASWrapper.RxChainCalibration();
+	g_SX1276M1BxASWrapper.SetOpMode( RF_OPMODE_SLEEP );
+	g_SX1276M1BxASWrapper.IoIrqInit();
+	g_SX1276M1BxASWrapper.RadioRegistersInit();
+	g_SX1276M1BxASWrapper.SetModem(MODEM_LORA);
+	gsx1276radio.ChooseRadioConfig();
+	gsx1276radio.StartListenning();
+
+//	if(gsx1276radio.m_re.RxDone) gsx1276radio.m_re.RxDone(NULL, 0);
 }
 void Samraksh_SX1276_hal::RxError(){
 	if(gsx1276radio.m_re.RxDone) gsx1276radio.m_re.RxDone(NULL, 0);

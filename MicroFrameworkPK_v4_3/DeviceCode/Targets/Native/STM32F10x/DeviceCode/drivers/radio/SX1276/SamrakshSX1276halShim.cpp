@@ -101,7 +101,14 @@ void  Samraksh_SX1276_hal_netmfadapter::PacketDetected( void ){
  * @param [IN] size    Received buffer size
  */
 void    Samraksh_SX1276_hal_netmfadapter::RxDone( uint8_t *payload, uint16_t size ){
-	if(payload == NULL) return;
+	if(payload == NULL) {
+		hal_printf("RX timeout");
+		  // Reset the radio
+
+
+
+		return;
+	}
 	Message_15_4_t* pckt_ptr = reinterpret_cast<Message_15_4_t*>(payload);
 	if(gsx1276radio_netmf_adapter.received_ts_ticks == UNSET_TS)
 		gsx1276radio_netmf_adapter.received_ts_ticks = HAL_Time_CurrentTicks();
