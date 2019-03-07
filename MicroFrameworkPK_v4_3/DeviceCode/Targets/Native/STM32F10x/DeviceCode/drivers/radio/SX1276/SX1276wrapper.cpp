@@ -551,7 +551,10 @@ void SX1276M1BxASWrapper::Reset() { //TODO: B
 	VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 10000 );
 	CPU_GPIO_SetPinState( SX1276_pin_setup.reset_mf_pin, FALSE );
 	VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 10000 );
-
+	CPU_GPIO_EnableOutputPin(SX1276_pin_setup.reset_mf_pin, TRUE);
+	VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 10000 );
+	CPU_GPIO_SetPinState( SX1276_pin_setup.reset_mf_pin, FALSE );
+	VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 10000 );
 	//CPU_GPIO_EnableOutputPin(SX1276_pin_setup.reset_mf_pin, TRUE);
 	//CPU_GPIO_SetPinState( SX1276_pin_setup.reset_mf_pin, FALSE );
 	//VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 1000 );
