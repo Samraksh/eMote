@@ -1153,7 +1153,7 @@ void DataTransmissionHandler::PostExecuteEvent(){
 		}
 	}
 #if OMAC_DEBUG_PRINTF_PACKET_ACK_RX_FAIL
-	else{
+	else if(txhandler_state == DTS_RECEIVEDDATAACK){
 		hal_printf("ACK RX SUCCESS! \r\n");
 	}
 #endif

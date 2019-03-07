@@ -381,6 +381,9 @@ void DataReceptionHandler::SendACKHandler(){ // Handler for end of tranmission i
 		VirtualTimerReturnMessage rm;
 		// m_isreceiving = false;
 		//ASSERT_SP(m_receptionstate == DRS_TX_START);
+		CPU_GPIO_SetPinState( DATATX_SendACKHandler_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_SendACKHandler_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DATATX_SendACKHandler_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_SendACKHandler_PIN_TOGGLER) );
+
 		if(m_receptionstate != DRS_TX_START){
 			return;
 		}
@@ -397,6 +400,8 @@ void DataReceptionHandler::SendACKHandler(){ // Handler for end of tranmission i
 #endif
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.is_VIRT_TIMER_OMAC_RECEIVER_in_use = true;
+		CPU_GPIO_SetPinState( DATATX_SendACKHandler_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_SendACKHandler_PIN_TOGGLER) );
+		CPU_GPIO_SetPinState( DATATX_SendACKHandler_PIN_TOGGLER, !CPU_GPIO_GetPinState(DATATX_SendACKHandler_PIN_TOGGLER) );
 
 	}
 }
@@ -405,9 +410,10 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 	if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARX_HANDLE_END_OF_RX, TRUE );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
 #endif
-		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
-		CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+
 
 
 
@@ -429,6 +435,9 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 		}
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARX_HANDLE_END_OF_RX, FALSE );
+
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
 #endif
 	}
 	else if(CPU_Radio_GetRadioAckType() == HARDWARE_ACK) {
@@ -492,6 +501,9 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, TRUE);
 	CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, TRUE);
+
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
 #endif
 
 
@@ -576,6 +588,8 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, FALSE);
 	CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, FALSE);
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
+	CPU_GPIO_SetPinState( DTH_STATE_PIN_TOGGLER, !CPU_GPIO_GetPinState(DTH_STATE_PIN_TOGGLER) );
 #endif
 }
 
@@ -588,8 +602,23 @@ void DataReceptionHandler::PostExecuteEvent(){
 	//m_currtime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 
 #if OMAC_DRH_DEBUG_UNEXPECTED_POST_EXECUTE
-	if(!(m_receptionstate == DRS_EXECUTE_START || m_receptionstate == DRS_TX_END || m_receptionstate == DRS_TX_START)){
+	if(!(m_receptionstate == DRS_EXECUTE_START || m_receptionstate == DRS_TX_END)){
 		hal_printf("DRH:UEPE m_receptionstate = %u \r\n", m_receptionstate);
+
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, !CPU_GPIO_GetPinState(DATARECEPTION_SLOTPIN) );
 		// m_isreceiving = false;
 	}
 #endif
