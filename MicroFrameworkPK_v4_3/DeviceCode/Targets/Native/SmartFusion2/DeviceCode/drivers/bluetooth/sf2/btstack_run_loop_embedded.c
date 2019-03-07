@@ -190,7 +190,6 @@ static void btstack_run_loop_embedded_disable_data_source_callbacks(btstack_data
 void btstack_run_loop_embedded_execute(void){}
 
 void btstack_run_loop_embedded_execute_once(void) {
-	log_info("ex\r\n");
     btstack_data_source_t *ds;
 
     // process data sources

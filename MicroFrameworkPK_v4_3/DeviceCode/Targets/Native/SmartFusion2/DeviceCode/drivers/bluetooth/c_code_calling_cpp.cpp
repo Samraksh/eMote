@@ -40,7 +40,7 @@ void mf_delay_us(unsigned int usDelay){
 
 void SetBTTimerInterrupt(int ticks, void* callbackFunction){
 	//VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, ticks, FALSE, TRUE, (TIMER_CALLBACK_FPN)callbackFunction, ADVTIMER_32BIT);
-	VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, 1000000, FALSE, TRUE, (TIMER_CALLBACK_FPN)call_btstack_scheduler_loop, ADVTIMER_32BIT);
+	VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, 10000, FALSE, TRUE, (TIMER_CALLBACK_FPN)call_btstack_scheduler_loop, ADVTIMER_32BIT);
 	VirtTimer_Start(VIRT_TIMER_BLUETOOTH_TICK);
 }
 
@@ -83,13 +83,14 @@ int FlowIsOn(void){
 }
 
 int btUartNumReadAvail(){
-	int byteCount = USART_BytesInBuffer(BT_COM_PORT, RX_BUFF);
-	hal_printf("read avail: %d\r\n", byteCount);
+	int byteCount = USART_BytesInManagedBuffer(BT_COM_PORT, RX_BUFF);
+	if  (byteCount != 0)
+		hal_printf("read avail: %d\r\n", byteCount);
 	return byteCount;
 }
 
 int btUartRead(uint8_t * rx_buff_ptr, int num_rx_bytes){
-	int numBytesRead = USART_Read(BT_COM_PORT, (char*)rx_buff_ptr, num_rx_bytes);
+	int numBytesRead = USART_Managed_Read(BT_COM_PORT, (char*)rx_buff_ptr, num_rx_bytes);
 	hal_printf("uart read: %d\r\n", numBytesRead);
 	return numBytesRead;
 }
@@ -99,8 +100,16 @@ int btUartNumWriteAvail(){
 }
 
 int btUartWrite(uint8_t* tx_buff_ptr, int num_tx_bytes){
-	// should change to USART_Write but need to initialize UART normally first
-	CPU_USART_WriteStringToTxBuffer(BT_COM_PORT, (char*)tx_buff_ptr, num_tx_bytes);
+	bool pinState = CPU_GPIO_GetPinState(7);
+	if (pinState == true){
+		hal_printf("*** error sending data when BT module not ready\r\n");
+		return 0;
+	} else {
+		// should change to USART_Write but need to initialize UART normally first
+		hal_printf("sending %d bytes to BT\r\n", num_tx_bytes);
+		//CPU_USART_WriteStringToTxBuffer(BT_COM_PORT, (char*)tx_buff_ptr, num_tx_bytes);
+		USART_Write(BT_COM_PORT, (char*)tx_buff_ptr, num_tx_bytes);
+	}
 	return num_tx_bytes;
 }
 
@@ -109,10 +118,25 @@ int btUartWrite(uint8_t* tx_buff_ptr, int num_tx_bytes){
 
 }*/
 
+void CTS_Handler(GPIO_PIN Pin, BOOL PinState, void* Param){
+	bool pinState = CPU_GPIO_GetPinState(7);
+	if (pinState == true)
+		hal_printf("BT module ready to receive\r\n");
+}
+
 int btUartInit(const btstack_uart_config_t * config){
 	hal_printf("uart init: baud: %d\r\n", config->baudrate);
 	uart_config = config;
-	CPU_USART_Initialize(BT_COM_PORT, config->baudrate, USART_PARITY_NONE, 8, USART_STOP_BITS_ONE, USART_FLOW_NONE );
+	//CPU_USART_Initialize(BT_COM_PORT, config->baudrate, USART_PARITY_NONE, 8, USART_STOP_BITS_ONE, USART_FLOW_NONE );
+	USART_Initialize(BT_COM_PORT, config->baudrate, USART_PARITY_NONE, 8, USART_STOP_BITS_ONE, USART_FLOW_NONE );
+
+	// initializing and setting RTS high (telling BT module we are not ready to get data)
+	CPU_GPIO_EnableOutputPin(9, TRUE);
+	CPU_GPIO_SetPinState(9, TRUE);
+
+	// initializing CTS from BT module
+	CPU_GPIO_EnableInputPin(7, FALSE, CTS_Handler, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED);
+
 	//CPU_USART_set_rx_handler_override(&btRxHandler);
 	return 0;
 }
@@ -121,20 +145,24 @@ int btUartOpen(){
 	hal_printf("uart opened\r\n");
 	// set baud
 	// baud = uart_config->baudrate;
+	
+	// setting RTS low (telling BT module we are ready to receive data)
+	CPU_GPIO_SetPinState(9, FALSE);
+
 	return 0;
 }
 
 int btUartClose(){
 	hal_printf("uart closed\r\n");
-	return 0;
-}
 
-int btUartSend(const uint8_t *buffer, uint16_t len){
-	CPU_USART_WriteStringToTxBuffer(BT_COM_PORT, (char*) buffer, len);
+	// setting RTS high (telling BT module we are not ready to get data)
+	CPU_GPIO_SetPinState(9, TRUE);
+	return 0;
 }
 
 void DisableBTUart(){
 	hal_printf("*** incomplete *** DisableBTUart\r\n");
+	USART_Uninitialize(BT_COM_PORT);
 }
 
 #ifdef __cplusplus

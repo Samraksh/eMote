@@ -25,7 +25,6 @@ void mf_delay_us(unsigned int usDelay);
 int btUartInit(const btstack_uart_config_t * config);
 int btUartOpen();
 int btUartClose();
-int btUartSend(const uint8_t *buffer, uint16_t len);
 
 int btUartNumReadAvail();
 int btUartRead(uint8_t * rx_buff_ptr, int num_rx_bytes); 

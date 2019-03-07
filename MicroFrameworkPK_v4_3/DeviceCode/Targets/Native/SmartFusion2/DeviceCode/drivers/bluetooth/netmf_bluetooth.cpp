@@ -20,7 +20,7 @@ DeviceStatus CPU_Bluetooth_Initialize( )
 	// Configure the nSHUT pin, drive it low to put the radio into reset.
 	CPU_GPIO_EnableOutputPin(5, FALSE);
 	// delay
-	CPU_Timer_Sleep_MicroSeconds(50000,ADVTIMER_32BIT);
+	CPU_Timer_Sleep_MicroSeconds(500000,ADVTIMER_32BIT);
 	CPU_GPIO_SetPinState(5,TRUE);
 
 	bluetooth_main();

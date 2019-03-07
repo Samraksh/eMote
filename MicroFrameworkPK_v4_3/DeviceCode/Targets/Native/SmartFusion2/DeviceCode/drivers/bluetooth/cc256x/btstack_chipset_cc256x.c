@@ -175,6 +175,7 @@ static void chipset_init(const void * config){
 }
 
 static void chipset_set_baudrate_command(uint32_t baudrate, uint8_t *hci_cmd_buffer){
+	log_info("cc256x set baud\r\n");
     hci_cmd_buffer[0] = 0x36;
     hci_cmd_buffer[1] = 0xFF;
     hci_cmd_buffer[2] = 0x04;
@@ -185,6 +186,7 @@ static void chipset_set_baudrate_command(uint32_t baudrate, uint8_t *hci_cmd_buf
 }
 
 static void chipset_set_bd_addr_command(bd_addr_t addr, uint8_t *hci_cmd_buffer){
+	log_info("cc256x set bd addr\r\n");
     hci_cmd_buffer[0] = 0x06;
     hci_cmd_buffer[1] = 0xFC;
     hci_cmd_buffer[2] = 0x06;
@@ -275,6 +277,7 @@ static void update_sleep_mode_configurations(uint8_t * hci_cmd_buffer){
 }
 
 static void update_init_script_command(uint8_t *hci_cmd_buffer){
+	log_info("cc256 update init script\r\n");
 
     uint16_t opcode = hci_cmd_buffer[0] | (hci_cmd_buffer[1] << 8);
 
@@ -294,6 +297,7 @@ static void update_init_script_command(uint8_t *hci_cmd_buffer){
 }
 
 static btstack_chipset_result_t chipset_next_command(uint8_t * hci_cmd_buffer){
+	log_info("cc256 next cmnd\r\n");
     if (init_script_offset >= init_script_size) {
 
 #ifdef ENABLE_SCO_OVER_HCI

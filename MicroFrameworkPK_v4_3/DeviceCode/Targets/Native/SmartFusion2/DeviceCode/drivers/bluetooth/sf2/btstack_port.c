@@ -73,19 +73,19 @@ static void (*tx_done_handler)(void) = dummy_handler;
 void hal_cpu_disable_irqs(void)
 {
 	//__disable_irq();
-	log_info("*** disable irq not implemented");
+	//log_info("*** disable irq not implemented");
 }
 
 void hal_cpu_enable_irqs(void)
 {
 	//__enable_irq();
-	log_info("*** enable irq not implemented");
+	//log_info("*** enable irq not implemented");
 }
 void hal_cpu_enable_irqs_and_sleep(void)
 {
 	//__enable_irq();
 	/* TODO: Add sleep mode */
-	log_info("*** enable irq and sleep mode not implemented");
+	//log_info("*** enable irq and sleep mode not implemented");
 }
 
 void hal_uart_send_block(const uint8_t *buffer, uint16_t len)
@@ -106,7 +106,6 @@ void hal_uart_receive_bytes(uint8_t *buffer, uint16_t len)
 
 void hal_btstack_run_loop_execute_once(void)
 {
-	log_info("#");
 	int rx_avail;
 	int num_rx_bytes;
 	int tx_avail;
@@ -308,28 +307,11 @@ void btstack_stdin_setup(void (*handler)(char c)){
 	uart_byte_request.len = sizeof(uint8_t);
 	UART_ReadAsync(MXC_UART_GET_UART(CONSOLE_UART), &uart_byte_request);
 }*/
-/*
-#include "hal_flash_bank_mxc.h"
-#include "btstack_tlv.h"
-#include "btstack_tlv_flash_bank.h"
-#include "btstack_link_key_db_tlv.h"
-#include "le_device_db_tlv.h"
 
-#define HAL_FLASH_BANK_SIZE    0x2000
-#define HAL_FLASH_BANK_0_ADDR  0x1FC000
-#define HAL_FLASH_BANK_1_ADDR  0x1FE000
-
-static hal_flash_bank_mxc_t hal_flash_bank_context;
-static btstack_tlv_flash_bank_t btstack_tlv_flash_bank_context;
-*/
 
 /******************************************************************************/
 int bluetooth_main(void)
 {
-	//LED_Off(LED_GREEN);
-	//LED_On(LED_RED);
-	//LED_Off(LED_BLUE);
-
 	bt_comm_init();
 	/* BT Stack Initialization */
 	btstack_memory_init();
@@ -342,17 +324,6 @@ int bluetooth_main(void)
 	const hci_transport_t * transport = hci_transport_h4_instance(btstack_uart_block_embedded_instance());
 	hci_init(transport, &config);
 	hci_set_chipset(btstack_chipset_cc256x_instance());
-
-    // setup TLV Flash Bank implementation
-    /*const hal_flash_bank_t * hal_flash_bank_impl = hal_flash_bank_mxc_init_instance(
-		&hal_flash_bank_context,
-		HAL_FLASH_BANK_SIZE,
-			HAL_FLASH_BANK_0_ADDR,
-			HAL_FLASH_BANK_1_ADDR);
-    const btstack_tlv_t * btstack_tlv_impl = btstack_tlv_flash_bank_init_instance(
-		&btstack_tlv_flash_bank_context,
-			hal_flash_bank_impl,
-			&hal_flash_bank_context);*/
 
     // setup Link Key DB using TLV
     //const btstack_link_key_db_t * btstack_link_key_db = btstack_link_key_db_tlv_get_instance(btstack_tlv_impl, &btstack_tlv_flash_bank_context);
