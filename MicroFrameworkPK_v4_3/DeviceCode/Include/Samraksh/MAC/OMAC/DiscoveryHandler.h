@@ -28,6 +28,8 @@ enum DiscoState{
 	WAITING_FOR_SLEEP,
 	SLEEP_SUCCESSFUL,
 	FAILSAFE_STOPPING,
+	WAIT_AFTER_BEACON1,
+	WAIT_AFTER_BEACON2,
 };
 
 /*
@@ -56,6 +58,7 @@ class DiscoveryHandler: public EventHandler {
 	UINT16 m_seed;
 	UINT32 m_nextFrame;
 
+	bool beacon_received;
 	UINT64 firstHighRateDiscoTimeinSlotNum;
 	bool highdiscorate;
 

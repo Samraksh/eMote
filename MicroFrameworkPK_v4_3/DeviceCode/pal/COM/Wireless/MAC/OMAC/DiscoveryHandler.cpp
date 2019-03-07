@@ -147,6 +147,7 @@ UINT64 DiscoveryHandler::NextEventinSlots(const UINT64 &currentSlotNum){
  *
  */
 void DiscoveryHandler::ExecuteEvent(){
+	beacon_received = false;
 	m_num_sleep_retry_attempts = 0;
 	VirtualTimerReturnMessage rm;
 	m_state = DISCO_INITIAL;
@@ -467,6 +468,14 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 		}
 	case BEACON1_SKIPPED:
 	case BEACON1_SEND_DONE:
+		m_state = WAIT_AFTER_BEACON1;
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  g_OMAC.MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+		if(rm == TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			break;
+		}
+		break;
+	case WAIT_AFTER_BEACON1:
 		BeaconN();
 		break;
 	case BEACON2_SEND_START:
@@ -483,6 +492,14 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 		}
 	case BEACON2_SKIPPED:
 	case BEACON2_SEND_DONE:
+		m_state = WAIT_AFTER_BEACON2;
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  g_OMAC.MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+		if(rm == TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			break;
+		}
+		break;
+	case WAIT_AFTER_BEACON2:
 		PostExecuteEvent();
 		break;
 	case DISCO_INITIAL:
@@ -502,6 +519,7 @@ void DiscoveryHandler::BeaconNTimerHandler(){
  *
  */
 DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* discoMsg, MsgLinkQualityMetrics_t* msgLinkQualityMetrics){  //(Message_15_4_t* msg, void* payload, UINT8 len){
+	beacon_received = true;
 	Neighbor_t tempNeighbor;
 	Neighbor_t* neigh_ptr;
 	UINT8 nbrIdx = 0;
@@ -626,7 +644,8 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	OMAC_CPU_GPIO_SetPinState(DISCO_SYNCSENDPIN, TRUE);
 #endif
 
-	retValue = g_OMAC.m_omac_RadioControl.Send(address, msg, header->length);
+	if(beacon_received) retValue = DS_Fail;
+	else retValue = g_OMAC.m_omac_RadioControl.Send(address, msg, header->length);
 
 #ifdef OMAC_DEBUG_GPIO
 	OMAC_CPU_GPIO_SetPinState(DISCO_SYNCSENDPIN, FALSE );
