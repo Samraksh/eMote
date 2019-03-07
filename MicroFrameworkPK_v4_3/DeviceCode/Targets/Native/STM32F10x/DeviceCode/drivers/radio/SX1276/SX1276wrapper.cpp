@@ -702,7 +702,7 @@ void SX1276M1BxASWrapper::Initialize(SX1276RadioEvents_t *events) {
 	InitializeTimers();
 
 	SX1276M1BxASWrapper::LoraHardwareConfigInitialize();
-	this->SX1276M1BxASWrapper::Reset();
+	//this->SX1276M1BxASWrapper::Reset();
 	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , FALSE);
 	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , TRUE);
 
