@@ -454,17 +454,33 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 		Beacon1();
 		break;
 	case BEACON1_SEND_START:
+		hal_printf("DiscoveryHandler::Beacon1 transmission send ACK is missing \r\n");
 #ifdef OMAC_DEBUG_PRINTF
 		OMAC_HAL_PRINTF("DiscoveryHandler::Beacon1 transmission send ACK is missing \r\n");
 #endif
+		if(!g_OMAC.isSendDone){
+			rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  g_OMAC.MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+			rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+			if(rm == TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+				break;
+			}
+		}
 	case BEACON1_SKIPPED:
 	case BEACON1_SEND_DONE:
 		BeaconN();
 		break;
 	case BEACON2_SEND_START:
+		hal_printf("DiscoveryHandler::Beacon2 transmission send ACK is missing \r\n");
 #ifdef OMAC_DEBUG_PRINTF
 		OMAC_HAL_PRINTF("DiscoveryHandler::Beacon2 transmission send ACK is missing \r\n");
 #endif
+		if(!g_OMAC.isSendDone){
+			rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  g_OMAC.MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+			rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+			if(rm == TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+				break;
+			}
+		}
 	case BEACON2_SKIPPED:
 	case BEACON2_SEND_DONE:
 		PostExecuteEvent();
