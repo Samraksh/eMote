@@ -66,10 +66,6 @@
 
 #include "..\btcore\btstack_debug.h"
 
-#ifdef HAVE_EMBEDDED_TIME_MS
-#include "hal_time_ms.h"
-#endif
-
 #if defined(HAVE_EMBEDDED_TICK) && defined(HAVE_EMBEDDED_TIME_MS)
 #error "Please specify either HAVE_EMBEDDED_TICK or HAVE_EMBEDDED_TIME_MS"
 #endif
@@ -105,13 +101,12 @@ static int btstack_run_loop_embedded_remove_data_source(btstack_data_source_t *d
 
 // set timer
 static void btstack_run_loop_embedded_set_timer(btstack_timer_source_t *ts, uint32_t timeout_in_ms){
-	log_info("btstack_run_loop_embedded_set_timer\r\n");
     ts->timeout = hal_time_ms() + timeout_in_ms + 1;
 }
 
 // under the assumption that a tick value is +/- 2^30 away from now, calculate the upper bits of the tick value
-static int btstack_run_loop_embedded_reconstruct_higher_bits(uint32_t now, uint32_t ticks){
-    int32_t delta = ticks - now;
+static int btstack_run_loop_embedded_reconstruct_higher_bits(uint64_t now, uint64_t ticks){
+    uint64_t delta = ticks - now;
     if (delta >= 0){
         if (ticks >= now) {
             return 0;
@@ -131,13 +126,12 @@ static int btstack_run_loop_embedded_reconstruct_higher_bits(uint32_t now, uint3
  * Add timer to run_loop (keep list sorted)
  */
 static void btstack_run_loop_embedded_add_timer(btstack_timer_source_t *ts){
-	log_info("btstack_run_loop_embedded_add_timer\r\n");
 
+    uint64_t now = hal_time_ms();
 
-    uint32_t now = hal_time_ms();
-
-    uint32_t new_low = ts->timeout;
-    int     new_high = btstack_run_loop_embedded_reconstruct_higher_bits(now, new_low);
+    uint64_t new_low = ts->timeout;
+    uint64_t     new_high = btstack_run_loop_embedded_reconstruct_higher_bits(now, new_low);
+	log_info("btstack_run_loop_embedded_add_timer %llu %llu\r\n", now, ts->timeout);
 
     btstack_linked_item_t *it;
     for (it = (btstack_linked_item_t *) &timers; it->next ; it = it->next){
@@ -146,8 +140,8 @@ static void btstack_run_loop_embedded_add_timer(btstack_timer_source_t *ts){
             log_error( "btstack_run_loop_timer_add error: timer to add already in list!");
             return;
         }
-        uint32_t next_low  = ((btstack_timer_source_t *) it->next)->timeout;
-        int      next_high = btstack_run_loop_embedded_reconstruct_higher_bits(now, next_low);
+        uint64_t next_low  = ((btstack_timer_source_t *) it->next)->timeout;
+        uint64_t      next_high = btstack_run_loop_embedded_reconstruct_higher_bits(now, next_low);
         if (new_high < next_high || ((new_high == next_high) && (new_low < next_low))){
             break;
         }
@@ -170,7 +164,7 @@ static void btstack_run_loop_embedded_dump_timer(void){
     int i = 0;
     for (it = (btstack_linked_item_t *) timers; it ; it = it->next){
         btstack_timer_source_t *ts = (btstack_timer_source_t*) it;
-        log_info("timer %u, timeout %u\n", i, (unsigned int) ts->timeout);
+        log_info("(%llu) timer %d, timeout %llu\n", hal_time_ms(), i, ts->timeout);
     }
 #endif
 }
@@ -201,15 +195,17 @@ void btstack_run_loop_embedded_execute_once(void) {
         }
     }
 
-    uint32_t now = hal_time_ms();
+    uint64_t now = hal_time_ms();
 
     // process timers
     while (timers) {
+		//btstack_run_loop_embedded_dump_timer();
         btstack_timer_source_t *ts = (btstack_timer_source_t *) timers;
-        uint32_t timeout_low = ts->timeout;
-        int      timeout_high = btstack_run_loop_embedded_reconstruct_higher_bits(now, timeout_low);
+        uint64_t timeout_low = ts->timeout;
+        uint64_t      timeout_high = btstack_run_loop_embedded_reconstruct_higher_bits(now, timeout_low);
         if (timeout_high > 0 || ((timeout_high == 0) && (timeout_low > now))) break;
         btstack_run_loop_embedded_remove_timer(ts);
+		log_info("expired timer: %llu %llu %llu\r\n", timeout_high, timeout_low, now);
         ts->process(ts);
     }
     
@@ -227,7 +223,7 @@ void btstack_run_loop_embedded_execute_once(void) {
  * Execute run_loop
  */
 
-static uint32_t btstack_run_loop_embedded_get_time_ms(void){
+static uint64_t btstack_run_loop_embedded_get_time_ms(void){
     return hal_time_ms();
 }
 

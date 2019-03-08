@@ -85,7 +85,7 @@ typedef struct btstack_data_source {
 typedef struct btstack_timer_source {
     btstack_linked_item_t item; 
     // timeout in system ticks (HAVE_EMBEDDED_TICK) or milliseconds (HAVE_EMBEDDED_TIME_MS)
-    uint32_t timeout;
+    uint64_t timeout;
     // will be called when timer fired
     void  (*process)(struct btstack_timer_source *ts); 
     void * context;

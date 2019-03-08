@@ -13,6 +13,7 @@ extern "C" {
 
 #include "btcore\btstack_uart_block.h"	
 #include "sf2\btstack_port.h"	
+#include "sf2\hal_tick.c"
 
 // uart config
 static const btstack_uart_config_t * uart_config;
@@ -38,7 +39,7 @@ void mf_delay_us(unsigned int usDelay){
 	CPU_Timer_Sleep_MicroSeconds(usDelay,ADVTIMER_32BIT);
 }
 
-void SetBTTimerInterrupt(int ticks, void* callbackFunction){
+void SetBTTimerInterrupt(int ticks){
 	//VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, ticks, FALSE, TRUE, (TIMER_CALLBACK_FPN)callbackFunction, ADVTIMER_32BIT);
 	VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, 10000, FALSE, TRUE, (TIMER_CALLBACK_FPN)call_btstack_scheduler_loop, ADVTIMER_32BIT);
 	VirtTimer_Start(VIRT_TIMER_BLUETOOTH_TICK);
@@ -135,7 +136,7 @@ int btUartInit(const btstack_uart_config_t * config){
 	CPU_GPIO_SetPinState(9, TRUE);
 
 	// initializing CTS from BT module
-	CPU_GPIO_EnableInputPin(7, FALSE, CTS_Handler, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED);
+	//CPU_GPIO_EnableInputPin(7, FALSE, CTS_Handler, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED);
 
 	//CPU_USART_set_rx_handler_override(&btRxHandler);
 	return 0;

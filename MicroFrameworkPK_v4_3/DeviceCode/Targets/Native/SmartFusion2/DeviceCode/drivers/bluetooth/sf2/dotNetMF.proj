@@ -49,7 +49,6 @@
 	<HFiles Include="btstack_config.h" />
 	<HFiles Include="btstack_run_loop_embedded.h" />
 	<HFiles Include="hal_tick.h" />
-	<HFiles Include="hal_time_ms.h" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

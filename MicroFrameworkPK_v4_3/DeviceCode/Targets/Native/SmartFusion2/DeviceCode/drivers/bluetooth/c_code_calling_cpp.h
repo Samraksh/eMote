@@ -17,7 +17,7 @@ void debugBT_printf(const char* format, va_list argptr);
 void* mf_private_malloc ( size_t len             );
 void  mf_private_free   ( void*  ptr             );
 
-void  SetBTTimerInterrupt(int ticks, void* callbackFunction);
+void  SetBTTimerInterrupt(int ticks);
 uint64_t BTGetTicks(void);
 void BTTimerStop(void);
 void mf_delay_us(unsigned int usDelay);

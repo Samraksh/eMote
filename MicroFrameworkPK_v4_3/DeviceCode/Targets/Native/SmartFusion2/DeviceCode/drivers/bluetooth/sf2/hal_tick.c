@@ -45,18 +45,13 @@ static volatile uint32_t sys_tick_sec = 0;
 
 
 
-void systick_handler(void)
-{
-	sys_tick_sec++;
-}
-
 int32_t hal_tick_init(void)
 {
 	uint32_t ret;
 
 	int ticks = 1000000;
 	// one sec interrupt
-	SetBTTimerInterrupt(ticks, systick_handler);
+	SetBTTimerInterrupt(ticks);
 
 	return 0;
 }
@@ -85,19 +80,19 @@ void hal_delay_us(unsigned int us)
 	mf_delay_us(us);
 }
 
-uint32_t hal_get_time_ms(void)
+uint64_t hal_get_time_ms(void)
 {
-	uint64_t tick_sec;
+	uint64_t tick_msec;
 
 	// system clock is 100 MHz
 	uint64_t systick_val = BTGetTicks();
 	
 	// time in msec
-	tick_sec = systick_val * 100000;
-	return tick_sec;
+	tick_msec = systick_val / 100000;
+	return tick_msec;
 }
 
-uint32_t hal_time_ms(void)
+uint64_t hal_time_ms(void)
 {
 	return hal_get_time_ms();
 }

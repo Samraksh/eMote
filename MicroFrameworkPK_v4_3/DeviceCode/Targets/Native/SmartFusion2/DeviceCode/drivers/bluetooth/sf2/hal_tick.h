@@ -52,10 +52,11 @@ extern "C" {
 #endif
 
 void hal_tick_init(void);
-void hal_tick_set_handler(void (*tick_handler)(void));
-int  hal_tick_get_tick_period_in_ms(void);
+void hal_delay_ms(unsigned int ms);
 void hal_delay_us(unsigned int us);
 void systick_handler(void);
+uint64_t hal_time_ms(void);
+uint64_t hal_get_time_ms(void);
 
 #if defined __cplusplus
 }

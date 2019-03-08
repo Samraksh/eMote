@@ -45,7 +45,7 @@
         
         <!-- <Set Name="RoT_RAM_Base" 			Value="%Stack_Top% + 8"/> -->
         <Set Name="RoT_RAM_Size"           Value="0x300"/>
-		<Set Name="Kernel_RAM_Size"           Value="0x2E00"/> 
+		<Set Name="Kernel_RAM_Size"           Value="0x2F00"/> 
 		<Set Name="RunTime_RAM_Size"           Value="0x2F00"/>
         
         
