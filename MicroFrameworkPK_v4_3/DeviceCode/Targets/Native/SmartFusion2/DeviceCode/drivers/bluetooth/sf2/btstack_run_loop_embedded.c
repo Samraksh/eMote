@@ -232,8 +232,8 @@ static uint64_t btstack_run_loop_embedded_get_time_ms(void){
  * trigger run loop iteration
  */
 void btstack_run_loop_embedded_trigger(void){
-	log_info("btstack_run_loop_embedded_trigger\r\n");
     trigger_event_received = 1;
+	btstack_run_loop_embedded_execute_once();
 }
 
 static void btstack_run_loop_embedded_init(void){

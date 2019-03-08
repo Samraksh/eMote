@@ -1666,6 +1666,7 @@ static void hci_initializing_event_handler(uint8_t * packet, uint16_t size){
             return;
 #else
         case HCI_INIT_W4_SEND_RESET:
+			log_info("to send read local sup cmd");
             hci_stack->substate = HCI_INIT_READ_LOCAL_SUPPORTED_COMMANDS;
             return ;
 #endif
@@ -2485,6 +2486,7 @@ static void event_handler(uint8_t *packet, int size){
             }
             break;
         default:
+			log_info("error: HCI_EVENT %d unknown",hci_event_packet_get_type(packet));
             break;
     }
 
@@ -4107,6 +4109,7 @@ static void hci_emit_le_connection_complete(uint8_t address_type, bd_addr_t addr
 #endif
 
 static void hci_emit_transport_packet_sent(void){
+	log_info("hci_transport_packet_sent");
     // notify upper stack that it might be possible to send again
     uint8_t event[] = { HCI_EVENT_TRANSPORT_PACKET_SENT, 0};
     hci_emit_event(&event[0], sizeof(event), 0);  // don't dump

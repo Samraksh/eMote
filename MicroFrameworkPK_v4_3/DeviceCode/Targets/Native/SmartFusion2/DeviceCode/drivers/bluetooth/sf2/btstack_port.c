@@ -68,7 +68,7 @@ static void dummy_handler(void) {};
 static void (*rx_done_handler)(void) = dummy_handler;
 static void (*tx_done_handler)(void) = dummy_handler;
 
-
+//static int patchingCC256 = false;
 
 void hal_cpu_disable_irqs(void)
 {
@@ -97,7 +97,7 @@ void hal_uart_send_block(const uint8_t *buffer, uint16_t len)
 
 void hal_uart_receive_bytes(uint8_t *buffer, uint16_t len)
 {
-	log_info("uart asked to rx %d bytes\r\n", len);
+	//log_info("uart asked to rx %d bytes\r\n", len);
 	// receive bytes into buffer until <len> bytes have been read
 	// these bytes need to be read in run loop and then callbak called
 	rx_buffer_ptr = buffer;
@@ -234,79 +234,6 @@ static hci_transport_config_uart_t config = {
 	    "sf2",
 	};
 
-// hal_stdin.h
-/*static uint8_t stdin_buffer[1];
-static void (*stdin_handler)(char c);
-
-static uart_req_t uart_byte_request;
-
-static void uart_rx_handler(uart_req_t *request, int error)
-{
-    if (stdin_handler){
-        (*stdin_handler)(stdin_buffer[0]);
-    }
-	UART_ReadAsync(MXC_UART_GET_UART(CONSOLE_UART), &uart_byte_request);
-}
-
-void hal_stdin_setup(void (*handler)(char c)){
-    // set handler
-    stdin_handler = handler;
-
-	uart_byte_request.callback = uart_rx_handler;
-	uart_byte_request.data = stdin_buffer;
-	uart_byte_request.len = sizeof(uint8_t);
-	UART_ReadAsync(MXC_UART_GET_UART(CONSOLE_UART), &uart_byte_request);
-}*/
-
-
-/*#include "..\btcore\btstack_stdin.h"
-
-static btstack_data_source_t stdin_data_source;
-static void (*stdin_handler)(char c);
-
-static uart_req_t uart_byte_request;
-static volatile int stdin_character_received;
-static uint8_t stdin_buffer[1];
-
-static void stdin_rx_complete(void) {
-    stdin_character_received = 1;
-}
-
-static void uart_rx_handler(uart_req_t *request, int error)
-{
-	stdin_rx_complete();
-}
-
-static void stdin_process(struct btstack_data_source *ds, btstack_data_source_callback_type_t callback_type){
-    if (!stdin_character_received) return;
-    if (stdin_handler){
-        (*stdin_handler)(stdin_buffer[0]);
-    }
-    stdin_character_received = 0;
-	UART_ReadAsync(MXC_UART_GET_UART(CONSOLE_UART), &uart_byte_request);
-}
-
-static void btstack_stdin_handler(char c){
-    stdin_character_received = 1;
-    btstack_run_loop_embedded_trigger();
-    log_info("Received: %c", c);
-}
-
-void btstack_stdin_setup(void (*handler)(char c)){
-    // set handler
-    stdin_handler = handler;
-
-    // set up polling data_source
-    btstack_run_loop_set_data_source_handler(&stdin_data_source, &stdin_process);
-    btstack_run_loop_enable_data_source_callbacks(&stdin_data_source, DATA_SOURCE_CALLBACK_POLL);
-    btstack_run_loop_add_data_source(&stdin_data_source);
-
-	// set input handler
-	uart_byte_request.callback = uart_rx_handler;
-	uart_byte_request.data = stdin_buffer;
-	uart_byte_request.len = sizeof(uint8_t);
-	UART_ReadAsync(MXC_UART_GET_UART(CONSOLE_UART), &uart_byte_request);
-}*/
 
 
 /******************************************************************************/
@@ -324,6 +251,8 @@ int bluetooth_main(void)
 	const hci_transport_t * transport = hci_transport_h4_instance(btstack_uart_block_embedded_instance());
 	hci_init(transport, &config);
 	hci_set_chipset(btstack_chipset_cc256x_instance());
+
+	//btstack_cc256x_patch_step(1);
 
     // setup Link Key DB using TLV
     //const btstack_link_key_db_t * btstack_link_key_db = btstack_link_key_db_tlv_get_instance(btstack_tlv_impl, &btstack_tlv_flash_bank_context);

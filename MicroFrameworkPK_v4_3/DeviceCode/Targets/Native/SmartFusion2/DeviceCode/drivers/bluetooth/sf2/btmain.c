@@ -100,11 +100,11 @@ static int has_more_remote_name_requests(void){
 
 static void do_next_remote_name_request(void){
     int i;
+    log_info("Get remote name of %s...", bd_addr_to_str(devices[i].address));
     for (i=0;i<deviceCount;i++) {
         // remote name request
         if (devices[i].state == REMOTE_NAME_REQUEST){
             devices[i].state = REMOTE_NAME_INQUIRED;
-            log_info("Get remote name of %s...", bd_addr_to_str(devices[i].address));
             gap_remote_name_request( devices[i].address, devices[i].pageScanRepetitionMode,  devices[i].clockOffset | 0x8000);
             return;
         }
@@ -249,12 +249,14 @@ int btstack_main(int argc, const char * argv[]) {
     (void)argv;
 
     // enabled EIR
+	log_info("------ main set inquiry ---------");
     hci_set_inquiry_mode(INQUIRY_MODE_RSSI_AND_EIR);
 
     hci_event_callback_registration.callback = &packet_handler;
     hci_add_event_handler(&hci_event_callback_registration);
 
     // turn on!
+	log_info("turn on device");
     hci_power_control(HCI_POWER_ON);
         
     return 0;
