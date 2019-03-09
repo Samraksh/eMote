@@ -1323,10 +1323,19 @@ void SX1276M1BxASWrapper::Send( uint8_t *buffer, uint8_t size )
             Write( REG_LR_FIFOADDRPTR, 0 );
 
             // FIFO operations can not take place in Sleep mode
-            if( ( Read( REG_OPMODE ) & ~RF_OPMODE_MASK ) == RF_OPMODE_SLEEP )
-            {
+            switch ( ( Read( REG_OPMODE ) & ~RF_OPMODE_MASK )){
+
+            case RF_OPMODE_SLEEP:
                 Standby( );
                 wait_ms( 1 );
+                break;
+
+            case RF_OPMODE_RECEIVER:
+            	hal_printf("SX1276: Error: In receive mode, cant send now \n \r ");
+            	return;
+
+            default:
+            	hal_printf("SX1276: Not sure what mode i am in \n \r ");
             }
             // Write payload buffer
             WriteFifo( buffer, size );
