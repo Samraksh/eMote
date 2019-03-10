@@ -41,6 +41,8 @@ static void SX1276_debug_print(int priority, const char *fmt, ...) { return; }
 #endif
 
 
+#define READ_RADIO_MODE()  ( Read( REG_OPMODE ) & ~RF_OPMODE_MASK )
+
 // Temporary hack.
 static unsigned get_APB1_clock() {
 	RCC_ClocksTypeDef RCC_Clocks;
@@ -229,7 +231,7 @@ void SX1276M1BxASWrapper::LoraHardwareConfigInitialize(){
 	SX1276_pin_setup.nirq_mf_pin5		= (GPIO_PIN) 23;
 
 	SX1276_pin_setup.reset_port			= GPIOA; // ?
-	SX1276_pin_setup.reset_pin			= GPIO_Pin_0; // GPIO_Pin_24;
+	SX1276_pin_setup.reset_pin			= GPIO_Pin_24; // GPIO_Pin_24;
 	SX1276_pin_setup.reset_mf_pin		= (GPIO_PIN) 24;
 
 	SX1276_pin_setup.spi_base 			= SPI2;
@@ -1323,19 +1325,23 @@ void SX1276M1BxASWrapper::Send( uint8_t *buffer, uint8_t size )
             Write( REG_LR_FIFOADDRPTR, 0 );
 
             // FIFO operations can not take place in Sleep mode
-            switch ( ( Read( REG_OPMODE ) & ~RF_OPMODE_MASK )){
+            uint8_t mode =  READ_RADIO_MODE();
+            switch (mode){
+				case RF_OPMODE_SLEEP:
+					do{
+						Standby( );
+						wait_ms( 1 );
+						mode =  READ_RADIO_MODE();
+					}
+					while(mode==RF_OPMODE_SLEEP);
+					break;
 
-            case RF_OPMODE_SLEEP:
-                Standby( );
-                wait_ms( 1 );
-                break;
+				case RF_OPMODE_RECEIVER:
+					hal_printf("SX1276 Send: Error: In receive mode, cant send now \n \r ");
+					return;
 
-            case RF_OPMODE_RECEIVER:
-            	hal_printf("SX1276: Error: In receive mode, cant send now \n \r ");
-            	return;
-
-            default:
-            	hal_printf("SX1276: Not sure what mode i am in \n \r ");
+				default:
+					hal_printf("SX1276 Send: Not sure what mode i am in \n \r ");
             }
             // Write payload buffer
             WriteFifo( buffer, size );
@@ -1427,10 +1433,24 @@ void SX1276M1BxASWrapper::SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventT
             Write( REG_LR_FIFOADDRPTR, 0 );
 
             // FIFO operations can not take place in Sleep mode
-            if( ( Read( REG_OPMODE ) & ~RF_OPMODE_MASK ) == RF_OPMODE_SLEEP )
-            {
-                Standby( );
-                wait_ms( 1 );
+            uint8_t mode =  READ_RADIO_MODE();
+            switch (mode){
+				case RF_OPMODE_SLEEP:
+					do{
+						Standby( );
+						wait_ms( 1 );
+						mode = READ_RADIO_MODE();
+					}
+					while(mode==RF_OPMODE_SLEEP);
+					hal_printf("SX1276 Send: Not in Sleep, value %d\n \r ", mode);
+					break;
+
+				case RF_OPMODE_RECEIVER:
+					hal_printf("SX1276 Send: Error: In receive mode, cant send now \n \r ");
+					return;
+
+				default:
+					hal_printf("SX1276 Send: Not sure of mode, value %d\n \r ", mode);
             }
 
             //CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
@@ -1938,7 +1958,8 @@ void SX1276M1BxASWrapper::OnTimeoutIrq(  )
 
         RadioRegistersInit( );
 
-        SetModem( MODEM_FSK );
+        //SetModem( MODEM_FSK );
+        SetModem( MODEM_LORA );
 
         // Restore previous network type setting.
         SetPublicNetwork( this->settings.LoRa.PublicNetwork );
