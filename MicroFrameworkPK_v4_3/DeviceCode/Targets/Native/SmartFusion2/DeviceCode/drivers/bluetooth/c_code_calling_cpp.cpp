@@ -85,14 +85,14 @@ int FlowIsOn(void){
 
 int btUartNumReadAvail(){
 	int byteCount = USART_BytesInManagedBuffer(BT_COM_PORT, RX_BUFF);
-	if  (byteCount != 0)
-		hal_printf("read avail: %d\r\n", byteCount);
+	//if  (byteCount != 0)
+	//	hal_printf("read avail: %d\r\n", byteCount);
 	return byteCount;
 }
 
 int btUartRead(uint8_t * rx_buff_ptr, int num_rx_bytes){
 	int numBytesRead = USART_Managed_Read(BT_COM_PORT, (char*)rx_buff_ptr, num_rx_bytes);
-	hal_printf("uart read: %d\r\n", numBytesRead);
+	//hal_printf("uart read: %d\r\n", numBytesRead);
 	return numBytesRead;
 }
 
@@ -132,8 +132,10 @@ int btUartInit(const btstack_uart_config_t * config){
 	USART_Initialize(BT_COM_PORT, config->baudrate, USART_PARITY_NONE, 8, USART_STOP_BITS_ONE, USART_FLOW_NONE );
 
 	// initializing and setting RTS high (telling BT module we are not ready to get data)
-	CPU_GPIO_EnableOutputPin(9, TRUE);
+	CPU_GPIO_EnableOutputPin(9, FALSE);
+	CPU_Timer_Sleep_MicroSeconds(10000,ADVTIMER_32BIT);
 	CPU_GPIO_SetPinState(9, TRUE);
+	CPU_Timer_Sleep_MicroSeconds(10000,ADVTIMER_32BIT);
 
 	// initializing CTS from BT module
 	//CPU_GPIO_EnableInputPin(7, FALSE, CTS_Handler, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED);

@@ -1193,7 +1193,7 @@ static void hci_replace_bd_addr_placeholder(uint8_t * data, uint16_t size){
 
 // assumption: hci_can_send_command_packet_now() == true
 static void hci_initializing_run(void){
-    log_debug("hci_initializing_run: substate %u, can send %u", hci_stack->substate, hci_can_send_command_packet_now());
+    log_debug("\r\n--- hci_initializing_run: substate %u, can send %u", hci_stack->substate, hci_can_send_command_packet_now());
     switch (hci_stack->substate){
         case HCI_INIT_SEND_RESET:
             hci_state_reset();
@@ -1639,10 +1639,10 @@ static void hci_initializing_event_handler(uint8_t * packet, uint16_t size){
             break;
         case HCI_INIT_W4_SEND_READ_LOCAL_NAME:
             log_info("Received local name, need baud change %d", need_baud_change);
-            if (need_baud_change){
+            /*if (need_baud_change){
                 hci_stack->substate = HCI_INIT_SEND_BAUD_CHANGE;
                 return;
-            }
+            }*/
             // skip baud change
             hci_stack->substate = HCI_INIT_CUSTOM_INIT;
             return;

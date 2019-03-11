@@ -67,13 +67,13 @@ static void (*wakeup_handler)(void);
 
 
 static void btstack_uart_block_received(void){
-	log_info("block rx");
+	//log_info("block rx");
     receive_complete = 1;
     btstack_run_loop_embedded_trigger();
 }
 
 static void btstack_uart_block_sent(void){
-	log_info("block sent");
+	//log_info("block sent");
     send_complete = 1;
     btstack_run_loop_embedded_trigger();
 }

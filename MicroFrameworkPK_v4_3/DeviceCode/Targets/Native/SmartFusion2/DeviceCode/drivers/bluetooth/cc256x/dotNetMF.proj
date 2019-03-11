@@ -44,6 +44,7 @@
 	<HFiles Include="btstack_chipset_cc256x.h" />
 	<Compile Include="ant_cmd.c" />
 	<HFiles Include="ant_cmd.h" />
+	<HFiles Include="cc256x_startup_script.h" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

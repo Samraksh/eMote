@@ -69,13 +69,12 @@
 
 #include "..\btcore\btstack_control.h"
 #include "..\c_code_calling_cpp.h"
+#include "cc256x_startup_script.h"
 
 
 // default init script provided by separate .c file
 //extern const uint8_t  cc256x_init_script[];
 //extern const uint32_t cc256x_init_script_size;
-const uint8_t  cc256x_init_script[5];
-const uint32_t cc256x_init_script_size = 5;
 
 // custom init script set by btstack_chipset_cc256x_set_init_script
 // used to select init scripts before each power up
@@ -153,7 +152,6 @@ static const uint8_t hci_route_sco_over_hci[] = {
 #endif
 
 static void chipset_init(const void * config){
-	log_info("*** need cc256x_init_script defined\r\n");	
     init_script_offset = 0;
 #if defined(__GNUC__) && defined(__MSP430X__) && (__MSP430X__ > 0)
     // On MSP430, custom init script is not supported
@@ -315,24 +313,6 @@ static btstack_chipset_result_t chipset_next_command(uint8_t * hci_cmd_buffer){
     // extracted init script has 0x01 cmd packet type, but BTstack expects them without
     init_script_offset++;
 
-#if defined(__GNUC__) && defined(__MSP430X__) && (__MSP430X__ > 0)
-    
-    // workaround: use FlashReadBlock with 32-bit integer and assume init script starts at 0x10000
-    uint32_t init_script_addr = 0x10000;
-    FlashReadBlock(&hci_cmd_buffer[0], init_script_addr + init_script_offset, 3);  // cmd header
-    init_script_offset += 3;
-    int payload_len = hci_cmd_buffer[2];
-    FlashReadBlock(&hci_cmd_buffer[3], init_script_addr + init_script_offset, payload_len);  // cmd payload
-
-#elif defined (__AVR__)
-
-    // workaround: use memcpy_P to access init script in lower 64 kB of flash
-    memcpy_P(&hci_cmd_buffer[0], &init_script[init_script_offset], 3);
-    init_script_offset += 3;
-    int payload_len = hci_cmd_buffer[2];
-    memcpy_P(&hci_cmd_buffer[3], &init_script[init_script_offset], payload_len);
-
-#else    
 
     // use memcpy with pointer
     uint8_t * init_script_ptr = (uint8_t*) &init_script[0];
@@ -340,8 +320,6 @@ static btstack_chipset_result_t chipset_next_command(uint8_t * hci_cmd_buffer){
     init_script_offset += 3;
     int payload_len = hci_cmd_buffer[2];
     memcpy(&hci_cmd_buffer[3], init_script_ptr + init_script_offset, payload_len);  // cmd payload
-
-#endif
 
     init_script_offset += payload_len;
 
