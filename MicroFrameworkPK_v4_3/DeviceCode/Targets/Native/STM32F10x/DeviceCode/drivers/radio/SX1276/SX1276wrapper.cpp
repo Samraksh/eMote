@@ -234,7 +234,7 @@ void SX1276M1BxASWrapper::LoraHardwareConfigInitialize(){
 
 	SX1276_pin_setup.spi_base 			= SPI2;
 	SX1276_pin_setup.spi_port 			= GPIOB;
-	SX1276_pin_setup.cs_port			= GPIOA;
+	SX1276_pin_setup.cs_port			= GPIOB;
 	SX1276_pin_setup.cs_pin				= GPIO_Pin_4;
 	SX1276_pin_setup.sclk_pin			= GPIO_Pin_13; //15 BK: I think the default values are as commented. But SI radio was using a different pin setup
 	SX1276_pin_setup.miso_pin			= GPIO_Pin_14; //14

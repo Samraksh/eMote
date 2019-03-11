@@ -24,7 +24,7 @@ typedef uint16_t ushort;
 //#define SAMRAKSH_UPDATE_EXT
 
 
-//#define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
+#define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
 //#define AUSTERE_NO_CAP_TIMEOUT // Disabled by default. Disables capacitor timeout. Need timeout because "good" signal is unreliable.
 //#define EMOTE_COMPLETIONS_STARTUP_WAIT // Only allow snooze mode for 1 minute after boot.
 #define EMOTE_DEEP_SLEEP_MIN (20*1000) 		// microseconds. Sleep intervals less than this will only snooze
@@ -422,8 +422,8 @@ J12_PIN10 = GND
 
 #define VT_CALLBACK 						DISABLED_PIN					//J11_PIN7
 
-#define NEIGHBORCLOCKMONITORPIN 			(GPIO_PIN)23//DISABLED_PIN // 120 //31 //2
-#define LOCALCLOCKMONITORPIN 				(GPIO_PIN)22//DISABLED_PIN //120 //22 //25
+#define NEIGHBORCLOCKMONITORPIN 			DISABLED_PIN//(GPIO_PIN)23//DISABLED_PIN // 120 //31 //2
+#define LOCALCLOCKMONITORPIN 				DISABLED_PIN//(GPIO_PIN)22//DISABLED_PIN //120 //22 //25
 
 //RF231 related
 #define RF231_TX_INTERRUPT 					DISABLED_PIN					//J11_PIN7
