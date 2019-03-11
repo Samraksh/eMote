@@ -13,6 +13,8 @@
 
 #define SX1276M1BxASWrapper_debug_PIN (GPIO_PIN)120
 
+#define READ_OPMODE() (Read( REG_OPMODE ) & ~RF_OPMODE_MASK)
+
 SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
 
 
@@ -235,7 +237,7 @@ void SX1276M1BxASWrapper::LoraHardwareConfigInitialize(){
 	SX1276_pin_setup.spi_base 			= SPI2;
 	SX1276_pin_setup.spi_port 			= GPIOB;
 	SX1276_pin_setup.cs_port			= GPIOB;
-	SX1276_pin_setup.cs_pin				= GPIO_Pin_4;
+	SX1276_pin_setup.cs_pin				= GPIO_Pin_9;  //MS changed this
 	SX1276_pin_setup.sclk_pin			= GPIO_Pin_13; //15 BK: I think the default values are as commented. But SI radio was using a different pin setup
 	SX1276_pin_setup.miso_pin			= GPIO_Pin_14; //14
 	SX1276_pin_setup.mosi_pin			= GPIO_Pin_15; //13
@@ -726,6 +728,15 @@ void SX1276M1BxASWrapper::Initialize(SX1276RadioEvents_t *events) {
 	Init(events);
     SetModem( MODEM_FSK );
 
+    //SanityCheck
+    uint8_t ver;
+    Read(0x42, &ver, 1);
+    if (ver != 0x12) {
+    	while(1){
+    		__asm__("BKPT"); // Something is terribly wrong. TODO: DELETE ME. SANITY CHECK FOR DEBUG.
+    		hal_printf("SX1276M1BxASWrapper::Initialize: Something went terribly wrong in SPI Initialization\n\r");
+    	}
+    }
 
     this->settings.State = RF_IDLE ;
 
@@ -1323,19 +1334,20 @@ void SX1276M1BxASWrapper::Send( uint8_t *buffer, uint8_t size )
             Write( REG_LR_FIFOADDRPTR, 0 );
 
             // FIFO operations can not take place in Sleep mode
-            switch ( ( Read( REG_OPMODE ) & ~RF_OPMODE_MASK )){
-
-            case RF_OPMODE_SLEEP:
-                Standby( );
-                wait_ms( 1 );
-                break;
-
-            case RF_OPMODE_RECEIVER:
-            	hal_printf("SX1276: Error: In receive mode, cant send now \n \r ");
-            	return;
-
-            default:
-            	hal_printf("SX1276: Not sure what mode i am in \n \r ");
+            uint8_t mode= READ_OPMODE();
+            switch (mode){
+				case RF_OPMODE_SLEEP:
+					do {
+						Standby( );
+						wait_ms( 1 );
+						mode= READ_OPMODE();
+					}while(mode == RF_OPMODE_SLEEP);
+					break;
+				case RF_OPMODE_RECEIVER:
+					hal_printf("SX1276:Send: Error: In receive mode, cant send now \n \r ");
+					return;
+				default:
+					hal_printf("SX1276: Send: Not sure what mode i am in \n \r ");
             }
             // Write payload buffer
             WriteFifo( buffer, size );
@@ -1427,10 +1439,20 @@ void SX1276M1BxASWrapper::SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventT
             Write( REG_LR_FIFOADDRPTR, 0 );
 
             // FIFO operations can not take place in Sleep mode
-            if( ( Read( REG_OPMODE ) & ~RF_OPMODE_MASK ) == RF_OPMODE_SLEEP )
-            {
-                Standby( );
-                wait_ms( 1 );
+            uint8_t mode= READ_OPMODE();
+            switch (mode){
+				case RF_OPMODE_SLEEP:
+					do {
+						Standby( );
+						wait_ms( 1 );
+						mode= READ_OPMODE();
+					}while(mode == RF_OPMODE_SLEEP);
+					break;
+				case RF_OPMODE_RECEIVER:
+					hal_printf("SX1276: SendTS: Error: In receive mode, cant send now \n \r ");
+					return;
+				default:
+					hal_printf("SX1276: SendTS: Not sure what mode i am in \n \r ");
             }
 
             //CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
