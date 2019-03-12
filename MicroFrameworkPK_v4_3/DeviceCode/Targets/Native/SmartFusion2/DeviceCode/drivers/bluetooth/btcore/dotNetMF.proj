@@ -94,6 +94,8 @@
 	<Compile Include="classic\rfcomm.c" />
 	<HFiles Include="classic\sdp_client.h" />
 	<Compile Include="classic\sdp_client.c" />
+	<HFiles Include="classic\spp_server.h" />
+	<Compile Include="classic\spp_server.c" />
 	<HFiles Include="classic\sdp_server.h" />
 	<Compile Include="classic\sdp_server.c" />
 	<HFiles Include="classic\sdp_util.h" />

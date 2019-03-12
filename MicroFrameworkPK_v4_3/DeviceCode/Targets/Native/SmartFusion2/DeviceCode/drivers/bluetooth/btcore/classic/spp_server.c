@@ -47,7 +47,7 @@
 
 #include "..\bluetooth.h"
 #include "..\bluetooth_sdp.h"
-#include "..\btstack_config.h"
+#include "..\..\sf2\btstack_config.h"
 #include "core.h"
 #include "sdp_util.h"
 

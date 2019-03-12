@@ -48,6 +48,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>	
+
 /* API_START */
 
 /**
