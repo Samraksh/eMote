@@ -35,231 +35,292 @@
  *
  */
 
-#define __BTSTACK_FILE__ "gap_inquiry.c"
+#define __BTSTACK_FILE__ "spp_and_le_counter.c"
 
 // *****************************************************************************
-/* EXAMPLE_START(gap_inquiry): GAP Inquiry Example
+/* EXAMPLE_START(spp_and_le_counter): Dual mode example
+ * 
+ * @text The SPP and LE Counter example combines the Bluetooth Classic SPP Counter
+ * and the Bluetooth LE Counter into a single application.
  *
- * @text The Generic Access Profile (GAP) defines how Bluetooth devices discover
- * and establish a connection with each other. In this example, the application
- * discovers  surrounding Bluetooth devices and collects their Class of Device
- * (CoD), page scan mode, clock offset, and RSSI. After that, the remote name of
- * each device is requested. In the following section we outline the Bluetooth
- * logic part, i.e., how the packet handler handles the asynchronous events and
- * data packets.
+ * @text In this Section, we only point out the differences to the individual examples
+ * and how the stack is configured.
+ *
+ * @text Note: To test, please run the example, and then: 
+ *    - for SPP pair from a remote device, and open the Virtual Serial Port,
+ *    - for LE use some GATT Explorer, e.g. LightBlue, BLExplr, to enable notifications.
  */
 // *****************************************************************************
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
-
-#include "..\btcore\btstack_debug.h"
-#include "..\btcore\btstack.h"
+#include <inttypes.h>
  
-#define MAX_DEVICES 20
-enum DEVICE_STATE { REMOTE_NAME_REQUEST, REMOTE_NAME_INQUIRED, REMOTE_NAME_FETCHED };
-struct device {
-    bd_addr_t          address;
-    uint8_t            pageScanRepetitionMode;
-    uint16_t           clockOffset;
-    enum DEVICE_STATE  state; 
-};
+#include "..\btcore\btstack.h"
+#include "..\btcore\btstack_debug.h"
+#include "..\btcore\classic\rfcomm.h"
+#include "..\btcore\classic\sdp_server.h"
+#include "..\btcore\classic\sdp_util.h"
+#include "..\btcore\ble\le_device_db.h"
+#include "..\btcore\ble\att_server.h"
+#include "..\btcore\gap.h"
 
-#define INQUIRY_INTERVAL 5
-struct device devices[MAX_DEVICES];
-int deviceCount = 0;
+#define RFCOMM_SERVER_CHANNEL 1
+#define HEARTBEAT_PERIOD_MS 1000
 
+static uint16_t  rfcomm_channel_id;
+static uint8_t   spp_service_buffer[150];
+static int       le_notification_enabled;
+static hci_con_handle_t att_con_handle;
 
-enum STATE {INIT, ACTIVE} ;
-enum STATE state = INIT;
+// THE Couner
+static btstack_timer_source_t heartbeat;
+static int  counter = 0;
+static char counter_string[30];
+static int  counter_string_len;
 
 static btstack_packet_callback_registration_t hci_event_callback_registration;
 
-static int getDeviceIndexForAddress( bd_addr_t addr){
-    int j;
-    for (j=0; j< deviceCount; j++){
-        if (bd_addr_cmp(addr, devices[j].address) == 0){
-            return j;
-        }
-    }
-    return -1;
-}
+/*
+ * @section Advertisements 
+ *
+ * @text The Flags attribute in the Advertisement Data indicates if a device is in dual-mode or not.
+ * Flag 0x06 indicates LE General Discoverable, BR/EDR not supported although we're actually using BR/EDR.
+ * In the past, there have been problems with Anrdoid devices when the flag was not set.
+ * Setting it should prevent the remote implementation to try to use GATT over LE/EDR, which is not 
+ * implemented by BTstack. So, setting the flag seems like the safer choice (while it's technically incorrect).
+ */
+/* LISTING_START(advertisements): Advertisement data: Flag 0x06 indicates LE-only device */
+const uint8_t adv_data[] = {
+    // Flags general discoverable, BR/EDR not supported
+    0x02, BLUETOOTH_DATA_TYPE_FLAGS, 0x06, 
+    // Name
+    0x0b, BLUETOOTH_DATA_TYPE_COMPLETE_LOCAL_NAME, 'L', 'E', ' ', 'C', 'o', 'u', 'n', 't', 'e', 'r', 
+    // Incomplete List of 16-bit Service Class UUIDs -- FF10 - only valid for testing!
+    0x03, BLUETOOTH_DATA_TYPE_INCOMPLETE_LIST_OF_16_BIT_SERVICE_CLASS_UUIDS, 0x10, 0xff,
+};
+/* LISTING_END */
+uint8_t adv_data_len = sizeof(adv_data);
 
-static void start_scan(void){
-    log_info("Starting inquiry scan..");
-    gap_inquiry_start(INQUIRY_INTERVAL);
-}
 
-static int has_more_remote_name_requests(void){
+/* 
+ * @section Packet Handler
+ * 
+ * @text The packet handler of the combined example is just the combination of the individual packet handlers.
+ */
+
+static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size){
+    UNUSED(channel);
+
+    bd_addr_t event_addr;
+    uint8_t   rfcomm_channel_nr;
+    uint16_t  mtu;
     int i;
-    for (i=0;i<deviceCount;i++) {
-        if (devices[i].state == REMOTE_NAME_REQUEST) return 1;
-    }
+
+	switch (packet_type) {
+		case HCI_EVENT_PACKET:
+			switch (hci_event_packet_get_type(packet)) {
+                case HCI_EVENT_PIN_CODE_REQUEST:
+                    // inform about pin code request
+                    log_info("Pin code request - using '0000'\n");
+                    hci_event_pin_code_request_get_bd_addr(packet, event_addr);
+                    gap_pin_code_response(event_addr, "0000");
+                    break;
+
+                case HCI_EVENT_USER_CONFIRMATION_REQUEST:
+                    // inform about user confirmation request
+                    log_info("SSP User Confirmation Request with numeric value %d\n", little_endian_read_32(packet, 8));
+                    log_info("SSP User Confirmation Auto accept\n");
+                    break;
+
+                case HCI_EVENT_DISCONNECTION_COMPLETE:
+                    le_notification_enabled = 0;
+                    break;
+
+                case ATT_EVENT_CAN_SEND_NOW:
+                    //att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);
+                    break;
+
+                case RFCOMM_EVENT_INCOMING_CONNECTION:
+					// data: event (8), len(8), address(48), channel (8), rfcomm_cid (16)
+                    rfcomm_event_incoming_connection_get_bd_addr(packet, event_addr); 
+                    rfcomm_channel_nr = rfcomm_event_incoming_connection_get_server_channel(packet);
+                    rfcomm_channel_id = rfcomm_event_incoming_connection_get_rfcomm_cid(packet);
+                    log_info("RFCOMM channel %u requested for %s\n", rfcomm_channel_nr, bd_addr_to_str(event_addr));
+                    rfcomm_accept_connection(rfcomm_channel_id);
+					break;
+					
+				case RFCOMM_EVENT_CHANNEL_OPENED:
+					// data: event(8), len(8), status (8), address (48), server channel(8), rfcomm_cid(16), max frame size(16)
+					if (rfcomm_event_channel_opened_get_status(packet)) {
+                        log_info("RFCOMM channel open failed, status %u\n", rfcomm_event_channel_opened_get_status(packet));
+                    } else {
+                        rfcomm_channel_id = rfcomm_event_channel_opened_get_rfcomm_cid(packet);
+                        mtu = rfcomm_event_channel_opened_get_max_frame_size(packet);
+                        log_info("RFCOMM channel open succeeded. New RFCOMM Channel ID %u, max frame size %u\n", rfcomm_channel_id, mtu);
+                    }
+					break;
+
+                case RFCOMM_EVENT_CAN_SEND_NOW:
+                    rfcomm_send(rfcomm_channel_id, (uint8_t*) counter_string, counter_string_len);
+                    break;
+
+                case RFCOMM_EVENT_CHANNEL_CLOSED:
+                    log_info("RFCOMM channel closed\n");
+                    rfcomm_channel_id = 0;
+                    break;
+                
+                default:
+                    break;
+			}
+            break;
+                        
+        case RFCOMM_DATA_PACKET:
+            log_info("RCV: '");
+            //for (i=0;i<size;i++){
+            //    putchar(packet[i]);
+            //}
+            log_info("\n");
+            break;
+
+        default:
+            break;
+	}
+}
+
+// ATT Client Read Callback for Dynamic Data
+// - if buffer == NULL, don't copy data, just return size of value
+// - if buffer != NULL, copy data and return number bytes copied
+// @param offset defines start of attribute value
+static uint16_t att_read_callback(hci_con_handle_t con_handle, uint16_t att_handle, uint16_t offset, uint8_t * buffer, uint16_t buffer_size){
+    UNUSED(con_handle);
+
+    //if (att_handle == ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE){
+    //    return att_read_callback_handle_blob((const uint8_t *)counter_string, buffer_size, offset, buffer, buffer_size);
+    //}
     return 0;
 }
 
-static void do_next_remote_name_request(void){
-    int i;
-    log_info("Get remote name of %s...", bd_addr_to_str(devices[i].address));
-    for (i=0;i<deviceCount;i++) {
-        // remote name request
-        if (devices[i].state == REMOTE_NAME_REQUEST){
-            devices[i].state = REMOTE_NAME_INQUIRED;
-            gap_remote_name_request( devices[i].address, devices[i].pageScanRepetitionMode,  devices[i].clockOffset | 0x8000);
-            return;
-        }
-    }
-}
-
-static void continue_remote_names(void){
-    if (has_more_remote_name_requests()){
-        do_next_remote_name_request();
-        return;
-    } 
-    start_scan();
-}
-
-/* @section Bluetooth Logic 
- *
- * @text The Bluetooth logic is implemented as a state machine within the packet
- * handler. In this example, the following states are passed sequentially:
- * INIT, and ACTIVE.
- */ 
-
-static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size){
-    UNUSED(channel);
-    UNUSED(size);
-
-    bd_addr_t addr;
-    int i;
-    int index;
-    
-    if (packet_type != HCI_EVENT_PACKET) return;
-
-    uint8_t event = hci_event_packet_get_type(packet);
-
-    switch(state){ 
-        /* @text In INIT, an inquiry  scan is started, and the application transits to 
-         * ACTIVE state.
-         */
-        case INIT:
-            switch(event){
-                case BTSTACK_EVENT_STATE:
-                    if (btstack_event_state_get_state(packet) == HCI_STATE_WORKING){
-                        start_scan();
-                        state = ACTIVE;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            break;
-
-        /* @text In ACTIVE, the following events are processed:
-         *  - GAP Inquiry result event: BTstack provides a unified inquiry result that contain
-         *    Class of Device (CoD), page scan mode, clock offset. RSSI and name (from EIR) are optional.
-         *  - Inquiry complete event: the remote name is requested for devices without a fetched 
-         *    name. The state of a remote name can be one of the following: 
-         *    REMOTE_NAME_REQUEST, REMOTE_NAME_INQUIRED, or REMOTE_NAME_FETCHED.
-         *  - Remote name request complete event: the remote name is stored in the table and the 
-         *    state is updated to REMOTE_NAME_FETCHED. The query of remote names is continued.
-         */
-        case ACTIVE:
-            switch(event){
-
-                case GAP_EVENT_INQUIRY_RESULT:
-                    if (deviceCount >= MAX_DEVICES) break;  // already full
-                    gap_event_inquiry_result_get_bd_addr(packet, addr);
-                    index = getDeviceIndexForAddress(addr);
-                    if (index >= 0) break;   // already in our list
-
-                    memcpy(devices[deviceCount].address, addr, 6);
-                    devices[deviceCount].pageScanRepetitionMode = gap_event_inquiry_result_get_page_scan_repetition_mode(packet);
-                    devices[deviceCount].clockOffset = gap_event_inquiry_result_get_clock_offset(packet);
-                    // print info
-                    log_info("Device found: %s ",  bd_addr_to_str(addr));
-                    log_info("with COD: 0x%06x, ", (unsigned int) gap_event_inquiry_result_get_class_of_device(packet));
-                    log_info("pageScan %d, ",      devices[deviceCount].pageScanRepetitionMode);
-                    log_info("clock offset 0x%04x",devices[deviceCount].clockOffset);
-                    if (gap_event_inquiry_result_get_rssi_available(packet)){
-                        log_info(", rssi %d dBm", (int8_t) gap_event_inquiry_result_get_rssi(packet));
-                    }
-                    if (gap_event_inquiry_result_get_name_available(packet)){
-                        char name_buffer[240];
-                        int name_len = gap_event_inquiry_result_get_name_len(packet);
-                        memcpy(name_buffer, gap_event_inquiry_result_get_name(packet), name_len);
-                        name_buffer[name_len] = 0;
-                        log_info(", name '%s'", name_buffer);
-                        devices[deviceCount].state = REMOTE_NAME_FETCHED;;
-                    } else {
-                        devices[deviceCount].state = REMOTE_NAME_REQUEST;
-                    }
-                    log_info("\n");
-                    deviceCount++;
-                    break;
-
-                case GAP_EVENT_INQUIRY_COMPLETE:
-                    for (i=0;i<deviceCount;i++) {
-                        // retry remote name request
-                        if (devices[i].state == REMOTE_NAME_INQUIRED)
-                            devices[i].state = REMOTE_NAME_REQUEST;
-                    }
-                    continue_remote_names();
-                    break;
-
-                case HCI_EVENT_REMOTE_NAME_REQUEST_COMPLETE:
-                    reverse_bd_addr(&packet[3], addr);
-                    index = getDeviceIndexForAddress(addr);
-                    if (index >= 0) {
-                        if (packet[2] == 0) {
-                            log_info("Name: '%s'\n", &packet[9]);
-                            devices[index].state = REMOTE_NAME_FETCHED;
-                        } else {
-                            log_info("Failed to get name: page timeout");
-                        }
-                    }
-                    continue_remote_names();
-                    break;
-
-                default:
-                    break;
-            }
-            break;
-            
+// write requests
+static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, uint16_t transaction_mode, uint16_t offset, uint8_t *buffer, uint16_t buffer_size){
+    // ignore cancel sent for new connections
+    if (transaction_mode == ATT_TRANSACTION_MODE_CANCEL) return 0;
+    // find characteristic for handle
+    switch (att_handle){
+        /*case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_CLIENT_CONFIGURATION_HANDLE:
+            le_notification_enabled = little_endian_read_16(buffer, 0) == GATT_CLIENT_CHARACTERISTICS_CONFIGURATION_NOTIFICATION;
+            att_con_handle = con_handle;
+            return 0;
+        case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE:
+            log_info("Write on test characteristic: ");
+            log_info_hexdump(buffer, buffer_size);
+            return 0;*/
         default:
-            break;
+            log_info("WRITE Callback, handle %04x, mode %u, offset %u, data: ", con_handle, transaction_mode, offset);
+            log_info_hexdump(buffer, buffer_size);
+            return 0;
     }
 }
 
-/* @text For more details on discovering remote devices, please see
- * Section on [GAP](../profiles/#sec:GAPdiscoverRemoteDevices).
+static void beat(void){
+    counter++;
+    //counter_string_len = log_info("BTstack counter %04u", counter);
+    //puts(counter_string);
+}
+
+/*
+ * @section Heartbeat Handler
+ * 
+ * @text Similar to the packet handler, the heartbeat handler is the combination of the individual ones.
+ * After updating the counter, it requests an ATT_EVENT_CAN_SEND_NOW and/or RFCOMM_EVENT_CAN_SEND_NOW
  */
 
+ /* LISTING_START(heartbeat): Combined Heartbeat handler */
+static void heartbeat_handler(struct btstack_timer_source *ts){
 
-/* @section Main Application Setup
+    if (rfcomm_channel_id || le_notification_enabled) {
+        beat();
+    }
+
+    if (rfcomm_channel_id){
+        rfcomm_request_can_send_now_event(rfcomm_channel_id);
+    }
+
+    if (le_notification_enabled) {
+        att_server_request_can_send_now_event(att_con_handle);
+    }
+
+    btstack_run_loop_set_timer(ts, HEARTBEAT_PERIOD_MS);
+    btstack_run_loop_add_timer(ts);
+} 
+/* LISTING_END */
+
+/*
+ * @section Main Application Setup
  *
- * @text Listing MainConfiguration shows main application code.
- * It registers the HCI packet handler and starts the Bluetooth stack.
+ * @text As with the packet and the heartbeat handlers, the combined app setup contains the code from the individual example setups.
  */
 
-/* LISTING_START(MainConfiguration): Setup packet handler for GAP inquiry */
-int btstack_main(int argc, const char * argv[]);
-int btstack_main(int argc, const char * argv[]) {
-    (void)argc;
-    (void)argv;
+/* LISTING_START(MainConfiguration): Init L2CAP RFCOMM SDO SM ATT Server and start heartbeat timer */
+int btstack_main(void);
+int btstack_main(void)
+{
+    l2cap_init();
 
-    // enabled EIR
-	log_info("------ main set inquiry ---------");
-    hci_set_inquiry_mode(INQUIRY_MODE_RSSI_AND_EIR);
+    rfcomm_init();
+    rfcomm_register_service(packet_handler, RFCOMM_SERVER_CHANNEL, 0xffff);
 
+    // init SDP, create record for SPP and register with SDP
+    sdp_init();
+    memset(spp_service_buffer, 0, sizeof(spp_service_buffer));
+    spp_create_sdp_record(spp_service_buffer, 0x10001, RFCOMM_SERVER_CHANNEL, "SPP Counter");
+    sdp_register_service(spp_service_buffer);
+//    log_info("SDP service record size: %u\n", de_get_len(spp_service_buffer));
+
+    gap_set_local_name("SPP and LE Counter 00:00:00:00:00:00");
+    gap_ssp_set_io_capability(SSP_IO_CAPABILITY_DISPLAY_YES_NO);
+    gap_discoverable_control(1);
+
+    // setup le device db
+    //le_device_db_init();
+
+    // setup SM: Display only
+    //sm_init();
+
+    // setup ATT server
+    //att_server_init(profile_data, att_read_callback, att_write_callback);    
+
+    // register for HCI events
     hci_event_callback_registration.callback = &packet_handler;
     hci_add_event_handler(&hci_event_callback_registration);
 
+    // register for ATT events
+    att_server_register_packet_handler(packet_handler);
+
+    // setup advertisements
+    uint16_t adv_int_min = 0x0030;
+    uint16_t adv_int_max = 0x0030;
+    uint8_t adv_type = 0;
+    bd_addr_t null_addr;
+    memset(null_addr, 0, 6);
+    gap_advertisements_set_params(adv_int_min, adv_int_max, adv_type, 0, null_addr, 0x07, 0x00);
+    gap_advertisements_set_data(adv_data_len, (uint8_t*) adv_data);
+    gap_advertisements_enable(1);
+
+    // set one-shot timer
+    /*heartbeat.process = &heartbeat_handler;
+    btstack_run_loop_set_timer(&heartbeat, HEARTBEAT_PERIOD_MS);
+    btstack_run_loop_add_timer(&heartbeat);*/
+
+    // beat once
+    beat();
+
     // turn on!
-	log_info("turn on device");
-    hci_power_control(HCI_POWER_ON);
-        
+	hci_power_control(HCI_POWER_ON);
+	    
     return 0;
 }
 /* LISTING_END */
 /* EXAMPLE_END */
+

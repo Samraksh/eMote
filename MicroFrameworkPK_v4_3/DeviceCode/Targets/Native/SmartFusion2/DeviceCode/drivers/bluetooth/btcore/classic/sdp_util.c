@@ -41,6 +41,8 @@
  *  sdp_util.c
  */
 
+#include <stdarg.h>
+#include <string.h>
 #include "..\bluetooth.h"
 #include "..\..\sf2\btstack_config.h"
 #include "..\btstack_util.h"

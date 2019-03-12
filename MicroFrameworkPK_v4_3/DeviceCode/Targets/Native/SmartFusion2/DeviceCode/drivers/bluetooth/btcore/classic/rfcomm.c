@@ -52,6 +52,7 @@
 #include "..\hci_cmd.h"
 #include "..\hci_dump.h"
 #include "..\l2cap.h"
+#include <string.h>
 
 // workaround for missing PRIxPTR on mspgcc (16/20-bit MCU)
 #ifndef PRIxPTR

@@ -41,8 +41,9 @@
  *  sdp_client.c
  */
 
+#include <string.h>
 #include "..\bluetooth_sdp.h"
-#include "..\btstack_config.h"
+#include "..\..\sf2\btstack_config.h"
 #include "..\btstack_debug.h"
 #include "..\btstack_event.h"
 #include "core.h"

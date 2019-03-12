@@ -90,6 +90,18 @@
 	<Compile Include="hci_dump.c" />
 	<HFiles Include="hci_transport_h4.h" />
 	<Compile Include="hci_transport_h4.c" />
+	<HFiles Include="classic\rfcomm.h" />
+	<Compile Include="classic\rfcomm.c" />
+	<HFiles Include="classic\sdp_client.h" />
+	<Compile Include="classic\sdp_client.c" />
+	<HFiles Include="classic\sdp_server.h" />
+	<Compile Include="classic\sdp_server.c" />
+	<HFiles Include="classic\sdp_util.h" />
+	<Compile Include="classic\sdp_util.c" />
+	<HFiles Include="ble\att_server.h" />
+	<Compile Include="ble\att_server.c" />
+	<HFiles Include="ble\sm.h" />
+	<Compile Include="ble\sm.c" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
