@@ -33,3 +33,11 @@ D:\Main\Work\SOURCE\REPOCHANGE\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\
 D:\Main\Work\SOURCE\REPOCHANGE\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\le\eMotePing.pdbx
 D:\Main\Work\SOURCE\REPOCHANGE\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\eMotePing.exe
 D:\Main\Work\SOURCE\REPOCHANGE\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\eMotePing.pdb
+D:\Main\Repos\eMote\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\eMotePing.csprojResolveAssemblyReference.cache
+D:\Main\Repos\eMote\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\TinyCLR_DebugReferences.cache
+D:\Main\Repos\eMote\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\eMotePing.Resources.resources
+D:\Main\Repos\eMote\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\eMotePing.csproj.GenerateResource.Cache
+D:\Main\Repos\eMote\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\eMotePing.Resources.tinyresources
+D:\Main\Repos\eMote\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\TinyResGen.cache
+D:\Main\Repos\eMote\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\eMotePing.exe
+D:\Main\Repos\eMote\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\eMotePing.pdb

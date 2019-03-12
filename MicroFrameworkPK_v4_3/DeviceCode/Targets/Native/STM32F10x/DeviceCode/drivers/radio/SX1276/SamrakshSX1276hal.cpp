@@ -156,9 +156,12 @@ void Samraksh_SX1276_hal::Send(void* msg, UINT16 size, bool request_ack, bool sa
 			return;
 		}
 	}
-	m_re.DataStatusCallback(true,size);
+
 	//g_SX1276M1BxASWrapper.Send(static_cast<uint8_t *>(msg), size);
-	g_SX1276M1BxASWrapper.Send(m_packet.GetPayload(), size);
+	if(g_SX1276M1BxASWrapper.Send(m_packet.GetPayload(), size)){
+		m_re.DataStatusCallback(true,size);
+	}
+	m_re.DataStatusCallback(false,size);
 }
 void Samraksh_SX1276_hal::SendTS(void* msg, UINT16 size, UINT32 eventTime, bool request_ack, bool saveCopyOfPacket) {
 	if(!IsPacketTransmittable(msg, size)) {
@@ -173,7 +176,12 @@ void Samraksh_SX1276_hal::SendTS(void* msg, UINT16 size, UINT32 eventTime, bool 
 		}
 	}
 	m_re.DataStatusCallback(true,size);
-	g_SX1276M1BxASWrapper.SendTS(m_packet.GetPayload(), size, eventTime);
+
+	//if radio layer accepted pkt return true, else return false.
+	if(g_SX1276M1BxASWrapper.SendTS(m_packet.GetPayload(), size, eventTime)){
+		m_re.DataStatusCallback(true,size);
+	}
+	m_re.DataStatusCallback(false,size);
 }
 
 
@@ -334,6 +342,12 @@ void Samraksh_SX1276_hal::ChooseRadioConfig() {
                                    LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
                                    LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
                                    0, true, 0, 0, LORA_IQ_INVERSION_ON, true );
+	//Change to single packet mode for receiving
+	/*g_SX1276M1BxASWrapper.SetRxConfig( MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
+	                                   LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
+	                                   LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
+	                                   0, true, 0, 0, LORA_IQ_INVERSION_ON, false );*/
+
 
 #elif defined( USE_MODEM_FSK )
 

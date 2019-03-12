@@ -242,7 +242,8 @@ public:
 
 	uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData);
 
-
+	//check and read packet in lora modem
+	bool LoraRcvPkt();
 public:
 //	Emote_Lora_Hat();
 //	~Emote_Lora_Hat();
@@ -474,8 +475,8 @@ public:
      * @param [IN]: buffer     Buffer pointer
      * @param [IN]: size       Buffer size
      */
-    void Send( uint8_t *buffer, uint8_t size );
-    void SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventTime);//BK:Artificial injection due to compliance with mf_radio. TODO:The interface should be changed as it breaks layering.
+    bool Send( uint8_t *buffer, uint8_t size );
+    bool SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventTime);//BK:Artificial injection due to compliance with mf_radio. TODO:The interface should be changed as it breaks layering.
     /*!
      * @brief Sets the radio in sleep mode
      */
@@ -537,8 +538,8 @@ public:
     //-------------------------------------------------------------------------
 
 //protected:
-
-    void wait_ms(UINT32 x){};
+    //wait for milliseconds
+    void wait_ms(UINT32 x);
 //protected:
 
     /*!

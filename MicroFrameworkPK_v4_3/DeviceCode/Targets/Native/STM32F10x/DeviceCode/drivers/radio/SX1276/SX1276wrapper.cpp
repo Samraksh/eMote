@@ -13,7 +13,7 @@
 
 #define SX1276M1BxASWrapper_debug_PIN (GPIO_PIN)120
 
-#define READ_OPMODE() (Read( REG_OPMODE ) & ~RF_OPMODE_MASK)
+#define READ_OPMODE() (Read( REG_OPMODE ) & ~RFLR_OPMODE_MASK)
 
 SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
 
@@ -1272,10 +1272,11 @@ uint32_t SX1276M1BxASWrapper::TimeOnAir( RadioModems_t modem, uint8_t pktLen )
     return airTime;
 }
 
-void SX1276M1BxASWrapper::Send( uint8_t *buffer, uint8_t size )
+bool SX1276M1BxASWrapper::Send( uint8_t *buffer, uint8_t size )
 {
-    uint32_t txTimeout = 0;
-
+	return SendTS(buffer,size,0);
+/*
+	uint32_t txTimeout = 0;
     switch( this->settings.Modem )
     {
     case MODEM_FSK:
@@ -1345,7 +1346,7 @@ void SX1276M1BxASWrapper::Send( uint8_t *buffer, uint8_t size )
 					break;
 				case RF_OPMODE_RECEIVER:
 					hal_printf("SX1276:Send: Error: In receive mode, cant send now \n \r ");
-					return;
+					//return;
 				default:
 					hal_printf("SX1276: Send: Not sure what mode i am in \n \r ");
             }
@@ -1355,11 +1356,10 @@ void SX1276M1BxASWrapper::Send( uint8_t *buffer, uint8_t size )
         }
         break;
     }
-
-    Tx( txTimeout );
+    Tx( txTimeout );*/
 }
 
-void SX1276M1BxASWrapper::SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventTime) //BK:Artificial injection due to compliance with mf_radio. TODO:The interface should be changed as it breaks layering.
+bool SX1276M1BxASWrapper::SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventTime) //BK:Artificial injection due to compliance with mf_radio. TODO:The interface should be changed as it breaks layering.
 {
     uint32_t txTimeout = 0;
 
@@ -1441,45 +1441,46 @@ void SX1276M1BxASWrapper::SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventT
             // FIFO operations can not take place in Sleep mode
             uint8_t mode= READ_OPMODE();
             switch (mode){
-				case RF_OPMODE_SLEEP:
+            	case RFLR_OPMODE_STANDBY:
+            		break;
+				case RFLR_OPMODE_SLEEP:
 					do {
 						Standby( );
 						wait_ms( 1 );
 						mode= READ_OPMODE();
-					}while(mode == RF_OPMODE_SLEEP);
+					}while(mode == RFLR_OPMODE_SLEEP);
 					break;
-				case RF_OPMODE_RECEIVER:
-					hal_printf("SX1276: SendTS: Error: In receive mode, cant send now \n \r ");
-					return;
+				case RFLR_OPMODE_RECEIVER:
+				case RFLR_OPMODE_RECEIVER_SINGLE:
+					//hal_printf("SX1276: SendTS: Error: In receive mode, cant send now \n \r ");
+					break;
+				case RFLR_OPMODE_SYNTHESIZER_TX:
+				case RFLR_OPMODE_TRANSMITTER:
+					hal_printf("SX1276: SendTS: Error: Already transmitting something , cant send now \n \r ");
+					return false;
 				default:
-					hal_printf("SX1276: SendTS: Not sure what mode i am in \n \r ");
+					hal_printf("SX1276: SendTS: Not sure what mode radio in: %d \n \r ", mode);
             }
 
-            //CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
-            UINT32 timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
-            UINT32 eventOffset = timestamp - eventTime;
-            memcpy(buffer+size, static_cast<void*>(&eventOffset), sizeof(UINT32) );
-        	//WriteFifo( reinterpret_cast<uint8_t*>(eventOffset), 4 );
-            size = size+4;
-            // Write payload buffer
+            //Do timestamping if a eventime is given
+            if(eventTime>0){
+				//CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
+				UINT32 timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
+				UINT32 eventOffset = timestamp - eventTime;
+				memcpy(buffer+size, static_cast<void*>(&eventOffset), sizeof(UINT32) );
+				//WriteFifo( reinterpret_cast<uint8_t*>(eventOffset), 4 );
+				size = size+4;
+				// Write payload buffer
+				//hal_printf("SX1276: SendTS: Sending with timestamp: %d \n \r ", eventTime);
+            }
             WriteFifo( buffer, size );
-
-
-
-            //CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
-            //UINT32 timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
-            //UINT32 eventOffset = timestamp - eventTime;
-            //memcpy(buffer+size, static_cast<void*>(&eventOffset), sizeof(UINT32) );
-        	//WriteFifo( reinterpret_cast<uint8_t*>(eventOffset), 4 );
-
-
-
             txTimeout = this->settings.LoRa.TxTimeout;
         }
         break;
     }
 
     Tx( txTimeout );
+    return true;
 }
 
 
@@ -1642,13 +1643,13 @@ void SX1276M1BxASWrapper::Rx( uint32_t timeout )
     for(uint8_t i = 0; i < rxtxBufferSize; ++i){
     	rxtxBufferstorage[i] = 0;
     };
-//    memset( rxtxBuffer, 0, ( size_t )RX_BUFFER_SIZE );
+    //memset( rxtxBuffer, 0, ( size_t )RX_BUFFER_SIZE );
 
     this->settings.State = RF_RX_RUNNING;
     if( timeout != 0 )
     {
         //rxTimeoutTimer.attach_us( mbed::callback( this, &SX1276M1BxASWrapper::OnTimeoutIrq ), timeout * 1e3 );
- SetTimeoutTimer(rxTimeoutTimer, timeout * 1e3 );
+    	SetTimeoutTimer(rxTimeoutTimer, timeout * 1e3 );
     }
 
     if( this->settings.Modem == MODEM_FSK )
@@ -1658,8 +1659,8 @@ void SX1276M1BxASWrapper::Rx( uint32_t timeout )
         if( rxContinuous == false )
         {
             //rxTimeoutSyncWord.attach_us( mbed::callback( this, &SX1276M1BxASWrapper::OnTimeoutIrq ),
-//                                         this->settings.Fsk.RxSingleTimeout * 1e3 );
- SetTimeoutTimer(rxTimeoutSyncWord,this->settings.Fsk.RxSingleTimeout * 1e3 );
+        		//this->settings.Fsk.RxSingleTimeout * 1e3 );
+        	SetTimeoutTimer(rxTimeoutSyncWord,this->settings.Fsk.RxSingleTimeout * 1e3 );
         }
     }
     else
@@ -2001,12 +2002,12 @@ void SX1276M1BxASWrapper::OnDio0Irq(  )
                         Write( REG_IRQFLAGS2, RF_IRQFLAGS2_FIFOOVERRUN );
 
                         //rxTimeoutTimer.detach( );
- CancelTimeoutTimer(rxTimeoutTimer);
+                        CancelTimeoutTimer(rxTimeoutTimer);
 
                         if( this->settings.Fsk.RxContinuous == false )
                         {
                             //rxTimeoutSyncWord.detach( );
- CancelTimeoutTimer(rxTimeoutSyncWord);
+                        	CancelTimeoutTimer(rxTimeoutSyncWord);
                             this->settings.State = RF_IDLE;
                         }
                         else
@@ -2014,8 +2015,8 @@ void SX1276M1BxASWrapper::OnDio0Irq(  )
                             // Continuous mode restart Rx chain
                             Write( REG_RXCONFIG, Read( REG_RXCONFIG ) | RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK );
                             //rxTimeoutSyncWord.attach_us( mbed::callback( this, &SX1276M1BxASWrapper::OnTimeoutIrq ),
-//                                                         this->settings.Fsk.RxSingleTimeout * 1e3 );
- SetTimeoutTimer(rxTimeoutSyncWord, this->settings.Fsk.RxSingleTimeout * 1e3 );
+                            //      this->settings.Fsk.RxSingleTimeout * 1e3 );
+                            SetTimeoutTimer(rxTimeoutSyncWord, this->settings.Fsk.RxSingleTimeout * 1e3 );
                         }
 
                         if( ( this->RadioEvents != NULL ) && ( this->RadioEvents->RxError != NULL ) )
@@ -2051,21 +2052,21 @@ void SX1276M1BxASWrapper::OnDio0Irq(  )
                 }
 
                 //rxTimeoutTimer.detach( );
- CancelTimeoutTimer(rxTimeoutTimer);
+                CancelTimeoutTimer(rxTimeoutTimer);
 
                 if( this->settings.Fsk.RxContinuous == false )
                 {
                     this->settings.State = RF_IDLE;
                     //rxTimeoutSyncWord.detach( );
- CancelTimeoutTimer(rxTimeoutSyncWord);
+                    CancelTimeoutTimer(rxTimeoutSyncWord);
                 }
                 else
                 {
                     // Continuous mode restart Rx chain
                     Write( REG_RXCONFIG, Read( REG_RXCONFIG ) | RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK );
                     //rxTimeoutSyncWord.attach_us( mbed::callback( this, &SX1276M1BxASWrapper::OnTimeoutIrq ),
-//                                                 this->settings.Fsk.RxSingleTimeout * 1e3 );
- SetTimeoutTimer(rxTimeoutSyncWord, this->settings.Fsk.RxSingleTimeout * 1e3 );
+                    		//this->settings.Fsk.RxSingleTimeout * 1e3 );
+                    SetTimeoutTimer(rxTimeoutSyncWord, this->settings.Fsk.RxSingleTimeout * 1e3 );
                 }
 
                 if( ( this->RadioEvents != NULL ) && ( this->RadioEvents->RxDone != NULL ) )
@@ -2095,7 +2096,7 @@ void SX1276M1BxASWrapper::OnDio0Irq(  )
                             this->settings.State = RF_IDLE;
                         }
                         //rxTimeoutTimer.detach( );
- CancelTimeoutTimer(rxTimeoutTimer);
+                        CancelTimeoutTimer(rxTimeoutTimer);
 
                         if( ( this->RadioEvents != NULL ) && ( this->RadioEvents->RxError != NULL ) )
                         {
@@ -2142,21 +2143,8 @@ void SX1276M1BxASWrapper::OnDio0Irq(  )
                             this->settings.LoRaPacketHandler.RssiValue = RSSI_OFFSET_LF + rssi + ( rssi >> 4 );
                         }
                     }
-
-                    this->settings.LoRaPacketHandler.Size = Read( REG_LR_RXNBBYTES );
-                    ReadFifo( rxtxBuffer, this->settings.LoRaPacketHandler.Size );
-
-                    if( this->settings.LoRa.RxContinuous == false )
-                    {
-                        this->settings.State = RF_IDLE;
-                    }
-                    //rxTimeoutTimer.detach( );
- CancelTimeoutTimer(rxTimeoutTimer);
-
-                    if( ( this->RadioEvents != NULL ) && ( this->RadioEvents->RxDone != NULL ) )
-                    {
-                        this->RadioEvents->RxDone( rxtxBuffer, this->settings.LoRaPacketHandler.Size, this->settings.LoRaPacketHandler.RssiValue, this->settings.LoRaPacketHandler.SnrValue );
-                    }
+                    //Keep checking for packets until we have read all get the packet
+                    LoraRcvPkt();
                 }
                 break;
             default:
@@ -2165,7 +2153,7 @@ void SX1276M1BxASWrapper::OnDio0Irq(  )
             break;
         case RF_TX_RUNNING:
             //txTimeoutTimer.detach( );
- CancelTimeoutTimer(txTimeoutTimer);
+        	CancelTimeoutTimer(txTimeoutTimer);
             // TxDone interrupt
             switch( this->settings.Modem )
             {
@@ -2187,6 +2175,33 @@ void SX1276M1BxASWrapper::OnDio0Irq(  )
             break;
     }
 }
+
+bool SX1276M1BxASWrapper::LoraRcvPkt(){
+    this->settings.LoRaPacketHandler.Size = Read( REG_LR_RXNBBYTES );
+    if(this->settings.LoRaPacketHandler.Size > 0){
+    	hal_printf("LoraRcvPkt: Got a pkt readig  %d bytes\n\r", this->settings.LoRaPacketHandler.Size);
+    	hal_printf("\r");
+    	ReadFifo( rxtxBuffer, this->settings.LoRaPacketHandler.Size );
+
+		if( this->settings.LoRa.RxContinuous == false )
+		{
+			this->settings.State = RF_IDLE;
+		}
+		//rxTimeoutTimer.detach( );
+		CancelTimeoutTimer(rxTimeoutTimer);
+
+		if( ( this->RadioEvents != NULL ) && ( this->RadioEvents->RxDone != NULL ) )
+		{
+			this->RadioEvents->RxDone( rxtxBuffer, this->settings.LoRaPacketHandler.Size, this->settings.LoRaPacketHandler.RssiValue, this->settings.LoRaPacketHandler.SnrValue );
+		}
+		return true;
+    }
+    else {
+    	hal_printf("Got a interrupt: but couldnt read pkt: %d \n", this->settings.LoRaPacketHandler.Size);
+    	return false;
+    }
+}
+
 
 void SX1276M1BxASWrapper::OnDio1Irq(  )
 {
@@ -2410,5 +2425,8 @@ void SX1276M1BxASWrapper::OnDio5Irq(  )
     }
 }
 
+void SX1276M1BxASWrapper::wait_ms(  UINT32 x){
+	Events_WaitForEvents(0,x);
+}
 
 //} namespace SX1276_Semtech
