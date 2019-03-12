@@ -576,6 +576,38 @@ BOOL OMACType::IsPcktValid(Message_15_4_t* msg, int Size){
 /*
  *
  */
+Message_15_4_t* ProcessSoftwareAck(Message_15_4_t* msg, int Size){
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
+#endif
+		softwareACKHeader *swAckHeader = (softwareACKHeader*)msg;
+		RadioAddress_t sourceID = swAckHeader->src;
+		RadioAddress_t destID = swAckHeader->dest;
+		UINT8 payloadType = swAckHeader->payloadType;
+		RadioAddress_t myID = g_OMAC.GetMyAddress();
+#if OMAC_DEBUG_PRINTF_ACKREC
+		hal_printf("ACK Received sourceID = %u, destID = %u   \r\n", sourceID, destID);
+		g_OMAC.is_print_neigh_table = true;
+#endif
+		if(destID == myID){
+			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
+				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
+#ifdef OMAC_DEBUG_GPIO
+				CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
+				return msg;
+			}
+		}
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
+		return msg;
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
+
+}
+
 Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 	if(!Initialized){
 		return msg;
@@ -599,37 +631,14 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 	MsgLinkQualityMetrics_t msgLinkQualityMetrics;
 	RadioAddress_t myID = g_OMAC.GetMyAddress();
 
-	if(Size == sizeof(softwareACKHeader)){
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
-#endif
-		swAckHeader = (softwareACKHeader*)msg;
-		RadioAddress_t sourceID = swAckHeader->src;
-		RadioAddress_t destID = swAckHeader->dest;
-		UINT8 payloadType = swAckHeader->payloadType;
-#if OMAC_DEBUG_PRINTF_ACKREC
-		hal_printf("ACK Received sourceID = %u, destID = %u   \r\n", sourceID, destID);
-		g_OMAC.is_print_neigh_table = true;
-#endif
-		if(destID == myID){
-			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
-				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
-#ifdef OMAC_DEBUG_GPIO
-				CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
-#endif
-				return msg;
-			}
-		}
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
-#endif
-		return msg;
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
-#endif
+	//MS: Hack to consider anything less than header size as ack message
+	if(Size == sizeof(softwareACKHeader) || (Size > sizeof(softwareACKHeader) && Size < sizeof(IEEE802_15_4_Header_t))){
+		return ProcessSoftwareAck(msg,Size);
 	}
-	else if(msg->GetHeader()->fcf.fcfWordValue != FCF_WORD_VALUE){
-		return msg;
+	else {
+		if(msg->GetHeader()->fcf.fcfWordValue != FCF_WORD_VALUE){
+			return msg;
+		}
 	}
 
 	UINT16 maxPayload = OMACType::GetMaxPayload();

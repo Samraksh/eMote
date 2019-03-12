@@ -238,12 +238,15 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 #endif
 			return DS_Success;
 		}
+		else{
+			g_OMAC.isSendDone=true;
+		}
 		endOfSend:
 
 		//MS fix for lockup on send failure.
 		//This part means the radio rejected our packet.
 		//So senddone is set to true, because we didnt even begin sending
-		g_OMAC.isSendDone=true;
+
 		//OMAC_HAL_PRINTF("Returning DS_Fail \r\n");
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );

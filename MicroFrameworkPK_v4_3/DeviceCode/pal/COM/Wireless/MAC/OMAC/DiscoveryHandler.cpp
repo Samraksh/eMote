@@ -468,17 +468,22 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 		}
 	case BEACON1_SKIPPED:
 	case BEACON1_SEND_DONE:
-		m_state = WAIT_AFTER_BEACON1;
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  g_OMAC.MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
-		if(rm == TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
-			break;
-		}
-		break;
+		/* BK: This was  a hack to wait additional time before sending second beacon. Commening it out.
+		//m_state = WAIT_AFTER_BEACON1;
+		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  g_OMAC.MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+		//rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+		//if(rm == TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+		//	break;
+		//}
+		//break;
+		 */
 	case WAIT_AFTER_BEACON1:
+		/* BK: Second beacon is not very useful without CCA, commenting it out.
 		BeaconN();
 		break;
+		*/
 	case BEACON2_SEND_START:
+		/* BK: Second beacon is not very useful without CCA, commenting it out.
 		hal_printf("DiscoveryHandler::Beacon2 transmission send ACK is missing \r\n");
 #ifdef OMAC_DEBUG_PRINTF
 		OMAC_HAL_PRINTF("DiscoveryHandler::Beacon2 transmission send ACK is missing \r\n");
@@ -490,15 +495,18 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 				break;
 			}
 		}
+		*/
 	case BEACON2_SKIPPED:
 	case BEACON2_SEND_DONE:
-		m_state = WAIT_AFTER_BEACON2;
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  g_OMAC.MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
-		if(rm == TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
-			break;
-		}
-		break;
+		/* BK: This was  a hack to wait additional time before sending second beacon. Commening it out.
+		//m_state = WAIT_AFTER_BEACON2;
+		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  g_OMAC.MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+		//rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+		//if(rm == TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+		//	break;
+		//}
+		//break;/
+		*/
 	case WAIT_AFTER_BEACON2:
 		PostExecuteEvent();
 		break;
