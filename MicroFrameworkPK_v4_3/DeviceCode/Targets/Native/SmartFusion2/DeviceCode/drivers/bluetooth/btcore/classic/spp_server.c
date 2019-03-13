@@ -42,6 +42,7 @@
  *
  * Create SPP SDP Records
  */
+#include <string.h>
 
 #include "spp_server.h"
 

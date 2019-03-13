@@ -899,7 +899,7 @@ typedef struct {
     
 // HCI init and configuration
 
-
+void hci_test_chip_comm();
 /**
  * @brief Set up HCI. Needs to be called before any other function.
  */

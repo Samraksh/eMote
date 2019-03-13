@@ -44,6 +44,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 typedef struct {
 
 	/**

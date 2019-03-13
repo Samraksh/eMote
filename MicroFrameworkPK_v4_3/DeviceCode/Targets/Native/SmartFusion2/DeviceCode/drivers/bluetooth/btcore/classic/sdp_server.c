@@ -40,6 +40,7 @@
 /*
  * Implementation of the Service Discovery Protocol Server 
  */
+#include <string.h>
 
 #include "..\bluetooth.h"
 #include "..\bluetooth_sdp.h"

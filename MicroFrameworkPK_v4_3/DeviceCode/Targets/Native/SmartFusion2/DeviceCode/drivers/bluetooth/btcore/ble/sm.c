@@ -37,6 +37,8 @@
 
 #define __BTSTACK_FILE__ "sm.c"
 
+#include <string.h>
+
 #include "le_device_db.h"
 #include "core.h"
 #include "sm.h"

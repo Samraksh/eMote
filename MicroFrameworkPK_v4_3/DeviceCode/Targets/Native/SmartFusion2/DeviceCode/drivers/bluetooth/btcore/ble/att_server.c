@@ -41,6 +41,7 @@
 //
 // ATT Server Globals
 //
+#include <string.h>
 
 #include "..\..\sf2\btstack_config.h"
 

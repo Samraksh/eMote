@@ -88,8 +88,12 @@
 	<Compile Include="hci_cmd.c" />
 	<HFiles Include="hci_dump.h" />
 	<Compile Include="hci_dump.c" />
+	<HFiles Include="btstack_crypto.h" />
+	<Compile Include="btstack_crypto.c" />
 	<HFiles Include="hci_transport_h4.h" />
 	<Compile Include="hci_transport_h4.c" />
+	<HFiles Include="uECC.h" />
+	<Compile Include="uECC.c" />
 	<HFiles Include="classic\rfcomm.h" />
 	<Compile Include="classic\rfcomm.c" />
 	<HFiles Include="classic\sdp_client.h" />
@@ -104,6 +108,14 @@
 	<Compile Include="ble\att_server.c" />
 	<HFiles Include="ble\sm.h" />
 	<Compile Include="ble\sm.c" />
+	<HFiles Include="ble\att_db.h" />
+	<Compile Include="ble\att_db.c" />
+	<HFiles Include="ble\att_dispatch.h" />
+	<Compile Include="ble\att_dispatch.c" />
+	<HFiles Include="ble\le_device_db.h" />
+	<Compile Include="ble\le_device_db_tlv.c" />
+	<HFiles Include="btstack_tlv.h" />
+	<Compile Include="btstack_tlv.c" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

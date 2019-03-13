@@ -90,7 +90,7 @@ void hal_cpu_enable_irqs_and_sleep(void)
 
 void hal_uart_send_block(const uint8_t *buffer, uint16_t len)
 {
-	log_info("hal_uart_send_block bytes: %d", len);
+	//log_info("hal_uart_send_block bytes: %d", len);
 	tx_buffer_ptr = (uint8_t *)buffer;
 	bytes_to_write = len;
 }
@@ -251,8 +251,6 @@ int bluetooth_main(void)
 	const hci_transport_t * transport = hci_transport_h4_instance(btstack_uart_block_embedded_instance());
 	hci_init(transport, &config);
 	hci_set_chipset(btstack_chipset_cc256x_instance());
-
-	//btstack_cc256x_patch_step(1);
 
     // setup Link Key DB using TLV
     //const btstack_link_key_db_t * btstack_link_key_db = btstack_link_key_db_tlv_get_instance(btstack_tlv_impl, &btstack_tlv_flash_bank_context);

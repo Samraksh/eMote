@@ -38,6 +38,8 @@
  * using of MCU crypto peripherals or the Bluetooth controller
  */
 
+#include <string.h>
+
 #include "btstack_crypto.h"
 
 #include "btstack_debug.h"

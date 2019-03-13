@@ -49,6 +49,7 @@
 #include "..\btcore\btstack_debug.h"
 #include "..\btcore\btstack_uart_block.h"
 #include "btstack_run_loop_embedded.h"
+#include "btstack_port.h"
 
 // uart config
 static const btstack_uart_config_t * uart_config;

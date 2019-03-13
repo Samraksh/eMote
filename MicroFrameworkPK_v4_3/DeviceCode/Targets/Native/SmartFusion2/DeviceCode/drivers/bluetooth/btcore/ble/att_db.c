@@ -37,6 +37,8 @@
 
 #define __BTSTACK_FILE__ "att_db.c"
 
+#include <string.h>
+
 #include "att_db.h"
 #include "core.h"
 #include "..\bluetooth.h"

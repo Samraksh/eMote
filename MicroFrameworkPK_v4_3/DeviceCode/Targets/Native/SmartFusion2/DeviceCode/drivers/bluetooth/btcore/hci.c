@@ -1191,6 +1191,8 @@ static void hci_replace_bd_addr_placeholder(uint8_t * data, uint16_t size){
 }
 #endif
 
+
+
 // assumption: hci_can_send_command_packet_now() == true
 static void hci_initializing_run(void){
     log_debug("\r\n--- hci_initializing_run: substate %u, can send %u", hci_stack->substate, hci_can_send_command_packet_now());
@@ -2486,7 +2488,7 @@ static void event_handler(uint8_t *packet, int size){
             }
             break;
         default:
-			log_info("error: HCI_EVENT %d unknown",hci_event_packet_get_type(packet));
+			log_info("error: HCI_EVENT %02x unknown",hci_event_packet_get_type(packet));
             break;
     }
 
@@ -2659,6 +2661,11 @@ void hci_set_link_key_db(btstack_link_key_db_t const * link_key_db){
     }
 }
 #endif
+
+void hci_test_chip_comm(){
+	hci_send_cmd(&hci_read_local_version_information);
+    hci_stack->substate = HCI_INIT_W4_SEND_READ_LOCAL_VERSION_INFORMATION;
+}
 
 void hci_init(const hci_transport_t *transport, const void *config){
     
@@ -3918,7 +3925,7 @@ int hci_send_cmd_va_arg(const hci_cmd_t *cmd, va_list argptr){
     }
 
     // for HCI INITIALIZATION
-    // log_info("hci_send_cmd: opcode %04x", cmd->opcode);
+     log_info("hci_send_cmd: opcode %04x", cmd->opcode);
     hci_stack->last_cmd_opcode = cmd->opcode;
 
     hci_reserve_packet_buffer();

@@ -65,6 +65,7 @@
 #include "..\btcore\ble\le_device_db.h"
 #include "..\btcore\ble\att_server.h"
 #include "..\btcore\gap.h"
+#include "btmain.h"
 
 #define RFCOMM_SERVER_CHANNEL 1
 #define HEARTBEAT_PERIOD_MS 1000
@@ -139,7 +140,7 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                     break;
 
                 case ATT_EVENT_CAN_SEND_NOW:
-                    //att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);
+                    att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);
                     break;
 
                 case RFCOMM_EVENT_INCOMING_CONNECTION:
@@ -196,9 +197,9 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
 static uint16_t att_read_callback(hci_con_handle_t con_handle, uint16_t att_handle, uint16_t offset, uint8_t * buffer, uint16_t buffer_size){
     UNUSED(con_handle);
 
-    //if (att_handle == ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE){
-    //    return att_read_callback_handle_blob((const uint8_t *)counter_string, buffer_size, offset, buffer, buffer_size);
-    //}
+    if (att_handle == ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE){
+        return att_read_callback_handle_blob((const uint8_t *)counter_string, buffer_size, offset, buffer, buffer_size);
+    }
     return 0;
 }
 
@@ -208,14 +209,14 @@ static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, 
     if (transaction_mode == ATT_TRANSACTION_MODE_CANCEL) return 0;
     // find characteristic for handle
     switch (att_handle){
-        /*case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_CLIENT_CONFIGURATION_HANDLE:
+        case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_CLIENT_CONFIGURATION_HANDLE:
             le_notification_enabled = little_endian_read_16(buffer, 0) == GATT_CLIENT_CHARACTERISTICS_CONFIGURATION_NOTIFICATION;
             att_con_handle = con_handle;
             return 0;
         case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE:
             log_info("Write on test characteristic: ");
             log_info_hexdump(buffer, buffer_size);
-            return 0;*/
+            return 0;
         default:
             log_info("WRITE Callback, handle %04x, mode %u, offset %u, data: ", con_handle, transaction_mode, offset);
             log_info_hexdump(buffer, buffer_size);
@@ -225,6 +226,7 @@ static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, 
 
 static void beat(void){
     counter++;
+	log_info("beat: %d\r\n", counter);
     //counter_string_len = log_info("BTstack counter %04u", counter);
     //puts(counter_string);
 }
@@ -283,13 +285,13 @@ int btstack_main(void)
     gap_discoverable_control(1);
 
     // setup le device db
-    //le_device_db_init();
+    le_device_db_init();
 
     // setup SM: Display only
-    //sm_init();
+    sm_init();
 
     // setup ATT server
-    //att_server_init(profile_data, att_read_callback, att_write_callback);    
+    att_server_init(profile_data, att_read_callback, att_write_callback);    
 
     // register for HCI events
     hci_event_callback_registration.callback = &packet_handler;
@@ -309,9 +311,9 @@ int btstack_main(void)
     gap_advertisements_enable(1);
 
     // set one-shot timer
-    /*heartbeat.process = &heartbeat_handler;
+    heartbeat.process = &heartbeat_handler;
     btstack_run_loop_set_timer(&heartbeat, HEARTBEAT_PERIOD_MS);
-    btstack_run_loop_add_timer(&heartbeat);*/
+    btstack_run_loop_add_timer(&heartbeat);
 
     // beat once
     beat();
