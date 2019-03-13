@@ -459,22 +459,29 @@ DeviceStatus RadioControl_t::StartRx(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, TRUE );
 #endif
-	WakeLock(WLO_OMAC);
-	DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
-	if(returnVal == DS_Success){
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( RADIOCONTROL_STATEPIN, TRUE );
-		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, FALSE );
-#endif
+
+	//MS: Hack to speedup, why do all this if we are already ON?
+	if(stayOn) {
+			return DS_Success;
 	}
-	else{
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, FALSE );
-		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, TRUE );
-		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, FALSE );
-#endif
+	else {
+		WakeLock(WLO_OMAC);
+		DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
+		if(returnVal == DS_Success){
+	#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( RADIOCONTROL_STATEPIN, TRUE );
+			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, FALSE );
+	#endif
+		}
+		else{
+	#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, FALSE );
+			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, TRUE );
+			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, FALSE );
+	#endif
+		}
+		return returnVal;
 	}
-	return returnVal;
 }
 
 
