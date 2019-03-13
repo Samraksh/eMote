@@ -997,7 +997,8 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 
 	if( true
 			&& 	CPU_Radio_GetRadioAckType() == SOFTWARE_ACK
-			&&	g_OMAC.m_omac_scheduler.m_state == (I_DATA_SEND_PENDING) && g_OMAC.m_omac_scheduler.m_execution_started
+			//&&	g_OMAC.m_omac_scheduler.m_state == (I_DATA_SEND_PENDING) //MS: commented this if the scheduler moved on
+			&& g_OMAC.m_omac_scheduler.m_execution_started
 			&& 	sourceaddress == m_outgoingEntryPtr_dest
 	){
 		if(txhandler_state != DTS_WAITING_FOR_ACKS) {
@@ -1085,6 +1086,11 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 sourceaddress){ //Mark 8
 		CPU_GPIO_SetPinState( DATATX_RECV_SW_ACK, FALSE );
 #endif
 	}
+	else {
+#if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
+		hal_printf("ReceiveDATAACK: REJECTED: Got an Ack from dest = %u \r\r\n", sourceaddress);
+#endif
+	}
 }
 
 
@@ -1148,7 +1154,7 @@ void DataTransmissionHandler::PostExecuteEvent(){
 		if(m_outgoingEntryPtr->GetHeader()->payloadType != MFM_OMAC_TIMESYNCREQ){
 			SendACKToUpperLayers(m_outgoingEntryPtr, sizeof(Message_15_4_t), NetworkOperations_SendNACKed, 0);
 #if OMAC_DTH_DEBUG_ReceiveDATAACK_PRINTOUT
-			hal_printf("DataTransmissionHandler:SOFTWARE_ACKSendACK:NetworkOperations_SendNACKed dest = %u \r\r\n", rcv_msg->GetHeader()->dest);
+			hal_printf("DataTransmissionHandler:SOFTWARE_ACKSendACK:NetworkOperations_SendNACKed dest = %u \r\r\n", m_outgoingEntryPtr->GetHeader()->dest);
 #endif
 		}
 	}
