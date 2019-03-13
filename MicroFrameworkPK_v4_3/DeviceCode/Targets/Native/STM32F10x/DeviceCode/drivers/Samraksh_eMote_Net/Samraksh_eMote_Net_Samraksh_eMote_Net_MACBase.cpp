@@ -118,7 +118,10 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 
 	MyAppID=3; //pick a number less than MAX_APPS currently 4.
 
-	if(MAC_Initialize(&Event_Handler, macname, MyAppID, configParams[8], (void*) &config) != DS_Success) {
+	//hardcoding for Lora demo
+	//if(MAC_Initialize(&Event_Handler, macname, MyAppID, configParams[8], (void*) &config) != DS_Success)
+	if(MAC_Initialize(&Event_Handler, macname, MyAppID, SX1276, (void*) &config) != DS_Success)
+	{
 	    hr = -1;
 	    result = DS_Fail;
 	}

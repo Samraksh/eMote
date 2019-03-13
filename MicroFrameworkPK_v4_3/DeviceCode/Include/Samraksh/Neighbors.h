@@ -224,6 +224,7 @@ public:
 	NeighborStatus status;
 	UINT64 lastHeardTime;
 	Link_t linkQualityMetrics;
+	bool availableForUpperLayers;
 	NeighborTableCommonParameters_One_t(){
 		MACAddress = 0;
 		status = NbrStatusError;
@@ -231,6 +232,7 @@ public:
 		linkQualityMetrics.LinkQuality = 0;
 		linkQualityMetrics.AvgRSSI = 0;
 		linkQualityMetrics.AveDelay = 0;
+		availableForUpperLayers=0;
 	}
 };
 
@@ -847,6 +849,7 @@ DeviceStatus NeighborTable::UpdateNeighbor(const NeighborTableCommonParameters_O
 		Neighbor[index].MACAddress = address;
 		Neighbor[index].neighborStatus = status;
 		Neighbor[index].LastHeardTime = LastHeardTime;
+		Neighbor[index].IsAvailableForUpperLayers= neighborTableCommonParameters_One_t->availableForUpperLayers;
 		if (Neighbor[index].ReceiveLink.AvgRSSI == 0) {
 			Neighbor[index].ReceiveLink.AvgRSSI = (UINT8)(rssi);
 			Neighbor[index].ReceiveLink.LinkQuality = (UINT8)lqi;

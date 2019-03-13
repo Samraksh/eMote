@@ -481,10 +481,13 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 				neighborTableCommonParameters_One_t.lastHeardTime = HAL_Time_CurrentTicks();
 				neighborTableCommonParameters_One_t.linkQualityMetrics.AvgRSSI = rcv_meta->GetRssi();
 				neighborTableCommonParameters_One_t.linkQualityMetrics.LinkQuality = rcv_meta->GetLqi();
+				neighborTableCommonParameters_One_t.availableForUpperLayers=TRUE;
+
 				neighborTableCommonParameters_two_t.nextSeed = 0;
 				neighborTableCommonParameters_two_t.mask = 0;
 				neighborTableCommonParameters_two_t.nextwakeupSlot = 0;
 				neighborTableCommonParameters_two_t.seedUpdateIntervalinSlots = 0;
+
 				if(g_NeighborTable.InsertNeighbor(&neighborTableCommonParameters_One_t, &neighborTableCommonParameters_two_t) == DS_Success)
 				{
 					NeighborChangeFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
@@ -582,14 +585,22 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 	Message_15_4_t* temp = (Message_15_4_t *)msg;
 	UINT8* rcv_payload =  temp->GetPayload();
 #endif
+	Message_15_4_t* sentPtr = (Message_15_4_t *)msg;
 	switch(status)
 	{
 		case NetworkOperations_Success:
 			{
 				DEBUG_PRINTF_CSMA("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 				//VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
-				if(SendAckFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->SendAckHandler)
+				if(sentPtr->GetHeader()->payloadType == MFM_CSMA_DISCOVERY){
+					//This is our discovery message, dont call app/routing, just remove pkt from buffer
+					g_NeighborTable.DeletePacket(sentPtr);
+				}else {
+					//This is application packet, call its senkack handler
+					if(SendAckFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->SendAckHandler)
 					(*appHandler)(msg, Size, status, radioAckStatus);
+
+				}
 				// Attempt to send the next packet out since we have no scheduler
 				if(!g_send_buffer.IsBufferEmpty())
 				{

@@ -19,8 +19,8 @@ void ApplicationEntryPoint()
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
 
-    //ClrStartup( clrSettings );
-    do
+    ClrStartup( clrSettings );
+    /*do
     {
     	//OMACTest omacTest();
     	BOOL ret;
@@ -30,6 +30,7 @@ void ApplicationEntryPoint()
     	//dsTestObject.Execute(TEST_INITIALIZATION);
 
     } while(false); // run only once!
+    */
 
     while(true){
     	::Events_WaitForEvents(0, 100);

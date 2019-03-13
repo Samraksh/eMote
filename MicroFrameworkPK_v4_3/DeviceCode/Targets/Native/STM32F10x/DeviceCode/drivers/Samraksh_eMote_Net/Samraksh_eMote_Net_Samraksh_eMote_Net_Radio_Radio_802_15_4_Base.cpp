@@ -34,7 +34,8 @@ INT32 Radio_802_15_4_Base::UnInitialize( CLR_RT_HeapBlock* pMngObj, UINT8 radioN
 UINT16 Radio_802_15_4_Base::GetRadioAddress( CLR_RT_HeapBlock* pMngObj, UINT8 radioName, HRESULT &hr )
 {
 	UINT16 address;
-	address = CPU_Radio_GetAddress(radioName);
+	//address = CPU_Radio_GetAddress(radioName);
+	address = CPU_Radio_GetAddress(SX1276);
 	return address;
 }
 
@@ -60,35 +61,43 @@ INT32 Radio_802_15_4_Base::SetRadioName( CLR_RT_HeapBlock* pMngObj, UINT8 radioN
 
 INT32 Radio_802_15_4_Base::SetTxPower( CLR_RT_HeapBlock* pMngObj, UINT8 radioName, INT32 power, HRESULT &hr )
 {
-	DeviceStatus status;
+	return DS_Success;
+	/*DeviceStatus status;
 	//BOOL ret = MAC_SetRadioTxPower(power);
 	BOOL ret = CPU_Radio_ChangeTxPower(radioName, power);
+
 	if(ret)
 		status = DS_Success;
 	else
 		status = DS_Fail;
 
 	return status;
+	*/
 }
 
 INT32 Radio_802_15_4_Base::SetChannel( CLR_RT_HeapBlock* pMngObj, UINT8 radioName, INT32 channel, HRESULT &hr )
 {
-	DeviceStatus status;
+	return DS_Success;
+	/*DeviceStatus status;
 	//BOOL ret = MAC_SetRadioChannel(channel);
-	BOOL ret = CPU_Radio_ChangeChannel(radioName, channel);
+	//BOOL ret = CPU_Radio_ChangeChannel(radioName, channel);
+	BOOL ret = DS_Success;
 	if(ret)
 		status = DS_Success;
 	else
 		status = DS_Fail;
 
-	return status;
+	return status;*/
 }
 
 INT32 Radio_802_15_4_Base::TurnOnRx( CLR_RT_HeapBlock* pMngObj, UINT8 radioName, HRESULT &hr )
 {
-	DeviceStatus status;
+	return DS_Success;
+
+	/*DeviceStatus status;
 	status = CPU_Radio_TurnOnRx(radioName);
 	return status;
+	*/
 }
 
 INT32 Radio_802_15_4_Base::TurnOffRx( CLR_RT_HeapBlock* pMngObj, UINT8 radioName, HRESULT &hr )
@@ -145,6 +154,8 @@ INT32 Radio_802_15_4_Base::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT8 rad
 
 INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT8 radioName, HRESULT &hr )
 {
+	return DS_Success;
+	/*
 	DeviceStatus status;
 
 	status = CPU_Radio_ClearChannelAssesment(0);
@@ -155,6 +166,8 @@ INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT
 		return false;
 
 	//return status;
+
+  */
 }
 
 INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT8 radioName, UINT16 numberOfMicroSecond, HRESULT &hr )
