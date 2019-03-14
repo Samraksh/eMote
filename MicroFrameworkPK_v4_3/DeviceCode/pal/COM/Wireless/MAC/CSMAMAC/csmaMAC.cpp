@@ -2,7 +2,8 @@
 #include <Samraksh/VirtualTimer.h>
 #include <Timer/netmf_timers.cpp>
 
- 
+#define BEACON_PERIOD_MICRO 25000000
+
 csmaMAC g_csmaMacObject;
 
 void PrintHex(UINT8* x, UINT16 size){
@@ -129,7 +130,7 @@ DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, U
 			return DS_Fail;
 		}
 
-		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_BEACON, 0, 5000000, FALSE, TRUE, beaconScheduler, ADVTIMER_32BIT) != TimerSupported){
+		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_BEACON, 0, BEACON_PERIOD_MICRO, FALSE, TRUE, beaconScheduler, ADVTIMER_32BIT) != TimerSupported){
 			ASSERT(FALSE);
 			return DS_Fail;
 		}
@@ -454,6 +455,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 	NeighborTableCommonParameters_Two_t neighborTableCommonParameters_two_t;
 	UINT8 index;
 
+
 	if(Size == sizeof(softwareACKHeader)){
 		//hal_printf("software ACK\r\n");
 		return msg;
@@ -471,6 +473,10 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 	// Get the header packet
 	IEEE802_15_4_Header_t* rcv_msg_hdr = msg->GetHeader();
 	//If send happened with a timestamp, then subtract TIMESTAMP_SIZE
+
+	//MS:The incoming message might have a different size, based on sending side buffer, reset it just to be sure.
+	//rcv_msg_hdr->length=Size;
+
 	if(rcv_msg_hdr->flags == TIMESTAMPED_FLAG){
 		rcv_msg_hdr->length -= TIMESTAMP_SIZE;
 	}
@@ -565,7 +571,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 	//TODO: GLOBAL_LOCK(irq); // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue requires IRQs off.  Updater needs IRQs on; TODO: make Update use a queue and disable IRQs again?
 	//(*appHandler)(msg, g_receive_buffer.GetNumberMessagesInBuffer());
-	(*appHandler)(msg, rcv_msg_hdr->payloadType);
+	(*appHandler)(*next_free_buffer, rcv_msg_hdr->payloadType);
 
 #if 0
 	//hal_printf("CSMA Receive: SRC address is : %d\n", rcv_msg_hdr->src);

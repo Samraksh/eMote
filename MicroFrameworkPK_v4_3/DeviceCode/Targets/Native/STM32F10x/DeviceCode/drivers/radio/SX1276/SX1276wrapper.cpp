@@ -14,7 +14,7 @@
 #define SX1276M1BxASWrapper_debug_PIN (GPIO_PIN)120
 
 #define AMPED_RADIO 0
-#define DEBUG_LORA_PRINT 1
+#define DEBUG_LORA_PRINT 0
 
 
 #define READ_OPMODE() (Read( REG_OPMODE ) & ~RFLR_OPMODE_MASK)
@@ -1477,6 +1477,7 @@ bool SX1276M1BxASWrapper::SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventT
 #if DEBUG_LORA_PRINT
 					hal_printf("SX1276: SendTS: Not sure what mode radio in: %d \n \r ", mode);
 #endif
+					break;
             }
 
             //Do timestamping if a eventime is given
@@ -2181,7 +2182,7 @@ void SX1276M1BxASWrapper::OnDio0Irq(  )
 
                 //MS added this
                 if(this->settings.LoRa.RxContinuous){
-                	hal_printf("Going back to Receiving\n");
+                	//hal_printf("Going back to Receiving\n");
                 	SetOpMode( RFLR_OPMODE_RECEIVER );
                 }
                 // Intentional fall through
@@ -2204,7 +2205,7 @@ bool SX1276M1BxASWrapper::LoraRcvPkt(){
     this->settings.LoRaPacketHandler.Size = Read( REG_LR_RXNBBYTES );
     if(this->settings.LoRaPacketHandler.Size > 0){
 #if DEBUG_LORA_PRINT
-    	hal_printf("LoraRcvPkt: Got a pkt readig  %d bytes\n\r", this->settings.LoRaPacketHandler.Size);
+    	hal_printf("LoraRcvPkt: Got a pkt readig  %d bytes\n\r", this->settings.LoRaPacketHandler.Size-4);
 #endif
     	ReadFifo( rxtxBuffer, this->settings.LoRaPacketHandler.Size );
 
@@ -2217,7 +2218,9 @@ bool SX1276M1BxASWrapper::LoraRcvPkt(){
 
 		if( ( this->RadioEvents != NULL ) && ( this->RadioEvents->RxDone != NULL ) )
 		{
-			this->RadioEvents->RxDone( rxtxBuffer, this->settings.LoRaPacketHandler.Size, this->settings.LoRaPacketHandler.RssiValue, this->settings.LoRaPacketHandler.SnrValue );
+			//this->RadioEvents->RxDone( rxtxBuffer, this->settings.LoRaPacketHandler.Size, this->settings.LoRaPacketHandler.RssiValue, this->settings.LoRaPacketHandler.SnrValue );
+			//MS: Fix for CRC. Lora module adds 4-byte CRC to end, we dont need to send this up
+			this->RadioEvents->RxDone( rxtxBuffer, this->settings.LoRaPacketHandler.Size-4, this->settings.LoRaPacketHandler.RssiValue, this->settings.LoRaPacketHandler.SnrValue );
 		}
 		return true;
     }
