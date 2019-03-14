@@ -112,7 +112,7 @@ void  Samraksh_SX1276_hal_netmfadapter::PacketDetected( void ){
  */
 void    Samraksh_SX1276_hal_netmfadapter::RxDone( uint8_t *payload, uint16_t size ){
 	if(payload == NULL) {
-		hal_printf("RX timeout");
+		//hal_printf("RX timeout");
 		gsx1276radio_netmf_adapter.TurnOnRx();
 		  // Reset the radio
 		return;

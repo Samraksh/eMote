@@ -2,7 +2,7 @@
 #include <Samraksh/VirtualTimer.h>
 #include <Timer/netmf_timers.cpp>
 
-#define BEACON_PERIOD_MICRO 25000000
+#define BEACON_PERIOD_MICRO 15000000
 
 csmaMAC g_csmaMacObject;
 
