@@ -82,7 +82,7 @@ static btstack_linked_list_t data_sources;
 static btstack_linked_list_t timers;
 
 static int trigger_event_received = 0;
-
+//static uint64_t commTest;
 /**
  * Add data_source to run_loop
  */
@@ -196,6 +196,12 @@ void btstack_run_loop_embedded_execute_once(void) {
     }
 
     uint64_t now = hal_time_ms();
+	/*if (now > commTest){
+		commTest = hal_time_ms() + 5000;
+		log_info("<comm test>");
+		hci_test_chip_comm();
+	}*/
+
 
     // process timers
     while (timers) {
@@ -241,6 +247,8 @@ static void btstack_run_loop_embedded_init(void){
     data_sources = NULL;
 
     timers = NULL;
+
+	//commTest = hal_time_ms() + 5000;
 }
 
 /**

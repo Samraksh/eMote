@@ -198,7 +198,10 @@ void printf_hexdump(const void *data, int size){
         uint8_t byte = *ptr++;
         buffer[0] = char_for_high_nibble(byte);
         buffer[1] = char_for_low_nibble(byte);
-        log_info("%s", buffer);
+		dubgBT_printchar((char)buffer[0]);
+		dubgBT_printchar((char)buffer[1]);
+		dubgBT_printchar(' ');
+        //log_info("%s", buffer);
         size--;
     }
     log_info("\n");

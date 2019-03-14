@@ -27,6 +27,10 @@ void debugBT_printf(const char* format, va_list argptr){
 	hal_printf("\r\n");
 }
 
+void dubgBT_printchar(char c){
+	hal_printf("%c",c);
+}
+
 void* mf_private_malloc ( size_t len             ){
 	return private_malloc(len);
 }
@@ -107,7 +111,7 @@ int btUartWrite(uint8_t* tx_buff_ptr, int num_tx_bytes){
 		return 0;
 	} else {
 		// should change to USART_Write but need to initialize UART normally first
-		hal_printf("sending %d bytes to BT\r\n", num_tx_bytes);
+		//hal_printf("sending %d bytes to BT\r\n", num_tx_bytes);
 		//CPU_USART_WriteStringToTxBuffer(BT_COM_PORT, (char*)tx_buff_ptr, num_tx_bytes);
 		USART_Write(BT_COM_PORT, (char*)tx_buff_ptr, num_tx_bytes);
 	}

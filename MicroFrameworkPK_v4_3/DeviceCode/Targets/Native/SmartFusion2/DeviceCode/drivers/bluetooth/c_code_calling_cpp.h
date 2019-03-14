@@ -13,6 +13,7 @@ extern "C" {
 typedef void (*TIMER_CALLBACK_FPN_C)( void* arg );
 // used to debug the C bluetooth code
 void debugBT_printf(const char* format, va_list argptr);
+void dubgBT_printchar(char c);
 
 void* mf_private_malloc ( size_t len             );
 void  mf_private_free   ( void*  ptr             );

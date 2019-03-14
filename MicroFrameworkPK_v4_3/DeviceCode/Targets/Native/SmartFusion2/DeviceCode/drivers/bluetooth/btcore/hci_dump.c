@@ -54,6 +54,7 @@
 // enable POSIX functions (needed for -std=c99)
 //#define _POSIX_C_SOURCE 200809
 
+#include "btstack_debug.h"
 #include "hci_dump.h"
 #include "hci.h"
 #include "hci_transport.h"
@@ -193,34 +194,34 @@ static void hci_dump_bluez_setup_header(uint8_t * buffer, uint32_t tv_sec, uint3
 }
 
 static void printf_packet(uint8_t packet_type, uint8_t in, uint8_t * packet, uint16_t len){
- /*   switch (packet_type){
+    switch (packet_type){
         case HCI_COMMAND_DATA_PACKET:
-            printf("CMD => ");
+            log_info("CMD => ");
             break;
         case HCI_EVENT_PACKET:
-            printf("EVT <= ");
+            log_info("EVT <= ");
             break;
         case HCI_ACL_DATA_PACKET:
             if (in) {
-                printf("ACL <= ");
+                log_info("ACL <= ");
             } else {
-                printf("ACL => ");
+                log_info("ACL => ");
             }
             break;
         case HCI_SCO_DATA_PACKET:
             if (in) {
-                printf("SCO <= ");
+                log_info("SCO <= ");
             } else {
-                printf("SCO => ");
+                log_info("SCO => ");
             }
             break;
         case LOG_MESSAGE_PACKET:
-            printf("LOG -- %s\n", (char*) packet);
+            log_info("LOG -- %s\n", (char*) packet);
             return;
         default:
             return;
     }
-    printf_hexdump(packet, len);  */
+    printf_hexdump(packet, len);  
 }
 
 static void printf_timestamp(void){
@@ -228,7 +229,7 @@ static void printf_timestamp(void){
 }
 
 void hci_dump_packet(uint8_t packet_type, uint8_t in, uint8_t *packet, uint16_t len) {    
-
+	printf_packet(packet_type, in, packet, len);
 }
 
 static int hci_dump_log_level_active(int log_level){
@@ -239,6 +240,10 @@ static int hci_dump_log_level_active(int log_level){
 
 void hci_dump_log_va_arg(int log_level, const char * format, va_list argptr){
 
+}
+
+void hci_dump_char(char c){
+	dubgBT_printchar(c);
 }
 
 void hci_dump_log(int log_level, const char * format, ...){
