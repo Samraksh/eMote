@@ -13,7 +13,7 @@
 
 #define SX1276M1BxASWrapper_debug_PIN (GPIO_PIN)120
 
-#define AMPED_RADIO 1
+#define AMPED_RADIO 0
 #define DEBUG_LORA_PRINT 0
 
 
