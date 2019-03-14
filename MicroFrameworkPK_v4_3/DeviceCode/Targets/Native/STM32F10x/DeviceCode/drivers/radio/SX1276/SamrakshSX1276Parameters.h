@@ -18,7 +18,7 @@
 
 #elif defined( USE_BAND_915 )
 
-#define RF_FREQUENCY                                915000000 // Hz
+//#define RF_FREQUENCY                                915000000 // Hz
 #define RF_FREQUENCY                                907000000 // Hz
 
 #else
@@ -29,7 +29,7 @@
 
 #if defined( USE_MODEM_LORA )
 
-#define LORA_BANDWIDTH                              0         // [0: 125 kHz,
+#define LORA_BANDWIDTH                              1         // [0: 125 kHz,
                                                               //  1: 250 kHz,
                                                               //  2: 500 kHz,
                                                               //  3: Reserved]
@@ -38,7 +38,7 @@
                                                               //  2: 4/6,
                                                               //  3: 4/7,
                                                               //  4: 4/8]
-#define LORA_PREAMBLE_LENGTH                        16         // Same for Tx and Rx
+#define LORA_PREAMBLE_LENGTH                        8         // Same for Tx and Rx
 #define LORA_SYMBOL_TIMEOUT                         5         // Symbols
 #define LORA_FIX_LENGTH_PAYLOAD_ON                  false
 #define LORA_IQ_INVERSION_ON                        false
