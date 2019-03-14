@@ -13,6 +13,10 @@
 
 #define SX1276M1BxASWrapper_debug_PIN (GPIO_PIN)120
 
+#define AMPED_RADIO 0
+#define DEBUG_LORA_PRINT 1
+
+
 #define READ_OPMODE() (Read( REG_OPMODE ) & ~RFLR_OPMODE_MASK)
 
 SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
@@ -821,6 +825,7 @@ uint32_t SX1276M1BxASWrapper::Random(  )
     return rnd;
 }
 
+
 /*!
  * Performs the Rx chain calibration for LF and HF bands
  * \remark Must be called just after the reset so all registers are at their
@@ -834,9 +839,13 @@ void SX1276M1BxASWrapper::RxChainCalibration( )
 	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , FALSE);
 	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , TRUE);
 
-
+#if AMPED_RADIO
+	regPaConfigInitVal=0x44;
+	hal_printf("\n\r============RxChainCalibration: This is amped version of radio========\n\r");
+#else
     // Save context
-    regPaConfigInitVal = this->Read( REG_PACONFIG );
+	regPaConfigInitVal = this->Read( REG_PACONFIG );
+#endif
 
 	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , FALSE);
 	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , TRUE);
@@ -1363,6 +1372,10 @@ bool SX1276M1BxASWrapper::SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventT
 {
     uint32_t txTimeout = 0;
 
+#if DEBUG_LORA_PRINT
+    hal_printf("SX1276M1BxASWrapper::SendTS: Sending a pkt of length: %u\n", size);
+#endif
+
     switch( this->settings.Modem )
     {
     case MODEM_FSK:
@@ -1456,10 +1469,14 @@ bool SX1276M1BxASWrapper::SendTS( uint8_t *buffer, uint8_t size ,  UINT32 eventT
 					break;
 				case RFLR_OPMODE_SYNTHESIZER_TX:
 				case RFLR_OPMODE_TRANSMITTER:
+#if DEBUG_LORA_PRINT
 					hal_printf("SX1276: SendTS: Error: Already transmitting something , cant send now \n \r ");
+#endif
 					return false;
 				default:
+#if DEBUG_LORA_PRINT
 					hal_printf("SX1276: SendTS: Not sure what mode radio in: %d \n \r ", mode);
+#endif
             }
 
             //Do timestamping if a eventime is given
@@ -2161,6 +2178,12 @@ void SX1276M1BxASWrapper::OnDio0Irq(  )
             case MODEM_LORA:
                 // Clear Irq
                 Write( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_TXDONE );
+
+                //MS added this
+                if(this->settings.LoRa.RxContinuous){
+                	hal_printf("Going back to Receiving\n");
+                	SetOpMode( RFLR_OPMODE_RECEIVER );
+                }
                 // Intentional fall through
             case MODEM_FSK:
             default:
@@ -2180,8 +2203,9 @@ void SX1276M1BxASWrapper::OnDio0Irq(  )
 bool SX1276M1BxASWrapper::LoraRcvPkt(){
     this->settings.LoRaPacketHandler.Size = Read( REG_LR_RXNBBYTES );
     if(this->settings.LoRaPacketHandler.Size > 0){
+#if DEBUG_LORA_PRINT
     	hal_printf("LoraRcvPkt: Got a pkt readig  %d bytes\n\r", this->settings.LoRaPacketHandler.Size);
-    	hal_printf("\r");
+#endif
     	ReadFifo( rxtxBuffer, this->settings.LoRaPacketHandler.Size );
 
 		if( this->settings.LoRa.RxContinuous == false )

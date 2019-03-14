@@ -5,6 +5,13 @@
  
 csmaMAC g_csmaMacObject;
 
+void PrintHex(UINT8* x, UINT16 size){
+	for(int i=0; i< size;i++){
+		hal_printf("%02X ",x[i]);
+	}
+	hal_printf("\n");
+}
+
 volatile UINT32 csmaSendToRadioFailCount = 0;  //!< count DS_Fail from radio during sendToRadio.
 
 UINT8 RadioLockUp;
@@ -450,7 +457,13 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 	if(Size == sizeof(softwareACKHeader)){
 		//hal_printf("software ACK\r\n");
 		return msg;
-	} else if(Size- sizeof(IEEE802_15_4_Header_t) >  csmaMAC::GetMaxPayload()){
+	}
+	else if(Size < sizeof(IEEE802_15_4_Header_t)){
+		hal_printf("CSMA Receive Error: Packet is too small. Size: %d, Expected atleast HeaderSize: %d \n Printing raw bytes: ", Size, sizeof(IEEE802_15_4_Header_t));
+		PrintHex((UINT8*)msg, Size);
+		return msg;
+	}
+	else if(Size > ( csmaMAC::GetMaxPayload() + sizeof(IEEE802_15_4_Header_t))){
 		hal_printf("CSMA Receive Error: Packet is too big. Size: %d, MaxPayload: %d, ExpectedHeaderSize: %d \r\n", Size, csmaMAC::GetMaxPayload(), sizeof(IEEE802_15_4_Header_t));
 		return msg;
 	}
@@ -495,7 +508,8 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 					// Check if  a neighbor change has been registered
 					if(appHandler != NULL)
 					{
-						GLOBAL_LOCK(irq);  // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue calls ASSERT_IRQ_MUST_BE_OFF()
+						//GLOBAL_LOCK(irq);//MS: why?
+						// CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue calls ASSERT_IRQ_MUST_BE_OFF()
 						// Insert neighbor always inserts one neighbor so the call back argument will alsways be 1
 						(*appHandler)(1);
 					}
