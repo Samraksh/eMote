@@ -44,11 +44,11 @@
 #ifndef __SPP_SERVER_H
 #define __SPP_SERVER_H
 
+#include <stdint.h>
+ 
 #if defined __cplusplus
 extern "C" {
 #endif
-
-#include <stdint.h>	
 
 /* API_START */
 
