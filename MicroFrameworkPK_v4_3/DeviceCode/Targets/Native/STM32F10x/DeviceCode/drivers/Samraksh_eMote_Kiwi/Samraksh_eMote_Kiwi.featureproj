@@ -2,7 +2,7 @@
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_eMote_Kiwi</FeatureName>
-    <Guid>{9801c51d-dccb-4e2e-a377-f3c8d3e7bac9}</Guid>
+    <Guid>{aff736c5-a63a-4b17-b41f-2f26530e4eb6}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_EMOTE_KIWI_FEATUREPROJ>True</SAMRAKSH_EMOTE_KIWI_FEATUREPROJ>
@@ -10,7 +10,7 @@
   <ItemGroup>
     <DriverLibs Include="Samraksh_eMote_Kiwi.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_eMote_Kiwi" />
-    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_eMote_Kiwi.pe" />
-    <RequiredProjects Include="NativeStubs\NativeStubs\dotnetmf.proj" />
+    <!-- <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_eMote_Kiwi.pe" /> -->
+	<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Kiwi\dotnetmf.proj" />
   </ItemGroup>
 </Project>
