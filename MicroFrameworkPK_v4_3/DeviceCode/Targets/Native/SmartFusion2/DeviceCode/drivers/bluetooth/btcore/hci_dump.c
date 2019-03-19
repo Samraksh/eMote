@@ -243,7 +243,9 @@ void hci_dump_log_va_arg(int log_level, const char * format, va_list argptr){
 }
 
 void hci_dump_char(char c){
+#if defined(ENABLE_LOG_INFO) || defined(ENABLE_LOG_DEBUG)	
 	dubgBT_printchar(c);
+#endif
 }
 
 void hci_dump_log(int log_level, const char * format, ...){

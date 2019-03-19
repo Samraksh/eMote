@@ -190,6 +190,7 @@ int nibble_for_char(char c){
 }
 
 void printf_hexdump(const void *data, int size){
+#if defined(ENABLE_LOG_INFO) || defined(ENABLE_LOG_DEBUG)
     char buffer[4];
     buffer[2] = ' ';
     buffer[3] =  0;
@@ -205,10 +206,10 @@ void printf_hexdump(const void *data, int size){
         size--;
     }
     log_info("\n");
+#endif
 }
 
-#if defined(ENABLE_LOG_INFO) || defined(ENABLE_LOG_DEBUG)
-static void log_hexdump(int level, const void * data, int size){
+void log_hexdump(int level, const void * data, int size){
 #define ITEMS_PER_LINE 16
 // template '0x12, '
 #define BYTES_PER_BYTE  6
@@ -232,16 +233,22 @@ static void log_hexdump(int level, const void * data, int size){
 
         if (j >= BYTES_PER_BYTE * ITEMS_PER_LINE ){
             buffer[j] = 0;
-            log_info("%s", buffer);
+			if (level == HCI_DUMP_LOG_LEVEL_INFO)
+	            log_info("%s", buffer);
+			else
+	            log_always("%s", buffer);
             j = 0;
         }
     }
     if (j != 0){
         buffer[j] = 0;
-        log_info("%s", buffer);
+		if (level == HCI_DUMP_LOG_LEVEL_INFO)
+        	log_info("%s", buffer);
+		else
+        	log_always("%s", buffer);
+
     }
 }
-#endif
 
 void log_debug_hexdump(const void *data, int size){
 #ifdef ENABLE_LOG_DEBUG

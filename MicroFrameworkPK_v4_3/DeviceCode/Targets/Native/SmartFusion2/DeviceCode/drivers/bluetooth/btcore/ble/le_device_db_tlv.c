@@ -37,6 +37,7 @@
 
 #define __BTSTACK_FILE__ "le_device_db_tlv.c"
  
+#include <string.h>
 #include "le_device_db.h"
 #include "le_device_db_tlv.h"
 

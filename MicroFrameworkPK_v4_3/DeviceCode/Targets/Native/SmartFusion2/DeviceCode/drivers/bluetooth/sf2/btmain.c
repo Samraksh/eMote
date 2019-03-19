@@ -80,6 +80,7 @@ static btstack_timer_source_t heartbeat;
 static int  counter = 0;
 static char counter_string[30];
 static int  counter_string_len;
+//static hci_con_handle_t connection_handle;
 
 static btstack_packet_callback_registration_t hci_event_callback_registration;
 
@@ -119,29 +120,37 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
     uint16_t  mtu;
     int i;
 
-	log_info("btmain packet handler");
-
 	switch (packet_type) {
 		case HCI_EVENT_PACKET:
 			switch (hci_event_packet_get_type(packet)) {
                 case HCI_EVENT_PIN_CODE_REQUEST:
                     // inform about pin code request
-                    log_info("Pin code request - using '0000'\n");
+                    log_always("Pin code request - using '0000'\n");
                     hci_event_pin_code_request_get_bd_addr(packet, event_addr);
                     gap_pin_code_response(event_addr, "0000");
                     break;
 
                 case HCI_EVENT_USER_CONFIRMATION_REQUEST:
                     // inform about user confirmation request
-                    log_info("SSP User Confirmation Request with numeric value %d\n", little_endian_read_32(packet, 8));
-                    log_info("SSP User Confirmation Auto accept\n");
+                    log_always("SSP User Confirmation Request with numeric value %d\n", little_endian_read_32(packet, 8));
+                    log_always("SSP User Confirmation Auto accept\n");
                     break;
 
+				case HCI_EVENT_LE_META:
+            		// wait for connection complete
+            		if (hci_event_le_meta_get_subevent_code(packet) !=  HCI_SUBEVENT_LE_CONNECTION_COMPLETE) break;
+					log_always("------------------------ Connected ------------------------------");
+            		//connection_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
+            		
+           	 		break;
+
                 case HCI_EVENT_DISCONNECTION_COMPLETE:
+					log_always("------------------------ Disconnected ------------------------");
                     le_notification_enabled = 0;
                     break;
 
                 case ATT_EVENT_CAN_SEND_NOW:
+					log_always("------------------------ Connected ------------------------");
                     att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);
                     break;
 
@@ -150,18 +159,18 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                     rfcomm_event_incoming_connection_get_bd_addr(packet, event_addr); 
                     rfcomm_channel_nr = rfcomm_event_incoming_connection_get_server_channel(packet);
                     rfcomm_channel_id = rfcomm_event_incoming_connection_get_rfcomm_cid(packet);
-                    log_info("RFCOMM channel %u requested for %s\n", rfcomm_channel_nr, bd_addr_to_str(event_addr));
+                    log_always("RFCOMM channel %u requested for %s\n", rfcomm_channel_nr, bd_addr_to_str(event_addr));
                     rfcomm_accept_connection(rfcomm_channel_id);
 					break;
 					
 				case RFCOMM_EVENT_CHANNEL_OPENED:
 					// data: event(8), len(8), status (8), address (48), server channel(8), rfcomm_cid(16), max frame size(16)
 					if (rfcomm_event_channel_opened_get_status(packet)) {
-                        log_info("RFCOMM channel open failed, status %u\n", rfcomm_event_channel_opened_get_status(packet));
+                        log_always("RFCOMM channel open failed, status %u\n", rfcomm_event_channel_opened_get_status(packet));
                     } else {
                         rfcomm_channel_id = rfcomm_event_channel_opened_get_rfcomm_cid(packet);
                         mtu = rfcomm_event_channel_opened_get_max_frame_size(packet);
-                        log_info("RFCOMM channel open succeeded. New RFCOMM Channel ID %u, max frame size %u\n", rfcomm_channel_id, mtu);
+                        log_always("RFCOMM channel open succeeded. New RFCOMM Channel ID %u, max frame size %u\n", rfcomm_channel_id, mtu);
                     }
 					break;
 
@@ -170,7 +179,7 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                     break;
 
                 case RFCOMM_EVENT_CHANNEL_CLOSED:
-                    log_info("RFCOMM channel closed\n");
+                    log_always("RFCOMM channel closed\n");
                     rfcomm_channel_id = 0;
                     break;
                 
@@ -197,7 +206,7 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
 // - if buffer != NULL, copy data and return number bytes copied
 // @param offset defines start of attribute value
 static uint16_t att_read_callback(hci_con_handle_t con_handle, uint16_t att_handle, uint16_t offset, uint8_t * buffer, uint16_t buffer_size){
-	log_info("btmain: att read cb");
+	log_always("btmain: att read cb");
     UNUSED(con_handle);
 
     if (att_handle == ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE){
@@ -217,12 +226,12 @@ static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, 
             att_con_handle = con_handle;
             return 0;
         case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE:
-            log_info("Write on test characteristic: ");
-            log_info_hexdump(buffer, buffer_size);
+            log_always("Write on test characteristic: ");
+            log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
             return 0;
         default:
-            log_info("WRITE Callback, handle %04x, mode %u, offset %u, data: ", con_handle, transaction_mode, offset);
-            log_info_hexdump(buffer, buffer_size);
+            log_always("WRITE Callback, handle %04x, mode %u, offset %u, data: ", con_handle, transaction_mode, offset);
+            log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
             return 0;
     }
 }
@@ -323,6 +332,8 @@ int btstack_main(void)
 
     // turn on!
 	hci_power_control(HCI_POWER_ON);
+
+	log_always("Initialized.");
 	    
     return 0;
 }

@@ -77,6 +77,8 @@ static inline void __log_unused(const char *format, ...) {
 #define log_error(...) __log_unused(__VA_ARGS__)
 #endif
 
+#define log_always(format, ...)  hci_dump_log(HCI_DUMP_LOG_LEVEL_ALWAYS, format,  ## __VA_ARGS__)
+
 /** 
  * @brief Log Security Manager key via log_info
  * @param key to log
@@ -95,5 +97,7 @@ void log_info_hexdump(const void *data, int size);
  * @param size
  */
 void log_debug_hexdump(const void *data, int size);
+
+void log_hexdump(int level, const void * data, int size);
 
 #endif // __DEBUG_H
