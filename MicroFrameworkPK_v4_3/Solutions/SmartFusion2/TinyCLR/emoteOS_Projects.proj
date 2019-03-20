@@ -134,11 +134,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotnetmf_full.proj" />
   </ItemGroup>
 
-  <!--<ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="clr_tinycrt.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF.proj" />
   </ItemGroup>
-  -->
   
   
   <!--  Kernel modules        -->
