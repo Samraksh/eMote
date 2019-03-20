@@ -46,8 +46,6 @@
     <Compile Include="Profile.cpp" />
     <Compile Include="Profiler.cpp" />
     
-    <Compile Include="tinycrt.cpp" />
-    
     <ExtraProjects Include="dotNetMF_stub.proj" />
     <IncludePaths Include="CLR\core" />
     <IncludePaths Include="CLR\libraries\corlib" />
