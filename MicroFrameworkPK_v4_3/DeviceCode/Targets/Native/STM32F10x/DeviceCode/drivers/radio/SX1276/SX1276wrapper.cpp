@@ -10,10 +10,11 @@
 #include <Samraksh/VirtualTimer.h>
 
 #include "SX1276wrapper.h"
+#include "sx1276wrapper_definitions.h"
 
 #define SX1276M1BxASWrapper_debug_PIN (GPIO_PIN)120
 
-#define AMPED_RADIO 1
+#define AMPED_RADIO 0
 #define DEBUG_LORA_PRINT 0
 
 
@@ -26,7 +27,7 @@ SX1276M1BxASWrapper g_SX1276M1BxASWrapper;
 //namespace SX1276_Semtech {
 
 
-//const RadioRegisters_t SX1276MB1xAS::RadioRegsInit[] = RADIO_INIT_REGISTERS_VALUE;
+//const RadioRegisters_t RadioRegsInit[] = RADIO_INIT_REGISTERS_VALUE;
 
 
 
@@ -234,8 +235,8 @@ void SX1276M1BxASWrapper::LoraHardwareConfigInitialize(){
 	SX1276_pin_setup.nirq_pin5			= GPIO_Pin_0; //GPIO_Pin_23;
 	SX1276_pin_setup.nirq_mf_pin5		= (GPIO_PIN) 23;
 
-	SX1276_pin_setup.reset_port			= GPIOA; // ?
-	SX1276_pin_setup.reset_pin			= GPIO_Pin_0; // GPIO_Pin_24;
+	SX1276_pin_setup.reset_port			= GPIOB; // ?
+	SX1276_pin_setup.reset_pin			= GPIO_Pin_8; // GPIO_Pin_24;
 	SX1276_pin_setup.reset_mf_pin		= (GPIO_PIN) 24;
 
 	SX1276_pin_setup.spi_base 			= SPI2;
@@ -291,7 +292,7 @@ void SX1276M1BxASWrapper::initSPI2() {
 	SPI_InitStruct.SPI_CPOL = SPI_CPOL_Low;
 	SPI_InitStruct.SPI_CPHA = SPI_CPHA_1Edge;
 	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft;
-	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
+	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;
 	SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB;
 	SPI_InitStruct.SPI_CRCPolynomial = 7;
 
@@ -306,6 +307,8 @@ void SX1276M1BxASWrapper::initSPI2() {
 		case SPI_BaudRatePrescaler_4:  baud = SpiBusClock / 4  / 1000; break;
 		case SPI_BaudRatePrescaler_8:  baud = SpiBusClock / 8  / 1000; break;
 		case SPI_BaudRatePrescaler_16: baud = SpiBusClock / 16 / 1000; break;
+		case SPI_BaudRatePrescaler_32: baud = SpiBusClock / 32 / 1000; break;
+		case SPI_BaudRatePrescaler_64: baud = SpiBusClock / 64 / 1000; break;
 		default: baud = 0;
 	}
 
@@ -444,7 +447,7 @@ SX1276M1BxASWrapper::SX1276M1BxASWrapper() {
 
 
 //	RadioRegsInit[0].Modem = RADIO_INIT_REGISTERS_VALUE0;
-	Get_SX1276_RADIO_INIT_REGISTERS_VALUE(RadioRegsInit[0],0);
+	//Get_SX1276_RADIO_INIT_REGISTERS_VALUE(RadioRegsInit[0],0);
 
 	IoIrqInit();
 
@@ -549,25 +552,10 @@ void SX1276M1BxASWrapper::ReadFifo(uint8_t* buffer,
 
 
 void SX1276M1BxASWrapper::Reset() { //TODO: B
-	reset_intiated = true;
-	//Write a zero to the reset pin
-	//and switch to reading in that pin and wait 6 ms
-
-	CPU_GPIO_EnableOutputPin(SX1276_pin_setup.reset_mf_pin, TRUE);
+	CPU_GPIO_EnableOutputPin(SX1276_pin_setup.reset_mf_pin, FALSE);
 	VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 10000 );
-	CPU_GPIO_SetPinState( SX1276_pin_setup.reset_mf_pin, FALSE );
+	CPU_GPIO_SetPinState( SX1276_pin_setup.reset_mf_pin, TRUE );
 	VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 10000 );
-	CPU_GPIO_EnableOutputPin(SX1276_pin_setup.reset_mf_pin, TRUE);
-	VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 10000 );
-	CPU_GPIO_SetPinState( SX1276_pin_setup.reset_mf_pin, FALSE );
-	VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 10000 );
-	//CPU_GPIO_EnableOutputPin(SX1276_pin_setup.reset_mf_pin, TRUE);
-	//CPU_GPIO_SetPinState( SX1276_pin_setup.reset_mf_pin, FALSE );
-	//VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 1000 );
-	//CPU_GPIO_EnableInputPin(SX1276_pin_setup.reset_mf_pin, FALSE, SX1276M1BxASWrapper::SX1276_Reset_Pin_Interrupt_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-	//VirtTimer_SleepMicroseconds(VIRT_TIMER_SX1276_txTimeout, 1000 );
-
-	//while(reset_intiated){};
 
 }
 
@@ -580,9 +568,10 @@ void SX1276M1BxASWrapper::IoInit() {
 
 void SX1276M1BxASWrapper::RadioRegistersInit() {
     uint8_t i = 0;
+	const RadioRegisters_t RadioRegsInit[] = RADIO_INIT_REGISTERS_VALUE;
     for( i = 0; i < sizeof( RadioRegsInit ) / sizeof( RadioRegisters_t ); i++ )
     {
-    	Get_SX1276_RADIO_INIT_REGISTERS_VALUE(RadioRegsInit[i],0);
+		//Get_SX1276_RADIO_INIT_REGISTERS_VALUE(RadioRegsInit[i],0);
     	SetModem( RadioRegsInit[i].Modem );
         Write( RadioRegsInit[i].Addr, RadioRegsInit[i].Value );
     }
@@ -596,14 +585,16 @@ void SX1276M1BxASWrapper::SpiInit(void) {
 
 
 void SX1276M1BxASWrapper::IoIrqInit() {
+	EXTI_ClearITPendingBit(EXTI_Line1); // fix me, hard coded, also is this actually needed?
+	EXTI_ClearITPendingBit(EXTI_Line8); // fix me, hard coded, also is this actually needed?
 	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO0, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler0, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-	EXTI_ClearITPendingBit(EXTI_Line1);
+//	EXTI_ClearITPendingBit(EXTI_Line1);
 //	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO1, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler1, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 //	EXTI_ClearITPendingBit(EXTI_Line1);
 //	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO2, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler2, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 //	EXTI_ClearITPendingBit(EXTI_Line1);
 	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO3, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler3, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-	EXTI_ClearITPendingBit(EXTI_Line3);
+//	EXTI_ClearITPendingBit(EXTI_Line8);
 //	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO4, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler4, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 //	EXTI_ClearITPendingBit(EXTI_Line1);
 //	CPU_GPIO_EnableInputPin(SX1276_interupt_pins.DIO5, FALSE, SX1276M1BxASWrapper::SX1276_Radio_Interrupt_Handler5, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
@@ -711,11 +702,11 @@ void SX1276M1BxASWrapper::Initialize(SX1276RadioEvents_t *events) {
 	InitializeTimers();
 
 	SX1276M1BxASWrapper::LoraHardwareConfigInitialize();
-	//this->SX1276M1BxASWrapper::Reset();
 	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , FALSE);
 	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , TRUE);
 
 	this->SX1276M1BxASWrapper::IoInit( );
+	SX1276M1BxASWrapper::Reset();
 
 	RxChainCalibration();
 	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , FALSE);
@@ -743,7 +734,6 @@ void SX1276M1BxASWrapper::Initialize(SX1276RadioEvents_t *events) {
     }
 
     this->settings.State = RF_IDLE ;
-
 }
 
 
@@ -844,7 +834,8 @@ void SX1276M1BxASWrapper::RxChainCalibration( )
 	hal_printf("\n\r============RxChainCalibration: This is amped version of radio========\n\r");
 #else
     // Save context
-	regPaConfigInitVal = this->Read( REG_PACONFIG );
+	//regPaConfigInitVal = this->Read( REG_PACONFIG );
+	regPaConfigInitVal = 0xF0; // HACK: Was not being set. 2 dBm on PA_BOOST pin.
 #endif
 
 	CPU_GPIO_SetPinState( SX1276M1BxASWrapper_debug_PIN , FALSE);

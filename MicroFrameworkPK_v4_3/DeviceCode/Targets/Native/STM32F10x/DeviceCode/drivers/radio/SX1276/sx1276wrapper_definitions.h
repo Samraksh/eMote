@@ -18,7 +18,7 @@
 {                                                 \
     { MODEM_FSK , REG_LNA                , 0x23 },\
     { MODEM_FSK , REG_RXCONFIG           , 0x1E },\
-    { MODEM_FSK , REG_RSSICONFIG         , 0xD2 },\
+    { MODEM_FSK , REG_RSSICONFIG         , 0xD4 },\
     { MODEM_FSK , REG_AFCFEI             , 0x01 },\
     { MODEM_FSK , REG_PREAMBLEDETECT     , 0xAA },\
     { MODEM_FSK , REG_OSC                , 0x07 },\
@@ -35,29 +35,29 @@
 }
 
 
-#define RADIO_INIT_REGISTERS_VALUE0  { MODEM_FSK , REG_LNA                , 0x23 }
-#define RADIO_INIT_REGISTERS_VALUE1  { MODEM_FSK , REG_RXCONFIG                , 0x1E }
+//#define RADIO_INIT_REGISTERS_VALUE0  { MODEM_FSK , REG_LNA                , 0x23 }
+//#define RADIO_INIT_REGISTERS_VALUE1  { MODEM_FSK , REG_RXCONFIG                , 0x1E }
 
 
-void Get_SX1276_RADIO_INIT_REGISTERS_VALUE(RadioRegisters_t& r, UINT8 i){
-	switch (i){
-	case 0:  r.Modem =MODEM_FSK ; r.Addr =  REG_LNA                ; r.Value =  0x23 ; break;
-    case 1: r.Modem =  MODEM_FSK  ; r.Addr =  REG_RXCONFIG            ; r.Value =  0x1E  ; break;
-    case 2: r.Modem =  MODEM_FSK  ; r.Addr =  REG_RSSICONFIG          ; r.Value =  0xD2  ; break;
-    case 3: r.Modem =  MODEM_FSK  ; r.Addr =  REG_AFCFEI              ; r.Value =  0x01  ; break;
-    case 4: r.Modem =  MODEM_FSK  ; r.Addr =  REG_PREAMBLEDETECT      ; r.Value =  0xAA  ; break;
-    case 5: r.Modem =  MODEM_FSK  ; r.Addr =  REG_OSC                 ; r.Value =  0x07  ; break;
-    case 6: r.Modem =  MODEM_FSK  ; r.Addr =  REG_SYNCCONFIG          ; r.Value =  0x12  ; break;
-    case 7: r.Modem =  MODEM_FSK  ; r.Addr =  REG_SYNCVALUE1          ; r.Value =  0xC1  ; break;
-    case 8: r.Modem =  MODEM_FSK  ; r.Addr =  REG_SYNCVALUE2          ; r.Value =  0x94  ; break;
-    case 9: r.Modem =  MODEM_FSK  ; r.Addr =  REG_SYNCVALUE3          ; r.Value =  0xC1  ; break;
-    case 10: r.Modem =  MODEM_FSK  ; r.Addr =  REG_PACKETCONFIG1       ; r.Value =  0xD8  ; break;
-    case 11: r.Modem =  MODEM_FSK  ; r.Addr =  REG_FIFOTHRESH          ; r.Value =  0x8F  ; break;
-    case 12: r.Modem =  MODEM_FSK  ; r.Addr =  REG_IMAGECAL            ; r.Value =  0x02  ; break;
-    case 13: r.Modem =  MODEM_FSK  ; r.Addr =  REG_DIOMAPPING1         ; r.Value =  0x00  ; break;
-    case 14: r.Modem =  MODEM_FSK  ; r.Addr =  REG_DIOMAPPING2         ; r.Value =  0x30  ; break;
-    case 15: r.Modem =  MODEM_LORA ; r.Addr =  REG_LR_PAYLOADMAXLENGTH ; r.Value =  0x40  ; break;
-	}
-}
+// void Get_SX1276_RADIO_INIT_REGISTERS_VALUE(RadioRegisters_t& r, UINT8 i){
+	// switch (i){
+	// case 0:  r.Modem =MODEM_FSK ; r.Addr =  REG_LNA                ; r.Value =  0x23 ; break;
+    // case 1: r.Modem =  MODEM_FSK  ; r.Addr =  REG_RXCONFIG            ; r.Value =  0x1E  ; break;
+    // case 2: r.Modem =  MODEM_FSK  ; r.Addr =  REG_RSSICONFIG          ; r.Value =  0xD2  ; break;
+    // case 3: r.Modem =  MODEM_FSK  ; r.Addr =  REG_AFCFEI              ; r.Value =  0x01  ; break;
+    // case 4: r.Modem =  MODEM_FSK  ; r.Addr =  REG_PREAMBLEDETECT      ; r.Value =  0xAA  ; break;
+    // case 5: r.Modem =  MODEM_FSK  ; r.Addr =  REG_OSC                 ; r.Value =  0x07  ; break;
+    // case 6: r.Modem =  MODEM_FSK  ; r.Addr =  REG_SYNCCONFIG          ; r.Value =  0x12  ; break;
+    // case 7: r.Modem =  MODEM_FSK  ; r.Addr =  REG_SYNCVALUE1          ; r.Value =  0xC1  ; break;
+    // case 8: r.Modem =  MODEM_FSK  ; r.Addr =  REG_SYNCVALUE2          ; r.Value =  0x94  ; break;
+    // case 9: r.Modem =  MODEM_FSK  ; r.Addr =  REG_SYNCVALUE3          ; r.Value =  0xC1  ; break;
+    // case 10: r.Modem =  MODEM_FSK  ; r.Addr =  REG_PACKETCONFIG1       ; r.Value =  0xD8  ; break;
+    // case 11: r.Modem =  MODEM_FSK  ; r.Addr =  REG_FIFOTHRESH          ; r.Value =  0x8F  ; break;
+    // case 12: r.Modem =  MODEM_FSK  ; r.Addr =  REG_IMAGECAL            ; r.Value =  0x02  ; break;
+    // case 13: r.Modem =  MODEM_FSK  ; r.Addr =  REG_DIOMAPPING1         ; r.Value =  0x00  ; break;
+    // case 14: r.Modem =  MODEM_FSK  ; r.Addr =  REG_DIOMAPPING2         ; r.Value =  0x30  ; break;
+    // case 15: r.Modem =  MODEM_LORA ; r.Addr =  REG_LR_PAYLOADMAXLENGTH ; r.Value =  0x40  ; break;
+	// }
+// }
 //} //namespace SX1276_Semtech
 #endif /* MICROFRAMEWORKPK_V4_3_DEVICECODE_TARGETS_NATIVE_STM32F10X_DEVICECODE_DRIVERS_RADIO_SX1276_SX1276WRAPPER_DEFINITIONS_H_ */
