@@ -38,6 +38,7 @@
 #include "btstack_config.h"
 #include "btstack_run_loop_embedded.h"
 #include "..\cc256x\btstack_chipset_cc256x.h"
+#include "btstack_tlv_key_storage.h"
 
 // BTstack HALs
 #include "hal_tick.h"
@@ -252,12 +253,14 @@ int bluetooth_main(void)
 	hci_init(transport, &config);
 	hci_set_chipset(btstack_chipset_cc256x_instance());
 
+	const btstack_tlv_t * btstack_tlv_impl = btstack_tlv_flash_bank_init_instance();
+
     // setup Link Key DB using TLV
-    //const btstack_link_key_db_t * btstack_link_key_db = btstack_link_key_db_tlv_get_instance(btstack_tlv_impl, &btstack_tlv_flash_bank_context);
-    //hci_set_link_key_db(btstack_link_key_db);
+    const btstack_link_key_db_t * btstack_link_key_db = btstack_link_key_db_tlv_get_instance( );
+    hci_set_link_key_db(btstack_link_key_db);
 
     // setup LE Device DB using TLV
-    //le_device_db_tlv_configure(btstack_tlv_impl, &btstack_tlv_flash_bank_context);
+    le_device_db_tlv_configure(btstack_tlv_impl, NULL);
     
 	btstack_main(0, (void *)NULL);
 	

@@ -50,6 +50,10 @@
 	<HFiles Include="btstack_run_loop_embedded.h" />
 	<HFiles Include="hal_tick.h" />
 	<HFiles Include="btmain.h" />
+	<Compile Include="link_key_db.c" />
+	<HFiles Include="link_key_db.h" />
+	<Compile Include="btstack_tlv_key_storage.c" />
+	<HFiles Include="btstack_tlv_key_storage.h" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
