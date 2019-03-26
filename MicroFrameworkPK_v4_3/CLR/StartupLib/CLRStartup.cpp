@@ -253,6 +253,7 @@ struct Settings
             TINYCLR_CHECK_HRESULT(LoadAssembly( header, assm ));
             
             header = (const CLR_RECORD_ASSEMBLY*)ROUNDTOMULTIPLE((size_t)header + header->TotalSize(), CLR_UINT32);
+            //CLR_Debug::Printf("\nNext Assm at %x,with size %d is good ? %d\n", header, header->TotalSize(), header->GoodAssembly());
         }
         
         TINYCLR_NOCLEANUP();

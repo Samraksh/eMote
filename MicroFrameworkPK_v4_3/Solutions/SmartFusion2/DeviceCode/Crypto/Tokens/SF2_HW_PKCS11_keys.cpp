@@ -58,6 +58,19 @@ CK_RV FreeKeyData(KEY_DATA *pKey){
 	return CKR_OK;
 }
 
+sf2_ecc_key_t* ECC384_PKEY_New(){
+	sf2_ecc_key_t *key= (sf2_ecc_key_t*)SF2_HW_PKCS11_MALLOC(sizeof(sf2_ecc_key_t));
+	key->references=0;
+	return key;
+}
+
+void ECC384_PKEY_Delete(sf2_ecc_key_t* key){
+	key->references--;
+	if(key->references)
+		SF2_HW_PKCS11_FREE(key);
+}
+
+
 CK_RV SF2_HW_PKCS11_Keys::DeleteKey(Cryptoki_Session_Context* pSessionCtx, KEY_DATA* pKey)
 {
     if(pKey == NULL) return CKR_OBJECT_HANDLE_INVALID;
@@ -67,7 +80,7 @@ CK_RV SF2_HW_PKCS11_Keys::DeleteKey(Cryptoki_Session_Context* pSessionCtx, KEY_D
         case Secret:
         	break;
         default:
-        	SF2_HW_PKCS11_FREE((sf2_ec_key_t*)pKey->key);
+        	ECC384_PKEY_Delete((sf2_ecc_key_t*)pKey->key);
             break;
     }
     //FreeKeyData(pKey);
@@ -198,7 +211,7 @@ CK_RV SF2_HW_PKCS11_Keys::GenerateKeyPair(Cryptoki_Session_Context* pSessionCtx,
 
                 //if(NULL == (ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL))) SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_FAILED);
 
-                pKey->key = (sf2_ec_key_t*)SF2_HW_PKCS11_MALLOC(sizeof(sf2_ec_key_t));
+                pKey->key =  ECC384_PKEY_New();
 
                 //SF2_HW_PKCS11_CHECKRESULT(EVP_PKEY_keygen_init(ctx));
 
@@ -206,7 +219,7 @@ CK_RV SF2_HW_PKCS11_Keys::GenerateKeyPair(Cryptoki_Session_Context* pSessionCtx,
 
                 //SF2_HW_PKCS11_CHECKRESULT(EC_KEY_set_group(ctx->pkey->pkey.ec, group));
 
-                SF2_HW_PKCS11_CHECKRESULT(SF2_ECC384_PKEY((sf2_ec_key_t*)pKey->key));
+                SF2_HW_PKCS11_CHECKRESULT(SF2_ECC384_PKEY((sf2_ecc_key_t*)pKey->key,true));
 
                 pKey->type = CKK_EC;
                 pKey->size = len;
@@ -279,11 +292,11 @@ CK_RV SF2_HW_PKCS11_Keys::DeriveKey(Cryptoki_Session_Context* pSessionCtx, CK_ME
 	SF2_HW_PKCS11_HEADER();
 	//EVP_PKEY_CTX* ctx   = NULL;
 	KEY_DATA* pKey = NULL;
-	//EVP_PKEY* pPubKey;
+	sf2_ecc_key_t* pEccKey;
 	//EC_POINT* pPoint;
-
+	bool               isHMACDigest = false;
 	UINT8  resultKey[1024/8];
-	size_t keyBytes = 0;
+	uint32_t keyBytesSize = 0;
 
 	memset(resultKey, 0, sizeof(resultKey));
 
@@ -292,10 +305,10 @@ CK_RV SF2_HW_PKCS11_Keys::DeriveKey(Cryptoki_Session_Context* pSessionCtx, CK_ME
 		case CKM_ECDH1_DERIVE:
 			{
 				CK_ECDH1_DERIVE_PARAMS  params;
-				EVP_PKEY*               pBaseKey;
-				const EC_GROUP*         pGroup;
-				const EVP_MD*           pDigest = NULL;
-				UINT8 pubKey[66*2+1];
+				//EVP_PKEY*               pBaseKey;
+				//const EC_GROUP*         pGroup;
+				//const EVP_MD*           pDigest = NULL;
+				UINT8 pubKey[66*2+1]; //this is max size public key?
 
 				if(!ParseECParam(pMechanism->pParameter, pMechanism->ulParameterLen, params)) SF2_HW_PKCS11_SET_AND_LEAVE(CKR_MECHANISM_PARAM_INVALID);
 
@@ -304,71 +317,59 @@ CK_RV SF2_HW_PKCS11_Keys::DeriveKey(Cryptoki_Session_Context* pSessionCtx, CK_ME
 
 				if(pKey->type != CKK_EC) SF2_HW_PKCS11_SET_AND_LEAVE(CKR_KEY_TYPE_INCONSISTENT);
 
-				pBaseKey = (EVP_PKEY*)pKey->key;                    if(pBaseKey== NULL) SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_FAILED);
-				pGroup   = EC_KEY_get0_group(pBaseKey->pkey.ec);    if(pGroup  == NULL) SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_FAILED);
-				pPoint   = EC_POINT_new(pGroup);                    if(pPoint  == NULL) SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_FAILED);
-				pPubKey  = EVP_PKEY_new();                          if(pPubKey == NULL) SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_FAILED);
+				//pBaseKey = (EVP_PKEY*)pKey->key;                    if(pBaseKey== NULL) SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_FAILED);
+				//pGroup   = EC_KEY_get0_group(pBaseKey->pkey.ec);    if(pGroup  == NULL) SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_FAILED);
+				//pPoint   = EC_POINT_new(pGroup);                    if(pPoint  == NULL) SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_FAILED);
+				pEccKey  = ECC384_PKEY_New();                          if(pEccKey == NULL) SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_FAILED);
 
-				keyBytes = (EVP_PKEY_bits(pBaseKey) + 7) / 8;
+				//keyBytes = (EVP_PKEY_bits(pBaseKey) + 7) / 8;
 
-				ctx->pkey = pBaseKey;
-				SF2_HW_PKCS11_CHECKRESULT(EVP_PKEY_set1_EC_KEY(pPubKey, EC_KEY_new()));
+				//ctx->pkey = pBaseKey;
+				//SF2_HW_PKCS11_CHECKRESULT(EVP_PKEY_set1_EC_KEY(pEccKey, EC_KEY_new()));
 
 				pubKey[0] = POINT_CONVERSION_UNCOMPRESSED;
-				memcpy(&pubKey[1], params.pPublicData, params.ulPublicDataLen);
+				//memcpy(&pubKey[1], params.pPublicData, params.ulPublicDataLen);
+				memcpy(pEccKey->publicKey, params.pPublicData, params.ulPublicDataLen);
 
-				SF2_HW_PKCS11_CHECKRESULT(EC_POINT_oct2point(pGroup, pPoint, (UINT8*)pubKey, params.ulPublicDataLen+1, NULL));
+				//SF2_HW_PKCS11_CHECKRESULT(EC_POINT_oct2point(pGroup, pPoint, (UINT8*)pubKey, params.ulPublicDataLen+1, NULL));
 
-				SF2_HW_PKCS11_CHECKRESULT(EC_KEY_set_group(pPubKey->pkey.ec, pGroup));
-				SF2_HW_PKCS11_CHECKRESULT(EC_KEY_set_public_key(pPubKey->pkey.ec, pPoint));
+				//SF2_HW_PKCS11_CHECKRESULT(EC_KEY_set_group(pEccKey->pkey.ec, pGroup));
+				//SF2_HW_PKCS11_CHECKRESULT(EC_KEY_set_public_key(pEccKey->pkey.ec, pPoint));
 
-				SF2_HW_PKCS11_CHECKRESULT(EVP_PKEY_derive_init(ctx));
-				SF2_HW_PKCS11_CHECKRESULT(EVP_PKEY_derive_set_peer(ctx, pPubKey));
-				SF2_HW_PKCS11_CHECKRESULT(EVP_PKEY_derive(ctx, resultKey, &keyBytes));
+				//SF2_HW_PKCS11_CHECKRESULT(EVP_PKEY_derive_init(ctx));
+				//SF2_HW_PKCS11_CHECKRESULT(EVP_PKEY_derive_set_peer(ctx, pEccKey));
+				//SF2_HW_PKCS11_CHECKRESULT(EVP_PKEY_derive(ctx, resultKey, &keyBytes));
 
+				//looks like pal layer is giving us a public key
+				SF2_HW_PKCS11_CHECKRESULT(SF2_ECC384_PKEY(pEccKey,false));
 
 				switch(params.kdf)
 				{
-					case CKM_SHA1_KEY_DERIVATION:
-						pDigest = EVP_sha1();
-						break;
-
-					case CKM_SHA256_KEY_DERIVATION:
-						pDigest = EVP_sha256();
-						break;
-
-					case CKM_SHA512_KEY_DERIVATION:
-						pDigest = EVP_sha512();
-						break;
-
-					case CKM_MD5_KEY_DERIVATION:
-						pDigest = EVP_md5();
-						break;
-
-					case CKM_NULL_KEY_DERIVATION:
-						break;
-
 					case CKM_SHA256_HMAC:
-					case CKM_TLS_MASTER_KEY_DERIVE_DH:
+								//pDigest = EVP_sha256();
+						keyBytesSize=(256/8); //in bytes
+						isHMACDigest=true;
+						break;
 					default:
 						SF2_HW_PKCS11_SET_AND_LEAVE(CKR_FUNCTION_NOT_SUPPORTED);
 				}
 
-				if(pDigest != NULL)
+				if(isHMACDigest)
 				{
-					UINT8 tmp[1024/8];
-					EVP_MD_CTX pDigestCtx;
+					UINT8 tmp[256/8];
+					sf2_digest_context_t pDigestCtx;
 
-					SF2_HW_PKCS11_CHECKRESULT(EVP_DigestInit(&pDigestCtx, pDigest));
-					EVP_MD_CTX_set_flags(&pDigestCtx,EVP_MD_CTX_FLAG_ONESHOT);
-					SF2_HW_PKCS11_CHECKRESULT(EVP_DigestUpdate(&pDigestCtx, resultKey, keyBytes));
-					SF2_HW_PKCS11_CHECKRESULT(EVP_DigestFinal(&pDigestCtx, tmp, (UINT32*)&keyBytes));
-					SF2_HW_PKCS11_CHECKRESULT(EVP_MD_CTX_cleanup(&pDigestCtx));
+					//SF2_HW_PKCS11_CHECKRESULT(SF2_DigestInit(&pDigestCtx, pDigest));
+					//EVP_MD_CTX_set_flags(&pDigestCtx,EVP_MD_CTX_FLAG_ONESHOT);
+					//SF2_HW_PKCS11_CHECKRESULT(SF2_DigestUpdate(&pDigestCtx, resultKey, keyBytes));
+					//SF2_HW_PKCS11_CHECKRESULT(SF2_DigestFinal(&pDigestCtx, tmp, (UINT32*)&keyBytes));
+					//SF2_HW_PKCS11_CHECKRESULT(SF2_MD_CTX_cleanup(&pDigestCtx));
+					SF2_HW_PKCS11_CHECKRESULT(SF2_Digest(&pDigestCtx, resultKey, keyBytesSize, tmp, &keyBytesSize));
 
-					memcpy(resultKey, tmp, keyBytes);
+					memcpy(resultKey, tmp, keyBytesSize);
 				}
 
-				*phKey = LoadKey(pSessionCtx, (void*)resultKey, CKK_GENERIC_SECRET, Secret, keyBytes * 8);
+				*phKey = LoadKey(pSessionCtx, (void*)resultKey, CKK_GENERIC_SECRET, Secret, keyBytesSize * 8);
 			}
 			break;
 
@@ -377,19 +378,12 @@ CK_RV SF2_HW_PKCS11_Keys::DeriveKey(Cryptoki_Session_Context* pSessionCtx, CK_ME
 	}
 
 	SF2_HW_PKCS11_CLEANUP();
-	if(ctx != NULL)
+
+	if(pEccKey != NULL)
 	{
-		ctx->pkey = NULL;
-		EVP_PKEY_CTX_free(ctx);
+		ECC384_PKEY_Delete(pEccKey);
 	}
-	if(pPubKey != NULL)
-	{
-		EVP_PKEY_free(pPubKey);
-	}
-	if(pPoint != NULL)
-	{
-		EC_POINT_free(pPoint);
-	}
+
 	SF2_HW_PKCS11_RETURN();
 }
 

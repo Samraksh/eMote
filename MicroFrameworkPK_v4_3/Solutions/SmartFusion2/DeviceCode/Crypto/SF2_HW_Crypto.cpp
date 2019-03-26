@@ -83,16 +83,16 @@ uint8_t GetRandomBytes(uint8_t *buf, uint16_t length){
 		uint8_t *result = (uint8_t*) buf;
 
 		//first generate a new nouce,
-		uint8_t status = MSS_SYS_nrbg_instantiate(personalStr, 0 /*sizeof(personalization_str)*/, nrbg_handle);
+		uint8_t status = MSS_SYS_nrbg_instantiate(personalStr, 0 /*sizeof(personalization_str)*/, &nrbg_handle);
 		if(status != MSS_SYS_SUCCESS) return M2S_STATUS_TO_CRYPTO(status);
 
 		//now generate random bytes using nonce
 		status = MSS_SYS_nrbg_generate( result, additionalStr, dataSize, 0, 0, nrbg_handle);
 		if(status != MSS_SYS_SUCCESS) return M2S_STATUS_TO_CRYPTO(status);
 
-		result+=dataSize; ret+=dataSize;
+		result+=dataSize;
 	} while (length < 128);
-	return MSS_SYS_SuCCESS;
+	return MSS_SYS_SUCCESS;
 }
 
 
@@ -173,17 +173,19 @@ int SF2_Digest(sf2_digest_context_t* ctx, uint8_t* data, uint32_t dataSize, uint
 }
 
 //Generate ECC Public-Private Key-Pair
-CRYPTO_RESULT SF2_ECC384_PKEY(sf2_ec_key_t *key){
+int SF2_ECC384_PKEY(sf2_ecc_key_t *key, bool derive_pkey){
 
 	//SF2 uses NIST P-384 curve, which means the private key is 384 bits/48 bytes long.
 	//public key is 96 bytes long
 
 	//generate a 48 byte, random number first
-	GetRandomBytes(key->privateKey, 48);
+	if(derive_pkey){
+		GetRandomBytes(key->privateKey, 48);
+	}
 
 
 	/* ECC Key generation */
-	status = MSS_SYS_ecc_point_multiplication(key->privateKey, 0, key->publicKey);
+	uint8_t status = MSS_SYS_ecc_point_multiplication(key->privateKey, 0, key->publicKey);
 	if(MSS_SYS_SUCCESS != status)
 	{
 		return M2S_STATUS_TO_CRYPTO(status);
