@@ -137,7 +137,7 @@ void DecisionFunction::Normalize(float* featureVector, UINT32* features_normaliz
 	for (UINT8 i = 0; i < nFeature; i++)
 	{
 		//features_normalized[i] = Double_to_Fixed((featureVector[i] - feature_min[i]) * scalingFactors[i]);
-		norm_feat = (featureVector[i] - feature_min[i]) * scalingFactors[i];
+		double norm_feat = (featureVector[i] - feature_min[i]) * scalingFactors[i];
 		features_normalized[i] = Double_to_Fixed(norm_feat<0?0:(norm_feat>1?1:norm_feat));
 	}
 }
