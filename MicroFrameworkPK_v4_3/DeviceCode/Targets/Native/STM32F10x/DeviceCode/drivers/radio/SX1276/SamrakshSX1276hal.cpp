@@ -37,6 +37,7 @@ void Samraksh_SX1276_hal::TxTimeout(){
 	if(gsx1276radio.m_re.TxDone) gsx1276radio.m_re.TxDone(false);
 };
 void Samraksh_SX1276_hal::RxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr){
+	//hal_printf("size: %u rssi: %d dBm snr: %d dB\r\n", size, rssi, snr);
 	if(gsx1276radio.m_re.RxDone) gsx1276radio.m_re.RxDone(payload, size);
 }
 void Samraksh_SX1276_hal::RxTimeout(){
