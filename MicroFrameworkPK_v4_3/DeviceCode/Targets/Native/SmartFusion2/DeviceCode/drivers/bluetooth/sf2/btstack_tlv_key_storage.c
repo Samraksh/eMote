@@ -38,232 +38,12 @@
 
 #include <string.h>
 
-// Header:
-// - Magic: 'BTstack'
-// - Status:
-//   - bits 765432: reserved
-//	 - bits 10:     epoch
-
-// Entries
-// - Tag: 32 bit
-// - Len: 32 bit
-// - Value: Len in bytes
-
 #define BTSTACK_TLV_HEADER_LEN 8
 
 #ifndef BTSTACK_FLASH_ALIGNMENT_MAX
 #define BTSTACK_FLASH_ALIGNMENT_MAX 8
 #endif
 
-static const char * btstack_tlv_header_magic = "BTstack";
-
-// TLV Iterator
-typedef struct {
-	int 	 bank;
-	uint32_t offset;
-	uint32_t tag;
-	uint32_t len;
-} tlv_iterator_t;
-
-static uint32_t btstack_tlv_flash_bank_align_size(btstack_tlv_flash_bank_t * self, uint32_t size){
-	log_info("*** align size");
-	//uint32_t aligment = self->hal_flash_bank_impl->get_alignment(self->hal_flash_bank_context);
-	//return (size + aligment - 1) & ~(aligment - 1);
-	return 0;
-}
-
-// support unaligned flash read/writes
-// strategy: increase size to meet alignment, perform unaligned read/write of last chunk with helper buffer
-
-static void btstack_tlv_flash_bank_read(btstack_tlv_flash_bank_t * self, int bank, uint32_t offset, uint8_t * buffer, uint32_t size){
-	log_info("*** bank read");
-
-	// read main data
-	/*uint32_t aligment = self->hal_flash_bank_impl->get_alignment(self->hal_flash_bank_context);
-	uint32_t lower_bits = size & (aligment - 1);
-	uint32_t size_aligned = size - lower_bits;
-	if (size_aligned){
-		self->hal_flash_bank_impl->read(self->hal_flash_bank_context, bank, offset, buffer, size_aligned);
-		buffer += size_aligned;
-		offset += size_aligned;
-		size   -= size_aligned;
-	}
-
-	// read last part
-	if (size == 0) return;
-	uint8_t aligment_block[BTSTACK_FLASH_ALIGNMENT_MAX];
-	self->hal_flash_bank_impl->read(self->hal_flash_bank_context, bank, offset, aligment_block, aligment);
-	uint32_t bytes_to_copy = btstack_min(aligment - lower_bits, size);
-	memcpy(buffer, aligment_block, bytes_to_copy);*/
-}
-
-static void btstack_tlv_flash_bank_write(btstack_tlv_flash_bank_t * self, int bank, uint32_t offset, const uint8_t * buffer, uint32_t size){
-	log_info("*** bank write");
-
-	// write main data
-	/*uint32_t aligment = self->hal_flash_bank_impl->get_alignment(self->hal_flash_bank_context);
-	uint32_t lower_bits = size & (aligment - 1);
-	uint32_t size_aligned = size - lower_bits;
-	if (size_aligned){
-		self->hal_flash_bank_impl->write(self->hal_flash_bank_context, bank, offset, buffer, size_aligned);
-		buffer += size_aligned;
-		offset += size_aligned;
-		size   -= size_aligned;
-	}
-
-	// write last part
-	if (size == 0) return;
-	uint8_t aligment_block[BTSTACK_FLASH_ALIGNMENT_MAX];
-	memset(aligment_block, 0xff, aligment);
-	memcpy(aligment_block, buffer, lower_bits);
-	self->hal_flash_bank_impl->write(self->hal_flash_bank_context, bank, offset, aligment_block, aligment);*/
-}
-
-
-// iterator
-
-static void btstack_tlv_flash_bank_iterator_fetch_tag_len(btstack_tlv_flash_bank_t * self, tlv_iterator_t * it){
-	/*uint8_t entry[8];
-	btstack_tlv_flash_bank_read(self, it->bank, it->offset, entry, 8);
-	it->tag = big_endian_read_32(entry, 0);
-	it->len = big_endian_read_32(entry, 4);*/
-}
-
-static void btstack_tlv_flash_bank_iterator_init(btstack_tlv_flash_bank_t * self, tlv_iterator_t * it, int bank){
-	/*memset(it, 0, sizeof(tlv_iterator_t));
-	it->bank = bank;
-	it->offset = BTSTACK_TLV_HEADER_LEN;
-	btstack_tlv_flash_bank_iterator_fetch_tag_len(self, it);*/
-}
-
-static int btstack_tlv_flash_bank_iterator_has_next(btstack_tlv_flash_bank_t * self, tlv_iterator_t * it){
-	if (it->tag == 0xffffffff) return 0;
-	return 1;
-}
-
-static void tlv_iterator_fetch_next(btstack_tlv_flash_bank_t * self, tlv_iterator_t * it){
-	/*it->offset += 8 + btstack_tlv_flash_bank_align_size(self, it->len);
-	if (it->offset >= self->hal_flash_bank_impl->get_size(self->hal_flash_bank_context)) {
-		it->tag = 0xffffffff;
-		it->len = 0;
-		return;
-	}
-	btstack_tlv_flash_bank_iterator_fetch_tag_len(self, it);*/
-}
-
-//
-
-// check both banks for headers and pick the one with the higher epoch % 4
-// @returns bank or -1 if something is invalid
-static int btstack_tlv_flash_bank_get_latest_bank(btstack_tlv_flash_bank_t * self){
- 	/*uint8_t header0[BTSTACK_TLV_HEADER_LEN];
- 	uint8_t header1[BTSTACK_TLV_HEADER_LEN];
- 	btstack_tlv_flash_bank_read(self, 0, 0, &header0[0], BTSTACK_TLV_HEADER_LEN);
- 	btstack_tlv_flash_bank_read(self, 1, 0, &header1[0], BTSTACK_TLV_HEADER_LEN);
- 	int valid0 = memcmp(header0, btstack_tlv_header_magic, BTSTACK_TLV_HEADER_LEN-1) == 0;
- 	int valid1 = memcmp(header1, btstack_tlv_header_magic, BTSTACK_TLV_HEADER_LEN-1) == 0;
-	if (!valid0 && !valid1) return -1;
-	if ( valid0 && !valid1) return 0;
-	if (!valid0 &&  valid1) return 1;
-	int epoch0 = header0[BTSTACK_TLV_HEADER_LEN-1] & 0x03;
-	int epoch1 = header1[BTSTACK_TLV_HEADER_LEN-1] & 0x03;
-	if (epoch0 == ((epoch1 + 1) & 0x03)) return 0;
-	if (epoch1 == ((epoch0 + 1) & 0x03)) return 1;*/
-	return -1;	// invalid, must not happen
-}
-
-static void btstack_tlv_flash_bank_write_header(btstack_tlv_flash_bank_t * self, int bank, int epoch){
-	/*uint8_t header[BTSTACK_TLV_HEADER_LEN];
-	memcpy(&header[0], btstack_tlv_header_magic, BTSTACK_TLV_HEADER_LEN-1);
-	header[BTSTACK_TLV_HEADER_LEN-1] = epoch;
-	btstack_tlv_flash_bank_write(self, bank, 0, header, BTSTACK_TLV_HEADER_LEN);*/
-}
-
-/**
- * @brief Check if erased from offset
- */
-static int btstack_tlv_flash_bank_test_erased(btstack_tlv_flash_bank_t * self, int bank, uint32_t offset){
-	log_info("test erased: bank %u, offset %u", bank, offset);
-	/*uint32_t size = self->hal_flash_bank_impl->get_size(self->hal_flash_bank_context);
-	uint8_t buffer[16];
-	uint8_t empty16[16];
-	memset(empty16, 0xff, sizeof(empty16));
-	while (offset < size){
-		uint32_t copy_size = (offset + sizeof(empty16) < size) ? sizeof(empty16) : (size - offset); 
-		btstack_tlv_flash_bank_read(self, bank, offset, buffer, copy_size);
-		if (memcmp(buffer, empty16, copy_size)) {
-			log_info("not erased %x - %x", offset, offset + copy_size);
-			return 0;
-		}
-		offset += copy_size;
-	}*/
-	return 1;
-}
-
-/** 
- * @brief erase bank (only if not already erased)
- */
-static void btstack_tlv_flash_bank_erase_bank(btstack_tlv_flash_bank_t * self, int bank){
-	/*if (btstack_tlv_flash_bank_test_erased(self, bank, 0)){
-		log_info("bank %u already erased", bank);
-	} else {
-		log_info("bank %u not empty, erase bank", bank);
-		self->hal_flash_bank_impl->erase(self->hal_flash_bank_context, bank);
-	}*/
-}
-
-static void btstack_tlv_flash_bank_migrate(btstack_tlv_flash_bank_t * self){
-	/*int next_bank = 1 - self->current_bank;
-	log_info("migrate bank %u -> bank %u", self->current_bank, next_bank);
-	// erase bank (if needed)
-	btstack_tlv_flash_bank_erase_bank(self, next_bank);
-	int next_write_pos = 8;
-
-	tlv_iterator_t it;
-	btstack_tlv_flash_bank_iterator_init(self, &it, self->current_bank);
-	while (btstack_tlv_flash_bank_iterator_has_next(self, &it)){
-		// skip deleted entries
-		if (it.tag) {
-			uint32_t tag_len = it.len;
-			uint32_t tag_index = it.offset;
-
-			// copy
-			int bytes_to_copy = 8 + tag_len;
-			log_info("migrate pos %u, tag '%x' len %u -> new pos %u", tag_index, it.tag, bytes_to_copy, next_write_pos);
-			uint8_t copy_buffer[32];
-			while (bytes_to_copy){
-				int bytes_this_iteration = btstack_min(bytes_to_copy, sizeof(copy_buffer));
-				btstack_tlv_flash_bank_read(self, self->current_bank, tag_index, copy_buffer, bytes_this_iteration);
-				btstack_tlv_flash_bank_write(self, next_bank, next_write_pos, copy_buffer, bytes_this_iteration);
-				tag_index      += bytes_this_iteration;
-				next_write_pos += bytes_this_iteration;
-				bytes_to_copy  -= bytes_this_iteration;
-			}
-		}
-		tlv_iterator_fetch_next(self, &it);
-	}
-
-	// prepare new one
-	uint8_t epoch_buffer;
-	btstack_tlv_flash_bank_read(self, self->current_bank, BTSTACK_TLV_HEADER_LEN-1, &epoch_buffer, 1);
-	btstack_tlv_flash_bank_write_header(self, next_bank, (epoch_buffer + 1) & 3);
-	self->current_bank = next_bank;
-	self->write_offset = next_write_pos;*/
-}
-
-static void btstack_tlv_flash_bank_delete_tag_until_offset(btstack_tlv_flash_bank_t * self, uint32_t tag, uint32_t offset){
-	/*tlv_iterator_t it;
-	btstack_tlv_flash_bank_iterator_init(self, &it, self->current_bank);
-	while (btstack_tlv_flash_bank_iterator_has_next(self, &it) && it.offset < offset){
-		if (it.tag == tag){
-			log_info("Erase tag '%x' at position %u", tag, it.offset);
-			// overwrite tag with invalid tag
-			uint32_t zero_tag = 0;
-			btstack_tlv_flash_bank_write(self, self->current_bank, it.offset, (uint8_t*) &zero_tag, sizeof(zero_tag));
-		}
-		tlv_iterator_fetch_next(self, &it);
-	}*/
-}
 
 /**
  * Get Value for Tag
@@ -273,6 +53,7 @@ static void btstack_tlv_flash_bank_delete_tag_until_offset(btstack_tlv_flash_ban
  * @returns size of value
  */
 static int btstack_tlv_flash_bank_get_tag(void * context, uint32_t tag, uint8_t * buffer, uint32_t buffer_size){
+	log_info("^^^ get tag");
 /*
 	btstack_tlv_flash_bank_t * self = (btstack_tlv_flash_bank_t *) context;
 
@@ -304,6 +85,7 @@ static int btstack_tlv_flash_bank_get_tag(void * context, uint32_t tag, uint8_t 
  * @param data_size
  */
 static int btstack_tlv_flash_bank_store_tag(void * context, uint32_t tag, const uint8_t * data, uint32_t data_size){
+	log_info("^^^ store tag");
 /*
 	btstack_tlv_flash_bank_t * self = (btstack_tlv_flash_bank_t *) context;
 
@@ -344,6 +126,7 @@ static int btstack_tlv_flash_bank_store_tag(void * context, uint32_t tag, const 
  * @param tag
  */
 static void btstack_tlv_flash_bank_delete_tag(void * context, uint32_t tag){
+	log_info("^^^ delete tag");
 	/*btstack_tlv_flash_bank_t * self = (btstack_tlv_flash_bank_t *) context;
 	btstack_tlv_flash_bank_delete_tag_until_offset(self, tag, self->write_offset);*/
 }
@@ -359,6 +142,7 @@ static const btstack_tlv_t btstack_tlv_flash_bank = {
  */
 const btstack_tlv_t * btstack_tlv_flash_bank_init_instance(){
 
+	log_info("^^^ init bank");
 	/*self->hal_flash_bank_impl    = hal_flash_bank_impl;
 	self->hal_flash_bank_context = hal_flash_bank_context;
 

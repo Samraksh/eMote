@@ -43,16 +43,17 @@
 #include "../btcore/btstack_util.h"
 #include "../btcore/classic/core.h"
 #include "../btcore/classic/btstack_link_key_db.h"
+#include "../btcore/btstack_tlv.h"
 
 // NVM_NUM_LINK_KEYS defines number of stored link keys
 #ifndef NVM_NUM_LINK_KEYS
 #define NVM_NUM_LINK_KEYS 1
 #endif
 
-/*typedef struct {
+typedef struct {
     const btstack_tlv_t * btstack_tlv_impl;
     void * btstack_tlv_context;
-} btstack_link_key_db_tlv_h;*/
+} btstack_link_key_db_tlv_h;
 
 typedef struct link_key_nvm {
     uint32_t seq_nr;    // used for "least recently stored" eviction strategy
@@ -61,8 +62,8 @@ typedef struct link_key_nvm {
     link_key_type_t link_key_type;
 } link_key_nvm_t;   // sizeof(link_key_nvm_t) = 27 bytes
 
-//static btstack_link_key_db_tlv_h singleton;
-//static btstack_link_key_db_tlv_h * self = &singleton;
+static btstack_link_key_db_tlv_h singleton;
+static btstack_link_key_db_tlv_h * self = &singleton;
 
 static const char tag_0 = 'B';
 static const char tag_1 = 'T';
@@ -85,7 +86,7 @@ static void btstack_link_key_db_tlv_close(void){
 
 static int btstack_link_key_db_tlv_get_link_key(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t * link_key_type) {
 	log_info("get link key");
-    /*int i;
+    int i;
     for (i=0;i<NVM_NUM_LINK_KEYS;i++){
         link_key_nvm_t entry;
         uint32_t tag = btstack_link_key_db_tag_for_index(i);
@@ -97,13 +98,13 @@ static int btstack_link_key_db_tlv_get_link_key(bd_addr_t bd_addr, link_key_t li
         memcpy(link_key, entry.link_key, 16);
         *link_key_type = entry.link_key_type;
         return 1;
-    }*/
+    }
 	return 0;
 }
 
 static void btstack_link_key_db_tlv_delete_link_key(bd_addr_t bd_addr){
 	log_info("delete link key");
-    /*int i;
+    int i;
     for (i=0;i<NVM_NUM_LINK_KEYS;i++){
         link_key_nvm_t entry;
         uint32_t tag = btstack_link_key_db_tag_for_index(i);
@@ -113,12 +114,12 @@ static void btstack_link_key_db_tlv_delete_link_key(bd_addr_t bd_addr){
         // found, delete tag
         self->btstack_tlv_impl->delete_tag(self->btstack_tlv_context, tag);
         break;
-    }*/
+    }
 }
 
 static void btstack_link_key_db_tlv_put_link_key(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t link_key_type){
 	log_info("put link key");
-    /*int i;
+    int i;
     uint32_t highest_seq_nr = 0;
     uint32_t lowest_seq_nr = 0;
     uint32_t tag_for_lowest_seq_nr = 0;
@@ -172,7 +173,7 @@ static void btstack_link_key_db_tlv_put_link_key(bd_addr_t bd_addr, link_key_t l
     entry.link_key_type = link_key_type;
     entry.seq_nr = highest_seq_nr + 1;
 
-    self->btstack_tlv_impl->store_tag(self->btstack_tlv_context, tag_to_use, (uint8_t*) &entry, sizeof(entry));*/
+    self->btstack_tlv_impl->store_tag(self->btstack_tlv_context, tag_to_use, (uint8_t*) &entry, sizeof(entry));
 }
 
 static int btstack_link_key_db_tlv_iterator_init(btstack_link_key_iterator_t * it){
@@ -183,7 +184,7 @@ static int btstack_link_key_db_tlv_iterator_init(btstack_link_key_iterator_t * i
 static int  btstack_link_key_db_tlv_iterator_get_next(btstack_link_key_iterator_t * it, bd_addr_t bd_addr, link_key_t link_key, link_key_type_t * link_key_type){
 	int found = 0;
 	log_info("get next");
-    /*uintptr_t i = (uintptr_t) it->context;
+    uintptr_t i = (uintptr_t) it->context;
     
     while (i<NVM_NUM_LINK_KEYS){
         link_key_nvm_t entry;
@@ -196,7 +197,7 @@ static int  btstack_link_key_db_tlv_iterator_get_next(btstack_link_key_iterator_
         found = 1;
         break;
     }
-    it->context = (void*) i;*/
+    it->context = (void*) i;
     return found;
 }
 
