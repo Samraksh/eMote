@@ -75,6 +75,7 @@ static void handle_exti(unsigned int exti)
 		if(my_isr != NULL)
 		{
 		    my_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)), parm);
+			Events_Set(SYSTEM_EVENT_FLAG_IO);
 		}
 		// the code below was being triggered when a radio app was being deployed. During the app erase, the radio driver is uninitialized (including the GPIO interrupt line to the radio). The erase routine is
 		// global locked and at some point the radio could request an interrupt which is not able to be serviced until after the erase is over. At that point the interupt fires but the GPIO interrupt line
