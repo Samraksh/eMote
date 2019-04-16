@@ -31,7 +31,7 @@ KeyRequestAck<------------
 KeyConfirmation<----------
 */
 type EcdhProtoI interface {
-	Request(sessionNo uint16, ecc_curve uint16, publickey []byte, msg [128]byte, nonce uint64)
+	Request(ecc_curve uint16, publickey []byte, msg [128]byte, nonce uint64)
 	ReqAck(sessionNo uint16, ecc_curve uint16, publickey []byte, msg [128]byte, nonce uint64)
 	Response(sessionNo uint16, msgHMAC [32]byte, hmacSize uint16, nonce uint64)
 	Confirm(sessionNo uint16, msgHMAC [32]byte, hmacSize uint16, nonce uint64)

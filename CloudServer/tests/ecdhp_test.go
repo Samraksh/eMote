@@ -6,15 +6,20 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/aead/ecdh"
+	"main"
 	"math/big"
 	"testing"
 )
 
-func Test_ecdhProto(t *testing.T) {
+func Test_ecdhProto_Server(t *testing.T) {
+	StartServerMode("udp")
+}
 
+func Test_ecdhProto_client(t *testing.T) {
+
+	StartClientMode("udp")
 	//Initiate a ecdh shared secret session
 	var dhp *dm.EcdhProto = dm.NewEcdhProto()
-	sn := uint16(dhp.MyRand.Uint32())
 	nonce := dhp.MyRand.Uint64()
 	eccsize := uint16(384)
 	var msg [128]byte
@@ -23,7 +28,7 @@ func Test_ecdhProto(t *testing.T) {
 	if ok {
 		pubKey := elliptic.Marshal(elliptic.P384(), pkp.X, pkp.Y)
 		fmt.Printf("Alice Public Key of size %d\n %s\n", len(pubKey), hex.Dump(pubKey))
-		dhp.Request(sn, eccsize, pubKey[:], msg, nonce)
+		dhp.Request(eccsize, pubKey[:], msg, nonce)
 	} else {
 		fmt.Println("Type Assertion failed: public key is not byte array")
 	}
