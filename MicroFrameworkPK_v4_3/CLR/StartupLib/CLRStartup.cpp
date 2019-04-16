@@ -664,7 +664,7 @@ void ClrStartup( CLR_SETTINGS params )
         CLR_Debug::Printf( "Based on Micro Framework v4.3.2.0\r\n");
         CLR_Debug::Printf( "Build Date %s\r\n", __DATE__);
 #else
-        CLR_Debug::Printf( "eMote OS v%d\r\n", SAM_VERSION_REVISION );
+        CLR_Debug::Printf( "eMote OS v%d%c\r\n", SAM_VERSION_REVISION , SAM_VERSION_REVISION_APPEND );
         CLR_Debug::Printf( "Platform %s\r\n", HAL_SYSTEM_NAME );
 		CLR_Debug::Printf( "Based on Micro Framework v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION );
         CLR_Debug::Printf( "Build Date %s %s\r\n", __DATE__, __TIME__ );

@@ -471,6 +471,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 				neighborTableCommonParameters_One_t.lastHeardTime = HAL_Time_CurrentTicks();
 				neighborTableCommonParameters_One_t.linkQualityMetrics.AvgRSSI = rcv_meta->GetRssi();
 				neighborTableCommonParameters_One_t.linkQualityMetrics.LinkQuality = rcv_meta->GetLqi();
+				neighborTableCommonParameters_One_t.availableForUpperLayers=TRUE;
 				neighborTableCommonParameters_two_t.nextSeed = 0;
 				neighborTableCommonParameters_two_t.mask = 0;
 				neighborTableCommonParameters_two_t.nextwakeupSlot = 0;

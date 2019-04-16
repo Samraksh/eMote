@@ -21,7 +21,7 @@
 #define TimeSync_Send_Buffer_15_4_t_SIZE 	1
 
 extern UINT8 MacName;
-#define MAX_NEIGHBORS 12
+#define MAX_NEIGHBORS 10
 #define INVALID_NEIGHBOR_INDEX 255
 #define INVALID_MACADDRESS 0
 #define INVALID_MACADDRESS2 65535
@@ -101,19 +101,26 @@ enum NeighborStatus {
 
 typedef struct {
 	UINT16 MACAddress;
-	UINT8 NumTimeSyncMessagesSent;	//Count of timesync packets sent per neighbor
+	UINT8 NumInitializationMessagesSent;	//Count of timesync+disco packets sent per neighbor
+	bool IsMyScheduleKnown; //Boolean indicating whether the neighbor has information about the current node's schedule
 	bool IsInitializationTimeSamplesNeeded(){
-		if(NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS) return true;
+		if(IsSendingMyScheduleNeeded() || NumInitializationMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS) return true;
 		else return false;
 	}
-	void IncrementNumTimeSyncMessagesSent(){
+	void IncrementNumInitMessagesSent(){
 		if( IsInitializationTimeSamplesNeeded() ) {
-			++(NumTimeSyncMessagesSent);
-			if(NumTimeSyncMessagesSent == NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS){
-				++(NumTimeSyncMessagesSent);
+			++(NumInitializationMessagesSent);
+			if(NumInitializationMessagesSent == NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS){
+				++(NumInitializationMessagesSent);
 			}
 		}
 
+	}
+	inline bool IsSendingMyScheduleNeeded(){
+		return !IsMyScheduleKnown;
+	}
+	void RecordMyScheduleSent(){
+		IsMyScheduleKnown = true;
 	}
 	//Send (formerly forward) link details between current and neighbor node
 	Link_t SendLink;
@@ -146,6 +153,7 @@ typedef struct {
 	//TODO: BK: DELETE THESE NOT USED BUT KEPT FOR THE TIME BEIGN
 	UINT16  radioStartDelay;
 	UINT16  counterOffset;
+	UINT8 NumTimeSyncMessagesSent;
 
 	//	Buffer_15_4<Data_Send_Buffer_15_4_t_SIZE> send_buffer;
 	//	Buffer_15_4<TimeSync_Send_Buffer_15_4_t_SIZE> tsr_send_buffer;
@@ -153,12 +161,23 @@ typedef struct {
 	//	Buffer_15_4_T<Data_Send_Buffer_15_4_t_SIZE, Message_15_4_t*> send_buffer;
 	//	Buffer_15_4_T<TimeSync_Send_Buffer_15_4_t_SIZE, Message_15_4_t*> tsr_send_buffer;
 
+	void MarkAsDead(){
+		neighborStatus = Dead;
+		IsAvailableForUpperLayers = false;
+		IsMyScheduleKnown = false;
+		NumInitializationMessagesSent = 0;
+
+	}
+	void IncrementNumTimeSyncMessagesSent() { }
 	void Clear(){
 		//		send_buffer.Initialize();
 		//		tsr_send_buffer.Initialize();
 
+		MarkAsDead();
+
 		MACAddress = INVALID_MACADDRESS;
-		NumTimeSyncMessagesSent = 0;
+		NumInitializationMessagesSent = 0;
+		IsMyScheduleKnown = false;
 		//		SendLink.AvgRSSI = 0;
 		//		SendLink.LinkQuality = 0;
 		//		SendLink.AveDelay = 0;
@@ -207,6 +226,7 @@ public:
 	NeighborStatus status;
 	UINT64 lastHeardTime;
 	Link_t linkQualityMetrics;
+	bool availableForUpperLayers;
 	NeighborTableCommonParameters_One_t(){
 		MACAddress = 0;
 		status = NbrStatusError;
@@ -214,6 +234,7 @@ public:
 		linkQualityMetrics.LinkQuality = 0;
 		linkQualityMetrics.AvgRSSI = 0;
 		linkQualityMetrics.AveDelay = 0;
+		availableForUpperLayers=0;
 	}
 };
 
@@ -735,13 +756,15 @@ DeviceStatus NeighborTable::FindOrInsertNeighbor(const UINT16 address, UINT8* in
 			retValue = GetFreeIdx(index);
 			if(retValue == DS_Success) {
 				Neighbor[*index].MACAddress = address;
-				Neighbor[*index].NumTimeSyncMessagesSent = 0;
+				Neighbor[*index].NumInitializationMessagesSent = 0;
+				Neighbor[*index].IsMyScheduleKnown = false;
 				DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Inserting Neighbor %hu.\n", address);
 			}
 		}
 		else{
 			if(Neighbor[*index].neighborStatus != Alive){
-				Neighbor[*index].NumTimeSyncMessagesSent = 0;
+				Neighbor[*index].NumInitializationMessagesSent = 0;
+				Neighbor[*index].IsMyScheduleKnown = false;
 			}
 		}
 	}
@@ -828,6 +851,7 @@ DeviceStatus NeighborTable::UpdateNeighbor(const NeighborTableCommonParameters_O
 		Neighbor[index].MACAddress = address;
 		Neighbor[index].neighborStatus = status;
 		Neighbor[index].LastHeardTime = LastHeardTime;
+		Neighbor[index].IsAvailableForUpperLayers= neighborTableCommonParameters_One_t->availableForUpperLayers;
 		if (Neighbor[index].ReceiveLink.AvgRSSI == 0) {
 			Neighbor[index].ReceiveLink.AvgRSSI = (UINT8)(rssi);
 			Neighbor[index].ReceiveLink.LinkQuality = (UINT8)lqi;
@@ -960,9 +984,11 @@ Neighbor_t* NeighborTable::GetCritalSyncNeighborWOldestSyncPtr(const UINT64& cur
 
 					if(Neighbor[tableIndex].LastTimeSyncRequestTime == 0  || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > forcererequest_limit ){
 						rn = &Neighbor[tableIndex];
+						return rn;
 					}
-					else if(Neighbor[tableIndex].IsInitializationTimeSamplesNeeded() && curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > fast_disco_request_interval){
+					else if(Neighbor[tableIndex].IsInitializationTimeSamplesNeeded() && (Neighbor[tableIndex].LastTimeSyncRequestTime == 0  || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > fast_disco_request_interval)  ){
 						rn = &Neighbor[tableIndex];
+						return rn;
 					}
 				}
 			}
@@ -988,8 +1014,10 @@ struct PACK MACNeighborInfo	//6bytes
 	UINT16 MACAddress;
 	NeighborStatus neighborStatus;
 	bool IsAvailableForUpperLayers;
-	UINT8 NumTimeSyncMessagesSent;
+	bool IsMyScheduleKnown;
+	UINT8 NumInitializationMessagesSent;
 	UINT8 NumTimeSyncMessagesRecv;
+	UINT8 NumTimeSyncMessagesSent;
 };
 
 struct PACK MACNeighborLinkInfo	//8bytes
