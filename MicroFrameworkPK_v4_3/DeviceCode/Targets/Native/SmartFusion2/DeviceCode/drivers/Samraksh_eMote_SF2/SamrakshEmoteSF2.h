@@ -15,6 +15,7 @@ struct Library_SamrakshEmoteSF2_Samraksh_eMote_SF2_SPI
 {
     TINYCLR_NATIVE_DECLARE(SendData___BOOLEAN__I4__SZARRAY_U1__I4);
     TINYCLR_NATIVE_DECLARE(ReceiveData___BOOLEAN__I4__SZARRAY_U1__I4);
+    TINYCLR_NATIVE_DECLARE(SendReceiveData___BOOLEAN__I4__SZARRAY_U1__SZARRAY_U1__I4);
 
     //--//
 

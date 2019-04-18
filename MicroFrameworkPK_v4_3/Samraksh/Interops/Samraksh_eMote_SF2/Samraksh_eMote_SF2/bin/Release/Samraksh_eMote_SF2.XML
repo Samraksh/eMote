@@ -31,5 +31,11 @@
             </summary>
             <returns>Returns true if a detection was found, false if no detection was found.</returns>
         </member>
+        <member name="M:Samraksh.eMote.SF2.SPI.SendReceiveData(System.Int32,System.Byte[],System.Byte[],System.Int32)">
+            <summary>
+            Data is sent and received across the SPI.
+            </summary>
+            <returns>Returns true if a detection was found, false if no detection was found.</returns>
+        </member>
     </members>
 </doc>

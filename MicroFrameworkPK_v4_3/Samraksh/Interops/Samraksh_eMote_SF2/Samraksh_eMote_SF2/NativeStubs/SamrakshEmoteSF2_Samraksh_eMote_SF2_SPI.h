@@ -26,6 +26,7 @@ namespace Samraksh
                 // Declaration of stubs. These functions are implemented by Interop code developers
                 static INT8 SendData( CLR_RT_HeapBlock* pMngObj, INT32 param0, CLR_RT_TypedArray_UINT8 param1, INT32 param2, HRESULT &hr );
                 static INT8 ReceiveData( CLR_RT_HeapBlock* pMngObj, INT32 param0, CLR_RT_TypedArray_UINT8 param1, INT32 param2, HRESULT &hr );
+                static INT8 SendReceiveData( CLR_RT_HeapBlock* pMngObj, INT32 param0, CLR_RT_TypedArray_UINT8 param1, CLR_RT_TypedArray_UINT8 param2, INT32 param3, HRESULT &hr );
             };
         }
     }

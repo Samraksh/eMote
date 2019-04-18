@@ -28,91 +28,55 @@ INT8 SPI::SendData( CLR_RT_HeapBlock* pMngObj, INT32 param0, CLR_RT_TypedArray_U
 	int retVerify = 0;
 	UINT8* payload = param1.GetBuffer();
 
-	if (payload[2] == (UINT8)'n'){
-		hal_printf("on\r\n");
-		// L ON
-		spi_tx_buff[0] = 0x4E;
-		size = 1;
-		MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
-		MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, 0, 0 );
-		HAL_Time_Sleep_MicroSeconds(100000);
-		MSS_SPI_transfer_block(&g_mss_spi1, 0, 0, spi_rx_buff, 1 );
-		MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
-		//hal_printf("ard ret: %d\r\n",spi_rx_buff[0]);
-		if (spi_rx_buff[0] != 0x41){
-			hal_printf("Arduino failed to respond appropriately...verifying programming.\r\n");
-			retVerify = verifyArduinoSPI((uint8_t*)0xE000,2800);
-			if (retVerify == 1) {
-				hal_printf("Arduino verify failed. Reprogramming.\r\n");
-				HAL_Time_Sleep_MicroSeconds(50000);
-				loadArduinoSPI((uint8_t*)0xE000,2800);
-				HAL_Time_Sleep_MicroSeconds(50000);
-				hal_printf("Verifying again.\r\n");
-				retVerify = verifyArduinoSPI((uint8_t*)0xE000,2800);
-				if (retVerify == 1){
-					hal_printf("Arduino *failed* to prgram again.\r\n");
-				}
-			}
-		}
-	} else if (payload[2] == (UINT8)'f'){
-		hal_printf("off\r\n");
-		// L OFF
-		spi_tx_buff[0] = 0x46;
-		size = 1;
-		MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
-		MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, 0, 0 );
-		HAL_Time_Sleep_MicroSeconds(100000);
-		MSS_SPI_transfer_block(&g_mss_spi1, 0, 0, spi_rx_buff, 1 );
-		MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
-		if (spi_rx_buff[0] != 0x47){
-			hal_printf("Arduino failed to respond appropriately...verifying programming.\r\n");
-			retVerify = verifyArduinoSPI((uint8_t*)0xE000,2800);
-			if (retVerify == 1) {
-				hal_printf("Arduino verify failed. Reprogramming.\r\n");
-				HAL_Time_Sleep_MicroSeconds(50000);
-				loadArduinoSPI((uint8_t*)0xE000,2800);
-				HAL_Time_Sleep_MicroSeconds(50000);
-				hal_printf("Verifying again.\r\n");
-				retVerify = verifyArduinoSPI((uint8_t*)0xE000,2800);
-				if (retVerify == 1){
-					hal_printf("Arduino *failed* to prgram again.\r\n");
-				}
-			}
-		}
-	} else if (payload[2] == (UINT8)'k'){
-		hal_printf("hack\r\n");
-		// L ON
-		spi_tx_buff[0] = 0x49;
-		size = 1;
-		MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
-		MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, 0, 0 );
-		HAL_Time_Sleep_MicroSeconds(100000);
-		MSS_SPI_transfer_block(&g_mss_spi1, 0, 0, spi_rx_buff, 1 );
-		MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
-		if (spi_rx_buff[0] != 0x50){
-			hal_printf("Arduino failed to respond appropriately...verifying programming.\r\n");
-			retVerify = verifyArduinoSPI((uint8_t*)0xE000,2800);
-			if (retVerify == 1) {
-				hal_printf("Arduino verify failed. Reprogramming.\r\n");
-				HAL_Time_Sleep_MicroSeconds(50000);
-				loadArduinoSPI((uint8_t*)0xE000,2800);
-				HAL_Time_Sleep_MicroSeconds(50000);
-				hal_printf("Verifying again.\r\n");
-				retVerify = verifyArduinoSPI((uint8_t*)0xE000,2800);
-				if (retVerify == 1){
-					hal_printf("Arduino *failed* to prgram again.\r\n");
-				}
-			}
-		}
-	} else {
-		hal_printf("unknown\r\n");
-	}
+	mss_spi_slave_t slaveNum;
+
+	if ((param0 < (int)MSS_SPI_MAX_NB_OF_SLAVES) && (param0 >= 0))
+		slaveNum = (mss_spi_slave_t) param0;
+	else
+		slaveNum = 	MSS_SPI_SLAVE_0;
+	
+	MSS_SPI_set_slave_select( &g_mss_spi1, slaveNum );
+	MSS_SPI_transfer_block(&g_mss_spi1, payload, param2, 0, 0 );
+	MSS_SPI_clear_slave_select( &g_mss_spi1, slaveNum );
+
     return retVal;
 }
 
 INT8 SPI::ReceiveData( CLR_RT_HeapBlock* pMngObj, INT32 param0, CLR_RT_TypedArray_UINT8 param1, INT32 param2, HRESULT &hr )
 {
     INT8 retVal = 0; 
+	UINT8* payload = param1.GetBuffer();
+
+	mss_spi_slave_t slaveNum;
+
+	if ((param0 < (int)MSS_SPI_MAX_NB_OF_SLAVES) && (param0 >= 0))
+		slaveNum = (mss_spi_slave_t) param0;
+	else
+		slaveNum = 	MSS_SPI_SLAVE_0;
+
+	MSS_SPI_set_slave_select( &g_mss_spi1, slaveNum );
+	MSS_SPI_transfer_block(&g_mss_spi1, 0, 0, payload, param2 );
+	MSS_SPI_clear_slave_select( &g_mss_spi1, slaveNum );
+
     return retVal;
 }
 
+INT8 SPI::SendReceiveData( CLR_RT_HeapBlock* pMngObj, INT32 param0, CLR_RT_TypedArray_UINT8 param1, CLR_RT_TypedArray_UINT8 param2, INT32 param3, HRESULT &hr )
+{
+    INT8 retVal = 0; 
+	UINT8* sendPayload = param1.GetBuffer();
+	UINT8* receivePayload = param2.GetBuffer();
+
+	mss_spi_slave_t slaveNum;
+
+	if ((param0 < (int)MSS_SPI_MAX_NB_OF_SLAVES) && (param0 >= 0))
+		slaveNum = (mss_spi_slave_t) param0;
+	else
+		slaveNum = 	MSS_SPI_SLAVE_0;
+	
+	MSS_SPI_set_slave_select( &g_mss_spi1, slaveNum );
+	MSS_SPI_transfer_block(&g_mss_spi1, sendPayload, param3, receivePayload, param3 );
+	MSS_SPI_clear_slave_select( &g_mss_spi1, slaveNum );
+
+    return retVal;
+}

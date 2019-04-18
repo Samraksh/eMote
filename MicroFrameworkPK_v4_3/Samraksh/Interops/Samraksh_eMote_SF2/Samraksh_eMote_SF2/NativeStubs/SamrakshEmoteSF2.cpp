@@ -16,12 +16,13 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     Library_SamrakshEmoteSF2_Samraksh_eMote_SF2_SPI::SendData___BOOLEAN__I4__SZARRAY_U1__I4,
     Library_SamrakshEmoteSF2_Samraksh_eMote_SF2_SPI::ReceiveData___BOOLEAN__I4__SZARRAY_U1__I4,
+    Library_SamrakshEmoteSF2_Samraksh_eMote_SF2_SPI::SendReceiveData___BOOLEAN__I4__SZARRAY_U1__SZARRAY_U1__I4,
 };
 
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_SF2 =
 {
     "Samraksh_eMote_SF2", 
-    0xE1E50A3C,
+    0xDC60012A,
     method_lookup
 };
 

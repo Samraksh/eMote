@@ -9,11 +9,9 @@ D:\Work\eMote\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SF2\Samraks
 D:\Work\eMote\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SF2\Samraksh_eMote_SF2\bin\Release\le\Samraksh_eMote_SF2.pdbx
 D:\Work\eMote\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SF2\Samraksh_eMote_SF2\bin\Release\be\Samraksh_eMote_SF2.pe
 D:\Work\eMote\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SF2\Samraksh_eMote_SF2\bin\Release\be\Samraksh_eMote_SF2.pdbx
-D:\Work\eMote\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SF2\Samraksh_eMote_SF2\obj\Release\TinyCLR_DebugReferences.cache
 D:\Work\eMote\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SF2\Samraksh_eMote_SF2\obj\Release\be\Samraksh_eMote_SF2.pe
 D:\Work\eMote\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SF2\Samraksh_eMote_SF2\obj\Release\be\Samraksh_eMote_SF2.pdbx
 D:\Work\eMote\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SF2\Samraksh_eMote_SF2\obj\Release\le\Samraksh_eMote_SF2.pe
 D:\Work\eMote\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SF2\Samraksh_eMote_SF2\obj\Release\le\Samraksh_eMote_SF2.pdbx
 D:\Work\eMote\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SF2\Samraksh_eMote_SF2\obj\Release\Samraksh_eMote_SF2.dll
 D:\Work\eMote\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SF2\Samraksh_eMote_SF2\obj\Release\Samraksh_eMote_SF2.pdb
-D:\Work\eMote\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SF2\Samraksh_eMote_SF2\obj\Release\Samraksh_eMote_SF2.csprojResolveAssemblyReference.cache
