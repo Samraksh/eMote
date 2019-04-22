@@ -467,6 +467,12 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\eMote_Time\dotNetMF.proj" />
     <DriverLibs Include="eMote_time.$(LIB_EXT)" />
   </ItemGroup>
+
+  <!-- 									external Compute Processor interface								-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\ComputeProcessor\dotNetMF.proj" />
+    <DriverLibs Include="ComputeProcessor.$(LIB_EXT)" />
+  </ItemGroup>
     
   <!-- 									Wireless Stack Start								-->
   

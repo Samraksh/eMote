@@ -514,7 +514,13 @@ void HAL_Initialize()
    // Gesture_Initialize();
     //Ink_Initialize();
     TimeService_Initialize();
+#ifdef USING_BLUETOOTH
 	CPU_Bluetooth_Initialize();
+#endif
+#ifdef USING_COMPUTE_PROCESSOR
+	CP_Init();
+#endif
+	
 #endif //end IBL
 
 #if defined(ENABLE_NATIVE_PROFILER)
@@ -598,7 +604,12 @@ void HAL_Uninitialize()
 
     Events_Uninitialize();
     Time_Uninitialize();
+#ifdef USING_BLUETOOTH
 	CPU_Bluetooth_UnInitialize();
+#endif
+#ifdef USING_COMPUTE_PROCESSOR
+	CP_UnInit();
+#endif
 
     HAL_CONTINUATION::Uninitialize();
     HAL_COMPLETION  ::Uninitialize();
@@ -752,10 +763,6 @@ mipi_dsi_shutdown();
 	}*/
 
 #endif
-#if defined(SEC_EMOTE) && defined(CP_LOAD_TEST)
-    loadArduinoSPI((uint8_t*)0xF000,1932);
-#endif
-
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

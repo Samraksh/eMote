@@ -54,6 +54,12 @@
 // Power API
 #include <Power_decl.h>
 
+// Bluetooth
+#include <CPU_Bluetooth_decl.h>
+
+// Compute Processor
+#include <ComputeProcessor.h>
+
 //
 // Chipset
 //
