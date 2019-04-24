@@ -19,6 +19,7 @@ import (
 	"log"
 	mr "math/rand"
 	//"time"
+	Cons "Constants"
 )
 
 //cloud security manager implements the interfaces of the securitymanager
@@ -36,6 +37,7 @@ type EcdhProto struct {
 	priKey    crypto.PrivateKey
 	init      bool
 	secretKey []byte
+	//socClient *Sockets.Client
 }
 
 func NewEcdhProto() *EcdhProto {
@@ -54,34 +56,48 @@ func NewEcdhProto() *EcdhProto {
 		priKey: tpriKey,
 		PubKey: tpubKey,
 		init:   true,
+		//socClient: sCli,
 	}
 	return &dhp
 }
 
+//important: All elements need to be public(Capitalized) for Unmarshalling to work correctly.
 type EcdhpRequestS struct {
-	msg       []byte
-	publickey []byte
-	nonce     uint64
+	Msg       []byte
+	Publickey []byte
+	Nonce     uint64
 	//sessionNo      uint16
-	ecc_curve_size uint16
+	Ecc_curve_size uint16
 }
 
-func (dhp *EcdhProto) Request(_ecc_curve_size uint16, _publickey []byte, _msg [128]byte, _nonce uint64) {
+func (dhp *EcdhProto) Request(_ecc_curve_size uint16, _publickey []byte, _msg []byte, _nonce uint64) []byte {
 
 	outS := EcdhpRequestS{
-		msg:            _msg[:],
-		publickey:      _publickey,
-		ecc_curve_size: _ecc_curve_size,
-		nonce:          _nonce,
+		Msg:            _msg,
+		Publickey:      _publickey,
+		Ecc_curve_size: _ecc_curve_size,
+		Nonce:          _nonce,
 	}
 	fmt.Println("Ecdh request struct: ", outS)
 
 	b, err := binary.Marshal(outS)
 	if err != nil {
 		log.Fatal(err)
-		return
+		return nil
+	}
+	var inS EcdhpRequestS
+	err = binary.Unmarshal(b, &inS)
+	if err != nil {
+		log.Fatal(err)
+		return nil
 	}
 	fmt.Println("Size of marshalled output is : ", len(b), "Output : ", b)
+	//pktType := []byte{Cons.M_ECDH_REQ}
+	b = append([]byte{Cons.M_ECDH_REQ}, b...)
+	fmt.Println("Size of marshalled output is : ", len(b), "Output : ", b)
+	fmt.Println("Unmarshalled struct: ", inS)
+	return b
+	//dhp.socClient.Write(b)
 }
 
 func (dhp *EcdhProto) ReqAck(sessionNo uint16, ecc_curve_size uint16, publickey []byte, msg [128]byte, nonce uint64) {
@@ -120,6 +136,24 @@ func (dhp *EcdhProto) SendTerminate(sessionNo uint16, errorCode uint8) {
 
 }
 
-func (dhp *EcdhProto) StateMachine(msg *Msg) {
+func (dhp *EcdhProto) StateMachine(msg []byte) {
 
+}
+
+func (dhp *EcdhProto) Initiate() []byte {
+	nonce := dhp.MyRand.Uint64()
+	eccsize := uint16(384)
+	var msg [128]byte
+	var bmsg []byte
+	dhp.MyRand.Read(msg[:])
+	pkp, ok := dhp.PubKey.(ecdh.Point)
+	if ok {
+		//copy(pubKey[:], elliptic.Marshal(elliptic.P384(), pkp.X, pkp.Y))
+		pubKey := elliptic.Marshal(elliptic.P384(), pkp.X, pkp.Y)
+		//fmt.Printf("Alice Public Key of size %d\n %s\n", len(pubKey), hex.Dump(pubKey))
+		bmsg = dhp.Request(eccsize, pubKey, msg[:], nonce)
+	} else {
+		fmt.Println("Type Assertion failed: public key is not byte array")
+	}
+	return bmsg
 }

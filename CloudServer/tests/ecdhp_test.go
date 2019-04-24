@@ -2,39 +2,49 @@ package tests
 
 import (
 	dm "DeviceManager"
-	"crypto/elliptic"
-	"encoding/hex"
+	soc "Sockets"
+	//"crypto/elliptic"
+	//"encoding/hex"
 	"fmt"
-	"github.com/aead/ecdh"
-	"main"
-	"math/big"
+	//"github.com/aead/ecdh"
+	//"math/big"
 	"testing"
+	//"time"
 )
 
-func Test_ecdhProto_Server(t *testing.T) {
-	StartServerMode("udp")
+func init() {
+
+	soc.StartUDPServer(soc.COM_PORT)
+	/*
+		serv, err := soc.StartUDPServer(6001)
+		if err != nil {
+			t.Error("Starting udp server failed")
+		}
+		//important to call this a go func, otherwise the Test will get stuck
+		go soc.HandleUDPPKts(serv)
+	*/
+
+	//time.Sleep(30 * time.Second)
 }
 
 func Test_ecdhProto_client(t *testing.T) {
+	//t.Parallel()
 
-	StartClientMode("udp")
+	client := soc.StartClient("udp")
+
+	//if client.Socket.
 	//Initiate a ecdh shared secret session
+	//var dhp *dm.EcdhProto = dm.NewEcdhProto(client)
 	var dhp *dm.EcdhProto = dm.NewEcdhProto()
-	nonce := dhp.MyRand.Uint64()
-	eccsize := uint16(384)
-	var msg [128]byte
-	dhp.MyRand.Read(msg[:])
-	pkp, ok := dhp.PubKey.(ecdh.Point)
-	if ok {
-		pubKey := elliptic.Marshal(elliptic.P384(), pkp.X, pkp.Y)
-		fmt.Printf("Alice Public Key of size %d\n %s\n", len(pubKey), hex.Dump(pubKey))
-		dhp.Request(eccsize, pubKey[:], msg, nonce)
+	bmsg := dhp.Initiate()
+	if bmsg != nil {
+		client.Write(bmsg)
 	} else {
-		fmt.Println("Type Assertion failed: public key is not byte array")
+		fmt.Println("Test initiated successfully")
 	}
-
 }
 
+/*
 func TestOffCurve(t *testing.T) {
 	p384 := elliptic.P384()
 	x, y := new(big.Int).SetInt64(1), new(big.Int).SetInt64(1)
@@ -47,3 +57,4 @@ func TestOffCurve(t *testing.T) {
 		t.Errorf("FAIL: unmarshaling a point not on the curve succeeded")
 	}
 }
+*/
