@@ -23,7 +23,7 @@ int strCompare(uint8_t* msg, const char* str){
 	return 0;
 }
 
-int getParameter(uint8_t* msg, int paramNum, uint8_t* param){
+int getParameter(uint8_t* msg, uint8_t* param){
 	int msgPos = 0;
 	int paramPos = 0;
 	
@@ -50,6 +50,46 @@ int getParameter(uint8_t* msg, int paramNum, uint8_t* param){
 		return msgPos;
 }
 
+
+int get2Parameter(uint8_t* msg, int &dataSize, uint8_t* param){
+	int msgPos = 0;
+	int dataCount = 0;
+	int paramPos = 0;
+	uint8_t str[buffSize];
+	
+	//searching until we see a ' ' char
+	while ( (msgPos<buffSize) && ((msg[msgPos] != ' ') || (msg[msgPos] != '\n')) )
+	{
+		msgPos++;
+	}
+
+	// currently at space between command and data count
+	msgPos++;
+
+	sscanf((const char*)&msg[msgPos], "%d %s", &dataCount, str);
+	
+	//searching until we see a ' ' char
+	while ( (msgPos<buffSize) && ((msg[msgPos] != ' ') || (msg[msgPos] != '\n')) )
+	{
+		msgPos++;
+	}
+
+	dataCount = 0;
+	while ( (msgPos<buffSize) && (dataCount < dataSize) )
+	{
+		param[paramPos] = msg[msgPos];
+		msgPos++;
+		paramPos++;
+		dataCount++;
+	}
+
+	// currently at '\n', going to return the next character
+	if (msgPos < (buffSize - 1) )
+		return msgPos + 1;
+	else
+		return msgPos;
+}
+
 void shiftBuffer(uint8_t* buff, int shiftAmnt){
 	if (shiftAmnt > buffSize - 1 ) shiftAmnt = buffSize - 1;
 	for (int i = 0; i < buffSize; i++){
@@ -64,29 +104,54 @@ void shiftBuffer(uint8_t* buff, int shiftAmnt){
 
 static int parseCPCommand(uint8_t* msg){
 	uint8_t parameter1[buffSize];
+	int dataSize = 0;
 	int parameterEnd;
+	int comparePos;
+
 	for (int k = 0; k < buffSize; k++){
 		parameter1[k] = 0;
 	}
 
 	if (strCompare(msg, "SetLocalName\n")){
-		parameterEnd = getParameter(msg, 1, parameter1);
+		parameterEnd = getParameter(msg, parameter1);
 		hal_printf("set local name %s\r\n", parameter1);
 		shiftBuffer(msg, parameterEnd);
 		return 1;
+	} else if (strCompare(msg, "SetClassOfDevice\n")){
+		parameterEnd = getParameter(msg, parameter1);
+		hal_printf("set class %s\r\n", parameter1);
+		shiftBuffer(msg, parameterEnd);
+		return 1;
 	} else if (strCompare(msg, "PINCodeResponse\n")){
-		parameterEnd = getParameter(msg, 1, parameter1);
+		parameterEnd = getParameter(msg, parameter1);
 		hal_printf("pin code %s\r\n", parameter1);
 		shiftBuffer(msg, parameterEnd);
 		return 1;
 	} else if (strCompare(msg, "SetDiscoverabilityMode\n")){
-		parameterEnd = getParameter(msg, 1, parameter1);
+		parameterEnd = getParameter(msg, parameter1);
 		hal_printf("disc mode %s\r\n", parameter1);
 		shiftBuffer(msg, parameterEnd);
 		return 1;
 	} else if (strCompare(msg, "SetConnectabilityMode\n")){
-		parameterEnd = getParameter(msg, 1, parameter1);
+		parameterEnd = getParameter(msg, parameter1);
 		hal_printf("con mode %s\r\n", parameter1);
+		shiftBuffer(msg, parameterEnd);
+		return 1;
+	} else if (strCompare(msg, "Inquiry\n")){
+		hal_printf("Inquire %d\r\n", comparePos);
+		shiftBuffer(msg, comparePos);
+		return 1;
+	} else if (strCompare(msg, "GetInquiryList\n")){
+		hal_printf("inquiry list %d\r\n", comparePos);
+		shiftBuffer(msg, comparePos);
+		return 1;
+	} else if (strCompare(msg, "CloseConnection\n")){
+		hal_printf("close conn %d\r\n", comparePos);
+		shiftBuffer(msg, comparePos);
+		return 1;
+	} else if (strCompare(msg, "DataWrite\n")){
+		parameterEnd = get2Parameter(msg, dataSize, parameter1);
+		hal_printf("data write (%d) %s\r\n", dataSize, parameter1);
 		shiftBuffer(msg, parameterEnd);
 		return 1;
 	}
