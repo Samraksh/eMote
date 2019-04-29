@@ -38,6 +38,9 @@ MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_eMote_ProgramManager/Samraksh_e
 MicroFrameworkPK_v4_3/DeviceCode/Include/Samraksh/githash.h
 MicroFrameworkPK_v4_3/DeviceCode/Include/Samraksh/teamid.h
 
+#Ignore Golang pkg
+pkg/
+
 # Ignore VS Project junk
 bin/
 obj/
