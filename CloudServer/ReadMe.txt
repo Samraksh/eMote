@@ -1,5 +1,14 @@
 Cloud Server Notes:
 
+Setting up Go Server:
+
+packages Dependencies:
+ go get github.com/stretchr/testify/assert
+ go get golang.org/x/crypto/curve25519
+
+
+
+
 Linux Desktop Server setup:
 
 - Install a ubuntu LTS system

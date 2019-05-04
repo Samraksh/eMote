@@ -39,7 +39,7 @@ MicroFrameworkPK_v4_3/DeviceCode/Include/Samraksh/githash.h
 MicroFrameworkPK_v4_3/DeviceCode/Include/Samraksh/teamid.h
 
 #Ignore Golang pkg
-pkg/
+**/pkg/
 
 # Ignore VS Project junk
 bin/

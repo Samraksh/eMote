@@ -4,7 +4,7 @@ import (
 	Cons "Constants"
 	dm "DeviceManager"
 	"fmt"
-	"github.com/kelindar/binary"
+	//"github.com/kelindar/binary"
 	"net"
 )
 
@@ -22,8 +22,8 @@ type Client struct {
 func (cli *Client) Write(buf []byte) int {
 	x, err := cli.Socket.Write(buf)
 	if err != nil {
-		return -1
 		fmt.Println("Error Writing to socket: ", err)
+		return -1
 	}
 	return x
 }
@@ -47,33 +47,28 @@ func StartServerMode(mode string) {
 }
 
 type PacketHandler struct {
+	cryptoChannel chan []byte
 }
 
 func (hndlr *PacketHandler) Receive(msg []byte, addr net.IP) {
 	fmt.Println("Got a msg of size: ", len(msg), ", from IP: ", addr)
-	UnMarshall(msg)
+	go hndlr.RouteMsg(msg)
 }
 
-func UnMarshall(msg []byte) {
+func (hndlr *PacketHandler) RouteMsg(msg []byte) {
 
 	switch msg[0] {
-	case Cons.M_ECDH_REQ:
-		fmt.Println("Got a ECDH_REQ msg")
-		reqS := &dm.EcdhpRequestS{}
-		//s := &s0{}
-		//err := Unmarshal(s0b, s)
-		fmt.Println("MSG: ", msg[1:])
-		err := binary.Unmarshal(msg[1:], reqS)
-		if err != nil {
-			fmt.Println("Unmarshalling failed for ecdh_request: ", err)
-		} else {
-			fmt.Println("ECDH Request Struct: ", reqS)
-		}
-
-	case Cons.M_ECDH_ACK:
-	case Cons.M_ECDH_RES:
-	case Cons.M_ECDH_CON:
-	case Cons.M_ECDH_TER:
+	case Cons.M_ECDH_REQ, Cons.M_ECDH_ACK, Cons.M_ECDH_RES, Cons.M_ECDH_CON, Cons.M_ECDH_TER:
+		dm.EcdhpStateMachine(msg, hndlr.cryptoChannel)
 	default:
+	}
+}
+
+func (hndlr *PacketHandler) Start(outC chan []byte) {
+	for {
+		select {
+		case outM := <-hndlr.cryptoChannel:
+			outC <- outM
+		}
 	}
 }

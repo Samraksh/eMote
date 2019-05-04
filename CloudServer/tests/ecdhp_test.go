@@ -9,7 +9,7 @@ import (
 	//"github.com/aead/ecdh"
 	//"math/big"
 	"testing"
-	//"time"
+	"time"
 )
 
 func init() {
@@ -35,13 +35,15 @@ func Test_ecdhProto_client(t *testing.T) {
 	//if client.Socket.
 	//Initiate a ecdh shared secret session
 	//var dhp *dm.EcdhProto = dm.NewEcdhProto(client)
-	var dhp *dm.EcdhProto = dm.NewEcdhProto()
+	var dhp *dm.EcdhProto = dm.NewEcdhProto(384)
 	bmsg := dhp.Initiate()
 	if bmsg != nil {
 		client.Write(bmsg)
 	} else {
 		fmt.Println("Test initiated successfully")
 	}
+	time.Sleep(10 * time.Second)
+	defer fmt.Println("done")
 }
 
 /*

@@ -17,7 +17,8 @@ type UDPServer struct {
 	addr     string
 	port     int
 	server   *net.UDPConn
-	pktHndlr PacketHandler
+	outChan  chan []byte
+	PktHndlr PacketHandler
 }
 
 func (u *UDPServer) Run() (err error) {
@@ -32,8 +33,21 @@ func (u *UDPServer) Run() (err error) {
 	if err != nil {
 		return errors.New("could not listen on UDP")
 	}
+	//start the outgoing thread
+	go u.HandleOutgoing()
+	go u.PktHndlr.Start(u.outChan)
 
 	return u.handleConnections()
+}
+
+func (u *UDPServer) HandleOutgoing() error {
+	for {
+		select {
+		case outM := <-u.outChan:
+			fmt.Printf("Sending a message from udp server of length: %d \n", len(outM))
+			u.server.Write(outM)
+		}
+	}
 }
 
 func (u *UDPServer) handleConnections() error {
@@ -41,23 +55,23 @@ func (u *UDPServer) handleConnections() error {
 	fmt.Println("UDP Handle connections is running...")
 	for {
 		buf := make([]byte, 2048)
-		n, conn, err := u.server.ReadFromUDP(buf)
+		n, addr, err := u.server.ReadFromUDP(buf)
 		//fmt.Println("Got new pkt")
 		if err != nil {
 			log.Println(err)
 			break
 		}
-		if conn == nil {
+		if addr == nil {
 			continue
 		}
 
-		go u.handleConnection(conn, buf[:n])
+		go u.handleConnection(addr, buf[:n])
 	}
 	return err
 }
 
 func (u *UDPServer) handleConnection(addr *net.UDPAddr, cmd []byte) {
-	u.pktHndlr.Receive(cmd, addr.IP)
+	u.PktHndlr.Receive(cmd, addr.IP)
 	//u.server.WriteToUDP([]byte(fmt.Sprintf("Request recieved: %s", cmd)), addr)
 }
 
@@ -70,14 +84,18 @@ func (u *UDPServer) Close() error {
 func StartUDPServer(port int) {
 	fmt.Println("Staring the udp server..")
 	udpServ := UDPServer{
-		port: COM_PORT,
-		addr: "localhost:" + strconv.Itoa(port),
+		port:    COM_PORT,
+		addr:    "localhost:" + strconv.Itoa(port),
+		outChan: make(chan []byte),
+		PktHndlr: PacketHandler{
+			cryptoChannel: make(chan []byte),
+		},
 	}
 
 	go func() {
 		udpServ.Run()
 	}()
-	time.Sleep(3 * time.Second)
+	time.Sleep(1 * time.Second)
 }
 
 /*

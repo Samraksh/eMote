@@ -8,5 +8,5 @@
     ],
     "go.formatTool": "gofmt",
     //"go.gopath": "${env:GoPath};E:\\Users\\Mukundan\\Repos\\eMote\\CloudServer\\ExtCode",
-    "go.gopath": "C:\\Users\\mukun\\go;E:\\Users\\Mukundan\\Repos\\eMote\\CloudServer;E:\\Users\\Mukundan\\Repos\\eMote\\CloudServer\\ExtCode",
+    "go.gopath": "C:\\Users\\mukun\\go;E:\\Mukundan\\Repos\\eMote\\CloudServer;E:\\Mukundan\\Repos\\eMote\\CloudServer\\ExtCode",
 }
