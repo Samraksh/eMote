@@ -10,52 +10,61 @@ import (
 	//"os"
 	//"strings"
 	//"encoding/binary"
+	Def "Definitions"
 	"time"
 )
 
-type UDPServer struct {
-	addr     string
-	port     int
-	server   *net.UDPConn
-	outChan  chan []byte
-	PktHndlr PacketHandler
+type UDPSocketConn struct {
+	addr      string
+	port      int
+	conn      *net.UDPConn
+	outIPMsgC chan Def.IPMsg
+	PktHndlr  PacketHandler
 }
 
-func (u *UDPServer) Run() (err error) {
+func (u *UDPSocketConn) Run() (err error) {
 
 	laddr, err := net.ResolveUDPAddr("udp", u.addr)
 	if err != nil {
 		return errors.New("could not resolve UDP addr")
 	}
 
-	u.server, err = net.ListenUDP("udp", laddr)
+	u.conn, err = net.ListenUDP("udp", laddr)
+
 	fmt.Println("Beginging to run on ", laddr)
 	if err != nil {
 		return errors.New("could not listen on UDP")
 	}
+	u.PktHndlr.Socket = u.conn
 	//start the outgoing thread
 	go u.HandleOutgoing()
-	go u.PktHndlr.Start(u.outChan)
+	go u.PktHndlr.StartOutGoing(&u.outIPMsgC)
 
 	return u.handleConnections()
 }
 
-func (u *UDPServer) HandleOutgoing() error {
+func (u *UDPSocketConn) HandleOutgoing() error {
+	fmt.Println("UDP Server Outgoing hdlr running")
 	for {
 		select {
-		case outM := <-u.outChan:
-			fmt.Printf("Sending a message from udp server of length: %d \n", len(outM))
-			u.server.Write(outM)
+		case outM := <-u.outIPMsgC:
+			fmt.Printf("Sending a message from udp server of length: %d \n", len(outM.Msg))
+			_, err := u.conn.WriteTo(outM.Msg, outM.Addr)
+			if err != nil {
+				fmt.Println("Error sending msg back to client: ", err)
+			}
+			fmt.Println("msg sent to : ", outM.Addr)
 		}
 	}
 }
 
-func (u *UDPServer) handleConnections() error {
+func (u *UDPSocketConn) handleConnections() error {
 	var err error
 	fmt.Println("UDP Handle connections is running...")
 	for {
 		buf := make([]byte, 2048)
-		n, addr, err := u.server.ReadFromUDP(buf)
+		//n, addr, err := u.conn.ReadFromUDP(buf)
+		n, addr, err := u.conn.ReadFrom(buf)
 		//fmt.Println("Got new pkt")
 		if err != nil {
 			log.Println(err)
@@ -64,31 +73,37 @@ func (u *UDPServer) handleConnections() error {
 		if addr == nil {
 			continue
 		}
-
+		/*x, e := u.conn.WriteTo([]byte("hello"), addr)
+		if e != nil {
+			fmt.Println("Problem writting back to client: ", err)
+		}
+		fmt.Printf("Wrote %d bytes back to client", x)
+		*/
 		go u.handleConnection(addr, buf[:n])
 	}
 	return err
 }
 
-func (u *UDPServer) handleConnection(addr *net.UDPAddr, cmd []byte) {
-	u.PktHndlr.Receive(cmd, addr.IP)
+func (u *UDPSocketConn) handleConnection(addr net.Addr, cmd []byte) {
+	u.PktHndlr.RouteMsg(cmd, addr)
 	//u.server.WriteToUDP([]byte(fmt.Sprintf("Request recieved: %s", cmd)), addr)
 }
 
-// Close ensures that the UDPServer is shut down gracefully.
-func (u *UDPServer) Close() error {
+// Close ensures that the UDPSocketConn is shut down gracefully.
+func (u *UDPSocketConn) Close() error {
 	fmt.Println("Closing UDP Server.")
-	return u.server.Close()
+	return u.conn.Close()
 }
 
 func StartUDPServer(port int) {
 	fmt.Println("Staring the udp server..")
-	udpServ := UDPServer{
-		port:    COM_PORT,
-		addr:    "localhost:" + strconv.Itoa(port),
-		outChan: make(chan []byte),
+	udpServ := UDPSocketConn{
+		port:      COM_PORT,
+		addr:      "localhost:" + strconv.Itoa(port),
+		outIPMsgC: make(chan Def.IPMsg),
 		PktHndlr: PacketHandler{
-			cryptoChannel: make(chan []byte),
+			cryptoIPMsgC: make(chan Def.IPMsg),
+			Server:       true,
 		},
 	}
 
@@ -99,7 +114,7 @@ func StartUDPServer(port int) {
 }
 
 /*
-func InitUDPServer(port int) (*net.UDPConn, error) {
+func InitUDPSocketConn(port int) (*net.UDPConn, error) {
 	serverConn, _ := net.ListenUDP("udp", &net.UDPAddr{IP: []byte{0, 0, 0, 0}, Port: port, Zone: ""})
 	return serverConn, nil
 }
@@ -135,15 +150,35 @@ func StartUDPClient(port int, _ip []byte) *Client {
 	udpAddr := &net.UDPAddr{IP: _ip, Port: port, Zone: ""}
 	fmt.Println("Starting UDP client to connect on port: ", udpAddr)
 	//Conn, err := net.DialUDP("udp", nil, udpAddr)
-	Conn, err := net.DialUDP("udp", nil, &net.UDPAddr{IP: []byte{0, 0, 0, 0}, Port: port, Zone: ""})
+	conn, err := net.DialUDP("udp", nil, &net.UDPAddr{IP: []byte{0, 0, 0, 0}, Port: port, Zone: ""})
 
 	if err != nil {
 		println("Unable to connect: ", err)
 	}
 	//Conn.Write([]byte("hello"))
-	client := &Client{Socket: Conn}
+	client := &Client{
+		//Socket: Conn,
+		PktHndlr: PacketHandler{
+			Socket:       conn,
+			cryptoIPMsgC: make(chan Def.IPMsg),
+			Server:       false,
+		},
+	}
 
+	/*udpClient := UDPSocketConn{
+		port:    COM_PORT,
+		addr:    "localhost:" + strconv.Itoa(port),
+		outChan: make(chan []byte),
+		PktHndlr: PacketHandler{
+			cryptoChannel: make(chan []byte),
+		},
+	}*/
 	//defer Conn.Close()
+	//go client.PktHndlr.Start()
+
+	//Start handler for incomping
+	go client.PktHndlr.StartIncomingHndlr()
+	go client.PktHndlr.StartOutGoing(&client.PktHndlr.cryptoIPMsgC)
 	fmt.Println("Done..")
 	return client
 }

@@ -4,7 +4,7 @@ import (
 	dm "DeviceManager"
 	soc "Sockets"
 	//"crypto/elliptic"
-	//"encoding/hex"
+	"encoding/hex"
 	"fmt"
 	//"github.com/aead/ecdh"
 	//"math/big"
@@ -38,12 +38,27 @@ func Test_ecdhProto_client(t *testing.T) {
 	var dhp *dm.EcdhProto = dm.NewEcdhProto(384)
 	bmsg := dhp.Initiate()
 	if bmsg != nil {
-		client.Write(bmsg)
+		client.PktHndlr.Write(bmsg)
 	} else {
 		fmt.Println("Test initiated successfully")
 	}
 	time.Sleep(10 * time.Second)
-	defer fmt.Println("done")
+
+	defer client.PktHndlr.Socket.Close()
+	defer fmt.Println("Final Done")
+}
+
+func Test_SimpleEcdhp(t *testing.T) {
+	var mukund *dm.EcdhProto = dm.NewEcdhProto(384)
+	var sridhar *dm.EcdhProto = dm.NewEcdhProto(384)
+
+	mukund.PutPeerPublicKey(sridhar.GetPublicKey())
+	sridhar.PutPeerPublicKey(mukund.GetPublicKey())
+
+	msk := mukund.ComputeSecret()
+	ssk := sridhar.ComputeSecret()
+	fmt.Printf("Mukund's Secret key\n %s\n", hex.Dump(msk))
+	fmt.Printf("Sridhar's Secret key\n %s\n", hex.Dump(ssk))
 }
 
 /*
