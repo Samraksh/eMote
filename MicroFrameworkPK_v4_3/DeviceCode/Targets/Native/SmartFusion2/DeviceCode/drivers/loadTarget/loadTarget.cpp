@@ -53,11 +53,11 @@ while (1){
 
 
 	// put Arduino into reset
-	CPU_GPIO_EnableOutputPin(0, FALSE);
-	HAL_Time_Sleep_MicroSeconds(50000);
-	CPU_GPIO_SetPinState(0, TRUE);
+	CPU_GPIO_EnableOutputPin(0, TRUE);
 	HAL_Time_Sleep_MicroSeconds(50000);
 	CPU_GPIO_SetPinState(0, FALSE);
+	HAL_Time_Sleep_MicroSeconds(50000);
+	CPU_GPIO_SetPinState(0, TRUE);
 
 	// Program enable
 	spi_tx_buff[0] = 0xAC;
@@ -209,7 +209,7 @@ while (1){
 	}
 
 	// take Arduino out of reset
-	CPU_GPIO_SetPinState(0, TRUE);
+	CPU_GPIO_SetPinState(0, FALSE);
 	
 	return 0;
 }
@@ -224,7 +224,7 @@ int verifyArduinoSPI( uint8_t* address, uint16_t binarySize){
 	uint8_t i,j,k;
 
 	HAL_Time_Sleep_MicroSeconds(50000);
-	CPU_GPIO_SetPinState(0, FALSE);
+	CPU_GPIO_SetPinState(0, TRUE);
 
 	// Program enable
 	spi_tx_buff[0] = 0xAC;
@@ -244,7 +244,7 @@ int verifyArduinoSPI( uint8_t* address, uint16_t binarySize){
 	HAL_Time_Sleep_MicroSeconds(5000);
 
 	// Read EEPROM address 0
-	spi_tx_buff[0] = 0xA0;
+	/*spi_tx_buff[0] = 0xA0;
 	spi_tx_buff[1] = 0x00;
 	spi_tx_buff[2] = 0x00;
 	size = 3;
@@ -256,7 +256,7 @@ int verifyArduinoSPI( uint8_t* address, uint16_t binarySize){
 			return 1;
 	}
 
-	HAL_Time_Sleep_MicroSeconds(5000);
+	HAL_Time_Sleep_MicroSeconds(5000);*/
 
 	// verifying the memory
 	while (reading_location < binarySize){
@@ -311,7 +311,7 @@ int verifyArduinoSPI( uint8_t* address, uint16_t binarySize){
 	}
 
 	// take Arduino out of reset
-	CPU_GPIO_SetPinState(0, TRUE);
+	CPU_GPIO_SetPinState(0, FALSE);
 	
 	hal_printf("Arduino successfully programmed.\r\n");
 	return 0;

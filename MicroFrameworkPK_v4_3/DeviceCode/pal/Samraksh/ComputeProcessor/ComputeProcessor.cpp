@@ -230,6 +230,14 @@ void CP_SendMsgToCP(uint8_t* msg, int size){
 
 // returns TRUE if successful
 bool CP_Init(void){
+	hal_printf("bring CP out of reset\r\n");
+	//CPU_GPIO_EnableOutputPin(3, FALSE);
+	//CPU_GPIO_SetPinState(3, TRUE);
+
+	CPU_GPIO_EnableOutputPin(0, TRUE);
+	HAL_Time_Sleep_MicroSeconds(5000);
+	CPU_GPIO_SetPinState(0, FALSE);
+
 	hal_printf("Compute processor init\r\n");
 	CPU_GPIO_EnableInputPin( COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM, FALSE, CP_WantsTransaction, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED);
 	if (CPU_GPIO_GetPinState(COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM) == false){
