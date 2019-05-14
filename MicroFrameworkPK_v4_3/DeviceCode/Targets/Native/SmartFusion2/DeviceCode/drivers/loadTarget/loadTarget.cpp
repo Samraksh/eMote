@@ -53,7 +53,7 @@ while (1){
 
 
 	// put Arduino into reset
-	CPU_GPIO_EnableOutputPin(0, TRUE);
+	//CPU_GPIO_EnableOutputPin(0, TRUE);
 	HAL_Time_Sleep_MicroSeconds(50000);
 	CPU_GPIO_SetPinState(0, FALSE);
 	HAL_Time_Sleep_MicroSeconds(50000);
