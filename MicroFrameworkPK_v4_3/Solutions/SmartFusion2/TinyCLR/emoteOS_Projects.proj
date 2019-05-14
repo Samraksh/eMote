@@ -554,7 +554,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\SmartFusion2\DeviceCode\Crypto\Tokens\dotNetMF.proj" />
     <DriverLibs Include="SF2_HW_PKCS11_Crypto.$(LIB_EXT)" />
   </ItemGroup>
-
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DSM\ComManager\dotNetMF.proj" />
+    <DriverLibs Include="ComManager.$(LIB_EXT)" />
+  </ItemGroup>
   <!--                    Root of trust modules      -->
   
   <ItemGroup>
@@ -569,6 +572,11 @@
     <DriverLibs Include="SF2_rot_M2SXXX.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\microsemi_lib\dotNetMF.proj" />
   </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="rot_Keystore.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Crypto\KeyStore\dotNetMF.proj" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\Crypto\SecureBoot\dotNetMF.proj" />

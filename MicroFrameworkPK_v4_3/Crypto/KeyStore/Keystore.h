@@ -1,19 +1,21 @@
 #ifndef _ROT_KEYSTORE_
 #define _ROT_KEYSTORE_
 
+#include <drivers/mss_sys_services/mss_sys_services.h>
 #include <PKCS11\CryptokiPAL.h>
-#include <mss_sys_services.h>
+
 //enum KeyType{Symetric, PK };
 //enum SigType{HMAC, SHA256};
-enum UserType{UT_RoT, UT_Kernel, UT_App}
+
+enum UserType{UT_RoT, UT_Kernel, UT_App};
 
 enum KeySlot {
 	K_DS0=0, //DesignSecurity
 	K_DS1, //DesignSecurity
 	K_Unused,//May be used by jtag
 	K_DeviceKey_PubK,
-	K_DeviceKey_PubK,
-	K_DeviceKey_PubK,
+	K_DeviceKey_PriK,
+	K_DeviceKey_SecK,
 	K_KeneralStart,
 	K_Kernel1,
 	K_Kernel2,
@@ -38,13 +40,9 @@ enum KeySlot {
 
 const UINT8 totalKeys=57;
 
-UINT8 ValidateUserCall(void* callPtr){
+UINT8 ValidateUserCall(void* callPtr);
 
-}
-
-UINT16 KeyStore_KeysRemaining(){
-
-}
+UINT16 KeyStore_KeysRemaining();
 
 UINT8 KeyStore_Initialize();
 

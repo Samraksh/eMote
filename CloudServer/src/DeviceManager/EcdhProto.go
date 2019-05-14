@@ -27,7 +27,6 @@ import (
 )
 
 //cloud security manager implements the interfaces of the securitymanager
-
 type EcdhProto struct {
 	//public members
 	MyPubKey   crypto.PublicKey
