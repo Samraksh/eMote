@@ -3,12 +3,12 @@
 //extern BOOL g_isCryptokiInitialized;
 
 
-uint8_t  KeyStore_KeysEnrolled(uint8_t *noOfKeys){
+UINT8  KeyStore_KeysEnrolled(uint8_t *noOfKeys){
 	MSS_SYS_puf_get_number_of_keys(noOfKeys);
 }
 
 
-uint8_t KeyStore_KeysRemaining(){
+UINT8 KeyStore_KeysRemaining(){
 	uint8_t noOfKeys=0;
 	return totalKeys-KeyStore_KeysEnrolled(&noOfKeys);
 }
@@ -17,14 +17,15 @@ uint8_t KeyStore_KeysRemaining(){
 //consequently, its needs to be a global/static pointer in Ram that is allocated by the compiler
 //If you pass something from the stack or a dynamically allocated value it will not
 //work properly across reboots.
-uint8_t KeyStore_EnrollKey(UserType ut, CK_BYTE_PTR  pKeyValue, CK_ULONG ulDataLen, CK_BYTE_PTR  permanentKeyPtr){
-	uint8_t MSS_SYS_puf_enroll_key
+UINT8 KeyStore_EnrollKey(UserType ut, CK_BYTE_PTR  pKeyValue, CK_ULONG ulDataLen, CK_BYTE_PTR  permanentKeyPtr){
+	/*uint8_t MSS_SYS_puf_enroll_key
 	(
 	    uint8_t key_number,
 	    uint16_t key_size,
 	    uint8_t* p_key_value,
 	    uint8_t* p_key_location
-	)
+	)*/
+	return 0;
 }
 
 

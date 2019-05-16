@@ -1,9 +1,8 @@
 #ifndef _SF2_HW_CRYPTO_H_
 #define _SF2_HW_CRYPTO_H_
 
-//#include <crypto.h>
 #include <drivers/mss_sys_services/mss_sys_services.h>
-
+#include <crypto.h>
 
 #define SF2_HW_MAX_IV_LENGTH 32
 #define SF2_HW_MAX_KEY_LENGTH 64 // This is in bytes
@@ -97,10 +96,10 @@ typedef struct {
 //function prototypes
 
 ///returns a random seed of size length, using FPGA random functions
-uint8_t GetRandomSeed(uint8_t *buf, uint16_t length);
+//uint8_t GetRandomSeed(uint8_t *buf, uint16_t length);
 
 ///returns a random byte stream of size length, using FPGA random functions
-uint8_t GetRandomBytes(uint8_t *buf, uint16_t length);
+//uint8_t GetRandomBytes(uint8_t *buf, uint16_t length);
 
 /// Reset the context of the cipher
 int SF2_CipherReset(sf2_cipher_context_t* ctx);

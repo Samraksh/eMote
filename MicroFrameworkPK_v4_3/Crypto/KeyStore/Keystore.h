@@ -42,7 +42,7 @@ const UINT8 totalKeys=57;
 
 UINT8 ValidateUserCall(void* callPtr);
 
-UINT16 KeyStore_KeysRemaining();
+UINT8 KeyStore_KeysRemaining();
 
 UINT8 KeyStore_Initialize();
 

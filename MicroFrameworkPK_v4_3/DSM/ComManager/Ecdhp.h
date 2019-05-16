@@ -6,7 +6,7 @@
 
 //enum KeyType{Symetric, PK };
 //enum SigType{HMAC, SHA256};
-enum UserType{UT_RoT, UT_Kernel, UT_App}
+enum UserType{UT_RoT, UT_Kernel, UT_App};
 
 
 //cloud security manager implements the interfaces of the securitymanager

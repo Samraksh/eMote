@@ -1,5 +1,6 @@
 #include "SF2_HW_pkcs11.h"
 #include "../SF2_HW_Crypto.h"
+#include <crypto.h>
 
 const UINT16 KEY_DATA_SIZE=((256+7)/8+sizeof(KEY_DATA));
 
@@ -141,7 +142,7 @@ CK_RV SF2_HW_PKCS11_Keys::GenerateKey(Cryptoki_Session_Context* pSessionCtx, CK_
 
 				//pKey->arrayIndex = x;
 
-				GetRandomBytes((UINT8*)&pKey[1], len/8);
+				Crypto_GetRandomBytes((UINT8*)&pKey[1], len/8);
 
 				switch(pMechanism->mechanism)
 				{
