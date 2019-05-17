@@ -88,7 +88,7 @@
    .section VectorsTrampolines, "xa", %progbits
 
 ARM_Vectors:
-  .word  0x2000C000          @ Traditionally the Cortex-M3 MSP initial value is the first word of an image, but TinyBooter wants the value stored here to match the magic word stored in Tinybooter_ProgramWordCheck().
+  .word  0x20001000          @ Traditionally the Cortex-M3 MSP initial value is the first word of an image, but TinyBooter wants the value stored here to match the magic word stored in Tinybooter_ProgramWordCheck() more importantly it needs to match the STACK_TOP setting in the *.settings file
   .word  EntryPoint          @ reset vector
   .word  NMI_Handler
   .word  HardFault_Handler
