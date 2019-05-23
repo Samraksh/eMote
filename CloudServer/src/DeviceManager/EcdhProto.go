@@ -122,7 +122,7 @@ func (dhp *EcdhProto) CreateRequest() []byte {
 		Nonce:          dhp.myNonce,
 		SessionNo:      dhp.SessionNo,
 	}
-	//fmt.Println("Ecdh request struct: ", outS)
+	fmt.Println("Ecdh request struct: ", outS)
 
 	b, err := binary.Marshal(outS)
 	if err != nil {
@@ -139,7 +139,7 @@ func (dhp *EcdhProto) CreateRequest() []byte {
 	//fmt.Println("Size of marshalled output is : ", len(b), "Output : ", b)
 	//pktType := []byte{Def.M_ECDH_REQ}
 	b = append([]byte{Def.M_ECDH_REQ}, b...)
-	//fmt.Println("Size of marshalled output is : ", len(b), "Output : ", b)
+	fmt.Println("Size of marshalled output is : ", len(b), "Output : ", b)
 	//fmt.Println("Unmarshalled struct: ", inS)
 	return b
 	//dhp.socClient.Write(b)

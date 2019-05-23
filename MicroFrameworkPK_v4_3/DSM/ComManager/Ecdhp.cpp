@@ -1,340 +1,271 @@
 #include "Ecdhp.h"
+#include <DeviceCode/Crypto/SF2_HW_Crypto.h>
 #include <crypto.h>
+#include "Sessions.h"
+#include "ComManager.h"
 
 EcdhProto g_ServerEcdhp,g_ClientEcdhp;
+extern SessionManager GSM;
 
 
 BOOL NewEcdhProto(uint16_t eccsize, EcdhProto* dhp)  {
 
 	hal_printf("NewEcdhProto::Creating new ECDH instance");
-	if eccsize != 384 {
+	if (eccsize != 384) {
 		return FALSE;
 	}
-	tp384 := elliptic.P384();
-	tke := ecdh.Generic(tp384)
-	tpriKey, tpubKey, terr := tke.GenerateKey(cr.Reader)
-
-	if terr != nil {
-		hal_printf("Failed to generate private/public key pair: %s\n", terr)
-		return nil
+	sf2_ecc_key_t newKey;
+	if( SF2_ECC384_PKEY(&newKey, TRUE)!= CRYPTO_SUCCESS){
+		return FALSE;
 	}
-	//_rand := mr.New(mr.NewSource(987654312))
-
-	nonce := _rand.Uint64()
-	var _msg [128]byte
-	//var bmsg []byte
-	_rand.Read(_msg[:])
-
-	dhp := EcdhProto{
-		MyRand: _rand, //for testing needs to replace with a line
-		//MyCurve: tp384,
-		EccSize:  eccsize,
-		ke:       tke,
-		priKey:   tpriKey,
-		MyPubKey: tpubKey,
-		init:     true,
-		myNonce:  nonce,
-		myMsg:    _msg[:],
-		//socClient: sCli,
-	}
-	//hal_printf("My public key:", dhp.MyPubKey)
-
+	memcpy(dhp->MyPubKey,newKey.publicKey, KEY_SIZE*2);
+	Crypto_GetRandomBytes((uint8_t*)dhp->myNonce,8);
+	Crypto_GetRandomBytes(dhp->myMsg,128);
 }
 
 ///////////////////////////Request
 
-//important: All elements need to be public(Capitalized) for Unmarshalling to work correctly.
-type EcdhpRequestS struct {
-	Msg            []byte
-	Publickey      []byte
-	Nonce          uint64
-	Ecc_curve_size uint16_t
-	SessionNo      uint16_t
+//returns the size of the msg
+bool EcdhProto::Initiate(EcdhpRequestS* outStruct){
+	//var bmsg []byte
+	//g_ClientEcdhp = dhp
+	SessionNo=Crypto_GetRandomUInt16();
+	Initiator = true;
+	CreateRequest(outStruct);
+	hal_printf("No of active sessions: ", GSM.Length());
+	if (!GSM.Add(SessionNo)) {return false;}
+	hal_printf("No of active sessions: ", GSM.Length());
+	hal_printf("Initiating new ecdh protocol with session no: ", SessionNo);
+	return true;
 }
 
-func (dhp *EcdhProto) Initiate() []byte {
-	var bmsg []byte
-	g_ClientEcdhp = dhp
-	dhp.SessionNo = uint16_t(dhp.MyRand.Intn(0xFFFF))
-	dhp.Initiator = true
-	bmsg = dhp.CreateRequest()
-	hal_printf("No of active sessions: ", GSM.Length())
-	GSM.Add(dhp.SessionNo)
-	hal_printf("No of active sessions: ", GSM.Length())
-	hal_printf("Initiating new ecdh protocol with session no: ", dhp.SessionNo)
-	return bmsg
+bool EcdhProto::CreateRequest(EcdhpRequestS* outStruct) {
+	outStruct->EccSize = this->EccSize;
+	memcpy(outStruct->Msg, this->myMsg, KEY_SIZE);
+	outStruct->Nonce= this->myNonce;
+	memcpy(outStruct->Publickey, this->MyPubKey, KEY_SIZE);
+	outStruct->SessionNo= this->SessionNo;
+	return true;
 }
 
-func (dhp *EcdhProto) CreateRequest() []byte {
-
-	outS := EcdhpRequestS{
-		Msg:            dhp.myMsg,
-		Publickey:      dhp.GetPublicKey(),
-		Ecc_curve_size: dhp.EccSize,
-		Nonce:          dhp.myNonce,
-		SessionNo:      dhp.SessionNo,
-	}
-	//hal_printf("Ecdh request struct: ", outS)
-
-	b, err := binary.Marshal(outS)
-	if err != nil {
-		log.Fatal(err)
-		return nil
-	}
-	b = append([]byte{Def.M_ECDH_REQ}, b...)
-	//hal_printf("Size of marshalled output is : ", len(b), "Output : ", b)
-	//hal_printf("Unmarshalled struct: ", inS)
-	return b
-}
-
-/*type EcdhpReqAckS struct {
-	Msg       []byte
-	Publickey []byte
-	Nonce     uint64
-	//sessionNo      uint16_t
-	Ecc_curve_size uint16_t
-}
-
-func (dhp *EcdhProto) ReqAck(sessionNo uint16_t, ecc_curve_size uint16_t, publickey []byte, msg [128]byte, nonce uint64) {
-
-}*/
-
-//////////////////////// Response
-
-type EcdhpResponseS struct {
-	HmacSha256   []byte
-	Publickey    []byte
-	Nonce        uint64
-	EccCurveSize uint16_t
-	SessionNo    uint16_t
-}
 
 // You have received a new request for ecdh with public key,
 //Get the  public key from peer, create secretKey using ecdh,
 //create hmac of msg+nonce, create response using all this, marshal and sendout
-func (dhp *EcdhProto) CreateResponse(req *EcdhpRequestS) []byte {
+bool EcdhProto::CreateResponse(EcdhpRequestS* req, EcdhpResponseS* out) {
 	//Setup the ecdhp struct
-	dhp.SessionNo = uint16_t(req.SessionNo)
-	dhp.Initiator = false
-	dhp.PutPeerPublicKey(req.Publickey)
+	this->SessionNo = UINT16(req->SessionNo);
+	this->Initiator = false;
+	PutPeerPublicKey(req->Publickey, 97);
 
-	secretKey := dhp.ComputeSecret()
+	UINT8 secretKey[KEY_SIZE];
+	this->ComputeSecret(secretKey);
 	//hal_printf("Key: ", secretKey)
-	mac := hmac.New(sha256.New, secretKey)
 
-	//Append the message and nonce
-	nb := make([]byte, 8)
-	binary.LittleEndian.PutUint64(nb, req.Nonce)
-	m := append(req.Msg, nb...)
+	UINT8 msgNonce[128+8];
+	memcpy(msgNonce, req->Msg, 128);
+	memcpy(msgNonce+128, (void*)req->Nonce, 8);
 
-	//hal_printf("creating hash of msg of len: ", len(m), ", MSG:", m)
-	//create hmac
-	mac.Write(m)
-	hmac := mac.Sum(nil)
-
-	//create response struct
-	resp := EcdhpResponseS{
-		HmacSha256:   hmac,
-		SessionNo:    dhp.SessionNo,
-		Publickey:    dhp.GetPublicKey(),
-		Nonce:        dhp.myNonce,
-		EccCurveSize: dhp.EccSize,
+	//UINT8 hmac[32];
+	if(Crypto_GetHMAC(msgNonce, 128+8, secretKey, out->HmacSha256, 32)!=0){
+		return false;
 	}
 
-	b, _ := binary.Marshal(resp)
+	//create response struct
+	out->SessionNo = this->SessionNo;
+	out->Nonce=this->myNonce;
+	out->EccSize= this->EccSize;
+	memcpy(&out->Publickey[1], this->MyPubKey, 96);
+	out->Publickey[0]=0x4;
+	out->PrepareTx();
 
-	b = append([]byte{Def.M_ECDH_RES}, b...)
-	return b
+	return true;
 }
 
 ///////////////////// Finalize or Terminate
 
-type EcdhpFinalizeS struct {
-	HmacSha256 []byte
-	Result     bool
-	//Publickey      []byte
-	//Nonce          uint64
-	SessionNo uint16_t
-	//Ecc_curve_size uint16_t
-}
 
 ///Create the Finalizeation message.
-func (dhp *EcdhProto) CreateFinalize(res *EcdhpResponseS) []byte {
+bool EcdhProto::CreateFinalize(EcdhpResponseS* res, EcdhpFinalizeS* out){
 
-	if dhp.SessionNo != uint16_t(res.SessionNo) {
-		log.hal_printf("Sessions numbers dont match, (mine)%d != %d(incoming)", dhp.SessionNo, res.SessionNo)
-		return nil
+	if (this->SessionNo != uint16_t(res->SessionNo)) {
+		hal_printf("Sessions numbers dont match, (mine)%d != %d(incoming) \n", this->SessionNo, res->SessionNo);
+		return false;
 	}
-	dhp.Initiator = false
+	this->Initiator = false;
 
-	dhp.PutPeerPublicKey(res.Publickey)
+	PutPeerPublicKey(res->Publickey, 97);
 	//hal_printf("Peer public key:", dhp.PeerPubKey)
-	secretKey := dhp.ComputeSecret()
-	mac := hmac.New(sha256.New, secretKey)
+	uint8_t secretKey[48];
+	bool _result;
+	this->ComputeSecret(secretKey);
 
 	//hal_printf("Key: ", secretKey)
-	//compute the hash and check if we are getting the same.
-	nb := make([]byte, 8)
-	binary.LittleEndian.PutUint64(nb, dhp.myNonce)
+	UINT8 msgNonce[128+8];
+	memcpy(msgNonce,this->myMsg, 128);
+	memcpy(msgNonce+128, (void*)this->myNonce, 8);
 
-	m := append(dhp.myMsg, nb...)
-	//hal_printf("creating hash of msg of len: ", len(m), ", MSG:", m)
-	//create hmac
-	mac.Write(m)
-	hmac := mac.Sum(nil)
-	_result := true
-	if !bytes.Equal(hmac, res.HmacSha256) {
+	//UINT8 hmac[32];
+	if(Crypto_GetHMAC(msgNonce, 128+8, secretKey, out->HmacSha256, 32)!=0){
+		return false;
+	}
+	_result = true;
+	if(!IsEqualHex(out->HmacSha256, res->HmacSha256,32)){
 		//something wrong.
-		hal_printf("My hmac is", hmac, "I received: ", res.HmacSha256)
-		_result = false
+		hal_printf("My hmac is: "); PrintHex(out->HmacSha256,32);
+		hal_printf("Hmac received: ");PrintHex(res->HmacSha256, 32);
+		_result = false;
 	}
 
-	hal_printf("My hmac is", hmac, "I received: ", res.HmacSha256)
-	//create the final Finalizeation
-	binary.LittleEndian.PutUint64(nb, res.Nonce)
-	m = append(res.HmacSha256, nb...)
+	hal_printf("My hmac is: "); PrintHex(out->HmacSha256,32);
+	hal_printf("Hmac received: ");PrintHex(res->HmacSha256, 32);
 
-	//create hmac
-	mac.Write(m)
-	hmac = mac.Sum(nil)
+	out->Result=_result;
+	out->SessionNo= this->SessionNo;
 
-	//create response struct
-	conf := EcdhpFinalizeS{
-		HmacSha256: hmac,
-		SessionNo:  dhp.SessionNo,
-		Result:     _result,
-		//Publickey:      dhp.GetPublicKey(),
-		//Nonce:          dhp.myNonce,
-		//Ecc_curve_size: dhp.EccSize,
+	out->PrepareTx();
+	return _result;
+}
+
+
+bool EcdhProto::ComputeSecret1(UINT8 *peerPub, UINT8 *secretKey){
+	if(Crypto_ECDH_ComputeSecret(this->EccSize, this->priKey, peerPub, secretKey)==0){
+		hal_printf("ComputeSecret:: Passed.");
+		return true;
 	}
-
-	b, _ := binary.Marshal(conf)
-
-	b = append([]byte{Def.M_ECDH_FIN}, b...)
-	return b
+	return false;
 }
 
-/*func (dhp *EcdhProto) SendFinalize(res *EcdhpResponseS) {
-
-}*/
-
-///Other methods
-func (dhp *EcdhProto) ComputeSecret1(peerPub crypto.PublicKey) []byte {
-	if err := dhp.ke.Check(peerPub); err != nil {
-		hal_printf("Peer's public key is not on the curve: %s\n", err)
-		return nil
+bool EcdhProto::ComputeSecret(UINT8 *secretKey){
+	if(Crypto_ECDH_ComputeSecret(this->EccSize, this->priKey, this->PeerPubKey, secretKey)==0){
+		hal_printf("ComputeSecret:: Passed.");
+		return true;
 	}
-	//hal_printf("ComputeSecret::Passed check.")
-	dhp.secretKey = dhp.ke.ComputeSecret(dhp.priKey, peerPub)
-
-	return dhp.secretKey
+	return false;
 }
 
-func (dhp *EcdhProto) ComputeSecret() []byte {
-	//hal_printf("Peer public key:", dhp.PeerPubKey)
-	if err := dhp.ke.Check(dhp.PeerPubKey); err != nil {
-		hal_printf("Peer's public key is not on the curve: %s\n", err)
-		return nil
-	}
-	//hal_printf("ComputeSecret::Passed check.")
-
-	dhp.secretKey = dhp.ke.ComputeSecret(dhp.priKey, dhp.PeerPubKey)
-	//hal_printf("Secret key\n %s\n", hex.Dump(dhp.secretKey))
-	return dhp.secretKey
+bool EcdhProto::PutPeerPublicKey(UINT8 *publicKey, UINT16 size) {
+	if(size!=97){return false;}
+	memcpy(this->PeerPubKey, &publicKey[1], 96);
+	return true;
 }
 
-func (dhp *EcdhProto) GetPublicKey() []byte {
-	var pubKey []byte
-	pkp, ok := dhp.MyPubKey.(ecdh.Point)
-	if ok {
-		pubKey = elliptic.Marshal(elliptic.P384(), pkp.X, pkp.Y)
-	}
-	return pubKey
-}
 
-func (dhp *EcdhProto) PutPeerPublicKey(mpub []byte) {
-	//var pubKey []byte
-	x, y := elliptic.Unmarshal(elliptic.P384(), mpub)
-	dhp.PeerPubKey = ecdh.Point{X: x, Y: y}
-}
+
+
+
 
 /////////////////////////////Main state machine for the protocol
-func EcdhpStateMachine(msg []byte, dataC *chan Def.IPMsg, inaddr net.Addr) {
-	var outB []byte
-	ret := UnMarshall(msg)
-	switch ret := ret.(type) {
-	default:
-		log.Fatal("Unknown struct is returned, something is terribly wrong")
-	case *EcdhpRequestS:
-		hal_printf("Got a request machine, checking session manager...")
-		reqS := ret
-		//if GSM.IsPresent(reqS.SessionNo) == -1 {
-		//This is new session request, create a new
-		hal_printf("EchdhpStateMachine: New Session request...")
-		g_ServerEcdhp = NewEcdhProto(reqS.Ecc_curve_size)
-		outB = g_ClientEcdhp.CreateResponse(reqS)
-		//hal_printf("Created Response: ", outB)
-		//} else {
-		//	hal_printf("Already in session manager")
-		//}
 
-	//case EcdhpReqAckS:
-	case *EcdhpResponseS:
-		hal_printf("Got a response , checking session manager...")
-		resS := ret
-		if GSM.IsPresent(resS.SessionNo) == -1 {
-			log.Print("Something wrong, got a ecdh response, but never sent a request for session: ", resS.SessionNo)
-		} else {
-			outB = g_ClientEcdhp.CreateFinalize(resS)
-			//hal_printf("Created Finalizeation: ", outB)
+//while any side, cloud or device, can initiate a new session, for the purpose of the protocol,
+//the one who initiates is a client and uses the g_ClientEcdhp and the one who receives the request
+//uses g_ServerEcdhp object.
+void EcdhpStateMachine(UINT8 *msg, UINT8 size)
+{
+	void *outB;
+	MsgTypeE outT;
+	switch ((MsgTypeE)msg[0]) {
+		case M_ECDH_REQ:
+		{
+			hal_printf("Got a Ecdhp request, checking session manager...");
+			EcdhpRequestS *reqS = (EcdhpRequestS *)msg;
+			EcdhpResponseS resS;
+			NewEcdhProto(reqS->EccSize, &g_ServerEcdhp);
+			g_ServerEcdhp.CreateResponse(reqS, &resS);
+			resS.PrepareTx();
+			outT=M_ECDH_RES;
+			outB = (void*)&resS;
+			break;
 		}
-	case *EcdhpFinalizeS:
-		hal_printf("Got a Finalize , checking session manager...")
-		finS := ret
-		if GSM.IsPresent(finS.SessionNo) == -1 {
-			log.Print("Something wrong, got a ecdh response, but never sent a request for session: ", finS.SessionNo)
-		} else {
-			if finS.Result {
-				hal_printf("Received a successful finalize message for session: ", finS.SessionNo)
-				hal_printf("Session: ", finS.SessionNo, " is complete. Removing from session manager")
-				GSM.Delete(finS.SessionNo)
+		case M_ECDH_RES:
+		{
+			hal_printf("Got a Ecdgp response , checking session manager...\n");
+			EcdhpResponseS *resS = (EcdhpResponseS *)msg;
+			EcdhpFinalizeS finS;
+			outT=M_ECDH_FIN;
+			if (GSM.IsPresent(resS->SessionNo) == -1) {
+				hal_printf("Ecdhp:: Statemachine: Something wrong, got a ecdh response, but never sent a request for session: \n", resS->SessionNo);
+			} else {
+				g_ClientEcdhp.CreateFinalize(resS, &finS);
 			}
+			outT=M_ECDH_FIN;
+			outB = (void*)&finS;
+			break;
 		}
-	}
-	//created the response, this needs to be sent out.
-	if outB != nil {
-		//hal_printf("Sending response back to socket")
-		*dataC <- Def.IPMsg{
-			Addr: inaddr,
-			Msg:  outB,
+		case M_ECDH_FIN:
+		{
+			hal_printf("Got a Finalize , checking session manager...\n");
+			EcdhpFinalizeS *finS = (EcdhpFinalizeS *)(&msg[1]);
+			if (GSM.IsPresent(finS->SessionNo) == -1) {
+				hal_printf("Something wrong, got a ecdh response, but never sent a request for session: \n", finS->SessionNo);
+			} else {
+				if (finS->Result) {
+					hal_printf("Received a successful finalize message for session: \n", finS->SessionNo);
+					hal_printf("Session: ", finS->SessionNo, " is complete. Removing from session manager\n");
+					GSM.Delete(finS->SessionNo);
+					return;
+				}
+			}
+			break;
 		}
+		default:
+				hal_printf("Unknown struct is returned, something is terribly wrong");
 	}
+
+	SendToSecurityServer(outB, outT);
 }
 
-//Unmarshals incoming messages
-void UnMarshall(msg []byte) interface{} {
-	//hal_printf("MSG: ", msg[1:])
-	var retS interface{}
-	switch msg[0] {
-	case Def.M_ECDH_REQ:
-		hal_printf("Got a ECDH_REQ msg")
-		retS = &EcdhpRequestS{}
 
-	case Def.M_ECDH_RES:
-		hal_printf("Got a ECDH_RESPONSE msg")
-		retS = &EcdhpResponseS{}
-	case Def.M_ECDH_FIN:
-		hal_printf("Got a ECDH_Finalize msg")
-		retS = &EcdhpFinalizeS{}
-	default:
-		return nil
+
+
+/*
+There is not much the marshaller is doing, except calling prepare, hence added this to the statemachine directly
+and commented this out
+bool Marshall(void *msg,  MsgTypeE outType, UINT8 *outMsg) {
+	switch(outType) {
+		case M_ECDH_REQ:
+			hal_printf("Got a ECDH_REQ msg\n");
+			EcdhpRequestS *retS = (EcdhpRequestS*)msg;
+			retS->PrepareTx();
+			break;
+		case M_ECDH_RES:
+			hal_printf("Got a ECDH_RESPONSE msg\n");
+			EcdhpResponseS *retS = (EcdhpResponseS*)msg;
+			retS->PrepareTx();
+			break;
+		case M_ECDH_FIN:
+			hal_printf("Got a ECDH_Finalize msg\n");
+			EcdhpFinalizeS *retS = (EcdhpFinalizeS*)msg;
+			retS->PrepareTx();
+			break;
+		default:
+			return false;
 	}
-	hal_printf("Unmarsharing..")
-	err := binary.Unmarshal(msg[1:], retS)
-	if err != nil {
-		log.Fatal("Unmarshalling failed for ecdh_protocol : ", err)
-	} else {
-		//hal_printf(retS)
-	}
-	return retS
+	outMsg=(UINT8*)msg;
+	hal_printf("Unmarsharing Done\n");
+	return true;
 }
+*/
+
+/*
+bool UnMarshall(UINT8 *msg, UINT16 size, MsgTypeE *outType, void *outS) {
+	switch (MsgTypeE(msg[0])) {
+		case M_ECDH_REQ:
+			hal_printf("Got a ECDH_REQ msg");
+			EcdhpRequestS *retS = (EcdhpRequestS*)outS;
+			break;
+		case M_ECDH_RES:
+			hal_printf("Got a ECDH_RESPONSE msg");
+			EcdhpResponeS *retS = (EcdhpResponseS*)outS;
+			break;
+		case M_ECDH_FIN:
+			hal_printf("Got a ECDH_Finalize msg");
+			EcdhpFinalizeS *retS = (EcdhpFinalizeS*)outS;
+			break;
+		default:
+			return false;
+	}
+	hal_printf("Unmarsharing Done\n");
+	return true;
+}
+*/

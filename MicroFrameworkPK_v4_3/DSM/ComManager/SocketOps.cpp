@@ -1,16 +1,17 @@
 #include "SocketOps.h"
 
-MsgRecv_t serverRecvhandler;
-MsgRecv_t clientRecvhandler;
+//MsgRecv_t serverRecvhandler;
+//MsgRecv_t clientRecvhandler;
 
-int ServerInit(BOOL isTcp, , MsgRecv_t handler)
+int ServerInit(BOOL isTcp)
 {
 	int socket_fd,accept_fd;
 	socklen_t addr_size;
 	int sent_data;
-	char data_buffer[80]; struct sockaddr_in sa,ra,isa;
+	//char data_buffer[80];
+	struct sockaddr_in sa,ra,isa;
 
-	serverRecvhandler=hanlder;
+	//serverRecvhandler=hanlder;
 	// Creates an TCP socket (SOCK_STREAM) with Internet Protocol Family (PF_INET).
 	// Protocol family and Address family related. For example PF_INET Protocol Family and AF_INET family are coupled.
 	server_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -59,7 +60,7 @@ int ClientInit(BOOL isTcp)
 	// Creates an TCP socket (SOCK_STREAM) with Internet Protocol Family (PF_INET).
 	// Protocol family and Address family related. For example PF_INET Protocol Family and AF_INET family are coupled.
 	client_fd=-1;
-	serverRecvhandler=hanlder;
+	//serverRecvhandler=hanlder;
 	if(isTcp)
 		client_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	else
@@ -68,7 +69,7 @@ int ClientInit(BOOL isTcp)
 	if ( client_fd < 0 )
 	{
 		hal_printf("SocketTest: ClientInit: socket call failed\n");
-		return 0;
+		return client_fd;
 	}
 
 	memset(&sa, 0, sizeof(struct sockaddr_in));
@@ -106,14 +107,14 @@ int ClientInit(BOOL isTcp)
 }
 
 BOOL Recv(int socket_fd, uint32_t iter){
-	int recv_data = recv(socket_fd,data_buffer,sizeof(data_buffer),0);
+	int recv_data = recv(socket_fd,rx_buffer,sizeof(rx_buffer),0);
 	if(recv_data < 0)
 	{
 		hal_printf("SocketTest: Recv %d failed \n", iter);
 		return FALSE;
 	}
-	data_buffer[recv_data] = '\0';
-	hal_printf("received data: %s\n",data_buffer);
+	rx_buffer[recv_data] = '\0';
+	hal_printf("received data: %s\n",rx_buffer);
 
 	return TRUE;
 }
@@ -121,10 +122,10 @@ BOOL Recv(int socket_fd, uint32_t iter){
 
 BOOL SendHello(int socket_fd, uint32_t iter){
 	int strsize=13;
-	memcpy(data_buffer,"Hello World: ",strsize);
-	memcpy(&data_buffer[13],&iter,sizeof(iter));
+	memcpy(tx_buffer,"Hello World: ",strsize);
+	memcpy(&tx_buffer[13],&iter,sizeof(iter));
 	int msgsize = strsize+sizeof(iter);
-	int sent_data = send(socket_fd, data_buffer,msgsize,0);
+	int sent_data = send(socket_fd, tx_buffer,msgsize,0);
 
 	if(sent_data < 0 )
 	{
@@ -136,6 +137,26 @@ BOOL SendHello(int socket_fd, uint32_t iter){
 	}
 	return TRUE;
 }
+
+/*
+BOOL Send(int socket_fd, uint8_t *msg, uint16_t size){
+	int strsize=13;
+	memcpy(tx_buffer,"Hello World: ",strsize);
+	memcpy(&tx_buffer[13],&iter,sizeof(iter));
+	int msgsize = strsize+sizeof(iter);
+	int sent_data = send(socket_fd, msg,size,0);
+
+	if(sent_data < 0 )
+	{
+		hal_printf("SocketTest: Socket sending %d  failed\n", iter);
+		return FALSE;
+	}
+	else {
+		//hal_printf("SocketTest: Socket sending %d Success\n", iter);
+	}
+	return TRUE;
+}
+*/
 
 BOOL Close(int socket_fd){
 	close(socket_fd);

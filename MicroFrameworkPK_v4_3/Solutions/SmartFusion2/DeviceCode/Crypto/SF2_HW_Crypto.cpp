@@ -71,6 +71,16 @@ uint8_t Crypto_GetRandomSeed(uint8_t *buf, uint16_t length){
 	return Crypto_GetRandomBytes(buf, length);
 }
 
+uint16_t Crypto_GetRandomUInt16(){
+	return (uint16_t)Crypto_GetRandomUInt32();
+}
+
+uint32_t Crypto_GetRandomUInt32(){
+	uint32_t ret;
+	Crypto_GetRandomBytes((uint8_t*)&ret,4);
+	return ret;
+}
+
 uint8_t Crypto_GetRandomBytes(uint8_t *buf, uint16_t length){
 
 	//Initialize nrbg if not initailized
@@ -93,7 +103,6 @@ uint8_t Crypto_GetRandomBytes(uint8_t *buf, uint16_t length){
 	} while (length < 128);
 	return MSS_SYS_SUCCESS;
 }
-
 
 int SF2_CipherReset(sf2_cipher_context_t* ctx) {
 	memset(ctx, 0, sizeof(sf2_cipher_context_t));
@@ -171,6 +180,22 @@ int SF2_Digest(sf2_digest_context_t* ctx, uint8_t* data, uint32_t dataSize, uint
 	return status;
 }
 
+
+int SF2_ECDH_ComputeSecret(uint16_t eccSize, uint8_t *myKey, uint8_t *peerPubKey, uint8_t *secretKey){
+	if(eccSize!=(384/8)) return CRYPTO_UNKNOWNKEY;
+	uint8_t ecc_shared_secret_x_y[96]={0};
+	uint8_t status = MSS_SYS_ecc_point_multiplication(myKey, peerPubKey, ecc_shared_secret_x_y);
+	if(MSS_SYS_SUCCESS == status)
+	{
+		for (int i=0; i<48; i++)
+		{
+			secretKey[i] = ecc_shared_secret_x_y[i];
+		}
+		return status;
+	}
+	return CRYPTO_FAILURE;
+}
+
 //Generate ECC Public-Private Key-Pair
 int SF2_ECC384_PKEY(sf2_ecc_key_t *key, bool derive_pkey){
 
@@ -193,6 +218,12 @@ int SF2_ECC384_PKEY(sf2_ecc_key_t *key, bool derive_pkey){
 
 
 ////////////////////// Native Crypto APIs ////////////////////
+
+CRYPTO_RESULT Crypto_ECDH_ComputeSecret(DWORD keySize, BYTE *myPrivateKey, BYTE *peerPubKey, BYTE *secretKey){
+	return M2S_STATUS_TO_CRYPTO(SF2_ECDH_ComputeSecret(keySize, myPrivateKey, peerPubKey, secretKey));
+}
+
+
 // there are maximum BLOCK_SIZE bytes in the signature (32 bytes for AES and XTEA)
 CRYPTO_RESULT Crypto_GetFingerprint(BYTE *key, BYTE *Signature, int cbSignatureSize){
 	return CRYPTO_ACTIVATIONBADSYNTAX;

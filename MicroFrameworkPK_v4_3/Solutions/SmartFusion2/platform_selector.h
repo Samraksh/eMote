@@ -289,6 +289,7 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_INTERRUPT_CONTEXT_MARKER 5
 
 // timers that are run within continuations (all C# user timers are run outside an interrupt context also)
+#define VIRT_TIMER_NET_SOC 			9
 #define VIRT_TIMER_TIME 			10
 #define VIRT_TIMER_REALTIME_DEBUGGER 11
 #define VIRT_TIMER_ADC_PERIODIC		12

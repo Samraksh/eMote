@@ -120,6 +120,7 @@ int SF2_GetBlockSize(sf2_cipher_context_t* ctx){
 ///main wrapper function for all digest methods
 int SF2_Digest(sf2_digest_context_t* ctx, uint8_t* data, uint32_t dataSize, uint8_t* result, uint32_t *resultSize);
 
+///Derive a new ECC384 based public/private keypair
 int SF2_ECC384_PKEY(sf2_ecc_key_t *privateKey, bool derive_pkey);
 
 //sf2_ecc_key_t* ECC384_PKEY_New();

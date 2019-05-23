@@ -114,6 +114,13 @@ uint8_t Crypto_GetRandomSeed(uint8_t *buf, uint16_t length);
 uint8_t Crypto_GetRandomBytes(uint8_t *buf, uint16_t length);
 
 
+uint16_t Crypto_GetRandomUInt16();
+
+uint32_t Crypto_GetRandomUInt32();
+
+
+CRYPTO_RESULT Crypto_ECDH_ComputeSecret(DWORD keySize, BYTE *myPrivateKey, BYTE *peerPubKey, BYTE *secretKey);
+
 // this function computes a symmetric key signature based on a symmetric key
 // there are maximum BLOCK_SIZE bytes in the signature (16 bytes for AES and XTEA)
 CRYPTO_RESULT Crypto_GetFingerprint(BYTE *key, BYTE *Signature, int cbSignatureSize);

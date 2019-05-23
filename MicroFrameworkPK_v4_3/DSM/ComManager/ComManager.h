@@ -19,9 +19,20 @@ enum MsgTypeE {
 	//M_ECDH_TER
 };
 
-bool InitializeServerCom();
+
+//typedef void *RecvFnPtr (uint8_t * msg, uint16_t size);
+
+void CheckRecv(void *arg);
+
+bool InitializeComManager();
 
 bool SendToSecurityServer(void *msgStruct, MsgTypeE mtype);
+
+void RecvHandler (uint8_t * msg, uint16_t size);
+
+void EcdhpStateMachine(UINT8 *msg, UINT8 size);
+
+
 
 
 #endif //_COM_MANAGER_H_
