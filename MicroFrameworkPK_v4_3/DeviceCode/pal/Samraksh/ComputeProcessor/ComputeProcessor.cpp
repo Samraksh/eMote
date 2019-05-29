@@ -158,44 +158,44 @@ static int parseCPCommand(uint8_t* msg){
 
 	if (strCompare(msg, "SetLocalName\n", &comparePos)){
 		parameterEnd = getParameter(msg, parameter1);
-		hal_printf("set local name %s\r\n", parameter1);
+		//hal_printf("set local name %s\r\n", parameter1);
 		shiftBuffer(msg, parameterEnd);
 		return 1;
 	} else if (strCompare(msg, "SetClassOfDevice\n", &comparePos)){
 		parameterEnd = getParameter(msg, parameter1);
-		hal_printf("set class %s\r\n", parameter1);
+		//hal_printf("set class %s\r\n", parameter1);
 		shiftBuffer(msg, parameterEnd);
 		return 1;
 	} else if (strCompare(msg, "PINCodeResponse\n", &comparePos)){
 		parameterEnd = getParameter(msg, parameter1);
-		hal_printf("pin code %s\r\n", parameter1);
+		//hal_printf("pin code %s\r\n", parameter1);
 		shiftBuffer(msg, parameterEnd);
 		return 1;
 	} else if (strCompare(msg, "SetDiscoverabilityMode\n", &comparePos)){
 		parameterEnd = getParameter(msg, parameter1);
-		hal_printf("disc mode %s\r\n", parameter1);
+		//hal_printf("disc mode %s\r\n", parameter1);
 		shiftBuffer(msg, parameterEnd);
 		return 1;
 	} else if (strCompare(msg, "SetConnectabilityMode\n", &comparePos)){
 		parameterEnd = getParameter(msg, parameter1);
-		hal_printf("set conn mode %s\r\n", parameter1);
+		//hal_printf("set conn mode %s\r\n", parameter1);
 		shiftBuffer(msg, parameterEnd);
 		return 1;
 	} else if (strCompare(msg, "Inquiry\n", &comparePos)){
-		hal_printf("Inquire %d\r\n", comparePos);
+		//hal_printf("Inquire %d\r\n", comparePos);
 		shiftBuffer(msg, comparePos + 1);
 		return 1;
 	} else if (strCompare(msg, "GetInquiryList\n", &comparePos)){
-		hal_printf("inquiry list %d\r\n", comparePos);
+		//hal_printf("inquiry list %d\r\n", comparePos);
 		shiftBuffer(msg, comparePos + 1);
 		return 1;
 	} else if (strCompare(msg, "CloseConnection\n", &comparePos)){
-		hal_printf("close conn %d\r\n", comparePos);
+		//hal_printf("close conn %d\r\n", comparePos);
 		shiftBuffer(msg, comparePos + 1);
 		return 1;
 	} else if (strCompare(msg, "DataWrite\n", &comparePos)){
 		parameterEnd = get2Parameter(msg, &dataSize, parameter1);
-		hal_printf("data write (%d) %s\r\n", dataSize, parameter1);
+		//hal_printf("data write (%d) %s\r\n", dataSize, parameter1);
 		shiftBuffer(msg, parameterEnd);
 
 		uint8_t testSend[6];
