@@ -65,12 +65,59 @@
 #include "..\btcore\ble\le_device_db.h"
 #include "..\btcore\ble\att_server.h"
 #include "..\btcore\gap.h"
+#include "..\btcore\ble\gatt_client.h"
 #include "btmain.h"
 
 #define RFCOMM_SERVER_CHANNEL 1
 #define HEARTBEAT_PERIOD_MS 1000
 
 #define BLUETOOTH_MASTER 1
+
+#define TEST_MODE 1
+#define TEST_MODE_ENABLE_NOTIFICATIONS 1
+
+// prototypes
+static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size);
+
+typedef enum {
+    TC_OFF,
+    TC_IDLE,
+    TC_W4_SCAN_RESULT,
+    TC_W4_CONNECT,
+    TC_W4_SERVICE_RESULT,
+    TC_W4_CHARACTERISTIC_RX_RESULT,
+    TC_W4_CHARACTERISTIC_TX_RESULT,
+    TC_W4_ENABLE_NOTIFICATIONS_COMPLETE,
+    TC_W4_TEST_DATA
+} gc_state_t;
+
+// On the GATT Server, RX Characteristic is used for receive data via Write, and TX Characteristic is used to send data via Notifications
+static uint8_t le_streamer_service_uuid[16]           = { 0x00, 0x00, 0xFF, 0x10, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB};
+static uint8_t le_streamer_characteristic_rx_uuid[16] = { 0x00, 0x00, 0xFF, 0x11, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB};
+static uint8_t le_streamer_characteristic_tx_uuid[16] = { 0x00, 0x00, 0xFF, 0x11, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x80, 0x5F, 0x9B, 0x34, 0xFB};
+
+static gatt_client_service_t le_streamer_service;
+static gatt_client_characteristic_t le_streamer_characteristic_rx;
+static gatt_client_characteristic_t le_streamer_characteristic_tx;
+
+static gatt_client_notification_t notification_listener;
+static int listener_registered;
+
+static gc_state_t state = TC_OFF;
+static btstack_packet_callback_registration_t hci_event_callback_registration;
+
+// support for multiple clients
+typedef struct {
+    char name;
+    int le_notification_enabled;
+    int  counter;
+    char test_data[200];
+    int  test_data_len;
+    uint32_t test_data_sent;
+    uint32_t test_data_start;
+} le_streamer_connection_t;
+
+static le_streamer_connection_t le_streamer_connection;
 
 #define MAX_DEVICES 20
 enum DEVICE_STATE { REMOTE_NAME_REQUEST, REMOTE_NAME_INQUIRED, REMOTE_NAME_FETCHED };
@@ -98,7 +145,7 @@ static btstack_timer_source_t heartbeat;
 static int  counter = 0;
 static char counter_string[30];
 static int  counter_string_len;
-//static hci_con_handle_t connection_handle;
+static hci_con_handle_t connection_handle;
 
 static btstack_packet_callback_registration_t hci_event_callback_registration;
 
@@ -167,6 +214,176 @@ static void continue_remote_names(void){
     start_scan();
 }
 
+static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size){
+    uint16_t mtu;
+    switch(state){
+        case TC_W4_SERVICE_RESULT:
+            switch(hci_event_packet_get_type(packet)){
+                case GATT_EVENT_SERVICE_QUERY_RESULT:
+                    // store service (we expect only one)
+                    gatt_event_service_query_result_get_service(packet, &le_streamer_service);
+                    break;
+                case GATT_EVENT_QUERY_COMPLETE:
+                    if (packet[4] != 0){
+                        log_always("SERVICE_QUERY_RESULT - Error status %x.\n", packet[4]);
+                        gap_disconnect(connection_handle);
+                        break;  
+                    } 
+                    // service query complete, look for characteristic
+                    state = TC_W4_CHARACTERISTIC_RX_RESULT;
+                    log_always("Search for LE Streamer RX characteristic.\n");
+                    gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &le_streamer_service, le_streamer_characteristic_rx_uuid);
+                    break;
+                default:
+                    break;
+            }
+            break;
+            
+        case TC_W4_CHARACTERISTIC_RX_RESULT:
+            switch(hci_event_packet_get_type(packet)){
+                case GATT_EVENT_CHARACTERISTIC_QUERY_RESULT:
+                    gatt_event_characteristic_query_result_get_characteristic(packet, &le_streamer_characteristic_rx);
+                    break;
+                case GATT_EVENT_QUERY_COMPLETE:
+                    if (packet[4] != 0){
+                        log_always("CHARACTERISTIC_QUERY_RESULT - Error status %x.\n", packet[4]);
+                        gap_disconnect(connection_handle);
+                        break;  
+                    } 
+                    // rx characteristiic found, look for tx characteristic
+                    state = TC_W4_CHARACTERISTIC_TX_RESULT;
+                    log_always("Search for LE Streamer TX characteristic.\n");
+                    gatt_client_discover_characteristics_for_service_by_uuid128(handle_gatt_client_event, connection_handle, &le_streamer_service, le_streamer_characteristic_tx_uuid);
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case TC_W4_CHARACTERISTIC_TX_RESULT:
+            switch(hci_event_packet_get_type(packet)){
+                case GATT_EVENT_CHARACTERISTIC_QUERY_RESULT:
+                    gatt_event_characteristic_query_result_get_characteristic(packet, &le_streamer_characteristic_tx);
+                    break;
+                case GATT_EVENT_QUERY_COMPLETE:
+                    if (packet[4] != 0){
+                        log_always("CHARACTERISTIC_QUERY_RESULT - Error status %x.\n", packet[4]);
+                        gap_disconnect(connection_handle);
+                        break;  
+                    } 
+                    // register handler for notifications
+                    listener_registered = 1;
+                    gatt_client_listen_for_characteristic_value_updates(&notification_listener, handle_gatt_client_event, connection_handle, &le_streamer_characteristic_tx);
+                    // setup tracking
+                    le_streamer_connection.name = 'A';
+                    le_streamer_connection.test_data_len = ATT_DEFAULT_MTU - 3;
+                    //test_reset(&le_streamer_connection);
+                    gatt_client_get_mtu(connection_handle, &mtu);
+                    le_streamer_connection.test_data_len = btstack_min(mtu - 3, sizeof(le_streamer_connection.test_data));
+                    log_always("%c: ATT MTU = %u => use test data of len %u\n", le_streamer_connection.name, mtu, le_streamer_connection.test_data_len);
+                    // enable notifications
+#if (TEST_MODE & TEST_MODE_ENABLE_NOTIFICATIONS)
+                    log_always("Start streaming - enable notify on test characteristic.\n");
+                    state = TC_W4_ENABLE_NOTIFICATIONS_COMPLETE;
+                    gatt_client_write_client_characteristic_configuration(handle_gatt_client_event, connection_handle,
+                        &le_streamer_characteristic_tx, GATT_CLIENT_CHARACTERISTICS_CONFIGURATION_NOTIFICATION);
+                    break;
+#endif
+                    state = TC_W4_TEST_DATA;
+#if (TEST_MODE & TEST_MODE_WRITE_WITHOUT_RESPONSE)
+                    log_always("Start streaming - request can send now.\n");
+                    gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
+#endif
+                    break;
+                default:
+                    break;
+            }
+            break;
+			
+        case TC_W4_ENABLE_NOTIFICATIONS_COMPLETE:
+            switch(hci_event_packet_get_type(packet)){
+                case GATT_EVENT_QUERY_COMPLETE:
+                    log_always("Notifications enabled, status %02x\n", gatt_event_query_complete_get_status(packet));
+                    if ( gatt_event_query_complete_get_status(packet)) break;
+                    state = TC_W4_TEST_DATA;
+
+					log_always("*** sending abc 3 *****");
+					counter_string[0] = 'a';
+					counter_string[0] = 'b';
+					counter_string[0] = 'c';
+					counter_string_len = 3;
+                    //att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);
+					
+					// send
+    				uint8_t status = gatt_client_write_value_of_characteristic_without_response(connection_handle, le_streamer_characteristic_rx.value_handle, 3, (uint8_t*) counter_string);
+    				if (status){
+        				log_always("error %02x for write without response!\n", status);
+        				return;
+    				}
+
+    				// request again
+				    gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
+#if (TEST_MODE & TEST_MODE_WRITE_WITHOUT_RESPONSE)
+                    log_always("Start streaming - request can send now.\n");
+                    gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
+#endif
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+        case TC_W4_TEST_DATA:
+            switch(hci_event_packet_get_type(packet)){
+                case GATT_EVENT_NOTIFICATION:
+                    //test_track_data(&le_streamer_connection, gatt_event_notification_get_value_length(packet));
+					log_always("*** sending abc 1 *****");
+					counter_string[0] = 'a';
+					counter_string[0] = 'b';
+					counter_string[0] = 'c';
+					counter_string_len = 3;
+                    att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);
+                    break;
+                case GATT_EVENT_QUERY_COMPLETE:
+                    break;
+                case GATT_EVENT_CAN_WRITE_WITHOUT_RESPONSE:
+
+					log_always("*** sending abc 3 *****");
+					counter_string[0] = 'a';
+					counter_string[1] = 'b';
+					counter_string[2] = 'c';
+					counter_string_len = 3;
+                    //att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);
+					
+					// send
+    				uint8_t status = gatt_client_write_value_of_characteristic_without_response(connection_handle, le_streamer_characteristic_rx.value_handle, 3, (uint8_t*) counter_string);
+    				if (status){
+        				log_always("error %02x for write without response!\n", status);
+        				return;
+    				}
+
+    				// request again
+				    gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
+                    //streamer(&le_streamer_connection);
+					/*log_always("*** sending abc 2 *****");
+					counter_string[0] = 'a';
+					counter_string[0] = 'b';
+					counter_string[0] = 'c';
+					counter_string_len = 3;
+                    att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);*/
+                    break;
+                default:
+                    log_always("Unknown packet type %x\n", hci_event_packet_get_type(packet));
+                    break;
+            }
+            break;
+
+        default:
+            log_always("error\n");
+            break;
+    }
+    
+}
 /* 
  * @section Packet Handler
  * 
@@ -183,6 +400,7 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
     int i;
 	int index;
 
+
 	switch (packet_type) {
 		case HCI_EVENT_PACKET:
 			switch (hci_event_packet_get_type(packet)) {
@@ -190,10 +408,12 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
 				case BTSTACK_EVENT_STATE:
             		// BTstack activated, get started
 		            if (btstack_event_state_get_state(packet) == HCI_STATE_WORKING){
-        		        /*log_always("Start scaning!\n");
+        		        log_always("Start scaning!\n");
             		    gap_set_scan_parameters(1,0x0030, 0x0030);
-                		gap_start_scan(); */
-					    start_scan();
+                		gap_start_scan(); 
+					    
+						//inquiry
+						//start_scan();
             		}
             	break;
         		case GAP_EVENT_ADVERTISING_REPORT:{
@@ -204,14 +424,19 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
             		const uint8_t * data = gap_event_advertising_report_get_data(packet);
             		log_always("Advertisement event: addr-type %u, addr %s, data[%u] ", address_type, bd_addr_to_str(address), length);
             		log_info_hexdump(data, length);
-            		if (!ad_data_contains_uuid16(length, (uint8_t *) data, REMOTE_SERVICE)) break;
-            		log_always("Found remote with UUID %04x, connecting...\n", REMOTE_SERVICE);
+            		//if (!ad_data_contains_uuid16(length, (uint8_t *) data, REMOTE_SERVICE)) break;
+            		//log_always("Found remote with UUID %04x, connecting...\n", REMOTE_SERVICE);
+					gap_remote_name_request( address, gap_event_inquiry_result_get_page_scan_repetition_mode(packet),  gap_event_inquiry_result_get_clock_offset(packet) | 0x8000);
+            		if (address[0] != 0x98 || address[1] != 0x07) break;
+            		log_always("Found device\r\n");
             		gap_stop_scan();
             		gap_connect(address,address_type);
+					state = TC_W4_CONNECT;
             		break;
 				}
 
-				case GAP_EVENT_INQUIRY_RESULT:
+// 98:07:2d:38:F3:80												
+				/*case GAP_EVENT_INQUIRY_RESULT:
                     if (deviceCount >= MAX_DEVICES) break;  // already full
                     gap_event_inquiry_result_get_bd_addr(packet, addr);
                     index = getDeviceIndexForAddress(addr);
@@ -248,7 +473,7 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                             devices[i].state = REMOTE_NAME_REQUEST;
                     }
                     continue_remote_names();
-                    break;
+                    break;*/
 #endif
                 case HCI_EVENT_PIN_CODE_REQUEST:
                     // inform about pin code request
@@ -267,18 +492,35 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
             		// wait for connection complete
             		if (hci_event_le_meta_get_subevent_code(packet) !=  HCI_SUBEVENT_LE_CONNECTION_COMPLETE) break;
 					log_always("------------------------ Connected ------------------------------");
-            		//connection_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
-            		
+					if (state != TC_W4_CONNECT) return;
+					state = TC_W4_SERVICE_RESULT;
+            		connection_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
+					log_always("discovering handle %d", connection_handle);
+		            gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, connection_handle, le_streamer_service_uuid);
            	 		break;
 
                 case HCI_EVENT_DISCONNECTION_COMPLETE:
 					log_always("------------------------ Disconnected ------------------------");
+					if (listener_registered){
+                		listener_registered = 0;
+                		gatt_client_stop_listening_for_characteristic_value_updates(&notification_listener);
+            		}
+					// re-enable page/inquiry scan again
+                    gap_discoverable_control(1);
+                    gap_connectable_control(1);
+                    // re-enable advertisements
+                    gap_advertisements_enable(1);
                     le_notification_enabled = 0;
                     break;
 
                 case ATT_EVENT_CAN_SEND_NOW:
 					log_always("------------------------ Connected ------------------------");
-                    att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);
+					/*log_always("sending abc 3");
+					counter_string[0] = 'a';
+					counter_string[0] = 'b';
+					counter_string[0] = 'c';
+					counter_string_len = 3;
+                    att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);*/
                     break;
 
                 case RFCOMM_EVENT_INCOMING_CONNECTION:
@@ -298,6 +540,11 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                         rfcomm_channel_id = rfcomm_event_channel_opened_get_rfcomm_cid(packet);
                         mtu = rfcomm_event_channel_opened_get_max_frame_size(packet);
                         log_always("RFCOMM channel open succeeded. New RFCOMM Channel ID %u, max frame size %u\n", rfcomm_channel_id, mtu);
+						// disable page/inquiry scan to get max performance
+                        gap_discoverable_control(0);
+                        gap_connectable_control(0);
+                        // disable advertisements
+                        gap_advertisements_enable(0);
                     }
 					break;
 
@@ -419,7 +666,7 @@ int btstack_main(void)
     sdp_register_service(spp_service_buffer);
 //    log_info("SDP service record size: %u\n", de_get_len(spp_service_buffer));
 
-    gap_set_local_name("SPP and LE Counter 00:00:00:00:00:00");
+    gap_set_local_name("test and LE Counter 00:00:00:00:00:00");
     gap_ssp_set_io_capability(SSP_IO_CAPABILITY_DISPLAY_YES_NO);
     gap_discoverable_control(1);
 
@@ -428,6 +675,8 @@ int btstack_main(void)
 
     // setup SM: Display only
     sm_init();
+
+	gatt_client_init();
 
     // setup ATT server
     att_server_init(profile_data, att_read_callback, att_write_callback);    

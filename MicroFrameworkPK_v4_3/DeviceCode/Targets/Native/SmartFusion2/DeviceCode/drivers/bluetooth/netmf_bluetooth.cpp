@@ -25,14 +25,6 @@ DeviceStatus CPU_Bluetooth_Initialize( )
 
 	bluetooth_main();
 
-	/*uint8_t x[5];
-	x[0] = 't';
-	x[1] = 'e';
-	x[2] = 's';
-	x[3] = 't';
-	x[4] = '\n';
-	btUartWrite(&x[0], 5);*/
- 
 	return status;
 }
 

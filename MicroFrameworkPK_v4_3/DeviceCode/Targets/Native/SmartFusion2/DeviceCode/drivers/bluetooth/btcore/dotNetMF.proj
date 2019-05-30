@@ -114,6 +114,8 @@
 	<Compile Include="ble\att_dispatch.c" />
 	<HFiles Include="ble\le_device_db.h" />
 	<Compile Include="ble\le_device_db_tlv.c" />
+	<Compile Include="ble\gatt_client.c" />
+	<HFiles Include="ble\gatt_client.h" />
 	<HFiles Include="btstack_tlv.h" />
 	<Compile Include="btstack_tlv.c" />
   </ItemGroup>

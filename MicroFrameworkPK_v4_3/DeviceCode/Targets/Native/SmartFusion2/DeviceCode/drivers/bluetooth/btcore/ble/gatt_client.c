@@ -39,7 +39,7 @@
 
 #include "..\..\sf2\btstack_config.h"
 
-#include "..\att_dispatch.h"
+#include "att_dispatch.h"
 #include "..\ad_parser.h"
 #include "att_db.h"
 #include "core.h"
