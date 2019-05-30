@@ -13,13 +13,18 @@ extern "C" {
 
 #include "btcore\btstack_uart_block.h"	
 #include "sf2\btstack_port.h"	
-#include "sf2\hal_tick.c"
+#include "sf2\hal_tick.h"
+#include "sf2\btmain.h"
 
 // uart config
 static const btstack_uart_config_t * uart_config;
 
 void call_btstack_scheduler_loop(){
 	hal_btstack_run_loop_execute_once();
+}
+
+void sendPacket(){
+	sendDataPacket();
 }
 
 void debugBT_printf(const char* format, va_list argptr){
@@ -47,6 +52,8 @@ void SetBTTimerInterrupt(int ticks){
 	//VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, ticks, FALSE, TRUE, (TIMER_CALLBACK_FPN)callbackFunction, ADVTIMER_32BIT);
 	VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, 10000, FALSE, TRUE, (TIMER_CALLBACK_FPN)call_btstack_scheduler_loop, ADVTIMER_32BIT);
 	VirtTimer_Start(VIRT_TIMER_BLUETOOTH_TICK);
+	VirtTimer_SetOrChangeTimer(39, 0, 5000000, FALSE, TRUE, (TIMER_CALLBACK_FPN)sendPacket, ADVTIMER_32BIT);
+	VirtTimer_Start(39);
 }
 
 uint64_t BTGetTicks(void){

@@ -101,7 +101,7 @@ static gatt_client_characteristic_t le_streamer_characteristic_rx;
 static gatt_client_characteristic_t le_streamer_characteristic_tx;
 
 static gatt_client_notification_t notification_listener;
-static int listener_registered;
+static int listener_registered = 0;
 
 static gc_state_t state = TC_OFF;
 static btstack_packet_callback_registration_t hci_event_callback_registration;
@@ -306,8 +306,9 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
                     log_always("Notifications enabled, status %02x\n", gatt_event_query_complete_get_status(packet));
                     if ( gatt_event_query_complete_get_status(packet)) break;
                     state = TC_W4_TEST_DATA;
+					listener_registered = 1;
 
-					log_always("*** sending abc 3 *****");
+					/*log_always("*** sending abc 3 *****");
 					counter_string[0] = 'a';
 					counter_string[0] = 'b';
 					counter_string[0] = 'c';
@@ -323,6 +324,8 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
 
     				// request again
 				    gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
+					*/
+					
 #if (TEST_MODE & TEST_MODE_WRITE_WITHOUT_RESPONSE)
                     log_always("Start streaming - request can send now.\n");
                     gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
@@ -337,18 +340,18 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
             switch(hci_event_packet_get_type(packet)){
                 case GATT_EVENT_NOTIFICATION:
                     //test_track_data(&le_streamer_connection, gatt_event_notification_get_value_length(packet));
-					log_always("*** sending abc 1 *****");
+					/*log_always("*** sending abc 1 *****");
 					counter_string[0] = 'a';
 					counter_string[0] = 'b';
 					counter_string[0] = 'c';
 					counter_string_len = 3;
-                    att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);
+                    att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);*/
                     break;
                 case GATT_EVENT_QUERY_COMPLETE:
                     break;
                 case GATT_EVENT_CAN_WRITE_WITHOUT_RESPONSE:
 
-					log_always("*** sending abc 3 *****");
+					/*log_always("*** sending abc 3 *****");
 					counter_string[0] = 'a';
 					counter_string[1] = 'b';
 					counter_string[2] = 'c';
@@ -363,7 +366,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
     				}
 
     				// request again
-				    gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
+				    gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);*/
                     //streamer(&le_streamer_connection);
 					/*log_always("*** sending abc 2 *****");
 					counter_string[0] = 'a';
@@ -714,6 +717,30 @@ int btstack_main(void)
 	log_always("Initialized.");
 	    
     return 0;
+}
+
+void sendDataPacket(){
+	if (listener_registered == 0){
+		log_always("X");
+	   	return;
+	}
+	static char last = 'A';
+	log_always("*** data packet *****");
+	if (last > 'z') last = 'A';
+					counter_string[0] = last++;
+					counter_string[1] = last++;
+					counter_string[2] = last++;
+					counter_string_len = 3;
+					
+					// send
+    				uint8_t status = gatt_client_write_value_of_characteristic_without_response(connection_handle, le_streamer_characteristic_rx.value_handle, 3, (uint8_t*) counter_string);
+    				if (status){
+        				log_always("error %02x for write without response!\n", status);
+        				return;
+    				}
+
+    				// request again
+				    gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
 }
 /* LISTING_END */
 /* EXAMPLE_END */
