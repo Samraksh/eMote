@@ -2,9 +2,10 @@
 
 
 OBJECT_DATA SF2_HW_PKCS11_Objects::s_Objects[];
-const UINT16 KEY_DATA_SIZE=((256+7)/8+sizeof(KEY_DATA));
+
+//const UINT16 KEY_DATA_SIZE=((256+7)/8+sizeof(KEY_DATA));
+
 extern CK_RV AllocateKeyData(KEY_DATA **pKey);
-extern CK_RV FreeKeyData(KEY_DATA *pKey);
 int heapUsage =0;
 
 int SF2_HW_PKCS11_Objects::FindEmptyObjectHandle()
@@ -39,7 +40,8 @@ CK_OBJECT_HANDLE SF2_HW_PKCS11_Objects::AllocObject(Cryptoki_Session_Context* pS
     *ppData = &s_Objects[idx];
 
     (*ppData)->Type = type;
-    if(type == KeyType){
+
+    /*if(type == KeyType){
     	AllocateKeyData((KEY_DATA **) &(*ppData)->Data);
     }else {
     	(*ppData)->Data = SF2_HW_PKCS11_MALLOC(size);
@@ -47,7 +49,8 @@ CK_OBJECT_HANDLE SF2_HW_PKCS11_Objects::AllocObject(Cryptoki_Session_Context* pS
     		(*ppData)->Size = size;
     		heapUsage += size;
     	}
-    }
+    }*/
+    (*ppData)->Data = SF2_HW_PKCS11_MALLOC(size);
     (*ppData)->RefCount = 1;
     if((*ppData)->Data == NULL) return CK_OBJECT_HANDLE_INVALID;
 
@@ -66,14 +69,16 @@ BOOL SF2_HW_PKCS11_Objects::FreeObject(Cryptoki_Session_Context* pSessionCtx, CK
 
     retVal = &s_Objects[(int)hObject];
     if(retVal->Data == NULL) return FALSE;
-
+    /*
     if(retVal->Type == KeyType){
     	FreeKeyData((KEY_DATA*)retVal->Data);
     }else {
     	heapUsage -= retVal->Size;
     	SF2_HW_PKCS11_FREE(retVal->Data);
 
-    }
+    }*/
+
+    SF2_HW_PKCS11_FREE(retVal->Data);
     retVal->Data = NULL;
     retVal->RefCount = 0;
 

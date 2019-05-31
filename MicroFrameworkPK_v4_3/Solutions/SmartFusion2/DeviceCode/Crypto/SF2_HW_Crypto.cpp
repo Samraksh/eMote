@@ -21,7 +21,44 @@ const uint8_t personalStr[16]= "H e y !$*)0@n/?";
 //static uint8_t g_checksum_hash[32];
 //static uint8_t g_aes_iv[32];
 
+/*
+//Ecc apis
+uint8_t MSS_SYS_puf_fetch_ecc_public_key(uint8_t* p_puf_public_key);
+//d*P=Q
+uint8_t MSS_SYS_ecc_point_multiplication(
+    uint8_t* p_scalar_d,
+    uint8_t* p_point_p,
+    uint8_t* p_point_q
+);
+//P+Q=R
+uint8_t MSS_SYS_ecc_point_addition
+(
+    uint8_t* p_point_p,
+    uint8_t* p_point_q,
+    uint8_t* p_point_r
+);
+//Get base point G, which can then be used to generate public key
+void MSS_SYS_ecc_get_base_point
+(
+    uint8_t* p_point_g
+);
+*/
 
+CRYPTO_RESULT M2S_STATUS_TO_CRYPTO (uint8_t status){
+	switch (status){
+		case MSS_SYS_SUCCESS:
+			return CRYPTO_SUCCESS;
+		case MSS_SYS_UNEXPECTED_ERROR:
+			return CRYPTO_UNKNOWNERROR;
+		case MSS_SYS_MEM_ACCESS_ERROR:
+			return CRYPTO_NOMEMORY;
+		case MSS_SYS_SERVICE_NOT_LICENSED:
+		case MSS_SYS_SERVICE_DISABLED_BY_FACTORY:
+		case MSS_SYS_SERVICE_DISABLED_BY_USER:
+		default:
+			return CRYPTO_FAILURE;
+	}
+}
 
 uint8_t nrbgInit(){
 	if(!nrbg_init){
@@ -31,25 +68,31 @@ uint8_t nrbgInit(){
 	}
 }
 
-int GetRandomSeed(uint8_t *buf, uint16_t length){
+uint8_t GetRandomSeed(uint8_t *buf, uint16_t length){
 	return GetRandomBytes(buf, length);
 }
 
-int GetRandomBytes(uint8_t *buf, uint16_t length){
-	nrbgInit();
-	int ret =0;
+uint8_t GetRandomBytes(uint8_t *buf, uint16_t length){
+
+	//Initialize nrbg if not initailized
+	if(!nrbg_init)	nrbgInit();
 	do {
 		uint16_t dataSize=0;
 		if(length > 128) { dataSize=128; length -=128;} else { dataSize = length;}
 
 		uint8_t *result = (uint8_t*) buf;
-		uint8_t status = MSS_SYS_nrbg_generate( result, additionalStr, dataSize, 0, 0, nrbg_handle);
 
-		if(status != MSS_SYS_SUCCESS) return -1;
+		//first generate a new nouce,
+		uint8_t status = MSS_SYS_nrbg_instantiate(personalStr, 0 /*sizeof(personalization_str)*/, &nrbg_handle);
+		if(status != MSS_SYS_SUCCESS) return M2S_STATUS_TO_CRYPTO(status);
 
-		result+=dataSize; ret+=dataSize;
+		//now generate random bytes using nonce
+		status = MSS_SYS_nrbg_generate( result, additionalStr, dataSize, 0, 0, nrbg_handle);
+		if(status != MSS_SYS_SUCCESS) return M2S_STATUS_TO_CRYPTO(status);
+
+		result+=dataSize;
 	} while (length < 128);
-	return ret;
+	return MSS_SYS_SUCCESS;
 }
 
 
@@ -128,6 +171,27 @@ int SF2_Digest(sf2_digest_context_t* ctx, uint8_t* data, uint32_t dataSize, uint
 	*resultSize = 32; //SHA256 HMAC has constant 256-bit or 32byte mac
 	return status;
 }
+
+//Generate ECC Public-Private Key-Pair
+int SF2_ECC384_PKEY(sf2_ecc_key_t *key, bool derive_pkey){
+
+	//SF2 uses NIST P-384 curve, which means the private key is 384 bits/48 bytes long.
+	//public key is 96 bytes long
+
+	//generate a 48 byte, random number first
+	if(derive_pkey){
+		GetRandomBytes(key->privateKey, 48);
+	}
+
+
+	/* ECC Key generation */
+	uint8_t status = MSS_SYS_ecc_point_multiplication(key->privateKey, 0, key->publicKey);
+	if(MSS_SYS_SUCCESS != status)
+	{
+		return M2S_STATUS_TO_CRYPTO(status);
+	}
+}
+
 
 ////////////////////// Native Crypto APIs ////////////////////
 // there are maximum BLOCK_SIZE bytes in the signature (32 bytes for AES and XTEA)
