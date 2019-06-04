@@ -297,18 +297,19 @@ BOOL Crypto_Cipher(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* p
 
 
 // Encrypts a buffer using a symmetric algorithm.
-BOOL Crypto_Encrypt(BYTE *Key, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText){
+/*BOOL Crypto_Encrypt(BYTE *Key, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText){
 	return FALSE;
-}
+}*/
 
-BOOL Crypto_Encrypt(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText, bool encrypt){
+BOOL Crypto_Encrypt(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText){
 	return Crypto_Cipher(Key,cbKeySize,IV,cbIVSize,pCypherText,cbCypherText,pPlainText,cbPlainText, TRUE);
 }
 
 // Decrypts a buffer using a symmetric algorithm
+/*
 BOOL Crypto_Decrypt(BYTE *Key, BYTE *IV, DWORD cbIVSize, BYTE *pCypherText, DWORD cbCypherText, BYTE* pPlainText, DWORD cbPlainText){
 	return FALSE;
-}
+}*/
 
 BOOL Crypto_Decrypt(BYTE *Key,  DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE *pCypherText, DWORD cbCypherText, BYTE* pPlainText, DWORD cbPlainText){
 	return Crypto_Cipher(Key,cbKeySize,IV,cbIVSize,pCypherText,cbCypherText,pPlainText,cbPlainText, FALSE);

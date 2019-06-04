@@ -140,6 +140,8 @@ BOOL Crypto_GetActivationStringFromSeed(char *pString, int cbStringSize, KeySeed
 // Encrypts a buffer using a symmetric algorithm.
 //BOOL Crypto_Encrypt(BYTE *Key, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText);
 
+//Commonway of invoking symetric crypto
+BOOL Crypto_Cipher(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText, bool encrypt);
 
 //Above is the original description, its not clear what the size of key is. Samrkash add this one with key size in bytes.
 BOOL Crypto_Encrypt(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText);
