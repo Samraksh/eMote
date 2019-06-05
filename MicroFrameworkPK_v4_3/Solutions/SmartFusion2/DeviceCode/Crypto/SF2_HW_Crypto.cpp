@@ -271,9 +271,15 @@ BOOL Crypto_Cipher(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* p
 	}
 	memcpy(ctx.key, Key,cbKeySize);
 
-	ctx.mode=ECB_MASK;
+	//ctx.mode=ECB_MASK;
+	ctx.mode=CBC_MASK;
+
 	if(!encrypt){
 		ctx.mode = ctx.mode |DECRYPT_MASK;
+		ctx.operation = DECRYPT;
+	}
+	else {
+		ctx.operation = ENCRYPT;
 	}
 
 	switch(cbKeySize) {
@@ -284,9 +290,6 @@ BOOL Crypto_Cipher(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* p
 		default:
 			return FALSE;
 	}
-	ctx.operation = ENCRYPT;
-
-	//if(EVP_EncryptInit(&ctx, EVP_aes_256_cbc(), (const UINT8*)Key, (const UINT8*) IV) <= 0) return FALSE;
 
 	if(SF2_Cipher(&ctx,pPlainText,cbPlainText,pCypherText,&cbCypherText)==0) {
 		return TRUE;
@@ -302,7 +305,7 @@ BOOL Crypto_Cipher(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* p
 }*/
 
 BOOL Crypto_Encrypt(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText){
-	return Crypto_Cipher(Key,cbKeySize,IV,cbIVSize,pCypherText,cbCypherText,pPlainText,cbPlainText, TRUE);
+	return Crypto_Cipher(Key,cbKeySize,IV,cbIVSize,pPlainText,cbPlainText,pCypherText,cbCypherText, TRUE);
 }
 
 // Decrypts a buffer using a symmetric algorithm
