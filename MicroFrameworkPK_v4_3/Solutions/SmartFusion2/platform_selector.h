@@ -80,9 +80,9 @@ typedef uint16_t ushort;
 
 #define INSTRUMENTATION_H_GPIO_PIN      0
 
-//#define USING_BLUETOOTH 1
+#define USING_BLUETOOTH 1
 
-//#define USING_COMPUTE_PROCESSOR 1
+#define USING_COMPUTE_PROCESSOR 1
 #define COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM 2
 #define COMPUTE_PROCESSOR_COMM_WAIT_TIME 400
 //uncomment one if using compute processor

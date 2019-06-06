@@ -12,7 +12,10 @@
 #define ENABLE_BLE
 #define ENABLE_CLASSIC
 #define ENABLE_LE_PERIPHERAL
-#define ENABLE_LE_CENTRAL
+
+// must be uncommented to be a master
+//#define ENABLE_LE_CENTRAL
+
 #define ENABLE_LE_DATA_CHANNELS
 //#define ENABLE_LOG_ERROR
 #define ENABLE_LOG_INFO
