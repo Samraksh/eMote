@@ -22,7 +22,7 @@
   <!--<Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />-->
   <!--<Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Samraksh_eMote_Net\stubs\Samraksh_eMote_Net.featureproj" />-->
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Samraksh_eMote_SF2\Samraksh_eMote_SF2.featureproj" />
-  <Import Condition="'$(CRYPTO_FEATUREPROJ)'==''" Project="$(SPOCLIENT)\Framework\Features\Crypto.featureproj" />
+  <Import Project="$(SPOCLIENT)\Framework\Features\Crypto.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   
   
@@ -593,6 +593,10 @@
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Timer\dotNetMF.proj" />
     <DriverLibs Include="SF2_rot_timer.$(LIB_EXT)" />
+  </ItemGroup>
+<ItemGroup>
+    <DriverLibs Include="rot_Keystore.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Crypto\KeyStore\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\Crypto\SecureBoot\dotNetMF.proj" />
