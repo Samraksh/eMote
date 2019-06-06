@@ -1,9 +1,8 @@
 #ifndef _SF2_HW_CRYPTO_H_
 #define _SF2_HW_CRYPTO_H_
 
-//#include <crypto.h>
 #include <drivers/mss_sys_services/mss_sys_services.h>
-
+#include <crypto.h>
 
 #define SF2_HW_MAX_IV_LENGTH 32
 #define SF2_HW_MAX_KEY_LENGTH 64 // This is in bytes
@@ -97,10 +96,10 @@ typedef struct {
 //function prototypes
 
 ///returns a random seed of size length, using FPGA random functions
-uint8_t GetRandomSeed(uint8_t *buf, uint16_t length);
+//uint8_t GetRandomSeed(uint8_t *buf, uint16_t length);
 
 ///returns a random byte stream of size length, using FPGA random functions
-uint8_t GetRandomBytes(uint8_t *buf, uint16_t length);
+//uint8_t GetRandomBytes(uint8_t *buf, uint16_t length);
 
 /// Reset the context of the cipher
 int SF2_CipherReset(sf2_cipher_context_t* ctx);
@@ -121,6 +120,7 @@ int SF2_GetBlockSize(sf2_cipher_context_t* ctx){
 ///main wrapper function for all digest methods
 int SF2_Digest(sf2_digest_context_t* ctx, uint8_t* data, uint32_t dataSize, uint8_t* result, uint32_t *resultSize);
 
+///Derive a new ECC384 based public/private keypair
 int SF2_ECC384_PKEY(sf2_ecc_key_t *privateKey, bool derive_pkey);
 
 //sf2_ecc_key_t* ECC384_PKEY_New();

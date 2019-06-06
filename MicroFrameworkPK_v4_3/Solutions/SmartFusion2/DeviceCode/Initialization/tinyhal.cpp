@@ -4,6 +4,9 @@
 
 #include <tinyhal.h>
 
+#include <..\..\..\..\DeviceCode\pal\PKCS11\CryptokiPAL.h>
+#include <crypto.h>
+
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/MAC_decl.h>
 
@@ -42,6 +45,62 @@ extern void mipi_dsi_shutdown(void);
 //--//
 
 #if !defined(BUILD_RTM) && !defined(PLATFORM_ARM_OS_PORT)
+
+const int hmacSize=32;
+
+const CK_BYTE key1[hmacSize] = {
+		0xC6, 0x29, 0x73, 0xE3, 0xC8, 0xD4, 0xFC, 0xB6,
+        0x89, 0x36, 0x46, 0xF9, 0x58, 0xE5, 0xF5, 0xE5,
+        0x25, 0xC2, 0xE4, 0x1E, 0xCC, 0xA8, 0xC3, 0xEF,
+        0xA2, 0x8D, 0x24, 0xDE, 0xFD, 0x19, 0xDA, 0x08
+};
+
+const CK_BYTE hmac1[hmacSize] = {
+		0, 103, 74, 155, 97, 125, 27, 130,
+		83, 111, 216, 226, 156, 45, 100, 50,
+		59, 61, 228, 144, 127, 39, 150, 29,
+		253, 74, 92, 188, 247, 200, 88, 195
+};
+
+CK_BYTE data[128] = {
+	0, 103, 74, 155, 97, 125, 27, 130,
+	83, 111, 216, 226, 156, 45, 100, 50,
+	59, 61, 228, 144, 127, 39, 150, 29,
+	253, 74, 92, 188, 247, 200, 88, 195,
+	0, 103, 74, 155, 97, 125, 27, 130,
+	83, 111, 216, 226, 156, 45, 100, 50,
+	59, 61, 228, 144, 127, 39, 150, 29,
+	253, 74, 92, 188, 247, 200, 88, 195,
+	0, 103, 74, 155, 97, 125, 27, 130,
+	83, 111, 216, 226, 156, 45, 100, 50,
+	59, 61, 228, 144, 127, 39, 150, 29,
+	253, 74, 92, 188, 247, 200, 88, 195,
+	0, 103, 74, 155, 97, 125, 27, 130,
+	83, 111, 216, 226, 156, 45, 100, 50,
+	59, 61, 228, 144, 127, 39, 150, 29,
+	253, 74, 92, 188, 247, 200, 88, 195,
+};
+
+CK_BYTE ddata[128];
+
+	//CK_BYTE data[128];
+	CK_BYTE digest[32];
+	CK_BYTE IV[48];
+	CK_BYTE_PTR  pData;
+	CK_ULONG ulDataLen;
+	CK_BYTE  pCryptText[128];
+	CK_ULONG ulCryptLen;
+	CK_BYTE_PTR pDigest;
+	CK_MECHANISM_TYPE mtype;
+	CK_KEY_TYPE kt;
+	CK_BYTE_PTR pkey;
+
+void PrintHex(CK_BYTE_PTR sig, int size){
+	for (int j=0;j<size; j++){
+		hal_printf("0x%.2X , ",sig[j]);
+	}
+	hal_printf("\n");
+}
 
 UINT32 Stack_MaxUsed()
 {
@@ -763,6 +822,33 @@ mipi_dsi_shutdown();
 	}*/
 
 #endif
+	memset(pDigest,0,hmacSize);
+	//memcpy(data,"Samraksh eMote Cryptoki HMAC Example; Plus the wolf is great, but the fox is grey. The lamb is prey, but its a mountain pro!",124);
+	pData=data;
+	ulDataLen=128;
+	ulCryptLen=128;
+	Crypto_GetRandomBytes(IV, 48);
+	hal_printf("IV : ");
+	PrintHex(IV,48);
+	pDigest=digest;
+	mtype=CKM_SHA256_HMAC;
+	pkey=(CK_BYTE_PTR)key1;
+	kt= CKK_GENERIC_SECRET;
+
+	hal_printf("Original Text: ");PrintHex(pData,ulDataLen);
+	bool ret= Crypto_Encrypt(pkey,32,IV, 48, pData, ulDataLen, pCryptText, ulCryptLen);
+	if(!ret){hal_printf("Encryption Failed\n");}
+	hal_printf("Encrypted Text: ");PrintHex(pCryptText,ulCryptLen);
+	ret= Crypto_Decrypt(pkey,32,IV, 48, pCryptText, ulCryptLen, ddata, ulDataLen);
+	if(!ret){hal_printf("Decryption Failed\n");}
+	hal_printf("Decrypted Text: ");PrintHex(pData,ulDataLen);
+	hal_printf("\n\n  ");
+while (1);
+
+#if defined(SEC_EMOTE) && defined(CP_LOAD_TEST)
+    loadArduinoSPI((uint8_t*)0xF000,1932);
+#endif
+
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

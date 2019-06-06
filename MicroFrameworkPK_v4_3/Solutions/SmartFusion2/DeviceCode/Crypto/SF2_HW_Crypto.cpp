@@ -1,6 +1,5 @@
-#include "SF2_HW_Crypto.h"
 #include "tinyhal.h"
-#include <crypto.h>
+#include "SF2_HW_Crypto.h"
 
 //nbrg related variables
 static bool nrbg_init =0;
@@ -68,11 +67,21 @@ uint8_t nrbgInit(){
 	}
 }
 
-uint8_t GetRandomSeed(uint8_t *buf, uint16_t length){
-	return GetRandomBytes(buf, length);
+uint8_t Crypto_GetRandomSeed(uint8_t *buf, uint16_t length){
+	return Crypto_GetRandomBytes(buf, length);
 }
 
-uint8_t GetRandomBytes(uint8_t *buf, uint16_t length){
+uint16_t Crypto_GetRandomUInt16(){
+	return (uint16_t)Crypto_GetRandomUInt32();
+}
+
+uint32_t Crypto_GetRandomUInt32(){
+	uint32_t ret;
+	Crypto_GetRandomBytes((uint8_t*)&ret,4);
+	return ret;
+}
+
+uint8_t Crypto_GetRandomBytes(uint8_t *buf, uint16_t length){
 
 	//Initialize nrbg if not initailized
 	if(!nrbg_init)	nrbgInit();
@@ -94,7 +103,6 @@ uint8_t GetRandomBytes(uint8_t *buf, uint16_t length){
 	} while (length < 128);
 	return MSS_SYS_SUCCESS;
 }
-
 
 int SF2_CipherReset(sf2_cipher_context_t* ctx) {
 	memset(ctx, 0, sizeof(sf2_cipher_context_t));
@@ -172,6 +180,22 @@ int SF2_Digest(sf2_digest_context_t* ctx, uint8_t* data, uint32_t dataSize, uint
 	return status;
 }
 
+
+int SF2_ECDH_ComputeSecret(uint16_t eccSize, uint8_t *myKey, uint8_t *peerPubKey, uint8_t *secretKey){
+	if(eccSize!=(384/8)) return CRYPTO_UNKNOWNKEY;
+	uint8_t ecc_shared_secret_x_y[96]={0};
+	uint8_t status = MSS_SYS_ecc_point_multiplication(myKey, peerPubKey, ecc_shared_secret_x_y);
+	if(MSS_SYS_SUCCESS == status)
+	{
+		for (int i=0; i<48; i++)
+		{
+			secretKey[i] = ecc_shared_secret_x_y[i];
+		}
+		return status;
+	}
+	return CRYPTO_FAILURE;
+}
+
 //Generate ECC Public-Private Key-Pair
 int SF2_ECC384_PKEY(sf2_ecc_key_t *key, bool derive_pkey){
 
@@ -180,7 +204,7 @@ int SF2_ECC384_PKEY(sf2_ecc_key_t *key, bool derive_pkey){
 
 	//generate a 48 byte, random number first
 	if(derive_pkey){
-		GetRandomBytes(key->privateKey, 48);
+		Crypto_GetRandomBytes(key->privateKey, 48);
 	}
 
 
@@ -194,6 +218,12 @@ int SF2_ECC384_PKEY(sf2_ecc_key_t *key, bool derive_pkey){
 
 
 ////////////////////// Native Crypto APIs ////////////////////
+
+CRYPTO_RESULT Crypto_ECDH_ComputeSecret(DWORD keySize, BYTE *myPrivateKey, BYTE *peerPubKey, BYTE *secretKey){
+	return M2S_STATUS_TO_CRYPTO(SF2_ECDH_ComputeSecret(keySize, myPrivateKey, peerPubKey, secretKey));
+}
+
+
 // there are maximum BLOCK_SIZE bytes in the signature (32 bytes for AES and XTEA)
 CRYPTO_RESULT Crypto_GetFingerprint(BYTE *key, BYTE *Signature, int cbSignatureSize){
 	return CRYPTO_ACTIVATIONBADSYNTAX;
@@ -229,15 +259,63 @@ BOOL Crypto_GetActivationStringFromSeed(char *pString, int cbStringSize, KeySeed
 	return FALSE;
 }
 
-// Encrypts a buffer using a symmetric algorithm.
-BOOL Crypto_Encrypt(BYTE *Key, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText){
+BOOL Crypto_Cipher(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText, bool encrypt){
+	INT32 len = cbCypherText;
+	sf2_cipher_context_t ctx;
+	//uint8_t iv[48];
+	if(cbIVSize== 0){
+		return FALSE;
+	}else {
+		memcpy(ctx.iv,IV,cbIVSize);
+		ctx.iv_size=cbIVSize;
+	}
+	memcpy(ctx.key, Key,cbKeySize);
+
+	//ctx.mode=ECB_MASK;
+	ctx.mode=CBC_MASK;
+
+	if(!encrypt){
+		ctx.mode = ctx.mode |DECRYPT_MASK;
+		ctx.operation = DECRYPT;
+	}
+	else {
+		ctx.operation = ENCRYPT;
+	}
+
+	switch(cbKeySize) {
+		case 16:
+			ctx.type = AES_128; break;
+		case 32:
+			ctx.type = AES_256; break;
+		default:
+			return FALSE;
+	}
+
+	if(SF2_Cipher(&ctx,pPlainText,cbPlainText,pCypherText,&cbCypherText)==0) {
+		return TRUE;
+	}
+
 	return FALSE;
+}
+
+
+// Encrypts a buffer using a symmetric algorithm.
+/*BOOL Crypto_Encrypt(BYTE *Key, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText){
+	return FALSE;
+}*/
+
+BOOL Crypto_Encrypt(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText){
+	return Crypto_Cipher(Key,cbKeySize,IV,cbIVSize,pPlainText,cbPlainText,pCypherText,cbCypherText, TRUE);
 }
 
 // Decrypts a buffer using a symmetric algorithm
+/*
 BOOL Crypto_Decrypt(BYTE *Key, BYTE *IV, DWORD cbIVSize, BYTE *pCypherText, DWORD cbCypherText, BYTE* pPlainText, DWORD cbPlainText){
 	return FALSE;
-}
+}*/
 
+BOOL Crypto_Decrypt(BYTE *Key,  DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE *pCypherText, DWORD cbCypherText, BYTE* pPlainText, DWORD cbPlainText){
+	return Crypto_Cipher(Key,cbKeySize,IV,cbIVSize,pCypherText,cbCypherText,pPlainText,cbPlainText, FALSE);
+}
 
 
