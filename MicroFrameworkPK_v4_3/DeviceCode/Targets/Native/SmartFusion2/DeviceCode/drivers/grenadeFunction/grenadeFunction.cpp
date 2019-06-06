@@ -49,7 +49,7 @@ int codeIntegrityCheck(uint8_t* memory, uint32_t memorySize){
 	int status=0;
 	
 	return 0;
-	status = generate_hmac(dKey, (uint8_t*)eNVMAddress, KERNEL_SIZE, (uint8_t*)mSig);
+	//status = generate_hmac(dKey, (uint8_t*)eNVMAddress, KERNEL_SIZE, (uint8_t*)mSig);
 	if (status != 0){
 		PrintHex((uint8_t*)mSig, SIGSIZE);
 		memset((uint8_t*)mSig, 0, SIGSIZE);
