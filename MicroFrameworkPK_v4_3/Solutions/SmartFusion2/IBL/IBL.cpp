@@ -20,6 +20,7 @@
 
 void ApplicationEntryPoint(){
 
+	//hal_printf("testing IBL\r\n");
 	debug_printf("Device booting is done...Going to validate the IBL+ Kernel \n\n");
 
 

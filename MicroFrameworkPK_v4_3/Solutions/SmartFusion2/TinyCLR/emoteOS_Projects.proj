@@ -9,18 +9,21 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\BlockStorage.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\Debugger.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\Diagnostics.featureproj" />
-  <Import Project="$(SPOCLIENT)\Framework\Features\I2C.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\Framework\Features\I2C.featureproj" />-->
   <Import Project="$(SPOCLIENT)\Framework\Features\InterruptHandler.featureproj" />
-  <Import Project="$(SPOCLIENT)\Framework\Features\MFUpdate.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\Framework\Features\MFUpdate.featureproj" />-->
   <!--Import Project="$(SPOCLIENT)\Framework\Features\PWM.featureproj" /-->
-  <Import Project="$(SPOCLIENT)\Framework\Features\SD.featureproj" />
-  <Import Project="$(SPOCLIENT)\Framework\Features\SPI.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\Framework\Features\SD.featureproj" />-->
+  <!--<Import Project="$(SPOCLIENT)\Framework\Features\SPI.featureproj" />-->
   <Import Project="$(SPOCLIENT)\Framework\Features\serial_port.featureproj" Condition="'$(SERIAL_PORT_FEATUREPROJ)'==''" />
   <Import Project="$(SPOCLIENT)\Framework\Features\SerialPort.featureproj" />
   <!--Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" Condition="'$(USB_PORT_FEATUREPROJ)'==''" /-->
   <!--Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" /-->
   <!--<Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />-->
-  <Import Project="$(SPOCLIENT)\Framework\Features\Crypto.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Samraksh_eMote_Net\stubs\Samraksh_eMote_Net.featureproj" />-->
+  <!--<Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Samraksh_eMote_SF2\Samraksh_eMote_SF2.featureproj" />-->
+  <Import Condition="'$(CRYPTO_FEATUREPROJ)'==''" Project="$(SPOCLIENT)\Framework\Features\Crypto.featureproj" />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   
@@ -251,6 +254,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\cores\arm\Common\GlobalLock\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
+    <DriverLibs Include="sf2_grenadeTimer.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\grenadeFunction\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="SmartFusion2_gpio.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\gpio\dotNetMF.proj" />
   </ItemGroup>
@@ -420,6 +427,11 @@
   
   <!--     - - - - - - - -               Samraksh's Extensions   - - - - - - - -                  -->
   <!-- 									Hardware Extension        								-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Samraksh_eMote_SF2\dotNetMF.proj" />
+    <DriverLibs Include="Samraksh_eMote_SF2.$(LIB_EXT)" />
+  </ItemGroup>
+
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote.$(LIB_EXT)" />
@@ -448,12 +460,18 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\eMote_Time\dotNetMF.proj" />
     <DriverLibs Include="eMote_time.$(LIB_EXT)" />
   </ItemGroup>
+
+  <!-- 									external Compute Processor interface								-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\ComputeProcessor\dotNetMF.proj" />
+    <DriverLibs Include="ComputeProcessor.$(LIB_EXT)" />
+  </ItemGroup>
     
   <!-- 									Wireless Stack Start								-->
   
   <!--<ItemGroup>
-  <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Net\dotNetMF.proj" />
-  <DriverLibs Include="Samraksh_eMote_NET.$(LIB_EXT)" />
+  	<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Samraksh_eMote_Net\dotNetMF.proj" />
+  	<DriverLibs Include="Samraksh_eMote_Net.$(LIB_EXT)" />
   </ItemGroup>-->
   
   <ItemGroup>
@@ -467,8 +485,8 @@
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\CSMAMAC\dotNetMF.proj" />
     <DriverLibs Include="csma_pal.$(LIB_EXT)" />
-  </ItemGroup>
-  <ItemGroup>
+  </ItemGroup>-->
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\OMAC\dotNetMF.proj" />
     <DriverLibs Include="omac_pal.$(LIB_EXT)" />
   </ItemGroup>-->
@@ -487,10 +505,10 @@
     <DriverLibs Include="STM32F10x_radio_rf231.$(LIB_EXT)" />
 	<DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />
   </ItemGroup>-->
-  <!--ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_radio_si446x.$(LIB_EXT)" />
-  </ItemGroup-->
+  <!--<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\radio\dotNetMF.proj" />
+	<DriverLibs Include="SmartFusion2_radio_si446x.$(LIB_EXT)" />
+  </ItemGroup>-->
 
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\dotNetMF.proj" />
@@ -558,6 +576,29 @@
     <RequiredProjects Include="$(SPOCLIENT)\DSM\ComManager\dotNetMF.proj" />
     <DriverLibs Include="ComManager.$(LIB_EXT)" />
   </ItemGroup>
+
+  <!--                    Bluetooth      -->
+
+  <ItemGroup>
+    <DriverLibs Include="SmartFusion2_bluetooth.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\dotNetMF.proj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DriverLibs Include="SmartFusion2_bluetooth_platform.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\sf2\dotNetMF.proj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DriverLibs Include="SmartFusion2_bluetooth_core.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\btcore\dotNetMF.proj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DriverLibs Include="SmartFusion2_bluetooth_cc256x.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\cc256x\dotNetMF.proj" />
+  </ItemGroup>
+
   <!--                    Root of trust modules      -->
   
   <ItemGroup>

@@ -89,6 +89,14 @@ bool inPendSV_irq;
 
 #define INSTRUMENTATION_H_GPIO_PIN      0
 
+#define USING_BLUETOOTH 1
+
+#define USING_COMPUTE_PROCESSOR 1
+#define COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM 2
+#define COMPUTE_PROCESSOR_COMM_WAIT_TIME 400
+//uncomment one if using compute processor
+//#define CP_USE_UART 1
+#define CP_USE_SPI 1
 
 //
 // constants
@@ -220,7 +228,7 @@ bool inPendSV_irq;
 #endif /* DEBUG_* */
 #endif /* !DEBUG */
 
-//#define DISABLE_SLEEP
+#define DISABLE_SLEEP
 //#define EMOTE_WAKELOCKS // in power driver
 //#define DOTNOW_HSI_CALIB
 
@@ -309,6 +317,8 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_OMAC_FAST_RECOVERY	21
 #define VIRT_TIMER_OMAC_POST_EXEC	22
 //#define VIRT_TIMER_OMAC_TRANSMITTER_POST_EXEC	23
+
+#define VIRT_TIMER_BLUETOOTH_TICK 25
 
 const uint OMAC_DISCO_SEQ_NUMBER = 27;
 //const uint OMAC_HW_ACK_DELAY_MICRO = 100;
@@ -529,6 +539,8 @@ J12_PIN10 = GND
 #define DELAY_BETWEEN_DATATX_SCHED_ACTUAL	(GPIO_PIN)120	//J12_pin5
 #define OMAC_DEBUG_PIN 						(GPIO_PIN)120			 			//J11_PIN5
 #define VTIMER_CALLBACK_LATENCY_PIN			(GPIO_PIN)120 //(<--31)
+
+#define SI4468_Radio_TX_Instance_NOTS		(GPIO_PIN)120
 
 
 #define VIRTUAL_TIMER_EXCEPTION_CHECK_PIN SCHED_TSREQ_EXEC_PIN

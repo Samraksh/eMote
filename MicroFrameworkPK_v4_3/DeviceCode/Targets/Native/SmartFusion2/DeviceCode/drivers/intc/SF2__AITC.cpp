@@ -903,17 +903,71 @@ void __irq USB_IRQHandler()
 
 	void __irq  GPIO0_IRQHandler()
 	{
+		SF2_AITC& AITC = SF2::AITC();
 
+		// set before jumping elsewhere or allowing other interrupts
+		INTERRUPT_START;
+
+
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_ComBlk]++;
+#endif
+
+		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_GPIO0];
+
+		// In case the interrupt was forced, remove the flag.
+		AITC.RemoveForcedInterrupt( 0 );
+
+		IsrVector->Handler.Execute();
+
+
+		INTERRUPT_END;
 	}
 
 	void __irq  GPIO1_IRQHandler()
 	{
+SF2_AITC& AITC = SF2::AITC();
 
+		// set before jumping elsewhere or allowing other interrupts
+		INTERRUPT_START;
+
+
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_ComBlk]++;
+#endif
+
+		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_GPIO1];
+
+		// In case the interrupt was forced, remove the flag.
+		AITC.RemoveForcedInterrupt( 0 );
+
+		IsrVector->Handler.Execute();
+
+
+		INTERRUPT_END;
 	}
 
 	void __irq  GPIO2_IRQHandler()
 	{
+SF2_AITC& AITC = SF2::AITC();
 
+		// set before jumping elsewhere or allowing other interrupts
+		INTERRUPT_START;
+
+
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_ComBlk]++;
+#endif
+
+		SF2_AITC_Driver::IRQ_VECTORING* IsrVector = &SF2_AITC_Driver::s_IsrTable[VectorIndex::c_IRQ_INDEX_GPIO2];
+
+		// In case the interrupt was forced, remove the flag.
+		AITC.RemoveForcedInterrupt( 0 );
+
+		IsrVector->Handler.Execute();
+
+
+		INTERRUPT_END;
 	}
 
 	void __irq  GPIO3_IRQHandler()

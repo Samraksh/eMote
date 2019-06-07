@@ -7,9 +7,6 @@
 #include <cmsis_gcc.h>
 #include <Samraksh/os_scheduler.h>
 #include <Samraksh/sm.h>
-////////////////////////////////////////////////////////////////////////////////
-
-
 
 void UserThreadStop(){
 	while(1){

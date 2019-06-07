@@ -70,7 +70,7 @@ UINT32 Stack_MaxUsed()
 //--//
 // this is the first C function called after bootstrapping ourselves into ram
 
-#if defined(SECURE_EMOTE) && !defined(IBL)
+#if !defined(IBL) || defined( SAM_APP_TINYCLR )
 // these define the region to zero initialize
 extern UINT32 Image$$RoT_ER_RAM_RW$$ZI$$Base;
 extern UINT32 Image$$RoT_ER_RAM_RW$$ZI$$Length;
@@ -216,9 +216,9 @@ static void __section(SectionForBootstrapOperations) Prepare_Zero( UINT32* dst, 
     memset(dst,0,len);
 }
 
-#if defined(SECURE_EMOTE) && !defined(IBL)
 
-
+//#if defined(SECURE_EMOTE) && !defined(IBL)
+#if !defined(IBL) || defined( SAM_APP_TINYCLR )
 void __section(SectionForBootstrapOperations) PrepareImageRegions()
 {
     //
@@ -505,8 +505,10 @@ void HAL_Initialize()
     BlockStorageList::InitializeDevices();
 
 
-#ifndef IBL
+#if !defined IBL || defined( SAM_APP_TINYCLR )
+
     //FS_Initialize();
+    CPU_InitializeCommunication();
 
     FileSystemVolumeList::Initialize();
 
@@ -533,6 +535,13 @@ void HAL_Initialize()
    // Gesture_Initialize();
     //Ink_Initialize();
     TimeService_Initialize();
+#ifdef USING_BLUETOOTH
+	CPU_Bluetooth_Initialize();
+#endif
+#ifdef USING_COMPUTE_PROCESSOR
+	CP_Init();
+#endif
+	
 #endif //end IBL
 
 #if defined(ENABLE_NATIVE_PROFILER)
@@ -616,6 +625,12 @@ void HAL_Uninitialize()
 
     Events_Uninitialize();
     Time_Uninitialize();
+#ifdef USING_BLUETOOTH
+	CPU_Bluetooth_UnInitialize();
+#endif
+#ifdef USING_COMPUTE_PROCESSOR
+	CP_UnInit();
+#endif
 
     HAL_CONTINUATION::Uninitialize();
     HAL_COMPLETION  ::Uninitialize();
@@ -684,7 +699,7 @@ mipi_dsi_shutdown();
 
     InitCRuntime();
 
-#if defined(SECURE_EMOTE) && !defined(IBL)
+#if !defined(IBL) || defined( SAM_APP_TINYCLR )
     LOAD_IMAGE_Length += (UINT32)&IMAGE_RAM_RO_LENGTH + (UINT32)&Image$$RoT_ER_RAM_RW$$Length + (UINT32)&Image$$Kernel_ER_RAM_RW$$Length + (UINT32)&Image$$RunTime_ER_RAM_RW$$Length;
 #else
     LOAD_IMAGE_Length += (UINT32)&IMAGE_RAM_RO_LENGTH + (UINT32)&Image$$ER_RAM_RW$$Length;
@@ -769,10 +784,6 @@ mipi_dsi_shutdown();
 	}*/
 
 #endif
-#if defined(SEC_EMOTE) && defined(CP_LOAD_TEST)
-    loadArduinoSPI((uint8_t*)0xF000,1932);
-#endif
-
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

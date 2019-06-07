@@ -41,6 +41,8 @@
   <ItemGroup>
 	<HFiles Include="SysServices.h" />
     <Compile Include="SysServices.cpp" />
+    <Compile Include="mss_comblk.c" />
+    <Compile Include="mss_sys_services.c" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

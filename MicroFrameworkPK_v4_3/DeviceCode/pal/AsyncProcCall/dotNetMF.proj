@@ -35,9 +35,6 @@
     <Version>4.0.0.0</Version>
   </PropertyGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
-  <!--<ItemGroup>
-    <SubDirectories Include="Stubs" />
-  </ItemGroup>-->
   <ItemGroup>
     <FastCompileCPPFile Include="asyncproccall_fastcompile.cpp" />
     <Compile Include="Completions.cpp" />

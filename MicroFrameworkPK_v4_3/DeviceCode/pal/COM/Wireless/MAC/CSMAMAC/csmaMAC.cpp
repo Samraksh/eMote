@@ -35,7 +35,7 @@ void SendFirstPacketToRadio(void * arg){
 
 // Send a beacon everytime this fires
 void beaconScheduler(void *arg){
-	DEBUG_PRINTF_CSMA("bS fire\r\n");
+	//DEBUG_PRINTF_CSMA("bS fire\r\n");
 	g_csmaMacObject.UpdateNeighborTable();
 	g_csmaMacObject.SendHello();
 }
@@ -63,7 +63,7 @@ DeviceStatus csmaMAC::SetConfig(MACConfig *config){
 	//MyConfig.RadioType  = config->RadioType;
 	MyConfig.NeighborLivenessDelay = config->NeighborLivenessDelay;
 
-	DEBUG_PRINTF_CSMA("SetConfig: %d %d %d %d %d %d %d %d\r\n",MyConfig.BufferSize,MyConfig.CCA,MyConfig.CCASenseTime,MyConfig.RadioID,MyConfig.FCF,MyConfig.DestPAN,MyConfig.Network,MyConfig.NeighborLivelinessDelay);
+	//DEBUG_PRINTF_CSMA("SetConfig: %d %d %d %d %d %d %d %d\r\n",MyConfig.BufferSize,MyConfig.CCA,MyConfig.CCASenseTime,MyConfig.RadioID,MyConfig.FCF,MyConfig.DestPAN,MyConfig.Network,MyConfig.NeighborLivelinessDelay);
 
 	return DS_Success;
 }
@@ -250,7 +250,7 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 		payload[i] = lmsg[i];
 	}
 
-	DEBUG_PRINTF_CSMA("CSMA Sending: My address is : %d\r\n",CPU_Radio_GetAddress(this->radioName));
+	//DEBUG_PRINTF_CSMA("CSMA Sending: My address is : %d\r\n",CPU_Radio_GetAddress(this->radioName));
 
 	// Check if the circular buffer is full
 	//if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
@@ -321,7 +321,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 		payload[i] = lmsg[i];
 	}
 
-	DEBUG_PRINTF_CSMA("CSMA Sending: dest: %d, src: %d, network: %d, mac_id: %d, type: %d\r\n",dest, GetMyAddress(),MyConfig.Network,this->macName,dataType);
+	//DEBUG_PRINTF_CSMA("CSMA Sending: dest: %d, src: %d, network: %d, type: %d\r\n",dest, GetMyAddress(),this->macName,dataType);
 
 	// Check if the circular buffer is full
 	//if(!g_send_buffer.Store((void *) &msg_carrier, metadata->GetLength())){
@@ -342,7 +342,7 @@ void csmaMAC::UpdateNeighborTable(){
 
 	if(numberOfDeadNeighbors > 0)
 	{
-		DEBUG_PRINTF_CSMA("number of dead neighbors: %d\r\n",numberOfDeadNeighbors);
+		//DEBUG_PRINTF_CSMA("number of dead neighbors: %d\r\n",numberOfDeadNeighbors);
 		NeighborChangeFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
 		// Check if neighbor change has been registered and the user is interested in this information
@@ -367,14 +367,14 @@ BOOL csmaMAC::Resend(void* msg, int Size){
 
 void csmaMAC::SendToRadio(){
 	// if we have more than one packet in the send buffer we will switch on the timer that will be used to flush the packets out
-	DEBUG_PRINTF_CSMA("SndRad<%d> %d\r\n",g_send_buffer.GetNumberMessagesInBuffer(), RadioAckPending);
+	//DEBUG_PRINTF_CSMA("SndRad<%d> %d\r\n",g_send_buffer.GetNumberMessagesInBuffer(), RadioAckPending);
 	if ( (g_send_buffer.GetNumberMessagesInBuffer() > 1) && (flushTimerRunning == false) ){
-		DEBUG_PRINTF_CSMA("start FLUSHBUFFER3\r\n");
+		//DEBUG_PRINTF_CSMA("start FLUSHBUFFER3\r\n");
 		VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
 		flushTimerRunning = true;
 	}
 	else if ( (g_send_buffer.GetNumberMessagesInBuffer() == 0) && (flushTimerRunning == true) ){
-		DEBUG_PRINTF_CSMA("stop FLUSHBUFFER3\r\n");
+		//DEBUG_PRINTF_CSMA("stop FLUSHBUFFER3\r\n");
 		VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
 		flushTimerRunning = false;
 	}
@@ -400,7 +400,7 @@ void csmaMAC::SendToRadio(){
 			//SOFT_BREAKPOINT();
 #ifdef DEBUG_CSMAMAC
 			ASSERT(0);
-			DEBUG_PRINTF_CSMA("Radio might have locked up\r\n");
+			//DEBUG_PRINTF_CSMA("Radio might have locked up\r\n");
 			//CPU_Radio_Reset(this->radioName);
 #endif
 			++csmaSendToRadioFailCount;
@@ -425,7 +425,7 @@ void csmaMAC::SendToRadio(){
 
 		// Check to see if there are any messages in the buffer
 		if(txMsgPtr != NULL){
-			DEBUG_PRINTF_CSMA("-------><%d> %d\r\n", (int)snd_payload[0], ((int)(snd_payload[1] << 8) + (int)snd_payload[2]) );
+			//DEBUG_PRINTF_CSMA("-------><%d> %d\r\n", (int)snd_payload[0], ((int)(snd_payload[1] << 8) + (int)snd_payload[2]) );
 			RadioAckPending = TRUE;
 			if(txMsgPtr->GetHeader()->flags & MFM_TIMESYNC)
 			{
@@ -586,7 +586,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 	{
 		case NetworkOperations_Success:
 			{
-				DEBUG_PRINTF_CSMA("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
+				//DEBUG_PRINTF_CSMA("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 				//VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
 				if(SendAckFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->SendAckHandler)
 					(*appHandler)(msg, Size, status, radioAckStatus);
@@ -601,14 +601,14 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 		
 		case NetworkOperations_Busy:
 			//TODO: when resend is called, packet should be placed at front of buffer. Right now it is at end of buffer.
-			DEBUG_PRINTF_CSMA("Resending <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
+			//DEBUG_PRINTF_CSMA("Resending <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 			Resend(msg, Size);
 			VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
 			flushTimerRunning = true;
 			break;
 			
 		default:
-			DEBUG_PRINTF_CSMA("Error #%d\r\n",((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
+			//DEBUG_PRINTF_CSMA("Error #%d\r\n",((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 			break;
 	}
 	
