@@ -1,6 +1,6 @@
 #include <tinyhal.h>
 #include <Samraksh/VirtualTimer.h>
-#include "c_code_calling_cpp.cpp"
+#include "c_code_calling_cpp.h"
 #include <..\..\..\..\..\..\pal\PKCS11\CryptokiPAL.h>
 #include <crypto.h>
 
@@ -29,7 +29,7 @@ const CK_BYTE hmac1[hmacSize] = {
 
 CK_BYTE ddata[128];
 
-	//CK_BYTE data[128];
+	CK_BYTE data[128];
 	CK_BYTE digest[32];
 	CK_BYTE IV[48];
 	CK_BYTE_PTR  pData;
@@ -105,26 +105,61 @@ void Bluetooth_Decrypt_Data(uint8_t *buffer, uint16_t buffer_size){
 		IV[i] = i;
 	}
 
-	hal_printf("IV : ");
-	PrintHex(IV,48);
+	//hal_printf("IV : ");
+	//PrintHex(IV,48);
 	pDigest=digest;
 	mtype=CKM_SHA256_HMAC;
 	pkey=(CK_BYTE_PTR)key1;
 	kt= CKK_GENERIC_SECRET;
 
-	hal_printf("received encrypted Text: ");PrintHex(pData,ulDataLen);
+	hal_printf("\r\nreceived encrypted Text: ");PrintHex(pCryptText,ulCryptLen);
 	bool ret= Crypto_Decrypt(pkey,32,IV, 48, pCryptText, ulCryptLen, ddata, &ulDataLen);
 	if(!ret){hal_printf("Decryption Failed\n");}
-	hal_printf("Decrypted Text (%d): ", ulDataLen);PrintHex(ddata,ulDataLen);
-	hal_printf("\n\n");
+	//hal_printf("Decrypted Text (%d): ", ulDataLen);PrintHex(ddata,ulDataLen);
+	//hal_printf("\r\n");
+	hal_printf("\r\n");
 
-	//hal_printf("Original Text: ");PrintHex(pData,ulDataLen);
-	//bool ret= Crypto_Encrypt(pkey,32,IV, 48, pData, ulDataLen, pCryptText, ulCryptLen);
-	//if(!ret){hal_printf("Encryption Failed\n");}
-	//hal_printf("Encrypted Text: ");PrintHex(pCryptText,ulCryptLen);
-	//ret= Crypto_Decrypt(pkey,32,IV, 48, pCryptText, ulCryptLen, ddata, ulDataLen);
-	//if(!ret){hal_printf("Decryption Failed\n");}
-	//hal_printf("Decrypted Text: ");PrintHex(pData,ulDataLen);
-	//hal_printf("\n\n  ");
+	hal_printf("Decrypted Text: ");
+	for (int j=1; j< ddata[0] + 1; j++){
+		hal_printf("%c",(char)ddata[j]);
+	}
+	hal_printf("\r\n");
+	hal_printf("\r\n");
+
+	hal_printf("Forwarding data to Compute Processor\r\n\r\n");
+
+	CPU_Timer_Sleep_MicroSeconds(400000,ADVTIMER_32BIT);
+
+	hal_printf("Received data from Compute Processor: ");
+
+	int dataLen = ddata[0];
+	data[0] = dataLen;
+	for (int j=0; j< dataLen; j++){
+		hal_printf("%c",(char)ddata[dataLen - j]);
+		data[j + 1] = ddata[dataLen - j];
+	}
+	hal_printf("\r\n\r\n");
+
+	hal_printf("Encrypting data\r\n");
+	ret= Crypto_Encrypt(pkey,32,IV, 48, data, dataLen, pCryptText, ulCryptLen);
+
+	if(!ret){hal_printf("\r\nEncryption Failed\r\n");}
+	hal_printf("Encrypted Text: ");PrintHex(pCryptText,ulCryptLen);
+
+	sendBTPacket(&pCryptText[0], ulCryptLen);
+
+	/*CK_BYTE Data[4];
+	for (int j=0; j<4; j++){
+		Data[j] = (CK_BYTE)(j*2);
+	}
+	ulDataLen = 4;
+	hal_printf("\r\nOriginal Text: ");PrintHex(Data,ulDataLen);
+	ret= Crypto_Encrypt(pkey,32,IV, 48, Data, ulDataLen, pCryptText, ulCryptLen);
+	if(!ret){hal_printf("\r\nEncryption Failed\r\n");}
+	hal_printf("Encrypted Text: ");PrintHex(pCryptText,ulCryptLen);
+	ret= Crypto_Decrypt(pkey,32,IV, 48, pCryptText, ulCryptLen, ddata, &ulDataLen);
+	if(!ret){hal_printf("\r\nDecryption Failed\r\n");}
+	hal_printf("Decrypted Text: ");PrintHex(ddata,ulDataLen);
+	hal_printf("\r\n  ");*/
 }
 

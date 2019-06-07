@@ -152,6 +152,8 @@ static hci_con_handle_t connection_handle;
 
 static btstack_packet_callback_registration_t hci_event_callback_registration;
 
+static int btConnected = 0;
+
 /*
  * @section Advertisements 
  *
@@ -497,7 +499,10 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
 				case HCI_EVENT_LE_META:
             		// wait for connection complete
             		if (hci_event_le_meta_get_subevent_code(packet) !=  HCI_SUBEVENT_LE_CONNECTION_COMPLETE) break;
-					log_always("------------------------ Connected ------------------------------");
+					if (btConnected != 1){
+						log_always("------------------------ Connected ------------------------------");
+					}
+					btConnected = 1;
 #ifdef BLUETOOTH_MASTER
 					if (state != TC_W4_CONNECT) return;
 					state = TC_W4_SERVICE_RESULT;
@@ -508,7 +513,10 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
            	 		break;
 
                 case HCI_EVENT_DISCONNECTION_COMPLETE:
-					log_always("------------------------ Disconnected ------------------------");
+					if (btConnected == 1){
+						log_always("------------------------ Disconnected ------------------------");
+					}
+					btConnected = 0;
 #ifdef BLUETOOTH_MASTER
 					if (listener_registered){
                 		listener_registered = 0;
@@ -524,7 +532,7 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                     break;
 
                 case ATT_EVENT_CAN_SEND_NOW:
-					log_always("------------------------ Connected ------------------------");
+					log_always("------------------------ Connected------------------------");
                     break;
 
                 case RFCOMM_EVENT_INCOMING_CONNECTION:
@@ -606,9 +614,9 @@ static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, 
             att_con_handle = con_handle;
             return 0;
         case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE:
-            log_always("Write on test characteristic: ");
+            log_always("Data received over Bluetooth: ");
             log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
-			btCallEncrypt(buffer, buffer_size);
+			btCallDecrypt(buffer, buffer_size);
             return 0;
         default:
             log_always("WRITE Callback, handle %04x, mode %u, offset %u, data: ", con_handle, transaction_mode, offset);
@@ -629,6 +637,7 @@ static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, 
 int btstack_main(void);
 int btstack_main(void)
 {
+	btConnected = 0;
     l2cap_init();
 
     rfcomm_init();
@@ -691,36 +700,29 @@ int btstack_main(void)
 }
 
 //static int testVar = 0;
-void sendDataPacket(){
+void sendDataPacket(uint8_t* data, uint8_t length){
 	//if (testVar == 3){
 	//	btCallDecrypt((uint8_t*)0, 0);
 	//} else {
 //		log_always("x %d", testVar);
 	//}
 //	testVar++;
-#ifdef BLUETOOTH_MASTER
-	if (listener_registered == 0){
-		log_always("X");
+	if (btConnected == 0){
 	   	return;
 	}
 	static char last = 'A';
-	log_always("*** data packet *****");
-	if (last > 'z') last = 'A';
-					counter_string[0] = last++;
-					counter_string[1] = last++;
-					counter_string[2] = last++;
-					counter_string_len = 3;
-					
-					// send
-    				uint8_t status = gatt_client_write_value_of_characteristic_without_response(connection_handle, le_streamer_characteristic_rx.value_handle, 3, (uint8_t*) counter_string);
-    				if (status){
-        				log_always("error %02x for write without response!\n", status);
-        				return;
-    				}
+	log_always("Sending data over Bluetooth");
+	
+	// send
+	att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) data, length);	
+    //uint8_t status = gatt_client_write_value_of_characteristic_without_response(connection_handle, le_streamer_characteristic_rx.value_handle, length, data);
+    //if (status){
+    //	log_always("error %02x for write without response!\n", status);
+    //   	return;
+    //}
 
-    				// request again
-				    gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
-#endif
+   	// request again
+    //gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
 }
 /* LISTING_END */
 /* EXAMPLE_END */

@@ -44,6 +44,8 @@ int FlowIsOn(void);
 void btCallEncrypt(uint8_t *buffer, uint16_t buffer_size);
 void btCallDecrypt(uint8_t *buffer, uint16_t buffer_size);
 
+void sendBTPacket(uint8_t* data, uint8_t length);
+
 #ifdef __cplusplus
 }
 #endif

@@ -748,7 +748,7 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
     if(TINYCLR_INDEX_IS_INVALID(g_CLR_RT_TypeSystem.m_entryPoint))
     {
 #if !defined(BUILD_RTM) || defined(PLATFORM_WINDOWS)
-    	CLR_Debug::Printf( "Cannot find any entrypoint!\r\n" );
+    	//CLR_Debug::Printf( "Cannot find any entrypoint!\r\n" );
 #endif
     	TINYCLR_SET_AND_LEAVE(CLR_E_ENTRYPOINT_NOT_FOUND);
     }

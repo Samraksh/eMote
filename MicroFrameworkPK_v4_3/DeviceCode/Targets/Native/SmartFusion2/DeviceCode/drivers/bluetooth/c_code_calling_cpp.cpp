@@ -26,8 +26,8 @@ void call_btstack_scheduler_loop(){
 	hal_btstack_run_loop_execute_once();
 }
 
-void sendPacket(){
-	sendDataPacket();
+void sendBTPacket(uint8_t* data, uint8_t length){
+	sendDataPacket(data, length);
 }
 
 void debugBT_printf(const char* format, va_list argptr){
@@ -55,8 +55,8 @@ void SetBTTimerInterrupt(int ticks){
 	//VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, ticks, FALSE, TRUE, (TIMER_CALLBACK_FPN)callbackFunction, ADVTIMER_32BIT);
 	VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, 10000, FALSE, TRUE, (TIMER_CALLBACK_FPN)call_btstack_scheduler_loop, ADVTIMER_32BIT);
 	VirtTimer_Start(VIRT_TIMER_BLUETOOTH_TICK);
-	VirtTimer_SetOrChangeTimer(39, 0, 5000000, FALSE, TRUE, (TIMER_CALLBACK_FPN)sendPacket, ADVTIMER_32BIT);
-	VirtTimer_Start(39);
+	//VirtTimer_SetOrChangeTimer(39, 0, 5000000, FALSE, TRUE, (TIMER_CALLBACK_FPN)sendPacket, ADVTIMER_32BIT);
+	//VirtTimer_Start(39);
 }
 
 uint64_t BTGetTicks(void){
