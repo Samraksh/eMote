@@ -608,6 +608,7 @@ static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, 
         case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE:
             log_always("Write on test characteristic: ");
             log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
+			btCallEncrypt(buffer, buffer_size);
             return 0;
         default:
             log_always("WRITE Callback, handle %04x, mode %u, offset %u, data: ", con_handle, transaction_mode, offset);
@@ -650,7 +651,9 @@ int btstack_main(void)
     // setup SM: Display only
     sm_init();
 
+#ifdef BLUETOOTH_MASTER
 	gatt_client_init();
+#endif
 
     // setup ATT server
     att_server_init(profile_data, att_read_callback, att_write_callback);    
@@ -687,7 +690,14 @@ int btstack_main(void)
     return 0;
 }
 
+//static int testVar = 0;
 void sendDataPacket(){
+	//if (testVar == 3){
+	//	btCallDecrypt((uint8_t*)0, 0);
+	//} else {
+//		log_always("x %d", testVar);
+	//}
+//	testVar++;
 #ifdef BLUETOOTH_MASTER
 	if (listener_registered == 0){
 		log_always("X");

@@ -41,6 +41,8 @@ void ConfigureHardwareFlowCtrl(void);
 void FlowOff(void);
 void FlowOn(void);
 int FlowIsOn(void);
+void btCallEncrypt(uint8_t *buffer, uint16_t buffer_size);
+void btCallDecrypt(uint8_t *buffer, uint16_t buffer_size);
 
 #ifdef __cplusplus
 }
