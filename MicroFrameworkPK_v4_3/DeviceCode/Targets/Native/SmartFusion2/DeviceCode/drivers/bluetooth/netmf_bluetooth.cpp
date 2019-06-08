@@ -145,6 +145,7 @@ void Bluetooth_Decrypt_Data(uint8_t *buffer, uint16_t buffer_size){
 
 	if(!ret){hal_printf("\r\nEncryption Failed\r\n");}
 	hal_printf("Encrypted Text: ");PrintHex(pCryptText,ulCryptLen);
+	hal_printf("\r\n");
 
 	sendBTPacket(&pCryptText[0], ulCryptLen);
 

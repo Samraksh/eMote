@@ -146,8 +146,8 @@ static hci_con_handle_t att_con_handle;
 // THE Couner
 static btstack_timer_source_t heartbeat;
 static int  counter = 0;
-static char counter_string[30];
-static int  counter_string_len;
+static char returnData[128];
+static int returnData_len = 0;
 static hci_con_handle_t connection_handle;
 
 static btstack_packet_callback_registration_t hci_event_callback_registration;
@@ -314,23 +314,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
                     state = TC_W4_TEST_DATA;
 					listener_registered = 1;
 
-					/*log_always("*** sending abc 3 *****");
-					counter_string[0] = 'a';
-					counter_string[0] = 'b';
-					counter_string[0] = 'c';
-					counter_string_len = 3;
-                    //att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);
 					
-					// send
-    				uint8_t status = gatt_client_write_value_of_characteristic_without_response(connection_handle, le_streamer_characteristic_rx.value_handle, 3, (uint8_t*) counter_string);
-    				if (status){
-        				log_always("error %02x for write without response!\n", status);
-        				return;
-    				}
-
-    				// request again
-				    gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
-					*/
 					
 #if (TEST_MODE & TEST_MODE_WRITE_WITHOUT_RESPONSE)
                     log_always("Start streaming - request can send now.\n");
@@ -344,41 +328,12 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
         case TC_W4_TEST_DATA:
             switch(hci_event_packet_get_type(packet)){
                 case GATT_EVENT_NOTIFICATION:
-                    //test_track_data(&le_streamer_connection, gatt_event_notification_get_value_length(packet));
-					/*log_always("*** sending abc 1 *****");
-					counter_string[0] = 'a';
-					counter_string[0] = 'b';
-					counter_string[0] = 'c';
-					counter_string_len = 3;
-                    att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);*/
+                    
                     break;
                 case GATT_EVENT_QUERY_COMPLETE:
                     break;
                 case GATT_EVENT_CAN_WRITE_WITHOUT_RESPONSE:
 
-					/*log_always("*** sending abc 3 *****");
-					counter_string[0] = 'a';
-					counter_string[1] = 'b';
-					counter_string[2] = 'c';
-					counter_string_len = 3;
-                    //att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);
-					
-					// send
-    				uint8_t status = gatt_client_write_value_of_characteristic_without_response(connection_handle, le_streamer_characteristic_rx.value_handle, 3, (uint8_t*) counter_string);
-    				if (status){
-        				log_always("error %02x for write without response!\n", status);
-        				return;
-    				}
-
-    				// request again
-				    gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);*/
-                    //streamer(&le_streamer_connection);
-					/*log_always("*** sending abc 2 *****");
-					counter_string[0] = 'a';
-					counter_string[0] = 'b';
-					counter_string[0] = 'c';
-					counter_string_len = 3;
-                    att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);*/
                     break;
                 default:
                     log_always("Unknown packet type %x\n", hci_event_packet_get_type(packet));
@@ -500,7 +455,7 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
             		// wait for connection complete
             		if (hci_event_le_meta_get_subevent_code(packet) !=  HCI_SUBEVENT_LE_CONNECTION_COMPLETE) break;
 					if (btConnected != 1){
-						log_always("------------------------ Connected ------------------------------");
+						log_always("------------------------ Connected over Bluetooth ------------------------------");
 					}
 					btConnected = 1;
 #ifdef BLUETOOTH_MASTER
@@ -563,7 +518,7 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
 					break;
 
                 case RFCOMM_EVENT_CAN_SEND_NOW:
-                    rfcomm_send(rfcomm_channel_id, (uint8_t*) counter_string, counter_string_len);
+                    //rfcomm_send(rfcomm_channel_id, (uint8_t*) counter_string, counter_string_len);
                     break;
 
                 case RFCOMM_EVENT_CHANNEL_CLOSED:
@@ -594,11 +549,15 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
 // - if buffer != NULL, copy data and return number bytes copied
 // @param offset defines start of attribute value
 static uint16_t att_read_callback(hci_con_handle_t con_handle, uint16_t att_handle, uint16_t offset, uint8_t * buffer, uint16_t buffer_size){
-	log_always("btmain: att read cb");
+	//log_always("btmain: att read cb");
     UNUSED(con_handle);
 
+	//log_always("att_handle: %d", att_handle);
+	//log_always("offset: %d", offset);
+	//log_always("buffer_size: %d", buffer_size);
+
     if (att_handle == ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE){
-        return att_read_callback_handle_blob((const uint8_t *)counter_string, buffer_size, offset, buffer, buffer_size);
+        return att_read_callback_handle_blob((const uint8_t *)returnData, returnData_len, offset, buffer, returnData_len);
     }
     return 0;
 }
@@ -614,6 +573,7 @@ static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, 
             att_con_handle = con_handle;
             return 0;
         case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE:
+            att_con_handle = con_handle;
             log_always("Data received over Bluetooth: ");
             log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
 			btCallDecrypt(buffer, buffer_size);
@@ -712,9 +672,12 @@ void sendDataPacket(uint8_t* data, uint8_t length){
 	}
 	static char last = 'A';
 	log_always("Sending data over Bluetooth");
-	
+	for (int i = 0; i<length; i++){
+		returnData[i] = data[i];
+	}
+	returnData_len = length;
 	// send
-	att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) data, length);	
+	//att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) data, length);	
     //uint8_t status = gatt_client_write_value_of_characteristic_without_response(connection_handle, le_streamer_characteristic_rx.value_handle, length, data);
     //if (status){
     //	log_always("error %02x for write without response!\n", status);
