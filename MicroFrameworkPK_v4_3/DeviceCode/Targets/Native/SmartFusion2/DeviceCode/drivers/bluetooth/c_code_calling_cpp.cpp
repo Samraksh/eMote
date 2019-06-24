@@ -26,8 +26,8 @@ void call_btstack_scheduler_loop(){
 	hal_btstack_run_loop_execute_once();
 }
 
-void sendBTPacket(uint8_t* data, uint8_t length){
-	sendDataPacket(data, length);
+void sendBTPacket(UINT16 dest, uint8_t* data, uint8_t length){
+	sendDataPacket(dest, data, length);
 }
 
 void debugBT_printf(const char* format, va_list argptr){
@@ -183,12 +183,8 @@ void DisableBTUart(){
 	USART_Uninitialize(BT_COM_PORT);
 }
 
-void btCallEncrypt(uint8_t *buffer, uint16_t buffer_size){
-	Bluetooth_Encrypt_Data(buffer, buffer_size);
-}
-
-void btCallDecrypt(uint8_t *buffer, uint16_t buffer_size){
-	Bluetooth_Decrypt_Data(buffer, buffer_size);
+void btCallReceive(uint16_t source, uint8_t *buffer, uint16_t buffer_size){
+	Bluetooth_Receive_Data(source, buffer, buffer_size);
 }
 
 #ifdef __cplusplus

@@ -8,8 +8,9 @@
 DeviceStatus CPU_Bluetooth_Initialize( );
 BOOL CPU_Bluetooth_Reset();
 BOOL CPU_Bluetooth_UnInitialize();
-void Bluetooth_Encrypt_Data(uint8_t *buffer, uint16_t buffer_size);
-void Bluetooth_Decrypt_Data(uint8_t *buffer, uint16_t buffer_size);
+DeviceStatus Bluetooth_Send_Data(UINT16 dest, uint8_t *buffer, uint16_t buffer_size);
+DeviceStatus Bluetooth_Receive_Data(UINT16 source, uint8_t *buffer, uint16_t buffer_size);
+DeviceStatus GetNeighbors(UINT16* buffer);
 
 #endif // _DRIVERS_BLUETOOTH_DECL_H_
 

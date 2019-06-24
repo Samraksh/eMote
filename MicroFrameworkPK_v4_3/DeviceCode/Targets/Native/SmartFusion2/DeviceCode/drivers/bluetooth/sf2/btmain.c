@@ -168,7 +168,7 @@ const uint8_t adv_data[] = {
     // Flags general discoverable, BR/EDR not supported
     0x02, BLUETOOTH_DATA_TYPE_FLAGS, 0x06, 
     // Name
-    0x0b, BLUETOOTH_DATA_TYPE_COMPLETE_LOCAL_NAME, 'L', 'E', ' ', 'C', 'o', 'u', 'n', 't', 'e', 'r', 
+	0x0e, BLUETOOTH_DATA_TYPE_COMPLETE_LOCAL_NAME, 'I', 'o', 'T', ' ', 'D', 'e', 'v', 'i', 'c', 'e', ' ', '#', '1',
     // Incomplete List of 16-bit Service Class UUIDs -- FF10 - only valid for testing!
     0x03, BLUETOOTH_DATA_TYPE_INCOMPLETE_LIST_OF_16_BIT_SERVICE_CLASS_UUIDS, 0x10, 0xff,
 };
@@ -576,7 +576,7 @@ static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, 
             att_con_handle = con_handle;
             log_always("Data received over Bluetooth: ");
             log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
-			btCallDecrypt(buffer, buffer_size);
+			btCallReceive(ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, buffer, buffer_size);
             return 0;
         default:
             log_always("WRITE Callback, handle %04x, mode %u, offset %u, data: ", con_handle, transaction_mode, offset);
@@ -606,11 +606,11 @@ int btstack_main(void)
     // init SDP, create record for SPP and register with SDP
     sdp_init();
     memset(spp_service_buffer, 0, sizeof(spp_service_buffer));
-    spp_create_sdp_record(spp_service_buffer, 0x10001, RFCOMM_SERVER_CHANNEL, "SPP Counter");
+    spp_create_sdp_record(spp_service_buffer, 0x10001, RFCOMM_SERVER_CHANNEL, "IoT Device");
     sdp_register_service(spp_service_buffer);
 //    log_info("SDP service record size: %u\n", de_get_len(spp_service_buffer));
 
-    gap_set_local_name("Samraksh Demo 3");
+    gap_set_local_name("Samraksh IoT");
     gap_ssp_set_io_capability(SSP_IO_CAPABILITY_DISPLAY_YES_NO);
     gap_discoverable_control(1);
 
@@ -660,7 +660,7 @@ int btstack_main(void)
 }
 
 //static int testVar = 0;
-void sendDataPacket(uint8_t* data, uint8_t length){
+void sendDataPacket(UINT16 dest, uint8_t* data, uint8_t length){
 	//if (testVar == 3){
 	//	btCallDecrypt((uint8_t*)0, 0);
 	//} else {
