@@ -4,6 +4,11 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <tinyhal_types.h>
+#include "sf2\btmain.h"
+
+#define ENCRYPTED_DATA_CHANNEL ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE
+#define UNENCRYPTED_DATA_CHANNEL ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FC_01_VALUE_HANDLE
+#define CLOUD_CHANNEL ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FD_01_VALUE_HANDLE
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,6 +49,8 @@ int FlowIsOn(void);
 void btCallReceive(uint16_t source, uint8_t *buffer, uint16_t buffer_size);
 
 void sendBTPacket(UINT16 dest, uint8_t* data, uint8_t length);
+void btConnectedFunc(int number, int connectionType);
+void btDisconnectedFunc(int number, int connectionType);
 
 #ifdef __cplusplus
 }

@@ -517,7 +517,9 @@ void HAL_Initialize()
     //Ink_Initialize();
     TimeService_Initialize();
 #ifdef USING_BLUETOOTH
-	CPU_Bluetooth_Initialize();
+	COM_Manager_Initialization(BLUETOOTHMAC);
+#else
+	COM_Manager_Initialization(NONE);
 #endif
 #ifdef USING_COMPUTE_PROCESSOR
 	CP_Init();
@@ -606,9 +608,9 @@ void HAL_Uninitialize()
 
     Events_Uninitialize();
     Time_Uninitialize();
-#ifdef USING_BLUETOOTH
-	CPU_Bluetooth_UnInitialize();
-#endif
+	
+	COM_Manager_Uninitialize();
+
 #ifdef USING_COMPUTE_PROCESSOR
 	CP_UnInit();
 #endif

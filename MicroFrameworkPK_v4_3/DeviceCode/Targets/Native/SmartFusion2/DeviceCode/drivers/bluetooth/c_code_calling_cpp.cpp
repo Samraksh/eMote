@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <tinyhal_types.h>
 #include <stdarg.h>
-#include "CPU_Bluetooth_decl.h"
+#include <Samraksh\BluetoothMac_Functions.h>
 
 
 #define BT_COM_PORT 1
@@ -24,10 +24,6 @@ static const btstack_uart_config_t * uart_config;
 
 void call_btstack_scheduler_loop(){
 	hal_btstack_run_loop_execute_once();
-}
-
-void sendBTPacket(UINT16 dest, uint8_t* data, uint8_t length){
-	sendDataPacket(dest, data, length);
 }
 
 void debugBT_printf(const char* format, va_list argptr){
@@ -133,6 +129,14 @@ int btUartWrite(uint8_t* tx_buff_ptr, int num_tx_bytes){
 
 }*/
 
+void btConnectedFunc(int number, int connectionType){
+	CPU_Bluetooth_Connected(number, connectionType);
+}
+
+void btDisconnectedFunc(int number, int connectionType){
+	CPU_Bluetooth_Disconnected(number, connectionType);
+}
+
 void CTS_Handler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	bool pinState = CPU_GPIO_GetPinState(7);
 	if (pinState == true)
@@ -185,6 +189,10 @@ void DisableBTUart(){
 
 void btCallReceive(uint16_t source, uint8_t *buffer, uint16_t buffer_size){
 	Bluetooth_Receive_Data(source, buffer, buffer_size);
+}
+
+void sendBTPacket(UINT16 dest, uint8_t* data, uint8_t length){
+	sendDataPacket(dest, data, length);
 }
 
 #ifdef __cplusplus

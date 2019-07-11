@@ -1,12 +1,8 @@
-/*
- * MAC_Functions.cpp
- *
- *  Created on: Oct 1, 2012
- *      Author: Mukundan
- */
-
 #include <Samraksh/MAC_decl.h>
+#include <Samraksh/Buffer.h>
+#include <Samraksh/Message.h>
 #include <Samraksh\MAC.h>
+#include <Samraksh\BluetoothMac_Functions.h>
 
 Buffer_15_4_t g_send_buffer;
 Buffer_15_4_t g_receive_buffer;
@@ -18,9 +14,10 @@ DeviceStatus MAC_Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 
 	DeviceStatus status = DS_Success;
 
 	//status = Initialize(eventHandler, macName, routingAppID, radioName, (MACConfig*)config) ;
-	status = CPU_Bluetooth_Initialize();
-
+	
+	status = CPU_Bluetooth_Initialize(eventHandler);
 	return status;
+
 }
 
 DeviceStatus MAC_Reconfigure(void* config)
