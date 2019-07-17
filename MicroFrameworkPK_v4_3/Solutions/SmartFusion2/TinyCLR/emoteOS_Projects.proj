@@ -4,19 +4,19 @@
 <!--   RunTime modules        -->
 
   <Import Project="$(SPOCLIENT)\Framework\Features\core.featureproj" />
-  <Import Project="$(SPOCLIENT)\Framework\Features\hardware.featureproj" />
-  <Import Project="$(SPOCLIENT)\Framework\Features\NativeEventDispatcher.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\Framework\Features\hardware.featureproj" />
+  <Import Project="$(SPOCLIENT)\Framework\Features\NativeEventDispatcher.featureproj" /> -->
   <Import Project="$(SPOCLIENT)\Framework\Features\BlockStorage.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\Debugger.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\Diagnostics.featureproj" />
   <!--<Import Project="$(SPOCLIENT)\Framework\Features\I2C.featureproj" />-->
-  <Import Project="$(SPOCLIENT)\Framework\Features\InterruptHandler.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\Framework\Features\InterruptHandler.featureproj" />-->
   <!--<Import Project="$(SPOCLIENT)\Framework\Features\MFUpdate.featureproj" />-->
   <!--Import Project="$(SPOCLIENT)\Framework\Features\PWM.featureproj" /-->
   <!--<Import Project="$(SPOCLIENT)\Framework\Features\SD.featureproj" />-->
   <!--<Import Project="$(SPOCLIENT)\Framework\Features\SPI.featureproj" />-->
-  <Import Project="$(SPOCLIENT)\Framework\Features\serial_port.featureproj" Condition="'$(SERIAL_PORT_FEATUREPROJ)'==''" />
-  <Import Project="$(SPOCLIENT)\Framework\Features\SerialPort.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\Framework\Features\serial_port.featureproj" Condition="'$(SERIAL_PORT_FEATUREPROJ)'==''" />
+  <Import Project="$(SPOCLIENT)\Framework\Features\SerialPort.featureproj" /> -->
   <!--Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" Condition="'$(USB_PORT_FEATUREPROJ)'==''" /-->
   <!--Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" /-->
   <!--<Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />-->
@@ -24,9 +24,6 @@
   <!--<Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\Samraksh_eMote_SF2\Samraksh_eMote_SF2.featureproj" />-->
   <Import Condition="'$(CRYPTO_FEATUREPROJ)'==''" Project="$(SPOCLIENT)\Framework\Features\Crypto.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
-  
-  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
-  
   
   <ItemGroup>
     <PlatformIndependentLibs Include="Core.$(LIB_EXT)" />
@@ -49,10 +46,11 @@
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SecurityPkcs11\dotNetMF.proj" />
   </ItemGroup>
   
-  <ItemGroup>
+  <!--<ItemGroup>
     <PlatformIndependentLibs Include="SPOT_Update.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Update\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup> -->
+  
    <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotNetMF.proj" />
     <PlatformIndependentLibs Include="Debugger.$(LIB_EXT)" />
@@ -69,7 +67,6 @@
     <PlatformIndependentLibs Include="Hardware.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\core\Hardware\dotNetMF.proj" />
   </ItemGroup>
-
   <ItemGroup>
     <PlatformIndependentLibs Include="SPOT_Hardware.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\dotNetMF.proj" />
@@ -77,7 +74,8 @@
   <ItemGroup>
     <PlatformIndependentLibs Include="IOPort.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Core\IOPort\dotNetMF.proj" />
-  </ItemGroup>  
+  </ItemGroup>
+  
   <ItemGroup>
     <PlatformIndependentLibs Include="Messaging.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Messaging\dotNetMF.proj" />
@@ -102,10 +100,10 @@
     <PlatformIndependentLibs Include="SPOT_Hardware_PWM.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\SPOT_PWM\dotNetMF.proj" />
   </ItemGroup-->
-  <ItemGroup>
+  <!-- <ItemGroup>
     <PlatformIndependentLibs Include="SPOT_Hardware_SerialPort.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\SPOT_Serial\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup> -->
   <!--<ItemGroup>
     <PlatformIndependentLibs Include="SPOT_Hardware_OneWire.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\SPOT_OneWire\dotNetMF.proj" />
