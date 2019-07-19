@@ -516,14 +516,15 @@ void HAL_Initialize()
    // Gesture_Initialize();
     //Ink_Initialize();
     TimeService_Initialize();
+#ifdef USING_COMPUTE_PROCESSOR
+	CP_Init();
+#endif
 #ifdef USING_BLUETOOTH
 	COM_Manager_Initialization(BLUETOOTHMAC);
 #else
 	COM_Manager_Initialization(NONE);
 #endif
-#ifdef USING_COMPUTE_PROCESSOR
-	CP_Init();
-#endif
+
 	
 #endif //end IBL
 
