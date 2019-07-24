@@ -274,12 +274,14 @@ bool CP_Init(void){
 	CPU_GPIO_EnableOutputPin(0, TRUE);
 	CPU_GPIO_EnableOutputPin(1, FALSE);
 
+	// external power enabled
+	CPU_GPIO_EnableOutputPin(4, TRUE);
 	//hal_printf("***** arduino binary moved for debug....move back to 0xe000! *****\r\n");
-	//loadArduinoSPI((uint8_t*)0xE000,3320);
+	loadArduinoSPI((uint8_t*)0xE000,3860);
 	HAL_Time_Sleep_MicroSeconds(50000);
 
 	// ********** change me back	
-	//verifyArduinoSPI((uint8_t*)0xE000,3320);
+	verifyArduinoSPI((uint8_t*)0xE000,3860);
 	
 	hal_printf("bring CP out of reset\r\n");
 	//CPU_GPIO_EnableOutputPin(0, TRUE);
