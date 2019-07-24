@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <tinyhal_types.h>
 #include <stdarg.h>
+#include <Samraksh\BluetoothMac_Functions.h>
+
 
 #define BT_COM_PORT 1
 #define RX_BUFF 1
@@ -16,15 +18,12 @@ extern "C" {
 #include "sf2\hal_tick.h"
 #include "sf2\btmain.h"
 
+
 // uart config
 static const btstack_uart_config_t * uart_config;
 
 void call_btstack_scheduler_loop(){
 	hal_btstack_run_loop_execute_once();
-}
-
-void sendPacket(){
-	sendDataPacket();
 }
 
 void debugBT_printf(const char* format, va_list argptr){
@@ -52,8 +51,8 @@ void SetBTTimerInterrupt(int ticks){
 	//VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, ticks, FALSE, TRUE, (TIMER_CALLBACK_FPN)callbackFunction, ADVTIMER_32BIT);
 	VirtTimer_SetOrChangeTimer(VIRT_TIMER_BLUETOOTH_TICK, 0, 10000, FALSE, TRUE, (TIMER_CALLBACK_FPN)call_btstack_scheduler_loop, ADVTIMER_32BIT);
 	VirtTimer_Start(VIRT_TIMER_BLUETOOTH_TICK);
-	VirtTimer_SetOrChangeTimer(39, 0, 5000000, FALSE, TRUE, (TIMER_CALLBACK_FPN)sendPacket, ADVTIMER_32BIT);
-	VirtTimer_Start(39);
+	//VirtTimer_SetOrChangeTimer(39, 0, 5000000, FALSE, TRUE, (TIMER_CALLBACK_FPN)sendPacket, ADVTIMER_32BIT);
+	//VirtTimer_Start(39);
 }
 
 uint64_t BTGetTicks(void){
@@ -130,6 +129,14 @@ int btUartWrite(uint8_t* tx_buff_ptr, int num_tx_bytes){
 
 }*/
 
+void btConnectedFunc(int number, int connectionType){
+	CPU_Bluetooth_Connected(number, connectionType);
+}
+
+void btDisconnectedFunc(int number, int connectionType){
+	CPU_Bluetooth_Disconnected(number, connectionType);
+}
+
 void CTS_Handler(GPIO_PIN Pin, BOOL PinState, void* Param){
 	bool pinState = CPU_GPIO_GetPinState(7);
 	if (pinState == true)
@@ -152,6 +159,7 @@ int btUartInit(const btstack_uart_config_t * config){
 	//CPU_GPIO_EnableInputPin(7, FALSE, CTS_Handler, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED);
 
 	//CPU_USART_set_rx_handler_override(&btRxHandler);
+	
 	return 0;
 }
 
@@ -177,6 +185,14 @@ int btUartClose(){
 void DisableBTUart(){
 	hal_printf("*** incomplete *** DisableBTUart\r\n");
 	USART_Uninitialize(BT_COM_PORT);
+}
+
+void btCallReceive(uint16_t source, uint8_t *buffer, uint16_t buffer_size){
+	Bluetooth_Receive_Data(source, buffer, buffer_size);
+}
+
+void sendBTPacket(UINT16 dest, uint8_t* data, uint8_t length){
+	sendDataPacket(dest, data, length);
 }
 
 #ifdef __cplusplus

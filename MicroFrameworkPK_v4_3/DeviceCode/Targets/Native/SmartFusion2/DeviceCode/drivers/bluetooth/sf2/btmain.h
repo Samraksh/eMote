@@ -1,3 +1,5 @@
+#ifndef BT_MAIN_H
+#define BT_MAIN_H
 
 // btmain.h generated from spp_and_le_counter.gatt for BTstack
 // att db format version 1
@@ -27,11 +29,11 @@ const uint8_t profile_data[] =
     // 0x0006 VALUE-GATT_SERVICE_CHANGED-READ-''
     // READ_ANYBODY
     0x08, 0x00, 0x02, 0x00, 0x06, 0x00, 0x05, 0x2a, 
-    // Counter Service
+    // Primary Service
 
     // 0x0007 PRIMARY_SERVICE-0000FF10-0000-1000-8000-00805F9B34FB
     0x18, 0x00, 0x02, 0x00, 0x07, 0x00, 0x00, 0x28, 0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x10, 0xff, 0x00, 0x00, 
-    // Counter Characteristic, with read, write, write_without_response and notify
+    // Encrypted Characteristic, with read, write, write_without_response and notify
     // 0x0008 CHARACTERISTIC-0000FF11-0000-1000-8000-00805F9B34FB-READ | NOTIFY | WRITE | WRITE_WITHOUT_RESPONSE | DYNAMIC
     0x1b, 0x00, 0x02, 0x00, 0x08, 0x00, 0x03, 0x28, 0x1e, 0x09, 0x00, 0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x11, 0xff, 0x00, 0x00, 
     // 0x0009 VALUE-0000FF11-0000-1000-8000-00805F9B34FB-READ | NOTIFY | WRITE | WRITE_WITHOUT_RESPONSE | DYNAMIC-''
@@ -40,10 +42,28 @@ const uint8_t profile_data[] =
     // 0x000a CLIENT_CHARACTERISTIC_CONFIGURATION
     // READ_ANYBODY, WRITE_ANYBODY
     0x0a, 0x00, 0x0e, 0x01, 0x0a, 0x00, 0x02, 0x29, 0x00, 0x00, 
+    // Unencrypted Characteristic, with read, write, write_without_response and notify
+    // 0x000b CHARACTERISTIC-0000FF11-0000-1000-8000-00805F9B34FC-READ | NOTIFY | WRITE | WRITE_WITHOUT_RESPONSE | DYNAMIC
+    0x1b, 0x00, 0x02, 0x00, 0x0b, 0x00, 0x03, 0x28, 0x1e, 0x0c, 0x00, 0xfc, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x11, 0xff, 0x00, 0x00, 
+    // 0x000c VALUE-0000FF11-0000-1000-8000-00805F9B34FC-READ | NOTIFY | WRITE | WRITE_WITHOUT_RESPONSE | DYNAMIC-''
+    // READ_ANYBODY, WRITE_ANYBODY
+    0x16, 0x00, 0x0e, 0x03, 0x0c, 0x00, 0xfc, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x11, 0xff, 0x00, 0x00, 
+    // 0x000d CLIENT_CHARACTERISTIC_CONFIGURATION
+    // READ_ANYBODY, WRITE_ANYBODY
+    0x0a, 0x00, 0x0e, 0x01, 0x0d, 0x00, 0x02, 0x29, 0x00, 0x00, 
+    // Cloud Characteristic, with read, write, write_without_response and notify
+    // 0x000e CHARACTERISTIC-0000FF11-0000-1000-8000-00805F9B34FD-READ | NOTIFY | WRITE | WRITE_WITHOUT_RESPONSE | DYNAMIC
+    0x1b, 0x00, 0x02, 0x00, 0x0e, 0x00, 0x03, 0x28, 0x1e, 0x0f, 0x00, 0xfd, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x11, 0xff, 0x00, 0x00, 
+    // 0x000f VALUE-0000FF11-0000-1000-8000-00805F9B34FD-READ | NOTIFY | WRITE | WRITE_WITHOUT_RESPONSE | DYNAMIC-''
+    // READ_ANYBODY, WRITE_ANYBODY
+    0x16, 0x00, 0x0e, 0x03, 0x0f, 0x00, 0xfd, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x11, 0xff, 0x00, 0x00, 
+    // 0x0010 CLIENT_CHARACTERISTIC_CONFIGURATION
+    // READ_ANYBODY, WRITE_ANYBODY
+    0x0a, 0x00, 0x0e, 0x01, 0x10, 0x00, 0x02, 0x29, 0x00, 0x00, 
 
     // END
     0x00, 0x00, 
-}; // total size 99 bytes 
+}; // total size 153 bytes 
 
 
 //
@@ -54,7 +74,7 @@ const uint8_t profile_data[] =
 #define ATT_SERVICE_GATT_SERVICE_START_HANDLE 0x0004
 #define ATT_SERVICE_GATT_SERVICE_END_HANDLE 0x0006
 #define ATT_SERVICE_0000FF10_0000_1000_8000_00805F9B34FB_START_HANDLE 0x0007
-#define ATT_SERVICE_0000FF10_0000_1000_8000_00805F9B34FB_END_HANDLE 0x000a
+#define ATT_SERVICE_0000FF10_0000_1000_8000_00805F9B34FB_END_HANDLE 0x0010
 
 //
 // list mapping between characteristics and handles
@@ -63,5 +83,11 @@ const uint8_t profile_data[] =
 #define ATT_CHARACTERISTIC_GATT_SERVICE_CHANGED_01_VALUE_HANDLE 0x0006
 #define ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE 0x0009
 #define ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_CLIENT_CONFIGURATION_HANDLE 0x000a
+#define ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FC_01_VALUE_HANDLE 0x000c
+#define ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FC_01_CLIENT_CONFIGURATION_HANDLE 0x000d
+#define ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FD_01_VALUE_HANDLE 0x000f
+#define ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FD_01_CLIENT_CONFIGURATION_HANDLE 0x0010
 
-void sendDataPacket();
+void sendDataPacket(UINT16 dest, uint8_t* data, uint8_t length);
+
+#endif //BT_MAIN_H

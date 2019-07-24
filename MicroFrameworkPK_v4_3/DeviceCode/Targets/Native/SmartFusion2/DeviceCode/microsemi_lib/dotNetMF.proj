@@ -49,9 +49,9 @@
     
     <HFiles Include="drivers/mss_hpdma/mss_hpdma.h" />
 	<HFiles Include="drivers/mss_nvm/mss_nvm.h" />
-	<!--<HFiles Include="drivers/mss_sys_services/mss_comblk_page_handler.h" />
+	<HFiles Include="drivers/mss_sys_services/mss_comblk_page_handler.h" />
 	<HFiles Include="drivers/mss_sys_services/mss_comblk.h" />
-	<HFiles Include="drivers/mss_sys_services/mss_sys_services.h" />-->
+	<HFiles Include="drivers/mss_sys_services/mss_sys_services.h" />
 	<HFiles Include="drivers/mss_timer/mss_timer.h" />
 	<HFiles Include="drivers/mss_uart/mss_uart_regs.h" />
 	<HFiles Include="drivers/mss_uart/mss_uart.h" />
@@ -74,8 +74,8 @@
     <Compile Include="CMSIS/system_m2sxxx.c" />
     <Compile Include="drivers/mss_hpdma/mss_hpdma.c" />
     <Compile Include="drivers/mss_nvm/mss_nvm.c" />
-    <!--<Compile Include="drivers/mss_sys_services/mss_comblk.c" />
-    <Compile Include="drivers/mss_sys_services/mss_sys_services.c" />-->
+    <Compile Include="drivers/mss_sys_services/mss_comblk.c" />
+    <Compile Include="drivers/mss_sys_services/mss_sys_services.c" />
     <Compile Include="drivers/mss_uart/mss_uart.c" />
     <Compile Include="drivers/mss_gpio/mss_gpio.c" />
     <Compile Include="drivers/mss_spi/mss_spi.c" />

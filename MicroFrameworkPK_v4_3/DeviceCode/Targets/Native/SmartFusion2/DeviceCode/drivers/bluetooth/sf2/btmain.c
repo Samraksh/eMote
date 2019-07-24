@@ -71,8 +71,10 @@
 #define RFCOMM_SERVER_CHANNEL 1
 #define HEARTBEAT_PERIOD_MS 1000
 
-#define BLUETOOTH_MASTER 1
+// ENABLE_LE_CENTRAL must be defined to use bt master
+//#define BLUETOOTH_MASTER 1
 
+#ifdef BLUETOOTH_MASTER
 #define TEST_MODE 1
 #define TEST_MODE_ENABLE_NOTIFICATIONS 1
 
@@ -106,6 +108,7 @@ static int listener_registered = 0;
 static gc_state_t state = TC_OFF;
 static btstack_packet_callback_registration_t hci_event_callback_registration;
 
+
 // support for multiple clients
 typedef struct {
     char name;
@@ -134,21 +137,26 @@ int deviceCount = 0;
 // We're looking for a remote device that lists this service in the advertisement
 // LightBlue assigns 0x1111 as the UUID for a Blank service.
 #define REMOTE_SERVICE 0x1111
+#endif 
 
 static uint16_t  rfcomm_channel_id;
 static uint8_t   spp_service_buffer[150];
 static int       le_notification_enabled;
-static hci_con_handle_t att_con_handle;
+static hci_con_handle_t att_encrypt_con_handle;
+static hci_con_handle_t att_unencrypt_con_handle;
+static hci_con_handle_t att_cloud_con_handle;
 
 // THE Couner
-static btstack_timer_source_t heartbeat;
 static int  counter = 0;
-static char counter_string[30];
-static int  counter_string_len;
+static char returnData[128];
+static int returnData_len = 0;
 static hci_con_handle_t connection_handle;
 
 static btstack_packet_callback_registration_t hci_event_callback_registration;
 
+static int btConnected = 0;
+
+static int unencrypted_can_send_now = 0;
 /*
  * @section Advertisements 
  *
@@ -163,13 +171,14 @@ const uint8_t adv_data[] = {
     // Flags general discoverable, BR/EDR not supported
     0x02, BLUETOOTH_DATA_TYPE_FLAGS, 0x06, 
     // Name
-    0x0b, BLUETOOTH_DATA_TYPE_COMPLETE_LOCAL_NAME, 'L', 'E', ' ', 'C', 'o', 'u', 'n', 't', 'e', 'r', 
+	0x0e, BLUETOOTH_DATA_TYPE_COMPLETE_LOCAL_NAME, 'I', 'o', 'T', ' ', 'D', 'e', 'v', 'i', 'c', 'e', ' ', '#', '1',
     // Incomplete List of 16-bit Service Class UUIDs -- FF10 - only valid for testing!
     0x03, BLUETOOTH_DATA_TYPE_INCOMPLETE_LIST_OF_16_BIT_SERVICE_CLASS_UUIDS, 0x10, 0xff,
 };
 /* LISTING_END */
 uint8_t adv_data_len = sizeof(adv_data);
 
+#ifdef BLUETOOTH_MASTER
 static void start_scan(void){
     log_always("Starting inquiry scan..\n");
     gap_inquiry_start(INQUIRY_INTERVAL);
@@ -308,23 +317,7 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
                     state = TC_W4_TEST_DATA;
 					listener_registered = 1;
 
-					/*log_always("*** sending abc 3 *****");
-					counter_string[0] = 'a';
-					counter_string[0] = 'b';
-					counter_string[0] = 'c';
-					counter_string_len = 3;
-                    //att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);
 					
-					// send
-    				uint8_t status = gatt_client_write_value_of_characteristic_without_response(connection_handle, le_streamer_characteristic_rx.value_handle, 3, (uint8_t*) counter_string);
-    				if (status){
-        				log_always("error %02x for write without response!\n", status);
-        				return;
-    				}
-
-    				// request again
-				    gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
-					*/
 					
 #if (TEST_MODE & TEST_MODE_WRITE_WITHOUT_RESPONSE)
                     log_always("Start streaming - request can send now.\n");
@@ -335,58 +328,28 @@ static void handle_gatt_client_event(uint8_t packet_type, uint16_t channel, uint
                     break;
             }
             break;
-
         case TC_W4_TEST_DATA:
             switch(hci_event_packet_get_type(packet)){
                 case GATT_EVENT_NOTIFICATION:
-                    //test_track_data(&le_streamer_connection, gatt_event_notification_get_value_length(packet));
-					/*log_always("*** sending abc 1 *****");
-					counter_string[0] = 'a';
-					counter_string[0] = 'b';
-					counter_string[0] = 'c';
-					counter_string_len = 3;
-                    att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);*/
+                    
                     break;
                 case GATT_EVENT_QUERY_COMPLETE:
                     break;
                 case GATT_EVENT_CAN_WRITE_WITHOUT_RESPONSE:
 
-					/*log_always("*** sending abc 3 *****");
-					counter_string[0] = 'a';
-					counter_string[1] = 'b';
-					counter_string[2] = 'c';
-					counter_string_len = 3;
-                    //att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);
-					
-					// send
-    				uint8_t status = gatt_client_write_value_of_characteristic_without_response(connection_handle, le_streamer_characteristic_rx.value_handle, 3, (uint8_t*) counter_string);
-    				if (status){
-        				log_always("error %02x for write without response!\n", status);
-        				return;
-    				}
-
-    				// request again
-				    gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);*/
-                    //streamer(&le_streamer_connection);
-					/*log_always("*** sending abc 2 *****");
-					counter_string[0] = 'a';
-					counter_string[0] = 'b';
-					counter_string[0] = 'c';
-					counter_string_len = 3;
-                    att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);*/
                     break;
                 default:
                     log_always("Unknown packet type %x\n", hci_event_packet_get_type(packet));
                     break;
             }
             break;
-
         default:
             log_always("error\n");
             break;
     }
     
 }
+#endif
 /* 
  * @section Packet Handler
  * 
@@ -494,16 +457,28 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
 				case HCI_EVENT_LE_META:
             		// wait for connection complete
             		if (hci_event_le_meta_get_subevent_code(packet) !=  HCI_SUBEVENT_LE_CONNECTION_COMPLETE) break;
-					log_always("------------------------ Connected ------------------------------");
+					if (btConnected != 1){
+						log_always("------------------------ Connected over Bluetooth ------------------------------");
+						btConnectedFunc(1, 0x7);
+						unencrypted_can_send_now = 1;
+					}
+					btConnected = 1;
+#ifdef BLUETOOTH_MASTER
 					if (state != TC_W4_CONNECT) return;
 					state = TC_W4_SERVICE_RESULT;
             		connection_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
 					log_always("discovering handle %d", connection_handle);
 		            gatt_client_discover_primary_services_by_uuid128(handle_gatt_client_event, connection_handle, le_streamer_service_uuid);
+#endif
            	 		break;
 
                 case HCI_EVENT_DISCONNECTION_COMPLETE:
-					log_always("------------------------ Disconnected ------------------------");
+					if (btConnected == 1){
+						log_always("------------------------ Disconnected ------------------------");
+						btDisconnectedFunc(1, 0x7);
+					}
+					btConnected = 0;
+#ifdef BLUETOOTH_MASTER
 					if (listener_registered){
                 		listener_registered = 0;
                 		gatt_client_stop_listening_for_characteristic_value_updates(&notification_listener);
@@ -513,17 +488,14 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                     gap_connectable_control(1);
                     // re-enable advertisements
                     gap_advertisements_enable(1);
+#endif
                     le_notification_enabled = 0;
                     break;
 
                 case ATT_EVENT_CAN_SEND_NOW:
-					log_always("------------------------ Connected ------------------------");
-					/*log_always("sending abc 3");
-					counter_string[0] = 'a';
-					counter_string[0] = 'b';
-					counter_string[0] = 'c';
-					counter_string_len = 3;
-                    att_server_notify(att_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, (uint8_t*) counter_string, counter_string_len);*/
+					//log_always("-- can send now --");
+					unencrypted_can_send_now = 1;
+					
                     break;
 
                 case RFCOMM_EVENT_INCOMING_CONNECTION:
@@ -543,16 +515,19 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                         rfcomm_channel_id = rfcomm_event_channel_opened_get_rfcomm_cid(packet);
                         mtu = rfcomm_event_channel_opened_get_max_frame_size(packet);
                         log_always("RFCOMM channel open succeeded. New RFCOMM Channel ID %u, max frame size %u\n", rfcomm_channel_id, mtu);
+#ifdef BLUETOOTH_MASTER						
 						// disable page/inquiry scan to get max performance
                         gap_discoverable_control(0);
                         gap_connectable_control(0);
                         // disable advertisements
                         gap_advertisements_enable(0);
+#endif
                     }
 					break;
 
                 case RFCOMM_EVENT_CAN_SEND_NOW:
-                    rfcomm_send(rfcomm_channel_id, (uint8_t*) counter_string, counter_string_len);
+                    //rfcomm_send(rfcomm_channel_id, (uint8_t*) counter_string, counter_string_len);
+					//log_always("-- rfcom can send --");
                     break;
 
                 case RFCOMM_EVENT_CHANNEL_CLOSED:
@@ -583,11 +558,15 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
 // - if buffer != NULL, copy data and return number bytes copied
 // @param offset defines start of attribute value
 static uint16_t att_read_callback(hci_con_handle_t con_handle, uint16_t att_handle, uint16_t offset, uint8_t * buffer, uint16_t buffer_size){
-	log_always("btmain: att read cb");
+	//log_always("btmain: att read cb");
     UNUSED(con_handle);
 
+	//log_always("att_handle: %d", att_handle);
+	//log_always("offset: %d", offset);
+	//log_always("buffer_size: %d", buffer_size);
+
     if (att_handle == ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE){
-        return att_read_callback_handle_blob((const uint8_t *)counter_string, buffer_size, offset, buffer, buffer_size);
+        return att_read_callback_handle_blob((const uint8_t *)returnData, returnData_len, offset, buffer, returnData_len);
     }
     return 0;
 }
@@ -600,63 +579,43 @@ static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, 
     switch (att_handle){
         case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_CLIENT_CONFIGURATION_HANDLE:
             le_notification_enabled = little_endian_read_16(buffer, 0) == GATT_CLIENT_CHARACTERISTICS_CONFIGURATION_NOTIFICATION;
-            att_con_handle = con_handle;
             return 0;
         case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE:
-            log_always("Write on test characteristic: ");
-            log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
+            att_encrypt_con_handle = con_handle;
+            //log_always("Encrypted data received over Bluetooth: ");
+            //log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
+			btCallReceive(ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, buffer, buffer_size);
+            return 0;
+		case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FC_01_VALUE_HANDLE:
+            att_unencrypt_con_handle = con_handle;
+            //log_always("Unencrypted data received over Bluetooth: ");
+            //log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
+			btCallReceive(ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FC_01_VALUE_HANDLE, buffer, buffer_size);
+            return 0;
+		case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FD_01_VALUE_HANDLE:
+            att_cloud_con_handle = con_handle;
+            //log_always("Cloud data received over Bluetooth: ");
+            //log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
+			btCallReceive(ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FD_01_VALUE_HANDLE, buffer, buffer_size);
             return 0;
         default:
-            log_always("WRITE Callback, handle %04x, mode %u, offset %u, data: ", con_handle, transaction_mode, offset);
-            log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
+            //log_always("*** undefined (%d) WRITE Callback, handle %04x, mode %u, offset %u, data: ",att_handle, con_handle, transaction_mode, offset);
+            //log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
             return 0;
     }
 }
 
-static void beat(void){
-    counter++;
-	log_info("beat: %d\r\n", counter);
-    //counter_string_len = log_info("BTstack counter %04u", counter);
-    //puts(counter_string);
-}
 
-/*
- * @section Heartbeat Handler
- * 
- * @text Similar to the packet handler, the heartbeat handler is the combination of the individual ones.
- * After updating the counter, it requests an ATT_EVENT_CAN_SEND_NOW and/or RFCOMM_EVENT_CAN_SEND_NOW
- */
-
- /* LISTING_START(heartbeat): Combined Heartbeat handler */
-static void heartbeat_handler(struct btstack_timer_source *ts){
-
-    if (rfcomm_channel_id || le_notification_enabled) {
-        beat();
-    }
-
-    if (rfcomm_channel_id){
-        rfcomm_request_can_send_now_event(rfcomm_channel_id);
-    }
-
-    if (le_notification_enabled) {
-        att_server_request_can_send_now_event(att_con_handle);
-    }
-
-    btstack_run_loop_set_timer(ts, HEARTBEAT_PERIOD_MS);
-    btstack_run_loop_add_timer(ts);
-} 
-/* LISTING_END */
 
 /*
  * @section Main Application Setup
  *
- * @text As with the packet and the heartbeat handlers, the combined app setup contains the code from the individual example setups.
  */
 
-/* LISTING_START(MainConfiguration): Init L2CAP RFCOMM SDO SM ATT Server and start heartbeat timer */
 int btstack_main(void);
 int btstack_main(void)
 {
+	btConnected = 0;
     l2cap_init();
 
     rfcomm_init();
@@ -665,11 +624,11 @@ int btstack_main(void)
     // init SDP, create record for SPP and register with SDP
     sdp_init();
     memset(spp_service_buffer, 0, sizeof(spp_service_buffer));
-    spp_create_sdp_record(spp_service_buffer, 0x10001, RFCOMM_SERVER_CHANNEL, "SPP Counter");
+    spp_create_sdp_record(spp_service_buffer, 0x10001, RFCOMM_SERVER_CHANNEL, "IoT Device");
     sdp_register_service(spp_service_buffer);
 //    log_info("SDP service record size: %u\n", de_get_len(spp_service_buffer));
 
-    gap_set_local_name("test and LE Counter 00:00:00:00:00:00");
+    gap_set_local_name("Samraksh IoT");
     gap_ssp_set_io_capability(SSP_IO_CAPABILITY_DISPLAY_YES_NO);
     gap_discoverable_control(1);
 
@@ -679,7 +638,9 @@ int btstack_main(void)
     // setup SM: Display only
     sm_init();
 
+#ifdef BLUETOOTH_MASTER
 	gatt_client_init();
+#endif
 
     // setup ATT server
     att_server_init(profile_data, att_read_callback, att_write_callback);    
@@ -703,14 +664,6 @@ int btstack_main(void)
     gap_advertisements_enable(1);
 #endif
 
-    // set one-shot timer
-    heartbeat.process = &heartbeat_handler;
-    btstack_run_loop_set_timer(&heartbeat, HEARTBEAT_PERIOD_MS);
-    btstack_run_loop_add_timer(&heartbeat);
-
-    // beat once
-    beat();
-
     // turn on!
 	hci_power_control(HCI_POWER_ON);
 
@@ -719,28 +672,29 @@ int btstack_main(void)
     return 0;
 }
 
-void sendDataPacket(){
-	if (listener_registered == 0){
-		log_always("X");
+//static int testVar = 0;
+void sendDataPacket(UINT16 dest, uint8_t* data, uint8_t length){
+	if (btConnected == 0){
 	   	return;
 	}
-	static char last = 'A';
-	log_always("*** data packet *****");
-	if (last > 'z') last = 'A';
-					counter_string[0] = last++;
-					counter_string[1] = last++;
-					counter_string[2] = last++;
-					counter_string_len = 3;
-					
-					// send
-    				uint8_t status = gatt_client_write_value_of_characteristic_without_response(connection_handle, le_streamer_characteristic_rx.value_handle, 3, (uint8_t*) counter_string);
-    				if (status){
-        				log_always("error %02x for write without response!\n", status);
-        				return;
-    				}
+	
+	// send
+	if (unencrypted_can_send_now == 0) {
+		att_server_request_can_send_now_event(att_unencrypt_con_handle);
+		log_always("need to request send event\r\n");
+	}
 
-    				// request again
-				    gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
+	att_server_notify(att_unencrypt_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FC_01_VALUE_HANDLE, (uint8_t*) data, length);	
+	att_server_request_can_send_now_event(att_unencrypt_con_handle);
+
+    //uint8_t status = gatt_client_write_value_of_characteristic_without_response(connection_handle, le_streamer_characteristic_rx.value_handle, length, data);
+    //if (status){
+    //	log_always("error %02x for write without response!\n", status);
+    //   	return;
+    //}
+
+   	// request again
+    //gatt_client_request_can_write_without_response_event(handle_gatt_client_event, connection_handle);
 }
 /* LISTING_END */
 /* EXAMPLE_END */

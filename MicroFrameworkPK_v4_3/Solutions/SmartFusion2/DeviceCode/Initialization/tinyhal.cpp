@@ -4,6 +4,8 @@
 
 #include <tinyhal.h>
 
+#include <crypto.h>
+
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/MAC_decl.h>
 #include <Samraksh/sm.h>
@@ -536,7 +538,9 @@ void HAL_Initialize()
     //Ink_Initialize();
     TimeService_Initialize();
 #ifdef USING_BLUETOOTH
-	CPU_Bluetooth_Initialize();
+	COM_Manager_Initialization(BLUETOOTHMAC);
+#else
+	COM_Manager_Initialization(NONE);
 #endif
 #ifdef USING_COMPUTE_PROCESSOR
 	CP_Init();
@@ -625,9 +629,9 @@ void HAL_Uninitialize()
 
     Events_Uninitialize();
     Time_Uninitialize();
-#ifdef USING_BLUETOOTH
-	CPU_Bluetooth_UnInitialize();
-#endif
+	
+	COM_Manager_Uninitialize();
+
 #ifdef USING_COMPUTE_PROCESSOR
 	CP_UnInit();
 #endif
@@ -784,6 +788,12 @@ mipi_dsi_shutdown();
 	}*/
 
 #endif
+	
+
+#if defined(SEC_EMOTE) && defined(CP_LOAD_TEST)
+    loadArduinoSPI((uint8_t*)0xF000,1932);
+#endif
+
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

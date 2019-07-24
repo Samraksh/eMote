@@ -1,5 +1,7 @@
 // This file handles the interaction with an external compute processor.
 // When using an external processor we are not expected to run a C# app.
+//
+// ***** Note: all messages to and from the Compute Processor assume '\n' as the last character of the message
 
 #include <tinyhal.h>
 #include "ComputeProcessor.h"
@@ -7,6 +9,7 @@
 #include <cmsis/m2sxxx.h>
 #include <grenadeFunction/grenadeFunction.h>
 #include <loadTarget/loadTarget.h>
+#include <COM_Manager_decl.h>
 
 static bool CP_currently_present = FALSE;
 const int buffSize = 128;
@@ -15,6 +18,8 @@ static int parseBuffPosition = 0;
 void CP_SendMsgToCP(uint8_t* msg, int size){
 	int buffSize = 128;
 	int sendPos = 0;
+	CPU_GPIO_SetPinState(1, TRUE);
+	HAL_Time_Sleep_MicroSeconds(1000);
 
 	MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
 	while (sendPos < size){
@@ -23,6 +28,8 @@ void CP_SendMsgToCP(uint8_t* msg, int size){
 		sendPos++;
 	}
 	MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
+	HAL_Time_Sleep_MicroSeconds(1000);
+	CPU_GPIO_SetPinState(1, FALSE);
 }
 
 //returns last compare position if match, otherwise 0
@@ -127,11 +134,7 @@ int get2Parameter(uint8_t* msg, int* dataSize, uint8_t* param){
 		dataCount++;
 	}
 
-	// currently at '\n', going to return the next character
-	if (msgPos < (buffSize - 1) )
-		return msgPos + 1;
-	else
-		return msgPos;
+	return msgPos;
 }
 
 void shiftBuffer(uint8_t* buff, int shiftAmnt){
@@ -151,6 +154,8 @@ static int parseCPCommand(uint8_t* msg){
 	int dataSize = 0;
 	int parameterEnd;
 	int comparePos;
+
+	//hal_printf("parseCPCmd\r\n");
 
 	for (int k = 0; k < buffSize; k++){
 		parameter1[k] = 0;
@@ -196,17 +201,8 @@ static int parseCPCommand(uint8_t* msg){
 	} else if (strCompare(msg, "DataWrite\n", &comparePos)){
 		parameterEnd = get2Parameter(msg, &dataSize, parameter1);
 		//hal_printf("data write (%d) %s\r\n", dataSize, parameter1);
+		Message_Receive_From_CP(parameter1, (uint16_t)dataSize);
 		shiftBuffer(msg, parameterEnd);
-
-		uint8_t testSend[6];
-			testSend[0] = 'a';
-			testSend[1] = 'b';
-			testSend[2] = 'c';
-			testSend[3] = 'd';
-			testSend[4] = 'e';
-			testSend[5] = '\n';
-
-			CP_SendMsgToCP(&testSend[0], 6);
 		return 1;
 	}
 	return 0;
@@ -241,7 +237,7 @@ static void CP_WantsTransaction(GPIO_PIN Pin, BOOL PinState, void* Param)
 	//hal_printf("\r\n");
 
 	while (parseBuffContainsCmdCheck(parseBuffer)){
-	/*	hal_printf("pb: ");
+		/*hal_printf("pb: ");
 		for (int j=0; j < buffSize; j++){
 			hal_printf("%c", parseBuffer[j]);
 		}
@@ -258,7 +254,7 @@ static void CP_WantsTransaction(GPIO_PIN Pin, BOOL PinState, void* Param)
 		//hal_printf("pbp: %d\r\n", parseBuffPosition);
 	}
 	
-/*	hal_printf("pb: ");
+	/*hal_printf("pb: ");
 	for (int j=0; j < buffSize; j++){
 		hal_printf("%c", parseBuffer[j]);
 	}
@@ -276,15 +272,14 @@ static void CP_WantsTransaction(GPIO_PIN Pin, BOOL PinState, void* Param)
 bool CP_Init(void){
 	//hal_printf("load arduino commented out\r\n");
 	CPU_GPIO_EnableOutputPin(0, TRUE);
+	CPU_GPIO_EnableOutputPin(1, FALSE);
 
 	//hal_printf("***** arduino binary moved for debug....move back to 0xe000! *****\r\n");
-	//loadArduinoSPI((uint8_t*)0x1B000,3320);
-	loadArduinoSPI((uint8_t*)0xE000,3320);
+	//loadArduinoSPI((uint8_t*)0xE000,3320);
 	HAL_Time_Sleep_MicroSeconds(50000);
 
 	// ********** change me back	
-	//verifyArduinoSPI((uint8_t*)0x1B000,3320);
-	verifyArduinoSPI((uint8_t*)0xE000,3320);
+	//verifyArduinoSPI((uint8_t*)0xE000,3320);
 	
 	hal_printf("bring CP out of reset\r\n");
 	//CPU_GPIO_EnableOutputPin(0, TRUE);
@@ -299,16 +294,6 @@ bool CP_Init(void){
 	for (int i = 0; i < buffSize; i++){
 		parseBuffer[i] = 0;
 	}
-
-	uint8_t testSend[6];
-	testSend[0] = 'a';
-	testSend[1] = 'b';
-	testSend[2] = 'c';
-	testSend[3] = 'd';
-	testSend[4] = 'e';
-	testSend[5] = '\n';
-
-	CP_SendMsgToCP(&testSend[0], 6);
 
 	return TRUE;
 }

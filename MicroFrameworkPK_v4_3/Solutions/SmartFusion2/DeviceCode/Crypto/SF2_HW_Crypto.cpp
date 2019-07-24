@@ -259,8 +259,9 @@ BOOL Crypto_GetActivationStringFromSeed(char *pString, int cbStringSize, KeySeed
 	return FALSE;
 }
 
-BOOL Crypto_Cipher(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText, bool encrypt){
-	INT32 len = cbCypherText;
+
+BOOL Crypto_Cipher(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD *cbCypherText, bool encrypt){
+	//INT32 len = cbCypherText;
 	sf2_cipher_context_t ctx;
 	//uint8_t iv[48];
 	if(cbIVSize== 0){
@@ -291,7 +292,7 @@ BOOL Crypto_Cipher(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* p
 			return FALSE;
 	}
 
-	if(SF2_Cipher(&ctx,pPlainText,cbPlainText,pCypherText,&cbCypherText)==0) {
+	if(SF2_Cipher(&ctx,pPlainText,cbPlainText,pCypherText,cbCypherText)==0) {
 		return TRUE;
 	}
 
@@ -305,7 +306,7 @@ BOOL Crypto_Cipher(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* p
 }*/
 
 BOOL Crypto_Encrypt(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText){
-	return Crypto_Cipher(Key,cbKeySize,IV,cbIVSize,pPlainText,cbPlainText,pCypherText,cbCypherText, TRUE);
+	return Crypto_Cipher(Key,cbKeySize,IV,cbIVSize,pPlainText,cbPlainText,pCypherText,&cbCypherText, TRUE);
 }
 
 // Decrypts a buffer using a symmetric algorithm
@@ -314,7 +315,7 @@ BOOL Crypto_Decrypt(BYTE *Key, BYTE *IV, DWORD cbIVSize, BYTE *pCypherText, DWOR
 	return FALSE;
 }*/
 
-BOOL Crypto_Decrypt(BYTE *Key,  DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE *pCypherText, DWORD cbCypherText, BYTE* pPlainText, DWORD cbPlainText){
+BOOL Crypto_Decrypt(BYTE *Key,  DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE *pCypherText, DWORD cbCypherText, BYTE* pPlainText, DWORD *cbPlainText){
 	return Crypto_Cipher(Key,cbKeySize,IV,cbIVSize,pCypherText,cbCypherText,pPlainText,cbPlainText, FALSE);
 }
 
