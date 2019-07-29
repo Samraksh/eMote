@@ -23,21 +23,21 @@
         <!-- The M2S010 has  devices have 256 KB of flash starting at 0x60000000 -->
 		<!-- The M2S090 has  devices have 512 KB of flash starting at 0x60000000 -->
         <!-- Regular build: -->
-        
-      	<!-- this needs to match bl_config.cpp -->  
-        <Set Name="Config_BaseAddress"  Value="0x6007E800"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
-        <Set Name="Config_BaseAddress_Mirror"  Value="0x0007E800"/>
-        <Set Name="Config_Size"         Value="0x00000800"/><!--        Config_Size MUST MATCH TINYBOOTER SCATTERFILE -->
-         
-        <!-- this needs to match bl_config.cpp -->
-        <Set Name="Deploy_BaseAddress"  Value="0x6007E800"/>
-        <Set Name="Deploy_BaseAddress_Mirror"  Value="0x0007E800"/> 
-        
-        <!-- External compute processors binary -->
-        <Set Name="CP_BaseAddress"  Value="0x6007F000"/>
-        <Set Name="CP_BaseAddress_Mirror"  Value="0x0007F000"/>
+   
+           <!-- External compute processors binary -->
+        <Set Name="CP_BaseAddress"  Value="0x6007D000"/>
+        <Set Name="CP_BaseAddress_Mirror"  Value="0x0007D000"/>
         <Set Name="CP_Size"  Value="0x1000"/>
         
+      	<!-- this needs to match bl_config.cpp -->  
+        <Set Name="Config_BaseAddress"  Value="%CP_BaseAddress_Mirror% + %CP_Size% + 0x60000000"/><!-- Config_BaseAddress MUST MATCH TINYBOOTER SCATTERFILE -->
+        <Set Name="Config_BaseAddress_Mirror"  Value="%CP_BaseAddress_Mirror% + %CP_Size% "/>
+        <Set Name="Config_Size"         Value="0x800"/><!--        Config_Size MUST MATCH TINYBOOTER SCATTERFILE -->
+         
+        <!-- this needs to match bl_config.cpp -->
+        <Set Name="Deploy_BaseAddress"  Value="%Config_BaseAddress%"/>
+        <Set Name="Deploy_BaseAddress_Mirror"  Value="%Config_BaseAddress_Mirror%"/> 
+               
         <!-- this needs to match the code segment of bl_config.cpp -->
         <!-- IBL will load from here --> 
         <Set Name="RoT_BaseAddress"    Value="0x6000F000"/>
@@ -64,7 +64,7 @@
         <Set Name="RunTime_BaseAddress"    Value="%Kernel_Code_Size% + %RoT_Code_Size% +  %RoT_BaseAddress%"/>		
 		<Set Name="RunTime_BaseAddress_Mirror"    Value="%Kernel_Code_Size% + %RoT_Code_Size% +  %RoT_BaseAddress_Mirror%"/>
 
-		<Set Name="RunTime_Code_Size"           Value="%Deploy_BaseAddress_Mirror - RunTime_BaseAddress_Mirror%"/>		
+		<Set Name="RunTime_Code_Size"           Value="%CP_BaseAddress_Mirror - RunTime_BaseAddress_Mirror%"/>		
         <Set Name="Code_Size"           Value="%RoT_Code_Size% + %Kernel_Code_Size% + %RunTime_Code_Size%"/> 
         
         <Set Name="Valid"               Value="true"/>
