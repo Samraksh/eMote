@@ -258,7 +258,6 @@ BOOL Crypto_GetHash(BYTE *pBuffer, DWORD cbBufferSize, BYTE *pHash, DWORD cbHash
 BOOL Crypto_GetActivationStringFromSeed(char *pString, int cbStringSize, KeySeed *Seed, UINT16 region, UINT16 model){
 	return FALSE;
 }
-
 BOOL Crypto_Cipher(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD *cbCypherText, bool encrypt){
 	//INT32 len = cbCypherText;
 	sf2_cipher_context_t ctx;

@@ -17,22 +17,10 @@ const BlockRange SF2_CM3_BlockRange_InternalFlash[] =
         // It should be obvious that block ranges are inclusive, and different regions have exclusive ranges.
         // TODO: check if User Storage B region is needed for EWR Extended Weak References to work (eg, for wear-leveling).
 
-	    /*{ BlockRange::BLOCKTYPE_BOOTSTRAP       ,0, 27 },  // 28 blocks, 56K for IBL,     address 0x0000_0000
+	    { BlockRange::BLOCKTYPE_BOOTSTRAP       ,0, 27 },  // 28 blocks, 56K for IBL,     address 0x0000_0000
 		{ BlockRange::BLOCKTYPE_STORAGE_A       ,28,29 },  // 2 blocks for Compute Processor binary, address 0x0000_E000
-	    { BlockRange::BLOCKTYPE_CODE            ,30,202 },  //173 blocks, 346K for CLR,        address 0x0000_F000
-	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,203,253 },  // 50 blocks, 100K for Deployment, address 0x06_5800, size 0x19000
-	    { BlockRange::BLOCKTYPE_CONFIG          ,254,255 }   //  2 blocks,   4K for Config,     address 0x07_F000
-	    */
-
-		/*{ BlockRange::BLOCKTYPE_BOOTSTRAP       ,0, 27 },  // 28 blocks, 56K for IBL,     address 0x0000_0000
-		{ BlockRange::BLOCKTYPE_STORAGE_A       ,28,29 },  // 2 blocks for Compute Processor binary, address 0x0000_E000
-		{ BlockRange::BLOCKTYPE_CODE            ,30,213 },  //184 blocks, 368K for CLR,        address 0x0000_F000
-		*/
-
-	    { BlockRange::BLOCKTYPE_BOOTSTRAP       ,184, 211 },  // 28 blocks, 56K for IBL,     address 0x0000_0000
-	    { BlockRange::BLOCKTYPE_STORAGE_A       ,212,213 },  // 2 blocks for Compute Processor binary, address 0x0000_E000
-	    { BlockRange::BLOCKTYPE_CODE            ,0,219 },  //220 blocks, 440K for CLR,        address 0x0000_F000
-	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,220,253 },  // 34 blocks, 68K for Deployment, address 0x06_E0000,
+	    { BlockRange::BLOCKTYPE_CODE            ,0,219 },  //173 blocks, 389k for CLR,        address 0x0000_F000
+	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,236,253 },  // 34 blocks, 36k for Deployment, address 0x07_6000
 	    { BlockRange::BLOCKTYPE_CONFIG          ,254,255 }   //  2 blocks,   4K for Config,     address 0x07_F000
 	    //Flash ends at address 0x07_FFFF
 };
@@ -44,8 +32,7 @@ const BlockRange SF2_CM3_BlockRange_InternalFlash[] =
 const BlockRegionInfo  SF2_CM3_BlockRegionInfo_InternalFlash[1] =
 {
 
-    //0x60000000,		// ByteAddress     Address;            // Start address
-	0x00000000,		// ByteAddress     Address;            // Start address
+    0x60000000,		// ByteAddress     Address;            // Start address
     256,			// UINT32          NumBlocks;          // total number of blocks in this region
     0x800,			// UINT32          BytesPerBlock;      // Total number of bytes per block (MUST be SectorsPerBlock * DataBytesPerSector)
 

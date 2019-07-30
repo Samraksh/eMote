@@ -51,6 +51,12 @@
 // Power API
 #include <Power_decl.h>
 
+// Compute Processor
+#include <ComputeProcessor.h>
+
+// Communications Manager
+#include <COM_Manager_decl.h>
+
 //
 // Chipset
 //

@@ -224,6 +224,8 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
   	volatile unsigned long stacked_pc ;
   	volatile unsigned long stacked_psr ;
   	volatile unsigned long _CFSR ;
+  	volatile unsigned long _BFSR ;
+  	volatile unsigned long _MMFSR ;
 	volatile unsigned long _UFSR ;
   	volatile unsigned long _HFSR ;
   	volatile unsigned long _DFSR ;
@@ -240,12 +242,18 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
   	stacked_pc = ((unsigned long)hardfault_args[6]) ;
   	stacked_psr = ((unsigned long)hardfault_args[7]) ;
  
+	
+	//
   	// Configurable Fault Status Register
   	// Consists of MMSR, BFSR and UFSR
   	_CFSR = (*((volatile unsigned long *)(0xE000ED28))) ;
 
+	_BFSR = (_CFSR >> 8) & 0xFF;
+
+	_MMFSR = (_CFSR) & 0xFF;
+
 	// Usage Fault Status Register
-	_UFSR = _CFSR >> 0x10;
+	_UFSR = _CFSR >> 16;
  
   	// Hard Fault Status Register
   	_HFSR = (*((volatile unsigned long *)(0xE000ED2C))) ;
@@ -265,18 +273,50 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 #if defined(DEBUG)
 	                                       // Possible Causes of Fault Status Registers (Yiu, The definitive guide to the ARM Cortex-M3, 2010)
-	bool MMARVALID = (_MMAR & (1<<7)) > 0; // Indicates the Memory Manage Address register (MMAR) contains a valid fault addressing value.
-	bool MSTKERR   = (_MMAR & (1<<4)) > 0; // Error occurred during stacking (starting of exception).
+//MemManage Fault Address Register (MMFAR) valid flag:
+//0 = value in MMAR is not a valid fault address
+//1 = MMAR holds a valid fault address.
+//If a MemManage fault occurs and is escalated to a HardFault because of priority, the HardFault handler must set this bit to 0. This prevents problems on return to a stacked active MemManage fault handler whose MMAR value has been overwritten.
+	volatile bool MMARVALID = (_MMFSR & (1<<7)) > 0; // Indicates the Memory Manage Address register (MMAR) contains a valid fault addressing value.
+
+
+//MemManage fault on stacking for exception entry:
+//0 = no stacking fault
+//1 = stacking for an exception entry has caused one or more access violations. 
+//When this bit is 1, the SP is still adjusted but the values in the context area on the stack might be incorrect. The processor has not written a fault address to the MMAR. 
+volatile bool MSTKERR   = (_MMFSR & (1<<4)) > 0; // Error occurred during stacking (starting of exception).
 	                                       // 1. Stack pointer is corrupted.
 	                                       // 2. Stack size is too large, reaching a region not defined by the MPU or disallowed in the MPU configuration.
-	bool MUNSTKERR = (_MMAR & (1<<3)) > 0; // Error occurred during unstacking (ending of exception). If there was no error
+
+
+
+//MemManage fault on unstacking for a return from exception:
+//0 = no unstacking fault
+//1 = unstack for an exception return has caused one or more access violations.
+//This fault is chained to the handler. This means that when this bit is 1, the original return stack is still present. The processor has not adjusted the SP from the failing return, and has not performed a new save. The processor has not written a fault address to the MMAR.
+	volatile bool MUNSTKERR = (_MMFSR & (1<<3)) > 0; // Error occurred during unstacking (ending of exception). If there was no error
 	                                       // stacking but error occurred during unstacking, it might be because of the
 	                                       // following reasons:
 	                                       // 1. Stack pointer was corrupted during exception.
 	                                       // 2. MPU configuration was changed by exception handler.
-	bool DACCVIOL = (_MMAR & (1<<1)) > 0;  // Violation to memory access protection, which is defined by MPU setup.
+										   
+										   
+										   
+//Data access violation flag:
+//0 = no data access violation fault
+//1 = the processor attempted a load or store at a location that does not permit the operation.
+//When this bit is 1, the PC value stacked for the exception return points to the faulting instruction. The processor has loaded the MMAR with the address of the attempted access.
+	volatile bool DACCVIOL = (_MMFSR & (1<<1)) > 0;  // Violation to memory access protection, which is defined by MPU setup.
 	                                       // For example, user application trying to access privileged-only region.
-	bool IACCVIOL = (_MMAR & (1<<0)) > 0;  // 1. Violation to memory access protection, which is defined by MPU setup.
+										   
+										   
+										   
+//Instruction access violation flag:
+//0 = no instruction access violation fault
+//1 = the processor attempted an instruction fetch from a location that does not permit execution. 
+//This fault occurs on any access to an XN region, even when the MPU is disabled or not present.
+//When this bit is 1, the PC value stacked for the exception return points to the faulting instruction. The processor has not written a fault address to the MMAR.										   
+	volatile bool IACCVIOL = (_MMFSR & (1<<0)) > 0;  // 1. Violation to memory access protection, which is defined by MPU setup.
 	                                       // For example, user application trying to access privileged-only region.
 	                                       // Stacked PC might be able to locate the code that caused the problem.
 	                                       // 2. Branch to nonexecutable regions.
@@ -285,36 +325,133 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	                                       // image for traditional ARM core into the memory, or exception happened before vector table was set.
 	                                       // 5. Stacked PC corrupted during exception handling.
 
-	bool BFARVALID = (_BFAR & (1<<7)) > 0; // Indicates the Bus Fault Address register contains a valid bus fault address.
-	bool STKERR    = (_BFAR & (1<<4)) > 0; // Error occurred during stacking (starting of exception).
-	bool UNSTKERR  = (_BFAR & (1<<3)) > 0; // Error occurred during unstacking (ending of exception. If there was no error
-	                                       // stacking but error occurred during unstacking, it might be that the stack pointer was corrupted during exception.
-	bool IMPRECISERR=(_BFAR & (1<<2)) > 0; // Bus error during data access. The fault address may be indicated by BFAR.
-	bool PRECISERR = (_BFAR & (1<<1)) > 0; // Bus error during data access. The fault address may be inidcated by BFAR.
-	bool IBUSERR   = (_BFAR & (1<<0)) > 0; // Branch to invalid memory regions, or invalid exception return code, or invalid entry in exception vector table, or stacked PC corrupted during function calls, or access to NVIC or SCB in user mode (nonprivileged).
 
-	bool DIVBYZERO = (_UFSR & (1<<9)) > 0; // is DIV_0_TRP set? find code at fault with stacked PC
-	bool UNALIGNED = (_UFSR & (1<<8)) > 0;
-	bool NOCP      = (_UFSR & (1<<3)) > 0;
-	bool INVPC     = (_UFSR & (1<<2)) > 0;
-	bool INVSTATE  = (_UFSR & (1<<1)) > 0;
-	bool UNDEFINSTR= (_UFSR & (1<<0)) > 0; // 1. Use of instructions not supported in Cortex-M3.
+//BusFault Address Register (BFAR) valid flag:
+//0 = value in BFAR is not a valid fault address
+//1 = BFAR holds a valid fault address.
+//The processor sets this bit to 1 after a BusFault where the address is known. Other faults can set this bit to 0, such as a MemManage fault occurring later.
+//If a BusFault occurs and is escalated to a hard fault because of priority, the hard fault handler must set this bit to 0. This prevents problems if returning to a stacked active BusFault handler whose BFAR value has been overwritten.
+	volatile bool BFARVALID = (_BFSR & (1<<7)) > 0; // Indicates the Bus Fault Address register contains a valid bus fault address.
+
+
+//BusFault on stacking for exception entry:
+//0 = no stacking fault
+//1 = stacking for an exception entry has caused one or more BusFaults. 
+//When the processor sets this bit to 1, the SP is still adjusted but the values in the context area on the stack might be incorrect. The processor does not write a fault address to the BFAR.	
+	volatile bool STKERR    = (_BFSR & (1<<4)) > 0; // Error occurred during stacking (starting of exception).
+
+
+//BusFault on unstacking for a return from exception:
+//0 = no unstacking fault
+//1 = unstack for an exception return has caused one or more BusFaults.
+//This fault is chained to the handler. This means that when the processor sets this bit to 1, the original return stack is still present. The processor does not adjust the SP from the failing return, does not performed a new save, and does not write a fault address to the BFAR.
+	volatile bool UNSTKERR  = (_BFSR & (1<<3)) > 0; // Error occurred during unstacking (ending of exception. If there was no error
+	                                       // stacking but error occurred during unstacking, it might be that the stack pointer was corrupted during exception.
+	
+	
+//Imprecise data bus error: 
+//0 = no imprecise data bus error
+//1 = a data bus error has occurred, but the return address in the stack frame is not related to the instruction that caused the error. 
+//When the processor sets this bit to 1, it does not write a fault address to the BFAR.
+//This is an asynchronous fault. Therefore, if it is detected when the priority of the current process is higher than the BusFault priority, the BusFault becomes pending and becomes active only when the processor returns from all higher priority processes. If a precise fault occurs before the processor enters the handler for the imprecise BusFault, the handler detects both IMPRECISERR set to 1 and one of the precise fault status bits set to 1.	
+	volatile bool IMPRECISERR=(_BFSR & (1<<2)) > 0; // Bus error during data access. The fault address may be indicated by BFAR.
+
+
+
+//Precise data bus error: 
+//0 = no precise data bus error
+//1 = a data bus error has occurred, and the PC value stacked for the exception return points to the instruction that caused the fault.
+//When the processor sets this bit is 1, it writes the faulting address to the BFAR.
+	volatile bool PRECISERR = (_BFSR & (1<<1)) > 0; // Bus error during data access. The fault address may be inidcated by BFAR.
+
+
+
+
+//Instruction bus error:
+//0 = no instruction bus error
+//1 = instruction bus error.
+//The processor detects the instruction bus error on prefetching an instruction, but it sets the IBUSERR flag to 1 only if it attempts to issue the faulting instruction. 
+//When the processor sets this bit is 1, it does not write a fault address to the BFAR.
+	volatile bool IBUSERR   = (_BFSR & (1<<0)) > 0; // Branch to invalid memory regions, or invalid exception return code, or invalid entry in exception vector table, or stacked PC corrupted during function calls, or access to NVIC or SCB in user mode (nonprivileged).
+
+
+//Divide by zero UsageFault: 
+//0 = no divide by zero fault, or divide by zero trapping not enabled
+//1 = the processor has executed an SDIV or UDIV instruction with a divisor of 0.
+//When the processor sets this bit to 1, the PC value stacked for the exception return points to the instruction that performed the divide by zero.
+//Enable trapping of divide by zero by setting the DIV_0_TRP bit in the CCR to 1, see Configuration and Control Register.	
+	volatile bool DIVBYZERO = (_UFSR & (1<<9)) > 0; // is DIV_0_TRP set? find code at fault with stacked PC
+
+
+
+//Unaligned access UsageFault:
+//0 = no unaligned access fault, or unaligned access trapping not enabled
+//1 = the processor has made an unaligned memory access.
+//Enable trapping of unaligned accesses by setting the UNALIGN_TRP bit in the CCR to 1, see Configuration and Control Register.
+//Unaligned LDM, STM, LDRD, and STRD instructions always fault irrespective of the setting of UNALIGN_TRP.	
+	volatile bool UNALIGNED = (_UFSR & (1<<8)) > 0;
+
+
+//No coprocessor UsageFault. The processor does not support coprocessor instructions:
+//0 = no UsageFault caused by attempting to access a coprocessor
+//1 = the processor has attempted to access a coprocessor.
+	volatile bool NOCP      = (_UFSR & (1<<3)) > 0;
+
+
+//Invalid PC load UsageFault, caused by an invalid PC load by EXC_RETURN:
+//0 = no invalid PC load UsageFault
+//1 = the processor has attempted an illegal load of EXC_RETURN to the PC, as a result of an invalid context, or an invalid EXC_RETURN value. 
+//When this bit is set to 1, the PC value stacked for the exception return points to the instruction that tried to perform the illegal load of the PC.	
+	volatile bool INVPC     = (_UFSR & (1<<2)) > 0;
+
+
+
+//Invalid state UsageFault:
+//0 = no invalid state UsageFault
+//1 = the processor has attempted to execute an instruction that makes illegal use of the EPSR.
+//When this bit is set to 1, the PC value stacked for the exception return points to the instruction that attempted the illegal use of the EPSR.
+//This bit is not set to 1 if an undefined instruction uses the EPSR.
+	volatile bool INVSTATE  = (_UFSR & (1<<1)) > 0;
+
+
+
+//Undefined instruction UsageFault:
+//0 = no undefined instruction UsageFault
+//1 = the processor has attempted to execute an undefined instruction.
+//When this bit is set to 1, the PC value stacked for the exception return points to the undefined instruction.
+//An undefined instruction is an instruction that the processor cannot decode.	
+	volatile bool UNDEFINSTR= (_UFSR & (1<<0)) > 0; // 1. Use of instructions not supported in Cortex-M3.
 	                                       // 2. Bad/corrupted memory contents.
 	                                       // 3. Loading of ARM object code during link stage. Checks compile steps.
 	                                       // 4. Instruction align problem. for example, if GNU tool chain is used, omitting of
 	                                       //    .align after .ascii might cause next instruction to be unaligned
-	bool DEBUGEVF  = (_HFSR &(1<<31)) > 0;
-	bool FORCED    = (_HFSR &(1<<30)) > 0; // 1. Trying to run SVC/BKPT within SVC/monitor or another handler with same or higher priority.
+	volatile bool DEBUGEVF  = (_HFSR &(1<<31)) > 0;
+
+
+
+//Indicates a forced hard fault, generated by escalation of a fault with configurable priority that cannot be handles, either because of priority or because it is disabled:
+//0 = no forced HardFault
+//1 = forced HardFault.
+//When this bit is set to 1, the HardFault handler must read the other fault status registers to find the cause of the fault.	
+	volatile bool FORCED    = (_HFSR &(1<<30)) > 0; // 1. Trying to run SVC/BKPT within SVC/monitor or another handler with same or higher priority.
 	                                       // 2. A hard fault occurred if the corresponding handler is disabled or cannot be started because
 	                                       // another exception with the same or higher priority is running, or because another exception
 	                                       // with the same or higher priority is running, or because exception mask is set.
-	bool VECTBL    = (_HFSR &(1<< 1)) > 0;
+										   
+										   
+										   
+//Indicates a BusFault on a vector table read during exception processing:
+//0 = no BusFault on vector table read
+//1 = BusFault on vector table read.
+//This error is always handled by the hard fault handler.
+//When this bit is set to 1, the PC value stacked for the exception return points to the instruction that was preempted by the exception.
+	volatile bool VECTBL    = (_HFSR &(1<< 1)) > 0;
 
-	bool EXTERNAL  = (_DFSR & (1<<4)) > 0;
-	bool VCATCH    = (_DFSR & (1<<3)) > 0;
-	bool DWTTRAP   = (_DFSR & (1<<2)) > 0; // DWT watchpoint event has occurred.
-	bool BKPT      = (_DFSR & (1<<1)) > 0; // Breakpoint instruction is executed, or FPB unit generated breakpoint event.
-	bool HALTED    = (_DFSR & (1<<0)) > 0; // Halt request in NVIC
+	volatile bool EXTERNAL  = (_DFSR & (1<<4)) > 0;
+	volatile bool VCATCH    = (_DFSR & (1<<3)) > 0;
+	volatile bool DWTTRAP   = (_DFSR & (1<<2)) > 0; // DWT watchpoint event has occurred.
+	volatile bool BKPT      = (_DFSR & (1<<1)) > 0; // Breakpoint instruction is executed, or FPB unit generated breakpoint event.
+	volatile bool HALTED    = (_DFSR & (1<<0)) > 0; // Halt request in NVIC
 
     pNVIC      = NVIC;
     pSCB       = SCB;
@@ -329,6 +466,8 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
     pCoreDebug = CoreDebug;
 #endif // defined(DEBUG)
 
+	//http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0552a/Cihdjcfc.html
+	// use "backtrace full" to read out variables
  	// at this point you can read data from the variables with 
 	// "p/x stacked_pc"
 	// "info symbol <address>" should list the code line

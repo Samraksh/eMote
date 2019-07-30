@@ -82,12 +82,19 @@
 #include "tinyhal_types.h"
 #include <cmsis/m2sxxx.h>
 
-typedef unsigned int GPIO_PIN;
+#if !defined(_TINYHAL_H_)
+typedef unsigned int GPIO_PIN; /* FIXME: work-around. GPIO_PIN in tinyhal.h, but this gets put into C Code.*/
+#endif
+
+#include <CPU_GPIO_decl.h>
+
 
 BOOL   CPU_GPIO_Initialize     ();
 BOOL   CPU_GPIO_Uninitialize   ();
 void   CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState );
 void   CPU_GPIO_SetPinState    ( GPIO_PIN Pin, BOOL PinState );
+void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction );
+BOOL CPU_GPIO_EnableInputPin( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState );
 
 /*-------------------------------------------------------------------------*//**
   The mss_gpio_id_t enumeration is used to identify individual GPIO ports as an

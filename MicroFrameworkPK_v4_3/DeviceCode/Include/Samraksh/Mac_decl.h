@@ -13,6 +13,7 @@ enum MACNames
 	NONE = 0,
 	CSMAMAC = 1,
 	OMAC = 2,
+	BLUETOOTHMAC = 3
 };
 
 

@@ -26,6 +26,9 @@
 UINT64 m_systemTime = 0;
 const UINT64 TIME_CUSHION = 40;  // 15 us
 
+HAL_CALLBACK_FPN callBackISR;
+UINT32 callBackISR_Param;
+
 void Timer1_IRQHandler(void* Param)
 {
     m_systemTime += (0x1ull <<32);
@@ -41,15 +44,20 @@ void Timer2_IRQHandler(void* Param)
 	//CPU_GPIO_SetPinState(0, FALSE);
     // Clear interrupt 
     MSS_TIM2_clear_irq();
+	MSS_TIM2_stop();
+	callBackISR(&callBackISR_Param);
 }
 
 BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CALLBACK_FPN ISR)
 {
 	// TIM1 will keep system time
 	// TIM2 will be for VT
+	callBackISR_Param = ADVTIMER_32BIT;
+	callBackISR = ISR;
 	uint32_t tim_load_value;
 	SystemCoreClockUpdate();
 	MSS_TIM1_init(MSS_TIMER_PERIODIC_MODE);
+	MSS_TIM2_init(MSS_TIMER_ONE_SHOT_MODE);
 	tim_load_value = g_FrequencyPCLK0;
 	MSS_TIM1_load_immediate(0xFFFFFFFF);
     MSS_TIM2_load_immediate(tim_load_value);
@@ -61,11 +69,10 @@ BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CA
 		return DS_Fail;
 	//CPU_GPIO_EnableOutputPin( 0, FALSE );
 	MSS_TIM1_start();
-	MSS_TIM2_start();
+	//MSS_TIM2_start();
     MSS_TIM1_enable_irq();
     MSS_TIM2_enable_irq();
 	return TRUE;
-
 }
 
 
@@ -73,6 +80,12 @@ BOOL CPU_Timer_UnInitialize(UINT16 Timer)
 {
 //		if(g_STM32F10x_AdvancedTimer.UnInitialize() != DS_Success)
 //			return FALSE;
+	MSS_TIM1_stop();
+	MSS_TIM2_stop();
+    MSS_TIM1_disable_irq();
+    MSS_TIM2_disable_irq();
+	MSS_TIM1_clear_irq();
+	MSS_TIM2_clear_irq();
 	return TRUE;
 }
 
@@ -86,6 +99,7 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue)
 	
 	if (currentValue > TIME_CUSHION){
 		MSS_TIM2_load_immediate(currentValue&0xFFFFFFFF);
+		MSS_TIM2_start();
 		return TRUE;
 	} else {
 		return FALSE;
@@ -98,7 +112,7 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue)
 //TODO: not used?
 UINT32 CPU_Timer_GetCounter(UINT16 Timer)
 {
-UINT32 counterValue = (UINT32)(0xFFFFFFFF - MSS_TIM1_get_current_value());
+	UINT32 counterValue = (UINT32)(0xFFFFFFFF - MSS_TIM1_get_current_value());
 
 	return counterValue;
 }
