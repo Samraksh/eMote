@@ -16,6 +16,7 @@ public:
 	UINT64 m_systemTime;
 	static BOOL initialized;
 	UINT32 currentCounterValue;
+	UINT32 prevCounterValue;
 	volatile UINT32 savedCompare;
 	UINT16 tar_lower;
 

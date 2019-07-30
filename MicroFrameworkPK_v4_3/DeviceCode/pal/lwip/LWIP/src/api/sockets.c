@@ -515,7 +515,8 @@ lwip_connect(int s, const struct sockaddr *name, socklen_t namelen)
     LWIP_DEBUGF(SOCKETS_DEBUG, (" port=%"U16_F")\n", ntohs(remote_port)));
 
     //[MS_CHANGE]
-    sock->conn->state = NETCONN_CONNECT;
+    //sock->conn->state = NETCONN_CONNECT;
+    sock->conn->state = NETCONN_NONE;
     //[END_MS_CHANGE]
     
     err = netconn_connect(sock->conn, &remote_addr, ntohs(remote_port));

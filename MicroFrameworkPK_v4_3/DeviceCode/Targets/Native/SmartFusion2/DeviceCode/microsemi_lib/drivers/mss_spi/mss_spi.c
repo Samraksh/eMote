@@ -581,6 +581,9 @@ void MSS_SPI_transfer_block
         {
             /* Process received byte. */
             rx_raw = this_spi->hw_reg->RX_DATA;
+			if (rx_raw != 0x00) {
+				rd_buffer[rx_idx] = (uint8_t)rx_raw+1;
+			}
             if(transfer_idx >= cmd_byte_size)
             {
                 if(rx_idx < rd_byte_size)

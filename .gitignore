@@ -5,8 +5,8 @@
 # Notepad++ backup files
 *.bak
 
-.autotools
-.cproject*
+#object files
+*.o
 
 # build meta data
 MicroFrameworkPK_v4_3/CLR/Tools/BuildHelper/BuildHelper_assemblyinfo.txt
@@ -28,15 +28,18 @@ MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_eMote_ProgramManager/Samraksh_e
 .metadata
 
 #ignore Eclipse files
-MicroFrameworkPK_v4_3/.cproject
-MicroFrameworkPK_v4_3/.project
-.cproject
-.project
-/.settings/
+**/.cproject
+**/.project
+**/.settings/
+**/.autotools
+**/.externalToolBuilders
 
 #ignore header files generated at compile-time
 MicroFrameworkPK_v4_3/DeviceCode/Include/Samraksh/githash.h
 MicroFrameworkPK_v4_3/DeviceCode/Include/Samraksh/teamid.h
+
+#Ignore Golang pkg
+pkg/
 
 # Ignore VS Project junk
 bin/

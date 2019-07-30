@@ -30,7 +30,7 @@
 #define OMAC_DEBUG_PRINTF_CCA_TXFAIL 0
 #define OMAC_DEBUG_PRINTF_TXATTEMPT_SUCCESS 0
 #define OMAC_DEBUG_PRINTF_PACKET_ACK_RX_SUCCESS 0
-#define OMAC_DEBUG_PRINTF_HIGH_DISCO_MODE 0
+#define OMAC_DEBUG_PRINTF_HIGH_DISCO_MODE 1
 #define OMAC_DEBUG_PRINTF_ID 0
 
 #define OMAC_DEBUG_PRINTF_NEIGHCHANGE 0
@@ -175,6 +175,8 @@ private:
 
 	void SendRXPacketToUpperLayers(Message_15_4_t *msg, UINT8 payloadType);
 	void PrintNeighborTable();
+
+	void MarkNeighborAsDead(UINT8 tableIndex);
   public:
 
 	//Not used

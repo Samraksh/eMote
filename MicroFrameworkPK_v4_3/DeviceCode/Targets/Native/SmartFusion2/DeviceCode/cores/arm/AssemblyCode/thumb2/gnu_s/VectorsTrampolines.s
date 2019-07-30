@@ -7,8 +7,6 @@
 
     .extern  StackTop
     .extern  EntryPoint
-    @.extern  HARD_Breakpoint
-    @.extern  HARD_Breakpoint_Handler
     .extern  NMI_Handler
     .extern  Fault_Handler_Display
     .extern  MemManage_Handler
@@ -152,6 +150,8 @@ ARM_Vectors:
   .word  CacheError_IRQHandler
   .word  DDR_IRQHandler
   .word  HPDMA_Error_IRQHandler
+  .word  HPDMA_Error_IRQHandler
+  .word  0
   .word  MDDR_IOCalib_IRQHandler
   .word  FAB_PLL_Lock_IRQHandler
   .word  FAB_PLL_LockLost_IRQHandler
@@ -256,7 +256,7 @@ ARM_Vectors:
 
   /* For some reason weak aliases are not working here*/
 
-
+/*
   .weak  MemManage_Handler
   .thumb_set MemManage_Handler,Default_Handler
 
@@ -265,6 +265,7 @@ ARM_Vectors:
 
   .weak  UsageFault_Handler
   .thumb_set UsageFault_Handler,Default_Handler
+*/
 
 /*
   .weak  SVC_Handler

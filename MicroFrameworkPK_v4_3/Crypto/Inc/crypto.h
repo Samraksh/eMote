@@ -107,6 +107,20 @@ typedef enum tagCRYPTO_RESULT
 	CRYPTO_FAILURE = -9
 } CRYPTO_RESULT;
 
+///returns a random seed of size length, using FPGA random functions
+uint8_t Crypto_GetRandomSeed(uint8_t *buf, uint16_t length);
+
+///returns a random byte stream of size length, using FPGA random functions
+uint8_t Crypto_GetRandomBytes(uint8_t *buf, uint16_t length);
+
+
+uint16_t Crypto_GetRandomUInt16();
+
+uint32_t Crypto_GetRandomUInt32();
+
+
+CRYPTO_RESULT Crypto_ECDH_ComputeSecret(DWORD keySize, BYTE *myPrivateKey, BYTE *peerPubKey, BYTE *secretKey);
+
 // this function computes a symmetric key signature based on a symmetric key
 // there are maximum BLOCK_SIZE bytes in the signature (16 bytes for AES and XTEA)
 CRYPTO_RESULT Crypto_GetFingerprint(BYTE *key, BYTE *Signature, int cbSignatureSize);
@@ -124,10 +138,18 @@ BOOL Crypto_GetHash(BYTE *pBuffer, DWORD cbBufferSize, BYTE *pHash, DWORD cbHash
 BOOL Crypto_GetActivationStringFromSeed(char *pString, int cbStringSize, KeySeed *Seed, UINT16 region, UINT16 model);
 
 // Encrypts a buffer using a symmetric algorithm.
-BOOL Crypto_Encrypt(BYTE *Key, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText);
+//BOOL Crypto_Encrypt(BYTE *Key, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText);
+
+//Commonway of invoking symetric crypto
+
+BOOL Crypto_Cipher(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText, bool encrypt);
+
+//Above is the original description, its not clear what the size of key is. Samrkash add this one with key size in bytes.
+BOOL Crypto_Encrypt(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE* pPlainText, DWORD cbPlainText, BYTE *pCypherText, DWORD cbCypherText);
 
 // Decrypts a buffer using a symmetric algorithm
-BOOL Crypto_Decrypt(BYTE *Key, BYTE *IV, DWORD cbIVSize, BYTE *pCypherText, DWORD cbCypherText, BYTE* pPlainText, DWORD cbPlainText);
+BOOL Crypto_Decrypt(BYTE *Key, DWORD cbKeySize, BYTE *IV, DWORD cbIVSize, BYTE *pCypherText, DWORD cbCypherText, BYTE* pPlainText, DWORD *cbPlainText);
+
 
 // RSA functions
 

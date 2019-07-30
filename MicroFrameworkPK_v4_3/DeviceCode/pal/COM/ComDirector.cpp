@@ -74,7 +74,8 @@ int DebuggerPort_Write( COM_HANDLE ComPortNum, const char* Data, size_t size )
         {
             // if interrupts are off and our buffer is full then there is nothing we can do
             if(!INTERRUPTS_ENABLED_STATE()) break;
-            Events_WaitForEvents(0, 1);
+            //Events_WaitForEvents(0, 1);
+			Events_WaitForEvents(SYSTEM_EVENT_FLAG_COM_OUT, 1);
         }
         else
         {

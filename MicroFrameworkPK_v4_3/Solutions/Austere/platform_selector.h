@@ -27,7 +27,8 @@ typedef uint16_t ushort;
 // #define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
 //#define AUSTERE_NO_CAP_TIMEOUT // Disabled by default. Disables capacitor timeout. Need timeout because "good" signal is unreliable.
 //#define EMOTE_COMPLETIONS_STARTUP_WAIT // Only allow snooze mode for 1 minute after boot.
-#define EMOTE_DEEP_SLEEP_MIN 5000 // microseconds. Sleep intervals less than this will only snooze
+#define EMOTE_DEEP_SLEEP_MIN (20*1000) 		// microseconds. Sleep intervals less than this will only snooze
+#define EMOTE_DEEP_SLEEP_MAX (60*1000*1000) // microseconds. Longest sleep interval allowed, max 0xFFFF_FFFF
 
 #if defined(PLATFORM_ARM_AUSTERE)
 #define HAL_SYSTEM_NAME                     "Austere"
@@ -35,8 +36,12 @@ typedef uint16_t ushort;
 #define TINYBOOTER_REVISION 2
 //#define COMPILE_CUSTOMER_RELEASE 1
 
+#define REBOOT_RTC_RESET_ZERO	// Resets the RTC to zero after a reboot.
 
-
+//#define POWER_PROFILE_HACK
+//#define POWER_PROFILE_EXE
+//#define POWER_PROFILE_EVENTS_CPP
+//#define POWER_PROFILE_COMPLETIONS_CPP
 
 //
 // processor and features
@@ -217,7 +222,7 @@ const UINT8 LOW_DRIFT_TIMER = RTC_32BIT;
 const UINT8 g_CountOfHardwareTimers = 2;
 const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {DEFAULT_TIMER, LOW_DRIFT_TIMER};
 const UINT8 g_VirtualTimerPerHardwareTimer = 16;
-const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000, 32768};
+const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000, 16384};
 
 
 /*BK: TImer Mapper does not seem to work. We need manually select timers from range 0-8 anyways

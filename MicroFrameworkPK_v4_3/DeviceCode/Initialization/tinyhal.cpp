@@ -394,7 +394,7 @@ void HAL_Initialize()
 
     // have to initialize the blockstorage first, as the USB device needs to update the configure block
 
-#ifndef MIN_NATIVE_BUILD
+#ifndef IBL
     Time_Initialize();
 
     BlockStorageList::Initialize();
@@ -434,6 +434,7 @@ void HAL_Initialize()
    // Gesture_Initialize();
     //Ink_Initialize();
     TimeService_Initialize();
+	CPU_Bluetooth_Initialize();
 #endif
 
 #if defined(ENABLE_NATIVE_PROFILER)
@@ -517,6 +518,8 @@ void HAL_Uninitialize()
 
     Events_Uninitialize();
     Time_Uninitialize();
+
+	CPU_Bluetooth_UnInitialize();
 
     HAL_CONTINUATION::Uninitialize();
     HAL_COMPLETION  ::Uninitialize();
@@ -665,8 +668,9 @@ mipi_dsi_shutdown();
 		}
 	}*/
 #endif
+#if defined(SECURE_EMOTE_TPM)
 	loadArduinoSPI((uint8_t*)0xF000,1932);
-
+#endif
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

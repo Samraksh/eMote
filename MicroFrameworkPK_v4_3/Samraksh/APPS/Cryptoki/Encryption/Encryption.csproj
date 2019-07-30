@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <AssemblyName>Encrypt</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Encrypt</RootNamespace>
+    <ProjectTypeGuids>{b69e3092-b931-443c-abe7-7e7b65f2a37f};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8A0B5E76-A690-4EE6-8C2D-E735E256AE7F}</ProjectGuid>
+    <TargetFrameworkVersion>v4.3</TargetFrameworkVersion>
+    <NetMfTargetsBaseDir Condition="'$(NetMfTargetsBaseDir)'==''">$(MSBuildExtensionsPath32)\Microsoft\.NET Micro Framework\</NetMfTargetsBaseDir>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>CryptokiApps.Encryption</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Encryption.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+
+  
+  <ItemGroup>
+    <EmbeddedResource Include="Resources.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+ 
+  <!-- If building in Visual Studio use the block under this -->
+ 
+  <ItemGroup>
+    <Reference Include="Microsoft.SPOT.Native">
+		<HintPath>$(SPOCLIENT)\BuildOutput\public\Debug\Client\</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SPOT.Security.PKCS11">
+		<HintPath>$(SPOCLIENT)\BuildOutput\public\Debug\Client\</HintPath>
+    </Reference>
+    <Reference Include="System.Security">
+		<HintPath>$(SPOCLIENT)\BuildOutput\public\Debug\Client\</HintPath>
+    </Reference>
+  </ItemGroup>
+  
+  <Import Condition="EXISTS('$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets')" Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
+  <Import Condition="!EXISTS('$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets')" Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+ 
+  
+ <!-- If building on command line use the block under this  -->
+ <!--
+ 
+ <ItemGroup>
+    <Reference Include="Microsoft.SPOT.Native">
+		<HintPath>$(SPOCLIENT)\BuildOutput\public\Debug\Client\dll\Microsoft.SPOT.Native.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SPOT.Security.PKCS11">
+		<HintPath>$(SPOCLIENT)\BuildOutput\public\Debug\Client\dll\Microsoft.SPOT.Security.PKCS11.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security">
+		<HintPath>$(SPOCLIENT)\BuildOutput\public\Debug\Client\dll\System.Security.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="$(SPOCLIENT)\tools\Targets\Microsoft.SPOT.CSharp.Targets" /> 
+  
+  
+  <PropertyGroup>
+	<MMP_PE_NoBitmapCompression>true</MMP_PE_NoBitmapCompression>
+	<MMP_DAT_SKIP>false</MMP_DAT_SKIP>
+	<MMP_DAT_CreateDatabaseFile>bin\$(Configuration)\aes.dat</MMP_DAT_CreateDatabaseFile>
+  </PropertyGroup>
+  -->
+  
+</Project>

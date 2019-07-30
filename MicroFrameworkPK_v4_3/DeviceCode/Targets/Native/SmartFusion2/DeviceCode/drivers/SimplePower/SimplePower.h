@@ -1,8 +1,7 @@
 #ifndef _NETMF_POWER_H_
 #define _NETMF_POWER_H_
 
-#include <tinyhal.h>
-#include <stm32f10x.h>
+#include <SF2_Main.h>
 
 enum stm_power_modes {
 	POWER_STATE_DEFAULT,
@@ -19,5 +18,8 @@ void Low_Power();
 void Halt() __attribute__ ((noreturn));
 void Reset() __attribute__ ((noreturn));
 void Shutdown() __attribute__ ((noreturn));
+
+//uint32_t JTAG_Attached();
+void PWR_EnterSTANDBYMode(void);
 
 #endif // #ifndef _NETMF_POWER_H_

@@ -2056,7 +2056,8 @@ HRESULT CLR_RT_AppDomain::CreateInstance( LPCSTR szName, CLR_RT_AppDomain*& appD
 
     TINYCLR_CHECK_HRESULT(CLR_RT_HeapBlock_String::CreateInstance( name, szName ));
 
-    appDomain = EVENTCACHE_EXTRACT_NODE(g_CLR_RT_EventCache,CLR_RT_AppDomain,DATATYPE_APPDOMAIN_HEAD); CHECK_ALLOCATION(appDomain);
+    appDomain = EVENTCACHE_EXTRACT_NODE(g_CLR_RT_EventCache,CLR_RT_AppDomain,DATATYPE_APPDOMAIN_HEAD);
+    CHECK_ALLOCATION(appDomain);
 
     appDomain->AppDomain_Initialize();
 

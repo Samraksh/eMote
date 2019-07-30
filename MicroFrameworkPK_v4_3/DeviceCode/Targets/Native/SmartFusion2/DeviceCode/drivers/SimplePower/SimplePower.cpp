@@ -1,7 +1,7 @@
 
 /*
 
-STM32F1x Microframework power HAL driver
+Microframework power HAL driver
 
 Nathan Stohs
 nathan.stohs@samraksh.com
@@ -41,8 +41,28 @@ static void restart_peripherals(void) {
 	// Nothing needed for TB
 }
 
-/*
 
+void PWR_EnterSTANDBYMode(void)
+{
+
+  //The code below is from STM32, this is dummy function needs to be implemented
+  /*// Clear Wake-up flag
+  PWR->CR |= PWR_CR_CWUF;
+  // Select STANDBY mode
+  PWR->CR |= PWR_CR_PDDS;
+  // Set SLEEPDEEP bit of Cortex System Control Register
+  SCB->SCR |= SCB_SCR_SLEEPDEEP;
+  // This option is used to ensure that store operations are completed
+#if defined ( __CC_ARM   )
+  __force_stores();
+#endif
+
+*/
+  // Request Wait For Interrupt
+  __WFI();
+}
+
+/*
 void Low_Power() {
 
 	// Make sure actually changing
@@ -191,6 +211,50 @@ void High_Power() {
 */
 
 
+extern "C"
+{
+void HARD_Breakpoint_Handler(UINT32 *registers);
+void assert(BOOL CHECK);
+}
+
+void HARD_Breakpoint()
+{
+	HARD_Breakpoint_Handler(NULL);
+}
+
+void HARD_Breakpoint_Handler(UINT32 *registers)
+{
+#if !defined(BUILD_RTM)
+	// No crash : software generated hard break point
+	//Fault_Handler_Display(registers, 0);
+	CPU_Halt();
+#else
+
+    CPU_Reset();
+
+#endif  // !defined(BUILD_RTM)
+}
+
+void assert(BOOL CHECK)  {
+    do {
+        if (!(CHECK))
+        {
+            HARD_Breakpoint();
+        }
+    } while (0);
+}
+
+
+void SOFT_Breakpoint()
+{
+#if defined(DEBUG)
+    if(JTAG_Attached()) {
+        __ASM volatile("bkpt");
+    }
+#endif  // defined(DEBUG)
+}
+
+
 // Note: This is never called
 void Sleep() {
 	__DSB();
@@ -211,17 +275,25 @@ void Reset() {
 
 void Shutdown() {
     SOFT_BREAKPOINT();
-	while(1) { PWR_EnterSTANDBYMode(); }
+	while(1)
+	{
+		//PWR_EnterSTANDBYMode();
+	}
 }
 
 void HAL_AssertEx() {
-/*
-// leave commented out because there was no response the pull request on 2014-03-14.
-#if !defined(NDEBUG)
 	if(JTAG_Attached()) {
 		SOFT_BREAKPOINT(); // use SOFT_BREAKPOINT() because there are too many assertions being thrown, and some assertions might be false positives due to other companies submitting junk to CodePlex.
 	}
 	return;
-#endif
-*/
 }
+
+void HAL_Assert( LPCSTR Func, int Line, LPCSTR File )
+{
+    //lcd_printf( "\r\nAssert in\r\n%s\r\nline:%d\r\nfile:%s\r\n", Func, Line, File );
+    debug_printf( "Assert in %s line %d of file %s\r\n"        , Func, Line, File );
+    debug_printf("\n\r");
+    debug_printf("\n\r");
+    //CPU_Halt();
+}
+

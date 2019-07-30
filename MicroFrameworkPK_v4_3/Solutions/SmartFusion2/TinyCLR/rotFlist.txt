@@ -1,0 +1,26 @@
+Aborts.obj
+Attestation.obj
+bl_addDevices.obj -i
+bl_config.obj
+bootstrap.obj  -p
+cm_mpu.obj -i
+core_gpio.obj -i
+eNVM.obj
+FirstEntry.obj -i
+hal.obj
+hw_reg_access.obj -i
+IDelayLoop.obj
+mss_comblk.obj -p
+mss_gpio.obj -p
+mss_hpdma.obj -p
+mss_nvm.obj -p
+mss_spi.obj -p
+mss_sys_services.obj -i
+mss_uart.obj  -p
+netmf_bl.obj -i
+netmf_timers.obj  -i
+sm.obj  -i
+sys_config.obj
+system_m2sxxx.obj -p
+tinyclr_vector.obj -p
+VectorsTrampolines.obj -p

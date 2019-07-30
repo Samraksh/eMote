@@ -4,8 +4,11 @@
 
 #include <tinyhal.h>
 
+#include <crypto.h>
+
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/MAC_decl.h>
+#include <Samraksh/sm.h>
 
 #if defined(PLATFORM_ARM_SOC_ADAPT)
 #include "..\Targets\Native\Krait\DeviceCode\Krait_TIMER\Krait__TIMER.h"
@@ -69,9 +72,39 @@ UINT32 Stack_MaxUsed()
 //--//
 // this is the first C function called after bootstrapping ourselves into ram
 
+#if !defined(IBL) || defined( SAM_APP_TINYCLR )
+// these define the region to zero initialize
+extern UINT32 Image$$RoT_ER_RAM_RW$$ZI$$Base;
+extern UINT32 Image$$RoT_ER_RAM_RW$$ZI$$Length;
+extern UINT32 Image$$Kernel_ER_RAM_RW$$ZI$$Base;
+extern UINT32 Image$$Kernel_ER_RAM_RW$$ZI$$Length;
+extern UINT32 Image$$RunTime_ER_RAM_RW$$ZI$$Base;
+extern UINT32 Image$$RunTime_ER_RAM_RW$$ZI$$Length;
+
+// here is the execution address/length of data to move from FLASH to RAM
+extern UINT32 Image$$RoT_ER_RAM_RW$$Base;
+extern UINT32 Image$$RoT_ER_RAM_RW$$Length;
+extern UINT32 Image$$Kernel_ER_RAM_RW$$Base;
+extern UINT32 Image$$Kernel_ER_RAM_RW$$Length;
+extern UINT32 Image$$RunTime_ER_RAM_RW$$Base;
+extern UINT32 Image$$RunTime_ER_RAM_RW$$Length;
+
+extern UINT32 Load$$RoT_ER_RAM_RW$$Base;
+extern UINT32 Load$$Kernel_ER_RAM_RW$$Base;
+extern UINT32 Load$$RunTime_ER_RAM_RW$$Base;
+
+#else
 // these define the region to zero initialize
 extern UINT32 Image$$ER_RAM_RW$$ZI$$Base;
 extern UINT32 Image$$ER_RAM_RW$$ZI$$Length;
+
+
+// here is the execution address/length of data to move from FLASH to RAM
+extern UINT32 Image$$ER_RAM_RW$$Base;
+extern UINT32 Image$$ER_RAM_RW$$Length;
+extern UINT32 Load$$ER_RAM_RW$$Base;
+
+#endif
 
 // here is the execution address/length of code to move from FLASH to RAM
 #define IMAGE_RAM_RO_BASE   Image$$ER_RAM_RO$$Base
@@ -80,15 +113,9 @@ extern UINT32 Image$$ER_RAM_RW$$ZI$$Length;
 extern UINT32 IMAGE_RAM_RO_BASE;
 extern UINT32 IMAGE_RAM_RO_LENGTH;
 
-// here is the execution address/length of data to move from FLASH to RAM
-extern UINT32 Image$$ER_RAM_RW$$Base;
-extern UINT32 Image$$ER_RAM_RW$$Length;
-
 // here is the load address of the RAM code/data
 #define LOAD_RAM_RO_BASE Load$$ER_RAM_RO$$Base
-
 extern UINT32 LOAD_RAM_RO_BASE;
-extern UINT32 Load$$ER_RAM_RW$$Base;
 
 //--//
 
@@ -127,8 +154,18 @@ void KEEP_THE_LINKER_HAPPY_SINCE_KEEP_IS_NOT_WORKING()
 
 #pragma arm section code = "SectionForBootstrapOperations"
 
+//increments to the next even number if input is odd
+static UINT32 __section(SectionForBootstrapOperations) MakeEven(UINT32 ulen){
+	ulen++;
+	UINT32 ret= ulen & 0xFFFFFFFE;
+	return ret;
+}
+
+
 static void __section(SectionForBootstrapOperations) Prepare_Copy( UINT32* src, UINT32* dst, UINT32 len )
 {
+	len=MakeEven(len);
+
     if(dst != src)
     {
         INT32 extraLen = len & 0x00000003;
@@ -154,8 +191,10 @@ static void __section(SectionForBootstrapOperations) Prepare_Copy( UINT32* src, 
     }
 }
 
-static void __section(SectionForBootstrapOperations) Prepare_Zero( UINT32* dst, UINT32 len )
+
+static void __section(SectionForBootstrapOperations) Prepare_Zero( UINT32* dst, UINT32 ulen )
 {
+	UINT32 len=MakeEven(ulen);
     INT32 extraLen = len & 0x00000003;
     len            = len & 0xFFFFFFFC;
 
@@ -176,8 +215,63 @@ static void __section(SectionForBootstrapOperations) Prepare_Zero( UINT32* dst, 
 
         extraLen--;
     }
+    memset(dst,0,len);
 }
 
+
+//#if defined(SECURE_EMOTE) && !defined(IBL)
+#if !defined(IBL) || defined( SAM_APP_TINYCLR )
+void __section(SectionForBootstrapOperations) PrepareImageRegions()
+{
+    //
+    // Copy RAM RO regions into proper location.
+    //
+    {
+        UINT32* src = (UINT32*)&LOAD_RAM_RO_BASE;
+        UINT32* dst = (UINT32*)&IMAGE_RAM_RO_BASE;
+        UINT32  len = (UINT32 )&IMAGE_RAM_RO_LENGTH;
+
+        Prepare_Copy( src, dst, len );
+    }
+
+    //
+    // Copy RAM RW regions into proper location.
+    //
+    {
+        UINT32* src = (UINT32*)&Load$$RoT_ER_RAM_RW$$Base;
+        UINT32* dst = (UINT32*)&Image$$RoT_ER_RAM_RW$$Base;
+        UINT32  len =  (UINT32)&Image$$RoT_ER_RAM_RW$$Length;
+        Prepare_Copy( src, dst, len );
+
+        src = (UINT32*)&Load$$Kernel_ER_RAM_RW$$Base;
+		dst = (UINT32*)&Image$$Kernel_ER_RAM_RW$$Base;
+		len =  (UINT32)&Image$$Kernel_ER_RAM_RW$$Length;
+		Prepare_Copy( src, dst, len );
+
+		src = (UINT32*)&Load$$RunTime_ER_RAM_RW$$Base;
+		dst = (UINT32*)&Image$$RunTime_ER_RAM_RW$$Base;
+		len =  (UINT32)&Image$$RunTime_ER_RAM_RW$$Length;
+		Prepare_Copy( src, dst, len );
+
+    }
+    //
+    // Initialize RAM Zero Initialized regions.
+    //
+    {
+        UINT32* dst = (UINT32*)&Image$$RoT_ER_RAM_RW$$ZI$$Base;
+        UINT32  len = (UINT32 )&Image$$RoT_ER_RAM_RW$$ZI$$Length;
+        Prepare_Zero( dst, len );
+
+        dst = (UINT32*)&Image$$Kernel_ER_RAM_RW$$ZI$$Base;
+		len = (UINT32 )&Image$$Kernel_ER_RAM_RW$$ZI$$Length;
+		Prepare_Zero( dst, len );
+
+		dst = (UINT32*)&Image$$RunTime_ER_RAM_RW$$ZI$$Base;
+		len = (UINT32 )&Image$$RunTime_ER_RAM_RW$$ZI$$Length;
+		Prepare_Zero( dst, len );
+    }
+}
+#else
 void __section(SectionForBootstrapOperations) PrepareImageRegions()
 {
     //
@@ -211,6 +305,9 @@ void __section(SectionForBootstrapOperations) PrepareImageRegions()
         Prepare_Zero( dst, len );
     }
 }
+#endif
+
+
 
 #pragma arm section code
 
@@ -375,6 +472,14 @@ bool g_fDoNotUninitializeDebuggerPort = false;
 void HAL_Initialize()
 {    
 
+	//#if !defined(HAL_REDUCESIZE)
+		CPU_InitializeCommunication();
+	//#endif
+
+#if defined(SECURE_EMOTE) && !defined(IBL)
+	SecureMonitor_Initialize();
+#endif
+
     HAL_CONTINUATION::InitializeList();
     HAL_COMPLETION  ::InitializeList();
 
@@ -402,12 +507,10 @@ void HAL_Initialize()
     BlockStorageList::InitializeDevices();
 
 
-    //#if !defined(HAL_REDUCESIZE)
-        CPU_InitializeCommunication();
-    //#endif
+#if !defined IBL || defined( SAM_APP_TINYCLR )
 
-#ifndef MIN_NATIVE_BUILD
     //FS_Initialize();
+    CPU_InitializeCommunication();
 
     FileSystemVolumeList::Initialize();
 
@@ -434,7 +537,17 @@ void HAL_Initialize()
    // Gesture_Initialize();
     //Ink_Initialize();
     TimeService_Initialize();
-#endif //end MIN_NATIVE_BUILD
+#ifdef USING_COMPUTE_PROCESSOR
+	CP_Init();
+#endif
+#ifdef USING_BLUETOOTH
+	COM_Manager_Initialization(BLUETOOTHMAC);
+#else
+	COM_Manager_Initialization(NONE);
+#endif
+
+	
+#endif //end IBL
 
 #if defined(ENABLE_NATIVE_PROFILER)
     Native_Profiler_Init();
@@ -517,6 +630,12 @@ void HAL_Uninitialize()
 
     Events_Uninitialize();
     Time_Uninitialize();
+	
+	COM_Manager_Uninitialize();
+
+#ifdef USING_COMPUTE_PROCESSOR
+	CP_UnInit();
+#endif
 
     HAL_CONTINUATION::Uninitialize();
     HAL_COMPLETION  ::Uninitialize();
@@ -585,7 +704,11 @@ mipi_dsi_shutdown();
 
     InitCRuntime();
 
+#if !defined(IBL) || defined( SAM_APP_TINYCLR )
+    LOAD_IMAGE_Length += (UINT32)&IMAGE_RAM_RO_LENGTH + (UINT32)&Image$$RoT_ER_RAM_RW$$Length + (UINT32)&Image$$Kernel_ER_RAM_RW$$Length + (UINT32)&Image$$RunTime_ER_RAM_RW$$Length;
+#else
     LOAD_IMAGE_Length += (UINT32)&IMAGE_RAM_RO_LENGTH + (UINT32)&Image$$ER_RAM_RW$$Length;
+#endif
 
 #if !defined(BUILD_RTM) && defined(DEBUG)
     g_Boot_RAMConstants_CRC = Checksum_RAMConstants();
@@ -666,7 +789,9 @@ mipi_dsi_shutdown();
 	}*/
 
 #endif
-#ifndef MIN_NATIVE_BUILD
+	
+
+#if defined(SEC_EMOTE) && defined(CP_LOAD_TEST)
     loadArduinoSPI((uint8_t*)0xF000,1932);
 #endif
 

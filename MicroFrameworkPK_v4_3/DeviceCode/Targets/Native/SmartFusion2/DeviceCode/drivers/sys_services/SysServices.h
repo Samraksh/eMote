@@ -15,10 +15,10 @@ void MSS_COMBLK_init (comblk_async_event_handler_t async_event_handler,uint8_t* 
 void asynchronous_event_handler(uint8_t event_opcode);
 
 struct SF2_Services {
-
+  
 	void InitializeSysServices();
 };
-
+  
 #endif //_SF2_SYS_SERVICES_H_
 
 

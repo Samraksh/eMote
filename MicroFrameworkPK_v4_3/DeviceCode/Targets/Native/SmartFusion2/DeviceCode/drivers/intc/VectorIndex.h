@@ -9,9 +9,9 @@ struct VectorIndex {
 	static const UINT32 c_IRQ_INDEX_BusFault        		 = -11;
 	static const UINT32 c_IRQ_INDEX_UsageFault          	 = -10;
 	static const UINT32 c_IRQ_INDEX_DebugMonitor          	 = -4;
-	static const UINT32 c_IRQ_INDEX_SysTick          = -1;
+	static const UINT32 c_IRQ_INDEX_SysTick          = -3;
 	static const UINT32 c_IRQ_INDEX_PendSV          = 82;	//Used to be -2, Modified by Mukundan for Preemptive thread
-	static const UINT32 c_IRQ_INDEX_SVCall          = 83;    // Used to -5, Modified by Nived for bottom half thread
+	static const UINT32 c_IRQ_INDEX_SVCall          = -2;    // Used to -5, Modified by Mukundan for Kernel Calls
 
 	/******  SmartFusion2 specific Interrupt Numbers *********************************************************/
 	static const UINT32 c_IRQ_INDEX_WWDG          = 0;

@@ -26,6 +26,11 @@
     <BUILD_TOOL_GUID>{722B0D5D-1243-4557-913F-61FAB04E9209}</BUILD_TOOL_GUID>
   </PropertyGroup>
   <ItemGroup>
+    <!-- <IncludePaths Include="DeviceCode\Targets\Native\CortexM\cmsis5\" />
+    <IncludePaths Include="DeviceCode\Targets\Native\CortexM\cmsis5\CMSIS\Core\Include" /> -->
     <IncludePaths Include="devicecode\Targets\Native\STM32F10x" />
+    <!-- <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis" /> -->
+    <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\stmlib" />
+    <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\fsmc\P30BF65NOR" />
   </ItemGroup>
 </Project>

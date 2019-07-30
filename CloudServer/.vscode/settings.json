@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "comtotun.h": "c",
+        "netif_parser.h": "c"
+    },
+    "terminal.integrated.shell.windows": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "terminal.integrated.shellArgs.windows": [
+    ],
+    "go.formatTool": "gofmt",
+    //"go.gopath": "${env:GoPath};E:\\Users\\Mukundan\\Repos\\eMote\\CloudServer\\ExtCode",
+    "go.gopath": "C:\\Users\\mukun\\go;E:\\Mukundan\\Repos\\eMote\\CloudServer;E:\\Mukundan\\Repos\\eMote\\CloudServer\\ExtCode",
+}

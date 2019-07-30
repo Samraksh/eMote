@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AssemblyName>SmartFusion2_bluetooth_core</AssemblyName>
+    <ProjectGuid>{885b4313-3a4f-49fa-b255-6df6870fbec8}</ProjectGuid>
+    <Size>
+    </Size>
+    <Description>SmartFusion2 bluetooth btcore</Description>
+    <Level>HAL</Level>
+    <LibraryFile>SmartFusion2_bluetooth_core.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\btcore</ProjectPath>
+    <ManifestFile>SmartFusion2_bluetooth_core.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>SmartFusion2\SmartFusion2</Groups>
+    <LibraryCategory>
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="radio" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" Conditional="" xmlns="">
+        <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
+          <Major>4</Major>
+          <Minor>0</Minor>
+          <Revision>0</Revision>
+          <Build>0</Build>
+          <Extra />
+          <Date>2010-07-01</Date>
+        </VersionDependency>
+        <ComponentType xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">LibraryCategory</ComponentType>
+      </MFComponent>
+    </LibraryCategory>
+    <Documentation>
+    </Documentation>
+    <PlatformIndependent>False</PlatformIndependent>
+    <CustomFilter>
+    </CustomFilter>
+    <Required>False</Required>
+    <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
+    <IsStub>False</IsStub>
+    <Directory>DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\bluetooth\btcore</Directory>
+    <OutputType>Library</OutputType>
+    <PlatformIndependentBuild>false</PlatformIndependentBuild>
+    <Version>4.0.0.0</Version>
+  </PropertyGroup>
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <PropertyGroup />
+  <ItemGroup>		
+	<HFiles Include="btstack.h" />
+	<HFiles Include="bluetooth.h" />
+	<HFiles Include="bluetooth_company_id.h" />
+	<HFiles Include="bluetooth_data_types.h" />
+	<HFiles Include="bluetooth_gatt.h" />
+	<HFiles Include="bluetooth_sdp.h" />
+	<HFiles Include="btstack_chipset.h" />
+	<HFiles Include="btstack_control.h" />
+	<HFiles Include="btstack_debug.h" />
+	<HFiles Include="btstack_defines.h" />
+	<HFiles Include="btstack_event.h" />
+	<HFiles Include="btstack_network.h" />
+	<HFiles Include="hci_transport.h" />
+	<HFiles Include="gap.h" />
+	<HFiles Include="hci.h" />
+	<Compile Include="hci.c" />
+	<HFiles Include="hci_cmd.h" />
+	<Compile Include="hci_cmd.c" />
+	<HFiles Include="l2cap.h" />
+	<Compile Include="l2cap.c" />
+	<HFiles Include="l2cap_signaling.h" />
+	<Compile Include="l2cap_signaling.c" />
+	<HFiles Include="btstack_run_loop.h" />
+	<Compile Include="btstack_run_loop.c" />
+	<HFiles Include="btstack_ring_buffer.h" />
+	<Compile Include="btstack_ring_buffer.c" />
+	<HFiles Include="ad_parser.h" />
+	<Compile Include="ad_parser.c" />
+	<HFiles Include="btstack_hid_parser.h" />
+	<Compile Include="btstack_hid_parser.c" />
+	<HFiles Include="btstack_linked_list.h" />
+	<Compile Include="btstack_linked_list.c" />
+	<HFiles Include="btstack_memory.h" />
+	<Compile Include="btstack_memory.c" />
+	<HFiles Include="btstack_memory_pool.h" />
+	<Compile Include="btstack_memory_pool.c" />
+	<HFiles Include="btstack_ring_buffer.h" />
+	<Compile Include="btstack_ring_buffer.c" />
+	<HFiles Include="btstack_run_loop.h" />
+	<Compile Include="btstack_run_loop.c" />
+	<HFiles Include="btstack_slip.h" />
+	<Compile Include="btstack_slip.c" />
+	<HFiles Include="btstack_util.h" />
+	<Compile Include="btstack_util.c" />
+	<HFiles Include="hci_cmd.h" />
+	<Compile Include="hci_cmd.c" />
+	<HFiles Include="hci_dump.h" />
+	<Compile Include="hci_dump.c" />
+	<HFiles Include="btstack_crypto.h" />
+	<Compile Include="btstack_crypto.c" />
+	<HFiles Include="hci_transport_h4.h" />
+	<Compile Include="hci_transport_h4.c" />
+	<HFiles Include="uECC.h" />
+	<Compile Include="uECC.c" />
+	<HFiles Include="classic\rfcomm.h" />
+	<Compile Include="classic\rfcomm.c" />
+	<HFiles Include="classic\sdp_client.h" />
+	<Compile Include="classic\sdp_client.c" />
+	<HFiles Include="classic\spp_server.h" />
+	<Compile Include="classic\spp_server.c" />
+	<HFiles Include="classic\sdp_server.h" />
+	<Compile Include="classic\sdp_server.c" />
+	<HFiles Include="classic\sdp_util.h" />
+	<Compile Include="classic\sdp_util.c" />
+	<HFiles Include="ble\att_server.h" />
+	<Compile Include="ble\att_server.c" />
+	<HFiles Include="ble\sm.h" />
+	<Compile Include="ble\sm.c" />
+	<HFiles Include="ble\att_db.h" />
+	<Compile Include="ble\att_db.c" />
+	<HFiles Include="ble\att_dispatch.h" />
+	<Compile Include="ble\att_dispatch.c" />
+	<HFiles Include="ble\le_device_db.h" />
+	<Compile Include="ble\le_device_db_tlv.c" />
+	<Compile Include="ble\gatt_client.c" />
+	<HFiles Include="ble\gatt_client.h" />
+	<HFiles Include="btstack_tlv.h" />
+	<Compile Include="btstack_tlv.c" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+</Project>
+

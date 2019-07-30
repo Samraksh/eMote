@@ -395,12 +395,12 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 		}
 
 		SetOMACParametersBasedOnRadioName(this->radioName);
+		SetMyAddress(CPU_Radio_GetAddress(radioName));
+		SetMyID(CPU_Radio_GetAddress(radioName));
 
 #ifdef OMAC_DEBUG_PRINTF
 		OMAC_HAL_PRINTF("Initializing OMACType: My address: %d\r\n", g_OMAC.GetMyAddress());
 #endif
-		SetMyAddress(CPU_Radio_GetAddress(radioName));
-		SetMyID(CPU_Radio_GetAddress(radioName));
 
 		m_omac_RadioControl.Initialize();
 		m_omac_scheduler.Initialize(radioName, macName);
@@ -408,6 +408,8 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 	}
 
 	CurrentActiveApp = routingAppID;
+
+	hal_printf("OMACType::init CPU_GetCurrentPowerLevel = %u \r\n",CPU_GetCurrentPowerLevel());
 
 	m_rxAckHandler = NULL;
 	m_txAckHandler = NULL;
@@ -509,6 +511,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 		UINT8 payloadType = swAckHeader->payloadType;
 #if OMAC_DEBUG_PRINTF_ACKREC
 		hal_printf("ACK Received sourceID = %u, destID = %u   \r\n", sourceID, destID);
+		g_OMAC.is_print_neigh_table = true;
 #endif
 		if(destID == myID){
 			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
@@ -584,6 +587,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 #if OMAC_DEBUG_PRINTF_PACKETREC
 		hal_printf("OMAC RX sourceID = %u, destID = %u payloadType = %u flags = %u RSSI = %u LQI = %u \r\n", sourceID, destID, msg->GetHeader()->payloadType, msg->GetHeader()->flags, msg->GetMetaData()->GetRssi(), msg->GetMetaData()->GetLqi());
+		g_OMAC.is_print_neigh_table = true;
 #endif
 
 
@@ -845,11 +849,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				for(UINT8 i=0; i < numNfits ; ++i){
 					macinfo_msg = (MACNeighborInfo*) (msg->GetPayload() + location_in_packet_payload);
 					macinfo_msg2 = (MACNeighborLinkInfo*) (msg->GetPayload() + location_in_packet_payload + (numNfits-i) * sizeof(MACNeighborInfo) + i * sizeof(MACNeighborLinkInfo));
-					hal_printf("   EMI MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u, SLR=%c%c%c%c%c%c%c%c, RLRSSI = %u\r\n"
+					hal_printf("   EMI MAC=%u, S=%u, A=%u, SN=%u, NTSS=%u, NTSR=%u, SLR=%c%c%c%c%c%c%c%c, RLRSSI = %u\r\n"
 							, macinfo_msg->MACAddress
 							, macinfo_msg->neighborStatus
 							, macinfo_msg->IsAvailableForUpperLayers
-							, macinfo_msg->NumTimeSyncMessagesSent
+							, macinfo_msg->IsMyScheduleKnown
+							, macinfo_msg->NumInitializationMessagesSent
 							, macinfo_msg->NumTimeSyncMessagesRecv
 							, UINT_TO_BINARY(macinfo_msg2->SendLink.Link_reliability_bitmap)
 							, macinfo_msg2->ReceiveLink.AvgRSSI
@@ -863,11 +868,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				for(UINT8 i=0; i < numNfits ; ++i){
 					macinfo_msg = (MACNeighborInfo*) (msg->GetPayload() + location_in_packet_payload);
 					macinfo_msg2 = (MACNeighborLinkInfo*) (msg->GetPayload() + location_in_packet_payload + (numNfits-i) * sizeof(MACNeighborInfo) + i * sizeof(MACNeighborLinkInfo));
-					hal_printf("   EMI MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u\r\n"
+					hal_printf("   EMI MAC=%u, S=%u, A=%u, SN=%u, NTSS=%u, NTSR=%u\r\n"
 							, macinfo_msg->MACAddress
 							, macinfo_msg->neighborStatus
 							, macinfo_msg->IsAvailableForUpperLayers
-							, macinfo_msg->NumTimeSyncMessagesSent
+							, macinfo_msg->IsMyScheduleKnown
+							, macinfo_msg->NumInitializationMessagesSent
 							, macinfo_msg->NumTimeSyncMessagesRecv
 					);
 					location_in_packet_payload += sizeof(MACNeighborInfo);
@@ -1227,6 +1233,28 @@ Message_15_4_t* OMACType::FindFirstSyncedNbrMessage(){
 	return NULL;
 }
 
+void OMACType::MarkNeighborAsDead(UINT8 tableIndex){
+	Message_15_4_t* msg_carrier = NULL;
+	g_NeighborTable.Neighbor[tableIndex].MarkAsDead();
+
+#if OMAC_DEBUG_PRINTF_NEIGHCHANGE
+						is_print_neigh_table = true;
+#endif
+
+	//Return Packets for neighbors
+	msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+	while(msg_carrier){
+		m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+		msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+	}
+	msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+	while(msg_carrier){
+		m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+		msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
+	}
+	//						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); //  BK: New logic enables deleting by the time sync table. We don't need to delete here.
+}
+
 /*
  *
  */
@@ -1253,20 +1281,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 					}
 					if(g_NeighborTable.Neighbor[tableIndex].LastHeardTime != 0 && currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > livelinessDelayInTicks ){
 						++numberOfDeadNeighbors;
-						g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
-						g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers = false;
-						//Return Packets for neighbors
-						msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
-							msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						}
-						msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
-							msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						}
-						//						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); //  BK: New logic enables deleting by the time sync table. We don't need to delete here.
+						MarkNeighborAsDead(tableIndex);
 					}
 //					else if(!g_NeighborTable.Neighbor[tableIndex].SendLink.IsReliable()){
 //						++numberOfDeadNeighbors;
@@ -1278,26 +1293,9 @@ UINT8 OMACType::UpdateNeighborTable(){
 					if(g_NeighborTable.Neighbor[tableIndex].LastHeardTime == 0){ //Should not happen since in order to exist in the table we should heard about it
 						hal_printf("OMAC: Update Neighbor WARNIING Code: 001");
 					}
-					else if(currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > 10*livelinessDelayInTicks ){ //we have waited long enough to get time and we should delete it to clear space for other neighbors
-#if OMAC_DEBUG_PRINTF_NEIGHCHANGE
-						is_print_neigh_table = true;
-#endif
+					else if(currentTime - g_NeighborTable.Neighbor[tableIndex].LastHeardTime > g_OMAC.m_Clock.ConvertMicroSecstoTicks(OMAC_MAX_WAITING_TIME_FOR_TIMESAMPLES_INMICS) ){ //we have waited long enough to get time and we should delete it to clear space for other neighbors
 						++numberOfDeadNeighbors;
-						g_NeighborTable.Neighbor[tableIndex].neighborStatus = Dead;
-
-
-						msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
-							msg_carrier = g_NeighborTable.FindDataPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						}
-						msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						while(msg_carrier){
-							m_omac_scheduler.m_DataTransmissionHandler.SendACKToUpperLayers(msg_carrier, sizeof(Message_15_4_t), NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
-							msg_carrier = g_NeighborTable.FindTSRPacketForNeighbor(g_NeighborTable.Neighbor[tableIndex].MACAddress);
-						}
-
-						//						g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_NeighborTable.Neighbor[tableIndex].MACAddress); // BK: New logic enables deleting by the time sync table. We don't need to delete here.
+						MarkNeighborAsDead(tableIndex);
 					}
 					//					else{ //We are still waiting for time samples to accumulate to give reliable time estimate keep it in the table
 					//
@@ -1359,12 +1357,15 @@ void OMACType::PrintNeighborTable(){
 	for (UINT8 tableIndex=0; tableIndex<MAX_NEIGHBORS; ++tableIndex){
 		if(    g_NeighborTable.Neighbor[tableIndex].MACAddress != 0 && g_NeighborTable.Neighbor[tableIndex].MACAddress != 65535 ){
 
-			hal_printf("  MAC=%u, S=%u, A=%u, NTSS=%u, NTSR=%u, SLR=%c%c%c%c%c%c%c%c, RLRSSI = %u, LHT = %llu, CT = %llu \r\n "
+			hal_printf("  MAC=%u, S=%u, A=%u, SN=%u, NTSS=%u, NTSR=%u, DataPcktInQ = %u, TSRPcktInQ = %u, SLR=%c%c%c%c%c%c%c%c, RLRSSI = %u, LHT = %llu, CT = %llu \r\n "
 					, g_NeighborTable.Neighbor[tableIndex].MACAddress
 					, g_NeighborTable.Neighbor[tableIndex].neighborStatus
 					, g_NeighborTable.Neighbor[tableIndex].IsAvailableForUpperLayers
-					, g_NeighborTable.Neighbor[tableIndex].NumTimeSyncMessagesSent
+					, g_NeighborTable.Neighbor[tableIndex].IsMyScheduleKnown
+					, g_NeighborTable.Neighbor[tableIndex].NumInitializationMessagesSent
 					, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(g_NeighborTable.Neighbor[tableIndex].MACAddress)
+					, g_NeighborTable.IsThereADataPacketWithDest(g_NeighborTable.Neighbor[tableIndex].MACAddress)
+					, g_NeighborTable.IsThereATSRPacketWithDest(g_NeighborTable.Neighbor[tableIndex].MACAddress)
 					, UINT_TO_BINARY(g_NeighborTable.Neighbor[tableIndex].SendLink.Link_reliability_bitmap)
 					, g_NeighborTable.Neighbor[tableIndex].ReceiveLink.AvgRSSI
 					, g_NeighborTable.Neighbor[tableIndex].LastHeardTime
@@ -1372,6 +1373,8 @@ void OMACType::PrintNeighborTable(){
 			);
 		}
 	}
+
+
 #if OMAC_DEBUG_PRINTF_NEIGHCHANGE || OMAC_DEBUG_PRINTF_DISCO_RX || OMAC_DEBUG_PRINTF_TS_RX ||OMAC_DEBUG_PRINTF_TSREQ_TX
 	is_print_neigh_table = false;
 #endif

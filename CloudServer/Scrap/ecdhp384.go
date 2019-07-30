@@ -1,0 +1,113 @@
+// Copyright (c) 2016 Andreas Auernhammer. All rights reserved.
+// Use of this source code is governed by a license that can be
+// found in the LICENSE file.
+
+//Samraksh: Implementation copied from external code, so retains copyright
+
+package ecdh
+
+import (
+	"crypto"
+	"crypto/elliptic"
+	"crypto/rand"
+	"errors"
+	"io"
+)
+
+type ecdh384 struct {
+	//curve384 elliptic.Curve
+}
+
+var curve384Params = CurveParams{
+	Name:    "Curve384",
+	BitSize: 384,
+}
+
+// X384 creates a new ecdh.KeyExchange with
+// the elliptic curve Curve384.
+func X384() KeyExchange {
+	return ecdh384{
+		//curve384: elliptic.P384(),
+	}
+}
+
+func (ecdh384) GenerateKey(random io.Reader) (private crypto.PrivateKey, public crypto.PublicKey, err error) {
+	if random == nil {
+		random = rand.Reader
+	}
+
+	var pri, pub [32]byte
+	_, err = io.ReadFull(random, pri[:])
+	if err != nil {
+		return
+	}
+
+	// From https://cr.yp.to/ecdh.html
+	pri[0] &= 248
+	pri[31] &= 127
+	pri[31] |= 64
+
+	elliptic.P384().ScalarBaseMult(&pub, &pri)
+
+	private = pri
+	public = pub
+	return
+}
+
+func (ecdh384) Params() CurveParams { return curve384Params }
+
+func (ecdh384) PublicKey(private crypto.PrivateKey) (public crypto.PublicKey) {
+	var pri, pub [32]byte
+	if ok := checkType(&pri, private); !ok {
+		panic("ecdh: unexpected type of private key")
+	}
+
+	elliptic.P384().ScalarBaseMult(&pub, &pri)
+
+	public = pub
+	return
+}
+
+func (ecdh384) Check(peersPublic crypto.PublicKey) (err error) {
+	if ok := checkType(new([32]byte), peersPublic); !ok {
+		err = errors.New("unexptected type of peers public key")
+	}
+	return
+}
+
+func (ecdh384) ComputeSecret(private crypto.PrivateKey, peersPublic crypto.PublicKey) (secret []byte) {
+	var sec, pri, pub [32]byte
+	if ok := checkType(&pri, private); !ok {
+		panic("ecdh: unexpected type of private key")
+	}
+	if ok := checkType(&pub, peersPublic); !ok {
+		panic("ecdh: unexpected type of peers public key")
+	}
+
+	elliptic.P384().ScalarMult(&sec, &pri, &pub)
+
+	secret = sec[:]
+	return
+}
+
+func checkType(key *[32]byte, typeToCheck interface{}) (ok bool) {
+	switch t := typeToCheck.(type) {
+	case [32]byte:
+		copy(key[:], t[:])
+		ok = true
+	case *[32]byte:
+		copy(key[:], t[:])
+		ok = true
+	case []byte:
+		if len(t) == 32 {
+			copy(key[:], t)
+			ok = true
+		}
+	case *[]byte:
+		if len(*t) == 32 {
+			copy(key[:], *t)
+			ok = true
+		}
+	}
+	return
+}

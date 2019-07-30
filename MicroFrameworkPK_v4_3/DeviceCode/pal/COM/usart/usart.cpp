@@ -11,6 +11,7 @@ static const INT8 XOFF_FLAG_FULL  = 0x01;
 static const INT8 XOFF_CLOCK_HALT = 0x02;
 
 //--//
+
 #if !defined(PLATFORM_ARM_KRAIT)
 static int use_com0_managed;
 BOOL USART_InitializeManaged( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
@@ -49,7 +50,8 @@ int USART_Write( int ComPortNum, const char* Data, size_t size )
 
 int USART_Read( int ComPortNum, char* Data, size_t size )
 {
-    return USART_Driver::Read( ComPortNum, Data, size );
+	if (ComPortNum == 0) return USART_Driver::Read( ComPortNum, Data, size );
+	else return USART_Driver::ManagedRead( ComPortNum, Data, size );
 }
 
 int USART_Managed_Read( int ComPortNum, char* Data, size_t size )
@@ -235,6 +237,107 @@ HAL_USART_STATE Hal_Usart_State[TOTAL_USART_PORT];
 #pragma arm section zidata
 #endif
 
+#if defined(EMOTE_COM_NETIF)
+#define NETIF_BUF_SIZE NETIF_MTU+2*NETIF_START_STOP_CHAR_SIZE
+UINT8 netifBuf[NETIF_BUF_SIZE];
+int startLoc, endLoc=0;
+
+void PrintHex(UINT8* sig, int size){
+	for (int j=0;j<size; j++){
+		hal_printf("0x%.2X , ",sig[j]);
+	}
+	hal_printf("\n");
+}
+
+//Parses the incoming bytes and marks the begining and ending of a network pkt
+//in the pal buffer. Reads the packet from the pal buffer only when it detects a who packet.
+//And finally notify the network driver that a packet has arrived
+//TODO: Need to put in discard logic if packet is corrupted
+UINT16 CheckForNetIfPkt(int ComPortNum){
+	HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
+	UINT8 * palBuf;
+	UINT32 detectState=0;
+	UINT16 pktSize=0;
+
+	BOOL pktStartDetected=FALSE;
+	BOOL pktEndDetected=FALSE;
+	if(ComPortNum == ConvertCOM_ComPort(COM_NETIF)){
+		size_t nChar;
+		if(ComPortNum==0){
+			nChar= State.RxQueue.NumberOfElements();
+		}else {
+			nChar= State.ManagedRxQueue.NumberOfElements();
+		}
+		//hal_printf("Usart_recv: Bytes in buffer %d\n",nChar);
+		if (nChar >=NETIF_MIN_PKT_SIZE){
+			palBuf=State.RxQueue.Storage();
+			//PrintHex(palBuf,nChar);
+			for (int i=0; i < nChar; i++){
+				if(palBuf[i]==NETIF_START_STOP_CHAR){
+					//hal_printf("start byte\n");
+					detectState++;
+				}else{
+					if(detectState >0) detectState=0; //if you skip a single byte go back to zero.
+				}
+				if (detectState == NETIF_START_STOP_CHAR_SIZE){
+					if(!pktStartDetected){
+						//This start of a pkt
+						pktStartDetected=TRUE;
+						startLoc= i +1;
+						//hal_printf("Detected pkt begining\n");
+					}else {
+						//This is the end of a pkt
+						pktEndDetected=TRUE;
+						endLoc= i - NETIF_START_STOP_CHAR_SIZE;
+						//hal_printf("Detected pkt end\n");
+					}
+				}
+			}
+
+			if(pktStartDetected && pktEndDetected) {
+				//hal_printf("CheckForNetIfPkt:Found a pkt\n");
+				//PrintHex(palBuf,nChar);
+				//Copy pkt to buf and signal
+				UINT16 nRead=USART_Driver::Read( ComPortNum, (char*)netifBuf, NETIF_BUF_SIZE);
+				pktSize=(endLoc-startLoc)+1;
+				if(nRead >= endLoc+2*NETIF_START_STOP_CHAR_SIZE){
+					hal_printf("Soft_Assert: CheckForNetIfPkt: Something wrong, didnt read the whole net pkt\n");
+				}
+				//USART_Driver::SetEvent( ComPortNum, USART_EVENT_DATA_NETIF );
+			}
+			//hal_printf("flush\n");
+			//hal_printf("flush\n");
+			//hal_printf("flush\n");
+		} //min pkt size
+	}//not comport of insterest
+	return pktSize;
+}
+
+//Returns an entire Network packet to the network interface driver
+int Com_Netif_Read( int ComPortNum, char* Data, size_t size ){
+	//check if a packet is currently stored in the buffer
+	if(netifBuf[0]!='\0' && startLoc>0 && endLoc >0){
+		int retSize=(endLoc-startLoc)+1;
+		memcpy(Data,&netifBuf[startLoc], retSize);
+		memset(netifBuf,'\0',NETIF_BUF_SIZE);
+		startLoc=-1;endLoc=-1;
+		return retSize;
+	}
+	else return 0;
+}
+
+int Com_Netif_BytesInBuffer(int ComPortNum){
+	if(netifBuf[0]!='\0' && startLoc>0 && endLoc >0){
+		return (endLoc-startLoc)+1;
+	}
+	else{ return 0;}
+}
+#endif//EMOTE_COM_NETIF
+BOOL USART_IsComPortInitialized( int ComPortNum){
+	HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
+	return IS_USART_INITIALIZED(State);
+}
+
 //--//
 
 BOOL USART_Driver::Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
@@ -359,12 +462,11 @@ int USART_Driver::Write( int ComPortNum, const char* Data, size_t size )
             return 0;
         }
     }
-
+#if defined(PLATFORM_ARM_SmartFusion2)
     char* DataToSend = (char*)Data;
     CPU_USART_WriteStringToTxBuffer(ComPortNum, DataToSend, size);
     totWrite = size;
-
-    /*
+#else
     // loop twice if needed because of our implementaition of a circular buffered QUEUE
     for(j=0; (j < 2) && (totWrite < size); j++)
     {
@@ -402,8 +504,8 @@ int USART_Driver::Write( int ComPortNum, const char* Data, size_t size )
             // so we do this once to be efficient in the common case (buffer has room for all chars)
             CPU_USART_TxBufferEmptyInterruptEnable( ComPortNum, TRUE );
         }
-    }*/
-
+    }
+#endif
     return totWrite;
 }
 
@@ -521,6 +623,8 @@ int USART_Driver::ManagedRead( int ComPortNum, char* Data, size_t size ){
         }
 	}
 #endif
+
+
     return CharsRead;
 }
 
@@ -674,7 +778,25 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 
 	toWrite = size;
 	written = 0;
-
+	//
+/*
+#if defined(EMOTE_COM_NETIF)
+	int detectState=0;
+	if(ComPortNum == COM_NETIF){
+		for (int i=0; i < size; i++){
+			if(data[i]==NETIF_START_STOP_CHAR){
+				detectState++;
+			}else{
+				if(detectState >0) detectState=0;
+			}
+			if (detectState == NETIF_START_STOP_CHAR_SIZE){
+				//Signal up
+				SetEvent( ComPortNum, USART_EVENT_DATA_NETIF );
+			}
+		}
+	}
+#endif
+*/
 	// Only COM1 uses RxQueue, others use managed queue
 	if (ComPortNum == 0) {
 		GLOBAL_LOCK(irq);
@@ -725,10 +847,14 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 		}
 	}
 
+	//Call any event handlers that might have registered
+	//Beware we are still in interrupt handler
 	if (State.UsartDataEventCallback != NULL) {
+		State.fDataEventSet  = FALSE;
 		SetEvent( ComPortNum, USART_EVENT_DATA_CHARS );
 	}
 
+	//LetNetIFHigherUpKnow(ComPortNum,State);
 	Events_Set( SYSTEM_EVENT_FLAG_COM_IN );
 	return TRUE;
 }
@@ -758,7 +884,7 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
 
 
     {
-        GLOBAL_LOCK(irq);
+        //GLOBAL_LOCK(irq);
 		UINT8* Dst;
 #if defined(PLATFORM_ARM_KRAIT)
         Dst = State.RxQueue.Push();
@@ -803,7 +929,6 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
 		if( State.ManagedRxQueue.NumberOfElements() < State.RxBufferHighWaterMark )
 		{
 			Dst = State.ManagedRxQueue.Push();
-
         	if(Dst)
         	{
         	    *Dst = c;        	    
@@ -811,17 +936,18 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
         	else
         	{
             	SetEvent( ComPortNum, USART_EVENT_ERROR_RXOVER );
-
             	return FALSE;
         	}
 		}
     }
 
+    //LetNetIFHigherUpKnow(ComPortNum,State);
     SetEvent( ComPortNum, USART_EVENT_DATA_CHARS );
     Events_Set( SYSTEM_EVENT_FLAG_COM_IN );
 
     return TRUE;
 }
+
 
 BOOL USART_Driver::RemoveCharFromTxBuffer( int ComPortNum, char& c )
 {
@@ -977,8 +1103,11 @@ int USART_Driver::BytesInBuffer( int ComPortNum, BOOL fRx )
     if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) return -1;
 
     HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
-
-    return fRx? State.RxQueue.NumberOfElements(): State.TxQueue.NumberOfElements();
+    if (ComPortNum == 0){
+    	return fRx? State.RxQueue.NumberOfElements(): State.TxQueue.NumberOfElements();
+    }else {
+    	return fRx? State.ManagedRxQueue.NumberOfElements(): State.TxQueue.NumberOfElements();
+    }
 }
 
 int USART_Driver::BytesInManagedBuffer( int ComPortNum, BOOL fRx )

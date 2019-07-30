@@ -253,6 +253,7 @@ struct Settings
             TINYCLR_CHECK_HRESULT(LoadAssembly( header, assm ));
             
             header = (const CLR_RECORD_ASSEMBLY*)ROUNDTOMULTIPLE((size_t)header + header->TotalSize(), CLR_UINT32);
+            //CLR_Debug::Printf("\nNext Assm at %x,with size %d is good ? %d\n", header, header->TotalSize(), header->GoodAssembly());
         }
         
         TINYCLR_NOCLEANUP();
@@ -656,7 +657,11 @@ void ClrStartup( CLR_SETTINGS params )
 		MfReleaseInfo releaseInfo;
         Solution_GetReleaseInfo( releaseInfo );
 #if defined(COMPILE_CUSTOMER_RELEASE)
+#if defined(SECURE_EMOTE)
+        CLR_Debug::Printf( "Secure eMote OS v%d\r\n================\r\nSupports Kernel isolation from Runtime.================\r\n", SAM_VERSION_REVISION );
+#else
         CLR_Debug::Printf( "eMote OS v%d\r\n", SAM_VERSION_REVISION );
+#endif
         CLR_Debug::Printf( "Platform: %s\r\n", HAL_SYSTEM_NAME );
 		// VERSION_BUILD is not set correctly to 2, once it is set then we use MF_VERSION
         //CLR_Debug::Printf( "Based on Micro Framework v%s\r\n",MF_VERSION );

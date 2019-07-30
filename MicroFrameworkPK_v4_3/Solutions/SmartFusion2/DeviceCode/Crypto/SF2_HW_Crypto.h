@@ -2,7 +2,7 @@
 #define _SF2_HW_CRYPTO_H_
 
 #include <drivers/mss_sys_services/mss_sys_services.h>
-
+#include <crypto.h>
 
 #define SF2_HW_MAX_IV_LENGTH 32
 #define SF2_HW_MAX_KEY_LENGTH 64 // This is in bytes
@@ -39,6 +39,28 @@ enum SF2_CipherOperation {
 };
 */
 
+//This is only for Curve-384
+typedef struct {
+	uint8_t publicKey[96];
+	uint8_t privateKey[48];
+	//uint16_t curveLen;
+	uint16_t references;
+}sf2_ecc_key_t;
+
+/** Enum for the point conversion form as defined in X9.62 (ECDSA)
+ *  for the encoding of a elliptic curve point (x,y) */
+typedef enum {
+	/** the point is encoded as z||x, where the octet z specifies
+	 *  which solution of the quadratic equation y is  */
+	POINT_CONVERSION_COMPRESSED = 2,
+	/** the point is encoded as z||x||y, where z is the octet 0x02  */
+	POINT_CONVERSION_UNCOMPRESSED = 4,
+	/** the point is encoded as z||x||y, where the octet z specifies
+         *  which solution of the quadratic equation y is  */
+	POINT_CONVERSION_HYBRID = 6
+} point_conversion_form_t;
+
+
 ///Please note this is defined by Samraksh. Should really use sf2 defintion if available.
 typedef struct {
 	SF2_CipherType type;
@@ -74,10 +96,10 @@ typedef struct {
 //function prototypes
 
 ///returns a random seed of size length, using FPGA random functions
-int GetRandomSeed(uint8_t *buf, uint16_t length);
+//uint8_t GetRandomSeed(uint8_t *buf, uint16_t length);
 
 ///returns a random byte stream of size length, using FPGA random functions
-int GetRandomBytes(uint8_t *buf, uint16_t length);
+//uint8_t GetRandomBytes(uint8_t *buf, uint16_t length);
 
 /// Reset the context of the cipher
 int SF2_CipherReset(sf2_cipher_context_t* ctx);
@@ -97,5 +119,13 @@ int SF2_GetBlockSize(sf2_cipher_context_t* ctx){
 
 ///main wrapper function for all digest methods
 int SF2_Digest(sf2_digest_context_t* ctx, uint8_t* data, uint32_t dataSize, uint8_t* result, uint32_t *resultSize);
+
+///Derive a new ECC384 based public/private keypair
+int SF2_ECC384_PKEY(sf2_ecc_key_t *privateKey, bool derive_pkey);
+
+//sf2_ecc_key_t* ECC384_PKEY_New();
+
+//void ECC384_PKEY_Delete(sf2_ecc_key_t* key);
+
 
 #endif //_SF2_HW_CRYPTO_H_

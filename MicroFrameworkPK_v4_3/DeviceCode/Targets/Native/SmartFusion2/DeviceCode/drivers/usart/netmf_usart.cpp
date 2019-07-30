@@ -94,6 +94,13 @@ const uint8_t g_greeting_msg2[] =
 
 #define RX_BUFF_SIZE    64
 
+typedef struct UartTxCnxt_t{
+	mss_uart_instance_t* uart;
+	const uint8_t * pbuff;
+	uint32_t tx_size;
+}UartTxCnxt_t;
+
+
 void uart1_rx_handler(mss_uart_instance_t * this_uart)
    {
       uint8_t rx_buff[RX_BUFF_SIZE];
@@ -141,13 +148,12 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 		mss_uart_instance_t * const gp_my_uart = &g_mss_uart0;
 		baud_rate = BaudRate;
 
-
-
 		line_config = MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT;
 
 
 		MSS_UART_init(gp_my_uart, baud_rate, line_config);
-		MSS_UART_polled_tx_string(gp_my_uart, g_greeting_msg2);
+		MSS_UART_polled_tx(gp_my_uart, g_greeting_msg2,sizeof(g_greeting_msg2));
+		//MSS_UART_polled_tx_string(gp_my_uart, g_greeting_msg2);
 
 		MSS_UART_set_rx_handler(&g_mss_uart0,
                               uart0_rx_handler,
@@ -163,6 +169,24 @@ BOOL CPU_USART_TxBufferEmpty( int ComPortNum )
 {
 	return TRUE;
 }
+
+void CPU_USART_ProtectPins( int ComPortNum, BOOL On )
+{
+	// Nothing needed here.
+}
+
+BOOL CPU_USB_ProtectPins( int ComPortNum, BOOL On )
+{
+	// Nothing needed here.
+	return false;
+}
+
+
+void KernelCall_UART_polled_tx (void *data){
+	UartTxCnxt_t *tx_cxt=(UartTxCnxt_t *)data;
+	MSS_UART_polled_tx(tx_cxt->uart,tx_cxt->pbuff,tx_cxt->tx_size);
+}
+
 
 void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 {
@@ -180,7 +204,12 @@ void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 		break;
 	}
 
-	MSS_UART_polled_tx(gp_my_uart, characterToSend, 1);
+	/*UartTxCnxt_t ctx;
+	ctx.uart=gp_my_uart;
+	ctx.pbuff=characterToSend;
+	ctx.tx_size=1;
+	kernel_call(KernelCall_UART_polled_tx,(void*)&ctx);*/
+	MSS_UART_polled_tx(gp_my_uart,characterToSend,1);
 }
 
 void CPU_USART_WriteStringToTxBuffer( int ComPortNum, char* Data, size_t size )
@@ -197,7 +226,14 @@ void CPU_USART_WriteStringToTxBuffer( int ComPortNum, char* Data, size_t size )
 		break;
 	}
 	const uint8_t * DataToSend = (const uint8_t *)Data;
-	MSS_UART_polled_tx(gp_my_uart, DataToSend, size);
+	/*
+	UartTxCnxt_t ctx;
+	ctx.uart=gp_my_uart;
+	ctx.pbuff=DataToSend;
+	ctx.tx_size=size;
+	kernel_call(KernelCall_UART_polled_tx,(void*)&ctx);*/
+	MSS_UART_polled_tx(gp_my_uart,DataToSend,size);
+
 }
 
 void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )

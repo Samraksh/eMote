@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
-    <AssemblyName>tinyclr</AssemblyName>
+    <AssemblyName>SecureClr</AssemblyName>
     <ProjectGuid>{d280cd35-8481-4eda-b878-6370c17e6273}</ProjectGuid>
     <Description />
     <Documentation />
@@ -14,6 +14,7 @@
     <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
   </PropertyGroup>
   <PropertyGroup>
+  	<!-- The next line is actually critical to build a tinyclr, else certain components default to tinybooter -->
     <SamAppName>TINYCLR</SamAppName>
   </PropertyGroup>
 
@@ -30,7 +31,7 @@
     <LINK_FLAGS Condition="'$(COMPILER_TOOL)'!='GCC'">$(LINK_FLAGS) $(SWTC)keep *(.init_array)</LINK_FLAGS>
     <MMP_DAT_SKIP>false</MMP_DAT_SKIP>
     <MMP_DAT_CreateDatabaseFile>$(BIN_DIR)\tinyclr.dat</MMP_DAT_CreateDatabaseFile>
-    <EXEScatterFileDefinition>$(SRC_DIR)\scatterfile_tinyclr_$(COMPILER_TOOL).$(SCATTER_EXT)</EXEScatterFileDefinition>
+    <EXEScatterFileDefinition>$(SRC_DIR)\scatterfile_emoteOS_$(COMPILER_TOOL).$(SCATTER_EXT)</EXEScatterFileDefinition>
   </PropertyGroup>
   
   
@@ -46,8 +47,9 @@
   
   
   <!-- Include other projects -->
-  <Import Project="$(SPOCLIENT)\Solutions\SmartFusion2\TinyCLR\TinyCLR_Projects.proj" />
+  <Import Project="$(SPOCLIENT)\Solutions\SmartFusion2\TinyCLR\emoteOS_Projects.proj" />
   
   
+
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

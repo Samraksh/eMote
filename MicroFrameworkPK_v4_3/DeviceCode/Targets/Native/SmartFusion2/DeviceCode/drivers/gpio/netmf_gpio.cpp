@@ -9,6 +9,8 @@
 #include "netmf_gpio.h"
 #include <cmsis/mss_assert.h>
 #include <drivers/CoreGPIO/core_gpio.h>
+#include <CMSIS/system_m2sxxx.h>
+#include <CMSIS/m2sxxx.h>
 #include <tinyhal.h>
 
 gpio_instance_t g_gpio;
@@ -19,48 +21,122 @@ gpio_instance_t g_gpio;
 #define GPIO_INT_ENABLE_MASK        ((uint32_t)0x00000008uL)
 #define OUTPUT_BUFFER_ENABLE_MASK   0x00000004u
 
-const int GPIO_PINS = 112;
 #define NB_OF_GPIO  ((uint32_t)32)
+const int GPIO_PINS = NB_OF_GPIO;
 typedef void (*GPIO_INTERRUPT_SERVICE_ROUTINE)( GPIO_PIN Pin, BOOL PinState, void* Param );
 static GPIO_INTERRUPT_SERVICE_ROUTINE gpio_isr[GPIO_PINS];
+static void* gpio_parm[GPIO_PINS];
+static uint8_t pin_reservations[GPIO_PINS]; 
 
+static void GPIO0_IRQ_HANDLER(void *args);
+static void GPIO1_IRQ_HANDLER(void *args);
+static void GPIO2_IRQ_HANDLER(void *args);
+
+static void handle_exti(unsigned int pin)
+{
+		MSS_GPIO_clear_irq((mss_gpio_id_t)pin);
+		GPIO_INTERRUPT_SERVICE_ROUTINE my_isr;
+		void *parm;
+
+		// The C# GPIO ISR will add this interrupt to g_CLR_HW_Hardware.m_interruptData.m_HalQueue via SaveToHALQueue(), which eventually gets added to m_interruptData.m_applicationQueue via CLR_HW_Hardware::TransferAllInterruptsToApplicationQueue() which eventually gets dispatched via CLR_HW_Hardware::SpawnDispatcher()
+		my_isr = gpio_isr[pin];
+		parm = gpio_parm[pin];
+		if(my_isr != NULL)
+		{
+		    my_isr(pin, CPU_GPIO_GetPinState(pin), parm);
+		}
+		// the code below was being triggered when a radio app was being deployed. During the app erase, the radio driver is uninitialized (including the GPIO interrupt line to the radio). The erase routine is
+		// global locked and at some point the radio could request an interrupt which is not able to be serviced until after the erase is over. At that point the interupt fires but the GPIO interrupt line
+		// has already been disabled and the callback function is now null. 
+		// If problems occur from this code being commented out we can instead just clear the radio interrupt that is pending instead.
+		//else
+		//{
+		    //GPIO_DEBUG_PRINT("%s",c_strGpioBadCallback);
+		    //ASSERT(my_isr != NULL);
+		//}
+}
 
 BOOL CPU_GPIO_Initialize()
 {
-	//GPIO_init( &g_gpio,    COREGPIO_BASE_ADDR, GPIO_APB_32_BITS_BUS );
 	MSS_GPIO_init();
 	return TRUE;
 }
 
 void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 {
-	//GPIO_config( &g_gpio, GPIO_0, GPIO_OUTPUT_MODE );
-	MSS_GPIO_config( (mss_gpio_id_t)Pin , InitialState );
+	MSS_GPIO_config( (mss_gpio_id_t)Pin , MSS_GPIO_OUTPUT_MODE );
+	MSS_GPIO_set_output( (mss_gpio_id_t)Pin, InitialState );
 }
 
 void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
 {
-	/*uint32_t gpio_outputs;
-	//uint32_t mask = 1 << Pin;
-    gpio_outputs = GPIO_get_outputs( &g_gpio );
-	if  (PinState == TRUE){
-		gpio_outputs &= GPIO_0_MASK;
-		//gpio_outputs &= mask;
-	} else {
-		gpio_outputs &= ~GPIO_0_MASK;
-		//gpio_outputs &= ~mask;
-	}
-    GPIO_set_outputs( &g_gpio, gpio_outputs );*/
 	MSS_GPIO_set_output( (mss_gpio_id_t)Pin, PinState );
 }
 
-INT32  CPU_GPIO_GetPinCount    ()
+UINT32 GPIO_GetIRQNumber(GPIO_PIN Pin)
 {
-	return 1;
+	if(Pin > GPIO_PINS)
+	{
+		return FALSE;
+	}
+	UINT32 irq_number;
+
+	switch(Pin)
+	{
+	case	0:
+		irq_number = GPIO0_IRQn;
+		break;
+	case 	1:
+		irq_number = GPIO1_IRQn;
+		break;
+	case 	2:
+		irq_number = GPIO2_IRQn;
+		break;
+	}
+
+	return irq_number;
 }
 
-BOOL   CPU_GPIO_ReservePin     ( GPIO_PIN Pin, BOOL fReserve )
+HAL_CALLBACK_FPN GPIO_GetCallBack(GPIO_PIN Pin)
 {
+	HAL_CALLBACK_FPN callback;
+
+	switch(Pin)
+	{
+	case	0:
+		callback = GPIO0_IRQ_HANDLER;
+		break;
+	case 	1:
+		callback = GPIO1_IRQ_HANDLER;
+		break;
+	case 	2:
+		callback = GPIO2_IRQ_HANDLER;
+		break;
+	}
+
+	return callback;
+}
+
+INT32 CPU_GPIO_GetPinCount()
+{
+	return GPIO_PINS;
+}
+
+BOOL CPU_GPIO_ReservePin( GPIO_PIN Pin, BOOL fReserve )
+{
+	if(Pin > GPIO_PINS)
+	{
+		return FALSE;
+	}
+
+	if (pin_reservations[Pin]) {
+		if (fReserve) { return FALSE; } // Can't reserve it, busy, fail.
+		else { pin_reservations[Pin] = 0; } // Un-reserve a busy pin.
+	}
+	else {
+		if (fReserve) { pin_reservations[Pin] = 1; } // Reserve it.
+		// Nothing to do for case where un-reserving a non-busy pin
+	}
 	return TRUE;
 }
 
@@ -71,48 +147,128 @@ BOOL   CPU_GPIO_Uninitialize   ()
 
 UINT32 CPU_GPIO_GetDebounce    ()
 {
-	return 1;
+	return 0;
 }
 
 BOOL   CPU_GPIO_SetDebounce    ( INT64 debounceTimeMilliseconds )
 {
-	return TRUE;
+	return FALSE;
 }
 
 void   CPU_GPIO_GetPinsMap     ( UINT8* pins, size_t size )
 {
+	if(size > GPIO_PINS)
+	{
+		return;
+	}
+    UINT8 i;
+	for(i = 0; i < size; i++) {
+		pins[i] = CPU_GPIO_Attributes(i);	//GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT;
+	}
 }
 
 UINT32 CPU_GPIO_Attributes     ( GPIO_PIN Pin )
 {
-	return 0;
+	if(Pin > GPIO_PINS)
+	{
+		return 0;
+	}
+	return (GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT);
 }
 
 UINT8  CPU_GPIO_GetSupportedResistorModes(GPIO_PIN pin )
 {
-	return 1;
+	return ((1<<RESISTOR_DISABLED) | (1<<RESISTOR_PULLUP) | (1 << RESISTOR_PULLDOWN));
 }
 
 UINT8 CPU_GPIO_GetSupportedInterruptModes( GPIO_PIN pin )
 {
-    return 1;
+    return ((1<<GPIO_INT_EDGE_LOW) | (1<<GPIO_INT_EDGE_HIGH ) | (1<<GPIO_INT_EDGE_BOTH));
 }
 
 BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, void* ISR_Param, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
 {
+	if(Pin > GPIO_PINS)
+	{
+		return FALSE;
+	}
+
+	if(PIN_ISR)
+	{
+		if(GPIO_INT_EDGE_LOW == IntEdge)
+			MSS_GPIO_config((mss_gpio_id_t)Pin, MSS_GPIO_INPUT_MODE | MSS_GPIO_IRQ_EDGE_NEGATIVE);
+		else if(GPIO_INT_EDGE_HIGH == IntEdge)
+			MSS_GPIO_config((mss_gpio_id_t)Pin, MSS_GPIO_INPUT_MODE | MSS_GPIO_IRQ_EDGE_POSITIVE);
+		else if(GPIO_INT_EDGE_BOTH == IntEdge)
+			MSS_GPIO_config((mss_gpio_id_t)Pin, MSS_GPIO_INPUT_MODE | MSS_GPIO_IRQ_EDGE_BOTH);
+		else if(GPIO_INT_LEVEL_HIGH == IntEdge)
+		   MSS_GPIO_config((mss_gpio_id_t)Pin, MSS_GPIO_INPUT_MODE | MSS_GPIO_IRQ_LEVEL_HIGH);
+		else if (GPIO_INT_LEVEL_LOW == IntEdge)
+			MSS_GPIO_config((mss_gpio_id_t)Pin, MSS_GPIO_INPUT_MODE | MSS_GPIO_IRQ_LEVEL_LOW);
+		else
+			return FALSE;
+
+		gpio_isr[Pin] = PIN_ISR;
+		gpio_parm[Pin] = ISR_Param;
+
+		MSS_GPIO_enable_irq((mss_gpio_id_t)Pin);
+		CPU_INTC_ActivateInterrupt(GPIO_GetIRQNumber(Pin), (HAL_CALLBACK_FPN) GPIO_GetCallBack(Pin), NULL);
+	}
+	else
+	{
+		gpio_isr[Pin] = NULL;
+		gpio_parm[Pin] = NULL;
+	}
+
 	return TRUE;
 }
 
 BOOL   CPU_GPIO_GetPinState    ( GPIO_PIN Pin )
 {
-	uint32_t gpio_outputs;
+	uint32_t input = MSS_GPIO_get_inputs();
 	uint32_t mask = 1 << Pin;
-    gpio_outputs = GPIO_get_outputs( &g_gpio );
 	
-	if ( (gpio_outputs & mask) > 0)
+	if ( (input & mask) > 0)
 		return TRUE;
 	else 
 		return FALSE;
+}
+
+void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction )
+{
+	if(Pin > GPIO_PINS)
+	{
+		return;
+	}
+
+	MSS_GPIO_config( (mss_gpio_id_t)Pin , MSS_GPIO_INPUT_MODE | MSS_GPIO_IRQ_LEVEL_HIGH );
+	CPU_GPIO_SetPinState(Pin, FALSE);
+
+	if ( gpio_isr[Pin] != NULL ) { // Need to deconfigure its interrupt as well.
+		MSS_GPIO_disable_irq((mss_gpio_id_t)Pin);
+		// Disable in NVIC
+		CPU_INTC_InterruptDisable(GPIO_GetIRQNumber(Pin));
+	}
+
+	// Remove any user interrupts
+	gpio_isr[Pin] = NULL;
+	gpio_parm[Pin] = NULL;	
+}
+
+BOOL CPU_GPIO_EnableInputPin( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
+{
+	if(Pin > GPIO_PINS)
+	{
+		return FALSE;
+	}
+
+	// Short circuit for simple inputs.
+	if ( PIN_ISR == NULL && IntEdge == GPIO_INT_NONE && ResistorState == RESISTOR_DISABLED && GlitchFilterEnable == false ) {
+		MSS_GPIO_config((mss_gpio_id_t)Pin, MSS_GPIO_INPUT_MODE | MSS_GPIO_IRQ_EDGE_POSITIVE);
+		return TRUE;
+	}
+
+	return CPU_GPIO_EnableInputPin2(Pin, GlitchFilterEnable, PIN_ISR, NULL, IntEdge, ResistorState );
 }
 /*-------------------------------------------------------------------------*//**
  * Lookup table of GPIO configuration registers address indexed on GPIO ID.
@@ -239,6 +395,7 @@ void MSS_GPIO_config
     {
         *(g_config_reg_lut[gpio_idx]) = config;
     }
+	//hal_printf("MSS_GPIO_config %d 0x%x\r\n", port_id, config);
 }
 
 /*-------------------------------------------------------------------------*//**
@@ -341,6 +498,7 @@ void MSS_GPIO_enable_irq
         *(g_config_reg_lut[gpio_idx]) = (cfg_value | GPIO_INT_ENABLE_MASK);
         NVIC_EnableIRQ(g_gpio_irqn_lut[gpio_idx]);
     }
+	//hal_printf("MSS_GPIO_enable_irq %d\r\n", port_id);
 }
 
 /*-------------------------------------------------------------------------*//**
@@ -385,4 +543,17 @@ void MSS_GPIO_clear_irq
 
 }
 
+void GPIO0_IRQ_HANDLER(void *args)
+{
+	handle_exti(0);
+}
 
+void GPIO1_IRQ_HANDLER(void *args)
+{
+	handle_exti(1);
+}
+
+void GPIO2_IRQ_HANDLER(void *args)
+{
+	handle_exti(2);
+}

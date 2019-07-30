@@ -5,7 +5,7 @@
 #ifndef _PLATFORM_SmartFusion2_SELECTOR_H_
 #define _PLATFORM_SmartFusion2_SELECTOR_H_ 1
 
-#define MIN_NATIVE_BUILD
+
 
 // Properly declare them since they are not ANSI
 // Previously declared by accident in compiler setup because we used _GNU_SOURCE (default)
@@ -26,10 +26,25 @@ typedef uint16_t ushort;
 //#define SAMRAKSH_UPDATE_EXT
 
 
-#define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
+//#define TINYCLR_SOLO      // change some base addresses when no TinyBooter on device.
 
+//build a RoT, Kernel and RunTime version of eMote with distinct security regions
+
+//#define IBL
+#if !defined(IBL)
+#define SECURE_EMOTE 1
+#define KERNEL_LOG 0
+#define TINYCLR_GC_VERBOSE 1
+
+//boolen flag to check if kernel functions are executing in PendSV handler
+bool inPendSV_irq;
+
+#endif //end SECURE_EMOTE
 
 #if defined(PLATFORM_ARM_SmartFusion2)
+#ifndef PLATFORM_ARM
+#define PLATFORM_ARM 1
+#endif
 #define HAL_SYSTEM_NAME                     "SmartFusion2"
 #define SAM_VERSION_REVISION 1
 #define TINYBOOTER_REVISION 1
@@ -74,6 +89,15 @@ typedef uint16_t ushort;
 
 #define INSTRUMENTATION_H_GPIO_PIN      0
 
+#define USING_BLUETOOTH 1
+#define NO_MAC 0
+
+#define USING_COMPUTE_PROCESSOR 1
+#define COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM 2
+#define COMPUTE_PROCESSOR_COMM_WAIT_TIME 400
+//uncomment one if using compute processor
+//#define CP_USE_UART 1
+#define CP_USE_SPI 1
 
 //
 // constants
@@ -91,14 +115,16 @@ typedef uint16_t ushort;
 #define GLOBAL_LOCK_SOCKETS(x)     SmartPtr_IRQ x
 
 #if defined(_DEBUG)
-#define ASSERT_IRQ_MUST_BE_OFF()   ASSERT(!SmartPtr_IRQ::GetState())
-#define ASSERT_IRQ_MUST_BE_ON()    ASSERT( SmartPtr_IRQ::GetState())
+//#define ASSERT_IRQ_MUST_BE_OFF()   ASSERT((!SmartPtr_IRQ::GetState()) || inPendSV_irq)
+//#define ASSERT_IRQ_MUST_BE_ON()    ASSERT( SmartPtr_IRQ::GetState())
+#define ASSERT_IRQ_MUST_BE_OFF()
+#define ASSERT_IRQ_MUST_BE_ON()
 #else
 #define ASSERT_IRQ_MUST_BE_OFF()
 #define ASSERT_IRQ_MUST_BE_ON()
 #endif
 
-#if defined(MIN_NATIVE_BUILD)
+#if defined(IBL)
 #define INTERRUPT_START GLOBAL_LOCK(x)
 #define INTERRUPT_END
 
@@ -107,7 +133,8 @@ typedef uint16_t ushort;
                         SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 #define INTERRUPT_END   SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); \
                         SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
-#endif
+
+#endif //IBL
 
 
 
@@ -127,7 +154,7 @@ typedef uint16_t ushort;
 //
 
 // Port definitions
-#define TOTAL_USART_PORT       1
+#define TOTAL_USART_PORT       2
 #define COM1                   ConvertCOM_ComHandle(0)
 #define COM2                   ConvertCOM_ComHandle(1)
 
@@ -139,10 +166,20 @@ typedef uint16_t ushort;
 #define TOTAL_DEBUG_PORT       1
 #define COM_DEBUG              ConvertCOM_DebugHandle(0)
 
+#define EMOTE_COM_NETIF 1
+#if defined(EMOTE_COM_NETIF)
+#define COM_NETIF COM2
+#define NETIF_START_STOP_CHAR_SIZE 3
+#define NETIF_START_STOP_CHAR 0xE8
+#define NETIF_MTU 256
+#define NETIF_MIN_PKT_SIZE 28+6+8 //20byte IP header+8byte udp header
+#endif //EMOTE_COM_NETIF
+
 #define COM_MESSAGING          ConvertCOM_MessagingHandle(0)
 
 #define USART_TX_IRQ_INDEX(x)       ( (x) ? 0 : 0 )     /* TODO set right indexes */
-#define USART_DEFAULT_PORT          COM1
+#define DEFAULT_PORT COM1
+#define USART_DEFAULT_PORT          DEFAULT_PORT
 #define USART_DEFAULT_BAUDRATE      115200
 
 #define USB_IRQ_INDEX               0  // TODO set right index
@@ -154,10 +191,10 @@ typedef uint16_t ushort;
 #define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    256  // there is one RX for each usart port
 #define PLATFORM_DEPENDENT_USB_QUEUE_PACKET_COUNT  2    // there is one queue for each pipe of each endpoint and the size of a single packet is sizeof(USB_PACKET64) == 68 bytes
 
-#define DEBUG_TEXT_PORT    COM1
-#define STDIO              COM1
-#define DEBUGGER_PORT      COM1
-#define MESSAGING_PORT     COM1
+#define DEBUG_TEXT_PORT    DEFAULT_PORT
+#define STDIO              DEFAULT_PORT
+#define DEBUGGER_PORT      DEFAULT_PORT
+#define MESSAGING_PORT     DEFAULT_PORT
 
 
 //Setting the upper and lower thresholds for the GC to kick in
@@ -192,7 +229,7 @@ typedef uint16_t ushort;
 #endif /* DEBUG_* */
 #endif /* !DEBUG */
 
-//#define DISABLE_SLEEP
+#define DISABLE_SLEEP
 //#define EMOTE_WAKELOCKS // in power driver
 //#define DOTNOW_HSI_CALIB
 
@@ -261,6 +298,7 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_INTERRUPT_CONTEXT_MARKER 5
 
 // timers that are run within continuations (all C# user timers are run outside an interrupt context also)
+#define VIRT_TIMER_NET_SOC 			9
 #define VIRT_TIMER_TIME 			10
 #define VIRT_TIMER_REALTIME_DEBUGGER 11
 #define VIRT_TIMER_ADC_PERIODIC		12
@@ -280,6 +318,8 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_OMAC_FAST_RECOVERY	21
 #define VIRT_TIMER_OMAC_POST_EXEC	22
 //#define VIRT_TIMER_OMAC_TRANSMITTER_POST_EXEC	23
+
+#define VIRT_TIMER_BLUETOOTH_TICK 25
 
 const uint OMAC_DISCO_SEQ_NUMBER = 27;
 //const uint OMAC_HW_ACK_DELAY_MICRO = 100;
@@ -500,6 +540,8 @@ J12_PIN10 = GND
 #define DELAY_BETWEEN_DATATX_SCHED_ACTUAL	(GPIO_PIN)120	//J12_pin5
 #define OMAC_DEBUG_PIN 						(GPIO_PIN)120			 			//J11_PIN5
 #define VTIMER_CALLBACK_LATENCY_PIN			(GPIO_PIN)120 //(<--31)
+
+#define SI4468_Radio_TX_Instance_NOTS		(GPIO_PIN)120
 
 
 #define VIRTUAL_TIMER_EXCEPTION_CHECK_PIN SCHED_TSREQ_EXEC_PIN

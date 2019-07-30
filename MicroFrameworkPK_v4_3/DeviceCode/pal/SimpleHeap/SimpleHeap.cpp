@@ -296,7 +296,7 @@ void* SimpleHeap_ReAllocate( void* ptr, size_t len )
     return p;
 }
 
-#ifdef MIN_NATIVE_BUILD
+#if defined(IBL) && defined(SAMRAKSH_CUSTOM_NEWLIB)
 
 HAL_DECLARE_CUSTOM_HEAP( SimpleHeap_Allocate, SimpleHeap_Release, SimpleHeap_ReAllocate );
 

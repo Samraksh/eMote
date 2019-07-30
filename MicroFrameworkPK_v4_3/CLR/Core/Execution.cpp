@@ -5,7 +5,18 @@
 
 #include "Core.h" 
 #include <TinyCLR_Debugging.h>
+#include <grenadeFunction/grenadeFunction.h>
 
+#if defined(POWER_PROFILE_HACK) && defined(PLATFORM_ARM_AUSTERE) && defined(POWER_PROFILE_EXE)
+#include <pwr/netmf_pwr.h>
+#else
+#define power_event_add_now(x, y, z) ((void)0)
+#endif
+
+#if defined(SECURE_EMOTE)
+#include <Samraksh/sm.h>
+#include <Samraksh/os_scheduler.h>
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -447,6 +458,7 @@ void CLR_RT_ExecutionEngine::ExecutionConstraint_Resume()
 
 CLR_UINT32 CLR_RT_ExecutionEngine::PerformGarbageCollection()
 {
+	power_event_add_now(GC_START, 0, 0);
 #ifdef DEBUG_CLR
 	CPU_GPIO_SetPinState( 0, TRUE);
 #endif
@@ -468,11 +480,13 @@ CLR_UINT32 CLR_RT_ExecutionEngine::PerformGarbageCollection()
 #ifdef DEBUG_CLR
     CPU_GPIO_SetPinState( 0, FALSE);
 #endif
+	power_event_add_now(GC_END, 0, 0);
     return freeMem;
 }
 
 void CLR_RT_ExecutionEngine::PerformHeapCompaction()
 {
+	power_event_add_now(GC_START, 0, 0);
 #ifdef DEBUG_CLR
 	CPU_GPIO_SetPinState( 4, TRUE);
 #endif
@@ -487,10 +501,12 @@ void CLR_RT_ExecutionEngine::PerformHeapCompaction()
 #ifdef DEBUG_CLR
     CPU_GPIO_SetPinState( 4, FALSE);
 #endif
+	power_event_add_now(GC_END, 0, 0);
 }
 
 void CLR_RT_ExecutionEngine::Relocate()
 {
+	power_event_add_now(GC_RELOC_START, 0, 0);
     NATIVE_PROFILE_CLR_CORE();
 #if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
     CLR_RT_GarbageCollector::Heap_Relocate( (void**)&m_scratchPadArray );
@@ -506,6 +522,7 @@ void CLR_RT_ExecutionEngine::Relocate()
     m_weakReferences.Relocate();
 
     g_CLR_RT_Persistence_Manager.Relocate();
+	power_event_add_now(GC_RELOC_END, 0, 0);
 }
 
 //--//
@@ -857,7 +874,9 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
 
     while(true)
     {
+		power_event_add_now(EXE_ST_GO, 0, 0);
         HRESULT hr2 = ScheduleThreads( maxContextSwitch ); TINYCLR_CHECK_HRESULT(hr2);
+		power_event_add_now(EXE_ST_END, 0, 0);
         
         if(CLR_EE_DBG_IS( RebootPending ) || CLR_EE_DBG_IS( ExitPending ) || CLR_EE_REBOOT_IS(ClrOnly))
         {
@@ -867,11 +886,13 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
 #if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
         if(CLR_EE_DBG_IS( Stopped ))
         {
+			power_event_add_now(EXE_DBG_GO, 0, 0);
             CLR_RT_ExecutionEngine::ExecutionConstraint_Suspend();
 
             TINYCLR_CHECK_HRESULT(WaitForDebugger());
 
             CLR_RT_ExecutionEngine::ExecutionConstraint_Resume();
+			power_event_add_now(EXE_DBG_END, 0, 0);
         }
 #endif //#if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
 
@@ -883,7 +904,9 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
                                 
         if(hr2 == CLR_S_NO_READY_THREADS)
         {
+			power_event_add_now(EXE_WA_GO, 0, 0);
             WaitForActivity();
+			power_event_add_now(EXE_WA_END, 0, 0);
         }
         else if(hr2 == CLR_S_QUANTUM_EXPIRED)
         {
@@ -1294,6 +1317,8 @@ void CLR_DebuggerBreak()
     }
 }
     
+
+
 HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
 {
     NATIVE_PROFILE_CLR_CORE();
@@ -1414,6 +1439,8 @@ HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
             TINYCLR_SET_AND_LEAVE(CLR_S_NO_READY_THREADS);
         }
 
+		codeIntegrityCheck( 0,0);
+
         ::Watchdog_ResetCounter();
 
         {
@@ -1426,7 +1453,9 @@ HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
 			// sure we don't run any managed code if we have erased the FLASH.
 			// This variable will be set to false upon reboot or continuation of debugging (usually by getting a PING debug message)
 			if (CLR_DBG_Debugger::debuggerErasedFlash == false){
+				power_event_add_now(MANAGED_ENTER, 0, 0);
 				hr = th->Execute();
+				power_event_add_now(MANAGED_EXIT,  0, 0);
         	}
 #ifdef DEBUG_CLR
 			CPU_GPIO_SetPinState( 8, FALSE);
@@ -3889,8 +3918,22 @@ CLR_UINT32 CLR_RT_ExecutionEngine::WaitSystemEvents( CLR_UINT32 powerLevel, CLR_
 #endif
 
 
+#if defined(SECURE_EMOTE)
+    /*if(GetExecMode() > 2){
+       	debug_printf( "In CLR_Execution 1:: Still in Priviledged Mode... Switching to thread mode.\r\n" );
+       	SwitchToUserMode();
+    }
+    if(GetExecMode() > 2){
+		debug_printf( "In CLR_Execution 2:: Still in Priviledged Mode... Switching to thread mode.\r\n" );
+		SwitchToUserMode();
+	}*/
+
+#endif
+
     ::Watchdog_GetSetEnabled( FALSE, TRUE );
+	power_event_add_now(E_WFE_S, 0, 0);
     res = ::Events_WaitForEvents( powerLevel, events, timeout );
+	power_event_add_now(E_WFE_E, 0, 0);
     ::Watchdog_GetSetEnabled( TRUE, TRUE );
 
 

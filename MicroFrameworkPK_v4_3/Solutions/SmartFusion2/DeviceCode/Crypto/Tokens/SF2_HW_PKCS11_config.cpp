@@ -100,6 +100,10 @@ static CryptokiMechanism s_Mechanisms[] =
     // Add your supported mechanisms here
     
     //{ CKM_SHA_1, { 160,  160, CKF_DIGEST } },
+	{ CKM_EC_KEY_PAIR_GEN      , { 256,  521, CKF_GENERATE_KEY_PAIR                            } },
+	{ CKM_ECDSA                , { 256,  521,                             CKF_SIGN | CKF_VERIFY} },
+	{ CKM_ECDH1_DERIVE         , { 256,  521, CKF_DERIVE                                       } },
+    { CKM_GENERIC_SECRET_KEY_GEN,{   1, 3072, CKF_GENERATE                                     } },
 	{ CKM_SHA256_HMAC          , { 256,  256, CKF_DIGEST                | CKF_SIGN | CKF_VERIFY} },
 	{ CKM_SHA256               , { 256,  256, CKF_DIGEST                                       } },
 	{ CKM_AES_CBC              , { 128,  256, CKF_ENCRYPT | CKF_DECRYPT                        } },

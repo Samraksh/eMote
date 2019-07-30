@@ -19,6 +19,7 @@
     <IncludePaths Include="Solutions\SmartFusion2" />
     <IncludePaths Include="DeviceCode\Targets\Native\SmartFusion2\DeviceCode\microsemi_lib" />
     <IncludePaths Include="DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers" />
+    <IncludePaths Include="DeviceCode\Targets\Native\CortexM\drivers" />
     <!-- <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers" />
     <IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\processor" />
     -->
@@ -28,8 +29,12 @@
   <!-- Samraksh Heap and Stack settings to be propagated across ASM, C/C++, and Linker Script targets -->
   <PropertyGroup>
     <!-- BEFORE YOU CHANGE THIS: check size of ER_RAM_RO + ER_RAM_RW + .bss in map file and accommodate accordingly. -->
+    <!-- 0x2000 address maps to the LSRAM section in fabric, which have 18K or 2250 byte blocks, 
+    MS2090 has 109 such blocks for a total of 245250Bytes(0x3BE02) of RAM = 239.5KB -->
+    
     <SAM_STACK_BOTTOM     >0x20000000</SAM_STACK_BOTTOM>    <!-- Stack always must sit at the base of ram. period. -->
-    <SAM_STACK_TOP        >0x20001000</SAM_STACK_TOP>
+    <SAM_STACK_TOP        >0x20000FF8</SAM_STACK_TOP>
+   
     <!-- Linker will collect and place ER_RAM_RO, ER_RAM_RW, .bss sections between stack and heap -->
     <!-- After you know the size of sections below the heap, come back here and re-define ...-->
     <!-- ... SAM_HEAP_BEGIN to hug the variable-sized sections below the HEAP. -->
@@ -37,11 +42,32 @@
     <!-- ... SAM_STACK_TOP + 8 + (Image$$ER_RAM_RW$$ZI$$Base -  Image$$ER_RAM_RO$$Base) + Image$$ER_RAM_RW$$ZI$$Length -->
     <!-- ... for TinyBooter Debug build, SAM_HEAP_BEGIN could start as low as SAM_STACK_TOP + 0x3200 = 0x20005200 -->
     <!-- ... for TinyCLR Debug build, SAM_HEAP_BEGIN could start as low as SAM_STACK_TOP + 0x98c4 = 0x2000B8D0 -->
-    <SAM_HEAP_BEGIN       >0x200085AC</SAM_HEAP_BEGIN>
-    <SAM_HEAP_END         >0x2000FDF8</SAM_HEAP_END>
-    <SAM_CUSTOM_HEAP_BEGIN>0x2000FE00</SAM_CUSTOM_HEAP_BEGIN>
-    <SAM_CUSTOM_HEAP_END  >0x2000FFF8</SAM_CUSTOM_HEAP_END>
-    <SAM_PROFILER_BUFFER_BEGIN>0x2000FF00</SAM_PROFILER_BUFFER_BEGIN>
-    <SAM_PROFILER_BUFFER_END  >0x2000FFF8</SAM_PROFILER_BUFFER_END>
+    
+    
+    
+    <SAM_HEAP_BEGIN       >0x30000000</SAM_HEAP_BEGIN>
+    <SAM_HEAP_END         >0x30007FF8</SAM_HEAP_END> <!-- Max address mapped on LRSAM, is 32KB -->
+    
+    <!--<SAM_HEAP_BEGIN       >0x20009400</SAM_HEAP_BEGIN>
+    <SAM_HEAP_END         >0x2000F5F8</SAM_HEAP_END> --> 
+    
+    <SAM_CUSTOM_HEAP_BEGIN>0x20011600</SAM_CUSTOM_HEAP_BEGIN>  <!-- In non-ECC mode we up to 80K which is 0x14000Max -->
+    <SAM_CUSTOM_HEAP_END  >0x200116F8</SAM_CUSTOM_HEAP_END>
+    <SAM_USER_STACK_TOP		>0x20011700</SAM_USER_STACK_TOP>
+    <SAM_USER_STACK_BOTTOM	>0x20011F00</SAM_USER_STACK_BOTTOM> 
+    <SAM_PROFILER_BUFFER_BEGIN>0x20011FE8</SAM_PROFILER_BUFFER_BEGIN>
+    <SAM_PROFILER_BUFFER_END  >0x20011FF8</SAM_PROFILER_BUFFER_END>
+
+	<!-- <SAM_HEAP_BEGIN       >0x20009400</SAM_HEAP_BEGIN>
+    <SAM_HEAP_END         >0x200135F8</SAM_HEAP_END> 
+    <SAM_CUSTOM_HEAP_BEGIN>0x20013600</SAM_CUSTOM_HEAP_BEGIN>
+    <SAM_CUSTOM_HEAP_END  >0x200136F8</SAM_CUSTOM_HEAP_END>
+    <SAM_USER_STACK_TOP		>0x20013700</SAM_USER_STACK_TOP>
+    <SAM_USER_STACK_BOTTOM	>0x20013F00</SAM_USER_STACK_BOTTOM> 
+    <SAM_PROFILER_BUFFER_BEGIN>0x20013FE8</SAM_PROFILER_BUFFER_BEGIN>
+    <SAM_PROFILER_BUFFER_END  >0x20013FF8</SAM_PROFILER_BUFFER_END> -->
+    
+    
   </PropertyGroup>
 </Project>
+

@@ -64,8 +64,10 @@ typedef void (*PFNUsartEvent) (void* context, unsigned int event);
 #define USART_EVENT_TYPE_DATA      2
 #define USART_EVENT_DATA_CHARS     0x05    // A character was received and placed in the input buffer. 
 #define USART_EVENT_DATA_EOF       0x06    // The end of file character was received and placed in the input buffer. 
+#define USART_EVENT_DATA_NETIF     0x07		//USART based network data event type
 
 
+BOOL USART_IsComPortInitialized( int ComPortNum);
 BOOL USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue );
 
 #if !defined(PLATFORM_ARM_KRAIT)
@@ -114,6 +116,7 @@ void CPU_USART_GetPins                     ( int ComPortNum, GPIO_PIN& rxPin, GP
 void CPU_USART_GetBaudrateBoundary         ( int ComPortNum, UINT32 & maxBaudrateHz, UINT32 & minBaudrateHz );
 BOOL CPU_USART_SupportNonStandardBaudRate  ( int ComPortNum               );
 BOOL CPU_USART_IsBaudrateSupported         ( int ComPortNum, UINT32& BaudrateHz );
+void CPU_USART_set_rx_handler_override(void* handler);
 
 //--//
 

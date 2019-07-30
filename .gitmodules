@@ -1,0 +1,7 @@
+[submodule "MicroFrameworkPK_v4_3/DeviceCode/Targets/Native/CortexM/cmsis5"]
+	path = MicroFrameworkPK_v4_3/DeviceCode/Targets/Native/CortexM/cmsis5
+	url = https://github.com/ARM-software/CMSIS_5.git
+[submodule "MicroFrameworkPK_v4_3/DeviceCode/ExtCode/lwip"]
+	path = MicroFrameworkPK_v4_3/DeviceCode/ExtCode/lwip
+	url = https://git.savannah.nongnu.org/git/lwip.git
+	branch = master

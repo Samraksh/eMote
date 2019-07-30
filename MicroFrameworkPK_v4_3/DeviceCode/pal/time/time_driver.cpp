@@ -110,7 +110,14 @@ INT64 TimeDriver::GetLocalTime()
 INT32 TimeDriver::GetTimeZoneOffset()
 {
     /// Returned value is in minutes.
-    return (INT32)(m_timezoneOffset / TIMEUNIT_TO_MINUTES);
+	INT32 ret = 0;
+	/*ret=(INT32)(m_timezoneOffset/TIMEUNIT_TO_MILLISECONDS);
+	ret=ret/MILLISECONDS_TO_SECONDS;
+	ret=ret/SECONDS_TO_MINUTES;
+	*/
+
+	ret=(INT32)(m_timezoneOffset/TIMEUNIT_TO_MINUTES);
+    return ret;
 }
 
 INT32 TimeDriver::SetTimeZoneOffset( INT32 offset )

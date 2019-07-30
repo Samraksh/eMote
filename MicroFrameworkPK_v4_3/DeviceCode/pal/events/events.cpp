@@ -6,6 +6,12 @@
 
 //--//
 
+#if defined(POWER_PROFILE_HACK) && defined(PLATFORM_ARM_AUSTERE) && defined(POWER_PROFILE_EVENTS_CPP)
+#include <pwr/netmf_pwr.h>
+#else
+#define power_event_add_now(x, y, z) ((void)0)
+#endif
+
 #if defined(HAL_TIMEWARP)
 
 int   s_timewarp_armingState = 0;
@@ -135,12 +141,14 @@ UINT32 Events_WaitForEvents( UINT32 sleepLevel, UINT32 WakeupSystemEvents, UINT3
             if(RunContinuations && !SystemState_QueryNoLock( SYSTEM_STATE_NO_CONTINUATIONS ))
             {
                 // restore interrupts before running a continuation
+				//power_event_add_now(EVENT_CONT_S, 0, 0);
                 irq.Release();
 
                 // if we stall on time, don't check again until after we sleep
                 RunContinuations = HAL_CONTINUATION::Dequeue_And_Execute();
 
                 irq.Acquire();
+				//power_event_add_now(EVENT_CONT_E, 0, 0);
             }
             else
             {
@@ -163,11 +171,15 @@ UINT32 Events_WaitForEvents( UINT32 sleepLevel, UINT32 WakeupSystemEvents, UINT3
                 }
 #endif
 
+
                 ASSERT_IRQ_MUST_BE_OFF();
 
+				power_event_add_now(EVENT_WFI_S, 0, 0);
                 HAL_COMPLETION::WaitForInterrupts( Expire, sleepLevel, WakeupSystemEvents );
+				power_event_add_now(EVENT_WFI_E, 0, 0);
 
-                irq.Probe(); // See if we have to serve any pending interrupts.                
+                irq.Probe(); // See if we have to serve any pending interrupts.
+				//power_event_add_now(EVENT_PROBE_E, 0, 0);
             }
         }
     }

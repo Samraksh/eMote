@@ -485,7 +485,7 @@ void SystemInit(void)
     /*--------------------------------------------------------------------------
      * Call user defined configuration function.
      */
-    mscc_post_hw_cfg_init();
+    //mscc_post_hw_cfg_init();
     
     /*--------------------------------------------------------------------------
      * SERDES interfaces configuration.

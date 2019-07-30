@@ -23,6 +23,14 @@
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+#ifdef SECURE_EMOTE
+	.section SectionForUserStackBottom,       "a", %progbits
+UserStackBottom:
+    .word   0
+    .section SectionForUserStackTop,          "a", %progbits
+UserStackTop:
+    .word   0
+#endif
     .section SectionForStackBottom,       "a", %progbits
 StackBottom:
     .word   0
@@ -48,6 +56,8 @@ CustomHeapEnd:
     .global HeapEnd
     .global CustomHeapBegin
     .global CustomHeapEnd
+    .global UserStackBottom
+    .global UserStackTop
 
     .section i.EntryPoint, "xa", %progbits
 
@@ -64,8 +74,13 @@ CustomHeapEnd:
 EntryPoint:
 	@Set stack pointer
 	@bl SystemInit_ExtMemCtl
+#ifdef SECURE_EMOTE
+	LDR r0, =UserStackTop   @ new process stack pointer for user space processes in the secure emote
+    MSR psp, r0         @ stack top
+#endif
     LDR r0, =StackTop   @ new SYS stack pointer for a full decrementing stack. must explicitly set msp because first word of image is the magic word (NOT msp) in Samraksh builds
     MSR msp, r0         @ stack top
+
 	bl VectorRelocate
     bl BootstrapCode
     bl BootEntry

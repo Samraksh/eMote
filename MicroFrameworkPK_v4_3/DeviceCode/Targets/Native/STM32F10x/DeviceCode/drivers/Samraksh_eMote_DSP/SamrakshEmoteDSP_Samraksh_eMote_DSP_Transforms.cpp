@@ -13,7 +13,7 @@
 
 #include "SamrakshEmoteDSP.h"
 #include "SamrakshEmoteDSP_Samraksh_eMote_DSP_Transforms.h"
-#include <..\math\Include\arm_math.h>
+#include <arm_math.h>
 
 using namespace Samraksh::eMote::DSP;
 

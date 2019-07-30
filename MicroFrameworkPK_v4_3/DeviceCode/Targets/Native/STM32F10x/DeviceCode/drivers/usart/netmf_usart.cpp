@@ -46,7 +46,7 @@ void USART_reinit(void) {
 		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 		USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 		USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
-		USART_ITConfig(USART1, USART_IT_TXE, ENABLE); // Will cause bytes to start moving again.
+		//USART_ITConfig(USART1, USART_IT_TXE, ENABLE); // Will cause bytes to start moving again.
 		USART_Cmd(USART1, ENABLE);
 	}
 
@@ -55,7 +55,7 @@ void USART_reinit(void) {
 		USART_Init(USART2, &USART2_InitStructure);
 		USART_ClearITPendingBit(USART2, USART_IT_RXNE);
 		USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
-		USART_ITConfig(USART2, USART_IT_TXE, ENABLE); // Will cause bytes to start moving again.
+		//USART_ITConfig(USART2, USART_IT_TXE, ENABLE); // Will cause bytes to start moving again.
 		USART_Cmd(USART2, ENABLE);
 	}
 }
@@ -457,6 +457,7 @@ void __irq USART1_IRQHandler() {
 void USART2_Handler(void *args)
 {
 	int err __attribute__ ((unused));
+	GLOBAL_LOCK(irq);
 	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
 	{
 		  char c = (char) USART_ReceiveData(USART2); // read RX data
