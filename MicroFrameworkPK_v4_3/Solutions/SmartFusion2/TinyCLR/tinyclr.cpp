@@ -52,7 +52,7 @@ void ApplicationEntryPoint()
 	ASSERT(userTask);
 
 	//Everything is setup; switch to user stack
-	SwitchToUserStack(userTask);
+	//SwitchToUserStack(userTask);
 
 	//now execute the user task
 	userTask->handler();
