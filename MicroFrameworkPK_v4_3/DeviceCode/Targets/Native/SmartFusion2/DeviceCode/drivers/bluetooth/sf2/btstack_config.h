@@ -22,6 +22,7 @@
 //#define ENABLE_LOG_DEBUG
 #define ENABLE_LE_SECURE_CONNECTIONS
 #define ENABLE_MICRO_ECC_FOR_LE_SECURE_CONNECTIONS
+#define ENABLE_GATT_CLIENT_PAIRING
 //#define ENABLE_SCO_OVER_HCI
 
 // BTstack configuration. buffers, sizes, ...
