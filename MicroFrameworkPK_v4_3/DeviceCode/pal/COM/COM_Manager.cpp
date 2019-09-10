@@ -75,9 +75,29 @@ void COM_Manager_Receive(void* buffer, UINT16 payloadType) {
 			PrintHex(msg->GetPayload(),size);
 			// all messages to the CP assume '\n' termination
 			CP_SendMsgToCP(msg->GetPayload(), size);
+			/*uint8_t testData[10];
+			testData[0] = 'c';
+			testData[1] = 'l';
+			testData[2] = 'o';
+			testData[3] = 'u';
+			testData[4] = 'd';
+			//CP_SendMsgToCP(&testData[0], 5);
+			CPU_Timer_Sleep_MicroSeconds(100000,DEFAULT_TIMER);
+			hal_printf("sending back after a delay\r\n");
+			MAC_Send(UNENCRYPTED_DATA_CHANNEL, NULL, &testData[0], 5);*/
 		}
 		else if (msg->GetHeader()->payloadType == CLOUD_CHANNEL){
 			hal_printf("got cloud data\r\n");
+			PrintHex(msg->GetPayload(),size);
+			uint8_t testData[10];
+			testData[0] = 'c';
+			testData[1] = 'l';
+			testData[2] = 'o';
+			testData[3] = 'u';
+			testData[4] = 'd';
+			//CP_SendMsgToCP(&testData[0], 5);
+			hal_printf("sending back cloud\r\n");
+			MAC_Send(CLOUD_CHANNEL, NULL, &testData[0], 5);
 		} else {
 			hal_printf("xxxx pt: %d headerPT: %d\r\n", payloadType, msg->GetHeader()->payloadType);
 		}
