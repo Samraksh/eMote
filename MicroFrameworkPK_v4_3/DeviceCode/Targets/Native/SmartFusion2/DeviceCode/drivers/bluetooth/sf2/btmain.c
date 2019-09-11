@@ -639,7 +639,7 @@ static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, 
             return 0;
 		case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FD_01_VALUE_HANDLE:
             att_cloud_con_handle = con_handle;
-            log_always("Cloud data received over Bluetooth: ");
+            //log_always("Cloud data received over Bluetooth: ");
             //log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
 			btCallReceive(ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FD_01_VALUE_HANDLE, buffer, buffer_size);
             return 0;
@@ -733,14 +733,14 @@ void sendDataPacket(UINT16 dest, uint8_t* data, uint8_t length){
 		att_server_request_can_send_now_event(att_unencrypt_con_handle);
 		log_always("need to request send event\r\n");
 	}
-	log_always("hackto send xxx\r\n");
+	/*log_always("hackto send xxx\r\n");
 	sendBuf[0] = 'a';
 	sendBuf[1] = 'b';
 	sendBuf[2] = 'c';
 	sendBuf[3] = '1';
 	sendBuf[4] = '\n';
 	data = &sendBuf[0];
-	length = 5;
+	length = 5;*/
 	//dest = UNENCRYPTED_DATA_CHANNEL;
 
 	if( dest == UNENCRYPTED_DATA_CHANNEL){
@@ -754,7 +754,7 @@ void sendDataPacket(UINT16 dest, uint8_t* data, uint8_t length){
 		att_server_notify(att_encrypt_con_handle, ENCRYPTED_DATA_CHANNEL, (uint8_t*) data, length);	
 		att_server_request_can_send_now_event(att_encrypt_con_handle);
 	} else {
-		log_always("cl d: %d l: %d\r\n", dest, length);
+		//log_always("cl d: %d l: %d\r\n", dest, length);
 		// cloud
 		att_server_notify(att_cloud_con_handle, CLOUD_CHANNEL, (uint8_t*) data, length);	
 		att_server_request_can_send_now_event(att_cloud_con_handle);

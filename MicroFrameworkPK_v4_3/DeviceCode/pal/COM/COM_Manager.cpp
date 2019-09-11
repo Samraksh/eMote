@@ -5,6 +5,7 @@
 #include <Samraksh\MAC_decl.h>
 #include <Samraksh\MAC.h>
 #include <Samraksh\BluetoothMac_Functions.h>
+#include <Samraksh/VirtualTimer.h>
 
 const int hmacSize=48;
 static uint8_t currentMac = NONE;
@@ -57,7 +58,25 @@ void PrintHex(CK_BYTE_PTR sig, int size){
 	hal_printf("\r\n");
 }
 
+void Timer_15_Handler(void *arg)
+{
+	CPU_GPIO_SetPinState(16, TRUE);
+	CPU_GPIO_SetPinState(16, FALSE);
+	VirtTimer_Stop(15);
+	uint8_t testData[10];
+			testData[0] = 'c';
+			testData[1] = 'l';
+			testData[2] = 'o';
+			testData[3] = 'u';
+			testData[4] = 'd';
+			//hal_printf("sending back cloud\r\n");
+			MAC_Send(CLOUD_CHANNEL, NULL, &testData[0], 5);
+}
+
 void COM_Manager_Receive(void* buffer, UINT16 payloadType) {
+	CPU_GPIO_SetPinState(15, TRUE);
+	CPU_GPIO_SetPinState(15, FALSE);
+	//CPU_Timer_Sleep_MicroSeconds(100000,DEFAULT_TIMER);
 	CK_BYTE decryptedData[128];
 	if (currentMac == BLUETOOTHMAC){
 		Message_15_4_t* msg = (Message_15_4_t*)buffer;
@@ -87,22 +106,25 @@ void COM_Manager_Receive(void* buffer, UINT16 payloadType) {
 			MAC_Send(UNENCRYPTED_DATA_CHANNEL, NULL, &testData[0], 5);*/
 		}
 		else if (msg->GetHeader()->payloadType == CLOUD_CHANNEL){
-			hal_printf("got cloud data\r\n");
-			PrintHex(msg->GetPayload(),size);
-			uint8_t testData[10];
+			//hal_printf("got cloud data\r\n");
+			//PrintHex(msg->GetPayload(),size);
+			VirtTimer_SetTimer(15, 0, 100, FALSE, FALSE, Timer_15_Handler);
+			VirtTimer_Start(15);
+			/*uint8_t testData[10];
 			testData[0] = 'c';
 			testData[1] = 'l';
 			testData[2] = 'o';
 			testData[3] = 'u';
 			testData[4] = 'd';
-			//CP_SendMsgToCP(&testData[0], 5);
-			hal_printf("sending back cloud\r\n");
-			MAC_Send(CLOUD_CHANNEL, NULL, &testData[0], 5);
+			CP_SendMsgToCP(&testData[0], 5);*/
+			//hal_printf("sending back cloud\r\n");
+			//MAC_Send(CLOUD_CHANNEL, NULL, &testData[0], 5);
 		} else {
 			hal_printf("xxxx pt: %d headerPT: %d\r\n", payloadType, msg->GetHeader()->payloadType);
 		}
 		// UINT8* unaligned_payload = msg->GetPayload();
 	}
+	
 }
 
 void COM_Manager_Neighbor_Change(INT16 neighbors) {
@@ -117,6 +139,22 @@ void COM_Manager_Initialization(uint8_t bluetoothParam){
 	currentMac = bluetoothParam;		
 
 	current_neighbor_count = 0;
+
+	CPU_GPIO_EnableOutputPin(15,FALSE);
+	CPU_GPIO_EnableOutputPin(16,FALSE);
+	CPU_GPIO_EnableOutputPin(17,FALSE);
+	CPU_GPIO_SetPinState(15, TRUE);
+	CPU_GPIO_SetPinState(15, FALSE);
+	CPU_GPIO_SetPinState(15, TRUE);
+	CPU_GPIO_SetPinState(15, FALSE);
+	CPU_GPIO_SetPinState(16, TRUE);
+	CPU_GPIO_SetPinState(16, FALSE);
+	CPU_GPIO_SetPinState(16, TRUE);
+	CPU_GPIO_SetPinState(16, FALSE);
+	CPU_GPIO_SetPinState(17, TRUE);
+	CPU_GPIO_SetPinState(17, FALSE);
+	CPU_GPIO_SetPinState(17, TRUE);
+	CPU_GPIO_SetPinState(17, FALSE);
 }
 
 int COM_Manager_Get_Neighbor_Count(){
@@ -231,4 +269,6 @@ void Message_Receive_From_CP( uint8_t *buffer, uint16_t buffer_size){
 			MAC_Send(UNENCRYPTED_DATA_CHANNEL, NULL, buffer, buffer_size);
 		}
 	}
+	CPU_GPIO_SetPinState(17, TRUE);
+	CPU_GPIO_SetPinState(17, FALSE);
 }
