@@ -264,6 +264,7 @@ int getBtLinkKey(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t *link_k
 		// matched bd_addr
 		memcpy(link_key, temp_link_key, LINK_KEY_LEN);
 		*link_key_type = temp_link_key_type;
+		return 1;
 	}
 
 	return 0;
