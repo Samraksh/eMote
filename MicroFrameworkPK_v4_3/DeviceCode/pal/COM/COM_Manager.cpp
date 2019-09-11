@@ -69,7 +69,7 @@ void Timer_15_Handler(void *arg)
 			testData[2] = 'o';
 			testData[3] = 'u';
 			testData[4] = 'd';
-			//hal_printf("sending back cloud\r\n");
+			hal_printf("sending back cloud\r\n");
 			MAC_Send(CLOUD_CHANNEL, NULL, &testData[0], 5);
 }
 
