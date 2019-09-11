@@ -66,6 +66,7 @@
 #include "..\btcore\ble\att_server.h"
 #include "..\btcore\gap.h"
 #include "..\btcore\ble\gatt_client.h"
+#include "..\c_code_calling_cpp.h"
 #include "btmain.h"
 
 #define RFCOMM_SERVER_CHANNEL 1
@@ -477,7 +478,7 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                     log_always("Pairing failed, timeout\n");
                     break;
                 case ERROR_CODE_REMOTE_USER_TERMINATED_CONNECTION:
-                    log_always("Pairing faileed, disconnected\n");
+                    log_always("Pairing failed, disconnected\n");
                     break;
                 case ERROR_CODE_AUTHENTICATION_FAILURE:
                     log_always("Pairing failed, reason = %u\n", sm_event_pairing_complete_get_reason(packet));
@@ -682,8 +683,8 @@ int btstack_main(void)
 
     // setup SM: Display only
     sm_init();
-	sm_set_io_capabilities(IO_CAPABILITY_NO_INPUT_NO_OUTPUT);
-    sm_set_authentication_requirements(SM_AUTHREQ_BONDING);
+	//sm_set_io_capabilities(IO_CAPABILITY_NO_INPUT_NO_OUTPUT);
+    //sm_set_authentication_requirements(SM_AUTHREQ_BONDING);
     sm_event_callback_registration.callback = &packet_handler;
     sm_add_event_handler(&sm_event_callback_registration);
 

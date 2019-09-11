@@ -44,6 +44,7 @@
 #include "../btcore/classic/core.h"
 #include "../btcore/classic/btstack_link_key_db.h"
 #include "../btcore/btstack_tlv.h"
+#include "..\c_code_calling_cpp.h"
 
 // NVM_NUM_LINK_KEYS defines number of stored link keys
 #ifndef NVM_NUM_LINK_KEYS
@@ -85,26 +86,28 @@ static void btstack_link_key_db_tlv_close(void){
 }
 
 static int btstack_link_key_db_tlv_get_link_key(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t * link_key_type) {
-	log_info("get link key");
-    int i;
+	log_always("get link key");
+	return getBtLinkKey(bd_addr, link_key, link_key_type);
+    /*int i;
     for (i=0;i<NVM_NUM_LINK_KEYS;i++){
         link_key_nvm_t entry;
         uint32_t tag = btstack_link_key_db_tag_for_index(i);
         int size = self->btstack_tlv_impl->get_tag(self->btstack_tlv_context, tag, (uint8_t*) &entry, sizeof(entry));
         if (size == 0) continue;
-        log_info("tag %x, addr %s", tag, bd_addr_to_str(entry.bd_addr));
+        log_always("tag %x, addr %s", tag, bd_addr_to_str(entry.bd_addr));
         if (memcmp(bd_addr, entry.bd_addr, 6)) continue;
         // found, pass back
         memcpy(link_key, entry.link_key, 16);
         *link_key_type = entry.link_key_type;
         return 1;
     }
-	return 0;
+	return 0;*/
 }
 
 static void btstack_link_key_db_tlv_delete_link_key(bd_addr_t bd_addr){
-	log_info("delete link key");
-    int i;
+	log_always("delete link key");
+	deleteBtLinkKey(bd_addr);
+    /*int i;
     for (i=0;i<NVM_NUM_LINK_KEYS;i++){
         link_key_nvm_t entry;
         uint32_t tag = btstack_link_key_db_tag_for_index(i);
@@ -114,12 +117,13 @@ static void btstack_link_key_db_tlv_delete_link_key(bd_addr_t bd_addr){
         // found, delete tag
         self->btstack_tlv_impl->delete_tag(self->btstack_tlv_context, tag);
         break;
-    }
+    }*/
 }
 
 static void btstack_link_key_db_tlv_put_link_key(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t link_key_type){
-	log_info("put link key");
-    int i;
+	log_always("put link key");
+	storeBtLinkKey(bd_addr, link_key, link_key_type);
+    /*int i;
     uint32_t highest_seq_nr = 0;
     uint32_t lowest_seq_nr = 0;
     uint32_t tag_for_lowest_seq_nr = 0;
@@ -150,7 +154,7 @@ static void btstack_link_key_db_tlv_put_link_key(bd_addr_t bd_addr, link_key_t l
         }
     }
 
-    log_info("tag_for_addr %x, tag_for_empy %x, tag_for_lowest_seq_nr %x", tag_for_addr, tag_for_empty, tag_for_lowest_seq_nr);
+    log_always("tag_for_addr %x, tag_for_empy %x, tag_for_lowest_seq_nr %x", tag_for_addr, tag_for_empty, tag_for_lowest_seq_nr);
 
     uint32_t tag_to_use = 0;
     if (tag_for_addr){
@@ -164,7 +168,7 @@ static void btstack_link_key_db_tlv_put_link_key(bd_addr_t bd_addr, link_key_t l
         return;
     }
 
-    log_info("store with tag %x", tag_to_use);
+    log_always("store with tag %x", tag_to_use);
 
     link_key_nvm_t entry;
     
@@ -173,7 +177,7 @@ static void btstack_link_key_db_tlv_put_link_key(bd_addr_t bd_addr, link_key_t l
     entry.link_key_type = link_key_type;
     entry.seq_nr = highest_seq_nr + 1;
 
-    self->btstack_tlv_impl->store_tag(self->btstack_tlv_context, tag_to_use, (uint8_t*) &entry, sizeof(entry));
+    self->btstack_tlv_impl->store_tag(self->btstack_tlv_context, tag_to_use, (uint8_t*) &entry, sizeof(entry));*/
 }
 
 static int btstack_link_key_db_tlv_iterator_init(btstack_link_key_iterator_t * it){
@@ -183,8 +187,8 @@ static int btstack_link_key_db_tlv_iterator_init(btstack_link_key_iterator_t * i
 
 static int  btstack_link_key_db_tlv_iterator_get_next(btstack_link_key_iterator_t * it, bd_addr_t bd_addr, link_key_t link_key, link_key_type_t * link_key_type){
 	int found = 0;
-	log_info("get next");
-    uintptr_t i = (uintptr_t) it->context;
+	log_always("***** error not implemented: btstack_link_key_db_tlv_iterator_get_next");
+    /*uintptr_t i = (uintptr_t) it->context;
     
     while (i<NVM_NUM_LINK_KEYS){
         link_key_nvm_t entry;
@@ -197,7 +201,7 @@ static int  btstack_link_key_db_tlv_iterator_get_next(btstack_link_key_iterator_
         found = 1;
         break;
     }
-    it->context = (void*) i;
+    it->context = (void*) i;*/
     return found;
 }
 

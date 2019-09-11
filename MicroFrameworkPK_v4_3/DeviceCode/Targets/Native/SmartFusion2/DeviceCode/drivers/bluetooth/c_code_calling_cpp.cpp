@@ -14,10 +14,16 @@ extern "C" {
 #endif
 
 #include "btcore\btstack_uart_block.h"	
+#include "btcore\bluetooth.h"	
 #include "sf2\btstack_port.h"	
 #include "sf2\hal_tick.h"
 #include "sf2\btmain.h"
 
+// ***** temp storage in RAM ******
+// ***** use keystore instead or at least FLASH
+bd_addr_t temp_bd_addr;
+link_key_t temp_link_key;
+link_key_type_t temp_link_key_type;
 
 // uart config
 static const btstack_uart_config_t * uart_config;
@@ -160,6 +166,17 @@ int btUartInit(const btstack_uart_config_t * config){
 
 	//CPU_USART_set_rx_handler_override(&btRxHandler);
 	
+	
+	// ***** temp link key RAM storage *****
+	int i;
+	for (i=0; i<BD_ADDR_LEN; i++){
+		temp_bd_addr[i] = 0;
+	}
+	for (i=0; i<LINK_KEY_LEN; i++){
+		temp_link_key[i] = 0;
+	}
+	temp_link_key_type = DEBUG_COMBINATION_KEY;
+
 	return 0;
 }
 
@@ -193,6 +210,63 @@ void btCallReceive(uint16_t source, uint8_t *buffer, uint16_t buffer_size){
 
 void sendBTPacket(UINT16 dest, uint8_t* data, uint8_t length){
 	sendDataPacket(dest, data, length);
+}
+
+
+
+void storeBtLinkKey(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t link_key_type){
+	hal_printf("store link key: ");
+	int i;
+	for (i=0; i<LINK_KEY_LEN; i++){
+		hal_printf("%x ", link_key[i]);
+	}
+	hal_printf(" for bd_addr: ");
+	for (i=0; i<BD_ADDR_LEN; i++){
+		hal_printf("%x ", bd_addr[i]);
+	}
+	hal_printf(" of type: %d\r\n",link_key_type);
+	
+	memcpy(temp_bd_addr, bd_addr, BD_ADDR_LEN);
+	memcpy(temp_link_key, link_key, LINK_KEY_LEN);
+}
+
+void deleteBtLinkKey(bd_addr_t bd_addr){
+	hal_printf("delete link key");
+	int i;
+	
+	hal_printf(" for bd_addr: ");
+	for (i=0; i<BD_ADDR_LEN; i++){
+		hal_printf("%x ", bd_addr[i]);
+	}
+	hal_printf("\r\n");
+
+	for (i=0; i<BD_ADDR_LEN; i++){
+		temp_bd_addr[i] = 0;
+	}
+	for (i=0; i<LINK_KEY_LEN; i++){
+		temp_link_key[i] = 0;
+	}
+}
+
+int getBtLinkKey(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t *link_key_type){
+	hal_printf("get link key: ");
+	int i;
+	for (i=0; i<LINK_KEY_LEN; i++){
+		hal_printf("%x ", link_key[i]);
+	}
+	hal_printf(" for bd_addr: ");
+	for (i=0; i<BD_ADDR_LEN; i++){
+		hal_printf("%x ", bd_addr[i]);
+	}
+	hal_printf("\r\n");
+
+	if (memcmp(bd_addr, temp_bd_addr, 6) == 0){
+		// matched bd_addr
+		memcpy(link_key, temp_link_key, LINK_KEY_LEN);
+		*link_key_type = temp_link_key_type;
+	}
+
+	return 0;
 }
 
 #ifdef __cplusplus
