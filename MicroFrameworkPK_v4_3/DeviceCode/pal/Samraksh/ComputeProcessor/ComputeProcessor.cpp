@@ -223,7 +223,7 @@ static void CP_WantsTransaction(GPIO_PIN Pin, BOOL PinState, void* Param)
 	int sendPos = 0;
 
 	MSS_SPI_set_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
-	while ((sendPos < buffSize) && (CPU_GPIO_GetPinState(COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM) == 0)){
+	while ((sendPos < buffSize) && (CPU_GPIO_GetPinState(COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM) == 1)){
 		MSS_SPI_transfer_block(&g_mss_spi1, 0, 0, &spi_rx_buff[sendPos], 1 );	
 		HAL_Time_Sleep_MicroSeconds(COMPUTE_PROCESSOR_COMM_WAIT_TIME);
 		parseBuffer[parseBuffPosition] = spi_rx_buff[sendPos];
@@ -277,11 +277,11 @@ bool CP_Init(void){
 	// external power enabled
 	CPU_GPIO_EnableOutputPin(4, TRUE);
 	//hal_printf("***** arduino binary moved for debug....move back to 0xe000! *****\r\n");
-	loadArduinoSPI((uint8_t*)0xE000,3860);
+	loadArduinoSPI((uint8_t*)0x7D000,3860);
 	HAL_Time_Sleep_MicroSeconds(50000);
 
 	// ********** change me back	
-	verifyArduinoSPI((uint8_t*)0xE000,3860);
+	verifyArduinoSPI((uint8_t*)0x7D000,3860);
 	
 	hal_printf("bring CP out of reset\r\n");
 	//CPU_GPIO_EnableOutputPin(0, TRUE);
@@ -289,8 +289,8 @@ bool CP_Init(void){
 	CPU_GPIO_SetPinState(0, FALSE);
 
 	hal_printf("Compute processor init\r\n");
-	CPU_GPIO_EnableInputPin( COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM, FALSE, CP_WantsTransaction, GPIO_INT_EDGE_LOW, RESISTOR_DISABLED);
-	if (CPU_GPIO_GetPinState(COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM) == false){
+	CPU_GPIO_EnableInputPin( COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM, FALSE, CP_WantsTransaction, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	if (CPU_GPIO_GetPinState(COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM) == true){
 		CP_WantsTransaction(NULL, FALSE, NULL);
 	}
 	for (int i = 0; i < buffSize; i++){

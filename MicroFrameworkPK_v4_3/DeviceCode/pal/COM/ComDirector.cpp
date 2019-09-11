@@ -218,7 +218,7 @@ void CPU_InitializeCommunication()
     }
 
 
-    Network_Initialize();
+    //Network_Initialize();
 }
 
 void CPU_UninitializeCommunication()

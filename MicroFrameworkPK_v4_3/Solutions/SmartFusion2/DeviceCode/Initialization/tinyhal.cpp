@@ -790,11 +790,6 @@ mipi_dsi_shutdown();
 
 #endif
 	
-
-#if defined(SEC_EMOTE) && defined(CP_LOAD_TEST)
-    loadArduinoSPI((uint8_t*)0xF000,1932);
-#endif
-
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

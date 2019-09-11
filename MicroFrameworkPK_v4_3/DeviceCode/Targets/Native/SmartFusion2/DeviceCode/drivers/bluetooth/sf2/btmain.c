@@ -106,8 +106,6 @@ static gatt_client_notification_t notification_listener;
 static int listener_registered = 0;
 
 static gc_state_t state = TC_OFF;
-static btstack_packet_callback_registration_t hci_event_callback_registration;
-
 
 // support for multiple clients
 typedef struct {
@@ -152,6 +150,7 @@ static char returnData[128];
 static int returnData_len = 0;
 static hci_con_handle_t connection_handle;
 
+static btstack_packet_callback_registration_t sm_event_callback_registration;
 static btstack_packet_callback_registration_t hci_event_callback_registration;
 
 static int btConnected = 0;
@@ -441,7 +440,49 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                     continue_remote_names();
                     break;*/
 #endif
-                case HCI_EVENT_PIN_CODE_REQUEST:
+		case SM_EVENT_JUST_WORKS_REQUEST:
+            log_always("Just Works requested\n");
+            sm_just_works_confirm(sm_event_just_works_request_get_handle(packet));
+            break;
+        case SM_EVENT_NUMERIC_COMPARISON_REQUEST:
+            log_always("Confirming numeric comparison: %"PRIu32"\n", sm_event_numeric_comparison_request_get_passkey(packet));
+            sm_numeric_comparison_confirm(sm_event_passkey_display_number_get_handle(packet));
+            break;
+        case SM_EVENT_PASSKEY_DISPLAY_NUMBER:
+            log_always("Display Passkey: %"PRIu32"\n", sm_event_passkey_display_number_get_passkey(packet));
+            break;
+        case SM_EVENT_IDENTITY_CREATED:
+            sm_event_identity_created_get_identity_address(packet, addr);
+            log_always("Identity created: type %u address %s\n", sm_event_identity_created_get_identity_addr_type(packet), bd_addr_to_str(addr));
+			log_always("TODO: we need to store this key and the address should not be 0");
+            break;
+        case SM_EVENT_IDENTITY_RESOLVING_SUCCEEDED:
+            sm_event_identity_resolving_succeeded_get_identity_address(packet, addr);
+            log_always("Identity resolved: type %u address %s\n", sm_event_identity_resolving_succeeded_get_identity_addr_type(packet), bd_addr_to_str(addr));
+            break;
+        case SM_EVENT_IDENTITY_RESOLVING_FAILED:
+            sm_event_identity_created_get_address(packet, addr);
+            log_always("Identity resolving failed\n");
+            break;
+        case SM_EVENT_PAIRING_COMPLETE:
+            switch (sm_event_pairing_complete_get_status(packet)){
+                case ERROR_CODE_SUCCESS:
+                    log_always("Pairing complete, success\n");
+                    break;
+                case ERROR_CODE_CONNECTION_TIMEOUT:
+                    log_always("Pairing failed, timeout\n");
+                    break;
+                case ERROR_CODE_REMOTE_USER_TERMINATED_CONNECTION:
+                    log_always("Pairing faileed, disconnected\n");
+                    break;
+                case ERROR_CODE_AUTHENTICATION_FAILURE:
+                    log_always("Pairing failed, reason = %u\n", sm_event_pairing_complete_get_reason(packet));
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case HCI_EVENT_PIN_CODE_REQUEST:
                     // inform about pin code request
                     log_always("Pin code request - using '0000'\n");
                     hci_event_pin_code_request_get_bd_addr(packet, event_addr);
@@ -637,6 +678,10 @@ int btstack_main(void)
 
     // setup SM: Display only
     sm_init();
+	sm_set_io_capabilities(IO_CAPABILITY_NO_INPUT_NO_OUTPUT);
+    sm_set_authentication_requirements(SM_AUTHREQ_BONDING);
+    sm_event_callback_registration.callback = &packet_handler;
+    sm_add_event_handler(&sm_event_callback_registration);
 
 #ifdef BLUETOOTH_MASTER
 	gatt_client_init();
