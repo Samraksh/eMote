@@ -1,6 +1,11 @@
-#include "Keystore.h"
+#include <Keystore.h>
 
 //extern BOOL g_isCryptokiInitialized;
+
+
+UINT8 KeyStore_Initialize(){
+
+}
 
 
 UINT8  KeyStore_KeysEnrolled(uint8_t *noOfKeys){
@@ -17,18 +22,25 @@ UINT8 KeyStore_KeysRemaining(){
 //consequently, its needs to be a global/static pointer in Ram that is allocated by the compiler
 //If you pass something from the stack or a dynamically allocated value it will not
 //work properly across reboots.
-UINT8 KeyStore_EnrollKey(UserType ut, CK_BYTE_PTR  pKeyValue, CK_ULONG ulDataLen, CK_BYTE_PTR  permanentKeyPtr){
-	/*uint8_t MSS_SYS_puf_enroll_key
+UINT8 KeyStore_StoreKey(EUserType ut, EKeySlot slot, const CK_BYTE*  pKeyValue, CK_ULONG keySize, CK_BYTE_PTR  permanentKeyPtr){
+	uint8_t ret=MSS_SYS_puf_enroll_key
 	(
-	    uint8_t key_number,
-	    uint16_t key_size,
-	    uint8_t* p_key_value,
-	    uint8_t* p_key_location
-	)*/
-	return 0;
+	    (uint8_t)slot,
+	    (uint16_t) keySize,
+	    (uint8_t*) pKeyValue,
+	    (uint8_t*) permanentKeyPtr
+	);
+	return ret;
 }
 
-
+UINT8 KeyStore_ReadKey(EUserType ut, EKeySlot slot,CK_BYTE**  ppKeyValue){
+	uint8_t ret= MSS_SYS_puf_fetch_key
+	(
+	    (uint8_t)slot,
+	    (uint8_t**) ppKeyValue
+	);
+	return ret;
+}
 /*
 bool VerifyIntegrity(CK_BYTE_PTR  pData, CK_BYTE_PTR pSig, SigType st, CK_KEY_TYPE kt,CK_BYTE_PTR key ){
 

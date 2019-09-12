@@ -7,9 +7,9 @@
 //enum KeyType{Symetric, PK };
 //enum SigType{HMAC, SHA256};
 
-enum UserType{UT_RoT, UT_Kernel, UT_App};
+enum EUserType{UT_RoT, UT_Kernel, UT_App};
 
-enum KeySlot {
+enum EKeySlot {
 	K_DS0=0, //DesignSecurity
 	K_DS1, //DesignSecurity
 	K_Unused,//May be used by jtag
@@ -46,10 +46,11 @@ UINT8 KeyStore_KeysRemaining();
 
 UINT8 KeyStore_Initialize();
 
-UINT8 AllocateKey(CK_BYTE_PTR  pData, CK_ULONG ulDataLen, UserType user);
+UINT8 KeyStore_AllocateKey(CK_BYTE_PTR  pData, CK_ULONG ulDataLen, EUserType user);
 
-UINT8 StoreKey(CK_BYTE_PTR  pData, CK_ULONG ulDataLen, UserType user);
+//UINT8 KeyStore_StoreKey(CK_BYTE_PTR  pData, CK_ULONG ulDataLen, EUserType user);
+UINT8 KeyStore_StoreKey(EUserType ut, EKeySlot slot, const CK_BYTE*  pKeyValue, CK_ULONG ulDataLen, CK_BYTE_PTR  permanentKeyPtr);
 
-UINT8 ReadKey(CK_BYTE_PTR  pData, CK_ULONG ulDataLen, UserType user);
+UINT8 KeyStore_ReadKey(EUserType ut, EKeySlot slot,CK_BYTE**  ppKeyValue);
 
 #endif // _ROT_KEYSTORE_
