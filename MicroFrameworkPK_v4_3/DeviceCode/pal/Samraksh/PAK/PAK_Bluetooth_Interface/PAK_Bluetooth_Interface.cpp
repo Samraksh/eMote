@@ -1,255 +1,17 @@
-/**
- * PortableArrayKitMessage.cpp
- *
- *  Created on: Apr 1, 2013
- *  Updated on: March 31, 2014 - use new MAC APIs.
- *      Author: Michael Andrew McGrath
- */
-
-/**
- * synopsis:
- * The overall architecture of this file is to maintain processing compatibility between
- * Debugger's MFUpdate and new Wireless MFUpdate, so an incoming MFUpdate command
- * is processed only here.  This allows MFUpdate usage over wired+wireless, while
- * allowing migration to "wired MFUpdate without debugger" if debugger is
- * removed for RTM build or security reasons.
- *
- * Therefore, this file is a low-level way to interact with MFUpdate.
- * USB Debugger messages about updates go here and on to MFUpdate.
- * Wireless messages about updates go here and on to MFUpdate.
- * The USB Debugger messages go here as a way to echo them to wireless.
- */
-
 #include <TinyHal.h>
 #include <MFUpdate_decl.h>
 #include <WireProtocol.h>
-#include "..\..\..\Drivers\MFUpdate\Storage\BlockStorageUpdate.h"
-#include "PAK_Bluetooth_Interface\PAK_Bluetooth_Interface.h"
-//#include "..\..\..\Drivers\MFUpdate\Storage\FS\FSUpdateStorage.h"
-
 #include <TinyCLR_Types.h>   //CLR_RECORD_ASSEMBLY
-#include <TinySupport.h>     // SUPPORT_ComputeCRC( payload, payloadSize, 0 );
-//#include "../../../CLR/Core/Core.h"
-//#include <TinyCLR_Debugging.h> // need TinyCLR_Debugging.h for "struct Debugging_MFUpdate_* packet definitions that should be moved into a shared header file.  including TinyCLR_Debugging.h drags in even more dependencies that are not explicitly included in TinyCLR_Debugging.h!
-#include <PAK_decl.h>
-//#include <Samraksh/HALTimer.h>
+#include "PAK_Bluetooth_Interface.h"
 
-//////////////////////////////////////////////////////////////////////////////
-// FILE-SCOPE SIGNATURES
-//////////////////////////////////////////////////////////////////////////////
 
-void OldReceiveHandler(UINT16 numberOfPackets);
+
 UINT32 GetFirstMissingPacket(MFUpdate* updateInfo);  //<! use when estimating this node's missing packets
 UINT32 GetFirstMissingPacket(MFUpdate* updateInfo, UINT32* missingPkts ); //<! use when estimating neighbor's missing packets
 
-void /*CLR_Messaging::*/ReplyToCommand( WP_Message* msg, bool fSuccess, bool fCritical, void* ptr, int size );
-void ForwardReplyToCommand( WP_Message* msg, UINT32 flags, void* ptr, int size);
-
-//////////////////////////////////////////////////////////////////////////////
-// DEFINES
-//////////////////////////////////////////////////////////////////////////////
-
-#define DEBUG_EMOTE_UPDATE
-#if defined(DEBUG_EMOTE_UPDATE) && defined(DEBUG)
-//#define ENABLE_PIN(x,y) CPU_GPIO_EnableOutputPin(x,y)
-//#define SET_PIN(x,y) CPU_GPIO_SetPinState(x,y)
-#define DEBUG_PRINTF_EMOTE_UPDATE(x) hal_printf(x)
-//#define ASSERT_UPDATE_PROTOCOL(x) { (!(x)) ? SOFT_BREAKPOINT() : __NOP() ; }
-#else
-//#define ENABLE_PIN(x,y)
-//#define SET_PIN(x,y)
-#define DEBUG_PRINTF_EMOTE_UPDATE(x)       __NOP()
-//#define ASSERT_UPDATE_PROTOCOL(x)          __NOP()
-#endif
-
-#if !defined(NATIVE_PROFILE_CLR_DEBUGGER)
-#define NATIVE_PROFILE_CLR_DEBUGGER
-#endif
-#ifndef TINYCLR_CLEAR
-#define TINYCLR_CLEAR(ref) { memset( &ref, 0, sizeof(ref) ); }
-#endif
-
-#define MIN(a, b) (((a) < (b))?(a):(b))
-
-#if defined(DEBUG_EMOTE_UPDATE_SEND)
-#define DEBUG_BREAK_SEND_FAIL() SOFT_BREAKPOINT();
-#else
-#define DEBUG_BREAK_SEND_FAIL() {__ASM volatile ("nop");}
-#endif
-
-//TODO: use packet header identifier to show whether full wire protocol packet or WP packet in wireless transmissions.
-// use MSPktV1 instead unless we modify WireProtocol.h
-//#define MARKER_SAMRAKSH_V1 "SMRKSH1"
-
-//extern CLR_DBG_Debugger *g_CLR_DBG_Debuggers;  //from Core.cpp, instead this is passed in as void* owner argument.
-//extern HALTimerManager gHalTimerManagerObject;
-
-//CLR_UINT32     g_scratchMessaging[ sizeof(Samraksh_Emote_Update) / sizeof(UINT32) + 1 ];
-
-//////////////////////////////////////////////////////////////////////////////
-// DEFINE STORAGE
-//////////////////////////////////////////////////////////////////////////////
-
-HAL_COMPLETION Samraksh_Emote_Update::s_UpdateCompletion;
-void*          Samraksh_Emote_Update::s_UpdateCompletionArg;
-UPDATER_PROGRESS_HANDLER Samraksh_Emote_Update::s_UpdaterProgressHandler = 0;
-
 Samraksh_Emote_Update g_Samraksh_Emote_Update;
 
-//////////////////////////////////////////////////////////////////////////////
-// HELPERS
-//////////////////////////////////////////////////////////////////////////////
- /**
-  * @brief check whether update packet number idx has been received.
-  * @detailed convenience function, until Packets are moved to an OO-design.
-  * @param idx index of individual packet in the update.
-  * @param field array where each bit corresponds to the status of a packet. bit value zero means the packet is safely stored.
-  */
-inline bool have_packet(int idx, const unsigned* field) {
-    return ((field[idx >> 5] & (1ul << (idx % 32))) == 0);
-}
-
-/**
- * @brief mark that packet number idx is missing.
- * @detailed convenience function, until Packets are moved to an OO-design.
- * @param idx index of individual packet that is stored locally
- * @param field array where each set bit corresponds to the status of a packet. bit value zero means the packet is safely stored.
- * @return for now ignore this.
- */
-inline void set_packet_as_received(int idx, unsigned* field) {
-    field[idx >> 5] &= ~(1ul << (idx % 32));
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-// Implement WP_PhysicalLayer to provide to WP_Controller.
-// Selected functions to match prototypes in CLR/Include/Messaging.h
-// messaging interface so the same MFUpdate code may call either the wired
-// Debugger messaging interface or the wireless interface.
-// Note type WP_Packet is just the header.
-/////////////////////////////////////////////////////////////////////////////
-
-const WP_PhysicalLayer c_Update_phy =
-{
-    &Samraksh_Emote_Update::ReadReceiveBytes,
-    &Samraksh_Emote_Update::TransmitMessage,
-};
-
-bool Samraksh_Emote_Update::ReadReceiveBytes( void* state, UINT8*& ptr, UINT32 & size ) {
-
-	return true;
-}
-
-bool Samraksh_Emote_Update::TransmitMessage( void* state, const WP_Message* msg ) {
-	return true;
-}
-
-/////////////////////////////////////////////////////////////////////////////
-//// Commands defined in TinyCLR_Debugging.h
-//// Start, AuthCommand, Authenticate, GetMissingPkts, AddPackets, Install
-//// Copied here in case we remove debugger but keep Update.
-//// Copied here to prevent resolving all of TinyCLR_Debugging.h dependencies.
-//// Consider separating commands into other header file included in both places.
-/////////////////////////////////////////////////////////////////////////////
-struct MFUpdate_Commands
-{
-
-struct Debugging_MFUpdate_Start
-{
-    char       m_provider[64];
-    UpdateID_t m_updateId;
-    CLR_UINT32 m_updateType;
-    CLR_UINT32 m_updateSubType;
-    CLR_UINT32 m_updateSize;
-    CLR_UINT32 m_updatePacketSize;
-    CLR_UINT16 m_versionMajor;
-    CLR_UINT16 m_versionMinor;
-
-    struct Reply
-    {
-        UpdateID_t m_updateHandle;
-        CLR_INT32  m_success;
-    };
-};
-
-struct Debugging_MFUpdate_AuthCommand
-{
-    CLR_UINT32 m_updateHandle;
-    CLR_UINT32 m_authCommand;
-    CLR_UINT32 m_authArgsSize;
-    CLR_UINT8  m_authArgs[1];
-
-    struct Reply
-    {
-        CLR_UINT32 m_updateHandle;
-        CLR_INT32  m_success;
-        CLR_UINT32 m_responseSize;
-        CLR_UINT8  m_response[1];
-    };
-};
-
-struct Debugging_MFUpdate_Authenticate
-{
-    CLR_UINT32 m_updateHandle;
-    CLR_UINT32 m_authenticationLen;
-    CLR_UINT8  m_authenticationData[1];
-
-    struct Reply
-    {
-        CLR_UINT32 m_updateHandle;
-        CLR_INT32 m_success;
-    };
-};
-
-struct Debugging_MFUpdate_GetMissingPkts
-{
-    CLR_UINT32 m_updateHandle;
-
-    struct Reply
-    {
-        CLR_UINT32 m_updateHandle;
-        CLR_INT32  m_success;
-        CLR_INT32  m_missingPktCount;
-        CLR_UINT32 m_missingPkts[1];
-    };
-};
-
-struct Debugging_MFUpdate_AddPacket
-{
-    CLR_UINT32 m_updateHandle;
-    CLR_UINT32 m_packetIndex;
-    CLR_UINT32 m_packetValidation;
-    CLR_UINT32 m_packetLength;
-    CLR_UINT8 m_packetData[1];
-
-    struct Reply
-    {
-        CLR_UINT32 m_updateHandle;
-        CLR_INT32  m_success;
-        CLR_UINT32 m_packetIndex;
-        CLR_UINT32 m_nextMissingPacketIndex;
-    };
-};
-
-#define MAX_UPDATE_VALIDATION_SIZE_IN_BYTES 8
-
-struct Debugging_MFUpdate_Install
-{
-    CLR_UINT32 m_updateHandle;
-    CLR_UINT32 m_updateValidationSize; //<! size in bytes of m_updateValidation
-    CLR_UINT8  m_updateValidation[1];
-
-    struct Reply
-    {
-        CLR_UINT32 m_updateHandle;
-        CLR_INT32 m_success;
-    };
-};
-
-};
-
-
-/////////////////////////////////////////////////////////////////////////////
+//////////////////////////////
 // WP APPLICATION LAYER
 /////////////////////////////////////////////////////////////////////////////
 
@@ -271,14 +33,7 @@ bool Samraksh_Emote_Update::App_ProcessHeader(void* state, WP_Message* msg )
     return true;
 }
 
-#define CHECK_HANDLE(h) { if((h) == MFUpdate::badHandle) { SOFT_BREAKPOINT(); break; } }
 
-#define CHECK_PTR(p) { if((p) == NULL) { SOFT_BREAKPOINT(); break; } }
-
-bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
-{
-	return true;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 // WP MESSAGING
@@ -350,6 +105,52 @@ void ForwardReplyToCommand( WP_Message* msg, UINT32 flags, void* ptr, int size)
     msg->m_parent->SendProtocolMessage( msgReply );
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// HELPERS
+//////////////////////////////////////////////////////////////////////////////
+ /**
+  * @brief check whether update packet number idx has been received.
+  * @detailed convenience function, until Packets are moved to an OO-design.
+  * @param idx index of individual packet in the update.
+  * @param field array where each bit corresponds to the status of a packet. bit value zero means the packet is safely stored.
+  */
+inline bool have_packet(int idx, const unsigned* field) {
+    return ((field[idx >> 5] & (1ul << (idx % 32))) == 0);
+}
+
+/**
+ * @brief mark that packet number idx is missing.
+ * @detailed convenience function, until Packets are moved to an OO-design.
+ * @param idx index of individual packet that is stored locally
+ * @param field array where each set bit corresponds to the status of a packet. bit value zero means the packet is safely stored.
+ * @return for now ignore this.
+ */
+inline void set_packet_as_received(int idx, unsigned* field) {
+    field[idx >> 5] &= ~(1ul << (idx % 32));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Implement WP_PhysicalLayer to provide to WP_Controller.
+// Selected functions to match prototypes in CLR/Include/Messaging.h
+// messaging interface so the same MFUpdate code may call either the wired
+// Debugger messaging interface or the wireless interface.
+// Note type WP_Packet is just the header.
+/////////////////////////////////////////////////////////////////////////////
+
+const WP_PhysicalLayer c_Update_phy =
+{
+    &Samraksh_Emote_Update::ReadReceiveBytes,
+    &Samraksh_Emote_Update::TransmitMessage,
+};
+
+bool Samraksh_Emote_Update::ReadReceiveBytes( void* state, UINT8*& ptr, UINT32 & size ) {
+
+	return true;
+}
+
+bool Samraksh_Emote_Update::TransmitMessage( void* state, const WP_Message* msg ) {
+	return true;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // CALLBACKS
@@ -413,9 +214,6 @@ void Samraksh_Emote_Update::Receive(void *buffer, UINT16 sz_buf) {
     }
 }
 
-
-
-
 //////////////////////////////////////////////////////////////////////////////
 // INITIALIZERS
 //////////////////////////////////////////////////////////////////////////////
@@ -428,7 +226,8 @@ void Samraksh_Emote_Update::Receive(void *buffer, UINT16 sz_buf) {
 void Samraksh_Emote_Update::CreateInstance()
 {
     if(g_Samraksh_Emote_Update.m_fInitialized == true) return;
-    TINYCLR_CLEAR(g_Samraksh_Emote_Update); // clear memory.
+    //TINYCLR_CLEAR(g_Samraksh_Emote_Update); // clear memory.
+	memset(&g_Samraksh_Emote_Update, 0, sizeof(Samraksh_Emote_Update));
     g_Samraksh_Emote_Update.Initialize();
 }
 
@@ -453,7 +252,6 @@ void Samraksh_Emote_Update::Cleanup() {
 /**
  * Singleton initialization.
  * handles initializing everything that is needed to handle receiving an Update command sequence
- * does not turn on the radio.  radio started by command UpdateInit sent over USB transport, or may be hard-coded in Debugger.cpp's CreateInstance().
  */
 void Samraksh_Emote_Update::Initialize() {
     bool ret = true;
@@ -469,7 +267,7 @@ void Samraksh_Emote_Update::Initialize() {
 
     g_Samraksh_Emote_Update.m_fInitialized = true;
 
-    ret = InitializeInterface();
+    //ret = InitializeInterface();
     return;
 }
 
@@ -497,7 +295,7 @@ bool Samraksh_Emote_Update::UpdateInit( WP_Message* msg, void* owner )
 {
 	//TODO: accept argument specifying different modes... like burst mode transfer, USB-tethered repeater
     CreateInstance();
-    InitializeMac(); // turn on wireless, ie, if message received over USB.
+    //InitializeMac(); // turn on wireless, ie, if message received over USB.
     //TODO: re-initialize the MAC into burst mode.
     return true;
 }
@@ -527,7 +325,8 @@ bool Samraksh_Emote_Update::Start( WP_Message* msg, void* owner )
 
     pReply = &reply;
 
-    TINYCLR_CLEAR(header);
+    //TINYCLR_CLEAR(header);
+	memset(&header, 0, sizeof(MFUpdateHeader));
 
     header.Version.usMajor = cmd->m_versionMajor;
     header.Version.usMinor = cmd->m_versionMinor;
@@ -569,7 +368,8 @@ bool Samraksh_Emote_Update::AuthCommand( WP_Message* msg, void* owner )
     INT32 respLen = 0;
     INT32 replySize = sizeof(reply);
 
-    TINYCLR_CLEAR(reply);
+    //TINYCLR_CLEAR(reply);
+	memset(&reply, 0, sizeof(MFUpdate_Commands::Debugging_MFUpdate_AuthCommand::Reply));
 
     reply.m_updateHandle = cmd->m_updateHandle;
 
@@ -673,7 +473,8 @@ bool Samraksh_Emote_Update::GetMissingPkts( WP_Message* msg, void* owner )
     CLR_INT32 replySize = sizeof(reply);
     CLR_INT32 sizeBytes = (int32Cnt << 2) + offsetof(MFUpdate_Commands::Debugging_MFUpdate_GetMissingPkts::Reply, m_missingPkts);
 
-    TINYCLR_CLEAR(reply);
+    //TINYCLR_CLEAR(reply);
+	memset(&reply, 0, sizeof(MFUpdate_Commands::Debugging_MFUpdate_GetMissingPkts::Reply));
     pReply = &reply;
 
     if(cmd->m_updateHandle != MFUpdate::badHandle) {
@@ -760,22 +561,244 @@ bool Samraksh_Emote_Update::AddPacket(WP_Message* msg, void* owner )
     return (reply.m_success == TRUE);
 }
 
+
 /**
- * remember update info between install command and completion
+ * process a payload coming in over wireless... this is similar to the Debugger
+ * inspecting the header to decide what to call, but it's re-implemented here
+ * because the wireless interface comes directly here.  If we remove the Debugger,
+ * this can help process incoming wired interface calls, too.
  */
-struct SUpdateInstall {
-	//TODO: WP_Message* msg to transmit install status after installation.
-	CLR_UINT32 m_updateHandle;
-	CLR_UINT32 m_updateValidationSize;
-	CLR_UINT8  m_updateValidation[1];  //TODO: make this dynamically allocated?
-};
+bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
+{
+    bool ret = false;
+    if( msg->m_header.m_flags & WP_Flags::c_Reply )
+    {
+        if( msg->m_header.m_flags & WP_Flags::c_ACK )
+        {
+            //////////////////////////////////////////////////////////////////
+            // UPDATE NEIGHBOR STATE FROM REPLY
+            //////////////////////////////////////////////////////////////////
+            MFUpdate* updateInfo = NULL;
+            switch(msg->m_header.m_cmd)
+            {
+            case c_Debugging_MFUpdate_Start:
+            {
+                MFUpdate_Commands::Debugging_MFUpdate_Start::Reply* incomingReply = (MFUpdate_Commands::Debugging_MFUpdate_Start::Reply* )msg->m_payload;
+                CHECK_HANDLE(incomingReply->m_updateHandle);
+                updateInfo = g_Updates->GetUpdate(incomingReply->m_updateHandle);
+                CHECK_PTR(updateInfo);
+                updateInfo->Flags |= NEIGHBOR_FLAGS__START;
+                //Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr, START_ACK, 0);
+                if(s_fPublishUpdateMode == true) {
+                    if( incomingReply->m_success == 1)
+                    {
+                        SendAuthCommand(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr);
+                    }
+                    else
+                    {
+                        //TODO: create and read reason for failure
+                        SOFT_BREAKPOINT();
+                    }
+                }
+            }
+                break;
+            case c_Debugging_MFUpdate_AddPacket:
+            {
+                MFUpdate_Commands::Debugging_MFUpdate_AddPacket::Reply* incomingReply = (MFUpdate_Commands::Debugging_MFUpdate_AddPacket::Reply* )msg->m_payload;
+                CHECK_HANDLE(incomingReply->m_updateHandle);
+                updateInfo = g_Updates->GetUpdate(incomingReply->m_updateHandle);
+                CHECK_PTR(updateInfo);
+
+                updateInfo->Flags |= NEIGHBOR_FLAGS__ADDPACKET;
+
+                int idx_word = incomingReply->m_packetIndex / 32;
+                int idx_bit = incomingReply->m_packetIndex % 32;
+                s_destMissingPkts[idx_word] = s_destMissingPkts[idx_word] | (1u << idx_bit);
+
+                //Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr, ADDPACKET_ACK, incomingReply->m_nextMissingPacketIndex);
+                // TODO: record next missing packet inside update struct, allow querying from c-sharp.
+                if(s_fPublishUpdateMode == true) {
+                    if( incomingReply->m_success == 1 )
+                    {
+                        if( incomingReply->m_nextMissingPacketIndex < updateInfo->m_finalPacketIdx )
+                        {
+                            SendAddPacket(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr, incomingReply->m_nextMissingPacketIndex);
+                        }
+                        else
+                        {
+                            SendGetMissingPkts(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr);
+                        }
+                    }
+                    else {
+                        //TODO: handle failure.
+                    }
+                }
+                else {
+                    SOFT_BREAKPOINT(); // got a reply about an unknown update.
+                }
+            }
+                break;
+            case c_Debugging_MFUpdate_Install:
+            {
+                MFUpdate_Commands::Debugging_MFUpdate_Install::Reply* incomingReply = (MFUpdate_Commands::Debugging_MFUpdate_Install::Reply* )msg->m_payload;
+                CHECK_HANDLE(incomingReply->m_updateHandle);
+                updateInfo = g_Updates->GetUpdate(incomingReply->m_updateHandle);
+                CHECK_PTR(updateInfo);
+                //TODO: handle negative install message (and reason).
+                //TODO: if negative, try to send a start message to resend Authenticate and fix the problem.
+                updateInfo->Flags |= NEIGHBOR_FLAGS__INSTALL;
+                //Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr/*dest from received packet*/, INSTALL_ACK, 0);
+            }
+                break;
+            case c_Debugging_MFUpdate_AuthCommand:
+            {
+                MFUpdate_Commands::Debugging_MFUpdate_AuthCommand::Reply* incomingReply = (MFUpdate_Commands::Debugging_MFUpdate_AuthCommand::Reply* )msg->m_payload;
+                CHECK_HANDLE(incomingReply->m_updateHandle);
+                updateInfo = g_Updates->GetUpdate(incomingReply->m_updateHandle);
+                CHECK_PTR(updateInfo);
+
+                updateInfo->Flags |= NEIGHBOR_FLAGS__AUTHCMD;
+                //Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr, AUTHCMD_ACK, 0);
+                if(s_fPublishUpdateMode == true) {
+                    //TODO: implement authentication
+                    SendAuthenticate(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr);
+                }
+            }
+                break;
+            case c_Debugging_MFUpdate_Authenticate:
+            {
+                MFUpdate_Commands::Debugging_MFUpdate_Authenticate::Reply* incomingReply = (MFUpdate_Commands::Debugging_MFUpdate_Authenticate::Reply* )msg->m_payload;
+                CHECK_HANDLE(incomingReply->m_updateHandle);
+                updateInfo = g_Updates->GetUpdate(incomingReply->m_updateHandle);
+                CHECK_PTR(updateInfo);
+
+                updateInfo->Flags |= NEIGHBOR_FLAGS__AUTHENTICATED;
+                //Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr, AUTHENTICATE_ACK, 0);
+                if(s_fPublishUpdateMode == true) {
+                    SendGetMissingPkts(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr);
+                }
+            }
+                break;
+            case c_Debugging_MFUpdate_GetMissingPkts:
+            {
+                MFUpdate_Commands::Debugging_MFUpdate_GetMissingPkts::Reply* incomingReply = (MFUpdate_Commands::Debugging_MFUpdate_GetMissingPkts::Reply*) msg->m_payload;
+                CHECK_HANDLE(incomingReply->m_updateHandle);
+                updateInfo = g_Updates->GetUpdate(incomingReply->m_updateHandle);
+                CHECK_PTR(updateInfo);
+
+                updateInfo->Flags |= NEIGHBOR_FLAGS__GETMISSINGPKTS;
+
+                //TODO: API for tracking neighbor, externalize for multiple neighbors.
+                //TODO: lookup neighbor info.
+                //TODO: warn if we thought neighbor had more packets than it reports.
+                for(UINT32 i = 0; i < updateInfo->m_missingPktsWordfieldSize; i++) {
+                    s_destMissingPkts[i] = incomingReply->m_missingPkts[i];
+                }
+
+                //Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr, GETMISSINGPKTS_ACK, 0);
+                if(s_fPublishUpdateMode == true) {
+                    UINT32 missingNo = GetFirstMissingPacket(updateInfo, incomingReply->m_missingPkts);
+                    if( ( incomingReply->m_missingPktCount == 0 ) || ( missingNo > updateInfo->m_finalPacketIdx ) ) {
+                        SendInstall(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr);
+                    }
+                    else {
+                        SendAddPacket(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr, missingNo);
+                    }
+                }
+            }
+                break;
+            default:
+            {
+                SOFT_BREAKPOINT();
+                return false;
+            }
+                break;
+            }
+        }
+
+
+        //////////////////////////////////////////////////////////////////////
+        // HANDLE USB BASESTATION MODE REPLY FORWARDING
+        //////////////////////////////////////////////////////////////////////
+        // forward here because incoming message could be multi-part WP message on wireless transport or simple message header on wireless transport.
+        /*if(s_fBaseStationMode == true) {
+            if(s_fUseWpPacket == true) {
+                ASSERT(s_lastUsbMessage.m_parent != NULL);
+                // packet already has all needed header parts computed. entire original message was passed wireless and is the correct reply.
+                ret = s_lastUsbMessage.m_parent->SendProtocolMessage(*msg);
+            }
+            else {
+                // packet header is simple and missing info that we have saved from the last incoming packet.
+                // TODO: make a queue of received packets, look it up. otherwise try to assert incoming wireless reply matches saved USB packet.
+                if(s_lastUsbMessage.m_header.m_cmd == msg->m_header.m_cmd) {
+                    ForwardReplyToCommand(&s_lastUsbMessage, msg->m_header.m_flags, (void*)msg->m_payload, msg->m_header.m_size );
+                }
+                else {
+                    g_Samraksh_Emote_Update.last_error = UPDATE_INSTALL_MSG_OUT_OF_SYNC; // may need to add queue for messages.
+                    SOFT_BREAKPOINT();
+                }
+            }
+        }*/
+    }
+    else {
+        //////////////////////////////////////////////////////////////////////
+        // OBEY WIRELESS COMMAND
+        //////////////////////////////////////////////////////////////////////
+        switch(msg->m_header.m_cmd) {
+        case c_Monitor_UpdateInit:
+            SOFT_BREAKPOINT(); // shouldn't be here.
+            break;
+        case c_Monitor_UpdateDeInit:
+            SOFT_BREAKPOINT(); // shouldn't be here.
+            break;
+        case c_Debugging_MFUpdate_Start:
+            Samraksh_Emote_Update::Start(msg, &g_Samraksh_Emote_Update);
+            break;
+        case c_Debugging_MFUpdate_AddPacket:
+            Samraksh_Emote_Update::AddPacket(msg, &g_Samraksh_Emote_Update);
+            break;
+        case c_Debugging_MFUpdate_Install:
+            Samraksh_Emote_Update::Install(msg, &g_Samraksh_Emote_Update);
+            break;
+        case c_Debugging_MFUpdate_AuthCommand:
+            Samraksh_Emote_Update::AuthCommand(msg, &g_Samraksh_Emote_Update);
+            break;
+        case c_Debugging_MFUpdate_Authenticate:
+            Samraksh_Emote_Update::Authenticate(msg, &g_Samraksh_Emote_Update);
+            break;
+        case c_Debugging_MFUpdate_GetMissingPkts:
+            Samraksh_Emote_Update::GetMissingPkts(msg, &g_Samraksh_Emote_Update);
+            break;
+        default:
+            SOFT_BREAKPOINT();
+            return false;
+            break;
+        }
+    }
+    return ret;
+}
+
+bool InitializeInterface(){
+	return true;
+}
+
+bool InitializeDriversAfterInstall(){
+	// verify hardware specific driver is installed
+	// TODO:
+
+	return true;
+}
+
+bool UnInitializeDriversBeforeInstall(){
+	return true;
+}
 
 /**
  * replaces any pending completions
  */
 bool Samraksh_Emote_Update::Install(WP_Message* msg, void* owner )
 {
-    NATIVE_PROFILE_CLR_DEBUGGER();
+    /*NATIVE_PROFILE_CLR_DEBUGGER();
     //MULTIPLEX_PACKETS();
 
     MFUpdate_Commands::Debugging_MFUpdate_Install*       cmd = (MFUpdate_Commands::Debugging_MFUpdate_Install*)msg->m_payload;
@@ -831,7 +854,7 @@ bool Samraksh_Emote_Update::Install(WP_Message* msg, void* owner )
 Install_out:
 
     reply.m_success = passed_validation;
-    /*dbg->m_messaging->*/ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
+    ReplyToCommand( msg, true, false, &reply, sizeof(reply) );*/
 
     return TRUE;
 }
@@ -842,7 +865,7 @@ Install_out:
  */
 void Samraksh_Emote_Update::UpdateCompletion(void *arg)
 {
-    NATIVE_PROFILE_CLR_DEBUGGER();
+    /*NATIVE_PROFILE_CLR_DEBUGGER();
 
     MFUpdate_Commands::Debugging_MFUpdate_Install::Reply reply;
 
@@ -872,7 +895,7 @@ void Samraksh_Emote_Update::UpdateCompletion(void *arg)
     bool drivers_initialized = InitializeDriversAfterInstall();
     //FIXME: send install success message.
     reply.m_success = successfully_installed;
-    ///*dbg->m_messaging->*/ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
+    ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
 
     DEBUG_PRINTF_EMOTE_UPDATE("update install complete.\r\n");
 
@@ -880,6 +903,6 @@ void Samraksh_Emote_Update::UpdateCompletion(void *arg)
 	bool port_flushed = DebuggerPort_Flush( HalSystemConfig.DebugTextPort );
     Events_WaitForEvents( 0, 100 );
 
-    CPU_Reset();
+    CPU_Reset();*/
 }
 

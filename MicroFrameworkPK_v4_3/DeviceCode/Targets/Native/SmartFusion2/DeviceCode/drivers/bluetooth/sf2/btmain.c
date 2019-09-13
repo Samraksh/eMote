@@ -66,10 +66,15 @@
 #include "..\btcore\ble\att_server.h"
 #include "..\btcore\gap.h"
 #include "..\btcore\ble\gatt_client.h"
+#include "..\c_code_calling_cpp.h"
 #include "btmain.h"
 
 #define RFCOMM_SERVER_CHANNEL 1
 #define HEARTBEAT_PERIOD_MS 1000
+
+#define ENCRYPTED_DATA_CHANNEL ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE
+#define UNENCRYPTED_DATA_CHANNEL ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FC_01_VALUE_HANDLE
+#define CLOUD_CHANNEL ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FD_01_VALUE_HANDLE
 
 // ENABLE_LE_CENTRAL must be defined to use bt master
 //#define BLUETOOTH_MASTER 1
@@ -473,7 +478,7 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                     log_always("Pairing failed, timeout\n");
                     break;
                 case ERROR_CODE_REMOTE_USER_TERMINATED_CONNECTION:
-                    log_always("Pairing faileed, disconnected\n");
+                    log_always("Pairing failed, disconnected\n");
                     break;
                 case ERROR_CODE_AUTHENTICATION_FAILURE:
                     log_always("Pairing failed, reason = %u\n", sm_event_pairing_complete_get_reason(packet));
@@ -629,13 +634,13 @@ static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, 
             return 0;
 		case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FC_01_VALUE_HANDLE:
             att_unencrypt_con_handle = con_handle;
-            //log_always("Unencrypted data received over Bluetooth: ");
+            log_always("Unencrypted data received over Bluetooth: ");
             //log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
 			btCallReceive(ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FC_01_VALUE_HANDLE, buffer, buffer_size);
             return 0;
 		case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FD_01_VALUE_HANDLE:
             att_cloud_con_handle = con_handle;
-            //log_always("Cloud data received over Bluetooth: ");
+            log_always("Cloud data received over Bluetooth: ");
             //log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
 			btCallReceive(ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FD_01_VALUE_HANDLE, buffer, buffer_size);
             return 0;
@@ -678,8 +683,8 @@ int btstack_main(void)
 
     // setup SM: Display only
     sm_init();
-	sm_set_io_capabilities(IO_CAPABILITY_NO_INPUT_NO_OUTPUT);
-    sm_set_authentication_requirements(SM_AUTHREQ_BONDING);
+	//sm_set_io_capabilities(IO_CAPABILITY_NO_INPUT_NO_OUTPUT);
+    //sm_set_authentication_requirements(SM_AUTHREQ_BONDING);
     sm_event_callback_registration.callback = &packet_handler;
     sm_add_event_handler(&sm_event_callback_registration);
 
@@ -717,6 +722,7 @@ int btstack_main(void)
     return 0;
 }
 
+static uint8_t sendBuf[10];
 //static int testVar = 0;
 void sendDataPacket(UINT16 dest, uint8_t* data, uint8_t length){
 	if (btConnected == 0){
@@ -728,9 +734,32 @@ void sendDataPacket(UINT16 dest, uint8_t* data, uint8_t length){
 		att_server_request_can_send_now_event(att_unencrypt_con_handle);
 		log_always("need to request send event\r\n");
 	}
+	/*log_always("hackto send xxx\r\n");
+	sendBuf[0] = 'a';
+	sendBuf[1] = 'b';
+	sendBuf[2] = 'c';
+	sendBuf[3] = '1';
+	sendBuf[4] = '\n';
+	data = &sendBuf[0];
+	length = 5;*/
+	//dest = UNENCRYPTED_DATA_CHANNEL;
 
-	att_server_notify(att_unencrypt_con_handle, ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FC_01_VALUE_HANDLE, (uint8_t*) data, length);	
-	att_server_request_can_send_now_event(att_unencrypt_con_handle);
+	if( dest == UNENCRYPTED_DATA_CHANNEL){
+		log_always("un d: %d l: %d\r\n", dest, length);
+		// unencrypted
+		att_server_notify(att_unencrypt_con_handle, UNENCRYPTED_DATA_CHANNEL, (uint8_t*) data, length);	
+		att_server_request_can_send_now_event(att_unencrypt_con_handle);
+	} else if( dest == ENCRYPTED_DATA_CHANNEL){
+		log_always("en d: %d l: %d\r\n", dest, length);
+		// encrypted
+		att_server_notify(att_encrypt_con_handle, ENCRYPTED_DATA_CHANNEL, (uint8_t*) data, length);	
+		att_server_request_can_send_now_event(att_encrypt_con_handle);
+	} else {
+		log_always("cl d: %d l: %d\r\n", dest, length);
+		// cloud
+		att_server_notify(att_cloud_con_handle, CLOUD_CHANNEL, (uint8_t*) data, length);	
+		att_server_request_can_send_now_event(att_cloud_con_handle);
+	}
 
     //uint8_t status = gatt_client_write_value_of_characteristic_without_response(connection_handle, le_streamer_characteristic_rx.value_handle, length, data);
     //if (status){

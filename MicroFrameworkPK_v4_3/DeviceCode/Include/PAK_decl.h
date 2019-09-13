@@ -72,14 +72,9 @@ protected:
 
 private:
     bool              m_fInitialized;    //!< singleton pattern.
-    bool              m_fMACInitialized;
-    bool              m_fMACHandlerInitialized;
-    bool              m_fMACInitializedByNativeBeforeInstall;
     WP_Controller     m_controller;      //!< use the WireProtocol engine.
     WP_Message        m_outboundMessage; //!< used for echo and manager
 
-    static WP_Message s_lastUsbMessage;  //!< when basestation, use for constructing correct sequence number in reply to PC.
-    static void*      s_lastUsbOwner;    //!< when basestation, use for constructing correct transport comm  in reply to PC.
     UINT8 m_outboundMessagePayload[128];
 
     static const UINT32 c_Monitor_UpdateInit                       = 0x0000000F; //!< WireProtocol packet type.  Must match duplicate definition in TinyCLR_Debugging.h' CLR_DBG_Commands::
@@ -95,29 +90,14 @@ private:
 
 
 public:
-    static const INT32 COMM_BUFFER_SIZE = (IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t));
-    //TODO: static_assert(COMM_BUFFER_SIZE == MAC.h's template instantiation size minus the header).
-
-    MACEventHandler PAK_EventHandler;  //!< handle incoming wireless events.
-    UINT8 PAK_MacName;                 //!< really enum MacName, aka MacId in other parts of the API.
-    UINT8 PAK_routingAppID;
-    UINT8 PAK_radioName;
-    MACConfig PAK_MacConfig;
-    UINT8 PAK_channel;
-
+	static const INT32 COMM_BUFFER_SIZE = 150;
     UINT8 SendBuffer[Samraksh_Emote_Update::COMM_BUFFER_SIZE];          //!< local buffer for storing outgoing packets.      Regardless of use_wp_packet, internally packets are processed and stored as WP_Messages.
     UINT8 ReceiveBuffer[Samraksh_Emote_Update::COMM_BUFFER_SIZE];       //!< local buffer for manipulating incoming packets. Regardless of use_wp_packet, internally packets are processed and stored as WP_Messages.
-#if defined(LEGACY_RECEIVE_HANDLER)
-    UINT8 MacReceiveBuffer[Samraksh_Emote_Update::COMM_BUFFER_SIZE +16]; //!< extra buffer because MAC inserts size into first two bytes instead of passing as a parameter, so passing the ReceiveBuffer to MAC would make ReceiveBuffer incompatible with its use as a regular payload buffer elsewhere.  Also I don't know why the design decision was made that MAC_GetNextPacket writes metadata to the end of the buffer instead of passing them as parameters like the old API.
-#endif
+
     INT32 m_ReceiveState;
 
 
-    static UINT8  s_RadioID;            //!< MAC API change causes storage of Radio ID outside of MacConfig.
-    static BOOL   s_fRadioOn;           //!< indicates whether MAC is initialized.
     static BOOL   s_fUseWpPacket;       //!< determines whether wireless interface will send entire WireProtocol packet.  idea is that short format fits inside single wireless packet payload.
-    static BOOL   s_fBaseStationMode;   //!< turn on/off basestation mode.
-    static UINT16 s_destAddr;           //!< wireless destination in basestation mode;
     static UINT32 s_destMissingPkts[MFUpdate::MAX_MISSING_WORDFIELD_SIZE];
     static BOOL   s_fPublishUpdateMode; //!< turn on/off update publisher mode
     static UPDATER_PROGRESS_HANDLER s_UpdaterProgressHandler; //!< notify (managed library) something happened.
@@ -138,8 +118,8 @@ public:
     static void SendAck(void* msg, UINT16 size, NetOpStatus status);
     static void NeighborChange(INT16 numberOfNeighbors);
 
-    static bool Wireless_Phy_ReadReceiveBytes( void* state, UINT8*& ptr, UINT32 & size );
-    static bool Wireless_Phy_TransmitMessage ( void* state, const WP_Message* msg      );
+    static bool ReadReceiveBytes( void* state, UINT8*& ptr, UINT32 & size );
+    static bool TransmitMessage ( void* state, const WP_Message* msg      );
 
     static bool App_ProcessHeader ( void* state,  WP_Message* msg );
     static bool App_ProcessPayload( void* state,  WP_Message* msg );
@@ -172,16 +152,6 @@ protected:
 
 
 extern Samraksh_Emote_Update    g_Samraksh_Emote_Update;
-
-struct NeighborUpdateRecord
-{
-	static const unsigned int MAX_MISSING_WORDFIELD_SIZE = 25;
-	UINT16 destAddr;
-    UINT32 m_neighborMissingPkts[MAX_MISSING_WORDFIELD_SIZE];
-    UINT32 UpdateID;
-};
-
-
 
 //TODO: API for new WirelessUpdate is below.  Implement and augment this after the baseline update works.
 #if 0

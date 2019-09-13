@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include <tinyhal_types.h>
 #include "sf2\btmain.h"
+#include "btcore\bluetooth.h"	
 
 #define ENCRYPTED_DATA_CHANNEL ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE
 #define UNENCRYPTED_DATA_CHANNEL ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FC_01_VALUE_HANDLE
@@ -14,6 +15,9 @@
 extern "C" {
 #endif
 #include "btcore\btstack_uart_block.h"	
+
+#define BD_ADDR_LEN 6
+typedef uint8_t bd_addr_t[BD_ADDR_LEN];
 
 typedef void (*TIMER_CALLBACK_FPN_C)( void* arg );
 // used to debug the C bluetooth code
@@ -51,6 +55,11 @@ void btCallReceive(uint16_t source, uint8_t *buffer, uint16_t buffer_size);
 void sendBTPacket(UINT16 dest, uint8_t* data, uint8_t length);
 void btConnectedFunc(int number, int connectionType);
 void btDisconnectedFunc(int number, int connectionType);
+
+void storeBtLinkKey(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t link_key_type);
+void deleteBtLinkKey(bd_addr_t bd_addr);
+int getBtLinkKey(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t *link_key_type);
+
 
 #ifdef __cplusplus
 }
