@@ -4,6 +4,7 @@
 #include <tinyhal_types.h>
 #include <stdarg.h>
 #include <Samraksh\BluetoothMac_Functions.h>
+#include <eNVM/eNVM.h>
 
 
 #define BT_COM_PORT 1
@@ -177,6 +178,15 @@ int btUartInit(const btstack_uart_config_t * config){
 	}
 	temp_link_key_type = DEBUG_COMBINATION_KEY;
 
+	int j;
+	hal_printf("Test read of link key info\r\n");
+	uint8_t eNVM_read_buff[32];
+	memcpy( &eNVM_read_buff[0], (void *)NVM_LINK_KEY_LOCATION, 32);
+	for (j=0; j<32; j++){
+		hal_printf("%x ", eNVM_read_buff[j]);
+	}
+	hal_printf("\r\n");
+
 	return 0;
 }
 
@@ -215,6 +225,8 @@ void sendBTPacket(UINT16 dest, uint8_t* data, uint8_t length){
 
 
 void storeBtLinkKey(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t link_key_type){
+	uint8_t eNVM_write_buff[32];
+
 	hal_printf("store link key: ");
 	int i;
 	for (i=0; i<LINK_KEY_LEN; i++){
@@ -226,11 +238,32 @@ void storeBtLinkKey(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t link
 	}
 	hal_printf(" of type: %d\r\n",link_key_type);
 	
-	memcpy(temp_bd_addr, bd_addr, BD_ADDR_LEN);
-	memcpy(temp_link_key, link_key, LINK_KEY_LEN);
+	//memcpy(temp_bd_addr, bd_addr, BD_ADDR_LEN);
+	//memcpy(temp_link_key, link_key, LINK_KEY_LEN);
+	memcpy(&eNVM_write_buff[0], (void *)bd_addr, BD_ADDR_LEN);
+	memcpy(&eNVM_write_buff[0+BD_ADDR_LEN], (void *)link_key, LINK_KEY_LEN);
+	eNVM_write_buff[0+BD_ADDR_LEN+LINK_KEY_LEN] = link_key_type;
+
+	nvm_status_t status;
+        
+	status = NVM_unlock(NVM_LINK_KEY_LOCATION, 32);
+    if((NVM_SUCCESS == status)||(NVM_WRITE_THRESHOLD_WARNING == status))
+    {
+		status = NVM_write(NVM_LINK_KEY_LOCATION, eNVM_write_buff, 32, NVM_DO_NOT_LOCK_PAGE);
+        if((NVM_SUCCESS == status)||(NVM_WRITE_THRESHOLD_WARNING == status))
+        {
+			hal_printf("link key write success\r\n");
+        } else {
+			hal_printf("link key envm write error: %d\r\n", status);
+		}
+        
+    } else {
+		hal_printf("link key envm unlock error: %d\r\n", status);
+	}
 }
 
 void deleteBtLinkKey(bd_addr_t bd_addr){
+	uint8_t eNVM_write_buff[32];
 	hal_printf("delete link key");
 	int i;
 	
@@ -246,26 +279,55 @@ void deleteBtLinkKey(bd_addr_t bd_addr){
 	for (i=0; i<LINK_KEY_LEN; i++){
 		temp_link_key[i] = 0;
 	}
+
+	for (i=0; i<32; i++){
+		eNVM_write_buff[i] = (uint8_t)0;
+	}
+	nvm_status_t status;
+        
+	status = NVM_unlock(NVM_LINK_KEY_LOCATION, 32);
+    if((NVM_SUCCESS == status)||(NVM_WRITE_THRESHOLD_WARNING == status))
+    {
+		status = NVM_write(NVM_LINK_KEY_LOCATION, eNVM_write_buff, 32, NVM_DO_NOT_LOCK_PAGE);
+        if((NVM_SUCCESS == status)||(NVM_WRITE_THRESHOLD_WARNING == status))
+        {
+			hal_printf("link key write success\r\n");
+        } else {
+			hal_printf("link key envm write error: %d\r\n", status);
+		}
+        
+    } else {
+		hal_printf("link key envm unlock error: %d\r\n", status);
+	}
 }
 
-int getBtLinkKey(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t *link_key_type){
-	hal_printf("get link key: ");
-	int i;
-	for (i=0; i<LINK_KEY_LEN; i++){
-		hal_printf("%x ", link_key[i]);
-	}
-	hal_printf(" for bd_addr: ");
-	for (i=0; i<BD_ADDR_LEN; i++){
-		hal_printf("%x ", bd_addr[i]);
+int getBtLinkKey(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t *link_key_type){	
+	int j;
+	hal_printf("Test read of link key info\r\n");
+	uint8_t eNVM_read_buff[32];
+	memcpy( &eNVM_read_buff[0], (void *)NVM_LINK_KEY_LOCATION, 32);
+	for (j=0; j<32; j++){
+		hal_printf("%x ", eNVM_read_buff[j]);
 	}
 	hal_printf("\r\n");
 
-	if (memcmp(bd_addr, temp_bd_addr, 6) == 0){
+	if (memcmp((void*)bd_addr, &eNVM_read_buff[0], BD_ADDR_LEN) == 0){
 		// matched bd_addr
-		memcpy(link_key, temp_link_key, LINK_KEY_LEN);
-		*link_key_type = temp_link_key_type;
+		memcpy((void*)link_key, &eNVM_read_buff[0+BD_ADDR_LEN], LINK_KEY_LEN);
+		*link_key_type = (link_key_type_t)eNVM_read_buff[0+BD_ADDR_LEN+LINK_KEY_LEN];
+		hal_printf("get link key: ");
+		for (j=0; j<LINK_KEY_LEN; j++){
+			hal_printf("%x ", link_key[j]);
+		}
+		hal_printf(" for bd_addr: ");
+		for (j=0; j<BD_ADDR_LEN; j++){
+			hal_printf("%x ", bd_addr[j]);
+		}
+		hal_printf("\r\n");
 		return 1;
 	}
+
+	
 
 	return 0;
 }
