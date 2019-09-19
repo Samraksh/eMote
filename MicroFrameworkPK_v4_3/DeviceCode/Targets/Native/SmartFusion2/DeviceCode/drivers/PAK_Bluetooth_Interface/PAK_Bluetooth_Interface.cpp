@@ -1,13 +1,17 @@
+/*--------- Includes ----------- */
+
+#include "PAK_Bluetooth_Interface.h"
+#include <cmsis/m2sxxx.h>
+#include "../eNVM/eNVM.h"
 #include <TinyHal.h>
 #include <MFUpdate_decl.h>
 #include <WireProtocol.h>
 #include <TinyCLR_Types.h>   //CLR_RECORD_ASSEMBLY
-#include "PAK_Bluetooth_Interface.h"
 
 
 
-UINT32 GetFirstMissingPacket(MFUpdate* updateInfo);  //<! use when estimating this node's missing packets
-UINT32 GetFirstMissingPacket(MFUpdate* updateInfo, UINT32* missingPkts ); //<! use when estimating neighbor's missing packets
+uint32_t GetFirstMissingPacket(MFUpdate* updateInfo);  //<! use when estimating this node's missing packets
+uint32_t GetFirstMissingPacket(MFUpdate* updateInfo, uint32_t* missingPkts ); //<! use when estimating neighbor's missing packets
 
 Samraksh_Emote_Update g_Samraksh_Emote_Update;
 
@@ -27,7 +31,7 @@ bool Samraksh_Emote_Update::App_ProcessHeader(void* state, WP_Message* msg )
 {
     // for wireless, set m_header.m_size to 0 to indicate we've received a complete payload.
     //short-circuits WP_Message.Process() to ReceiveState::CompletePayload to avoid calling phy->ReceiveBytes.
-    msg->m_payload = (UINT8*)g_Samraksh_Emote_Update.ReceiveBuffer + sizeof(WP_Packet);
+    msg->m_payload = (uint8_t*)g_Samraksh_Emote_Update.ReceiveBuffer + sizeof(WP_Packet);
     msg->m_header.m_size = 0;
 
     return true;
@@ -53,7 +57,7 @@ void /*CLR_Messaging::*/ReplyToCommand( WP_Message* msg, bool fSuccess, bool fCr
 {
     NATIVE_PROFILE_CLR_MESSAGING();
     WP_Message msgReply;
-    UINT32     flags = 0;
+    uint32_t     flags = 0;
 
     //
     // Make sure we reply only once!
@@ -82,7 +86,7 @@ void /*CLR_Messaging::*/ReplyToCommand( WP_Message* msg, bool fSuccess, bool fCr
     SwapEndian( msg, ptr, size, true );
 #endif
 
-    msgReply.PrepareReply( msg->m_header, flags, size, (UINT8*)ptr );  //creates CRC
+    msgReply.PrepareReply( msg->m_header, flags, size, (uint8_t*)ptr );  //creates CRC
 
     /*m_controller.*/msg->m_parent->SendProtocolMessage( msgReply );  //new: use WP_Controller of message origin.
 }
@@ -93,7 +97,7 @@ void /*CLR_Messaging::*/ReplyToCommand( WP_Message* msg, bool fSuccess, bool fCr
  * perform steps similar to ReplyToCommand(...) but we already have flags so skip first part of ReplyToCommand(...)
  *
  */
-void ForwardReplyToCommand( WP_Message* msg, UINT32 flags, void* ptr, int size)
+void ForwardReplyToCommand( WP_Message* msg, uint32_t flags, void* ptr, int size)
 {
     WP_Message msgReply;
     msgReply.Initialize( msg->m_parent );
@@ -101,7 +105,7 @@ void ForwardReplyToCommand( WP_Message* msg, UINT32 flags, void* ptr, int size)
     SwapEndian( msg, ptr, size, true );
 #endif
 
-    msgReply.PrepareReply( msg->m_header, flags, size, (UINT8*)ptr );
+    msgReply.PrepareReply( msg->m_header, flags, size, (uint8_t*)ptr );
     msg->m_parent->SendProtocolMessage( msgReply );
 }
 
@@ -143,12 +147,14 @@ const WP_PhysicalLayer c_Update_phy =
     &Samraksh_Emote_Update::TransmitMessage,
 };
 
-bool Samraksh_Emote_Update::ReadReceiveBytes( void* state, UINT8*& ptr, UINT32 & size ) {
+bool Samraksh_Emote_Update::ReadReceiveBytes( void* state, unsigned char*& ptr, unsigned int & size ) {
 
+	hal_printf("--- read rx bytes\r\n");
 	return true;
 }
 
 bool Samraksh_Emote_Update::TransmitMessage( void* state, const WP_Message* msg ) {
+	hal_printf("--- tx bytes\r\n");
 	return true;
 }
 
@@ -164,8 +170,8 @@ bool Samraksh_Emote_Update::TransmitMessage( void* state, const WP_Message* msg 
  * @param size    length of buffer in bytes.
  * FIXME: ASSERT(wireless message size < size(WP_Packet)), or verify payload when .s_fUseWpPacket == false...
  */
-void Samraksh_Emote_Update::Receive(void *buffer, UINT16 sz_buf) {
-    UINT32 command = 0;
+void Samraksh_Emote_Update::Receive(void *buffer, uint16_t sz_buf) {
+    uint32_t command = 0;
     WP_Packet* msg = (WP_Packet*)buffer;
     // hal_printf("Receive");
     // always check if sender is using WP_Packet format.  WP_Packet header will be in every message.
@@ -173,7 +179,7 @@ void Samraksh_Emote_Update::Receive(void *buffer, UINT16 sz_buf) {
     if(g_Samraksh_Emote_Update.s_fUseWpPacket == true) {  //check that it's okay length to compare the WP header.
         ASSERT(sz_buf >= sizeof(WP_Packet));
         size_t lenCmp = __min( sz_buf, sizeof(msg->m_signature) );
-        if(memcmp( (UINT8*)msg, MARKER_PACKET_V1, sizeof(msg->m_signature) ) == 0) {
+        if(memcmp( (uint8_t*)msg, MARKER_PACKET_V1, sizeof(msg->m_signature) ) == 0) {
             command = msg->m_cmd;
             memcpy(g_Samraksh_Emote_Update.ReceiveBuffer, msg, sz_buf );
             //g_Samraksh_Emote_Update.m_controller.m_inboundMessage.m_rxState = WP_Message::ReceiveState::CompleteHeader; //skip ReceiveState::WaitingForHeader to avoid call to m_phy->ReceiveBytes.
@@ -198,7 +204,7 @@ void Samraksh_Emote_Update::Receive(void *buffer, UINT16 sz_buf) {
         WP_Message* p_inboundMessage = &g_Samraksh_Emote_Update.m_controller.m_inboundMessage;
 
         p_inboundMessage->m_header.m_cmd = ((simple_payload_t*)buffer)->cmd;
-        UINT16 sz_pad = sizeof ((simple_payload_t *)0)->cmd + sizeof ((simple_payload_t *)0)->flags;
+        uint16_t sz_pad = sizeof ((simple_payload_t *)0)->cmd + sizeof ((simple_payload_t *)0)->flags;
         if(sz_buf >= sz_pad) {
             p_inboundMessage->m_header.m_size = sz_buf - sz_pad;
         }
@@ -241,10 +247,10 @@ void Samraksh_Emote_Update::DeleteInstance() {
 
 void Samraksh_Emote_Update::Cleanup() {
     if(!g_Samraksh_Emote_Update.m_fInitialized) return;
-    if(g_Samraksh_Emote_Update.s_UpdateCompletion.IsLinked()) {
+    /*if(g_Samraksh_Emote_Update.s_UpdateCompletion.IsLinked()) {
         // TODO: save tasks for after reboot, ie if we have multiple initializations.
         g_Samraksh_Emote_Update.s_UpdateCompletion.Abort();  //TODO: completion Abort might not be needed
-    }
+    }*/
     g_Samraksh_Emote_Update.m_fInitialized = false;
 }
 
@@ -255,6 +261,7 @@ void Samraksh_Emote_Update::Cleanup() {
  */
 void Samraksh_Emote_Update::Initialize() {
     bool ret = true;
+	hal_printf(" ----- update init 2\r\n");
 	
 	if(g_Samraksh_Emote_Update.m_fInitialized == true) return;
     MFUpdate_Initialize(); //safe to call multiple times.
@@ -263,7 +270,7 @@ void Samraksh_Emote_Update::Initialize() {
     g_Samraksh_Emote_Update.m_outboundMessage.Initialize(&g_Samraksh_Emote_Update.m_controller);
     g_Samraksh_Emote_Update.m_ReceiveState = 0;
     
-	Samraksh_Emote_Update::s_UpdateCompletion.InitializeForUserMode( UpdateCompletion );
+	//Samraksh_Emote_Update::s_UpdateCompletion.InitializeForUserMode( UpdateCompletion );
 
     g_Samraksh_Emote_Update.m_fInitialized = true;
 
@@ -293,6 +300,7 @@ bool Samraksh_Emote_Update::UnInitializeDriversBeforeInstall() {
 
 bool Samraksh_Emote_Update::UpdateInit( WP_Message* msg, void* owner )
 {
+	hal_printf("---- update init\r\n");
 	//TODO: accept argument specifying different modes... like burst mode transfer, USB-tethered repeater
     CreateInstance();
     //InitializeMac(); // turn on wireless, ie, if message received over USB.
@@ -305,22 +313,23 @@ bool Samraksh_Emote_Update::UpdateDeInit( WP_Message* msg, void* owner )
 {
     DeleteInstance();
     // TODO: UnInitializeMac();
-    if(Samraksh_Emote_Update::s_UpdateCompletion.IsLinked() == TRUE) {
+    /*if(Samraksh_Emote_Update::s_UpdateCompletion.IsLinked() == TRUE) {
     	Samraksh_Emote_Update::s_UpdateCompletion.Abort();
     	private_free( Samraksh_Emote_Update::s_UpdateCompletionArg );
-    }
+    }*/
     return true;
 }
 
 
 bool Samraksh_Emote_Update::Start( WP_Message* msg, void* owner )
 {
+	hal_printf("---- start\r\n");
     NATIVE_PROFILE_CLR_DEBUGGER();
     //MULTIPLEX_PACKETS();
 
     MFUpdate_Commands::Debugging_MFUpdate_Start*       cmd = (MFUpdate_Commands::Debugging_MFUpdate_Start*)msg->m_payload;
     MFUpdate_Commands::Debugging_MFUpdate_Start::Reply reply, *pReply;
-    CLR_INT32 replySize = sizeof(reply);
+    int32_t replySize = sizeof(reply);
     MFUpdateHeader header;
 
     pReply = &reply;
@@ -358,15 +367,15 @@ bool Samraksh_Emote_Update::Start( WP_Message* msg, void* owner )
 
 bool Samraksh_Emote_Update::AuthCommand( WP_Message* msg, void* owner )
 {
-
-    NATIVE_PROFILE_CLR_DEBUGGER();
+	hal_printf("---- auth cmd packet not implemented\r\n");
+   /* NATIVE_PROFILE_CLR_DEBUGGER();
     //MULTIPLEX_PACKETS();
 
     MFUpdate_Commands::Debugging_MFUpdate_AuthCommand*       cmd = (MFUpdate_Commands::Debugging_MFUpdate_AuthCommand*)msg->m_payload;
     MFUpdate_Commands::Debugging_MFUpdate_AuthCommand::Reply reply, *pReply;
 
-    INT32 respLen = 0;
-    INT32 replySize = sizeof(reply);
+    int32_t respLen = 0;
+    int32_t replySize = sizeof(reply);
 
     //TINYCLR_CLEAR(reply);
 	memset(&reply, 0, sizeof(MFUpdate_Commands::Debugging_MFUpdate_AuthCommand::Reply));
@@ -399,43 +408,44 @@ bool Samraksh_Emote_Update::AuthCommand( WP_Message* msg, void* owner )
             }
         }
     }
+*/
+//    /*dbg->m_messaging->*/ReplyToCommand( msg, true, false, pReply, replySize );
 
-    /*dbg->m_messaging->*/ReplyToCommand( msg, true, false, pReply, replySize );
-
-    if(pReply != &reply)
+/*    if(pReply != &reply)
     {
         private_free(pReply);
-    }
+    }*/
 
     return true;
 }
 
 bool Samraksh_Emote_Update::Authenticate( WP_Message* msg, void* owner )
 {
-    NATIVE_PROFILE_CLR_DEBUGGER();
+	hal_printf("---- authenticate packet not implemented\r\n");
+    /*NATIVE_PROFILE_CLR_DEBUGGER();
     //MULTIPLEX_PACKETS();
 
     MFUpdate_Commands::Debugging_MFUpdate_Authenticate*       cmd = (MFUpdate_Commands::Debugging_MFUpdate_Authenticate*)msg->m_payload;
     MFUpdate_Commands::Debugging_MFUpdate_Authenticate::Reply reply;
 
     reply.m_updateHandle = cmd->m_updateHandle;
-    CLR_INT32 authType = 0;
-    CLR_INT32 respLen = sizeof(authType);
+    int32_t authType = 0;
+    int32_t respLen = sizeof(authType);
 
     //memset(&s_missingPkts, 0xFF, sizeof(s_missingPkts));
 
     reply.m_success = 0;
 
-    MFUpdate_AuthCommand(cmd->m_updateHandle, MFUPDATE_VALIDATION_COMMAND__GET_AUTH_TYPE, NULL, 0, (UINT8*)&authType, respLen);
+    MFUpdate_AuthCommand(cmd->m_updateHandle, MFUPDATE_VALIDATION_COMMAND__GET_AUTH_TYPE, NULL, 0, (uint8_t*)&authType, respLen);
 
     if(authType == MFUPDATE_AUTHENTICATION_TYPE__SSL)
     {
         reply.m_success = 1;
 
-        // reply early for SSL so that the device will try to upgrad the stream at the same time.
-        /*dbg->m_messaging->*/ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
+        // reply early for SSL so that the device will try to upgrad the stream at the same time.*/
+//        /*dbg->m_messaging->*/ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
 
-        Events_WaitForEvents(0, 400);
+/*        Events_WaitForEvents(0, 400);
     }
 
     if(MFUpdate_Authenticate(cmd->m_updateHandle, cmd->m_authenticationData, cmd->m_authenticationLen))
@@ -447,8 +457,8 @@ bool Samraksh_Emote_Update::Authenticate( WP_Message* msg, void* owner )
             reply.m_success = MFUpdate_Create(cmd->m_updateHandle);
         }
     }
-
-    /*dbg->m_messaging->*/ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
+*/
+ //   /*dbg->m_messaging->*/ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
 
     return true;
 }
@@ -456,6 +466,7 @@ bool Samraksh_Emote_Update::Authenticate( WP_Message* msg, void* owner )
 
 bool Samraksh_Emote_Update::GetMissingPkts( WP_Message* msg, void* owner )
 {
+	hal_printf("---- get missing packet\r\n");
     NATIVE_PROFILE_CLR_DEBUGGER();
     //MULTIPLEX_PACKETS();
 
@@ -464,14 +475,14 @@ bool Samraksh_Emote_Update::GetMissingPkts( WP_Message* msg, void* owner )
 
 
     MFUpdate* updateInfo = 0x0;
-    CLR_INT32 int32Cnt = 0;
+    int int32Cnt = 0;
     if(cmd->m_updateHandle != MFUpdate::badHandle) {
         updateInfo = g_Updates->GetUpdate(cmd->m_updateHandle);
         int32Cnt = updateInfo->m_missingPktsWordfieldSize;//ARRAYSIZE(s_missingPkts);  //number of uints needed to represent missing packets.
     }
 
-    CLR_INT32 replySize = sizeof(reply);
-    CLR_INT32 sizeBytes = (int32Cnt << 2) + offsetof(MFUpdate_Commands::Debugging_MFUpdate_GetMissingPkts::Reply, m_missingPkts);
+    int32_t replySize = sizeof(reply);
+    int32_t sizeBytes = (int32Cnt << 2) + offsetof(MFUpdate_Commands::Debugging_MFUpdate_GetMissingPkts::Reply, m_missingPkts);
 
     //TINYCLR_CLEAR(reply);
 	memset(&reply, 0, sizeof(MFUpdate_Commands::Debugging_MFUpdate_GetMissingPkts::Reply));
@@ -512,6 +523,7 @@ bool Samraksh_Emote_Update::GetMissingPkts( WP_Message* msg, void* owner )
 
 bool Samraksh_Emote_Update::AddPacket(WP_Message* msg, void* owner )
 {
+	hal_printf("---- add packet\r\n");
     NATIVE_PROFILE_CLR_DEBUGGER();
     //MULTIPLEX_PACKETS();
 
@@ -525,7 +537,7 @@ bool Samraksh_Emote_Update::AddPacket(WP_Message* msg, void* owner )
         {
             if(!have_packet(cmd->m_packetIndex, updateInfo->m_missingPkts))
             {
-                reply.m_success = MFUpdate_AddPacket(cmd->m_updateHandle, cmd->m_packetIndex, &cmd->m_packetData[0], cmd->m_packetLength, (CLR_UINT8*)&cmd->m_packetValidation, sizeof(cmd->m_packetValidation));
+                reply.m_success = MFUpdate_AddPacket(cmd->m_updateHandle, cmd->m_packetIndex, &cmd->m_packetData[0], cmd->m_packetLength, (uint8_t*)&cmd->m_packetValidation, sizeof(cmd->m_packetValidation));
 
                 if(reply.m_success)
                 {
@@ -539,7 +551,7 @@ bool Samraksh_Emote_Update::AddPacket(WP_Message* msg, void* owner )
         }
         else
         {
-            reply.m_success = MFUpdate_AddPacket(cmd->m_updateHandle, cmd->m_packetIndex, &cmd->m_packetData[0], cmd->m_packetLength, (CLR_UINT8*)&cmd->m_packetValidation, sizeof(cmd->m_packetValidation));
+            reply.m_success = MFUpdate_AddPacket(cmd->m_updateHandle, cmd->m_packetIndex, &cmd->m_packetData[0], cmd->m_packetLength, (uint8_t*)&cmd->m_packetValidation, sizeof(cmd->m_packetValidation));
         }
     }
     else
@@ -570,6 +582,7 @@ bool Samraksh_Emote_Update::AddPacket(WP_Message* msg, void* owner )
  */
 bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
 {
+	hal_printf("---- process payload\r\n");
     bool ret = false;
     if( msg->m_header.m_flags & WP_Flags::c_Reply )
     {
@@ -691,13 +704,13 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 //TODO: API for tracking neighbor, externalize for multiple neighbors.
                 //TODO: lookup neighbor info.
                 //TODO: warn if we thought neighbor had more packets than it reports.
-                for(UINT32 i = 0; i < updateInfo->m_missingPktsWordfieldSize; i++) {
+                for(uint32_t i = 0; i < updateInfo->m_missingPktsWordfieldSize; i++) {
                     s_destMissingPkts[i] = incomingReply->m_missingPkts[i];
                 }
 
                 //Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr, GETMISSINGPKTS_ACK, 0);
                 if(s_fPublishUpdateMode == true) {
-                    UINT32 missingNo = GetFirstMissingPacket(updateInfo, incomingReply->m_missingPkts);
+                    uint32_t missingNo = GetFirstMissingPacket(updateInfo, incomingReply->m_missingPkts);
                     if( ( incomingReply->m_missingPktCount == 0 ) || ( missingNo > updateInfo->m_finalPacketIdx ) ) {
                         SendInstall(updateInfo->Header.UpdateID, g_Samraksh_Emote_Update.s_destAddr);
                     }
@@ -779,6 +792,7 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
 }
 
 bool InitializeInterface(){
+	hal_printf("Init interface\r\n");
 	return true;
 }
 
@@ -798,6 +812,7 @@ bool UnInitializeDriversBeforeInstall(){
  */
 bool Samraksh_Emote_Update::Install(WP_Message* msg, void* owner )
 {
+	hal_printf("---- install\r\n");
     /*NATIVE_PROFILE_CLR_DEBUGGER();
     //MULTIPLEX_PACKETS();
 
@@ -865,6 +880,7 @@ Install_out:
  */
 void Samraksh_Emote_Update::UpdateCompletion(void *arg)
 {
+	hal_printf("---- update complete\r\n");
     /*NATIVE_PROFILE_CLR_DEBUGGER();
 
     MFUpdate_Commands::Debugging_MFUpdate_Install::Reply reply;
@@ -905,4 +921,6 @@ void Samraksh_Emote_Update::UpdateCompletion(void *arg)
 
     CPU_Reset();*/
 }
+
+
 

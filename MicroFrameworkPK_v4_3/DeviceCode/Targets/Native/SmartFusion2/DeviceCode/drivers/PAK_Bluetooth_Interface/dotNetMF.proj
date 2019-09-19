@@ -1,26 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>PAK_Bluetooth_Interface</AssemblyName>
+    <AssemblyName>PAK_Bluetooth_Int</AssemblyName>
+    <ProjectGuid>{36101ca5-349a-4471-aeb0-3babba567477}</ProjectGuid>
     <Size>
     </Size>
-    <ProjectGuid>{02867940-0E3C-4d05-AFCC-EBEFD5BD8DBA}</ProjectGuid>
-    <Description>PAK_Bluetooth_Interface</Description>
-    <Level>PAL</Level>
-    <LibraryFile>PAK_Bluetooth_Interface.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\DeviceCode\Pal\Samraksh\PAK\PAK_Bluetooth_Interface\dotNetMF.proj</ProjectPath>
-    <ManifestFile>PAK_Bluetooth_Interface.$(LIB_EXT).manifest</ManifestFile>
-    <Groups>Control</Groups>
+    <Description>SF2 load Targets</Description>
+    <Level>HAL</Level>
+    <LibraryFile>PAK_Bluetooth_Int.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\PAK_Bluetooth_Interface\dotNetMF.proj</ProjectPath>
+    <ManifestFile>PAK_Bluetooth_Int.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Processor\SF2</Groups>
     <LibraryCategory>
-      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Time_PAL" Guid="{1ED5DBD0-891B-4104-9C32-45C6D567D9E5}" ProjectPath="$(SPOCLIENT)\Framework\Features\Time_PAL.libcatproj" Conditional="" xmlns="">
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="spi_HAL" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" Conditional="" xmlns="">
         <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
           <Major>4</Major>
           <Minor>0</Minor>
           <Revision>0</Revision>
           <Build>0</Build>
           <Extra />
-          <Date>2009-06-15</Date>
-          <Author>Microsoft</Author>
+          <Date>2010-07-01</Date>
         </VersionDependency>
         <ComponentType xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">LibraryCategory</ComponentType>
       </MFComponent>
@@ -33,9 +31,7 @@
     <Required>False</Required>
     <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
     <IsStub>False</IsStub>
-    <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
-    <HasLibraryCategory>True</HasLibraryCategory>
-    <Directory>DeviceCode\pal\Samraksh\PAK\PAK_Bluetooth_Interface</Directory>
+    <Directory>DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\PAK_Bluetooth_Interface</Directory>
     <OutputType>Library</OutputType>
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
     <Version>4.0.0.0</Version>
@@ -43,9 +39,8 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-    <Compile Include="PAK_Bluetooth_Interface.cpp" />
-    <HFile Include="PAK_Bluetooth_Interface.h" />
-    <IncludePaths Include="DeviceCode\include" />
+	<HFiles Include="PAK_Bluetooth_Interface.h" />	
+	<Compile Include="PAK_Bluetooth_Interface.cpp" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

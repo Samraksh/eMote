@@ -79,7 +79,6 @@ DeviceStatus Bluetooth_Receive_Data(UINT16 packetType, uint8_t *buffer, uint16_t
 	Message_15_4_t msg;
 	Message_15_4_t* msgPtr = &msg;
 	uint16_t s = msgPtr->GetPayloadSize();
-	hal_printf("payload size = %d\r\n", s);
 	msgPtr->GetHeader()->src = 1;
 	msgPtr->GetHeader()->dest = 0;
 	msgPtr->GetHeader()->length = buffer_size + sizeof(IEEE802_15_4_Header_t);

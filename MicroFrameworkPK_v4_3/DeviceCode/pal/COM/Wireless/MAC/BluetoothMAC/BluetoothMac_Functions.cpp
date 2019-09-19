@@ -15,6 +15,9 @@ DeviceStatus MAC_Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 
 
 	//status = Initialize(eventHandler, macName, routingAppID, radioName, (MACConfig*)config) ;
 	
+	g_send_buffer.Initialize();
+	g_receive_buffer.Initialize();
+
 	status = CPU_Bluetooth_Initialize(eventHandler);
 	return status;
 
