@@ -9,6 +9,8 @@
 //
 // Chipset
 //
+//
+#include <TinyCLR_Types.h>   //CLR_RECORD_ASSEMBLY
 
 // boot
 #include <CPU_BOOT_decl.h>

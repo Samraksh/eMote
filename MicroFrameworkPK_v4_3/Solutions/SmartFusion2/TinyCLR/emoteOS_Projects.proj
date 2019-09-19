@@ -51,10 +51,7 @@
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Update\dotNetMF.proj" />
   </ItemGroup> -->
 
-  <ItemGroup>
-    <DriverLibs Include="PAK_Bluetooth_Interface.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\PAK\PAK_Bluetooth_Interface\dotNetMF.proj" />
-  </ItemGroup>
+  
    <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotNetMF.proj" />
     <PlatformIndependentLibs Include="Debugger.$(LIB_EXT)" />
@@ -382,7 +379,12 @@
   <ItemGroup>
     <DriverLibs Include="sf2_loadTargets.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\loadTarget\dotNetMF.proj" />
-  </ItemGroup>
+</ItemGroup>
+<ItemGroup>
+    <DriverLibs Include="PAK_Bluetooth_Interface.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\PAK_Bluetooth_Interface\dotNetMF.proj" />
+</ItemGroup>
+
   <ItemGroup>
     <DriverLibs Include="SF2_usart.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\SmartFusion2\DeviceCode\drivers\usart\dotNetMF.proj" />

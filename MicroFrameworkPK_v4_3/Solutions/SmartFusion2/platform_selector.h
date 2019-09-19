@@ -254,7 +254,7 @@ bool inPendSV_irq;
 #define HALTIMER_RESOLUTION_USEC HALTIMER_MAX_RESOLUTION
 #define NUMBER_ADC_CHANNELS	3
 
-#define INPUT_REBOOT_PIN  22
+#define INPUT_REBOOT_PIN  221
 #define OUTPUT_REBOOT_PIN 23
 
 /* Defines the start address for the data store. To be kept in sync with the actual address in bl_nor_config */
@@ -264,7 +264,6 @@ bool inPendSV_irq;
 #define NVM_CP_BINARY_LOCATION 0x7D000
 #define NVM_CP_BINARY_SIZE 3860
 #define NVM_LINK_KEY_LOCATION 0x7DFE0
-//#define NVM_LINK_KEY_LOCATION 0x7D000
 
 #define GPIO_CP_RESET 0
 #define GPIO_CP_SLAVE_SELECT 1
@@ -311,7 +310,7 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_NET_SOC 			9
 #define VIRT_TIMER_TIME 			10
 #define VIRT_TIMER_REALTIME_DEBUGGER 11
-#define VIRT_TIMER_ADC_PERIODIC		12
+#define VIRT_TIMER_BLUETOOTH_RESPONSE	12
 /********CSMAMAC SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
 #define VIRT_TIMER_MAC_SENDPKT 		13
 #define VIRT_TIMER_MAC_BEACON 		14
