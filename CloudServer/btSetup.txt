@@ -1,0 +1,41 @@
+
+
+#This is client side
+#First create a BT channel for serial profile
+sudo sdptool add --channel=1 SP
+
+#next create a device for use for rfcomm
+sudo mknod -m 666 /dev/rfcomm0 c 216 0
+
+#next try to connect to the service device and connect the connection to the serial device
+rfcomm connect /dev/rfcomm0 [SERVER_ADDR] 1
+
+#alternately if you have setup /etc/bluetooth/rfcomm.conf like this
+
+#rfcomm0 {
+#        bind no;
+#        device 98:07:2D:37:DF:9B;
+#        channel 1;
+#        comment "Samraksh IoT device";
+#}
+
+
+#then you can just issue
+#sudo rfcomm connect 1
+
+
+#References
+#https://www.pcsuggest.com/bluetooth-linux-part-2/
+
+
+#find out what services and channels are provided by a server
+sdptool browse 98:07:2D:37:DF:9B | grep -E 'Service Name:|Channel:'
+
+#pairing using code
+https://stackoverflow.com/questions/51403176/bluez-pairing-before-exchange
+
+
+Go Gatt Client code example:
+
+This is the best I found online.
+http://christopherbird.co.uk/posts/talking-to-the-nrf8001-ble-chip-via-golang/
