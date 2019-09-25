@@ -25,8 +25,8 @@
         <!-- Regular build: -->
    
            <!-- External compute processors binary -->
-        <Set Name="CP_BaseAddress"  Value="0x6007D000"/>
-        <Set Name="CP_BaseAddress_Mirror"  Value="0x0007D000"/>
+        <Set Name="CP_BaseAddress"  Value="0x6007D400"/>
+        <Set Name="CP_BaseAddress_Mirror"  Value="0x0007D400"/>
         <Set Name="CP_Size"  Value="0x1000"/>
         
       	<!-- this needs to match bl_config.cpp -->  
@@ -49,7 +49,7 @@
         
         <!-- The below for parameters are important, will have to be adjusted based on compilation output, if a section overflows -->
         <!-- RoT_Code_Size must be large enough to include RoT code (ROT_LR_FLASH) *AND* ROT_ER_RAM_RW, KERNEL_ER_RAM_RW, RUNTIME_ER_RAM_RW. All of the *_RAM_RW are placed after the ROT_LR_FLASH-->
-        <Set Name="RoT_Code_Size"           Value="0x32E0"/> <!-- 30KB -->
+        <Set Name="RoT_Code_Size"           Value="0x1400"/> <!-- 0x32E0 KB -->
 		<Set Name="Kernel_Code_Size"           Value="0x33F00"/> 
         
         <!-- <Set Name="RoT_RAM_Base" 			Value="%Stack_Top% + 8"/> -->

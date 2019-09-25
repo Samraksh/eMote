@@ -12,16 +12,12 @@ static uint8_t currentMac = NONE;
 static MACEventHandler btEventHandler;
 static int current_neighbor_count = 0;
 
+MACReceiveFuncPtrType secureRcvCB, openRcvCB;
+
 // currently we only are tracking one link. We need to expand to tracking multiple neighbors and whether that link is encrypted or not
 static bool link_encrypted = false;
 
 // this must match drivers/bluetooth/sf2/btmain.h and drivers\bluetooth\c_code_calling_cpp.h
-#define ENCRYPTED_DATA_CHANNEL 0x09
-#define UNENCRYPTED_DATA_CHANNEL 0x0C
-#define CLOUD_CHANNEL 0x0F
-
-int Message_Encrypt_Data(uint8_t *origBuffer, uint16_t buffer_size, uint8_t *encryptedBuffer);
-int Message_Decrypt_Data(uint8_t *origBuffer, uint16_t buffer_size, uint8_t *decryptedBuffer);
 
 CK_BYTE key1[hmacSize] = {
 		0xC6, 0x29, 0x73, 0xE3, 0xC8, 0xD4, 0xFC, 0xB6,
@@ -73,7 +69,7 @@ void Timer_15_Handler(void *arg)
 			MAC_Send(CLOUD_CHANNEL, NULL, &testData[0], 5);
 }
 
-void COM_Manager_Receive(void* buffer, UINT16 payloadType) {
+void BTMAC_Manager_Receive(void* buffer, UINT16 payloadType) {
 	CPU_GPIO_SetPinState(15, TRUE);
 	CPU_GPIO_SetPinState(15, FALSE);
 	//CPU_Timer_Sleep_MicroSeconds(100000,DEFAULT_TIMER);
@@ -84,16 +80,19 @@ void COM_Manager_Receive(void* buffer, UINT16 payloadType) {
 		if (msg->GetHeader()->payloadType == ENCRYPTED_DATA_CHANNEL){
 			hal_printf("got encrypted data\r\n");
 			link_encrypted = true;
-			int dataLen = Message_Decrypt_Data(msg->GetPayload(), size, decryptedData);
+			//int dataLen = Message_Decrypt_Data(msg->GetPayload(), size, decryptedData);
 			
 			// all messages to the CP assume '\n' termination
-			CP_SendMsgToCP(decryptedData, dataLen);
+			//CP_SendMsgToCP(decryptedData, dataLen);
+			secureRcvCB(msg->GetPayload(), size);
 		}
 		else if (msg->GetHeader()->payloadType == UNENCRYPTED_DATA_CHANNEL){
 			hal_printf("got unencrypted data\r\n");
 			PrintHex(msg->GetPayload(),size);
+			openRcvCB(msg->GetPayload(), size);
+
 			// all messages to the CP assume '\n' termination
-			CP_SendMsgToCP(msg->GetPayload(), size);
+			//CP_SendMsgToCP(msg->GetPayload(), size);
 			/*uint8_t testData[10];
 			testData[0] = 'c';
 			testData[1] = 'l';
@@ -106,10 +105,11 @@ void COM_Manager_Receive(void* buffer, UINT16 payloadType) {
 			MAC_Send(UNENCRYPTED_DATA_CHANNEL, NULL, &testData[0], 5);*/
 		}
 		else if (msg->GetHeader()->payloadType == CLOUD_CHANNEL){
-			//hal_printf("got cloud data\r\n");
-			//PrintHex(msg->GetPayload(),size);
-			VirtTimer_SetTimer(15, 0, 100, FALSE, FALSE, Timer_15_Handler);
-			VirtTimer_Start(15);
+			hal_printf("got cloud data\r\n");
+			PrintHex(msg->GetPayload(),size);
+			//VirtTimer_SetTimer(15, 0, 100, FALSE, FALSE, Timer_15_Handler);
+			//VirtTimer_Start(15);
+			openRcvCB(msg->GetPayload(), size);
 			/*uint8_t testData[10];
 			testData[0] = 'c';
 			testData[1] = 'l';
@@ -127,14 +127,27 @@ void COM_Manager_Receive(void* buffer, UINT16 payloadType) {
 	
 }
 
-void COM_Manager_Neighbor_Change(INT16 neighbors) {
+
+bool BTMAC_Manager_Send(void* buffer, UINT16 size, UINT16 channel ){
+	if (channel== CLOUD_CHANNEL || channel== UNENCRYPTED_DATA_CHANNEL || channel== ENCRYPTED_DATA_CHANNEL){
+		MAC_Send(channel, NULL, buffer, size);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void BTMAC_Manager_Neighbor_Change(INT16 neighbors) {
 	hal_printf("*** neighbor change %d ****\r\n", neighbors);
 	current_neighbor_count = neighbors;
 }
 
-void COM_Manager_Initialization(uint8_t bluetoothParam){
-	btEventHandler.SetReceiveHandler(&COM_Manager_Receive);
-	btEventHandler.SetNeighborChangeHandler(&COM_Manager_Neighbor_Change);
+void BTMAC_Manager_Initialization(uint8_t bluetoothParam, MACReceiveFuncPtrType _openCB, MACReceiveFuncPtrType _secureCB){
+	btEventHandler.SetReceiveHandler(&BTMAC_Manager_Receive);
+	btEventHandler.SetNeighborChangeHandler(&BTMAC_Manager_Neighbor_Change);
+
+	secureRcvCB=_secureCB;
+	openRcvCB = _openCB;
+
 	MAC_Initialize(&btEventHandler, bluetoothParam, NULL, NULL, NULL);
 	currentMac = bluetoothParam;		
 
@@ -157,11 +170,11 @@ void COM_Manager_Initialization(uint8_t bluetoothParam){
 	CPU_GPIO_SetPinState(17, FALSE);
 }
 
-int COM_Manager_Get_Neighbor_Count(){
+int BTMAC_Manager_Get_Neighbor_Count(){
 	return current_neighbor_count;
 }
 
-void COM_Manager_Uninitialize(){
+void BTMAC_Manager_Uninitialize(){
 	MAC_UnInitialize();
 	current_neighbor_count = 0;
 }
@@ -252,23 +265,4 @@ int Message_Decrypt_Data(uint8_t *origBuffer, uint16_t buffer_size, uint8_t *dec
 	hal_printf("\r\n");
 
 	return dataLen;
-}
-
-void Message_Receive_From_CP( uint8_t *buffer, uint16_t buffer_size){
-	CK_BYTE encryptedData[128];
-
-		hal_printf("sending data: ");
-		PrintHex(buffer,buffer_size);
-
-	if (currentMac == BLUETOOTHMAC){
-		if (link_encrypted == true){
-			hal_printf("encrypted link\r\n");
-			int encryptSize = Message_Encrypt_Data(buffer, buffer_size, encryptedData);
-			MAC_Send(ENCRYPTED_DATA_CHANNEL, NULL, encryptedData, encryptSize);
-		} else {
-			MAC_Send(UNENCRYPTED_DATA_CHANNEL, NULL, buffer, buffer_size);
-		}
-	}
-	CPU_GPIO_SetPinState(17, TRUE);
-	CPU_GPIO_SetPinState(17, FALSE);
 }

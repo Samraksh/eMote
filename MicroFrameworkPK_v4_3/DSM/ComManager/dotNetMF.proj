@@ -43,7 +43,10 @@
     <Compile Include="ComManager.cpp" />
     <Compile Include="Ecdhp.cpp" />
     <Compile Include="Sessions.cpp" />
-    <Compile Include="SocketOps.cpp" />
+    <Compile Include="SecureChannel.cpp" />
+    <Compile Include="CP_Manager.cpp" />
+    
+    <!--<Compile Include="SocketOps.cpp" />-->
     
     <IncludePaths Include="DeviceCode\PAL" />
     <IncludePaths Include="Crypto\Inc" />

@@ -1,11 +1,11 @@
 #include "ComManager.h"
-#include "SocketOps.h"
+//#include "SocketOps.h"
 #include <Samraksh/VirtualTimer.h>
 
 
 bool comManagerInitialized=false;
-
-bool InitializeComManager(){
+/*
+bool InitializeComManagerSockets(){
 	if(comManagerInitialized) return true;
 
 	ClientInit(false);
@@ -24,11 +24,29 @@ bool InitializeComManager(){
 
 	return true;
 }
+*/
+
+void SecureReceive(void* buffer, UINT16 size){
+	hal_printf("\nComManager:: Received secure message of size %d\n", size);
+}
+
+void OpenReceive(void* buffer, UINT16 size){
+	hal_printf("\nComManager:: Received open message of size %d\n", size);
+}
+
+void COM_Manager_Initialization(uint8_t _param){
+	BTMAC_Manager_Initialization(_param, SecureReceive, OpenReceive);
+}
+
+void COM_Manager_Uninitialize(){
+	BTMAC_Manager_Uninitialize();
+}
 
 bool SendToSecurityServer(void *msgStruct, MsgTypeE mtype){
 	return TRUE;
 }
 
+/*
 void CheckRecv(void *arg){
 	int recv_data = recv(client_fd,rx_buffer,sizeof(rx_buffer),0);
 	if(recv_data > 0)
@@ -38,6 +56,7 @@ void CheckRecv(void *arg){
 		RecvHandler((uint8_t*)rx_buffer, recv_data);
 	}
 }
+*/
 
 void RecvHandler (uint8_t * msg, uint16_t size){
 	switch ((MsgTypeE)msg[0]) {
@@ -45,6 +64,11 @@ void RecvHandler (uint8_t * msg, uint16_t size){
 			case M_ECDH_RES:
 			case M_ECDH_FIN:
 				EcdhpStateMachine(msg,size);
+				break;
+			case M_SEC_M_CH: //Secure Management channel
+				break;
+			case M_SEC_D_CH: //Secure data channel
+
 				break;
 			default:
 				hal_printf("\nComManager:: Unknown message received\n");

@@ -52,7 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ComDirector.cpp" />
-    <Compile Include="COM_Manager.cpp" />
+    <Compile Include="btmacManager.cpp" />
 	<IncludePaths Include="DeviceCode\include" />
 	<IncludePaths Include="DeviceCode\pal\PKCS11" />
   </ItemGroup>

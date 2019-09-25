@@ -587,11 +587,14 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
             break;
                         
         case RFCOMM_DATA_PACKET:
-            log_info("RCV: '");
-            //for (i=0;i<size;i++){
-            //    putchar(packet[i]);
-            //}
-            log_info("\n");
+            //log_info("RCV: '");
+            log_always("RCV: '");
+            for (i=0;i<size;i++){
+                putchar(packet[i]);
+            }
+            //log_info("\n");
+            log_always("\n");
+
             break;
 
         default:
@@ -620,15 +623,18 @@ static uint16_t att_read_callback(hci_con_handle_t con_handle, uint16_t att_hand
 // write requests
 static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, uint16_t transaction_mode, uint16_t offset, uint8_t *buffer, uint16_t buffer_size){
     // ignore cancel sent for new connections
+	log_always("Received Something: ");
+
     if (transaction_mode == ATT_TRANSACTION_MODE_CANCEL) return 0;
     // find characteristic for handle
     switch (att_handle){
         case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_CLIENT_CONFIGURATION_HANDLE:
+        	log_always("Client configuration request received over Bluetooth: ");
             le_notification_enabled = little_endian_read_16(buffer, 0) == GATT_CLIENT_CHARACTERISTICS_CONFIGURATION_NOTIFICATION;
             return 0;
         case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE:
             att_encrypt_con_handle = con_handle;
-            //log_always("Encrypted data received over Bluetooth: ");
+            log_always("Encrypted data received over Bluetooth: ");
             //log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
 			btCallReceive(ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FB_01_VALUE_HANDLE, buffer, buffer_size);
             return 0;
@@ -645,8 +651,8 @@ static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, 
 			btCallReceive(ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FD_01_VALUE_HANDLE, buffer, buffer_size);
             return 0;
         default:
-            //log_always("*** undefined (%d) WRITE Callback, handle %04x, mode %u, offset %u, data: ",att_handle, con_handle, transaction_mode, offset);
-            //log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
+            log_always("*** undefined (%d) WRITE Callback, handle %04x, mode %u, offset %u, data size %d: ",att_handle, con_handle, transaction_mode, offset, buffer_size);
+            log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
             return 0;
     }
 }
@@ -683,8 +689,8 @@ int btstack_main(void)
 
     // setup SM: Display only
     sm_init();
-	//sm_set_io_capabilities(IO_CAPABILITY_NO_INPUT_NO_OUTPUT);
-    //sm_set_authentication_requirements(SM_AUTHREQ_BONDING);
+	sm_set_io_capabilities(IO_CAPABILITY_NO_INPUT_NO_OUTPUT);
+    sm_set_authentication_requirements(SM_AUTHREQ_BONDING);
     sm_event_callback_registration.callback = &packet_handler;
     sm_add_event_handler(&sm_event_callback_registration);
 

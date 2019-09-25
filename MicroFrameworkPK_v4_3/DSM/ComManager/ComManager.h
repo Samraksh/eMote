@@ -15,14 +15,16 @@ enum MsgTypeE {
 	M_ECDH_REQ,
 	//M_ECDH_ACK
 	M_ECDH_RES,
-	M_ECDH_FIN
+	M_ECDH_FIN,
+	M_SEC_M_CH, //Secure Management channel
+	M_SEC_D_CH, //secure data channel
 	//M_ECDH_TER
 };
 
 
 //typedef void *RecvFnPtr (uint8_t * msg, uint16_t size);
 
-void CheckRecv(void *arg);
+//void CheckRecv(void *arg);
 
 bool InitializeComManager();
 
