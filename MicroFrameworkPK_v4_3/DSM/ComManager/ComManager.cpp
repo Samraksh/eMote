@@ -28,6 +28,8 @@ bool InitializeComManagerSockets(){
 
 void SecureReceive(void* buffer, UINT16 size){
 	hal_printf("\nComManager:: Received secure message of size %d\n", size);
+	UINT8 msg[8]={'a','b', 'c', 'd', 'e', 'f', 'g', 'h'};
+	BTMAC_Manager_Send(msg, 8, ENCRYPTED_DATA_CHANNEL);
 }
 
 void OpenReceive(void* buffer, UINT16 size){
@@ -35,7 +37,7 @@ void OpenReceive(void* buffer, UINT16 size){
 }
 
 void COM_Manager_Initialization(uint8_t _param){
-	BTMAC_Manager_Initialization(_param, SecureReceive, OpenReceive);
+	BTMAC_Manager_Initialization(_param, OpenReceive, SecureReceive);
 }
 
 void COM_Manager_Uninitialize(){

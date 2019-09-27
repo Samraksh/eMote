@@ -1,0 +1,31 @@
+The Services Architecture:
+============================
+
+the architecture is based on simple standard library rpc in go on top of http. One could possibly replace http with simple tcp. 
+
+Look here for a simple example. https://astaxie.gitbooks.io/build-web-application-with-golang/en/08.4.html
+
+We are three services defined:
+
+- A gateway service: That will interact with the radio network and send receive packets. That is all it is supposed to do. Dont add any other logic to it.Gateway service does address mapping between the core service and the the MAC/network address of the device managed.
+Note: The core doesnt care if the gateway uses IP or Ethernet or Bluetooth.
+
+- Security Core: It provides all key security management services, including the packet formation
+and destination mantanence. Destinations are maintained as simple device IDs.
+
+- Mothership: Highlevel management entity. Issues policy directives or other events. Doesnt care how they get implemented.
+
+
+Design Methodology:
+=====================
+The Services.go file defines all the types, the request and response stuctures between the services, since the server and client needs to have a common definition.
+
+
+Go Dependencies:
+================
+-Nothing other than standard library
+
+Other Languages:
+================
+- A C# gateway implementation might be most useful.
+
