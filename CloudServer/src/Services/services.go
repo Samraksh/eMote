@@ -40,12 +40,25 @@ type GtwyStatusRequest struct {
 	Name string
 }
 
-//GtwyStatusResponse type to be used as response to status api
+//GtwySendRequest type to be used as first param to Send rpc to send a packet out on the radio
+type GtwySendRequest struct {
+	Message []byte
+	Size    int
+}
+
+//GtwySendResponse type to be used as second param to Send rpc
+type GtwySendResponse struct {
+	Status bool
+}
+
+/**** Core Services**********/
+
+//CoreStatusResponse type to be used as response to status api
 type CoreStatusResponse struct {
 	Status int
 }
 
-//GtwyStatusRequest type to be used as first param to status rpc
+//CoreStatusRequest type to be used as first param to status rpc
 type CoreStatusRequest struct {
 	Name string
 }

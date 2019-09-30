@@ -19,17 +19,7 @@ import (
 	"strconv"
 )
 
-/*
-//StatusResponse type to be used as response to status api
-type StatusResponse struct {
-	Status int
-}
-
-//StatusRequest type to be used as first param to status rpc
-type StatusRequest struct {
-	Name string
-}
-*/
+const MaxPktSize = 256
 
 //Gateway Main gateway service class.
 type Gateway struct{}
@@ -38,6 +28,17 @@ type Gateway struct{}
 func (g *Gateway) Status(req svs.GtwyStatusRequest, res *svs.GtwyStatusResponse) (err error) {
 	if req.Name == "" {
 		err = errors.New("A Service name must be specified")
+		return
+	}
+
+	res.Status = svs.GSGood
+	return
+}
+
+//Send RPC. Send a packet out on the network/radio interface
+func (g *Gateway) Send(req svs.GtwySendRequest, res *svs.GtwySendResponse) (err error) {
+	if req.Size > MaxPktSize {
+		err = errors.New("Packet is bigger than max allowed packet on the radio/network")
 		return
 	}
 
