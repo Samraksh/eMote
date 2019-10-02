@@ -646,7 +646,7 @@ static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, 
             return 0;
 		case ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FD_01_VALUE_HANDLE:
             att_cloud_con_handle = con_handle;
-            //log_always("Cloud data received over Bluetooth: ");
+            //log_always("Cloud data received over Bluetooth: %d",buffer_size);
             //log_hexdump(HCI_DUMP_LOG_LEVEL_ALWAYS, buffer, buffer_size);
 			btCallReceive(ATT_CHARACTERISTIC_0000FF11_0000_1000_8000_00805F9B34FD_01_VALUE_HANDLE, buffer, buffer_size);
             return 0;

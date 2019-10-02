@@ -18,7 +18,7 @@
 #include <Samraksh\Buffer.h>
 #include <Samraksh\Radio_decl.h>
 
-#define Buffer_15_4_t_SIZE 8
+#define Buffer_15_4_t_SIZE 2
 
 typedef Buffer_15_4<Buffer_15_4_t_SIZE> Buffer_15_4_t;
 

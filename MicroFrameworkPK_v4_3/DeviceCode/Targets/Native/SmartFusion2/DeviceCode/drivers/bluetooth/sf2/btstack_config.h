@@ -26,7 +26,7 @@
 //#define ENABLE_SCO_OVER_HCI
 
 // BTstack configuration. buffers, sizes, ...
-#define HCI_ACL_PAYLOAD_SIZE 1021
+#define HCI_ACL_PAYLOAD_SIZE 550 // max windows can send is 532
 #define MAX_NR_GATT_CLIENTS 1
 #define MAX_NR_HCI_CONNECTIONS 1
 #define MAX_NR_L2CAP_SERVICES  3

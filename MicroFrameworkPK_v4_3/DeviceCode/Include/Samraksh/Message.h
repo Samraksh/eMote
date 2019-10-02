@@ -190,7 +190,7 @@ enum PayloadTypeNative{
 
 
 //IEEE802.15.4 Message structure
-#define IEEE802_15_4_FRAME_LENGTH 128
+#define IEEE802_15_4_FRAME_LENGTH 750 // max windows bluetooth packet size is 532 (plus headers)
 
 //All fields up to 'network' are 802.15.4 specification fields, network is a option field for 6LowPAN compatibility
 //mac_id is Samraksh's Radio API to demultiplex radio packets
@@ -239,9 +239,9 @@ typedef struct PACK IEEE802_15_4_Header {
   //UINT16 srcpan;
   UINT16 src;
 
-  UINT8 length;
+  UINT16 length;
   UINT8 macName;
-  UINT8 payloadType;
+  UINT16 payloadType;
   UINT8 flags;
   //UINT8 retryAttempt;
 
@@ -256,7 +256,7 @@ typedef struct PACK IEEE802_15_4_Header {
   UINT8 GetDestConst() const{
 	  return dest;
   }
-  UINT8 GetPayloadTypeConst() const{
+  UINT16 GetPayloadTypeConst() const{
 	  return payloadType;
   }
   UINT8 GetFlagsConst() const{

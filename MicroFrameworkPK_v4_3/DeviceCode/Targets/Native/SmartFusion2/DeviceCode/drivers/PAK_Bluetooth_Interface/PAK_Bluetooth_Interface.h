@@ -72,7 +72,6 @@ private:
     bool              m_fMACInitialized;
     bool              m_fMACHandlerInitialized;
     bool              m_fMACInitializedByNativeBeforeInstall;
-    WP_Controller     m_controller;      //!< use the WireProtocol engine.
     WP_Message        m_outboundMessage; //!< used for echo and manager
 
     static WP_Message s_lastUsbMessage;  //!< when basestation, use for constructing correct sequence number in reply to PC.
@@ -85,6 +84,7 @@ private:
 
 
 public:
+    WP_Controller     m_controller;      //!< use the WireProtocol engine.
 	static const uint32_t c_Monitor_UpdateInit                       = 0x0000000F; //!< WireProtocol packet type.  Must match duplicate definition in TinyCLR_Debugging.h' CLR_DBG_Commands::
     static const uint32_t c_Monitor_UpdateDeInit                     = 0x00000010; //
     static const uint32_t c_Debugging_MFUpdate_Start                 = 0x00020056; //
@@ -128,8 +128,9 @@ public:
     static bool UnInitializeDriversBeforeInstall();
     static void Cleanup();
     static void DeleteInstance();
+	void SwapEndian(WP_Message* msg);
 
-    static void Receive(void* msg, uint16_t size);
+    static void Receive(uint8_t* payload, int size);
     static void SendAck(void* msg, uint16_t size, NetOpStatus status);
 
     static bool ReadReceiveBytes( void* state, unsigned char*& ptr, unsigned int & size );
@@ -150,7 +151,7 @@ public:
     // Pull MFUpdate functions from Debugger.cpp into this library to handle Wired + Wireless
     static bool UpdateInit           ( WP_Message* msg, void* owner );
     static bool UpdateDeInit         ( WP_Message* msg, void* owner );
-    static bool Start                ( WP_Message* msg, void* owner );
+    static bool Start                ( int binarySize, int totalPacketNum);
     static bool AuthCommand          ( WP_Message* msg, void* owner );
     static bool Authenticate         ( WP_Message* msg, void* owner );
     static bool GetMissingPkts       ( WP_Message* msg, void* owner );

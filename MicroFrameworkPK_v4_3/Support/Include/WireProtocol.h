@@ -112,12 +112,12 @@ struct WP_Message
 
 private:
     UINT8*         m_pos;
-    UINT32         m_size;
     UINT64         m_payloadTicks;
     int            m_rxState;
     //--//
 
 public:
+    UINT32         m_size;
     void Initialize( WP_Controller* parent );
 
     //--//
