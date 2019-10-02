@@ -38,16 +38,17 @@ type GtwyStatusResponse struct {
 //GtwyStatusRequest type to be used as first param to status rpc
 type GtwyStatusRequest struct {
 	Name string
+	IP   string
 }
 
-//GtwySendRequest type to be used as first param to Send rpc to send a packet out on the radio
-type GtwySendRequest struct {
+//MsgRequest type to be used as first param to Send rpc to send a packet out on the radio
+type MsgRequest struct {
 	Message []byte
 	Size    int
 }
 
-//GtwySendResponse type to be used as second param to Send rpc
-type GtwySendResponse struct {
+//MsgResponse type to be used as second param to Send rpc
+type MsgResponse struct {
 	Status bool
 }
 

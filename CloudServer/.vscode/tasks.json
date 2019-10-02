@@ -5,6 +5,20 @@
     //"command": "make",
     "tasks": [
         {
+            "label": "GoServices",
+            "type": "shell",
+            "kind": "build",
+            "isBuildCommand": true,
+            "showOutput": "always",
+            "args": [
+                "all"
+            ],
+            "command": "go build ${file}",
+            "options": {
+                "cwd": "${workspaceRoot}/src/services/Gateway"
+            },
+        },
+        {
             "label": "Com Makefile",
             "type": "shell",
             "kind": "build",
