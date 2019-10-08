@@ -1,15 +1,12 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"log"
-	"os"
-	"strings"
-	"time"
-
 	"github.com/paypal/gatt"
 	"github.com/paypal/gatt/examples/option"
+	"log"
+	"strings"
+	"time"
 )
 
 var done = make(chan struct{})
@@ -21,14 +18,17 @@ var cloudServiceSecureCharId = gatt.MustParseUUID("0000ff1100001000800000805f9b3
 //BtGattRadio instantiates a radio
 type BtGattRadio struct {
 	clientID   string
+	secChan    chan []byte
+	openChan   chan []byte
 	connected  bool
+	periph     gatt.Peripheral
 	SecureChar *gatt.Characteristic
 	OpenChar   *gatt.Characteristic
 }
 
 ///Returns the connected status of the radio
 func (r *BtGattRadio) IsConnected() bool {
-	return connected
+	return r.connected
 }
 
 func (r *BtGattRadio) onStateChanged(d gatt.Device, s gatt.State) {
@@ -44,8 +44,9 @@ func (r *BtGattRadio) onStateChanged(d gatt.Device, s gatt.State) {
 }
 
 func (r *BtGattRadio) onPeriphDiscovered(p gatt.Peripheral, a *gatt.Advertisement, rssi int) {
-	id := strings.ToUpper(flag.Args()[0])
-	if strings.ToUpper(p.ID()) != id {
+
+	if strings.ToUpper(p.ID()) != r.clientID {
+		log.Printf("Client ID mismatch: Found client %s, looking for %s \n", p.ID(), r.clientID)
 		return
 	}
 
@@ -151,6 +152,11 @@ func (r *BtGattRadio) onPeriphEnumeration(p gatt.Peripheral, err error) {
 	time.Sleep(5 * time.Second)
 }
 
+func (r *BtGattRadio) onOpenNotify(c *gatt.Characteristic, b []byte, e error) {
+	log.Printf("Got a secure msg %s\n", string(b))
+
+}
+
 func (r *BtGattRadio) onSecureNotify(c *gatt.Characteristic, b []byte, e error) {
 	log.Printf("Got a secure msg %s\n", string(b))
 }
@@ -225,7 +231,7 @@ func (r *BtGattRadio) onPeriphConnected(p gatt.Peripheral, err error) {
 					*/
 
 					if (c.Properties() & (gatt.CharNotify)) != 0 {
-						err := p.SetNotifyValue(c, onSecureNotify)
+						err := p.SetNotifyValue(c, r.onSecureNotify)
 						if err != nil {
 							fmt.Printf("Failed to subscribe  to secue characteristic, err: %s\n", err)
 						}
@@ -245,9 +251,9 @@ func (r *BtGattRadio) onPeriphConnected(p gatt.Peripheral, err error) {
 	time.Sleep(5 * time.Second)
 }
 
-func (r *BtGattRadio) WriteCharacteristic(c *gatt.Characteristic, b []byte, size int) error {
+func (r *BtGattRadio) WriteCharacteristic(c *gatt.Characteristic, b []byte, size int) (err error) {
 	fmt.Printf("Going to write some stuff to radio")
-	err = p.WriteCharacteristic(c, b, true)
+	err = r.periph.WriteCharacteristic(c, b, true)
 	if err != nil {
 		fmt.Printf("Failed to write to secure characteristic, err: %s\n", err)
 	} else {
@@ -257,11 +263,11 @@ func (r *BtGattRadio) WriteCharacteristic(c *gatt.Characteristic, b []byte, size
 }
 
 func (r *BtGattRadio) SendSecure(b []byte, size int) error {
-	r.WriteCharacteristic(SecureChar, b, size)
+	return r.WriteCharacteristic(r.SecureChar, b, size)
 }
 
 func (r *BtGattRadio) SendOpen(b []byte, size int) error {
-	r.WriteCharacteristic(SecureChar, b, size)
+	return r.WriteCharacteristic(r.OpenChar, b, size)
 }
 
 func (r *BtGattRadio) onPeriphDisconnected(p gatt.Peripheral, err error) {
@@ -271,11 +277,11 @@ func (r *BtGattRadio) onPeriphDisconnected(p gatt.Peripheral, err error) {
 
 //InitConn Initializes the connection to the bt radio
 func (r *BtGattRadio) InitConn() {
-	flag.Parse()
+	/*flag.Parse()
 	if len(flag.Args()) != 1 {
 		log.Fatalf("usage: %s [options] peripheral-id\n", os.Args[0])
 	}
-
+	*/
 	d, err := gatt.NewDevice(option.DefaultClientOptions...)
 	if err != nil {
 		log.Fatalf("Failed to open device, err: %s\n", err)
@@ -284,13 +290,21 @@ func (r *BtGattRadio) InitConn() {
 
 	// Register handlers.
 	d.Handle(
-		gatt.PeripheralDiscovered(onPeriphDiscovered),
-		gatt.PeripheralConnected(onPeriphConnected),
+		gatt.PeripheralDiscovered(r.onPeriphDiscovered),
+		gatt.PeripheralConnected(r.onPeriphConnected),
 		//gatt.PeripheralConnected(onPeriphEnumeration),
-		gatt.PeripheralDisconnected(onPeriphDisconnected),
+		gatt.PeripheralDisconnected(r.onPeriphDisconnected),
 	)
 
-	d.Init(onStateChanged)
+	d.Init(r.onStateChanged)
 	<-done
 	fmt.Println("Done")
+}
+
+func NewBtGattRadio(clientID string, secChan chan []byte, openChan chan []byte) *BtGattRadio {
+	r := new(BtGattRadio)
+	r.clientID = clientID
+	r.secChan = secChan
+	r.openChan = openChan
+	return r
 }
