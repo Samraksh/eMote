@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/paypal/gatt"
-	"github.com/paypal/gatt/examples/option"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/paypal/gatt"
+	"github.com/paypal/gatt/examples/option"
 )
 
 var done = make(chan struct{})
@@ -235,6 +236,35 @@ func (r *BtGattRadio) onPeriphConnected(p gatt.Peripheral, err error) {
 						if err != nil {
 							fmt.Printf("Failed to subscribe  to secue characteristic, err: %s\n", err)
 						}
+						r.SecureChar = c
+					}
+
+					break
+				}
+				if c.UUID().Equal(cloudServiceOpenCharId) {
+					fmt.Println("Checking for the open characteristic ...")
+
+					// Discovery descriptors
+					_, err := p.DiscoverDescriptors(nil, c)
+					if err != nil {
+						fmt.Printf("Failed to discover descriptors, err: %s\n", err)
+						continue
+					}
+
+					/*val, err := p.ReadCharacteristic(c)
+					if err != nil {
+						fmt.Printf("Error reading secure characteristic, err: %s\n", err)
+					} else {
+						fmt.Printf("Read value is: %s\n", val)
+					}
+					*/
+
+					if (c.Properties() & (gatt.CharNotify)) != 0 {
+						err := p.SetNotifyValue(c, r.onOpenNotify)
+						if err != nil {
+							fmt.Printf("Failed to subscribe  to secue characteristic, err: %s\n", err)
+						}
+						r.OpenChar = c
 					}
 
 					break
@@ -277,6 +307,7 @@ func (r *BtGattRadio) onPeriphDisconnected(p gatt.Peripheral, err error) {
 
 //InitConn Initializes the connection to the bt radio
 func (r *BtGattRadio) InitConn() {
+	log.Println("Initializing bluetooth radio")
 	/*flag.Parse()
 	if len(flag.Args()) != 1 {
 		log.Fatalf("usage: %s [options] peripheral-id\n", os.Args[0])
@@ -297,8 +328,13 @@ func (r *BtGattRadio) InitConn() {
 	)
 
 	d.Init(r.onStateChanged)
+	//<-done
+	//fmt.Println("Done")
+}
+
+func (r *BtGattRadio) CloseConn() {
 	<-done
-	fmt.Println("Done")
+	log.Println("terminated bluetooth connection")
 }
 
 func NewBtGattRadio(clientID string, secChan chan []byte, openChan chan []byte) *BtGattRadio {

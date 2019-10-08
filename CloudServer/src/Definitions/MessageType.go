@@ -18,3 +18,9 @@ type IPMsg struct {
 	Msg  []byte
 	Addr net.Addr
 }
+
+//
+type GenMsg struct {
+	Msg  []byte
+	Addr string
+}

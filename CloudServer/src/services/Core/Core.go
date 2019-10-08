@@ -41,6 +41,7 @@ type GatewayC struct {
 type Core struct {
 	initialized bool
 	deviceMap   map[string]GatewayC
+	pktHndlr    *PacketHandler
 }
 
 //NewCore constructor for core
@@ -66,6 +67,7 @@ func (cs *Core) Receive(req svs.MsgRequest, res *svs.MsgResponse) (err error) {
 	//g.sendToRadio(req.Message, req.Size)
 	log.Printf("Received a pkt from RG of size %d\n", req.Size)
 	res.Status = true
+	go cs.pktHndlr.IncomingMsgHandler(req.Message, req.Addr)
 	return
 }
 
@@ -121,7 +123,7 @@ func (cs *Core) InitializeSecureChannel(dtAddress string) {
 //SendToGateway Sends a message to a already connected gateway through rpc
 func (cs *Core) SendToGateway(msg []byte, dtAddress string) (err error) {
 	// Synchronous call
-	req := svs.MsgRequest{msg, len(msg)}
+	req := svs.MsgRequest{msg, len(msg), dtAddress}
 	var reply svs.MsgResponse
 
 	if val, ok := cs.deviceMap[dtAddress]; ok {
@@ -132,6 +134,15 @@ func (cs *Core) SendToGateway(msg []byte, dtAddress string) (err error) {
 	}
 	fmt.Printf("Core Sending Message Status: %d\n", reply.Status)
 	return err
+}
+
+func (cs *Core) OutGoingMsgHandler() {
+	log.Println("Core: Outgoing hndlr is running...")
+	for {
+		outM := <-cs.pktHndlr.DeviceMsgChan
+		//fmt.Println("PktHdlr: Sending out a msg")
+		cs.SendToGateway(outM.Msg, outM.Addr)
+	}
 }
 
 func main() {
@@ -152,7 +163,12 @@ func main() {
 	//start a concurrent thread to lauch the rpc server
 	go core.startRPCServer()
 
+	//initialize the gateway device
 	core.InitDevice(dtAddress)
+
+	//start the core packethandler and the device manager
+	core.pktHndlr = new(PacketHandler)
+	go core.OutGoingMsgHandler()
 
 	for {
 		time.Sleep(time.Millisecond * 100)

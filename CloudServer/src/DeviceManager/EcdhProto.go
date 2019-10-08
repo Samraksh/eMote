@@ -13,17 +13,19 @@ import (
 	"crypto/hmac"
 	cr "crypto/rand"
 	"crypto/sha256"
+
 	//eb "encoding/binary"
 	//"encoding/hex"
 	"fmt"
-	"github.com/aead/ecdh"
-	"github.com/kelindar/binary"
 	"log"
 	mr "math/rand"
+
+	"github.com/aead/ecdh"
+	"github.com/kelindar/binary"
+
 	//"time"
 	Def "Definitions"
 	"bytes"
-	"net"
 )
 
 //cloud security manager implements the interfaces of the securitymanager
@@ -317,7 +319,7 @@ func (dhp *EcdhProto) PutPeerPublicKey(mpub []byte) {
 }
 
 /////////////////////////////Main state machine for the protocol
-func EcdhpStateMachine(msg []byte, dataC *chan Def.IPMsg, inaddr net.Addr) {
+func EcdhpStateMachine(msg []byte, dataC *chan Def.GenMsg, inaddr string) {
 	var outB []byte
 	ret := UnMarshall(msg)
 	switch ret := ret.(type) {
@@ -362,7 +364,7 @@ func EcdhpStateMachine(msg []byte, dataC *chan Def.IPMsg, inaddr net.Addr) {
 	//created the response, this needs to be sent out.
 	if outB != nil {
 		//fmt.Println("Sending response back to socket")
-		*dataC <- Def.IPMsg{
+		*dataC <- Def.GenMsg{
 			Addr: inaddr,
 			Msg:  outB,
 		}

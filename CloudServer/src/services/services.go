@@ -45,6 +45,7 @@ type GtwyStatusRequest struct {
 type MsgRequest struct {
 	Message []byte
 	Size    int
+	Addr    string
 }
 
 //MsgResponse type to be used as second param to Send rpc

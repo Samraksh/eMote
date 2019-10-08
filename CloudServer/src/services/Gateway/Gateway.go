@@ -28,6 +28,7 @@ const MaxPktSize = 256
 //Gateway Main gateway service class.
 type Gateway struct {
 	core        *rpc.Client
+	clientID    string
 	secRcvChan  chan []byte
 	openRcvChan chan []byte
 }
@@ -67,7 +68,7 @@ func (g *Gateway) sendToRadio(msg []byte, size int) {
 
 func (g *Gateway) sendToCore(msg []byte, size int) (err error) {
 	// Synchronous call
-	req := svs.MsgRequest{msg, len(msg)}
+	req := svs.MsgRequest{msg, len(msg), g.clientID}
 	var reply svs.MsgResponse
 
 	if g.core != nil {
@@ -77,7 +78,7 @@ func (g *Gateway) sendToCore(msg []byte, size int) (err error) {
 		return errors.New("Core link does not exist ")
 	}
 
-	fmt.Printf("Core Sending Message Status: %d\n", reply.Status)
+	fmt.Printf("Core Sending Message Status: %t\n", reply.Status)
 	return err
 }
 
@@ -94,6 +95,12 @@ func (g *Gateway) secReceive() {
 		msg := <-g.secRcvChan
 		log.Println("Received a secure msg from gateway of length: ", len(msg))
 		g.sendToCore(msg, len(msg))
+	}
+}
+func startRPCServer() {
+	err := http.ListenAndServe(":"+strconv.Itoa(svs.GSPort), nil)
+	if err != nil {
+		fmt.Println(err.Error())
 	}
 }
 
@@ -115,14 +122,11 @@ func main() {
 	//instantiate new radio module
 	radio := NewBtGattRadio(clientID, gateway.secRcvChan, gateway.openRcvChan)
 
+	gateway.clientID = clientID
 	//get the rpc server up and running
 	rpc.Register(gateway)
 	rpc.HandleHTTP()
-
-	err := http.ListenAndServe(":"+strconv.Itoa(svs.GSPort), nil)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
+	go startRPCServer()
 
 	//instialise the radio
 	radio.InitConn()
