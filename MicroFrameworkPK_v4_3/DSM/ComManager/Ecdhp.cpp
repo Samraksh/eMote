@@ -162,6 +162,7 @@ bool EcdhProto::PutPeerPublicKey(UINT8 *publicKey, UINT16 size) {
 //uses g_ServerEcdhp object.
 void EcdhpStateMachine(UINT8 *msg, UINT8 size)
 {
+	hal_printf("ECDHP state machine: \n");
 	void *outB;
 	MsgTypeE outT;
 	switch ((MsgTypeE)msg[0]) {

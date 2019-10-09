@@ -11,14 +11,25 @@
 #include <tinyhal.h>
 
 enum MsgTypeE {
-	M_UNKNOWN=0,
+	M_UNKNOWN=100,
 	M_ECDH_REQ,
 	//M_ECDH_ACK
 	M_ECDH_RES,
 	M_ECDH_FIN,
 	M_SEC_M_CH, //Secure Management channel
 	M_SEC_D_CH, //secure data channel
+	M_STATUS_RQ,
+	M_STATUS_RES,
+	M_SEC_STATUS_RQ,
+	M_SEC_STATUS_RES
 	//M_ECDH_TER
+};
+
+enum DeviceStatusE {
+	DS_Unknown=64,
+	DS_UnInit,
+	DS_SecComm,
+	DS_Good
 };
 
 

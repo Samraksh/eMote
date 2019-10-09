@@ -2,7 +2,7 @@
 //#include "SocketOps.h"
 #include <Samraksh/VirtualTimer.h>
 
-
+uint8_t deviceStatus=DS_UnInit;
 bool comManagerInitialized=false;
 /*
 bool InitializeComManagerSockets(){
@@ -32,12 +32,30 @@ void SecureReceive(void* buffer, UINT16 size){
 	BTMAC_Manager_Send(msg, 8, ENCRYPTED_DATA_CHANNEL);
 }
 
-void OpenReceive(void* buffer, UINT16 size){
-	hal_printf("\nComManager:: Received open message of size %d\n", size);
+void OpenCloudReceive(void* buffer, UINT16 size){
+	hal_printf("ComManager:: Received open message of size %d\n", size);
+	UINT8 *msg = (UINT8*)buffer;
+	switch(msg[0]){
+		case M_ECDH_REQ:
+		case M_ECDH_RES:
+		case M_ECDH_FIN:
+			EcdhpStateMachine(msg, size);
+			break;
+		case M_STATUS_RQ:
+			UINT8 reply[8];
+			reply[0]= M_STATUS_RES;
+			reply[1]= deviceStatus;
+			hal_printf("ComManager:: OpenReceive: This is a status request from Cloud, responding \n");
+			BTMAC_Manager_Send(reply, 8, CLOUD_CHANNEL);
+			break;
+		case M_UNKNOWN:
+		default:
+			hal_printf("\nComManager:: Received  unknown open message of size %d\n", size);
+	}
 }
 
 void COM_Manager_Initialization(uint8_t _param){
-	BTMAC_Manager_Initialization(_param, OpenReceive, SecureReceive);
+	BTMAC_Manager_Initialization(_param, OpenCloudReceive, SecureReceive);
 }
 
 void COM_Manager_Uninitialize(){
