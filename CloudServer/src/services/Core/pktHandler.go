@@ -8,30 +8,35 @@ import (
 )
 
 type PacketHandler struct {
-	DeviceMsgChan chan Def.GenMsg
-	sc            *SecureComs
+	DeviceSecMsgChan  chan Def.GenMsg
+	DeviceOpenMsgChan chan Def.GenMsg
+	sc                *SecureComs
 }
 
-func (hndlr *PacketHandler) Init() {
+func NewPacketHandler() *PacketHandler {
+	hndlr := new(PacketHandler)
+	hndlr.DeviceSecMsgChan = make(chan Def.GenMsg, 2)
+	hndlr.DeviceOpenMsgChan = make(chan Def.GenMsg, 2)
 	hndlr.sc = new(SecureComs)
+	return hndlr
 }
 
 func (hndlr *PacketHandler) InitiateSecureChannel(device string) {
 	var dhp *dm.EcdhProto = dm.NewEcdhProto(384)
 	bmsg := dhp.Initiate()
 	if bmsg != nil {
-		hndlr.DeviceMsgChan <- Def.GenMsg{
+		hndlr.DeviceOpenMsgChan <- Def.GenMsg{
 			Addr: device,
 			Msg:  bmsg,
 		}
-		log.Println("Ecdh initiated with device: ", device)
+		log.Println("Ecdh initiated with device: ", device, "Msg size: ", len(bmsg))
 	}
 }
 
 func (hndlr *PacketHandler) IncomingMsgHandler(msg []byte, addr string) {
 	switch msg[0] {
 	case Def.M_ECDH_REQ, Def.M_ECDH_RES, Def.M_ECDH_FIN:
-		dm.EcdhpStateMachine(msg, &hndlr.DeviceMsgChan, addr)
+		dm.EcdhpStateMachine(msg, &hndlr.DeviceOpenMsgChan, addr)
 	case Def.M_SEC_M_CH, Def.M_SEC_D_CH, Def.M_SEC_STATUS_RQ, Def.M_SEC_STATUS_RES:
 		hndlr.sc.HandleIncoming(msg, addr)
 	case Def.M_STATUS_RES:

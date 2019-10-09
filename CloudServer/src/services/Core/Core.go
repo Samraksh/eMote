@@ -82,18 +82,23 @@ func (cs *Core) startRPCServer() {
 }
 
 //InitDevice Initialize a device by connecting to its gateway address
-func (cs *Core) InitDevice(dtAddress string) (err error) {
+func (cs *Core) InitDevice(gtAddress string, deviceAddr string) (err error) {
 	//Connect to gateway service
-	fmt.Println("Connecting to gateway service at IP: ", dtAddress)
 
-	gtwy, err := rpc.DialHTTP("tcp", dtAddress+":"+strconv.Itoa(svs.GSPort))
-	if err != nil {
-		log.Fatal("dialing:", err)
+	log.Println("Will keep trying untill connection to gateway service at IP: ", gtAddress)
+	var gtwy *rpc.Client
+	for {
+		gtwy, err = rpc.DialHTTP("tcp", gtAddress+":"+strconv.Itoa(svs.GSPort))
+		if err != nil {
+			//log.Println("InitDevice: dialing:", err)
+		} else {
+			//insert the new gateway into the deviceMap
+			gtwyC := GatewayC{gtwy, DUnInit}
+			cs.deviceMap[deviceAddr] = gtwyC
+			break
+		}
+		time.Sleep(3 * time.Second)
 	}
-	//insert the new gateway into the deviceMap
-	gtwyC := GatewayC{gtwy, DUnInit}
-	cs.deviceMap[dtAddress] = gtwyC
-
 	// Synchronous call
 	req := svs.GtwyStatusRequest{"Core", "localhost"}
 	var reply svs.GtwyStatusResponse
@@ -106,11 +111,11 @@ func (cs *Core) InitDevice(dtAddress string) (err error) {
 
 	if reply.Status == svs.GSGood {
 		//update the status
-		device := cs.deviceMap[dtAddress]
+		device := cs.deviceMap[deviceAddr]
 		device.State = DNoKey
-		cs.deviceMap[dtAddress] = device
+		cs.deviceMap[deviceAddr] = device
 		//Start the periodic handler
-		cs.InitializeSecureChannel(dtAddress)
+		//cs.InitializeSecureChannel(dtAddress)
 	}
 	return nil
 }
@@ -118,32 +123,40 @@ func (cs *Core) InitDevice(dtAddress string) (err error) {
 //InitializeSecureChannel Initialize a secure channel by trigger key setup
 func (cs *Core) InitializeSecureChannel(dtAddress string) {
 	msg := []byte{0, 'g', 'o', 'l', 'a', 'n', 'g'} // first byte indicates open/secure
-	cs.SendToGateway(msg, dtAddress)
+	cs.SendToGateway(msg, dtAddress, false)
 }
 
 //SendToGateway Sends a message to a already connected gateway through rpc
-func (cs *Core) SendToGateway(msg []byte, dtAddress string) (err error) {
+func (cs *Core) SendToGateway(msg []byte, dtAddress string, sec bool) (err error) {
 	// Synchronous call
-	nmsg := msg[1:]
-	req := svs.MsgRequest{nmsg, len(nmsg), dtAddress, (msg[0] >= 1)}
+	req := svs.MsgRequest{msg, len(msg), dtAddress, sec}
 	var reply svs.MsgResponse
-
+	fmt.Printf("SendToGateway:: Sending to gateway  %d\n", dtAddress)
 	if val, ok := cs.deviceMap[dtAddress]; ok {
 		//device connection is initialized
 		err = val.gtwy.Call("Gateway.Send", req, &reply)
 	} else {
-		return errors.New("Device address does not exist in table")
+		err = errors.New("Device address does not exist in table")
 	}
-	fmt.Printf("Core Sending Message Status: %d\n", reply.Status)
+	fmt.Printf("SendToGateway:: Message Status: %d\n", reply.Status)
 	return err
 }
 
-func (cs *Core) OutGoingMsgHandler() {
+func (cs *Core) OutGoingSecMsgHandler() {
 	log.Println("Core: Outgoing hndlr is running...")
 	for {
-		outM := <-cs.pktHndlr.DeviceMsgChan
-		//fmt.Println("PktHdlr: Sending out a msg")
-		cs.SendToGateway(outM.Msg, outM.Addr)
+		outM := <-cs.pktHndlr.DeviceSecMsgChan
+		fmt.Println("OutGoingSecMsgHandler:: Sending out a msg")
+		cs.SendToGateway(outM.Msg, outM.Addr, true)
+	}
+}
+
+func (cs *Core) OutGoingOpenMsgHandler() {
+	log.Println("Core: Outgoing hndlr is running...")
+	for {
+		outM := <-cs.pktHndlr.DeviceOpenMsgChan
+		fmt.Println("OutGoingOpenMsgHandler:: Sending out a msg")
+		cs.SendToGateway(outM.Msg, outM.Addr, false)
 	}
 }
 
@@ -157,9 +170,10 @@ func main() {
 	//Initialize the device manager and devices db
 	dm.InitDB()
 
-	dtAddress := "localhost"
+	gtAddress := "localhost"
+	deviceAddr := "98:07:2D:37:DF:9B"
 	if len(os.Args) == 2 {
-		dtAddress = os.Args[1]
+		gtAddress = os.Args[1]
 		//os.Exit(1)
 	} else {
 		log.Println("No gateway IP provided.. using localhost")
@@ -168,12 +182,13 @@ func main() {
 	//start a concurrent thread to lauch the rpc server
 	go core.startRPCServer()
 
-	//initialize the gateway device
-	core.InitDevice(dtAddress)
+	//keep trying untill connection to gateway
+	go core.InitDevice(gtAddress, deviceAddr)
 
 	//start the core packethandler and the device manager
-	core.pktHndlr = new(PacketHandler)
-	go core.OutGoingMsgHandler()
+	core.pktHndlr = NewPacketHandler()
+	go core.OutGoingOpenMsgHandler()
+	go core.OutGoingSecMsgHandler()
 
 	for {
 		time.Sleep(time.Millisecond * 100)

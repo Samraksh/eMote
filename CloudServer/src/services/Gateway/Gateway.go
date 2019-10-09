@@ -34,6 +34,14 @@ type Gateway struct {
 	openRcvChan chan []byte
 }
 
+func NewGateway() *Gateway {
+	//instantiate gateway service
+	g := new(Gateway)
+	g.secRcvChan = make(chan []byte, 3)
+	g.openRcvChan = make(chan []byte, 3)
+	return g
+}
+
 //Status RPC. Reports status of the service
 func (g *Gateway) Status(req svs.GtwyStatusRequest, res *svs.GtwyStatusResponse) (err error) {
 	if req.Name == "" || req.IP == "" {
@@ -89,9 +97,14 @@ func (g *Gateway) sendToCore(msg []byte, size int) (err error) {
 
 func (g *Gateway) openReceive() {
 	for {
+		//log.Println("Waiting for open channel msges ")
 		msg := <-g.openRcvChan
 		log.Println("Received a open msg from gateway of length: ", len(msg))
-		g.sendToCore(msg, len(msg))
+		err := g.sendToCore(msg, len(msg))
+		if err != nil {
+			log.Println("Core link is not available")
+			//g.openRcvChan <- msg
+		}
 	}
 }
 
@@ -99,7 +112,11 @@ func (g *Gateway) secReceive() {
 	for {
 		msg := <-g.secRcvChan
 		log.Println("Received a secure msg from gateway of length: ", len(msg))
-		g.sendToCore(msg, len(msg))
+		err := g.sendToCore(msg, len(msg))
+		if err != nil {
+			log.Println("Core link is not available")
+			//g.secRcvChan <- msg
+		}
 	}
 }
 func startRPCServer() {
@@ -126,9 +143,8 @@ func main() {
 		clientID = strings.ToUpper(flag.Args()[0])
 	}
 
-	//instantiate gateway service
-	gateway := new(Gateway)
-
+	//instantiate new gateway
+	gateway := NewGateway()
 	//instantiate new radio module
 	gateway.radio = NewBtGattRadio(clientID, gateway.secRcvChan, gateway.openRcvChan)
 
@@ -138,12 +154,12 @@ func main() {
 	rpc.HandleHTTP()
 	go startRPCServer()
 
-	//instialise the radio
-	gateway.radio.InitConn()
-
 	//Start receiving threads
 	go gateway.openReceive()
 	go gateway.secReceive()
+
+	//instialise the radio
+	gateway.radio.InitConn()
 
 	//Send a status req
 	time.Sleep(5 * time.Second) //wait for 5 secs for discovery to happen

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"time"
 
 	"github.com/paypal/gatt"
 	"github.com/paypal/gatt/examples/option"
@@ -26,7 +25,17 @@ type BtGattRadio struct {
 	connected  bool
 	periph     gatt.Peripheral
 	SecureChar *gatt.Characteristic
-	OpenChar   *gatt.Characteristic
+	//charArray  [8]gatt.Characteristic
+	OpenChar *gatt.Characteristic
+}
+
+func NewBtGattRadio(clientID string, secChan chan []byte, openChan chan []byte) *BtGattRadio {
+	r := new(BtGattRadio)
+	//r.charArray = make([8]gatt.Characteristic)
+	r.clientID = clientID
+	r.secChan = secChan
+	r.openChan = openChan
+	return r
 }
 
 ///Returns the connected status of the radio
@@ -52,6 +61,7 @@ func (r *BtGattRadio) onPeriphDiscovered(p gatt.Peripheral, a *gatt.Advertisemen
 		log.Printf("Client ID mismatch: Found client %s, looking for %s \n", p.ID(), r.clientID)
 		return
 	}
+	r.periph = p
 
 	// Stop scanning once we've got the peripheral we're looking for.
 	p.Device().StopScanning()
@@ -66,6 +76,7 @@ func (r *BtGattRadio) onPeriphDiscovered(p gatt.Peripheral, a *gatt.Advertisemen
 	p.Device().Connect(p)
 }
 
+/*
 func (r *BtGattRadio) onPeriphEnumeration(p gatt.Peripheral, err error) {
 	fmt.Println("Connected")
 	defer p.Device().CancelConnection(p)
@@ -89,6 +100,7 @@ func (r *BtGattRadio) onPeriphEnumeration(p gatt.Peripheral, err error) {
 		fmt.Println(msg)
 
 		// Discovery characteristics
+		//var err error
 		cs, err := p.DiscoverCharacteristics(nil, s)
 		if err != nil {
 			fmt.Printf("Failed to discover characteristics, err: %s\n", err)
@@ -154,19 +166,22 @@ func (r *BtGattRadio) onPeriphEnumeration(p gatt.Peripheral, err error) {
 	fmt.Printf("Waiting for 5 seconds to get some notifiations, if any.\n")
 	time.Sleep(5 * time.Second)
 }
+*/
 
 func (r *BtGattRadio) onOpenNotify(c *gatt.Characteristic, b []byte, e error) {
-	log.Printf("Got a secure msg %s\n", string(b))
-
+	log.Printf("Got a Open msg %s\n", string(b))
+	r.openChan <- b
 }
 
 func (r *BtGattRadio) onSecureNotify(c *gatt.Characteristic, b []byte, e error) {
 	log.Printf("Got a secure msg %s\n", string(b))
+	r.secChan <- b
 }
 
 func (r *BtGattRadio) onPeriphConnected(p gatt.Peripheral, err error) {
 	fmt.Println("Connected")
-	defer p.Device().CancelConnection(p)
+	r.periph = p
+	//defer p.Device().CancelConnection(p)
 
 	if err := p.SetMTU(500); err != nil {
 		fmt.Printf("Failed to set MTU, err: %s\n", err)
@@ -240,8 +255,6 @@ func (r *BtGattRadio) onPeriphConnected(p gatt.Peripheral, err error) {
 						}
 						r.SecureChar = c
 					}
-
-					break
 				}
 				if c.UUID().Equal(cloudServiceOpenCharId) {
 					fmt.Println("Checking for the open characteristic ...")
@@ -267,48 +280,65 @@ func (r *BtGattRadio) onPeriphConnected(p gatt.Peripheral, err error) {
 							fmt.Printf("Failed to subscribe  to secue characteristic, err: %s\n", err)
 						}
 						r.OpenChar = c
+						fmt.Printf("Open char ptr %p \n", c)
+						//r.connected = true
+						//r.SendStatusReq()
 					}
 					r.connected = true
-
-					break
+					/*
+						m := []byte{'g', 'o', 'l', 'a', 'n', 'g'}
+						err = r.periph.WriteCharacteristic(r.OpenChar, m, true)
+						if err != nil {
+							fmt.Printf("Failed to write to secure characteristic, err: %s\n", err)
+						} else {
+							fmt.Printf("Successfully wrote to the secure characteristic \n")
+						}
+					*/
 				}
 				fmt.Println("next char")
 			}
 
-			fmt.Println("exit secure char")
 		} //if cloud secure
 		fmt.Println("Next service")
 	}
 
 	//fmt.Printf("Waiting for 5 seconds to get some notifiations, if any.\n")
-	for {
-		time.Sleep(5 * time.Second)
-	}
+	//time.Sleep(5 * time.Second)
+	//r.SendStatusReq()
+	//for {
+	//	time.Sleep(5 * time.Second)
+	//}
 }
 
 func (r *BtGattRadio) WriteCharacteristic(c *gatt.Characteristic, b []byte, size int) (err error) {
-	fmt.Printf("Going to write some stuff to radio")
+	fmt.Printf("WriteCharacteristic:: Going to write %d bytes to radio....", size)
 	err = r.periph.WriteCharacteristic(c, b, true)
 	if err != nil {
 		fmt.Printf("Failed to write to secure characteristic, err: %s\n", err)
 	} else {
-		fmt.Printf("Successfully wrote to the secure characteristic \n")
+		//fmt.Printf("Successfully wrote to the characteristic \n")
 	}
+
+	fmt.Printf("WriteCharacteristic:: Done.\n")
 	return err
 }
 
 func (r *BtGattRadio) SendSecure(b []byte, size int) error {
 	if r.connected {
+		//fmt.Printf("Connection detected")
 		return r.WriteCharacteristic(r.SecureChar, b, size)
 	} else {
+		//fmt.Printf("No Connection detected")
 		return errors.New("No radio connection")
 	}
 }
 
 func (r *BtGattRadio) SendOpen(b []byte, size int) error {
 	if r.connected {
+		//fmt.Printf("Connection detected")
 		return r.WriteCharacteristic(r.OpenChar, b, size)
 	} else {
+		//fmt.Printf("No radio detected")
 		return errors.New("No radio connection")
 	}
 }
@@ -337,12 +367,14 @@ func (r *BtGattRadio) InitConn() {
 		gatt.PeripheralDiscovered(r.onPeriphDiscovered),
 		gatt.PeripheralConnected(r.onPeriphConnected),
 		//gatt.PeripheralConnected(onPeriphEnumeration),
-		//gatt.PeripheralDisconnected(r.onPeriphDisconnected),
+		gatt.PeripheralDisconnected(r.onPeriphDisconnected),
 	)
 
 	d.Init(r.onStateChanged)
 	//<-done
 	//fmt.Println("Done")
+	//test := []byte{1, 2, 3, 4}
+	//r.openChan <- test
 }
 
 func (r *BtGattRadio) CloseConn() {
@@ -350,10 +382,8 @@ func (r *BtGattRadio) CloseConn() {
 	log.Println("terminated bluetooth connection")
 }
 
-func NewBtGattRadio(clientID string, secChan chan []byte, openChan chan []byte) *BtGattRadio {
-	r := new(BtGattRadio)
-	r.clientID = clientID
-	r.secChan = secChan
-	r.openChan = openChan
-	return r
+func (r *BtGattRadio) SendStatusReq() {
+	log.Println("Gateway: Sending a status request to device")
+	msg := []byte{106, 1, 2, 3, 4, 5, 6, 7}
+	r.SendOpen(msg, 8)
 }
