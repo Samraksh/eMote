@@ -8,7 +8,7 @@ core:Core
 gtwy: Gateway
 
 Core:
-	$(CC) -o $@.exe $(SDIR)/$@/$@.go $(SDIR)/$@/pktHandler.go 
+	$(CC) -o $@.exe $(SDIR)/$@/$@.go $(SDIR)/$@/pktHandler.go $(SDIR)/$@/SecureComs.go
 
 Gateway:
 	$(CC) -o $@.exe $(SDIR)/$@/$@.go $(SDIR)/$@/BtGatt.go

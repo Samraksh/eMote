@@ -11,6 +11,7 @@ The method has return type error
 */
 
 import (
+	dm "DeviceManager"
 	"errors"
 	"fmt"
 	"log"
@@ -151,6 +152,9 @@ func main() {
 	core := NewCore()
 	rpc.Register(core)
 	rpc.HandleHTTP()
+
+	//Initialize the device manager and devices db
+	dm.InitDB()
 
 	dtAddress := "localhost"
 	if len(os.Args) == 2 {

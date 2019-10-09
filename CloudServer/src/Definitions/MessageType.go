@@ -7,6 +7,7 @@ import (
 //type MsgType byte
 const (
 	M_UNKNOWN byte = iota
+	M_SEC_COM
 	M_ECDH_REQ
 	//M_ECDH_ACK
 	M_ECDH_RES
