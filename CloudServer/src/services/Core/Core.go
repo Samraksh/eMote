@@ -117,14 +117,15 @@ func (cs *Core) InitDevice(dtAddress string) (err error) {
 
 //InitializeSecureChannel Initialize a secure channel by trigger key setup
 func (cs *Core) InitializeSecureChannel(dtAddress string) {
-	msg := []byte{'s', 'g', 'o', 'l', 'a', 'n', 'g'}
+	msg := []byte{0, 'g', 'o', 'l', 'a', 'n', 'g'} // first byte indicates open/secure
 	cs.SendToGateway(msg, dtAddress)
 }
 
 //SendToGateway Sends a message to a already connected gateway through rpc
 func (cs *Core) SendToGateway(msg []byte, dtAddress string) (err error) {
 	// Synchronous call
-	req := svs.MsgRequest{msg, len(msg), dtAddress}
+	nmsg := msg[1:]
+	req := svs.MsgRequest{nmsg, len(nmsg), dtAddress, (msg[0] >= 1)}
 	var reply svs.MsgResponse
 
 	if val, ok := cs.deviceMap[dtAddress]; ok {

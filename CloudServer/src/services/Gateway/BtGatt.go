@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -13,8 +14,9 @@ import (
 var done = make(chan struct{})
 
 var cloudServiceId = gatt.MustParseUUID("0000ff1000001000800000805f9b34fb") // 6e400001-b5a3-f393-e0a9-e50e24dcca9e")
-var cloudServiceOpenCharId = gatt.MustParseUUID("0000ff1100001000800000805f9b34fc")
+//var cloudServiceOpenCharId = gatt.MustParseUUID("0000ff1100001000800000805f9b34fc")
 var cloudServiceSecureCharId = gatt.MustParseUUID("0000ff1100001000800000805f9b34fb")
+var cloudServiceOpenCharId = gatt.MustParseUUID("0000ff1100001000800000805f9b34fd")
 
 //BtGattRadio instantiates a radio
 type BtGattRadio struct {
@@ -266,6 +268,7 @@ func (r *BtGattRadio) onPeriphConnected(p gatt.Peripheral, err error) {
 						}
 						r.OpenChar = c
 					}
+					r.connected = true
 
 					break
 				}
@@ -277,8 +280,10 @@ func (r *BtGattRadio) onPeriphConnected(p gatt.Peripheral, err error) {
 		fmt.Println("Next service")
 	}
 
-	fmt.Printf("Waiting for 5 seconds to get some notifiations, if any.\n")
-	time.Sleep(5 * time.Second)
+	//fmt.Printf("Waiting for 5 seconds to get some notifiations, if any.\n")
+	for {
+		time.Sleep(5 * time.Second)
+	}
 }
 
 func (r *BtGattRadio) WriteCharacteristic(c *gatt.Characteristic, b []byte, size int) (err error) {
@@ -293,11 +298,19 @@ func (r *BtGattRadio) WriteCharacteristic(c *gatt.Characteristic, b []byte, size
 }
 
 func (r *BtGattRadio) SendSecure(b []byte, size int) error {
-	return r.WriteCharacteristic(r.SecureChar, b, size)
+	if r.connected {
+		return r.WriteCharacteristic(r.SecureChar, b, size)
+	} else {
+		return errors.New("No radio connection")
+	}
 }
 
 func (r *BtGattRadio) SendOpen(b []byte, size int) error {
-	return r.WriteCharacteristic(r.OpenChar, b, size)
+	if r.connected {
+		return r.WriteCharacteristic(r.OpenChar, b, size)
+	} else {
+		return errors.New("No radio connection")
+	}
 }
 
 func (r *BtGattRadio) onPeriphDisconnected(p gatt.Peripheral, err error) {
@@ -324,7 +337,7 @@ func (r *BtGattRadio) InitConn() {
 		gatt.PeripheralDiscovered(r.onPeriphDiscovered),
 		gatt.PeripheralConnected(r.onPeriphConnected),
 		//gatt.PeripheralConnected(onPeriphEnumeration),
-		gatt.PeripheralDisconnected(r.onPeriphDisconnected),
+		//gatt.PeripheralDisconnected(r.onPeriphDisconnected),
 	)
 
 	d.Init(r.onStateChanged)

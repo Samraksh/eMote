@@ -32,10 +32,16 @@ func (hndlr *PacketHandler) IncomingMsgHandler(msg []byte, addr string) {
 	switch msg[0] {
 	case Def.M_ECDH_REQ, Def.M_ECDH_RES, Def.M_ECDH_FIN:
 		dm.EcdhpStateMachine(msg, &hndlr.DeviceMsgChan, addr)
-	case Def.M_SEC_COM:
+	case Def.M_SEC_M_CH, Def.M_SEC_D_CH, Def.M_SEC_STATUS_RQ, Def.M_SEC_STATUS_RES:
 		hndlr.sc.HandleIncoming(msg, addr)
+	case Def.M_STATUS_RES:
+		if msg[1] == byte(dm.DS_UnInit) {
+			log.Println("Device: ", addr, "status is not initialized")
+			hndlr.InitiateSecureChannel(addr)
+		} else {
+			log.Printf("Unknown device status %d\n", msg[1])
+		}
 	case Def.M_UNKNOWN:
-		hndlr.InitiateSecureChannel(addr)
 	default:
 		fmt.Println("PktHndlr::RouteMsg: Received an unknown message type, droping it.")
 	}

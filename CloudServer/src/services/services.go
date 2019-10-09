@@ -46,6 +46,7 @@ type MsgRequest struct {
 	Message []byte
 	Size    int
 	Addr    string
+	Secure  bool
 }
 
 //MsgResponse type to be used as second param to Send rpc

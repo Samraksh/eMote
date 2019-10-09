@@ -28,6 +28,7 @@ const MaxPktSize = 256
 //Gateway Main gateway service class.
 type Gateway struct {
 	core        *rpc.Client
+	radio       *BtGattRadio
 	clientID    string
 	secRcvChan  chan []byte
 	openRcvChan chan []byte
@@ -55,20 +56,24 @@ func (g *Gateway) Send(req svs.MsgRequest, res *svs.MsgResponse) (err error) {
 		err = errors.New("Packet is bigger than max allowed packet on the radio/network")
 		return
 	} else {
-		g.sendToRadio(req.Message, req.Size)
+		g.sendToRadio(req.Message, req.Size, req.Secure)
 	}
 	res.Status = true
 	return
 }
 
-func (g *Gateway) sendToRadio(msg []byte, size int) {
+func (g *Gateway) sendToRadio(msg []byte, size int, secChannel bool) {
 	log.Printf("Sending a message of size %d to radio\n", size)
-	g.sendToCore(msg, size)
+	if secChannel {
+		g.radio.SendSecure(msg, size)
+	} else {
+		g.radio.SendOpen(msg, size)
+	}
 }
 
 func (g *Gateway) sendToCore(msg []byte, size int) (err error) {
 	// Synchronous call
-	req := svs.MsgRequest{msg, len(msg), g.clientID}
+	req := svs.MsgRequest{msg, len(msg), g.clientID, false}
 	var reply svs.MsgResponse
 
 	if g.core != nil {
@@ -104,6 +109,11 @@ func startRPCServer() {
 	}
 }
 
+func (g *Gateway) SendStatusReq() {
+	log.Println("Gateway: Sending a status request to device")
+	msg := []byte{106, 1, 2, 3, 4, 5, 6, 7}
+	g.radio.SendOpen(msg, 8)
+}
 func main() {
 	//Parse the client radio ID
 	flag.Parse()
@@ -120,7 +130,7 @@ func main() {
 	gateway := new(Gateway)
 
 	//instantiate new radio module
-	radio := NewBtGattRadio(clientID, gateway.secRcvChan, gateway.openRcvChan)
+	gateway.radio = NewBtGattRadio(clientID, gateway.secRcvChan, gateway.openRcvChan)
 
 	gateway.clientID = clientID
 	//get the rpc server up and running
@@ -129,11 +139,16 @@ func main() {
 	go startRPCServer()
 
 	//instialise the radio
-	radio.InitConn()
+	gateway.radio.InitConn()
 
 	//Start receiving threads
 	go gateway.openReceive()
 	go gateway.secReceive()
+
+	//Send a status req
+	time.Sleep(5 * time.Second) //wait for 5 secs for discovery to happen
+	gateway.SendStatusReq()
+
 	//Wait for events
 	for {
 		time.Sleep(time.Millisecond * 100)
