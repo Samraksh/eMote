@@ -92,7 +92,7 @@ void BTMAC_Manager_Receive(void* buffer, UINT16 payloadType) {
 			openRcvCB(msg->GetPayload(), size);
 
 			// all messages to the CP assume '\n' termination
-			//CP_SendMsgToCP(msg->GetPayload(), size);
+			CP_SendMsgToCP(msg->GetPayload(), size);
 			/*uint8_t testData[10];
 			testData[0] = 'c';
 			testData[1] = 'l';
@@ -266,3 +266,5 @@ int Message_Decrypt_Data(uint8_t *origBuffer, uint16_t buffer_size, uint8_t *dec
 
 	return dataLen;
 }
+
+

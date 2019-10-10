@@ -689,8 +689,8 @@ int btstack_main(void)
 
     // setup SM: Display only
     sm_init();
-	sm_set_io_capabilities(IO_CAPABILITY_NO_INPUT_NO_OUTPUT);
-    sm_set_authentication_requirements(SM_AUTHREQ_BONDING);
+	//sm_set_io_capabilities(IO_CAPABILITY_NO_INPUT_NO_OUTPUT);
+    //sm_set_authentication_requirements(SM_AUTHREQ_BONDING);
     sm_event_callback_registration.callback = &packet_handler;
     sm_add_event_handler(&sm_event_callback_registration);
 

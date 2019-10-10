@@ -46,6 +46,7 @@
     <Compile Include="ComputeProcessor.cpp" />
     <HFile Include="ComputeProcessor.h" />
     <IncludePaths Include="DeviceCode\include" />
+    <IncludePaths Include="DeviceCode\pal" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
