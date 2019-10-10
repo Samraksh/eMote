@@ -100,7 +100,7 @@ void BTMAC_Manager_Receive(void* buffer, UINT16 payloadType) {
 		int size = msg->GetHeader()->length - sizeof(IEEE802_15_4_Header_t);
 		Message_15_4_t msg_carrier;
 		IEEE802_15_4_Header_t* header = msg_carrier.GetHeader();	
-		uint8_t* payload = msg->GetPayload();
+		uint8_t* payload = (uint8_t*)msg->GetPayload();
 		if (msg->GetHeader()->payloadType == ENCRYPTED_DATA_CHANNEL){
 			hal_printf("got encrypted data\r\n");
 			link_encrypted = true;
@@ -146,10 +146,9 @@ void BTMAC_Manager_Receive(void* buffer, UINT16 payloadType) {
 
 				// Queueing up message processing in continuation
 				cloudMessageContinuation.Enqueue();
+			} else {
+				openRcvCB(msg->GetPayload(), size);
 			}
-			openRcvCB(msg->GetPayload(), size);
-			
-
 		} else {
 			hal_printf("xxxx pt: %d headerPT: %d\r\n", payloadType, msg->GetHeader()->payloadType);
 		}
