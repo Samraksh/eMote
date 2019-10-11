@@ -32,9 +32,9 @@ enum UserType{UT_RoT, UT_Kernel, UT_App};
 //These size fields need to be filled out properly(i.e. the size in bytes of the member following it) for the unmarsheller on the Golang side to work properly.
 typedef struct __attribute__ ((packed)){
 	MsgTypeE type;
-	INT16 sizeMsg;
+	//INT16 sizeMsg;
 	UINT8 Msg[MSG_SIZE];
-	UINT8 sizePublickey;
+	//UINT8 sizePublickey;
 	UINT8 Publickey[KEY_SIZE*2+1];
 	//UINT8 sizeNonce;
 	UINT64 Nonce;
@@ -45,8 +45,8 @@ typedef struct __attribute__ ((packed)){
 
 	void PrepareTx(){
 		type=M_ECDH_REQ;
-		sizeMsg=MSG_SIZE;
-		sizePublickey=KEY_SIZE*2;
+		//sizeMsg=MSG_SIZE;
+		//sizePublickey=KEY_SIZE*2;
 		//sizeNonce=sizeof(UINT64);
 		//sizeEccSize=sizeof(UINT16);
 		//sizeSessionNo=sizeof(UINT16);
@@ -57,9 +57,9 @@ typedef struct __attribute__ ((packed)){
 
 typedef struct __attribute__ ((packed)){
 	MsgTypeE type;
-	UINT8 sizeHmac;
+	//UINT8 sizeHmac;
 	UINT8 HmacSha256[HMAC_SIZE];
-	UINT8 sizePublickey;
+	//UINT8 sizePublickey;
 	UINT8 Publickey[KEY_SIZE*2+1];
 	//UINT8 sizeNonce;
 	UINT64 Nonce;
@@ -70,8 +70,8 @@ typedef struct __attribute__ ((packed)){
 
 	void PrepareTx(){
 		type=M_ECDH_RES;
-		sizeHmac=HMAC_SIZE;
-		sizePublickey=KEY_SIZE*2;
+		//sizeHmac=HMAC_SIZE;
+		//sizePublickey=KEY_SIZE*2;
 		//sizeNonce=sizeof(UINT64);
 		//sizeEccSize=sizeof(UINT16);
 		//sizeSessionNo=sizeof(UINT16);
@@ -82,7 +82,7 @@ typedef struct __attribute__ ((packed)){
 
 typedef struct __attribute__ ((packed)) {
 	MsgTypeE type;
-	UINT8 sizeHmac;
+	//UINT8 sizeHmac;
 	UINT8 HmacSha256[HMAC_SIZE];
 	//UINT8 sizeResult;
 	bool Result;
@@ -91,7 +91,7 @@ typedef struct __attribute__ ((packed)) {
 
 	void PrepareTx(){
 		type=M_ECDH_FIN;
-		sizeHmac=HMAC_SIZE;
+		//sizeHmac=HMAC_SIZE;
 		//sizeResult=sizeof(bool);
 		//sizeSessionNo=sizeof(UINT16);
 	}

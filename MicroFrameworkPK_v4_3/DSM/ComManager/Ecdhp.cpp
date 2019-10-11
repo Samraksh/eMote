@@ -64,7 +64,7 @@ bool EcdhProto::CreateResponse(EcdhpRequestS* req, EcdhpResponseS* out) {
 
 	UINT8 msgNonce[128+8];
 	memcpy(msgNonce, req->Msg, 128);
-	memcpy(msgNonce+128, (void*)req->Nonce, 8);
+	memcpy(msgNonce+128, (void*)(&req->Nonce), 8);
 
 	//UINT8 hmac[32];
 	if(Crypto_GetHMAC(msgNonce, 128+8, secretKey, out->HmacSha256, 32)!=0){
@@ -168,7 +168,7 @@ void EcdhpStateMachine(UINT8 *msg, UINT8 size)
 	switch ((MsgTypeE)msg[0]) {
 		case M_ECDH_REQ:
 		{
-			hal_printf("Got a Ecdhp request, checking session manager...");
+			hal_printf("Got a Ecdhp request of size %d, expecting size %d \n", size, sizeof(EcdhpRequestS));
 			EcdhpRequestS *reqS = (EcdhpRequestS *)msg;
 			EcdhpResponseS resS;
 			NewEcdhProto(reqS->EccSize, &g_ServerEcdhp);
@@ -180,7 +180,7 @@ void EcdhpStateMachine(UINT8 *msg, UINT8 size)
 		}
 		case M_ECDH_RES:
 		{
-			hal_printf("Got a Ecdgp response , checking session manager...\n");
+			hal_printf("Got a Ecdgp response of size %d, expecting size %d \n", size, sizeof(EcdhpResponseS));
 			EcdhpResponseS *resS = (EcdhpResponseS *)msg;
 			EcdhpFinalizeS finS;
 			outT=M_ECDH_FIN;
@@ -195,7 +195,7 @@ void EcdhpStateMachine(UINT8 *msg, UINT8 size)
 		}
 		case M_ECDH_FIN:
 		{
-			hal_printf("Got a Finalize , checking session manager...\n");
+			hal_printf("Got a Finalize of size %d, expecting size %d \n", size, sizeof(EcdhpFinalizeS));
 			EcdhpFinalizeS *finS = (EcdhpFinalizeS *)(&msg[1]);
 			if (GSM.IsPresent(finS->SessionNo) == -1) {
 				hal_printf("Something wrong, got a ecdh response, but never sent a request for session: \n", finS->SessionNo);
@@ -213,7 +213,7 @@ void EcdhpStateMachine(UINT8 *msg, UINT8 size)
 				hal_printf("Unknown struct is returned, something is terribly wrong");
 	}
 
-	SendToSecurityServer(outB, outT);
+	SendToSecurityServer(outB, sizeof(outB), outT);
 }
 
 

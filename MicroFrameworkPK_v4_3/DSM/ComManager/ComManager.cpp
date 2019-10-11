@@ -62,8 +62,8 @@ void COM_Manager_Uninitialize(){
 	BTMAC_Manager_Uninitialize();
 }
 
-bool SendToSecurityServer(void *msgStruct, MsgTypeE mtype){
-	return TRUE;
+bool SendToSecurityServer(void *msgStruct,  uint16_t size, MsgTypeE mtype){
+	return BTMAC_Manager_Send(msgStruct, size, CLOUD_CHANNEL);
 }
 
 /*

@@ -39,7 +39,7 @@ enum DeviceStatusE {
 
 bool InitializeComManager();
 
-bool SendToSecurityServer(void *msgStruct, MsgTypeE mtype);
+bool SendToSecurityServer(void *msgStruct, uint16_t size, MsgTypeE mtype);
 
 void RecvHandler (uint8_t * msg, uint16_t size);
 
