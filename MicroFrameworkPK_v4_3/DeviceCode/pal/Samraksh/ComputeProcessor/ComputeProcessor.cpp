@@ -325,6 +325,4 @@ void Message_Receive_From_CP( uint8_t *buffer, uint16_t buffer_size){
 		//	MAC_Send(UNENCRYPTED_DATA_CHANNEL, NULL, buffer, buffer_size);
 		//}
 	//}
-	CPU_GPIO_SetPinState(17, TRUE);
-	CPU_GPIO_SetPinState(17, FALSE);
 }
