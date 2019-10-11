@@ -13,6 +13,7 @@ import (
 	"crypto/hmac"
 	cr "crypto/rand"
 	"crypto/sha256"
+	"encoding/gob"
 
 	//eb "encoding/binary"
 	//"encoding/hex"
@@ -48,11 +49,15 @@ type EcdhProto struct {
 	secretKey []byte
 	myNonce   uint64
 	peerNonce uint64
+	enc       *gob.Encoder
+	//dec       *gob.Decoder
 	//socClient *Sockets.Client
 }
 
 var g_ServerEcdhp *EcdhProto
 var g_ClientEcdhp *EcdhProto
+var outBytes bytes.Buffer // Stand-in for a network connection
+var inBytes bytes.Buffer
 
 func NewEcdhProto(eccsize uint16) *EcdhProto {
 
@@ -87,6 +92,10 @@ func NewEcdhProto(eccsize uint16) *EcdhProto {
 		myMsg:    _msg[:],
 		//socClient: sCli,
 	}
+
+	dhp.enc = gob.NewEncoder(&outBytes) // Will write to network.
+	//dhp.dec = gob.NewDecoder(&inBytes)
+
 	//fmt.Println("My public key:", dhp.MyPubKey)
 	return &dhp
 }
@@ -100,6 +109,29 @@ type EcdhpRequestS struct {
 	Nonce          uint64
 	Ecc_curve_size uint16
 	SessionNo      uint16
+}
+
+func (reqS *EcdhpRequestS) Marshal() []byte {
+	n := make([]byte, 8)
+	binary.LittleEndian.PutUint64(n, reqS.Nonce)
+	s := make([]byte, 2)
+	binary.LittleEndian.PutUint16(s, reqS.Ecc_curve_size)
+	sn := make([]byte, 2)
+	binary.LittleEndian.PutUint16(sn, reqS.SessionNo)
+	ret := append(reqS.Msg, reqS.Publickey...)
+	ret = append(ret, n...)
+	ret = append(ret, s...)
+	ret = append(ret, sn...)
+	return ret
+}
+
+func (reqS *EcdhpRequestS) UnMarshal(b []byte) {
+	copy(reqS.Msg, b[:127])          //97 bytes
+	copy(reqS.Publickey, b[128:224]) //97 bytes
+
+	reqS.Nonce = uint64(binary.LittleEndian.Uint64(b[225:232]))
+	reqS.Ecc_curve_size = uint16(binary.LittleEndian.Uint16(b[233:234]))
+	reqS.SessionNo = uint16(binary.LittleEndian.Uint16(b[235:236]))
 }
 
 func (dhp *EcdhProto) Initiate() []byte {
@@ -126,9 +158,13 @@ func (dhp *EcdhProto) CreateRequest() []byte {
 	}
 	fmt.Println("Ecdh request struct: ", outS)
 
-	b, err := binary.Marshal(outS)
-	if err != nil {
-		log.Fatal(err)
+	//b, err := binary.Marshal(outS)
+	//dhp.enc.Encode(outS)
+	//b := outBytes.Bytes()
+	b := outS.Marshal()
+
+	if b == nil {
+		log.Fatal("Encoding failed")
 		return nil
 	}
 	/*var inS EcdhpRequestS
@@ -169,6 +205,31 @@ type EcdhpResponseS struct {
 	SessionNo    uint16
 }
 
+func (reqS *EcdhpResponseS) Marshal() []byte {
+	n := make([]byte, 8)
+	binary.LittleEndian.PutUint64(n, reqS.Nonce)
+	s := make([]byte, 2)
+	binary.LittleEndian.PutUint16(s, reqS.EccCurveSize)
+	sn := make([]byte, 2)
+	binary.LittleEndian.PutUint16(sn, reqS.SessionNo)
+	ret := append(reqS.HmacSha256, reqS.Publickey...)
+	ret = append(ret, n...)
+	ret = append(ret, s...)
+	ret = append(ret, sn...)
+	return ret
+}
+
+func (reqS *EcdhpResponseS) UnMarshal(b []byte) {
+	var hmacSize int = 32
+	var pkSize int = 97
+	copy(reqS.HmacSha256, b[:hmacSize])
+	copy(reqS.Publickey, b[hmacSize+1:hmacSize+pkSize])
+
+	reqS.Nonce = uint64(binary.LittleEndian.Uint64(b[hmacSize+pkSize+1 : hmacSize+pkSize+8]))
+	reqS.EccCurveSize = uint16(binary.LittleEndian.Uint16(b[hmacSize+pkSize+9 : hmacSize+pkSize+10]))
+	reqS.SessionNo = uint16(binary.LittleEndian.Uint16(b[hmacSize+pkSize+11 : hmacSize+pkSize+12]))
+}
+
 // You have received a new request for ecdh with public key,
 //Get the  public key from peer, create secretKey using ecdh,
 //create hmac of msg+nonce, create response using all this, marshal and sendout
@@ -201,7 +262,9 @@ func (dhp *EcdhProto) CreateResponse(req *EcdhpRequestS) []byte {
 		EccCurveSize: dhp.EccSize,
 	}
 
-	b, _ := binary.Marshal(resp)
+	//b, _ := binary.Marshal(resp)
+	dhp.enc.Encode(resp)
+	b := outBytes.Bytes()
 
 	b = append([]byte{Def.M_ECDH_RES}, b...)
 	return b
@@ -216,6 +279,32 @@ type EcdhpFinalizeS struct {
 	//Nonce          uint64
 	SessionNo uint16
 	//Ecc_curve_size uint16
+}
+
+func (reqS *EcdhpFinalizeS) Marshal() []byte {
+	//n := make([]byte, 8)
+	//binary.LittleEndian.PutUint64(n, reqS.Nonce)
+	r := make([]byte, 1)
+	if reqS.Result {
+		r[0] = 1
+	} else {
+		r[0] = 0
+	}
+	sn := make([]byte, 2)
+	binary.LittleEndian.PutUint16(sn, reqS.SessionNo)
+	ret := append(reqS.HmacSha256, r...)
+	ret = append(ret, sn...)
+	return ret
+}
+
+func (fin *EcdhpFinalizeS) UnMarshal(b []byte) {
+	var hmacSize int = 32
+	//var pkSize int = 97
+	copy(fin.HmacSha256, b[:hmacSize])
+	//copy(reqS.Publickey, b[hmacSize+1:hmacSize+pkSize])
+
+	fin.Result = (b[hmacSize+1] >= 1)
+	fin.SessionNo = uint16(binary.LittleEndian.Uint16(b[hmacSize+2 : hmacSize+3]))
 }
 
 ///Create the Finalizeation message.
@@ -268,7 +357,9 @@ func (dhp *EcdhProto) CreateFinalize(res *EcdhpResponseS) []byte {
 		//Ecc_curve_size: dhp.EccSize,
 	}
 
-	b, _ := binary.Marshal(conf)
+	//b, _ := binary.Marshal(conf)
+	dhp.enc.Encode(conf)
+	b := outBytes.Bytes()
 
 	b = append([]byte{Def.M_ECDH_FIN}, b...)
 	return b
@@ -378,30 +469,31 @@ func UnMarshall(msg []byte) interface{} {
 	switch msg[0] {
 	case Def.M_ECDH_REQ:
 		fmt.Println("Got a ECDH_REQ msg")
-		retS = &EcdhpRequestS{}
-	/*case Def.M_ECDH_ACK:
-	fmt.Println("Got a ECDH_ACK msg")
-	retS = EcdhpReqAckS{}
-	*/
+		inS := EcdhpRequestS{}
+		inS.UnMarshal(msg)
+		retS = &inS
 	case Def.M_ECDH_RES:
 		fmt.Println("Got a ECDH_RESPONSE msg")
-		retS = &EcdhpResponseS{}
+		inS := EcdhpResponseS{}
+		inS.UnMarshal(msg)
+		retS = &inS
 	case Def.M_ECDH_FIN:
 		fmt.Println("Got a ECDH_Finalize msg")
-		retS = &EcdhpFinalizeS{}
-	/*case Def.M_ECDH_TER:
-	fmt.Println("Got a ECDH_TERMINATE msg")
-	retS = EcdhpTerminateS{}
-	*/
+		inS := &EcdhpFinalizeS{}
+		inS.UnMarshal(msg)
+		retS = &inS
 	default:
 		return nil
 	}
 	fmt.Println("Unmarsharing..")
-	err := binary.Unmarshal(msg[1:], retS)
+
+	/*dec := gob.NewDecoder(&inBytes)
+	//err := binary.Unmarshal(msg[1:], retS)
+	//err := dec.Decode(retS)
 	if err != nil {
 		log.Fatal("Unmarshalling failed for ecdh_protocol : ", err)
 	} else {
 		//fmt.Println(retS)
-	}
+	}*/
 	return retS
 }
