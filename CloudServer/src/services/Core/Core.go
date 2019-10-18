@@ -131,14 +131,14 @@ func (cs *Core) SendToGateway(msg []byte, dtAddress string, sec bool) (err error
 	// Synchronous call
 	req := svs.MsgRequest{msg, len(msg), dtAddress, sec}
 	var reply svs.MsgResponse
-	fmt.Printf("SendToGateway:: Sending to gateway  %d\n", dtAddress)
+	fmt.Printf("SendToGateway:: Sending to gateway  %s\n", dtAddress)
 	if val, ok := cs.deviceMap[dtAddress]; ok {
 		//device connection is initialized
 		err = val.gtwy.Call("Gateway.Send", req, &reply)
 	} else {
 		err = errors.New("Device address does not exist in table")
 	}
-	fmt.Printf("SendToGateway:: Message Status: %d\n", reply.Status)
+	fmt.Printf("SendToGateway:: Message Status: %t\n", reply.Status)
 	return err
 }
 

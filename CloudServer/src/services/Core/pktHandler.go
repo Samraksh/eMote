@@ -33,11 +33,11 @@ func (hndlr *PacketHandler) InitiateSecureChannel(device string) {
 	}
 }
 
-func (hndlr *PacketHandler) IncomingMsgHandler(msg []byte, addr string) {
+func (hndlr *PacketHandler) OpenMsgHandler(msg []byte, addr string) {
 	switch msg[0] {
 	case Def.M_ECDH_REQ, Def.M_ECDH_RES, Def.M_ECDH_FIN:
 		dm.EcdhpStateMachine(msg, &hndlr.DeviceOpenMsgChan, addr)
-	case Def.M_SEC_M_CH, Def.M_SEC_D_CH, Def.M_SEC_STATUS_RQ, Def.M_SEC_STATUS_RES:
+	case Def.M_SEC_D_CH, Def.M_SEC_STATUS_RQ, Def.M_SEC_STATUS_RES:
 		hndlr.sc.HandleIncoming(msg, addr)
 	case Def.M_STATUS_RES:
 		if msg[1] == byte(dm.DS_UnInit) {
@@ -48,6 +48,16 @@ func (hndlr *PacketHandler) IncomingMsgHandler(msg []byte, addr string) {
 		}
 	case Def.M_UNKNOWN:
 	default:
-		fmt.Println("PktHndlr::RouteMsg: Received an unknown message type, droping it.")
+		fmt.Println("PktHndlr::OpenMsgHandler: Received an unknown message type, droping it.")
+	}
+}
+func (hndlr *PacketHandler) IncomingMsgHandler(msg []byte, addr string) {
+	switch t := msg[0]; {
+	case t < byte(Def.M_SEC_STATUS_RES):
+		hndlr.OpenMsgHandler(msg, addr)
+	case t >= byte(Def.M_SEC_STATUS_RES):
+		hndlr.sc.HandleIncoming(msg, addr)
+	default:
+		fmt.Println("PktHndlr::IncomingMsgHandler: Received an unknown message type, droping it.")
 	}
 }

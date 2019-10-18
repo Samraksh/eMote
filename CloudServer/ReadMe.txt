@@ -3,9 +3,16 @@ Cloud Server Notes:
 Setting up Go Server:
 
 packages Dependencies:
+
+ECDH dependencies
  go get github.com/stretchr/testify/assert
  go get golang.org/x/crypto/curve25519
+plus add the ExtCode to the path. They have couple of external code
 
+
+Services Dependencies:
+Core: 
+go get github.com/boltdb/bolt
 
 
 
