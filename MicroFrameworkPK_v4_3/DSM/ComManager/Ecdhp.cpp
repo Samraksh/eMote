@@ -164,6 +164,7 @@ void EcdhpStateMachine(UINT8 *msg, UINT8 size)
 {
 	hal_printf("ECDHP state machine: \n");
 	void *outB;
+	uint16_t outSize=0;
 	MsgTypeE outT;
 	switch ((MsgTypeE)msg[0]) {
 		case M_ECDH_REQ:
@@ -176,6 +177,7 @@ void EcdhpStateMachine(UINT8 *msg, UINT8 size)
 			resS.PrepareTx();
 			outT=M_ECDH_RES;
 			outB = (void*)&resS;
+			outSize = sizeof(EcdhpResponseS);
 			break;
 		}
 		case M_ECDH_RES:
@@ -191,6 +193,7 @@ void EcdhpStateMachine(UINT8 *msg, UINT8 size)
 			}
 			outT=M_ECDH_FIN;
 			outB = (void*)&finS;
+			outSize = sizeof(EcdhpFinalizeS);
 			break;
 		}
 		case M_ECDH_FIN:
@@ -213,7 +216,7 @@ void EcdhpStateMachine(UINT8 *msg, UINT8 size)
 				hal_printf("Unknown struct is returned, something is terribly wrong");
 	}
 
-	SendToSecurityServer(outB, sizeof(outB), outT);
+	SendToSecurityServer(outB, outSize, outT);
 }
 
 

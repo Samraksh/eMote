@@ -4,6 +4,11 @@
 
 uint8_t deviceStatus=DS_UnInit;
 bool comManagerInitialized=false;
+
+const uint8_t exkey[32] = {0xb8, 0xd4, 0x23, 0x98, 0x20, 0x1b, 0x53, 0xbd,
+	0x47, 0xe2, 0x7e, 0x93, 0x3c, 0xb5, 0x91, 0xb6,
+	0xac, 0xa8, 0x86, 0x36, 0x51, 0x93, 0xa8, 0x8d,
+	0x5f, 0x02, 0x30, 0x6f, 0xb9, 0xea, 0x23, 0xab};
 /*
 bool InitializeComManagerSockets(){
 	if(comManagerInitialized) return true;
@@ -28,8 +33,38 @@ bool InitializeComManagerSockets(){
 
 void SecureReceive(void* buffer, UINT16 size){
 	hal_printf("\nComManager:: Received secure message of size %d\n", size);
-	UINT8 msg[8]={'a','b', 'c', 'd', 'e', 'f', 'g', 'h'};
-	BTMAC_Manager_Send(msg, 8, ENCRYPTED_DATA_CHANNEL);
+	//UINT8 msg[8]={'a','b', 'c', 'd', 'e', 'f', 'g', 'h'};
+	//BTMAC_Manager_Send(msg, 8, ENCRYPTED_DATA_CHANNEL);
+	UINT8 *msg = (UINT8*)buffer;
+	switch(msg[0]){
+		case M_SEC_D_CH: //secure data channel
+			//This is secure data message
+			break;
+		case M_SEC_BIN_RES:
+			//This is binary update message
+			break;
+		case M_SEC_STATUS_RQ:
+			UINT8 reply[8];
+			reply[0]= M_SEC_STATUS_RES;
+			reply[1]= deviceStatus;
+			hal_printf("ComManager:: SecureReceive: This is a status request from Cloud, responding \n");
+			BTMAC_Manager_Send(reply, 8, ENCRYPTED_DATA_CHANNEL);
+			break;
+			//should not get this
+		case M_SEC_BIN_RQ: //device send this message
+		case M_SEC_STATUS_RES:
+		case M_UNKNOWN:
+		default:
+			hal_printf("\nComManager:: Received  unknown open message of size %d\n", size);
+	}
+}
+
+void RequestNewBinary(){
+	UINT8 reply[8];
+	reply[0]= M_SEC_BIN_RQ;
+	reply[1]= deviceStatus;
+	hal_printf("ComManager:: Requestig New Binary from Enterprise \n");
+	BTMAC_Manager_Send(reply, 8, ENCRYPTED_DATA_CHANNEL);
 }
 
 void OpenCloudReceive(void* buffer, UINT16 size){
@@ -47,6 +82,8 @@ void OpenCloudReceive(void* buffer, UINT16 size){
 			reply[1]= deviceStatus;
 			hal_printf("ComManager:: OpenReceive: This is a status request from Cloud, responding \n");
 			BTMAC_Manager_Send(reply, 8, CLOUD_CHANNEL);
+
+			RequestNewBinary();
 			break;
 		case M_UNKNOWN:
 		default:
@@ -85,7 +122,7 @@ void RecvHandler (uint8_t * msg, uint16_t size){
 			case M_ECDH_FIN:
 				EcdhpStateMachine(msg,size);
 				break;
-			case M_SEC_M_CH: //Secure Management channel
+			//case M_SEC_M_CH: //Secure Management channel
 				break;
 			case M_SEC_D_CH: //Secure data channel
 

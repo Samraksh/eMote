@@ -11,7 +11,7 @@
 #include <eNVM/eNVM.h>
 
 extern Buffer_15_4_t g_send_buffer;
-const int hmacSize=48;
+const int hmacSize=32;
 static uint8_t currentMac = NONE;
 static MACEventHandler btEventHandler;
 static int current_neighbor_count = 0;
@@ -46,19 +46,19 @@ const CK_BYTE hmac1[hmacSize] = {
 		253, 74, 92, 188, 247, 200, 88, 195
 };
 
+const UINT8 IVSIZE=12;
 CK_BYTE ddata[128];
-
-	CK_BYTE data[128];
-	CK_BYTE digest[32];
-	CK_BYTE IV[48];
-	CK_BYTE_PTR  pData;
-	CK_ULONG ulDataLen;
-	CK_BYTE  pCryptText[128];
-	CK_ULONG ulCryptLen;
-	CK_BYTE_PTR pDigest;
-	CK_MECHANISM_TYPE mtype;
-	CK_KEY_TYPE kt;
-	CK_BYTE_PTR pkey;
+CK_BYTE data[128];
+CK_BYTE digest[32];
+CK_BYTE IV[IVSIZE]= {0x15, 0xde, 0x34, 0xb4, 0x78, 0xc9, 0xf4, 0x13, 0x14, 0xa3, 0xcb, 0x2a};
+CK_BYTE_PTR  pData;
+CK_ULONG ulDataLen;
+CK_BYTE  pCryptText[128];
+CK_ULONG ulCryptLen;
+CK_BYTE_PTR pDigest;
+CK_MECHANISM_TYPE mtype;
+CK_KEY_TYPE kt;
+CK_BYTE_PTR pkey;
 
 void PrintHex(CK_BYTE_PTR sig, int size){
 	for (int j=0;j<size; j++){
@@ -223,16 +223,16 @@ int Message_Encrypt_Data(uint8_t *origBuffer, uint16_t buffer_size, uint8_t *enc
 		dataToEncrypt[i+1] = (CK_BYTE)origBuffer[i];
 	}
 	CK_ULONG dataToEncryptLen = buffer_size + 1;
-	//Crypto_GetRandomBytes(IV, 48);
-	for (int i=0; i<48; i++){
+	//Crypto_GetRandomBytes(IV, IVSIZE);
+	/*for (int i=0; i<IVSIZE; i++){
 		key1[i] = i;
 	}
-	for (int i=0; i<48; i++){
+	for (int i=0; i<IVSIZE; i++){
 		IV[i] = i;
-	}
+	}*/
 
 	hal_printf("IV : ");
-	PrintHex(IV,48);
+	PrintHex(IV,IVSIZE);
 	hal_printf("\r\n");
 	pDigest=digest;
 	mtype=CKM_SHA256_HMAC;
@@ -241,7 +241,7 @@ int Message_Encrypt_Data(uint8_t *origBuffer, uint16_t buffer_size, uint8_t *enc
 
 	hal_printf("Encrypting data\r\n");
 	hal_printf(" ***** encryption locking up *****\r\n");
-	bool ret= Crypto_Encrypt(pkey,32,IV, 48, dataToEncrypt, dataToEncryptLen, encryptedBuffer, ulCryptLen);
+	bool ret= Crypto_Encrypt(pkey,32,IV, IVSIZE, dataToEncrypt, dataToEncryptLen, encryptedBuffer, ulCryptLen);
 
 	if(!ret){hal_printf("\r\nEncryption Failed\r\n");}
 	hal_printf("Encrypted Text: ");PrintHex(encryptedBuffer,ulCryptLen);
@@ -258,16 +258,16 @@ int Message_Decrypt_Data(uint8_t *origBuffer, uint16_t buffer_size, uint8_t *dec
 	}
 	ulDataLen=128; // should be overwritten
 	ulCryptLen=buffer_size;
-	Crypto_GetRandomBytes(IV, 48);
-	for (int i=0; i<48; i++){
+	/*Crypto_GetRandomBytes(IV, IVSIZE);
+	for (int i=0; i<IVSIZE; i++){
 		key1[i] = i;
 	}
-	for (int i=0; i<48; i++){
+	for (int i=0; i<IVSIZE; i++){
 		IV[i] = i;
-	}
+	}*/
 
 	hal_printf("IV : ");
-	PrintHex(IV,48);
+	PrintHex(IV,IVSIZE);
 	hal_printf("\r\n");
 	pDigest=digest;
 	mtype=CKM_SHA256_HMAC;
@@ -275,7 +275,7 @@ int Message_Decrypt_Data(uint8_t *origBuffer, uint16_t buffer_size, uint8_t *dec
 	kt= CKK_GENERIC_SECRET;
 
 	hal_printf("\r\nreceived encrypted Text: ");PrintHex(pCryptText,ulCryptLen);
-	bool ret= Crypto_Decrypt(pkey,32,IV, 48, pCryptText, ulCryptLen, decryptedBuffer, &ulDataLen);
+	bool ret= Crypto_Decrypt(pkey,32,IV, IVSIZE, pCryptText, ulCryptLen, decryptedBuffer, &ulDataLen);
 	if(!ret){hal_printf("Decryption Failed\n");}
 	hal_printf("Decrypted Text (%d): ", ulDataLen);PrintHex(decryptedBuffer,ulDataLen);
 	hal_printf("\r\n");

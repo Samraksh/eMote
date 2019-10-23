@@ -10,18 +10,22 @@
 
 #include <tinyhal.h>
 
+//This needs to be in sync with the cloud side definition at
+//CloudServer\src\Definitions\MessageType.go
 enum MsgTypeE {
 	M_UNKNOWN=100,
+	M_STATUS_RQ,       //Status request in open from core to device
+	M_STATUS_RES,      //response from device in open,
 	M_ECDH_REQ,
 	//M_ECDH_ACK
 	M_ECDH_RES,
 	M_ECDH_FIN,
-	M_SEC_M_CH, //Secure Management channel
+	//M_SEC_M_CH, //Secure Management channel
 	M_SEC_D_CH, //secure data channel
-	M_STATUS_RQ,
-	M_STATUS_RES,
 	M_SEC_STATUS_RQ,
-	M_SEC_STATUS_RES
+	M_SEC_STATUS_RES,
+	M_SEC_BIN_RQ,
+	M_SEC_BIN_RES
 	//M_ECDH_TER
 };
 
