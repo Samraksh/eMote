@@ -4,6 +4,8 @@ import (
 	Def "Definitions"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/hmac"
+	"crypto/sha256"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -143,11 +145,15 @@ func (sc *SecureComs) extractFrom2DSendArray(index int) []byte {
 func (sc *SecureComs) StartSecureFile(msg []byte, addr string) {
 	sc.inFileXferMap[addr] = true
 	log.Println("Device ", addr, " has requested new binary.")
-	opefile, err := sc.ReadFileFromStorage(addr)
+	openfile, err := sc.ReadFileFromStorage(addr)
 	CheckError(err)
 	var secureFile []byte
-	secureFile, err = sc.Encrypt(opefile, addr)
+	secureFile, err = sc.Encrypt(openfile, addr)
 	CheckError(err)
+	hash := sc.HMAC(openfile, key1, addr)
+	log.Println("=========================================")
+	log.Println("HMAC of the file update sent to device ", addr, " is: \n", hash)
+	log.Println("=========================================")
 	log.Println(" Starting the statemachine...")
 	//sc.sendBufferState=BS_Idle
 	sc.BeginFileXfer(secureFile, addr)
@@ -187,15 +193,15 @@ func (sc *SecureComs) BeginFileXfer(filebytes []byte, addr string) {
 		sc.addTo2DSendArray(dataLine)
 	}
 
-	for k := 0; k < sendArrayLines; k++ {
+	/*for k := 0; k < sendArrayLines; k++ {
 		log.Println("printing line: ", k)
 		//extractedData := sc.RemoveFromArray(k)
 		extractedData := sc.sendArray[k]
 		for m := 0; m < len(extractedData); m++ {
-			log.Println(extractedData[m], " ")
+			log.Print(extractedData[m], " ")
 		}
 		log.Println("")
-	}
+	}*/
 
 	sc.sendBufferState = BS_Start
 	sendPacketNum = 0
@@ -209,6 +215,16 @@ func (sc *SecureComs) BeginFileXfer(filebytes []byte, addr string) {
 
 func (sc *SecureComs) FinishSecureFile(msg []byte, addr string) {
 	sc.inFileXferMap[addr] = false
+}
+
+func (sc *SecureComs) HMAC(msg []byte, key []byte, deviceId string) (hash []byte) {
+	mac := hmac.New(sha256.New, key)
+
+	//fmt.Println("creating hash of msg of len: ", len(m), ", MSG:", m)
+	//create hmac
+	mac.Write(msg)
+	hash = mac.Sum(nil)
+	return hash
 }
 
 func (sc *SecureComs) Encrypt(plaintext []byte, deviceId string) (ciphertext []byte, err error) {

@@ -23,7 +23,7 @@ import (
 	"time"
 )
 
-const MaxPktSize = 256
+const MaxPktSize = 522
 
 //Gateway Main gateway service class.
 type Gateway struct {
