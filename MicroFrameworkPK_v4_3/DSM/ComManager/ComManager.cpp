@@ -30,6 +30,14 @@ bool InitializeComManagerSockets(){
 	return true;
 }
 */
+void PrintHex(UINT8* sig, int size){
+	for (int j=0;j<size; j++){
+		hal_printf("0x%.2X , ",sig[j]);
+		if ((j%16)==0) hal_printf("\r\n");
+	}
+	hal_printf("\r\n");
+}
+
 
 void SecureReceive(void* buffer, UINT16 size){
 	hal_printf("\nComManager:: Received secure message of size %d\n", size);
@@ -64,7 +72,8 @@ void RequestNewBinary(){
 	reply[0]= M_SEC_BIN_RQ;
 	reply[1]= deviceStatus;
 	hal_printf("ComManager:: Requestig New Binary from Enterprise \n");
-	BTMAC_Manager_Send(reply, 8, ENCRYPTED_DATA_CHANNEL);
+	//BTMAC_Manager_Send(reply, 8, ENCRYPTED_DATA_CHANNEL);
+	BTMAC_Manager_Send(reply, 8, CLOUD_CHANNEL);
 }
 
 void OpenCloudReceive(void* buffer, UINT16 size){
@@ -81,7 +90,7 @@ void OpenCloudReceive(void* buffer, UINT16 size){
 			reply[0]= M_STATUS_RES;
 			reply[1]= deviceStatus;
 			hal_printf("ComManager:: OpenReceive: This is a status request from Cloud, responding \n");
-			BTMAC_Manager_Send(reply, 8, CLOUD_CHANNEL);
+			//BTMAC_Manager_Send(reply, 8, CLOUD_CHANNEL);
 
 			RequestNewBinary();
 			break;
@@ -100,6 +109,7 @@ void COM_Manager_Uninitialize(){
 }
 
 bool SendToSecurityServer(void *msgStruct,  uint16_t size, MsgTypeE mtype){
+	PrintHex((UINT8*)msgStruct, size);
 	return BTMAC_Manager_Send(msgStruct, size, CLOUD_CHANNEL);
 }
 

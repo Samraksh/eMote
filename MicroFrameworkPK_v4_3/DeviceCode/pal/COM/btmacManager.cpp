@@ -104,18 +104,33 @@ void BTMAC_Manager_Receive(void* buffer, UINT16 payloadType) {
 		if (msg->GetHeader()->payloadType == ENCRYPTED_DATA_CHANNEL){
 			hal_printf("got encrypted data\r\n");
 			link_encrypted = true;
+			//temporarily disabling encryption
 			//int dataLen = Message_Decrypt_Data(msg->GetPayload(), size, decryptedData);
 			
 			// *** important ***
 			// The Bluetooth driver is currently in the middle of calling the Rx callback and this must exit
 			// before any more bluetooth packets can be sent or received			
-			int dataLen = Message_Decrypt_Data(msg->GetPayload(), size, decryptedData);
+			//int dataLen = Message_Decrypt_Data(msg->GetPayload(), size, decryptedData);
 			
 			// sending the packet to the CP allows the bluetooth driver to exit before any bluetooth packets 
 			// are sent or received again
 			// all messages to the CP assume '\n' termination
 			//CP_SendMsgToCP(decryptedData, dataLen);
-			secureRcvCB(msg->GetPayload(), size);
+			memcpy((void*)&msg_carrier, (void*)msg, msg->GetHeader()->length);
+			if ((memcmp( payload, MARKER_PACKET_V1, SIGNATURE_SIZE) ) == 0) {
+				// *** important ***
+				// The Bluetooth driver is currently in the middle of calling the Rx callback and this must exit
+				// before any more bluetooth packets can be sent or received
+				// we can change this to a continuation if needed
+				if(!g_send_buffer.Store((void *) &msg_carrier, header->length)){
+					hal_printf("error storing msg\r\n");
+				}
+
+				// Queueing up message processing in continuation
+				cloudMessageContinuation.Enqueue();
+			} else {
+				secureRcvCB(msg->GetPayload(), size);
+			}
 		}
 		else if (msg->GetHeader()->payloadType == UNENCRYPTED_DATA_CHANNEL){
 			hal_printf("got unencrypted data\r\n");
