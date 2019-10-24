@@ -3,6 +3,7 @@ package main
 import (
 	Def "Definitions"
 	dm "DeviceManager"
+	"bytes"
 	"fmt"
 	"log"
 )
@@ -17,7 +18,7 @@ func NewPacketHandler() *PacketHandler {
 	hndlr := new(PacketHandler)
 	hndlr.DeviceSecMsgChan = make(chan Def.GenMsg, 2)
 	hndlr.DeviceOpenMsgChan = make(chan Def.GenMsg, 2)
-	hndlr.sc = new(SecureComs)
+	hndlr.sc = NewSecureComs(&hndlr.DeviceSecMsgChan)
 	return hndlr
 }
 
@@ -42,7 +43,7 @@ func (hndlr *PacketHandler) OpenMsgHandler(msg []byte, addr string) {
 	case Def.M_STATUS_RES:
 		if msg[1] == byte(dm.DS_UnInit) {
 			log.Println("Device: ", addr, "status is not initialized")
-			hndlr.InitiateSecureChannel(addr)
+			//hndlr.InitiateSecureChannel(addr)
 		} else {
 			log.Printf("Unknown device status %d\n", msg[1])
 		}
@@ -53,6 +54,14 @@ func (hndlr *PacketHandler) OpenMsgHandler(msg []byte, addr string) {
 }
 func (hndlr *PacketHandler) IncomingMsgHandler(msg []byte, addr string) {
 	switch t := msg[0]; {
+	case t == 77: //These are binary update messages starting with (MSpktV1)
+		header := []byte("MSpktV1")
+		if bytes.Compare(msg[:7], header) == 0 {
+			log.Println("Received a binary update message")
+			hndlr.sc.binaryUpdateHandler(msg, addr)
+		} else {
+			log.Println("Received a message starting with M: ", string(msg[:7]))
+		}
 	case t < byte(Def.M_SEC_STATUS_RES):
 		hndlr.OpenMsgHandler(msg, addr)
 	case t >= byte(Def.M_SEC_STATUS_RES):

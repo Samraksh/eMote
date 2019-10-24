@@ -19,6 +19,7 @@ var key1 = []byte{0xC6, 0x29, 0x73, 0xE3, 0xC8, 0xD4, 0xFC, 0xB6,
 	0x89, 0x36, 0x46, 0xF9, 0x58, 0xE5, 0xF5, 0xE5,
 	0x25, 0xC2, 0xE4, 0x1E, 0xCC, 0xA8, 0xC3, 0xEF,
 	0xA2, 0x8D, 0x24, 0xDE, 0xFD, 0x19, 0xDA, 0x08}
+
 //12 bytes or 96 bits
 var exiv = []byte{0x15, 0xde, 0x34, 0xb4, 0x78, 0xc9, 0xf4, 0x13, 0x14, 0xa3, 0xcb, 0x2a}
 
@@ -50,6 +51,14 @@ type SecureComs struct {
 	outMsgChan      *chan Def.GenMsg
 	sendArray       [][]byte
 }
+
+/*
+func (sc *SecureComs) SetFileXferMap(device string) {
+	if sc.inFileXferMap[device] == nil {
+		sc.inFileXferMap[device] = make(bool, true)
+	}
+}
+*/
 
 func NewSecureComs(outMsgChan *chan Def.GenMsg) *SecureComs {
 	sc := new(SecureComs)
@@ -133,58 +142,68 @@ func (sc *SecureComs) extractFrom2DSendArray(index int) []byte {
 
 func (sc *SecureComs) StartSecureFile(msg []byte, addr string) {
 	sc.inFileXferMap[addr] = true
+	log.Println("Device ", addr, " has requested new binary.")
 	opefile, err := sc.ReadFileFromStorage(addr)
 	CheckError(err)
 	var secureFile []byte
 	secureFile, err = sc.Encrypt(opefile, addr)
 	CheckError(err)
+	log.Println(" Starting the statemachine...")
+	//sc.sendBufferState=BS_Idle
 	sc.BeginFileXfer(secureFile, addr)
 }
 
 func (sc *SecureComs) BeginFileXfer(filebytes []byte, addr string) {
-	if sc.sendBufferState == BS_Idle {
-		fileLength = len(filebytes)
-		sendArrayLines = int((fileLength / maxDataSize) + 1)
-		log.Println("File length: ", fileLength, " lines: ", sendArrayLines)
-		sc.sendArray = make([][]byte, sendArrayLines)
+	log.Println("Starting transfer of encrypted file of length: ", len(filebytes))
+	//if sc.sendBufferState == BS_Idle {
+	fileLength = len(filebytes)
+	sendArrayLines = int((fileLength / maxDataSize) + 1)
+	log.Println("File length: ", fileLength, " lines: ", sendArrayLines)
+	//sc.sendArray = make([][]byte, sendArrayLines)
 
-		for j := 0; j < sendArrayLines; j++ {
-			//var dataB = new byte[maxTransferSize];
-			start := j * maxDataSize
-			var dataB = filebytes[start : start+maxDataSize]
-			var dataLine = make([]byte, maxDataSize+markerSize+opCode+param)
-			dataLine[0] = byte('M')
-			dataLine[1] = byte('S')
-			dataLine[2] = byte('p')
-			dataLine[3] = byte('k')
-			dataLine[4] = byte('t')
-			dataLine[5] = byte('V')
-			dataLine[6] = byte('1')
-
-			log.Println("processing line: ", j, " total size: ", len(dataLine))
-
-			for k := 0; k < len(dataB); k++ {
-				dataLine[markerSize+opCode+param+k] = dataB[k]
-			}
-			sc.addTo2DSendArray(dataLine)
+	for j := 0; j < sendArrayLines; j++ {
+		//var dataB = new byte[maxTransferSize];
+		start := j * maxDataSize
+		var dataB []byte
+		if j == sendArrayLines-1 {
+			dataB = filebytes[start:]
+		} else {
+			dataB = filebytes[start : start+maxDataSize]
 		}
+		var dataLine = make([]byte, maxDataSize+markerSize+opCode+param)
+		dataLine[0] = byte('M')
+		dataLine[1] = byte('S')
+		dataLine[2] = byte('p')
+		dataLine[3] = byte('k')
+		dataLine[4] = byte('t')
+		dataLine[5] = byte('V')
+		dataLine[6] = byte('1')
 
-		for k := 0; k < sendArrayLines; k++ {
-			log.Println("printing line: ", k)
-			//extractedData := sc.RemoveFromArray(k)
-			extractedData := sc.sendArray[k]
-			for m := 0; m < len(extractedData); m++ {
-				log.Println(extractedData[m], " ")
-			}
-			log.Println("")
+		log.Println("processing line: ", j, " total size: ", len(dataLine))
+
+		for k := 0; k < len(dataB); k++ {
+			dataLine[markerSize+opCode+param+k] = dataB[k]
 		}
-
-		sc.sendBufferState = BS_Start
-		sendPacketNum = 0
-		sc.sendStateMachine(addr)
-	} else {
-		sc.sendStateMachine(addr)
+		sc.addTo2DSendArray(dataLine)
 	}
+
+	for k := 0; k < sendArrayLines; k++ {
+		log.Println("printing line: ", k)
+		//extractedData := sc.RemoveFromArray(k)
+		extractedData := sc.sendArray[k]
+		for m := 0; m < len(extractedData); m++ {
+			log.Println(extractedData[m], " ")
+		}
+		log.Println("")
+	}
+
+	sc.sendBufferState = BS_Start
+	sendPacketNum = 0
+	sc.sendStateMachine(addr)
+	//} else {
+	//	log.Println("State is not idle")
+	//	sc.sendStateMachine(addr)
+	//}
 
 }
 
@@ -197,7 +216,7 @@ func (sc *SecureComs) Encrypt(plaintext []byte, deviceId string) (ciphertext []b
 	//plaintext := []byte("exampleplaintext")
 
 	//key is 32 bytes. Using aes256
-	block, err := aes.NewCipher(exkey)
+	block, err := aes.NewCipher(key1)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -221,7 +240,7 @@ func (sc *SecureComs) Encrypt(plaintext []byte, deviceId string) (ciphertext []b
 
 func (sc *SecureComs) Decrypt(ciphertext []byte, addr string) (plaintext []byte, err error) {
 	iv := exiv
-	block, err := aes.NewCipher(exkey)
+	block, err := aes.NewCipher(key1)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -249,7 +268,7 @@ func CheckError(e error) {
 }
 
 func (sc *SecureComs) ReadFileFromStorage(deviceId string) (filebytes []byte, err error) {
-
+	log.Println("Reading binary file for device: ", deviceId)
 	dat, err := ioutil.ReadFile("DeviceManager/db/files/cp.bin")
 	CheckError(err)
 	//fmt.Print(string(dat))
@@ -286,6 +305,7 @@ func (sc *SecureComs) sendStateMachine(device string) {
 		if sendPacketNum < sendArrayLines {
 			log.Println("add packet ", sendPacketNum, " array line number of ", sendArrayLines)
 			extractedData := sc.sendArray[sendPacketNum]
+			log.Println("Extracted data")
 			extractedData[7] = 0x00
 			extractedData[8] = 0x02
 			extractedData[9] = 0x00

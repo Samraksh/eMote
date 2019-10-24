@@ -17,6 +17,17 @@ var cloudServiceId = gatt.MustParseUUID("0000ff1000001000800000805f9b34fb") // 6
 var cloudServiceSecureCharId = gatt.MustParseUUID("0000ff1100001000800000805f9b34fb")
 var cloudServiceOpenCharId = gatt.MustParseUUID("0000ff1100001000800000805f9b34fd")
 
+func truncateString(str string, num int) string {
+	bnoden := str
+	if len(str) > num {
+		if num > 3 {
+			num -= 3
+		}
+		bnoden = str[0:num]
+	}
+	return bnoden
+}
+
 //BtGattRadio instantiates a radio
 type BtGattRadio struct {
 	clientID   string
@@ -57,7 +68,7 @@ func (r *BtGattRadio) onStateChanged(d gatt.Device, s gatt.State) {
 
 func (r *BtGattRadio) onPeriphDiscovered(p gatt.Peripheral, a *gatt.Advertisement, rssi int) {
 
-	if strings.ToUpper(p.ID()) != r.clientID {
+	if truncateString(strings.ToUpper(p.ID()), 9) != truncateString(r.clientID, 9) {
 		log.Printf("Client ID mismatch: Found client %s, looking for %s \n", p.ID(), r.clientID)
 		return
 	}
@@ -254,6 +265,7 @@ func (r *BtGattRadio) onPeriphConnected(p gatt.Peripheral, err error) {
 							fmt.Printf("Failed to subscribe  to secue characteristic, err: %s\n", err)
 						}
 						r.SecureChar = c
+						fmt.Printf("Secure char ptr %p \n", c)
 					}
 				}
 				if c.UUID().Equal(cloudServiceOpenCharId) {

@@ -59,11 +59,15 @@ var g_ClientEcdhp *EcdhProto
 var outBytes bytes.Buffer // Stand-in for a network connection
 var inBytes bytes.Buffer
 
+const HmacSize = 32
+const PublicKeySize = 97
+
 func NewEcdhProto(eccsize uint16) *EcdhProto {
 
 	fmt.Println("NewEcdhProto::Creating new ECDH instance")
 	if eccsize != 384 {
 		return nil
+
 	}
 	tp384 := elliptic.P384()
 	tke := ecdh.Generic(tp384)
@@ -205,6 +209,13 @@ type EcdhpResponseS struct {
 	SessionNo    uint16
 }
 
+func NewEcdhpResponseS() (res *EcdhpResponseS) {
+	ret := new(EcdhpResponseS)
+	ret.HmacSha256 = make([]byte, HmacSize)
+	ret.Publickey = make([]byte, PublicKeySize)
+	return ret
+}
+
 func (reqS *EcdhpResponseS) Marshal() []byte {
 	n := make([]byte, 8)
 	binary.LittleEndian.PutUint64(n, reqS.Nonce)
@@ -220,14 +231,20 @@ func (reqS *EcdhpResponseS) Marshal() []byte {
 }
 
 func (reqS *EcdhpResponseS) UnMarshal(b []byte) {
+
 	var hmacSize int = 32
 	var pkSize int = 97
-	copy(reqS.HmacSha256, b[:hmacSize])
-	copy(reqS.Publickey, b[hmacSize+1:hmacSize+pkSize])
+	//fmt.Println("Unmarshaing ecdhpresponse of size: ", len(b))
 
-	reqS.Nonce = uint64(binary.LittleEndian.Uint64(b[hmacSize+pkSize+1 : hmacSize+pkSize+8]))
-	reqS.EccCurveSize = uint16(binary.LittleEndian.Uint16(b[hmacSize+pkSize+9 : hmacSize+pkSize+10]))
-	reqS.SessionNo = uint16(binary.LittleEndian.Uint16(b[hmacSize+pkSize+11 : hmacSize+pkSize+12]))
+	copy(reqS.HmacSha256, b[0:hmacSize])
+	//fmt.Println("Copied : ", hmacSize)
+	copy(reqS.Publickey, b[hmacSize:hmacSize+pkSize])
+	//fmt.Println("Copied : ", hmacSize+pkSize, "bytes: ", b[hmacSize+pkSize:hmacSize+pkSize+8])
+	reqS.Nonce = uint64(binary.LittleEndian.Uint64(b[hmacSize+pkSize : hmacSize+pkSize+8]))
+	//fmt.Println("Nonce:", reqS.Nonce)
+	reqS.EccCurveSize = uint16(binary.LittleEndian.Uint16(b[hmacSize+pkSize+8 : hmacSize+pkSize+10]))
+	reqS.SessionNo = uint16(binary.LittleEndian.Uint16(b[hmacSize+pkSize+10 : hmacSize+pkSize+12]))
+	//fmt.Println("Unmarshalled ecdh response")
 }
 
 // You have received a new request for ecdh with public key,
@@ -281,6 +298,12 @@ type EcdhpFinalizeS struct {
 	//Ecc_curve_size uint16
 }
 
+func NewEcdhpFinalizeS() *EcdhpFinalizeS {
+	ret := new(EcdhpFinalizeS)
+	ret.HmacSha256 = make([]byte, HmacSize)
+	return ret
+}
+
 func (reqS *EcdhpFinalizeS) Marshal() []byte {
 	//n := make([]byte, 8)
 	//binary.LittleEndian.PutUint64(n, reqS.Nonce)
@@ -303,8 +326,8 @@ func (fin *EcdhpFinalizeS) UnMarshal(b []byte) {
 	copy(fin.HmacSha256, b[:hmacSize])
 	//copy(reqS.Publickey, b[hmacSize+1:hmacSize+pkSize])
 
-	fin.Result = (b[hmacSize+1] >= 1)
-	fin.SessionNo = uint16(binary.LittleEndian.Uint16(b[hmacSize+2 : hmacSize+3]))
+	fin.Result = (b[hmacSize] >= 1)
+	fin.SessionNo = uint16(binary.LittleEndian.Uint16(b[hmacSize+1 : hmacSize+3]))
 }
 
 ///Create the Finalizeation message.
@@ -334,11 +357,12 @@ func (dhp *EcdhProto) CreateFinalize(res *EcdhpResponseS) []byte {
 	_result := true
 	if !bytes.Equal(hmac, res.HmacSha256) {
 		//something wrong.
-		fmt.Println("My hmac is", hmac, "I received: ", res.HmacSha256)
+		fmt.Println("ECDHP FAiled: My hmac is", hmac, "\nI received: ", res.HmacSha256)
 		_result = false
+	} else {
+		fmt.Println("My hmac is", hmac, "I received: ", res.HmacSha256)
+		fmt.Println("Created Secret Key: ", secretKey)
 	}
-
-	fmt.Println("My hmac is", hmac, "I received: ", res.HmacSha256)
 	//create the final Finalizeation
 	binary.LittleEndian.PutUint64(nb, res.Nonce)
 	m = append(res.HmacSha256, nb...)
@@ -431,7 +455,7 @@ func EcdhpStateMachine(msg []byte, dataC *chan Def.GenMsg, inaddr string) {
 
 	//case EcdhpReqAckS:
 	case *EcdhpResponseS:
-		fmt.Println("Got a response , checking session manager...")
+		fmt.Println("Got a response ", ret)
 		resS := ret
 		if GSM.IsPresent(resS.SessionNo) == -1 {
 			log.Print("Something wrong, got a ecdh response, but never sent a request for session: ", resS.SessionNo)
@@ -468,20 +492,20 @@ func UnMarshall(msg []byte) interface{} {
 	var retS interface{}
 	switch msg[0] {
 	case Def.M_ECDH_REQ:
-		fmt.Println("Got a ECDH_REQ msg")
+		fmt.Println("Got a ECDH_REQ msg of size: ", len(msg))
 		inS := EcdhpRequestS{}
-		inS.UnMarshal(msg)
+		inS.UnMarshal(msg[1:])
 		retS = &inS
 	case Def.M_ECDH_RES:
-		fmt.Println("Got a ECDH_RESPONSE msg")
-		inS := EcdhpResponseS{}
-		inS.UnMarshal(msg)
-		retS = &inS
+		fmt.Println("Got a ECDH_RESPONSE msg of size: ", len(msg))
+		inS := NewEcdhpResponseS()
+		inS.UnMarshal(msg[1:])
+		retS = inS
 	case Def.M_ECDH_FIN:
-		fmt.Println("Got a ECDH_Finalize msg")
-		inS := &EcdhpFinalizeS{}
-		inS.UnMarshal(msg)
-		retS = &inS
+		fmt.Println("Got a ECDH_Finalize msg of size: ", len(msg))
+		inS := NewEcdhpFinalizeS()
+		inS.UnMarshal(msg[1:])
+		retS = inS
 	default:
 		return nil
 	}

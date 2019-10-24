@@ -30,16 +30,23 @@ type Gateway struct {
 	core        *rpc.Client
 	radio       *BtGattRadio
 	clientID    string
+	coreIP      string
 	secRcvChan  chan []byte
 	openRcvChan chan []byte
 }
 
-func NewGateway() *Gateway {
-	//instantiate gateway service
+func NewGateway(coreIP string) *Gateway {
+	//instantiate gateway service*rpc.Client
 	g := new(Gateway)
 	g.secRcvChan = make(chan []byte, 3)
 	g.openRcvChan = make(chan []byte, 3)
+	g.coreIP = coreIP
 	return g
+}
+
+func (g *Gateway) dialCore(servIP string) (err error) {
+	g.core, err = rpc.DialHTTP("tcp", servIP+":"+strconv.Itoa(svs.CorePort))
+	return err
 }
 
 //Status RPC. Reports status of the service
@@ -48,10 +55,8 @@ func (g *Gateway) Status(req svs.GtwyStatusRequest, res *svs.GtwyStatusResponse)
 		err = errors.New("Core name and IP address must be specified")
 		return
 	}
-
-	g.core, err = rpc.DialHTTP("tcp", req.IP+":"+strconv.Itoa(svs.CorePort))
+	err = g.dialCore(req.IP)
 	if err != nil {
-		log.Fatal("dialing:", err)
 		return err
 	}
 	res.Status = svs.GSGood
@@ -84,11 +89,15 @@ func (g *Gateway) sendToCore(msg []byte, size int) (err error) {
 	req := svs.MsgRequest{msg, len(msg), g.clientID, false}
 	var reply svs.MsgResponse
 
-	if g.core != nil {
-		//core connection is initialized
-		err = g.core.Call("Core.Receive", req, &reply)
-	} else {
-		return errors.New("Core link does not exist ")
+	if g.core == nil {
+		if g.dialCore(g.coreIP) != nil {
+			return errors.New("Core link has failed!! ")
+		}
+		log.Println("Core link not present, redail successful.")
+	}
+	//core connection is initialized
+	if g.core.Call("Core.Receive", req, &reply) != nil {
+		return errors.New("Core link is unstable!! ")
 	}
 
 	fmt.Printf("Core Sending Message Status: %t\n", reply.Status)
@@ -128,7 +137,7 @@ func startRPCServer() {
 
 func (g *Gateway) SendStatusReq() {
 	log.Println("Gateway: Sending a status request to device")
-	msg := []byte{106, 1, 2, 3, 4, 5, 6, 7}
+	msg := []byte{101, 1, 2, 3, 4, 5, 6, 7}
 	g.radio.SendOpen(msg, 8)
 }
 func main() {
@@ -144,7 +153,7 @@ func main() {
 	}
 
 	//instantiate new gateway
-	gateway := NewGateway()
+	gateway := NewGateway("localhost")
 	//instantiate new radio module
 	gateway.radio = NewBtGattRadio(clientID, gateway.secRcvChan, gateway.openRcvChan)
 

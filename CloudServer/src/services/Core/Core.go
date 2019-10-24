@@ -68,6 +68,7 @@ func (cs *Core) Receive(req svs.MsgRequest, res *svs.MsgResponse) (err error) {
 	//g.sendToRadio(req.Message, req.Size)
 	log.Printf("Received a pkt from RG of size %d\n", req.Size)
 	res.Status = true
+	log.Println("Pkt is: ", req.Message)
 	go cs.pktHndlr.IncomingMsgHandler(req.Message, req.Addr)
 	return
 }
