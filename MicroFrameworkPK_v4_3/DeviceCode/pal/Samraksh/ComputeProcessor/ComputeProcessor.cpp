@@ -12,11 +12,14 @@
 #include <COM_Manager_decl.h>
 #include <PKCS11/CryptokiPAL.h>
 #include <Samraksh\MAC_decl.h>
+#include <Samraksh/VirtualTimer.h>
 
 static bool CP_currently_present = FALSE;
 const int buffSize = 128;
 static uint8_t parseBuffer[buffSize];
 static int parseBuffPosition = 0;
+volatile int statusCheckGood = 0;
+
 void CP_SendMsgToCP(uint8_t* msg, int size){
 	int buffSize = 128;
 	int sendPos = 0;
@@ -283,8 +286,21 @@ static void CP_UserBtnHigh(GPIO_PIN Pin, BOOL PinState, void* Param){
 	CP_SendMsgToCP(buffer, buffer_size);
 }
 
+void PeriodicStatusCheck(void * param){
+	if (statusCheckGood == 0){
+		hal_printf("error! status check failed\r\n");
+	}
+	int buffer_size = 2;
+	uint8_t buffer[10];
+	buffer[0] = 'S';
+	buffer[1] = 'T';
+	CP_SendMsgToCP(buffer, buffer_size);
+	statusCheckGood = 0;
+}
+
 // returns TRUE if successful
 bool CP_Init(void){
+	statusCheckGood = 1;
 	//hal_printf("load arduino commented out\r\n");
 	CPU_GPIO_EnableOutputPin(0, TRUE);
 	CPU_GPIO_EnableOutputPin(1, FALSE);
@@ -314,6 +330,8 @@ hal_printf("**** disabled arduino loading ****\r\n");
 		parseBuffer[i] = 0;
 	}
 
+	VirtTimer_SetTimer(VIRT_TIMER_PERIODIC_CP_STATUS, 0, 5000000, FALSE, TRUE, (TIMER_CALLBACK_FPN)PeriodicStatusCheck, ADVTIMER_32BIT);
+	VirtTimer_Start(VIRT_TIMER_PERIODIC_CP_STATUS);
 	return TRUE;
 }
 
@@ -339,6 +357,9 @@ if ((buffer[0] == 'B') & (buffer[1] == 'U')){
 	hal_printf("msg rx cp bu\r\n");
 } else if ((buffer[0] == 'B') & (buffer[1] == 'D')){
 	hal_printf("msg rx cp bd\r\n");
+} else if ((buffer[0] == 'S') & (buffer[1] == 'G')){
+	hal_printf("msg rx status good\r\n");
+	statusCheckGood = 1;
 }
 /*	CK_BYTE encryptedData[128];
 
