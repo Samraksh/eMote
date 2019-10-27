@@ -269,6 +269,19 @@ static void CP_WantsTransaction(GPIO_PIN Pin, BOOL PinState, void* Param)
 	hal_printf("\r\n");}*/
 }
 
+static void CP_UserBtnHigh(GPIO_PIN Pin, BOOL PinState, void* Param){
+	int buffer_size = 2;
+	uint8_t buffer[10];
+	buffer[0] = 'B';
+	if (CPU_GPIO_GetPinState(COMPUTE_PROCESSOR_USER_BUTTON_PUSH) == true){
+		hal_printf("user button HIGH\r\n");
+		buffer[1] = 'D';
+	} else {
+		hal_printf("user button LOW\r\n");
+		buffer[1] = 'U';
+	}
+	CP_SendMsgToCP(buffer, buffer_size);
+}
 
 // returns TRUE if successful
 bool CP_Init(void){
@@ -279,12 +292,12 @@ bool CP_Init(void){
 	// external power enabled
 	CPU_GPIO_EnableOutputPin(4, TRUE);
 	//hal_printf("***** arduino binary moved for debug....move back to 0xe000! *****\r\n");
-	loadArduinoSPI((uint8_t*)0x7D000,3860);
+//loadArduinoSPI((uint8_t*)0x7D000,3860);
 	HAL_Time_Sleep_MicroSeconds(50000);
 
 	// ********** change me back	
-	verifyArduinoSPI((uint8_t*)0x7D000,3860);
-	
+//verifyArduinoSPI((uint8_t*)0x7D000,3860);
+hal_printf("**** disabled arduino loading ****\r\n");	
 	hal_printf("bring CP out of reset\r\n");
 	//CPU_GPIO_EnableOutputPin(0, TRUE);
 	HAL_Time_Sleep_MicroSeconds(50000);
@@ -295,6 +308,8 @@ bool CP_Init(void){
 	if (CPU_GPIO_GetPinState(COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM) == true){
 		CP_WantsTransaction(NULL, FALSE, NULL);
 	}
+
+	CPU_GPIO_EnableInputPin( COMPUTE_PROCESSOR_USER_BUTTON_PUSH, FALSE, CP_UserBtnHigh, GPIO_INT_EDGE_BOTH, RESISTOR_DISABLED);
 	for (int i = 0; i < buffSize; i++){
 		parseBuffer[i] = 0;
 	}
@@ -310,8 +325,22 @@ bool CP_UnInit(void){
 	return TRUE;
 }
 
+void PrintHex(uint8_t* sig, int size){
+	for (int j=0;j<size; j++){
+		hal_printf("%c , ",sig[j]);
+		if ((j%16)==0) hal_printf("\r\n");
+	}
+	hal_printf("\r\n");
+}
+
 void Message_Receive_From_CP( uint8_t *buffer, uint16_t buffer_size){
-	CK_BYTE encryptedData[128];
+//PrintHex(buffer, buffer_size);
+if ((buffer[0] == 'B') & (buffer[1] == 'U')){
+	hal_printf("msg rx cp bu\r\n");
+} else if ((buffer[0] == 'B') & (buffer[1] == 'D')){
+	hal_printf("msg rx cp bd\r\n");
+}
+/*	CK_BYTE encryptedData[128];
 
 		hal_printf("sending data: ");
 		//PrintHex(buffer,buffer_size);
@@ -324,5 +353,5 @@ void Message_Receive_From_CP( uint8_t *buffer, uint16_t buffer_size){
 		//} else {
 		//	MAC_Send(UNENCRYPTED_DATA_CHANNEL, NULL, buffer, buffer_size);
 		//}
-	//}
+	//}*/
 }

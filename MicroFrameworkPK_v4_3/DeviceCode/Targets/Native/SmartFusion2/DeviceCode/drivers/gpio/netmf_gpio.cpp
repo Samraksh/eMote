@@ -31,6 +31,7 @@ static uint8_t pin_reservations[GPIO_PINS];
 static void GPIO0_IRQ_HANDLER(void *args);
 static void GPIO1_IRQ_HANDLER(void *args);
 static void GPIO2_IRQ_HANDLER(void *args);
+static void GPIO6_IRQ_HANDLER(void *args);
 
 static void handle_exti(unsigned int pin)
 {
@@ -92,6 +93,9 @@ UINT32 GPIO_GetIRQNumber(GPIO_PIN Pin)
 	case 	2:
 		irq_number = GPIO2_IRQn;
 		break;
+	case 	6:
+		irq_number = GPIO6_IRQn;
+		break;
 	}
 
 	return irq_number;
@@ -111,6 +115,9 @@ HAL_CALLBACK_FPN GPIO_GetCallBack(GPIO_PIN Pin)
 		break;
 	case 	2:
 		callback = GPIO2_IRQ_HANDLER;
+		break;
+	case 	6:
+		callback = GPIO6_IRQ_HANDLER;
 		break;
 	}
 
@@ -556,4 +563,9 @@ void GPIO1_IRQ_HANDLER(void *args)
 void GPIO2_IRQ_HANDLER(void *args)
 {
 	handle_exti(2);
+}
+
+void GPIO6_IRQ_HANDLER(void *args)
+{
+	handle_exti(6);
 }

@@ -94,6 +94,7 @@ bool inPendSV_irq;
 
 #define USING_COMPUTE_PROCESSOR 1
 #define COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM 2
+#define COMPUTE_PROCESSOR_USER_BUTTON_PUSH 6
 #define COMPUTE_PROCESSOR_COMM_WAIT_TIME 400
 //uncomment one if using compute processor
 //#define CP_USE_UART 1

@@ -1929,7 +1929,7 @@ static void event_handler(uint8_t *packet, int size){
             if (HCI_EVENT_IS_COMMAND_COMPLETE(packet, hci_read_bd_addr)) {
                 reverse_bd_addr(&packet[OFFSET_OF_DATA_IN_COMMAND_COMPLETE + 1],
 				hci_stack->local_bd_addr);
-                log_info("Local Address, Status: 0x%02x: Addr: %s",
+                log_always("Local Address, Status: 0x%02x: Addr: %s",
                     packet[OFFSET_OF_DATA_IN_COMMAND_COMPLETE], bd_addr_to_str(hci_stack->local_bd_addr));
 #ifdef ENABLE_CLASSIC
                 if (hci_stack->link_key_db){
