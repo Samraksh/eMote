@@ -88,8 +88,8 @@ IF /I NOT "%COMPILER_TOOL%" == "VS" (
             IF NOT "%VS100COMNTOOLS%" == "" (
             CALL "%VS100COMNTOOLS%vsvars32.bat"
             ) ELSE (
-                IF NOT "%VS90COMNTOOLS%" == "" (
-                    CALL "%VS90COMNTOOLS%vsvars32.bat"    
+                IF NOT "%VS140COMNTOOLS%" == "" (
+                    CALL "%VS140COMNTOOLS%vsvars32.bat"
                 ) ELSE ( 
                     @ECHO WARNING: Could not find vsvars32.bat.
                     @ECHO WARNING: VISUAL C++ DOES NOT APPEAR TO BE INSTALLED ON THIS MACHINE
