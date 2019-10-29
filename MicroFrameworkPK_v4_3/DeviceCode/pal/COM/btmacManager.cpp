@@ -102,7 +102,7 @@ void BTMAC_Manager_Receive(void* buffer, UINT16 payloadType) {
 		IEEE802_15_4_Header_t* header = msg_carrier.GetHeader();	
 		uint8_t* payload = (uint8_t*)msg->GetPayload();
 		if (msg->GetHeader()->payloadType == ENCRYPTED_DATA_CHANNEL){
-			hal_printf("got encrypted data\r\n");
+			//hal_printf("got encrypted data\r\n");
 			link_encrypted = true;
 			//temporarily disabling encryption
 			//int dataLen = Message_Decrypt_Data(msg->GetPayload(), size, decryptedData);

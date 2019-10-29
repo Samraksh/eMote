@@ -224,7 +224,7 @@ int verifyArduinoSPI( uint8_t* address, uint16_t binarySize){
 	uint8_t i,j,k;
 
 	HAL_Time_Sleep_MicroSeconds(50000);
-	CPU_GPIO_SetPinState(0, TRUE);
+	CPU_GPIO_SetPinState(GPIO_CP_RESET, TRUE);
 
 	// Program enable
 	spi_tx_buff[0] = 0xAC;
@@ -311,7 +311,7 @@ int verifyArduinoSPI( uint8_t* address, uint16_t binarySize){
 	}
 
 	// take Arduino out of reset
-	CPU_GPIO_SetPinState(0, FALSE);
+	CPU_GPIO_SetPinState(GPIO_CP_RESET, FALSE);
 	
 	hal_printf("Arduino successfully programmed.\r\n");
 	return 0;

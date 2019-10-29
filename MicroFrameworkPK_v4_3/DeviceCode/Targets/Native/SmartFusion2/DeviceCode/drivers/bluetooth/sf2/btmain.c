@@ -623,7 +623,7 @@ static uint16_t att_read_callback(hci_con_handle_t con_handle, uint16_t att_hand
 // write requests
 static int att_write_callback(hci_con_handle_t con_handle, uint16_t att_handle, uint16_t transaction_mode, uint16_t offset, uint8_t *buffer, uint16_t buffer_size){
     // ignore cancel sent for new connections
-	log_always("Received Something: ");
+	//log_always("Received Something: ");
 
     if (transaction_mode == ATT_TRANSACTION_MODE_CANCEL) return 0;
     // find characteristic for handle
