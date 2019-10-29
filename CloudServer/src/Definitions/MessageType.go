@@ -21,6 +21,7 @@ const (
 	M_SEC_STATUS_RES // reponse back from device
 	M_SEC_BIN_RQ     //secure binary update request from device
 	M_SEC_BIN_RES    // binary update protocol messages from core to device  or vise versa
+	M_SEC_DETECT
 )
 
 type IPMsg struct {

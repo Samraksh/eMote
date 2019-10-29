@@ -76,6 +76,15 @@ void RequestNewBinary(){
 	BTMAC_Manager_Send(reply, 8, CLOUD_CHANNEL);
 }
 
+void SendDetectMessage(){
+	UINT8 reply[8];
+	reply[0]= M_SEC_DETECT;
+	reply[1]= deviceStatus;
+	hal_printf("Sending detect message to gateway\n");
+	//BTMAC_Manager_Send(reply, 8, ENCRYPTED_DATA_CHANNEL);
+	BTMAC_Manager_Send(reply, 8, CLOUD_CHANNEL);
+}
+
 void OpenCloudReceive(void* buffer, UINT16 size){
 	hal_printf("ComManager:: Received open message of size %d\n", size);
 	UINT8 *msg = (UINT8*)buffer;
@@ -90,9 +99,9 @@ void OpenCloudReceive(void* buffer, UINT16 size){
 			reply[0]= M_STATUS_RES;
 			reply[1]= deviceStatus;
 			hal_printf("ComManager:: OpenReceive: This is a status request from Cloud, responding \n");
-			//BTMAC_Manager_Send(reply, 8, CLOUD_CHANNEL);
+			BTMAC_Manager_Send(reply, 8, CLOUD_CHANNEL);
 
-			RequestNewBinary();
+			//RequestNewBinary();
 			break;
 		case M_UNKNOWN:
 		default:

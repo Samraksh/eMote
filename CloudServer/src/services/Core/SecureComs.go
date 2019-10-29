@@ -93,6 +93,10 @@ func (sc *SecureComs) HandleIncoming(msg []byte, addr string) {
 	case Def.M_SEC_STATUS_RES:
 		sc.StatusHandler(msg, addr)
 		break
+
+	case Def.M_SEC_DETECT
+		fmt.Println("*** Remote detect from 'IoT Device #1'!")
+		break;
 	default:
 		fmt.Println("PktHndlr::RouteMsg: Received an unknown message type, droping it.")
 	}

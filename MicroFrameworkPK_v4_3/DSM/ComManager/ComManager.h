@@ -25,7 +25,8 @@ enum MsgTypeE {
 	M_SEC_STATUS_RQ,
 	M_SEC_STATUS_RES,
 	M_SEC_BIN_RQ,
-	M_SEC_BIN_RES
+	M_SEC_BIN_RES,
+	M_SEC_DETECT
 	//M_ECDH_TER
 };
 
@@ -40,6 +41,8 @@ enum DeviceStatusE {
 //typedef void *RecvFnPtr (uint8_t * msg, uint16_t size);
 
 //void CheckRecv(void *arg);
+void RequestNewBinary(void);
+void SendDetectMessage(void);
 
 bool InitializeComManager();
 

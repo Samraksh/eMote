@@ -13,12 +13,37 @@
 #include <PKCS11/CryptokiPAL.h>
 #include <Samraksh\MAC_decl.h>
 #include <Samraksh/VirtualTimer.h>
+#include <../../DSM/ComManager/ComManager.h>
 
 static bool CP_currently_present = FALSE;
 const int buffSize = 128;
 static uint8_t parseBuffer[buffSize];
 static int parseBuffPosition = 0;
 volatile int statusCheckGood = 0;
+int pinState;
+static HAL_CONTINUATION failSafeContinuation;
+
+void failSafe(void *arg){
+	hal_printf("Error with Compute Processor. Verifying binary is correct.\r\n");
+
+	//hal_printf("**** enable verify check\r\n");
+//	int retVal = verifyArduinoSPI((uint8_t*)NVM_CP_BINARY_LOCATION,NVM_CP_BINARY_SIZE);
+int retVal = 0;
+	if (retVal == 0){
+		hal_printf("Compute Processor binary is correct. Restarting Compute Processor.\r\n");
+		CPU_GPIO_SetPinState(GPIO_CP_RESET, TRUE);
+		// take Arduino out of reset
+		CPU_GPIO_SetPinState(GPIO_CP_RESET, FALSE);
+		hal_printf("Sending Compute Processor crash error report to gateway.\r\n");
+
+		hal_printf("Requesting Compute Processor binary update\r\n");
+		RequestNewBinary();
+		VirtTimer_Stop(VIRT_TIMER_PERIODIC_CP_STATUS);
+	} else {
+		hal_printf("Compute Processor binary was corrupted. Reloading.\r\n");
+		hal_printf("Sending Compute Processor corruption report to gateway.\r\n");
+	}
+}
 
 void CP_SendMsgToCP(uint8_t* msg, int size){
 	int buffSize = 128;
@@ -282,13 +307,19 @@ static void CP_UserBtnHigh(GPIO_PIN Pin, BOOL PinState, void* Param){
 	} else {
 		hal_printf("user button LOW\r\n");
 		buffer[1] = 'U';
+		SendDetectMessage();
 	}
 	CP_SendMsgToCP(buffer, buffer_size);
 }
 
 void PeriodicStatusCheck(void * param){
+	CPU_GPIO_SetPinState(11, pinState);
+	if (pinState == 0) pinState = 1;
+	else pinState = 0;
+	CPU_GPIO_SetPinState(14, pinState);
 	if (statusCheckGood == 0){
 		hal_printf("error! status check failed\r\n");
+		failSafeContinuation.Enqueue();
 	}
 	int buffer_size = 2;
 	uint8_t buffer[10];
@@ -300,19 +331,24 @@ void PeriodicStatusCheck(void * param){
 
 // returns TRUE if successful
 bool CP_Init(void){
+	failSafeContinuation.InitializeCallback(failSafe, NULL);
 	statusCheckGood = 1;
 	//hal_printf("load arduino commented out\r\n");
 	CPU_GPIO_EnableOutputPin(0, TRUE);
 	CPU_GPIO_EnableOutputPin(1, FALSE);
 
+	pinState = 0;
+	CPU_GPIO_EnableOutputPin(11, FALSE);
+	CPU_GPIO_EnableOutputPin(14, FALSE);
+
 	// external power enabled
 	CPU_GPIO_EnableOutputPin(4, TRUE);
 	//hal_printf("***** arduino binary moved for debug....move back to 0xe000! *****\r\n");
-//loadArduinoSPI((uint8_t*)0x7D000,3860);
+//loadArduinoSPI((uint8_t*)NVM_CP_BINARY_LOCATION,NVM_CP_BINARY_SIZE);
 	HAL_Time_Sleep_MicroSeconds(50000);
 
 	// ********** change me back	
-//verifyArduinoSPI((uint8_t*)0x7D000,3860);
+//verifyArduinoSPI((uint8_t*)NVM_CP_BINARY_LOCATION,NVM_CP_BINARY_SIZE);
 hal_printf("**** disabled arduino loading ****\r\n");	
 	hal_printf("bring CP out of reset\r\n");
 	//CPU_GPIO_EnableOutputPin(0, TRUE);
@@ -330,7 +366,7 @@ hal_printf("**** disabled arduino loading ****\r\n");
 		parseBuffer[i] = 0;
 	}
 
-	VirtTimer_SetTimer(VIRT_TIMER_PERIODIC_CP_STATUS, 0, 5000000, FALSE, TRUE, (TIMER_CALLBACK_FPN)PeriodicStatusCheck, ADVTIMER_32BIT);
+	VirtTimer_SetTimer(VIRT_TIMER_PERIODIC_CP_STATUS, 0, 10000000, FALSE, TRUE, (TIMER_CALLBACK_FPN)PeriodicStatusCheck, ADVTIMER_32BIT);
 	VirtTimer_Start(VIRT_TIMER_PERIODIC_CP_STATUS);
 	return TRUE;
 }
@@ -352,15 +388,15 @@ void PrintHex(uint8_t* sig, int size){
 }
 
 void Message_Receive_From_CP( uint8_t *buffer, uint16_t buffer_size){
-//PrintHex(buffer, buffer_size);
-if ((buffer[0] == 'B') & (buffer[1] == 'U')){
+	//PrintHex(buffer, buffer_size);
+	if ((buffer[0] == 'B') & (buffer[1] == 'U')){
 	hal_printf("msg rx cp bu\r\n");
-} else if ((buffer[0] == 'B') & (buffer[1] == 'D')){
-	hal_printf("msg rx cp bd\r\n");
-} else if ((buffer[0] == 'S') & (buffer[1] == 'G')){
-	hal_printf("msg rx status good\r\n");
-	statusCheckGood = 1;
-}
+	} else if ((buffer[0] == 'B') & (buffer[1] == 'D')){
+		hal_printf("msg rx cp bd\r\n");
+	} else if ((buffer[0] == 'S') & (buffer[1] == 'G')){
+		hal_printf("+");
+		statusCheckGood = 1;
+	}
 /*	CK_BYTE encryptedData[128];
 
 		hal_printf("sending data: ");
