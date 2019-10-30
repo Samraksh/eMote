@@ -271,6 +271,7 @@ void Samraksh_Emote_Update::Receive(uint8_t* payload, int size) {
 				responseData[9] = 0x00;
 				responseData[10] = 0x58;
 				MAC_Send(CLOUD_CHANNEL, NULL, &responseData[0], responseDataSize);*/
+				CP_Reload();
 			} else if (opCode == g_Samraksh_Emote_Update.c_Debugging_MFUpdate_GetMissingPkts){
 				hal_printf("MFUpdate missing pkts\r\n");
 				ReplyToCommand(g_Samraksh_Emote_Update.c_Debugging_MFUpdate_GetMissingPkts, true);
@@ -370,7 +371,6 @@ void Samraksh_Emote_Update::Cleanup() {
  */
 void Samraksh_Emote_Update::Initialize() {
     bool ret = true;
-	hal_printf(" ----- update init 2\r\n");
 	
 	if(g_Samraksh_Emote_Update.m_fInitialized == true) return;
     //MFUpdate_Initialize(); //safe to call multiple times.
@@ -409,8 +409,6 @@ bool Samraksh_Emote_Update::UnInitializeDriversBeforeInstall() {
 
 bool Samraksh_Emote_Update::UpdateInit( WP_Message* msg, void* owner )
 {
-	hal_printf("---- update init\r\n");
-	
 	//TODO: accept argument specifying different modes... like burst mode transfer, USB-tethered repeater
     CreateInstance();
     //InitializeMac(); // turn on wireless, ie, if message received over USB.
