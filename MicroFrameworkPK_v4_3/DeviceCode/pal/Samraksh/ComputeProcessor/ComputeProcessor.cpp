@@ -20,6 +20,7 @@ const int buffSize = 128;
 static uint8_t parseBuffer[buffSize];
 static int parseBuffPosition = 0;
 volatile int statusCheckGood = 0;
+int binaryFixed = 0;
 int pinState;
 static HAL_CONTINUATION failSafeContinuation;
 
@@ -304,10 +305,12 @@ static void CP_UserBtnHigh(GPIO_PIN Pin, BOOL PinState, void* Param){
 	if (CPU_GPIO_GetPinState(COMPUTE_PROCESSOR_USER_BUTTON_PUSH) == true){
 		hal_printf("user button HIGH\r\n");
 		buffer[1] = 'D';
+		statusCheckGood = 1;
 	} else {
 		hal_printf("user button LOW\r\n");
 		buffer[1] = 'U';
 		SendDetectMessage();
+		statusCheckGood = 0;
 	}
 	CP_SendMsgToCP(buffer, buffer_size);
 }
@@ -317,16 +320,17 @@ void PeriodicStatusCheck(void * param){
 	if (pinState == 0) pinState = 1;
 	else pinState = 0;
 	CPU_GPIO_SetPinState(14, pinState);
-	if (statusCheckGood == 0){
+	if ((statusCheckGood == 0) && (binaryFixed == 0)){
 		hal_printf("error! status check failed\r\n");
 		failSafeContinuation.Enqueue();
+	} else {
+		int buffer_size = 2;
+		uint8_t buffer[10];
+		buffer[0] = 'S';
+		buffer[1] = 'T';
+		CP_SendMsgToCP(buffer, buffer_size);
+		//statusCheckGood = 0;
 	}
-	int buffer_size = 2;
-	uint8_t buffer[10];
-	buffer[0] = 'S';
-	buffer[1] = 'T';
-	CP_SendMsgToCP(buffer, buffer_size);
-	statusCheckGood = 0;
 }
 
 void CP_Reload(void){
@@ -345,6 +349,7 @@ void CP_Reload(void){
 	HAL_Time_Sleep_MicroSeconds(50000);
 	CPU_GPIO_SetPinState(0, FALSE);
 
+	binaryFixed = 1;
 	VirtTimer_Start(VIRT_TIMER_PERIODIC_CP_STATUS);
 }
 
@@ -352,6 +357,7 @@ void CP_Reload(void){
 bool CP_Init(void){
 	failSafeContinuation.InitializeCallback(failSafe, NULL);
 	statusCheckGood = 1;
+	binaryFixed = 0;
 	//hal_printf("load arduino commented out\r\n");
 	CPU_GPIO_EnableOutputPin(0, TRUE);
 	CPU_GPIO_EnableOutputPin(1, FALSE);
@@ -360,8 +366,20 @@ bool CP_Init(void){
 	CPU_GPIO_EnableOutputPin(11, FALSE);
 	CPU_GPIO_EnableOutputPin(14, FALSE);
 
-	
+	// external power enabled
+	CPU_GPIO_EnableOutputPin(4, TRUE);
+	//hal_printf("***** arduino binary moved for debug....move back to 0xe000! *****\r\n");
+	loadArduinoSPI((uint8_t*)NVM_CP_BINARY_LOCATION,NVM_CP_BINARY_SIZE);
+	HAL_Time_Sleep_MicroSeconds(50000);
 
+	// ********** change me back	
+	verifyArduinoSPI((uint8_t*)NVM_CP_BINARY_LOCATION,NVM_CP_BINARY_SIZE);
+	//hal_printf("**** disabled arduino loading ****\r\n");	
+	hal_printf("bring CP out of reset\r\n");
+	//CPU_GPIO_EnableOutputPin(0, TRUE);
+	HAL_Time_Sleep_MicroSeconds(50000);
+	CPU_GPIO_SetPinState(0, FALSE);
+	
 	hal_printf("Compute processor init\r\n");
 	CPU_GPIO_EnableInputPin( COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM, FALSE, CP_WantsTransaction, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	if (CPU_GPIO_GetPinState(COMPUTE_PROCESSOR_DATA_TO_SEND_GPIO_NUM) == true){
@@ -402,7 +420,7 @@ void Message_Receive_From_CP( uint8_t *buffer, uint16_t buffer_size){
 		//hal_printf("msg rx cp bd\r\n");
 	} else if ((buffer[0] == 'S') & (buffer[1] == 'G')){
 		//hal_printf("+");
-		statusCheckGood = 1;
+		//statusCheckGood = 1;
 	}
 /*	CK_BYTE encryptedData[128];
 

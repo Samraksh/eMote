@@ -227,60 +227,41 @@ void Samraksh_Emote_Update::Receive(uint8_t* payload, int size) {
 				totalPacketNum = payload[15]<<24 | payload[16]<<16 | payload[17]<<8 | payload[18];
 				hal_printf("Update start transferSize: %d sent over %d packets\r\n", transferSize, totalPacketNum);
 
+				writeLocation = NVM_CP_BINARY_LOCATION;
 				ReplyToCommand(g_Samraksh_Emote_Update.c_Debugging_MFUpdate_Start, TRUE);
-				
 			} else if (opCode == g_Samraksh_Emote_Update.c_Debugging_MFUpdate_AddPacket){
 				int currentPacketNum = payload[11];
 				size = size - 15; // packet size minus header minus 16 bytes of marker/param
-				hal_printf("Update add packet (%d) size: %d\r\n", currentPacketNum, size);
+				//hal_printf("Update add packet (%d) size: %d\r\n", currentPacketNum, size);
+				//hal_printf("+");
 				
 				ReplyToCommand(g_Samraksh_Emote_Update.c_Debugging_MFUpdate_AddPacket, true);
 				//PrintHex(&payload[15],size); 
 				//hal_printf("\r\n");
 
-				/*nvm_status_t status = NVM_unlock(writeLocation, size);
+				hal_printf("Data to write (%d) @ %x:       ", size, writeLocation);
+				nvm_status_t status = NVM_unlock(writeLocation, size);
     			if((NVM_SUCCESS == status)||(NVM_WRITE_THRESHOLD_WARNING == status))
     			{
-				status = NVM_write(writeLocation, &payload[15], size, NVM_DO_NOT_LOCK_PAGE);
-        		if((NVM_SUCCESS == status)||(NVM_WRITE_THRESHOLD_WARNING == status))
-        		{
-					hal_printf("binary write success\r\n");
-        		} else {
-					hal_printf("binary envm write error: %d\r\n", status);
-				}
-        
+					status = NVM_write(writeLocation, &payload[15], size, NVM_DO_NOT_LOCK_PAGE);
+        			if((NVM_SUCCESS == status)||(NVM_WRITE_THRESHOLD_WARNING == status))
+        			{
+						hal_printf("success\r\n");
+        			} else {
+						hal_printf("write error: %d\r\n", status);
+					}
     			} else {
-					hal_printf("binary envm unlock error: %d\r\n", status);
+					hal_printf("unlock error: %d\r\n", status);
 				}
 
 				writeLocation += size;
-				hal_printf("Data to write (%d) @ %x: \r\n", size, writeLocation);
-
-				memcpy((void*) responseData, MARKER_PACKET_V1, SIGNATURE_SIZE);
-				responseData[7] = 0x00;
-				responseData[8] = 0x02;
-				responseData[9] = 0x00;
-				responseData[10] = 0x57;
-				MAC_Send(CLOUD_CHANNEL, NULL, &responseData[0], responseDataSize);*/
 			} else if (opCode == g_Samraksh_Emote_Update.c_Debugging_MFUpdate_Install){
 				hal_printf("MFUpdate install\r\n");
 				ReplyToCommand(g_Samraksh_Emote_Update.c_Debugging_MFUpdate_Install, true);
-				/*memcpy((void*) responseData, MARKER_PACKET_V1, SIGNATURE_SIZE);
-				responseData[7] = 0x00;
-				responseData[8] = 0x02;
-				responseData[9] = 0x00;
-				responseData[10] = 0x58;
-				MAC_Send(CLOUD_CHANNEL, NULL, &responseData[0], responseDataSize);*/
 				CP_Reload();
 			} else if (opCode == g_Samraksh_Emote_Update.c_Debugging_MFUpdate_GetMissingPkts){
 				hal_printf("MFUpdate missing pkts\r\n");
 				ReplyToCommand(g_Samraksh_Emote_Update.c_Debugging_MFUpdate_GetMissingPkts, true);
-				/*memcpy((void*) responseData, MARKER_PACKET_V1, SIGNATURE_SIZE);
-				responseData[7] = 0x00;
-				responseData[8] = 0x02;
-				responseData[9] = 0x00;
-				responseData[10] = 0x61;
-				MAC_Send(CLOUD_CHANNEL, NULL, &responseData[0], responseDataSize);*/
 			}
 
     // always check if sender is using WP_Packet format.  WP_Packet header will be in every message.
