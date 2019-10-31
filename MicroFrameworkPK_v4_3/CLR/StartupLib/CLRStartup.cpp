@@ -189,7 +189,7 @@ struct Settings
         TINYCLR_CLEANUP();
 
 #if !defined(BUILD_RTM)
-        if(FAILED(hr)) CLR_Debug::Printf( "Error: %08x\r\n", hr );
+        //if(FAILED(hr)) CLR_Debug::Printf( "Error: %08x\r\n", hr );
 #endif
 
         TINYCLR_CLEANUP_END();

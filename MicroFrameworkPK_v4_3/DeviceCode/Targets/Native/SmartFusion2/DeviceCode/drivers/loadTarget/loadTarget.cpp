@@ -313,6 +313,6 @@ int verifyArduinoSPI( uint8_t* address, uint16_t binarySize){
 	// take Arduino out of reset
 	CPU_GPIO_SetPinState(GPIO_CP_RESET, FALSE);
 	
-	hal_printf("Compute Processor successfully programmed.\r\n");
+	hal_printf("Compute Processor verified successfully.\r\n");
 	return 0;
 }
