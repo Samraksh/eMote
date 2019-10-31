@@ -57,7 +57,7 @@ void failSafe(void *arg){
 		CPU_GPIO_SetPinState(GPIO_CP_RESET, FALSE);
 		hal_printf("Sending Compute Processor crash error report to gateway.\r\n");
 
-		hal_printf("Requesting Compute Processor binary update\r\n");
+		//hal_printf("Requesting Compute Processor binary update\r\n");
 		RequestNewBinary();
 		VirtTimer_Stop(VIRT_TIMER_PERIODIC_CP_STATUS);
 	} else {
@@ -337,13 +337,14 @@ static void CP_UserBtnHigh(GPIO_PIN Pin, BOOL PinState, void* Param){
 }
 
 void PeriodicStatusCheck(void * param){
-	CPU_GPIO_SetPinState(11, pinState);
-	if (pinState == 0) pinState = 1;
-	else pinState = 0;
-	CPU_GPIO_SetPinState(14, pinState);
+//	if (pinState == 0) pinState = 1;
+//	else pinState = 0;
+//	CPU_GPIO_SetPinState(14, pinState);
 	if ((statusCheckGood == 0) && (binaryFixed == 0)){
 		hal_printf("Error! Status check failed.\r\n");
 		failSafeContinuation.Enqueue();
+		CPU_GPIO_SetPinState(11, FALSE);
+		CPU_GPIO_SetPinState(14, TRUE);
 	} else {
 		int buffer_size = 2;
 		uint8_t buffer[10];
@@ -351,6 +352,10 @@ void PeriodicStatusCheck(void * param){
 		buffer[1] = 'T';
 		CP_SendMsgToCP(buffer, buffer_size);
 		//statusCheckGood = 0;
+		CPU_GPIO_SetPinState(11, TRUE);
+		HAL_Time_Sleep_MicroSeconds(200000);
+		CPU_GPIO_SetPinState(11, FALSE);
+		CPU_GPIO_SetPinState(14, FALSE);
 	}
 }
 
@@ -393,7 +398,7 @@ bool CP_Init(void){
 		parseBuffer[i] = 0;
 	}
 
-	VirtTimer_SetTimer(VIRT_TIMER_PERIODIC_CP_STATUS, 0, 10000000, FALSE, TRUE, (TIMER_CALLBACK_FPN)PeriodicStatusCheck, ADVTIMER_32BIT);
+	VirtTimer_SetTimer(VIRT_TIMER_PERIODIC_CP_STATUS, 0, 5000000, FALSE, TRUE, (TIMER_CALLBACK_FPN)PeriodicStatusCheck, ADVTIMER_32BIT);
 	VirtTimer_Start(VIRT_TIMER_PERIODIC_CP_STATUS);
 	return TRUE;
 }

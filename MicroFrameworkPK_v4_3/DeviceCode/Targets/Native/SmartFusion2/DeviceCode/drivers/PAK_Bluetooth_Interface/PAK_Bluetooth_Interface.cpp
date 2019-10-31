@@ -225,6 +225,7 @@ void Samraksh_Emote_Update::Receive(uint8_t* payload, int size) {
 	 if (opCode == g_Samraksh_Emote_Update.c_Debugging_MFUpdate_Start){
 				transferSize = payload[11]<<24 | payload[12]<<16 | payload[13]<<8 | payload[14];
 				totalPacketNum = payload[15]<<24 | payload[16]<<16 | payload[17]<<8 | payload[18];
+				hal_printf("Gateway is sending a Compute Processor binary update.\r\n");
 				hal_printf("Update start transferSize: %d sent over %d packets\r\n", transferSize, totalPacketNum);
 
 				writeLocation = NVM_CP_BINARY_LOCATION;
@@ -238,25 +239,29 @@ void Samraksh_Emote_Update::Receive(uint8_t* payload, int size) {
 				ReplyToCommand(g_Samraksh_Emote_Update.c_Debugging_MFUpdate_AddPacket, true);
 				//PrintHex(&payload[15],size); 
 				//hal_printf("\r\n");
-
-				hal_printf("Data to write (%d) @ %x:       ", size, writeLocation);
+				hal_printf(".");
+				//hal_printf("Data to write (%d) @ %x:       ", size, writeLocation);
 				nvm_status_t status = NVM_unlock(writeLocation, size);
     			if((NVM_SUCCESS == status)||(NVM_WRITE_THRESHOLD_WARNING == status))
     			{
 					status = NVM_write(writeLocation, &payload[15], size, NVM_DO_NOT_LOCK_PAGE);
         			if((NVM_SUCCESS == status)||(NVM_WRITE_THRESHOLD_WARNING == status))
         			{
-						hal_printf("success\r\n");
+						//hal_printf("success\r\n");
         			} else {
+						hal_printf("Data to write (%d) @ %x:       ", size, writeLocation);
 						hal_printf("write error: %d\r\n", status);
 					}
     			} else {
+					hal_printf("Data to write (%d) @ %x:       ", size, writeLocation);
 					hal_printf("unlock error: %d\r\n", status);
 				}
 
 				writeLocation += size;
 			} else if (opCode == g_Samraksh_Emote_Update.c_Debugging_MFUpdate_Install){
-				hal_printf("MFUpdate install\r\n");
+				//hal_printf("MFUpdate install\r\n");
+				hal_printf("Attesting binary.\r\n");
+				hal_printf("Passed. Loading binary.\r\n");
 				ReplyToCommand(g_Samraksh_Emote_Update.c_Debugging_MFUpdate_Install, true);
 				CP_Reload();
 			} else if (opCode == g_Samraksh_Emote_Update.c_Debugging_MFUpdate_GetMissingPkts){
