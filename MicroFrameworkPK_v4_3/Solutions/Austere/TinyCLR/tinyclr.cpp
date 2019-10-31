@@ -49,6 +49,7 @@ void ApplicationEntryPoint()
 #endif
 
     CLR_SETTINGS clrSettings;
+	hal_printf("THIS IS AN EXPERIMENTAL NON-CONFORMING BUILD\r\n");
 
     memset(&clrSettings, 0, sizeof(CLR_SETTINGS));
 

@@ -118,7 +118,7 @@ void Radar_Handler(void *arg)
 	} else 	if (radarGarbagePurged == 3){
 		radarGarbagePurged = 4;
 		// disabling data ready interrupt
-		CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+		//CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
 		alertInterruptActive = false;
 	}
 
@@ -179,10 +179,11 @@ void Radar_Handler(void *arg)
 
 
 	UINT32 FPGAIQRejection;
+	continueToSendCount = 2; // HACK, for continous data mode. Never let this reach 0. --NPS
 	if ((CPU_GPIO_GetPinState(33) == TRUE) | (continueToSendCount > 0)  ){
 		if (alertInterruptActive == false){
-			//hal_printf("enabling data pull; cont: %d detect: %d\r\n", continueToSendCount, numDetectSamples);
-			CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+			//hal_printf("enabling data pull; cont: %d detect: %d data_pin:%d\r\n", continueToSendCount, numDetectSamples, CPU_GPIO_GetPinState(33) == TRUE ? 1 : 0);
+			//CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 			alertInterruptActive = true;
 		} else {
 			//hal_printf("cont: %d detect: %d\r\n", continueToSendCount, numDetectSamples);
@@ -240,7 +241,7 @@ void Radar_Handler(void *arg)
 		// if there is a current detection or we  are pulling out continuation data the we allow the data alert pulse to call this interrupt
 		// we need to exit this interrupt after every block of data to allow user processing time
 		//hal_printf("disabling data pull\r\n");
-		CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+		//CPU_GPIO_DisablePin(33, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
 		alertInterruptActive = false;
 		interruptServiceInProcess = false;
 		return;
@@ -299,7 +300,7 @@ INT8 FPGA_RadarInit(UINT16 *chan1Ptr, UINT16 *chan2Ptr, INT16 *sampleqdiff, INT1
 	CPU_GPIO_EnableInputPin(33, FALSE, dataAlertHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	alertInterruptActive = true;
 	// detection
-	CPU_GPIO_EnableInputPin(0, FALSE, detectHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	//CPU_GPIO_EnableInputPin(0, FALSE, detectHandler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	// setup chip select pin
 	CPU_GPIO_EnableOutputPin(8,FALSE);
 	// toggle reset line to FPGA
