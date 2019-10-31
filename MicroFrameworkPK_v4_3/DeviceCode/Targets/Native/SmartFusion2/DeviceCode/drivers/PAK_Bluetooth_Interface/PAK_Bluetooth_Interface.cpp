@@ -222,6 +222,7 @@ void Samraksh_Emote_Update::Receive(uint8_t* payload, int size) {
     //uint32_t command = 0;
     //WP_Packet* msg = (WP_Packet*)buffer;
 
+	HAL_Time_Sleep_MicroSeconds(200000);
 	 if (opCode == g_Samraksh_Emote_Update.c_Debugging_MFUpdate_Start){
 				transferSize = payload[11]<<24 | payload[12]<<16 | payload[13]<<8 | payload[14];
 				totalPacketNum = payload[15]<<24 | payload[16]<<16 | payload[17]<<8 | payload[18];
