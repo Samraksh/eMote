@@ -182,7 +182,7 @@ bool BTMAC_Manager_Send(void* buffer, UINT16 size, UINT16 channel ){
 }
 
 void BTMAC_Manager_Neighbor_Change(INT16 neighbors) {
-	hal_printf("*** neighbor change %d ****\r\n", neighbors);
+	//hal_printf("*** neighbor change %d ****\r\n", neighbors);
 	current_neighbor_count = neighbors;
 }
 

@@ -40,7 +40,7 @@ void PrintHex(UINT8* sig, int size){
 
 
 void SecureReceive(void* buffer, UINT16 size){
-	hal_printf("\nComManager:: Received secure message of size %d\n", size);
+	//hal_printf("\nComManager:: Received secure message of size %d\n", size);
 	//UINT8 msg[8]={'a','b', 'c', 'd', 'e', 'f', 'g', 'h'};
 	//BTMAC_Manager_Send(msg, 8, ENCRYPTED_DATA_CHANNEL);
 	UINT8 *msg = (UINT8*)buffer;
@@ -55,7 +55,7 @@ void SecureReceive(void* buffer, UINT16 size){
 			UINT8 reply[8];
 			reply[0]= M_SEC_STATUS_RES;
 			reply[1]= deviceStatus;
-			hal_printf("ComManager:: SecureReceive: This is a status request from Cloud, responding \n");
+			hal_printf("Status message received from Gateway. Responding.\r\n");
 			BTMAC_Manager_Send(reply, 8, ENCRYPTED_DATA_CHANNEL);
 			break;
 			//should not get this
@@ -63,7 +63,8 @@ void SecureReceive(void* buffer, UINT16 size){
 		case M_SEC_STATUS_RES:
 		case M_UNKNOWN:
 		default:
-			hal_printf("\nComManager:: Received  unknown open message of size %d\n", size);
+			//hal_printf("\nComManager:: Received  unknown open message of size %d\n", size);
+			break;
 	}
 }
 
@@ -71,7 +72,7 @@ void RequestNewBinary(){
 	UINT8 reply[8];
 	reply[0]= M_SEC_BIN_RQ;
 	reply[1]= deviceStatus;
-	hal_printf("ComManager:: Requestig New Binary from Enterprise \n");
+	//hal_printf("ComManager:: Requestig New Binary from Enterprise \n");
 	//BTMAC_Manager_Send(reply, 8, ENCRYPTED_DATA_CHANNEL);
 	BTMAC_Manager_Send(reply, 8, CLOUD_CHANNEL);
 }
@@ -80,13 +81,13 @@ void SendDetectMessage(){
 	UINT8 reply[8];
 	reply[0]= M_SEC_DETECT;
 	reply[1]= deviceStatus;
-	hal_printf("Sending detect message to gateway\n");
+	hal_printf("Sending detect message to Gateway.\r\n");
 	//BTMAC_Manager_Send(reply, 8, ENCRYPTED_DATA_CHANNEL);
 	BTMAC_Manager_Send(reply, 8, CLOUD_CHANNEL);
 }
 
 void OpenCloudReceive(void* buffer, UINT16 size){
-	hal_printf("ComManager:: Received open message of size %d\n", size);
+	//hal_printf("ComManager:: Received open message of size %d\n", size);
 	UINT8 *msg = (UINT8*)buffer;
 	switch(msg[0]){
 		case M_ECDH_REQ:
@@ -98,14 +99,15 @@ void OpenCloudReceive(void* buffer, UINT16 size){
 			UINT8 reply[8];
 			reply[0]= M_STATUS_RES;
 			reply[1]= deviceStatus;
-			hal_printf("ComManager:: OpenReceive: This is a status request from Cloud, responding \n");
+			hal_printf("Status message received from Gateway. Responding.\r\n");
 			BTMAC_Manager_Send(reply, 8, CLOUD_CHANNEL);
 
 			//RequestNewBinary();
 			break;
 		case M_UNKNOWN:
 		default:
-			hal_printf("\nComManager:: Received  unknown open message of size %d\n", size);
+			//hal_printf("\nComManager:: Received  unknown open message of size %d\n", size);
+			break;
 	}
 }
 

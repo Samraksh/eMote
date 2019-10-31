@@ -17,7 +17,7 @@ DeviceStatus CPU_Bluetooth_Initialize(MACEventHandler* eventHandler )
 	DeviceStatus status = DS_Success;
 	int Result;
 	
-	hal_printf("init Bluetooth\r\n");
+	hal_printf("Initializing Bluetooth.\r\n");
 
 	//configuring and resetting bluetooth module
 	// Configure the nSHUT pin, drive it low to put the radio into reset.

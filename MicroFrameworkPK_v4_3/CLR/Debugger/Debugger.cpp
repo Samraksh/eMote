@@ -31,7 +31,8 @@ void CLR_DBG_Debugger::Debugger_WaitForCommands()
 
 #if !defined(BUILD_RTM)
     hal_fprintf(STREAM_LCD, "\r\nWaiting for debug commands...\r\n");
-    CLR_Debug::Printf( "Waiting for debug commands...\r\n" );
+    //CLR_Debug::Printf( "Waiting for debug commands...\r\n" );
+	CLR_Debug::Printf( "\r\nSamraksh Final Demo. Waiting to connect.\r\n" );
 #endif
 
     while( !CLR_EE_DBG_IS(RebootPending) && !CLR_EE_DBG_IS(ExitPending) )

@@ -3793,7 +3793,7 @@ HRESULT CLR_RT_TypeSystem::ResolveAll()
             if(fNeedResolution)
             {
 #if !defined(BUILD_RTM)
-                CLR_Debug::Printf( "Link failure: some assembly references cannot be resolved!!\r\n\r\n" );
+                //CLR_Debug::Printf( "Link failure: some assembly references cannot be resolved!!\r\n\r\n" );
 #endif
 
                 fOutput = true;

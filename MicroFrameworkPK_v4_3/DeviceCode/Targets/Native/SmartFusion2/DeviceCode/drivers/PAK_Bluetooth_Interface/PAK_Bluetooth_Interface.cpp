@@ -412,7 +412,7 @@ bool Samraksh_Emote_Update::UpdateDeInit( WP_Message* msg, void* owner )
 
 bool Samraksh_Emote_Update::Start( int binarySize, int totalPacketNum)
 {
-	hal_printf("---- start\r\n");
+	//hal_printf("---- start\r\n");
     /*MFUpdate_Commands::Debugging_MFUpdate_Start*       cmd = (MFUpdate_Commands::Debugging_MFUpdate_Start*)msg->m_payload;
     MFUpdate_Commands::Debugging_MFUpdate_Start::Reply reply, *pReply;
     int32_t replySize = sizeof(reply);

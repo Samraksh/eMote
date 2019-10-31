@@ -300,7 +300,7 @@ int verifyArduinoSPI( uint8_t* address, uint16_t binarySize){
 			MSS_SPI_transfer_block(&g_mss_spi1, spi_tx_buff, size, spi_rx_buff, 1 );
 			MSS_SPI_clear_slave_select( &g_mss_spi1, MSS_SPI_SLAVE_0 );
 			if (spi_rx_buff[0] != eNVM_read_buff[i+1]){
-				hal_printf("Arduino failed to verify!\r\n");
+				hal_printf("Compute Processor failed to verify!\r\n");
 				return 1;
 			}
 
@@ -313,6 +313,6 @@ int verifyArduinoSPI( uint8_t* address, uint16_t binarySize){
 	// take Arduino out of reset
 	CPU_GPIO_SetPinState(GPIO_CP_RESET, FALSE);
 	
-	hal_printf("Arduino successfully programmed.\r\n");
+	hal_printf("Compute Processor successfully programmed.\r\n");
 	return 0;
 }

@@ -151,7 +151,7 @@ void CTS_Handler(GPIO_PIN Pin, BOOL PinState, void* Param){
 }
 
 int btUartInit(const btstack_uart_config_t * config){
-	hal_printf("uart init: baud: %d\r\n", config->baudrate);
+	//hal_printf("uart init: baud: %d\r\n", config->baudrate);
 	uart_config = config;
 	//CPU_USART_Initialize(BT_COM_PORT, config->baudrate, USART_PARITY_NONE, 8, USART_STOP_BITS_ONE, USART_FLOW_NONE );
 	USART_Initialize(BT_COM_PORT, config->baudrate, USART_PARITY_NONE, 8, USART_STOP_BITS_ONE, USART_FLOW_NONE );
@@ -178,20 +178,20 @@ int btUartInit(const btstack_uart_config_t * config){
 	}
 	temp_link_key_type = DEBUG_COMBINATION_KEY;
 
-	int j;
+	/*int j;
 	hal_printf("Test read of link key info\r\n");
 	uint8_t eNVM_read_buff[32];
 	memcpy( &eNVM_read_buff[0], (void *)NVM_LINK_KEY_LOCATION, 32);
 	for (j=0; j<32; j++){
 		hal_printf("%x ", eNVM_read_buff[j]);
 	}
-	hal_printf("\r\n");
+	hal_printf("\r\n");*/
 
 	return 0;
 }
 
 int btUartOpen(){
-	hal_printf("uart opened\r\n");
+	//hal_printf("uart opened\r\n");
 	// set baud
 	// baud = uart_config->baudrate;
 	
@@ -202,7 +202,7 @@ int btUartOpen(){
 }
 
 int btUartClose(){
-	hal_printf("uart closed\r\n");
+	//hal_printf("uart closed\r\n");
 
 	// setting RTS high (telling BT module we are not ready to get data)
 	CPU_GPIO_SetPinState(9, TRUE);
@@ -227,7 +227,7 @@ void sendBTPacket(UINT16 dest, uint8_t* data, uint8_t length){
 void storeBtLinkKey(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t link_key_type){
 	uint8_t eNVM_write_buff[32];
 
-	hal_printf("store link key: ");
+	/*hal_printf("store link key: ");
 	int i;
 	for (i=0; i<LINK_KEY_LEN; i++){
 		hal_printf("%x ", link_key[i]);
@@ -236,7 +236,7 @@ void storeBtLinkKey(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t link
 	for (i=0; i<BD_ADDR_LEN; i++){
 		hal_printf("%x ", bd_addr[i]);
 	}
-	hal_printf(" of type: %d\r\n",link_key_type);
+	hal_printf(" of type: %d\r\n",link_key_type);*/
 	
 	//memcpy(temp_bd_addr, bd_addr, BD_ADDR_LEN);
 	//memcpy(temp_link_key, link_key, LINK_KEY_LEN);
@@ -252,7 +252,7 @@ void storeBtLinkKey(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t link
 		status = NVM_write(NVM_LINK_KEY_LOCATION, eNVM_write_buff, 32, NVM_DO_NOT_LOCK_PAGE);
         if((NVM_SUCCESS == status)||(NVM_WRITE_THRESHOLD_WARNING == status))
         {
-			hal_printf("link key write success\r\n");
+			hal_printf("Bluetooth link key write success.\r\n");
         } else {
 			hal_printf("link key envm write error: %d\r\n", status);
 		}
@@ -264,14 +264,14 @@ void storeBtLinkKey(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t link
 
 void deleteBtLinkKey(bd_addr_t bd_addr){
 	uint8_t eNVM_write_buff[32];
-	hal_printf("delete link key");
+	//hal_printf("delete link key");
 	int i;
 	
-	hal_printf(" for bd_addr: ");
+	/*hal_printf(" for bd_addr: ");
 	for (i=0; i<BD_ADDR_LEN; i++){
 		hal_printf("%x ", bd_addr[i]);
 	}
-	hal_printf("\r\n");
+	hal_printf("\r\n");*/
 
 	for (i=0; i<BD_ADDR_LEN; i++){
 		temp_bd_addr[i] = 0;
@@ -303,13 +303,13 @@ void deleteBtLinkKey(bd_addr_t bd_addr){
 
 int getBtLinkKey(bd_addr_t bd_addr, link_key_t link_key, link_key_type_t *link_key_type){	
 	int j;
-	hal_printf("Test read of link key info\r\n");
+	//hal_printf("Test read of link key info\r\n");
 	uint8_t eNVM_read_buff[32];
 	memcpy( &eNVM_read_buff[0], (void *)NVM_LINK_KEY_LOCATION, 32);
-	for (j=0; j<32; j++){
+	/*for (j=0; j<32; j++){
 		hal_printf("%x ", eNVM_read_buff[j]);
 	}
-	hal_printf("\r\n");
+	hal_printf("\r\n");*/
 
 	if (memcmp((void*)bd_addr, &eNVM_read_buff[0], BD_ADDR_LEN) == 0){
 		// matched bd_addr
