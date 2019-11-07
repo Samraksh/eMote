@@ -12,6 +12,11 @@ define massf4
 monitor stm32f2x mass_erase 0
 end
 
+define massh7
+monitor stm32h7x mass_erase 0
+monitor stm32h7x mass_erase 1
+end
+
 define mri
 monitor reset init
 end
